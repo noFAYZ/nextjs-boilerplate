@@ -167,3 +167,182 @@ export interface BetterAuthResponse {
 }
 
 export type ErrorState = AuthError | null;
+
+// User Profile Management Types
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: UserRole;
+  currentPlan: UserPlan;
+  status: UserStatus;
+  emailVerified: boolean;
+  profilePicture?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  monthlyIncome?: number;
+  currency: string;
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserProfileUpdateData {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  monthlyIncome?: number;
+  currency?: string;
+  timezone?: string;
+  profilePicture?: string;
+}
+
+export interface UserStats {
+  accounts: number;
+  transactions: number;
+  categories: number;
+  budgets: number;
+  goals: number;
+  currentPlan: UserPlan;
+}
+
+// Subscription Management Types
+export type SubscriptionPlanType = 'FREE' | 'PRO' | 'ULTIMATE';
+export type BillingPeriod = 'MONTHLY' | 'YEARLY';
+export type SubscriptionStatus = 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
+
+export interface SubscriptionPlan {
+  type: SubscriptionPlanType;
+  name: string;
+  description: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  yearlyDiscount: number;
+  popular?: boolean;
+  trialDays?: number;
+  features: {
+    maxAccounts: number; // -1 for unlimited
+    maxTransactions: number;
+    maxCategories: number;
+    maxBudgets: number;
+    maxGoals: number;
+    aiInsights: boolean;
+    advancedReports: boolean;
+    prioritySupport: boolean;
+    apiAccess: boolean;
+    exportData: boolean;
+    customCategories: boolean;
+    bankSync: boolean;
+    multiCurrency: boolean;
+    collaborativeAccounts: boolean;
+    investmentTracking: boolean;
+    taxReporting: boolean;
+    mobileApp: boolean;
+  };
+}
+
+export interface CurrentSubscription {
+  id: string;
+  planType: SubscriptionPlanType;
+  billingPeriod: BillingPeriod;
+  status: SubscriptionStatus;
+  startDate: string;
+  endDate: string;
+  cancelAtPeriodEnd: boolean;
+  trialEnd?: string;
+  nextBillingDate?: string;
+  amount: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSubscriptionData {
+  planType: SubscriptionPlanType;
+  billingPeriod: BillingPeriod;
+  paymentMethodId: string;
+}
+
+export interface UpgradeSubscriptionData {
+  planType: SubscriptionPlanType;
+  billingPeriod: BillingPeriod;
+}
+
+export interface CancelSubscriptionData {
+  immediately: boolean;
+}
+
+export interface SubscriptionHistory {
+  id: string;
+  planType: SubscriptionPlanType;
+  billingPeriod: BillingPeriod;
+  status: SubscriptionStatus;
+  startDate: string;
+  endDate?: string;
+  amount: number;
+  currency: string;
+  createdAt: string;
+}
+
+// Payment Types
+export interface PaymentIntent {
+  id: string;
+  clientSecret: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+export interface CreatePaymentIntentData {
+  planType: SubscriptionPlanType;
+  billingPeriod: BillingPeriod;
+  currency: string;
+}
+
+export interface ProcessPaymentData {
+  subscriptionId: string;
+  amount: number;
+  currency: string;
+  paymentMethodId: string;
+}
+
+export interface PaymentHistory {
+  id: string;
+  subscriptionId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paymentDate: string;
+  createdAt: string;
+}
+
+// Usage Tracking Types
+export interface UsageLimit {
+  current: number;
+  limit: number; // -1 for unlimited
+  remaining: number; // -1 for unlimited
+  percentage: number;
+}
+
+export interface UsageStats {
+  accounts: UsageLimit;
+  transactions: UsageLimit;
+  categories: UsageLimit;
+  budgets: UsageLimit;
+  goals: UsageLimit;
+}
+
+export interface TrackUsageData {
+  feature: string;
+  action: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FeatureLimitCheck {
+  allowed: boolean;
+  limit: number;
+  current: number;
+  remaining: number;
+}

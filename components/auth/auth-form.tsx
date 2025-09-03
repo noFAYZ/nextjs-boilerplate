@@ -207,14 +207,14 @@ router.push('/dashboard')
               </div>
             )}
 
-<div className="flex justify-center gap-4 mb-6 px-4">
+{type === 'signin' && ( <><div className={` justify-center gap-4 mb-6 px-4 flex `}>
                 <Button variant="outline" className='w-1/2 items-center align-middle content-center' size={'lg'} >
-                  <Fa7BrandsGithub className='w-10 h-10' />
+                  <Fa7BrandsGithub className='w-6 h-6' />
                
                   Github
                 </Button>
-                <Button variant="outline" className='w-1/2'  size={'lg'} >
-                <LogosGoogleIcon />
+                <Button variant="outline" className='w-1/2  items-center align-middle content-center'  size={'lg'} >
+                <LogosGoogleIcon className='w-6 h-6'/>
                   Google
                 </Button>
               </div>
@@ -222,7 +222,7 @@ router.push('/dashboard')
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Or continue with
                 </span>
-              </div>
+              </div></>)}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

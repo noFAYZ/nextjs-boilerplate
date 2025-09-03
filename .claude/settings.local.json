@@ -9,7 +9,9 @@
       "Bash(yarn build)",
       "Bash(npx tsc:*)",
       "Bash(npx next build:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npx eslint:*)",
+      "Bash(yarn lint:*)"
     ],
     "deny": [],
     "ask": []
