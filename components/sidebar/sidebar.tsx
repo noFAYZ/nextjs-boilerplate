@@ -43,7 +43,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '../ui/theme-switcher';
-import { HugeiconsAnalytics02, HugeiconsHome04, HugeiconsPieChart09, HugeiconsTransactionHistory, MageGoals, SolarWallet2Outline, StreamlineUltimateTradingPatternUp } from '../icons/icons';
+import { CircumBank, GuidanceBank, HugeiconsAnalytics02, HugeiconsAnalyticsUp, HugeiconsCreditCard, HugeiconsHome04, HugeiconsPieChart09, HugeiconsTransactionHistory, MageGoals, SolarCard2Outline, SolarWallet2Outline, StreamlinePlumpFileReport, StreamlineUltimateTradingPatternUp, TablerEyeDollar } from '../icons/icons';
 
 export interface MenuItem {
   id: string;
@@ -79,9 +79,9 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsHome04,
     href: '/dashboard',
     submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard', description: 'Main dashboard view' },
-      { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics', description: 'Detailed analytics' },
-      { id: 'reports', label: 'Reports', href: '/dashboard/reports', description: 'Financial reports' }
+      { id: 'overview', label: 'Overview', href: '/dashboard', description: 'Main dashboard view', icon:TablerEyeDollar},
+      { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics', description: 'Detailed analytics', icon:HugeiconsAnalyticsUp },
+      { id: 'reports', label: 'Reports', href: '/dashboard/reports', description: 'Financial reports', icon:StreamlinePlumpFileReport }
     ]
   },
   {
@@ -90,8 +90,8 @@ const MENU_ITEMS: MenuItem[] = [
     icon: SolarWallet2Outline,
     href: '/dashboard/wallets',
     submenu: [
-      { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/wallets/crypto', icon: Wallet },
-      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/wallets/bank', icon: CreditCard },
+      { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/wallets/crypto', icon: SolarWallet2Outline },
+      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/wallets/bank', icon: GuidanceBank },
       { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/wallets/add', icon: Plus }
     ]
   },
@@ -245,13 +245,16 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
     <div className="flex h-full w-22 flex-col bg-sidebar">
       {/* Logo */}
       <div className="flex h-20 items-center justify-center">
-        <Link href="/dashboard" className="flex items-center transition-transform hover:scale-105">
+        <Link href="/dashboard" className="flex items-center transition-transform hover:scale-105 group relative">
           <LogoMappr className="h-12 w-12" />
+          <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+            MoneyMappr Dashboard
+          </div>
         </Link> 
       </div>
 
       {/* Main Menu */}
-      <div className="flex-1 py-4">
+      <div className="flex-1 py-4 overflow-visible z-50">
         <nav className="flex flex-col gap-4 px-4">
           {MENU_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -264,9 +267,8 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                 variant={isSelected ? "outline" : "ghost"}
                 size="icon"
                 className={cn(
-                  "relative h-12 w-12 ",
-                 
-                  isSelected && "  shadow-sm",
+                  "relative h-12 w-12 group",
+                  isSelected && " relative  shadow-sm",
                   "hover:scale-105 active:scale-98"
                 )}
                 onClick={() => handleMenuItemClick(item.id)}
@@ -278,7 +280,9 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                     {item.badge}
                   </span>
                 )}
-              
+                <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                  {item.label}
+                </div>
               </Button>
             );
           })}
@@ -293,11 +297,14 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-14 w-14 transition-all duration-200 hover:scale-105 active:scale-95"
+            className="h-14 w-14 transition-all duration-200 hover:scale-105 active:scale-95 group relative z-50"
             title="Settings"
             onClick={() => router.push('/dashboard/settings')}
           >
             <Settings className="h-7 w-7" />
+            <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Settings
+            </div>
           </Button>
 
           {/* Profile Dropdown */}
@@ -306,7 +313,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-14 w-14 transition-all duration-100 rounded-full active:outline-0  focus-visible:ring-0 hover:bg-transparent"
+                className="h-14 w-14 transition-all duration-100 rounded-full active:outline-0  focus-visible:ring-0 hover:bg-transparent group relative"
                 title="Profile"
               >
                 <Avatar className="h-14 w-14">
@@ -315,6 +322,9 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                     {profile?.firstName?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
+                <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                  {profile?.firstName || 'Profile'}
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="right" className="w-56">
@@ -347,20 +357,27 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
 
   const renderSecondaryColumn = () => (
     <div className={cn(
-      "flex h-full flex-col bg-muted/20 transition-all duration-300 ease-in-out",
+      "flex h-full flex-col bg-gradient-to-b from-muted/30 to-muted/10 backdrop-blur-sm border-l transition-all duration-200 ease-in-out",
       isSecondaryExpanded ? "w-72" : "w-20"
     )}>
       {/* Header */}
-      <div className="flex h-20 items-center px-4">
+      <div className="flex h-20 items-center px-4 border-b border-border/40">
         {isSecondaryExpanded ? (
           <div className="flex items-center justify-between w-full">
-            <h2 className="text-sm font-semibold text-foreground truncate">
-              {selectedMenuData?.label || 'Quick Actions'}
-            </h2>
+            <div className="flex items-center gap-2">
+              {selectedMenuData && (
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 ">
+                  <selectedMenuData.icon className="h-7 w-7 text-primary" />
+                </div>
+              )}
+              <h2 className="text-sm font-semibold text-foreground truncate">
+                {selectedMenuData?.label || 'Quick Actions'}
+              </h2>
+            </div>
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 shrink-0 transition-all duration-200 hover:scale-102 active:scale-95"
+              className="h-9 w-9 shrink-0 transition-all duration-100 hover:scale-102 hover:bg-muted/50 active:scale-98"
               onClick={toggleExpanded}
               title="Collapse sidebar"
             >
@@ -371,7 +388,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 mx-auto transition-all duration-200 hover:scale-102 active:scale-95" 
+            className="h-9 w-9 mx-auto transition-all duration-100 hover:scale-102 hover:bg-muted/50 active:scale-98" 
             onClick={toggleExpanded}
             title="Expand sidebar"
           >
@@ -381,13 +398,13 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="flex-1 py-4">
         {isSecondaryExpanded ? (
-          <div className="px-4">
+          <div className="px-3">
             {selectedMenuData?.submenu ? (
-              // Show submenu items
-              <nav className="space-y-1">
-                {selectedMenuData.submenu.map((subItem) => {
+              // Show submenu items with enhanced styling
+              <div className="space-y-3">
+                {selectedMenuData.submenu.map((subItem, index) => {
                   const SubIcon = subItem.icon;
                   const isActive = pathname === subItem.href;
                   
@@ -396,70 +413,85 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                       key={subItem.id}
                       href={subItem.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
-                        "hover:bg-background/80",
-                        isActive && "bg-background text-primary font-medium shadow-sm"
+                        "group flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm transition-all duration-200",
+                        "hover:bg-background/70 hover:shadow-sm hover:scale-[1.02] hover:translate-x-1",
+                        "border border-transparent hover:border-border/50",
+                        isActive && "bg-background text-primary font-medium shadow-md border-primary/20 scale-[1.02] translate-x-1"
                       )}
                       onClick={() => setIsMobileOpen(false)}
                     >
-                      {SubIcon && <SubIcon className="h-4 w-4 shrink-0" />}
+                      <div className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-sm transition-colors",
+                        isActive 
+                          ? "bg-primary/15 text-primary" 
+                          : "bg-muted/50 text-muted-foreground group-hover:bg-muted group-hover:text-foreground"
+                      )}>
+                        {SubIcon ? <SubIcon className="h-4 w-4" /> : <div className="h-2 w-2 rounded-full bg-current" />}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="truncate">{subItem.label}</div>
                         {subItem.description && (
-                          <div className="text-xs text-muted-foreground truncate">
+                          <div className="text-xs text-muted-foreground/80 truncate mt-0.5">
                             {subItem.description}
                           </div>
                         )}
                       </div>
                       {subItem.badge && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary border border-primary/20">
                           {subItem.badge}
                         </span>
                       )}
+                      <ChevronRight className="h-6 w-6 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   );
                 })}
-              </nav>
+              </div>
             ) : (
-              // Show quick actions when no menu item is selected
-              <div className="space-y-3">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Quick Actions
-                </h3>
-                <nav className="space-y-1">
-                  {QUICK_ACTIONS.map((action) => {
+              // Enhanced quick actions section
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 px-1">
+                  <div className="h-1 w-8 rounded-full bg-gradient-to-r from-primary to-primary/20" />
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Quick Actions
+                  </h3>
+                  <div className="flex-1 h-px bg-gradient-to-r from-border/30 to-transparent" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {QUICK_ACTIONS.map((action, index) => {
                     const ActionIcon = action.icon;
                     
                     return (
                       <button
                         key={action.id}
                         onClick={action.action}
-                        className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors hover:bg-background/80"
+                        className="group relative flex flex-col items-center gap-2 rounded-xl p-4 text-sm transition-all duration-200 hover:bg-background/70 hover:shadow-sm hover:scale-[1.02] border border-transparent hover:border-border/50"
                       >
-                        <ActionIcon className="h-4 w-4 shrink-0" />
-                        <span className="flex-1 truncate text-left">{action.label}</span>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50 transition-colors group-hover:bg-muted">
+                          <ActionIcon className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                        </div>
+                        <span className="text-xs text-center font-medium leading-tight">{action.label}</span>
                         {action.shortcut && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] text-muted-foreground/60 font-mono">
                             {action.shortcut}
                           </span>
                         )}
                         {action.badge && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-medium text-destructive-foreground">
+                          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground border-2 border-background">
                             {action.badge}
                           </span>
                         )}
                       </button>
                     );
                   })}
-                </nav>
+                </div>
               </div>
             )}
           </div>
         ) : (
-          // Show only icons when collapsed
+          // Enhanced collapsed view with tooltips
           <div className="flex flex-col items-center gap-3 px-2">
             {selectedMenuData?.submenu ? (
-              selectedMenuData.submenu.slice(0, 4).map((subItem) => {
+              selectedMenuData.submenu.slice(0, 4).map((subItem, index) => {
                 const SubIcon = subItem.icon || FileText;
                 const isActive = pathname === subItem.href;
                 
@@ -469,19 +501,22 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                       variant={isActive ? "secondary" : "ghost"}
                       size="icon"
                       className={cn(
-                        "h-10 w-10 transition-all duration-200 hover:scale-105 active:scale-95",
-                        isActive && "bg-primary/10 text-primary shadow-sm"
+                        "h-11 w-11 transition-all duration-200 hover:scale-110 active:scale-95 relative group",
+                        isActive && "bg-primary/10 text-primary shadow-md border border-primary/20"
                       )}
                       title={subItem.label}
                       onClick={() => setIsMobileOpen(false)}
                     >
-                      <SubIcon className="h-5 w-5" />
+                      <SubIcon className="h-7 w-7 text-secondary-foreground" />
+                      <div className="absolute left-full mr-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        {subItem.label}
+                      </div>
                     </Button>
                   </Link>
                 );
               })
             ) : (
-              QUICK_ACTIONS.slice(0, 4).map((action) => {
+              QUICK_ACTIONS.slice(0, 4).map((action, index) => {
                 const ActionIcon = action.icon;
                 
                 return (
@@ -489,16 +524,19 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                     key={action.id}
                     variant="ghost"
                     size="icon"
-                    className="h-10 w-10 relative transition-all duration-200 hover:scale-105 active:scale-95"
+                    className="h-11 w-11 relative group transition-all duration-200 hover:scale-110 active:scale-95"
                     title={action.label}
                     onClick={action.action}
                   >
-                    <ActionIcon className="h-5 w-5" />
+                    <ActionIcon className="h-6 w-6" />
                     {action.badge && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-medium text-destructive-foreground animate-pulse">
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground border border-background">
                         {action.badge}
                       </span>
                     )}
+                    <div className="absolute right-full mr-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                      {action.label}
+                    </div>
                   </Button>
                 );
               })
@@ -510,7 +548,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
   );
 
   const renderMobileSidebar = () => (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full ">
       <div className="w-20 shrink-0">
         {renderMainColumn()}
       </div>
