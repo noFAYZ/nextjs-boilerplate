@@ -1,0 +1,34 @@
+'use client';
+
+import { cn } from '@/lib/utils';
+import LoadingSpinner from './loading-spinner';
+
+interface GlobalLoadingProps {
+  isVisible: boolean;
+  message?: string;
+  className?: string;
+}
+
+export default function GlobalLoading({ 
+  isVisible, 
+  message = 'Loading...', 
+  className 
+}: GlobalLoadingProps) {
+  if (!isVisible) return null;
+
+  return (
+    <div className={cn(
+      'fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm',
+      className
+    )}>
+      <div className="flex flex-col items-center space-y-4">
+        <LoadingSpinner size="lg" />
+        {message && (
+          <p className="text-sm text-muted-foreground animate-pulse">
+            {message}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

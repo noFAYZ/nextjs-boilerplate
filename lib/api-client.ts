@@ -1,0 +1,200 @@
+import { ApiResponse, AUTH_ERROR_CODES, AuthError, BetterAuthResponse } from './types';
+
+class ApiClient {
+  private baseURL: string;
+  private token: string | null = null;
+
+  constructor() {
+    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+  }
+
+  setToken(token: string | null) {
+    this.token = token;
+  }
+
+  getToken(): string | null {
+    return this.token;
+  }
+
+  private async getAuthToken(): Promise<string | null> {
+    // In a browser environment, get token from better-auth session
+    if (typeof window !== 'undefined') {
+      try {
+        const { getSession } = await import('@/lib/auth-client');
+        const result = await getSession();
+        
+        // Handle different response structures
+        if (result && typeof result === 'object') {
+          if ('data' in result && result.data?.session?.token) {
+            return result.data.session.token;
+          }
+          if ('session' in result && (result as BetterAuthResponse).session?.token) {
+            return (result as BetterAuthResponse).session!.token;
+          }
+        }
+        
+        return null;
+      } catch {
+        return this.token;
+      }
+    }
+    return this.token;
+  }
+
+  private async getHeaders(): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    const token = await this.getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
+  private handleError(error: unknown): AuthError {
+    if (typeof error === 'object' && error !== null) {
+      const err = error as { name?: string; response?: { status: number }; message?: string };
+      
+      if (err.name === 'NetworkError' || !err.response) {
+        return {
+          code: AUTH_ERROR_CODES.NETWORK_ERROR,
+          message: 'Network error. Please check your connection.',
+        };
+      }
+
+      if (err.response?.status === 429) {
+        return {
+          code: AUTH_ERROR_CODES.RATE_LIMITED,
+          message: 'Too many requests. Please try again later.',
+        };
+      }
+
+      return {
+        code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
+        message: err.message || 'An unexpected error occurred.',
+        details: error,
+      };
+    }
+
+    return {
+      code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
+      message: 'An unexpected error occurred.',
+      details: error,
+    };
+  }
+
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    try {
+      const url = `${this.baseURL}${endpoint}`;
+      const headers = await this.getHeaders();
+
+      const response = await fetch(url, {
+        headers,
+        credentials: 'include', // Include cookies for better-auth
+        ...options,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle specific HTTP status codes
+        if (response.status === 401) {
+          // Unauthorized - token might be expired
+          throw {
+            response,
+            message: 'Authentication required',
+            code: 'UNAUTHORIZED',
+            details: data,
+          };
+        }
+        
+        if (response.status === 403) {
+          // Forbidden - insufficient permissions
+          throw {
+            response,
+            message: 'Insufficient permissions',
+            code: 'FORBIDDEN',
+            details: data,
+          };
+        }
+
+        throw {
+          response,
+          message: data.error?.message || 'Request failed',
+          details: data,
+        };
+      }
+
+      return data as ApiResponse<T>;
+    } catch (error) {
+      const authError = this.handleError(error);
+      
+      return {
+        success: false,
+        error: {
+          code: authError.code,
+          message: authError.message,
+          details: authError.details,
+        },
+      };
+    }
+  }
+
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET' });
+  }
+
+  async post<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async put<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async patch<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
+  }
+
+  // Authentication specific methods
+  async getCurrentSession(): Promise<ApiResponse<{ user: unknown; session: unknown }>> {
+    return this.get('/session');
+  }
+
+  async getUserProfile(): Promise<ApiResponse<unknown>> {
+    return this.get('/profile');
+  }
+
+  async updateUserProfile(data: unknown): Promise<ApiResponse<unknown>> {
+    return this.patch('/profile', data);
+  }
+
+  async getUserStats(): Promise<ApiResponse<unknown>> {
+    return this.get('/stats');
+  }
+
+  async deleteUserAccount(): Promise<ApiResponse<unknown>> {
+    return this.delete('/account');
+  }
+}
+
+export const apiClient = new ApiClient();
