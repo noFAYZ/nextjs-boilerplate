@@ -5,17 +5,27 @@ import { Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
+import { useViewMode } from "@/lib/contexts/view-mode-context";
 
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { isProMode } = useViewMode();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    if (isProMode) {
+      // In pro mode, cycle between light-pro and dark-pro
+      const currentIsDark = theme === "dark-pro" || theme === "dark";
+      setTheme(currentIsDark ? "light-pro" : "dark-pro");
+    } else {
+      // In beginner mode, cycle between light and dark
+      const currentIsDark = theme === "dark" || theme === "dark-pro";
+      setTheme(currentIsDark ? "light" : "dark");
+    }
   };
 
   // Show a neutral state during SSR/initial load
@@ -36,7 +46,7 @@ export function ThemeSwitcher() {
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark = theme === "dark" || theme === "dark-pro";
 
   return (
     <Button

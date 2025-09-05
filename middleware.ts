@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 // Define protected and public routes
 const protectedRoutes = ['/dashboard', '/profile', '/settings', '/subscription'];
 const authRoutes = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password'];
+const onboardingRoute = '/onboarding';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -28,6 +29,15 @@ export function middleware(request: NextRequest) {
   request.cookies.get('session')?.value ||
   request.cookies.get('auth.session-token')?.value;
   const isAuthenticated = !!sessionCookie;
+
+  // Handle onboarding route - allow access for authenticated users only
+  if (pathname === onboardingRoute) {
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
+    // Allow access to onboarding
+    return NextResponse.next();
+  }
 
   // Handle protected routes
   if (protectedRoutes.some(route => pathname.startsWith(route))) {

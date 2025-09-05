@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { User, CreditCard, Settings, Wallet, PieChart, FileText, TrendingUp, Bell, DollarSign, Activity } from 'lucide-react';
+import { WelcomeBanner } from '@/components/onboarding/welcome-banner';
+import { User, CreditCard, Settings, Wallet, PieChart, FileText, TrendingUp, Bell, DollarSign, Activity, ArrowDown } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -38,6 +39,8 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
+          {/* Welcome Banner for new users */}
+          <WelcomeBanner />
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
@@ -104,21 +107,21 @@ export default function DashboardPage() {
                 <CardDescription>Manage your connected accounts</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-2">
                   <Link href="/dashboard/wallets/crypto">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <Wallet className="w-4 h-4 mr-2" />
                       Crypto Wallets (2)
                     </Button>
                   </Link>
                   <Link href="/dashboard/wallets/bank">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <CreditCard className="w-4 h-4 mr-2" />
                       Bank Accounts (6)
                     </Button>
                   </Link>
                   <Link href="/dashboard/wallets/add">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <User className="w-4 h-4 mr-2" />
                       Add New Wallet
                     </Button>
@@ -136,21 +139,21 @@ export default function DashboardPage() {
                 <CardDescription>Track your investment performance</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-2">
                   <Link href="/dashboard/portfolio">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="justify-start" variant="outline">
                       <PieChart className="w-4 h-4 mr-2" />
                       Portfolio Overview
                     </Button>
                   </Link>
                   <Link href="/dashboard/portfolio/holdings">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="justify-start" variant="outline">
                       <FileText className="w-4 h-4 mr-2" />
                       View Holdings
                     </Button>
                   </Link>
                   <Link href="/dashboard/portfolio/performance">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="justify-start" variant="outline">
                       <Activity className="w-4 h-4 mr-2" />
                       Performance
                     </Button>
@@ -168,21 +171,21 @@ export default function DashboardPage() {
                 <CardDescription>Manage account and financial goals</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-2">
                   <Link href="/dashboard/profile">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <User className="w-4 h-4 mr-2" />
                       Profile Settings
                     </Button>
                   </Link>
                   <Link href="/dashboard/goals">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Financial Goals
                     </Button>
                   </Link>
                   <Link href="/dashboard/subscription">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className=" justify-start" variant="outline">
                       <CreditCard className="w-4 h-4 mr-2" />
                       Subscription
                     </Button>
@@ -222,10 +225,10 @@ export default function DashboardPage() {
                   <p className="font-semibold text-red-600 dark:text-red-400">-$500.00</p>
                 </div>
                 
-                <div className="pt-4">
+                <div className="pt-4 w-full flex justify-center">
                   <Link href="/dashboard/transactions">
-                    <Button variant="outline" className="w-full">
-                      View All Transactions
+                    <Button variant="outline" className="">
+                      <ArrowDown size={16}/> View All
                     </Button>
                   </Link>
                 </div>
