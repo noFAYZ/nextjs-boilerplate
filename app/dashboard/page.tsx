@@ -11,34 +11,23 @@ export default function DashboardPage() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 md:hidden">
-              {/* Mobile menu trigger will be handled by Sidebar component */}
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">
-                Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Welcome back, {user?.name || user?.email?.split('@')[0] || 'User'}!
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Welcome back, {user?.name || user?.email?.split('@')[0] || 'User'}!
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Bell className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
           {/* Welcome Banner for new users */}
           <WelcomeBanner />
           {/* Stats Cards */}
@@ -228,7 +217,7 @@ export default function DashboardPage() {
                 <div className="pt-4 w-full flex justify-center">
                   <Link href="/dashboard/transactions">
                     <Button variant="outline" className="">
-                      <ArrowDown size={16}/> View All
+                      <ArrowDown size={16} /> View All
                     </Button>
                   </Link>
                 </div>
@@ -236,7 +225,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+  
   );
 }

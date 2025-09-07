@@ -51,7 +51,7 @@ export function ThemeSwitcher() {
   return (
     <Button
       className={cn(
-        "relative shadow-none rounded-full w-11 h-11",
+        "relative shadow-none rounded-full w-10 h-10",
         "border border-foreground/10 justify-center",
   
         "group",
@@ -64,13 +64,13 @@ export function ThemeSwitcher() {
       <div
         className={cn(
           "absolute inset-0 flex items-center justify-center z-20",
-          "transition-all duration-200 ease-in-out",
+          "transition-all duration-100 ease-in-out",
           isDark ? "scale-0 opacity-0 translate-y-5" : "scale-100 opacity-100 translate-y-0"
         )}
       >
         <Sun
           className={cn(
-            "w-6 h-6",
+            "w-5 h-5",
             "text-orange-500",
             "transition-transform duration-200",
             "group-hover:rotate-90"
@@ -88,13 +88,13 @@ export function ThemeSwitcher() {
       <div
         className={cn(
           "absolute inset-0 flex items-center justify-center",
-          "transition-all duration-200 ease-in-out",
+          "transition-all duration-100 ease-in-out",
           isDark ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 -translate-y-5"
         )}
       >
         <Moon
           className={cn(
-            "w-6 h-6",
+            "w-5 h-5",
             "text-white/60",
             "transition-transform duration-200",
             "group-hover:rotate-90"

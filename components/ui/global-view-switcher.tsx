@@ -11,6 +11,7 @@ import {
 import { User, Crown, Zap } from 'lucide-react';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { cn } from '@/lib/utils';
+import { GameIconsUpgrade, PhUser } from '../icons';
 
 interface GlobalViewSwitcherProps {
   className?: string;
@@ -23,7 +24,7 @@ export function GlobalViewSwitcher({
   showLabels = true,
   size = 'md' 
 }: GlobalViewSwitcherProps) {
-  const { viewMode, setViewMode, isProMode, isBeginnerMode } = useViewMode();
+  const { viewMode, setViewMode, isProMode, isBeginnerMode, toggleViewMode } = useViewMode();
 
   const sizeClasses = {
     sm: 'h-8 text-xs',
@@ -39,31 +40,31 @@ export function GlobalViewSwitcher({
 
   return (
     <TooltipProvider>
-      <div className={cn("flex items-center gap-1 bg-muted/50 p-1 rounded-lg border", className)}>
+      <div className={cn("flex items-center w-fit mx-auto gap-1 bg-muted p-1 rounded-lg border", className)}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isBeginnerMode ? 'default' : 'ghost'}
+              variant={isBeginnerMode ? 'outline' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('beginner')}
+              onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-3 font-medium transition-all relative",
+                "px-3 font-medium transition-all text-xs relative",
                 isBeginnerMode 
                   ? "bg-background text-foreground shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <User className={cn(iconSizes[size], "mr-2")} />
-              {showLabels && 'Beginner'}
+              <PhUser className={cn(iconSizes[size], "mr-2")} />
+              {showLabels && 'Lite'}
               {isBeginnerMode && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent className='bg-background outline shadow-md'>
             <div className="text-center">
-              <p className="font-medium">Beginner Mode</p>
+              <p className="font-medium text-foreground">Beginner Mode</p>
               <p className="text-xs text-muted-foreground">Card-based interface, simplified view</p>
               <p className="text-xs text-muted-foreground">Max width: 768px</p>
             </div>
@@ -73,39 +74,28 @@ export function GlobalViewSwitcher({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isProMode ? 'default' : 'ghost'}
+              variant={isProMode ? 'outline' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('pro')}
+              onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-3 font-medium transition-all relative",
+                "px-3 font-medium transition-all relative text-xs",
                 isProMode 
                   ? "bg-background text-foreground shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <Crown className={cn(iconSizes[size], "mr-2")} />
+              <GameIconsUpgrade className={cn(iconSizes[size], "mr-2")} />
               {showLabels && 'Pro'}
-              <Badge 
-                variant="outline" 
-                className={cn(
-                  "ml-2 text-xs px-1.5 py-0 border-0",
-                  isProMode 
-                    ? "bg-primary/10 text-primary" 
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                <Zap className="h-2 w-2 mr-1" />
-                Advanced
-              </Badge>
+        
               {isProMode && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <div className="text-center">
-              <p className="font-medium">Pro Mode</p>
+          <TooltipContent className='bg-background outline shadow-md'>
+            <div className="text-center ">
+              <p className="font-medium text-foreground">Pro Mode</p>
               <p className="text-xs text-muted-foreground">Data tables, full-width layout</p>
               <p className="text-xs text-muted-foreground">Max width: Full screen</p>
             </div>

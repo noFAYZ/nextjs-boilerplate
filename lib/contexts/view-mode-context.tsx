@@ -102,8 +102,8 @@ export function useViewModeClasses() {
   const { viewMode, isProMode, isBeginnerMode } = useViewMode();
   
   return {
-    containerClass: isProMode ? 'max-w-7xl' : 'max-w-3xl',
-    pageClass: isProMode ? 'w-full mx-auto' : 'max-w-3xl mx-auto',
+    containerClass: isProMode ? 'max-w-7xl' : 'max-w-3xl mx-auto',
+    pageClass: isProMode ? 'max-w-7xl mx-auto' : 'max-w-3xl mx-auto',
     cardSpacing: isProMode ? 'space-y-4' : 'space-y-6',
     padding: isProMode ? 'p-4 lg:p-6' : 'p-6',
     viewMode,

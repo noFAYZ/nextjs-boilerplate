@@ -294,3 +294,69 @@
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
 }
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Enhanced header styles for production-grade responsiveness */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Header backdrop blur enhancement */
+@supports (backdrop-filter: blur(20px)) {
+  .header-backdrop {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Smooth animations for header transitions */
+.header-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus visible improvements for accessibility */
+.focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .header-link {
+    border: 1px solid transparent;
+  }
+  
+  .header-link:focus,
+  .header-link:hover {
+    border-color: currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .header-transition,
+  .animate-pulse,
+  .animate-spin,
+  .animate-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+}

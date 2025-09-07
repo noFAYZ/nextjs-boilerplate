@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Sidebar } from './sidebar';
+import { Sidebar } from './sidebar-refactored';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
@@ -23,11 +23,11 @@ export function SidebarLayout({
         className={sidebarClassName}
         defaultExpanded={defaultSidebarExpanded}
       />
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
+   
+        <div className="h-full w-full  overflow-y-auto">
           {children}
         </div>
-      </main>
+     
     </div>
   );
 }

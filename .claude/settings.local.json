@@ -27,7 +27,10 @@
       "Read(/F:\\moneymappr\\frontend\\app\\dashboard/**)",
       "Read(/F:\\moneymappr\\frontend\\app/**)",
       "Read(/F:\\moneymappr\\frontend\\components\\providers/**)",
-      "Read(/F:\\moneymappr\\frontend/**)"
+      "Read(/F:\\moneymappr\\frontend/**)",
+      "Bash(PORT=3003 yarn next dev)",
+      "Bash(PORT=3001 yarn dev)",
+      "Bash(PORT=3002 yarn dev)"
     ],
     "deny": [],
     "ask": []

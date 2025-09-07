@@ -1,4 +1,4 @@
-import { SidebarLayout } from '@/components/sidebar';
+import { MainLayout } from '@/components/layout';
 import AuthGuard from '@/components/auth/AuthGuard';
 
 export default function DashboardLayout({
@@ -8,9 +8,9 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <SidebarLayout>
+      <MainLayout showHeader={true} showSidebar={true}>
         {children}
-      </SidebarLayout>
+      </MainLayout>
     </AuthGuard>
   );
 }

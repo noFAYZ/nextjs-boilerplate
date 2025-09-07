@@ -46,6 +46,9 @@ import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { CompactViewSwitcher } from '../ui/global-view-switcher';
+import { AccountSelector } from './account-selector';
+import { useCommandPalette } from '../command/command-palette';
+import { useAccount } from '@/lib/contexts/account-context';
 import {  GuidanceBank, HugeiconsAnalytics02, HugeiconsAnalyticsUp,  HugeiconsHome04, HugeiconsPieChart09, HugeiconsTransactionHistory, MageGoals, SolarCard2Outline, SolarWallet2Outline, StreamlinePlumpFileReport, StreamlineUltimateTradingPatternUp, TablerEyeDollar } from '../icons/icons';
 
 export interface MenuItem {
@@ -153,7 +156,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     id: 'search', 
     label: 'Search', 
     icon: Search, 
-    action: () => console.log('Search'),
+    action: () => {}, // Will be handled by command palette
     shortcut: '⌘K'
   },
   { 
@@ -200,6 +203,8 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
   const router = useRouter();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { profile } = useUserProfile();
+  const { selectedAccount } = useAccount();
+  const { openCommandPalette, CommandPalette } = useCommandPalette();
   const pathname = usePathname();
   
   // Use the custom sidebar hook for better state management
@@ -374,19 +379,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
         {isSecondaryExpanded ? (
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3">
-              {selectedMenuData && (
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 shadow-sm">
-                  <selectedMenuData.icon className="h-6 w-6 text-primary" />
-                </div>
-              )}
-              <div className="space-y-0.5">
-                <h2 className="text-base font-bold text-foreground tracking-tight">
-                  {selectedMenuData?.label || 'Quick Actions'}
-                </h2>
-                <p className="text-xs text-muted-foreground/80 font-medium">
-                  {selectedMenuData?.submenu ? `${selectedMenuData.submenu.length} items` : `${QUICK_ACTIONS.length} actions available`}
-                </p>
-              </div>
+              <AccountSelector collapsed={false} />
             </div>
             <Button
               variant="ghost"
@@ -414,7 +407,31 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
       {/* Content */}
       <div className="flex-1 py-6 relative">
         {isSecondaryExpanded ? (
-          <div className="px-4">
+          <div className="px-4 space-y-6">
+            {/* Top Section - Search */}
+            <div className="space-y-4">
+              {/* Search / Command Bar */}
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Quick Search</span>
+                </div>
+                <div className="relative group">
+                  <button
+                    onClick={openCommandPalette}
+                    className="w-full flex items-center gap-3 pl-10 pr-4 py-2.5 rounded-xl bg-gradient-to-r from-background/80 to-muted/30 border border-border/40 hover:border-primary/30 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm transition-all duration-200 text-left"
+                  >
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-muted-foreground/60">Search BTC, Savings, or type command...</span>
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 ml-auto">
+                      <span className="text-xs text-muted-foreground/60 font-mono bg-muted/50 px-1.5 py-0.5 rounded">⌘K</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Navigation */}
             {selectedMenuData?.submenu ? (
               // Show submenu items with enhanced styling
               <div className="space-y-3">
@@ -497,69 +514,130 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                 })}
               </div>
             ) : (
-              // Enhanced quick actions section
+              // Financial Widget & Quick Actions section
               <div className="space-y-6">
-                <div className="flex items-center gap-3 px-1">
-                  <div className="h-1.5 w-12 rounded-full bg-gradient-to-r from-primary via-primary/60 to-primary/20 shadow-sm animate-pulse" />
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    Quick Actions
-                  </h3>
-                  <div className="flex-1 h-px bg-gradient-to-r from-border/40 via-border/20 to-transparent" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  {QUICK_ACTIONS.map((action, index) => {
-                    const ActionIcon = action.icon;
+                {/* Financial Widget / Mini Dashboard */}
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Portfolio</span>
+                  </div>
+                  
+                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-background/95 to-muted/40 border border-border/50 p-4 group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+                    {/* Background pattern */}
+                    <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.3),transparent_50%)]" />
                     
-                    return (
-                      <button
-                        key={action.id}
-                        onClick={action.action}
-                        className="group relative flex flex-col items-center gap-3 rounded-2xl p-5 text-sm transition-all duration-300 hover:bg-gradient-to-br hover:from-background/95 hover:to-muted/50 hover:shadow-2xl hover:shadow-primary/15 hover:scale-[1.05] active:scale-[0.95] border border-transparent hover:border-primary/25 overflow-hidden"
-                        style={{ 
-                          animationDelay: `${index * 100}ms`,
-                        }}
-                      >
-                        {/* Background glow with shimmer */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/4 via-transparent to-primary/4" />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-primary/2 to-transparent animate-shimmer" />
-                        
-                        {/* Floating micro-particles */}
-                        <div className="absolute top-3 right-4 w-1 h-1 bg-primary/40 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-200" />
-                        <div className="absolute bottom-4 right-6 w-0.5 h-0.5 bg-primary/30 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-500" />
-                        <div className="absolute top-6 left-4 w-0.5 h-0.5 bg-primary/35 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-700" />
-                        
-                        <div className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-muted/70 to-muted/50 transition-all duration-400 group-hover:from-primary/25 group-hover:to-primary/15 group-hover:shadow-xl group-hover:shadow-primary/25 group-hover:scale-110 group-hover:rotate-3 border border-muted/40 group-hover:border-primary/40">
-                          {/* Icon glow ring */}
-                          <div className="absolute inset-0 rounded-xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-                          
-                          <ActionIcon className="h-7 w-7 text-muted-foreground transition-all duration-400 group-hover:text-primary group-hover:drop-shadow-[0_0_10px_rgba(var(--primary),0.6)] relative z-10" />
+                    <div className="relative space-y-3">
+                      {/* Portfolio Value */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-muted-foreground/70 font-medium">Total Value</div>
+                          <div className="text-lg font-bold text-foreground">$124,567.89</div>
                         </div>
-                        
-                        <div className="flex flex-col items-center gap-2 relative z-10">
-                          <span className="text-xs text-center font-bold leading-tight group-hover:text-foreground transition-colors duration-300">
-                            {action.label}
-                          </span>
-                          {action.shortcut && (
-                            <span className="text-[10px] text-muted-foreground/60 font-mono bg-muted/60 px-2 py-1 rounded-lg group-hover:bg-primary/15 group-hover:text-primary group-hover:shadow-md transition-all duration-300 border border-muted/30 group-hover:border-primary/30">
-                              {action.shortcut}
+                        <div className="flex items-center gap-1 text-xs">
+                          <TrendingUp className="h-3 w-3 text-green-500" />
+                          <span className="text-green-600 font-semibold">+12.4%</span>
+                        </div>
+                      </div>
+
+                      {/* Mini Chart Visualization */}
+                      <div className="relative h-12 bg-gradient-to-r from-muted/30 to-muted/20 rounded-lg overflow-hidden">
+                        <div className="absolute inset-0 flex items-end justify-between px-1 py-1">
+                          {/* Simple bar chart representation */}
+                          {[65, 70, 45, 85, 75, 90, 80, 95, 85, 100].map((height, i) => (
+                            <div
+                              key={i}
+                              className="bg-gradient-to-t from-primary/60 to-primary/80 rounded-sm transition-all duration-300 hover:from-primary/80 hover:to-primary"
+                              style={{ 
+                                height: `${height}%`, 
+                                width: '8%',
+                                animationDelay: `${i * 100}ms`
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-primary/10 opacity-50" />
+                      </div>
+
+                      {/* Performance Stats */}
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          <span className="text-muted-foreground">Crypto</span>
+                          <span className="font-semibold text-foreground ml-auto">68%</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-muted-foreground">Stocks</span>
+                          <span className="font-semibold text-foreground ml-auto">32%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Quick Actions</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {QUICK_ACTIONS.map((action, index) => {
+                      const ActionIcon = action.icon;
+                      const isSearchAction = action.id === 'search';
+                      
+                      return (
+                        <button
+                          key={action.id}
+                          onClick={isSearchAction ? openCommandPalette : action.action}
+                          className="group relative flex flex-col items-center gap-3 rounded-2xl p-5 text-sm transition-all duration-300 hover:bg-gradient-to-br hover:from-background/95 hover:to-muted/50 hover:shadow-2xl hover:shadow-primary/15 hover:scale-[1.05] active:scale-[0.95] border border-transparent hover:border-primary/25 overflow-hidden"
+                          style={{ 
+                            animationDelay: `${index * 100}ms`,
+                          }}
+                        >
+                          {/* Background glow with shimmer */}
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/4 via-transparent to-primary/4" />
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-primary/2 to-transparent animate-shimmer" />
+                          
+                          {/* Floating micro-particles */}
+                          <div className="absolute top-3 right-4 w-1 h-1 bg-primary/40 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-200" />
+                          <div className="absolute bottom-4 right-6 w-0.5 h-0.5 bg-primary/30 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-500" />
+                          <div className="absolute top-6 left-4 w-0.5 h-0.5 bg-primary/35 rounded-full opacity-0 group-hover:opacity-100 animate-bounce delay-700" />
+                          
+                          <div className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-muted/70 to-muted/50 transition-all duration-400 group-hover:from-primary/25 group-hover:to-primary/15 group-hover:shadow-xl group-hover:shadow-primary/25 group-hover:scale-110 group-hover:rotate-3 border border-muted/40 group-hover:border-primary/40">
+                            {/* Icon glow ring */}
+                            <div className="absolute inset-0 rounded-xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
+                            
+                            <ActionIcon className="h-7 w-7 text-muted-foreground transition-all duration-400 group-hover:text-primary group-hover:drop-shadow-[0_0_10px_rgba(var(--primary),0.6)] relative z-10" />
+                          </div>
+                          
+                          <div className="flex flex-col items-center gap-2 relative z-10">
+                            <span className="text-xs text-center font-bold leading-tight group-hover:text-foreground transition-colors duration-300">
+                              {action.label}
+                            </span>
+                            {action.shortcut && (
+                              <span className="text-[10px] text-muted-foreground/60 font-mono bg-muted/60 px-2 py-1 rounded-lg group-hover:bg-primary/15 group-hover:text-primary group-hover:shadow-md transition-all duration-300 border border-muted/30 group-hover:border-primary/30">
+                                {action.shortcut}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {action.badge && (
+                            <span className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-destructive via-destructive/90 to-destructive/80 text-[11px] font-black text-destructive-foreground border-2 border-background shadow-xl animate-pulse group-hover:animate-bounce">
+                              <span className="relative z-10">{action.badge}</span>
+                              <div className="absolute inset-0 rounded-full bg-destructive/30 animate-ping" />
                             </span>
                           )}
-                        </div>
-                        
-                        {action.badge && (
-                          <span className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-destructive via-destructive/90 to-destructive/80 text-[11px] font-black text-destructive-foreground border-2 border-background shadow-xl animate-pulse group-hover:animate-bounce">
-                            <span className="relative z-10">{action.badge}</span>
-                            <div className="absolute inset-0 rounded-full bg-destructive/30 animate-ping" />
-                          </span>
-                        )}
-                        
-                        {/* Hover ripple effect */}
-                        <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute inset-0 rounded-2xl bg-primary/5 animate-ping" />
-                        </div>
-                      </button>
-                    );
-                  })}
+                          
+                          {/* Hover ripple effect */}
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="absolute inset-0 rounded-2xl bg-primary/5 animate-ping" />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
@@ -681,40 +759,34 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
         )}
       </div>
 
-      {/* Pro Upgrade Banner */}
+      {/* Premium Upgrade Banner */}
       <div className="p-4 border-t border-border/30">
         {isSecondaryExpanded ? (
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 border border-primary/20 p-4 group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
-            {/* Animated background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            {/* Sparkle effect */}
-            <div className="absolute top-2 right-2 w-2 h-2 bg-primary/60 rounded-full animate-pulse" />
-            <div className="absolute top-4 right-6 w-1 h-1 bg-primary/40 rounded-full animate-pulse delay-300" />
-            
-            <div className="relative space-y-3">
-              <div className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-primary" />
-                <h3 className="font-bold text-sm text-foreground">Upgrade to Pro</h3>
+          <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-primary/8 to-primary/4 border border-primary/20 p-4 group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 border border-primary/30">
+                  <Crown className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground">Go Premium</h3>
+                  <p className="text-xs text-muted-foreground/80">Advanced features</p>
+                </div>
               </div>
-              
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Unlock advanced analytics, unlimited wallets, and premium features
-              </p>
-              
               <Button 
                 size="sm" 
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-md hover:shadow-lg hover:shadow-primary/20 transition-all duration-200 rounded-xl"
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                 onClick={() => router.push('/dashboard/subscription')}
               >
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade Now
+                Upgrade
               </Button>
-              
-              <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground/60">
-                <span>✨</span>
-                <span>7-day free trial</span>
-              </div>
+            </div>
+            
+            <div className="mt-3 text-xs text-muted-foreground/80">
+              <span className="text-green-600 font-medium">✓ 14-day trial</span>
+              <span className="mx-2 text-muted-foreground/60">•</span>
+              <span>Cancel anytime</span>
             </div>
           </div>
         ) : (
@@ -722,26 +794,33 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-12 w-12 relative group transition-all duration-300 hover:scale-105 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10 border border-primary/20 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/20"
-              title="Upgrade to Pro"
+              className="h-12 w-12 relative group transition-all duration-300 hover:scale-110 rounded-lg bg-gradient-to-r from-primary/15 to-primary/8 hover:from-primary/20 hover:to-primary/12 border border-primary/25 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/20"
+              title="Upgrade to Premium"
               onClick={() => router.push('/dashboard/subscription')}
             >
-              <Crown className="h-6 w-6 text-primary" />
+              <Crown className="h-5 w-5 text-primary group-hover:animate-pulse" />
               
-              {/* Pulse ring animation */}
-              <div className="absolute inset-0 rounded-xl bg-primary/20 animate-ping opacity-75" />
-              
-              {/* Enhanced tooltip */}
-              <div className="absolute left-full ml-3 px-3 py-2 bg-popover/95 text-popover-foreground text-sm rounded-xl shadow-xl border border-border/50 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 backdrop-blur-sm">
-                <div className="font-bold text-primary">Upgrade to Pro</div>
-                <div className="text-xs text-muted-foreground mt-1">Unlock premium features</div>
+              {/* Enhanced tooltip with premium features */}
+              <div className="absolute left-full ml-3 px-3 py-2 bg-popover/98 text-popover-foreground text-sm rounded-xl shadow-xl border border-border/60 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 backdrop-blur-md min-w-44">
+                <div className="space-y-2">
+                  <div className="font-semibold text-primary flex items-center gap-2">
+                    <Crown className="h-3 w-3" />
+                    Go Premium
+                  </div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <div>• Advanced Analytics</div>
+                    <div>• API Access</div>
+                    <div>• Priority Support</div>
+                  </div>
+                  <div className="text-xs text-green-600 font-medium border-t border-border/30 pt-2">
+                    ✓ 14-day trial
+                  </div>
+                </div>
               </div>
             </Button>
             
-            <div className="flex items-center justify-center">
-              <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
-              <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse delay-150 mx-0.5" />
-              <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse delay-300" />
+            <div className="text-[10px] text-primary/80 font-medium">
+              Premium
             </div>
           </div>
         )}
@@ -762,6 +841,9 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
 
   return (
     <>
+      {/* Command Palette */}
+      <CommandPalette />
+      
       {/* Mobile Trigger */}
       <div className="md:hidden">
         <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>

@@ -1,3 +1,15 @@
-export { Sidebar } from './sidebar';
+// Export the main components
+export { Sidebar } from './sidebar-refactored';
 export { SidebarLayout } from './sidebar-layout';
-export type { SidebarProps, MenuItem, SubMenuItem, QuickAction } from './sidebar';
+
+// Export individual components for potential standalone use
+export { SidebarMainColumn } from './sidebar-main-column';
+export { SidebarSecondaryColumn } from './sidebar-secondary-column';
+export { SidebarMenuContent } from './sidebar-menu-content';
+export { SidebarQuickActions } from './sidebar-quick-actions';
+export { SidebarCollapsedContent } from './sidebar-collapsed-content';
+export { AccountSelector } from './account-selector';
+
+// Export types
+export type { MenuItem, SubMenuItem, QuickAction } from './types';
+export type { SidebarProps } from './sidebar-refactored';

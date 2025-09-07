@@ -4,6 +4,7 @@ import { ErrorBoundary } from "./error-boundary";
 import { ReactNode } from "react";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ViewModeProvider } from "@/lib/contexts/view-mode-context";
+import { AccountProvider } from "@/lib/contexts/account-context";
 import { OnboardingGuard } from "@/components/auth/onboarding-guard";
 
 export default function Providers({ children }: { children: ReactNode }) {
@@ -17,11 +18,13 @@ export default function Providers({ children }: { children: ReactNode }) {
           disableTransitionOnChange
         >
           <AuthProvider>
-            <ViewModeProvider>
-              <OnboardingGuard>
-                {children}
-              </OnboardingGuard>
-            </ViewModeProvider>
+            <AccountProvider>
+              <ViewModeProvider>
+                <OnboardingGuard>
+                  {children}
+                </OnboardingGuard>
+              </ViewModeProvider>
+            </AccountProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryProvider>
