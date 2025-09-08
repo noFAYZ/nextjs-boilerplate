@@ -1,37 +1,39 @@
-"use client";
+"use client"
 
-import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "./button";
-import { useViewMode } from "@/lib/contexts/view-mode-context";
+import * as React from "react"
+import { useTheme } from "next-themes"
+import { Sun, Moon } from "lucide-react"
 
-export function ThemeSwitcher() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const { isProMode } = useViewMode();
+import { cn } from "@/lib/utils"
+import { Button } from "./button"
+import { useViewMode } from "@/lib/contexts/view-mode-context"
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function ThemeSwitcher() {
+  const [mounted, setMounted] = React.useState(false)
+  const { theme, setTheme } = useTheme()
+  const { isProMode } = useViewMode()
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleTheme = () => {
     if (isProMode) {
       // In pro mode, cycle between light-pro and dark-pro
-      const currentIsDark = theme === "dark-pro" || theme === "dark";
-      setTheme(currentIsDark ? "light-pro" : "dark-pro");
+      const currentIsDark = theme === "dark-pro" || theme === "dark"
+      setTheme(currentIsDark ? "light-pro" : "dark-pro")
     } else {
       // In beginner mode, cycle between light and dark
-      const currentIsDark = theme === "dark" || theme === "dark-pro";
-      setTheme(currentIsDark ? "light" : "dark");
+      const currentIsDark = theme === "dark" || theme === "dark-pro"
+      setTheme(currentIsDark ? "light" : "dark")
     }
-  };
+  }
 
   // Show a neutral state during SSR/initial load
   if (!mounted) {
     return (
       <Button
+        data-slot="theme-switcher"
         disabled
         className={cn(
           "shadow-md rounded-full",
@@ -43,17 +45,17 @@ export function ThemeSwitcher() {
       >
         <Sun className="w-4 h-4 text-default-500" />
       </Button>
-    );
+    )
   }
 
-  const isDark = theme === "dark" || theme === "dark-pro";
+  const isDark = theme === "dark" || theme === "dark-pro"
 
   return (
     <Button
+      data-slot="theme-switcher"
       className={cn(
         "relative shadow-none rounded-full w-10 h-10",
         "border border-foreground/10 justify-center",
-  
         "group",
       )}
       size="icon"
@@ -102,5 +104,7 @@ export function ThemeSwitcher() {
         />
       </div>
     </Button>
-  );
+  )
 }
+
+export { ThemeSwitcher }

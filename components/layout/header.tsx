@@ -347,9 +347,9 @@ export function Header({
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent/50",
+                    "relative flex items-center gap-1.5 px-3 py-1 text-sm font-medium rounded-lg hover:bg-accent/50",
                     isActive 
-                      ? "text-primary bg-accent/70 shadow-sm" 
+                      ? "text-primary bg-accent/70 shadow-sm border" 
                       : "text-muted-foreground hover:text-foreground"
                   )}
                   aria-current={isActive ? 'page' : undefined}
@@ -360,9 +360,7 @@ export function Header({
                       {item.badge}
                     </Badge>
                   )}
-                  {isActive && (
-                    <div className="absolute inset-x-0 -bottom-0.5 h-0.5 bg-primary rounded-full" />
-                  )}
+               
                 </Link>
               );
             })}
@@ -631,13 +629,8 @@ export function Header({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
-              <div className="border-b p-4">
-                <h3 className="font-semibold">Notifications</h3>
-                <p className="text-sm text-muted-foreground">
-                  {unreadNotificationsCount} unread notifications
-                </p>
-              </div>
+            <PopoverContent className="w-90 p-0 text-xs" align="end" sideOffset={8}>
+     
               <div className="max-h-[300px] overflow-y-auto">
                 {mockNotifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8">
@@ -649,25 +642,23 @@ export function Header({
                     <div
                       key={notification.id}
                       className={cn(
-                        "border-b p-4 cursor-pointer hover:bg-accent/50 transition-colors",
+                        "border-b px-4 py-2 text-xs cursor-pointer hover:bg-accent/50 transition-colors",
                         !notification.read && "bg-blue-50/50 dark:bg-blue-950/20"
                       )}
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
+                        <div className="">
                           <div className="flex items-center gap-2">
                             <h4 className="text-sm font-medium">{notification.title}</h4>
                             {!notification.read && (
                               <div className="w-2 h-2 bg-blue-500 rounded-full" />
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-xs text-muted-foreground ">
                             {notification.description}
                           </p>
-                          <p className="text-xs text-muted-foreground/70 mt-2">
-                            {formatTimestamp(notification.timestamp)}
-                          </p>
+                       
                         </div>
                         <div className={cn(
                           "w-2 h-2 rounded-full mt-2",
@@ -677,6 +668,9 @@ export function Header({
                           notification.type === 'info' && 'bg-blue-500'
                         )} />
                       </div>
+                      <p className="text-[10px] text-end text-muted-foreground/70 ">
+                            {formatTimestamp(notification.timestamp)}
+                          </p>
                     </div>
                   ))
                 )}

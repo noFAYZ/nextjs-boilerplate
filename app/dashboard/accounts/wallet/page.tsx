@@ -187,7 +187,7 @@ export default function WalletsPage() {
             Sync All
           </Button>
           <Button asChild>
-            <Link href="/dashboard/accounts/wallet/add">
+            <Link href="/dashboard/accounts/wallet/add" className="inline-flex items-center">
               <Plus className="h-4 w-4 mr-2" />
               Add Wallet
             </Link>
@@ -363,7 +363,7 @@ export default function WalletsPage() {
               </p>
               {wallets.length === 0 && (
                 <Button asChild>
-                  <Link href="/dashboard/accounts/wallet/add">
+                  <Link href="/dashboard/accounts/wallet/add" className="inline-flex items-center">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Your First Wallet
                   </Link>
@@ -436,6 +436,7 @@ export default function WalletsPage() {
                                 href={getNetworkExplorerUrl(wallet.network, wallet.address)}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center"
                               >
                                 <ExternalLink className="h-3 w-3" />
                               </a>

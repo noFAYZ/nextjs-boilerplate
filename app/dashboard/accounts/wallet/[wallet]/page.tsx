@@ -314,6 +314,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                         href={getNetworkExplorerUrl(wallet?.walletData?.network, wallet?.walletData?.address)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center"
                       >
                         <ExternalLink className="h-3 w-3" />
                       </a>
@@ -455,6 +456,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                     href={getNetworkExplorerUrl(wallet?.walletData?.network, wallet?.walletData?.address)}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     Explorer

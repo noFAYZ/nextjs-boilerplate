@@ -29,7 +29,7 @@ export function MainLayout({
   if (!shouldShowSidebar) {
     // Pro mode layout - no sidebar, full width with header
     return (
-      <div className={cn("min-h-screen bg-background", className)}>
+      <div className={cn("min-h-screen ", className)}>
         {shouldShowHeader && <Header />}
      
           <div className={cn(
@@ -45,7 +45,7 @@ export function MainLayout({
 
   // Standard layout with sidebar (beginner mode - no header)
   return (
-    <div className={cn("min-h-screen bg-background", className)}>
+    <div className={cn("min-h-screen ", className)}>
       {shouldShowHeader && <Header />}
       <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))]" : "h-screen"}>
         <SidebarLayout>

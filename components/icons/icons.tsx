@@ -110,3 +110,16 @@ export function GuidanceBank(props: SVGProps<SVGSVGElement>) {
 export function LetsIconsDoneDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none"><circle cx={12} cy={12} r={8} fill="currentColor" fillOpacity={0.25}></circle><path stroke="currentColor" strokeWidth={1.2} d="m8.5 11l2.894 2.894a.15.15 0 0 0 .212 0L19.5 6"></path></g></svg>);
 }
+
+
+export function StreamlineFlexWallet(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3}><path d="M12.33 6.657a16 16 0 0 0-.193-1.163c-.184-.976-1.021-1.761-2.073-1.91l-.037-.005l-.02-.138c1.089-.49.807-2.013-.254-2.234c-.869-.18-2.885-.25-4.09-.25c-1.144 0-1.909.16-2.727.33q-.066.016-.133.028c-.875.183-1.572 1.143-1.726 2.34l-.009.068a21.6 21.6 0 0 0-.217 3.205q0 .381.008.709q-.008.245-.008.53c0 1.235.123 1.887.261 2.618l.01.055c.185.977 1.023 1.761 2.074 1.91l.16.023c.982.14 1.9.27 3.274.27s2.292-.13 3.274-.27l.16-.023c1.052-.149 1.89-.933 2.073-1.91l.011-.055c.066-.35.129-.68.176-1.067"></path><path d="M4.391 3.57c.686-.052 1.819-.175 2.997-.175c1.22 0 1.797.062 2.597.174m2.357 6.151h-1.566a1.531 1.531 0 0 1 0-3.063h1.566a1 1 0 0 1 1 1V8.72a1 1 0 0 1-1 1"></path></g></svg>);
+}
+
+export function FluentDelete28Regular(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={28} height={28} viewBox="0 0 28 28" {...props}><path fill="currentColor" d="M11.5 6h5a2.5 2.5 0 0 0-5 0M10 6a4 4 0 0 1 8 0h6.25a.75.75 0 0 1 0 1.5h-1.31l-1.217 14.603A4.25 4.25 0 0 1 17.488 26h-6.976a4.25 4.25 0 0 1-4.235-3.897L5.06 7.5H3.75a.75.75 0 0 1 0-1.5zM7.772 21.978a2.75 2.75 0 0 0 2.74 2.522h6.976a2.75 2.75 0 0 0 2.74-2.522L21.436 7.5H6.565zM11.75 11a.75.75 0 0 1 .75.75v8.5a.75.75 0 0 1-1.5 0v-8.5a.75.75 0 0 1 .75-.75m5.25.75a.75.75 0 0 0-1.5 0v8.5a.75.75 0 0 0 1.5 0z"></path></svg>);
+}
+
+export function SolarTrashBinMinimalisticBoldDuotone(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M3 6.524c0-.395.327-.714.73-.714h4.788c.006-.842.098-1.995.932-2.793A3.68 3.68 0 0 1 12 2a3.68 3.68 0 0 1 2.55 1.017c.834.798.926 1.951.932 2.793h4.788c.403 0 .73.32.73.714a.72.72 0 0 1-.73.714H3.73A.72.72 0 0 1 3 6.524"></path><path fill="currentColor" d="M11.596 22h.808c2.783 0 4.174 0 5.08-.886c.904-.886.996-2.339 1.181-5.245l.267-4.188c.1-1.577.15-2.366-.303-2.865c-.454-.5-1.22-.5-2.753-.5H8.124c-1.533 0-2.3 0-2.753.5s-.404 1.288-.303 2.865l.267 4.188c.185 2.906.277 4.36 1.182 5.245c.905.886 2.296.886 5.079.886" opacity={0.5}></path><path fill="currentColor" fillRule="evenodd" d="M9.425 11.482c.413-.044.78.273.821.707l.5 5.263c.041.433-.26.82-.671.864c-.412.043-.78-.273-.821-.707l-.5-5.263c-.041-.434.26-.821.671-.864m5.15 0c.412.043.713.43.671.864l-.5 5.263c-.04.434-.408.75-.82.707c-.413-.044-.713-.43-.672-.864l.5-5.264c.041-.433.409-.75.82-.707" clipRule="evenodd"></path></svg>);
+}

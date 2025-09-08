@@ -30,7 +30,9 @@
       "Read(/F:\\moneymappr\\frontend/**)",
       "Bash(PORT=3003 yarn next dev)",
       "Bash(PORT=3001 yarn dev)",
-      "Bash(PORT=3002 yarn dev)"
+      "Bash(PORT=3002 yarn dev)",
+      "Bash(find:*)",
+      "Bash(yarn build:*)"
     ],
     "deny": [],
     "ask": []

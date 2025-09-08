@@ -1,27 +1,32 @@
-import { cn } from '@/lib/utils';
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-  text?: string;
+  size?: "sm" | "md" | "lg"
+  className?: string
+  text?: string
 }
 
 function LoadingSpinner({ 
-  size = 'md', 
+  size = "md", 
   className,
   text 
 }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-  };
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div 
+      data-slot="loading-spinner"
+      className="flex flex-col items-center justify-center p-8"
+    >
       <div
         className={cn(
-          'animate-spin rounded-full border-2 border-muted border-t-primary',
+          "animate-spin rounded-full border-2 border-muted border-t-primary",
           sizeClasses[size],
           className
         )}
@@ -30,8 +35,7 @@ function LoadingSpinner({
         <p className="mt-2 text-sm text-muted-foreground">{text}</p>
       )}
     </div>
-  );
+  )
 }
 
-export default LoadingSpinner;
-export { LoadingSpinner };
+export { LoadingSpinner }

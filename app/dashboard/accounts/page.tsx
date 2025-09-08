@@ -7,22 +7,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Building,
   Building2,
-  Plus,
   Store,
-  Wallet,
-  TrendingUp,
-  Shield,
-  Zap,
-  BarChart3,
+  FolderOpen,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { SolarWalletBoldDuotone } from "@/components/icons/icons";
+import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
+import { useGroupedAccounts } from "@/lib/hooks/use-account-groups";
+import type { AccountGroup } from "@/lib/types/account-groups";
+import { Separator } from "@/components/ui/separator";
 
 const ACCOUNT_TYPES = [
   {
@@ -103,70 +103,130 @@ function AccountTypeCard({
 }: {
   accountType: (typeof ACCOUNT_TYPES)[0];
 }) {
+  const CardWrapper = ({ children }: { children: React.ReactNode }) => {
+    if (accountType.status === "active") {
+      return (
+        <Link href={accountType.href}>
+          <Card className="group hover:shadow-lg py-2 px-3 cursor-pointer transition-all">
+            {children}
+          </Card>
+        </Link>
+      );
+    }
+    return (
+      <Card className="py-2 px-3 opacity-60">
+        {children}
+      </Card>
+    );
+  };
+
   return (
-    <Card className="group hover:shadow-lg py-2 px-3 cursor-pointer">
-     
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className={`h-10 w-10 bg-gradient-to-br ${accountType.color} rounded-[0.7rem] flex items-center justify-center`}
-            >
-              <accountType.icon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-sm">{accountType.title}</CardTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge
+    <CardWrapper>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className={`h-10 w-10 bg-gradient-to-br ${accountType.color} rounded-[0.7rem] flex items-center justify-center`}
+          >
+            <accountType.icon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-sm">{accountType.title}</CardTitle>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge
                 className="text-[10px] rounded-[0.5rem]"
-                  variant={
-                    accountType.status === "active" ? "outline" : "secondary"
-                  }
-                >
-                  {accountType.status === "active" ? "Active" : "Coming Soon"}
-                </Badge>
-               
-              </div>
+                variant={
+                  accountType.status === "active" ? "outline" : "secondary"
+                }
+              >
+                {accountType.status === "active" ? "Active" : "Coming Soon"}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {accountType.count}
+              </span>
             </div>
           </div>
-
-
-              <ArrowRight className="h-5 w-5 mr-2" />
-          
         </div>
-     
-      
-
-    </Card>
+        {accountType.status === "active" && (
+          <ArrowRight className="h-5 w-5 mr-2 group-hover:translate-x-1 transition-transform" />
+        )}
+      </div>
+    </CardWrapper>
   );
 }
 
 export default function AccountsPage() {
-  return (
-    <div className=" mx-auto py-6 max-w-7xl space-y-8">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Total Value
-          </p>
-          <p className="text-3xl font-bold">$42,350</p>
-        </div>
-  
+  const { stats } = useGroupedAccounts();
 
- 
+  const handleGroupSelect = (group: AccountGroup) => {
+    // Navigate to group detail page or show group contents
+    console.log('Selected group:', group);
+  };
+
+  return (
+    <div className="mx-auto p-6 max-w-7xl space-y-20">
+      {/* Quick Stats */}
+      <div className="flex justify-between gap-4">
+    
+            <div className="flex items-center gap-3">
+            
+              <div>
+                <p className="text-3xl font-bold">${stats.totalValue.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Value</p>
+              </div>
+            </div>
+      
+
+              
+         
+            <div className="flex items-center gap-3">
+
+ <div className="">
+                <p className="text-lg font-bold">{stats.totalGroups}</p>
+                <p className="text-[10px] text-muted-foreground">Groups</p>
+              </div>
+              <Separator orientation="vertical" className="h-6" />
+
+             <div>
+                <p className="text-lg font-bold">{stats.totalAccounts}</p>
+                <p className="text-[10px] text-muted-foreground">Bank Accounts</p>
+              </div>
+              <Separator orientation="vertical" className="h-6" />
+              <div>
+                <p className="text-lg font-bold">{stats.totalWallets}</p>
+                <p className="text-[10px] text-muted-foreground">Crypto Wallets</p>
+              </div>
+            </div>
+         
       </div>
 
       {/* Account Types */}
     
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {ACCOUNT_TYPES.map((accountType) => (
-            <AccountTypeCard key={accountType.id} accountType={accountType} />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {ACCOUNT_TYPES.map((accountType) => (
+              <AccountTypeCard key={accountType.id} accountType={accountType} />
+            ))}
+          </div>
+        
+      {/* Account Groups */}
+      <div className="space-y-8">
+        <div className="flex items-center gap-2">
+          <FolderOpen className="h-5 w-5" />
+          <h2 className="text-lg font-semibold">Account Groups</h2>
+          <Link href="/dashboard/accounts/groups">
+            <Button variant="link" size="sm" className="ml-auto">
+              View All
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
         </div>
-     
-
-
-
+        
+        
+        <AccountGroupsGrid
+          onGroupSelect={handleGroupSelect}
+          limit={6}
+        />
+      </div>
+      
     </div>
   );
 }

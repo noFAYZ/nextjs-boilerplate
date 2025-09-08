@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 
 import AuthForm from '@/components/auth/auth-form';
 import { SignInFormData } from '@/lib/types';
-import LoadingSpinner from '@/components/ui/loading-spinner';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useAuth } from '@/lib/contexts/AuthContext';
 function LoginForm() {
   const { login, error, clearError, loading, session } = useAuth();
