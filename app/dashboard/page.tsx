@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuthStore, selectUser } from '@/lib/stores';
 import { WelcomeBanner } from '@/components/onboarding/welcome-banner';
 import { User, CreditCard, Settings, Wallet, PieChart, FileText, TrendingUp, Bell, DollarSign, Activity, ArrowDown } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const user = useAuthStore(selectUser);
 
   return (
     <div className="space-y-6">

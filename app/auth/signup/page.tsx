@@ -4,19 +4,24 @@ import { useState } from 'react';
 import AuthForm from '@/components/auth/auth-form';
 
 import { SignUpFormData } from '@/lib/types';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuthStore, selectAuthLoading, selectAuthError } from '@/lib/stores';
 
 export default function SignUpPage() {
-  const { signup, loading, error, clearError } = useAuth();
+  const signup = useAuthStore((state) => state.signup);
+  const loading = useAuthStore(selectAuthLoading);
+  const error = useAuthStore(selectAuthError);
+  const clearError = useAuthStore((state) => state.clearAuthErrors);
   const [success, setSuccess] = useState(false);
 
   const handleSignUp = async (data: SignUpFormData) => {
     clearError();
     
-    const result = await signup(data);
-    
-    if (result?.success) {
+    try {
+      await signup(data);
       setSuccess(true);
+    } catch (error) {
+      // Error is handled by the store
+      console.error('Signup failed:', error);
     }
   };
 

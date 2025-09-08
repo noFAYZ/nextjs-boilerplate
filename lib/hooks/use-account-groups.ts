@@ -320,7 +320,7 @@ export function useGroupedAccounts() {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    let totalGroups = groups.length;
+    const totalGroups = groups.length;
     let totalAccounts = 0;
     let totalWallets = 0;
     let totalValue = 0;

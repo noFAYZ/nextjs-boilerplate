@@ -1,10 +1,9 @@
 import { ThemeProvider } from "./theme-provider";
 import { QueryProvider } from "./query-provider";
 import { ErrorBoundary } from "./error-boundary";
+import { StoreProvider } from "./store-provider";
 import { ReactNode } from "react";
-import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ViewModeProvider } from "@/lib/contexts/view-mode-context";
-import { AccountProvider } from "@/lib/contexts/account-context";
 import { OnboardingGuard } from "@/components/auth/onboarding-guard";
 
 export default function Providers({ children }: { children: ReactNode }) {
@@ -17,15 +16,13 @@ export default function Providers({ children }: { children: ReactNode }) {
           themes={["light", "dark", "light-pro", "dark-pro"]}
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <AccountProvider>
-              <ViewModeProvider>
-                <OnboardingGuard>
-                  {children}
-                </OnboardingGuard>
-              </ViewModeProvider>
-            </AccountProvider>
-          </AuthProvider>
+          <StoreProvider>
+            <ViewModeProvider>
+              <OnboardingGuard>
+                {children}
+              </OnboardingGuard>
+            </ViewModeProvider>
+          </StoreProvider>
         </ThemeProvider>
       </QueryProvider>
     </ErrorBoundary>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/contexts/AuthContext";
+import { useAuthStore, selectUser, selectAuthLoading, selectAuthError } from "@/lib/stores";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
 import { RefreshCcw, User2 } from "lucide-react";
@@ -20,7 +20,9 @@ export default function AuthGuard({
   redirectTo = "/auth/login",
   fallback,
 }: AuthGuardProps) {
-  const { user, loading, error } = useAuth();
+  const user = useAuthStore(selectUser);
+  const loading = useAuthStore(selectAuthLoading);
+  const error = useAuthStore(selectAuthError);
   const router = useRouter();
 
   useEffect(() => {

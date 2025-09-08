@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuthStore, selectUser, selectIsAuthenticated, selectAuthLoading } from '@/lib/stores';
 import { Loader2 } from 'lucide-react';
 
 interface OnboardingGuardProps {
@@ -10,7 +10,9 @@ interface OnboardingGuardProps {
 }
 
 export function OnboardingGuard({ children }: OnboardingGuardProps) {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const user = useAuthStore(selectUser);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const authLoading = useAuthStore(selectAuthLoading);
   const router = useRouter();
   const pathname = usePathname();
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
@@ -86,7 +88,8 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
 
 // Hook to check if user needs onboarding
 export function useOnboardingStatus() {
-  const { user, isAuthenticated } = useAuth();
+  const user = useAuthStore(selectUser);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
 
   useEffect(() => {

@@ -12,13 +12,16 @@ import {
   ArrowLeft,
   Trash2,
   FolderOpen,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAccountGroups } from "@/lib/hooks/use-account-groups";
+import { useAccountGroupsStore } from "@/lib/stores";
 import type { AccountGroup } from "@/lib/types/account-groups";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateGroupDialog } from "./CreateGroupDialog";
 import { AddAccountToGroupDialog } from "./AddAccountToGroupDialog";
+import { DeleteGroupsDialog } from "./DeleteGroupsDialog";
 import { ProiconsFolderAdd, SolarWallet2Outline, StreamlineFlexWallet } from "../icons/icons";
 import { Separator } from "../ui/separator";
 import {
@@ -578,28 +581,47 @@ export function AccountGroupsGrid({
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
   const [groupForAddingAccount, setGroupForAddingAccount] =
     useState<AccountGroup | null>(null);
-  // Create stable options object to prevent infinite re-renders
-  const accountGroupsOptions = useMemo(
-    () => ({
-      details: true,
-      includeAccounts: true,
-      includeWallets: true,
-      includeCounts: true,
-    }),
-    []
-  );
-
-  const { groups, isLoading, error } = useAccountGroups(accountGroupsOptions);
+  
+  // Delete mode states
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [selectedForDeletion, setSelectedForDeletion] = useState<string[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  // Zustand store - use selectors for better reactivity
+  const groups = useAccountGroupsStore((state) => state.groups);
+  const isLoading = useAccountGroupsStore((state) => state.groupsLoading);
+  const error = useAccountGroupsStore((state) => state.groupsError);
+  const fetchGroups = useAccountGroupsStore((state) => state.fetchGroups);
+  const deleteGroup = useAccountGroupsStore((state) => state.deleteGroup);
+  
+  // Load groups on mount
+  React.useEffect(() => {
+    if (groups.length === 0 && !isLoading) {
+      fetchGroups({
+        details: true,
+        includeAccounts: true,
+        includeWallets: true,
+        includeCounts: true,
+      });
+    }
+  }, [groups.length, isLoading, fetchGroups]);
 
   // Get limited groups for display
   const displayGroups = groups.slice(0, limit);
   const hasMore = groups.length > limit;
 
   const handleGroupClick = (group: AccountGroup) => {
-    if (onGroupSelect) {
-      onGroupSelect(group);
+    if (isDeleteMode) {
+      // In delete mode, toggle selection instead of navigating
+      if (!group.isDefault) {
+        handleToggleGroupForDeletion(group.id);
+      }
+    } else {
+      if (onGroupSelect) {
+        onGroupSelect(group);
+      }
+      setSelectedGroup(group);
     }
-    setSelectedGroup(group);
   };
 
   const handleCreateGroup = () => {
@@ -607,6 +629,66 @@ export function AccountGroupsGrid({
       onCreateGroup();
     }
     setIsCreateDialogOpen(true);
+  };
+  
+  // Delete mode handlers
+  const handleEnterDeleteMode = () => {
+    setIsDeleteMode(true);
+    setSelectedForDeletion([]);
+  };
+
+  const handleExitDeleteMode = () => {
+    setIsDeleteMode(false);
+    setSelectedForDeletion([]);
+  };
+
+  const handleToggleGroupForDeletion = (groupId: string) => {
+    setSelectedForDeletion(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedForDeletion.length === 0) return;
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async (groupIds: string[]) => {
+    const successGroups: string[] = [];
+    const failedGroups: string[] = [];
+    
+    for (const groupId of groupIds) {
+      const success = await deleteGroup(groupId);
+      if (success) {
+        successGroups.push(groupId);
+      } else {
+        failedGroups.push(groupId);
+      }
+    }
+    
+    return { success: successGroups, failed: failedGroups };
+  };
+
+  const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    handleExitDeleteMode();
+  };
+  
+  const getSelectedGroups = () => {
+    return displayGroups.filter(group => selectedForDeletion.includes(group.id));
+  };
+  
+  const handleSelectAllForDeletion = () => {
+    const deletableGroups = displayGroups
+      .filter(group => !group.isDefault)
+      .map(group => group.id);
+    setSelectedForDeletion(deletableGroups);
+  };
+  
+  const handleDeselectAll = () => {
+    setSelectedForDeletion([]);
   };
 
   const handleGroupCreated = (newGroup: AccountGroup) => {
@@ -698,26 +780,132 @@ export function AccountGroupsGrid({
             </Button>
           </Link> */}
         </div>
-        <Button
-          onClick={handleCreateGroup}
-          size="sm"
-          className="flex items-center text-xs  shadow-none"
-        >
-          <span className="flex items-center gap-2">
-            <ProiconsFolderAdd className="h-5 w-5 " />
-            Create Group
-          </span>
-        </Button>
+        
+        {/* Create and Delete buttons */}
+        <div className="flex items-center gap-2">
+          {!isDeleteMode ? (
+            <>
+              <Button
+                onClick={handleCreateGroup}
+                size="sm"
+                className="flex items-center text-xs shadow-none"
+                disabled={isDeleteMode}
+              >
+                <span className="flex items-center gap-2">
+                  <ProiconsFolderAdd className="h-5 w-5" />
+                  Create Group
+                </span>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleEnterDeleteMode}
+                disabled={displayGroups.filter(g => !g.isDefault).length === 0}
+                className="flex items-center text-xs"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Remove Groups
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={handleBulkDelete}
+                disabled={selectedForDeletion.length === 0}
+                className="flex items-center text-xs"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete ({selectedForDeletion.length})
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleExitDeleteMode}
+                className="text-xs"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
+      
+      {/* Delete Mode Info */}
+      {isDeleteMode && (
+        <Alert className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800 dark:text-orange-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>Delete Mode:</strong> Click on the groups you want to delete, then click the "Delete" button. 
+                {selectedForDeletion.length > 0 && (
+                  <span className="ml-2 font-medium">
+                    {selectedForDeletion.length} group{selectedForDeletion.length > 1 ? 's' : ''} selected for deletion.
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSelectAllForDeletion}
+                  disabled={displayGroups.filter(g => !g.isDefault).length === 0}
+                  className="text-orange-700 hover:text-orange-800 hover:bg-orange-100 dark:text-orange-300 dark:hover:text-orange-200 dark:hover:bg-orange-900/30"
+                >
+                  Select All
+                </Button>
+                {selectedForDeletion.length > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleDeselectAll}
+                    className="text-orange-700 hover:text-orange-800 hover:bg-orange-100 dark:text-orange-300 dark:hover:text-orange-200 dark:hover:bg-orange-900/30"
+                  >
+                    Deselect All
+                  </Button>
+                )}
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Groups Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {displayGroups.map((group) => (
           <Card
             key={group.id}
-            className="cursor-pointer hover:shadow-md hover:bg-muted/30 hover:dark:bg-black/40  dark:bg-sidebar bg-white p-2 px-4  group "
+            className={`
+              relative cursor-pointer hover:shadow-md hover:bg-muted/30 hover:dark:bg-black/40 dark:bg-sidebar bg-white p-2 px-4 group transition-all
+              ${isDeleteMode && selectedForDeletion.includes(group.id) ? 'ring-2 ring-destructive shadow-lg bg-destructive/5' : ''}
+              ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
             onClick={() => handleGroupClick(group)}
           >
+            {/* Selection indicator for delete mode */}
+            {isDeleteMode && (
+              <div className="absolute top-2 right-2 z-10">
+                {group.isDefault ? (
+                  <div className="h-5 w-5 rounded-full bg-muted border-2 border-muted-foreground/20 flex items-center justify-center">
+                    <span className="text-xs text-muted-foreground">✕</span>
+                  </div>
+                ) : (
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedForDeletion.includes(group.id) 
+                      ? 'bg-destructive border-destructive text-white' 
+                      : 'bg-background border-border hover:border-destructive'
+                  }`}>
+                    {selectedForDeletion.includes(group.id) && (
+                      <span className="text-xs">✓</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div className="flex items-center justify-between ">
               <div className="flex items-center gap-2">
                 {/* Group Icon */}
@@ -818,6 +1006,13 @@ export function AccountGroupsGrid({
         onOpenChange={setIsAddAccountDialogOpen}
         group={groupForAddingAccount}
         onSuccess={handleAccountAdded}
+      />
+      
+      <DeleteGroupsDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={handleDeleteDialogClose}
+        groups={getSelectedGroups()}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

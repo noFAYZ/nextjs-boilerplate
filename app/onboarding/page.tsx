@@ -44,11 +44,11 @@ import {
   LucideCheckCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
 import { GameIconsUpgrade, LogoMappr } from '@/components/icons';
-import { FamiconsCheckmarkDoneCircleOutline, LetsIconsDoneDuotone, SolarWalletBoldDuotone } from '@/components/icons/icons';
+import {  LetsIconsDoneDuotone, SolarWalletBoldDuotone } from '@/components/icons/icons';
 import DecryptedText from '@/components/ui/shadcn-io/decrypted-text';
 
 interface OnboardingStep {
@@ -157,7 +157,7 @@ const EXPERIENCE_LEVELS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const user = useAuthStore(selectUser);
   const { setViewMode } = useViewMode();
   const [currentStep, setCurrentStep] = useState(0);
   const [preferences, setPreferences] = useState<UserPreferences>({

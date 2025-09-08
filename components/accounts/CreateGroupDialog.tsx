@@ -43,7 +43,7 @@ import {
   Building2,
   ArrowRight,
 } from "lucide-react";
-import { useAccountGroupMutations } from "@/lib/hooks/use-account-groups";
+import { useAccountGroupsStore } from "@/lib/stores";
 import type {
   AccountGroup,
   CreateAccountGroupRequest,
@@ -119,10 +119,10 @@ export function CreateGroupDialog({
   const [selectedIcon, setSelectedIcon] = useState<string>(
     PRESET_ICONS[0].icon
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { createGroup } = useAccountGroupMutations();
+  const createGroup = useAccountGroupsStore((state) => state.createGroup);
+  const isLoading = useAccountGroupsStore((state) => state.operationLoading);
 
   const form = useForm<CreateGroupForm>({
     resolver: zodResolver(createGroupSchema),
@@ -139,7 +139,6 @@ export function CreateGroupDialog({
     if (isLoading) return;
 
     setError(null);
-    setIsLoading(true);
 
     try {
       const payload: CreateAccountGroupRequest = {
@@ -153,22 +152,22 @@ export function CreateGroupDialog({
             : undefined,
       };
 
-      const response = await createGroup(payload);
+      console.log('CreateGroupDialog: Attempting to create group with payload:', payload);
+      const createdGroup = await createGroup(payload);
+      console.log('CreateGroupDialog: Created group result:', createdGroup);
 
-      if (response.success && response.data) {
-        onSuccess(response.data);
+      if (createdGroup) {
+        console.log('CreateGroupDialog: Successfully created group, calling onSuccess');
+        onSuccess(createdGroup);
         onOpenChange(false);
         handleReset();
       } else {
-        setError(
-          response.error?.message || "Failed to create group. Please try again."
-        );
+        console.log('CreateGroupDialog: Failed to create group');
+        setError("Failed to create group. Please try again.");
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
       console.error("Error creating group:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -177,7 +176,7 @@ export function CreateGroupDialog({
     setSelectedColor(PRESET_COLORS[0].color);
     setSelectedIcon(PRESET_ICONS[0].icon);
     setError(null);
-    setIsLoading(false);
+    // isLoading is handled by the store now
   };
 
   const handleClose = () => {

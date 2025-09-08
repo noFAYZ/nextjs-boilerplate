@@ -13,14 +13,14 @@ import {
   Target,
   ArrowRight
 } from 'lucide-react';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import Link from 'next/link';
 
 export function WelcomeBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { user } = useAuth();
+  const user = useAuthStore(selectUser);
   const { viewMode, isBeginnerMode } = useViewMode();
 
   useEffect(() => {

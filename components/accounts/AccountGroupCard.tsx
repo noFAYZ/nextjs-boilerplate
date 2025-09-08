@@ -69,13 +69,15 @@ export function AccountGroupCard({
   return (
     <Card
       className={`
-        group cursor-pointer transition-all duration-200
-        ${isSelected ? 'ring-2 ring-primary' : 'hover:shadow-md'}
-        ${isSelectable ? 'hover:ring-2 hover:ring-primary/50' : ''}
+        group transition-all duration-200
+        ${isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'}
+        ${isSelectable ? 'cursor-pointer hover:ring-2 hover:ring-primary/50' : ''}
+        ${isInSelectionButNotSelectable ? 'opacity-60 cursor-not-allowed bg-muted/20' : 'cursor-pointer'}
+        ${!onClick && !isSelectable && !isInSelectionButNotSelectable ? 'cursor-default' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleCardClick}
+      onClick={isInSelectionButNotSelectable ? undefined : handleCardClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -108,59 +110,72 @@ export function AccountGroupCard({
             </div>
           </div>
 
-          {/* Actions */}
-          {showActions && (isHovered || isSelected) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {onEdit && (
-                  <DropdownMenuItem onClick={(e) => {
+          {/* Direct Action Buttons */}
+          {showActions && (
+            <div className="flex items-center gap-1">
+              {/* Edit Button */}
+              {onEdit && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 hover:bg-primary/10" 
+                  onClick={(e) => {
                     e.stopPropagation();
                     onEdit(group);
-                  }}>
-                    <Edit2 className="h-4 w-4 mr-2" />
-                    Edit Group
-                  </DropdownMenuItem>
-                )}
-                {onCreateChild && (
-                  <DropdownMenuItem onClick={(e) => {
+                  }}
+                  title="Edit Group"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {/* Delete Button - Only show for non-default groups */}
+              {onDelete && !group.isDefault && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 hover:bg-destructive/10 text-muted-foreground hover:text-destructive" 
+                  onClick={(e) => {
                     e.stopPropagation();
-                    onCreateChild(group);
-                  }}>
-                    <FolderPlus className="h-4 w-4 mr-2" />
-                    Add Subgroup
-                  </DropdownMenuItem>
-                )}
-                {onMoveAccounts && (
-                  <DropdownMenuItem onClick={(e) => {
-                    e.stopPropagation();
-                    onMoveAccounts(group);
-                  }}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Manage Accounts
-                  </DropdownMenuItem>
-                )}
-                {onDelete && !group.isDefault && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={(e) => {
+                    onDelete(group);
+                  }}
+                  title="Delete Group"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {/* More Actions Dropdown for additional actions */}
+              {(onCreateChild || onMoveAccounts) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {onCreateChild && (
+                      <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation();
-                        onDelete(group);
-                      }}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Group
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                        onCreateChild(group);
+                      }}>
+                        <FolderPlus className="h-4 w-4 mr-2" />
+                        Add Subgroup
+                      </DropdownMenuItem>
+                    )}
+                    {onMoveAccounts && (
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
+                        onMoveAccounts(group);
+                      }}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Manage Accounts
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           )}
         </div>
       </CardHeader>
