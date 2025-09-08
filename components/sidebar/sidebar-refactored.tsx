@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { MobileFloatingMenu } from './mobile-floating-menu';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { useAccount } from '@/lib/contexts/account-context';
 import { useCommandPalette } from '../command/command-palette';
@@ -157,7 +157,6 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { selectedAccount } = useAccount();
   const { openCommandPalette, CommandPalette } = useCommandPalette();
@@ -209,53 +208,15 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
     ? MENU_ITEMS.find(item => item.id === selectedMenuItem)
     : null;
 
-  const renderMobileSidebar = () => (
-    <div className="flex h-full ">
-      <div className="w-20 shrink-0">
-        <SidebarMainColumn
-          menuItems={MENU_ITEMS}
-          activeMenuItem={activeMenuItem}
-          selectedMenuItem={selectedMenuItem}
-          onMenuItemClick={handleMenuItemClick}
-        />
-      </div>
-      <div className="flex-1">
-        <SidebarSecondaryColumn
-          isExpanded={true}
-          selectedMenuItem={selectedMenuItem}
-          selectedMenuData={selectedMenuData}
-          actions={QUICK_ACTIONS}
-          onToggleExpanded={toggleExpanded}
-          onMobileClose={() => setIsMobileOpen(false)}
-          onOpenCommandPalette={openCommandPalette}
-          onActionClick={handleActionClick}
-        />
-      </div>
-    </div>
-  );
 
   return (
     <>
       {/* Command Palette */}
       <CommandPalette />
       
-      {/* Mobile Trigger */}
+      {/* Mobile Floating Menu */}
       <div className="md:hidden">
-        <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 transition-all duration-200 hover:scale-105 active:scale-95"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-96">
-            {renderMobileSidebar()}
-          </SheetContent>
-        </Sheet>
+        <MobileFloatingMenu />
       </div>
 
       {/* Desktop Sidebar */}
@@ -278,7 +239,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           selectedMenuData={selectedMenuData}
           actions={QUICK_ACTIONS}
           onToggleExpanded={toggleExpanded}
-          onMobileClose={() => setIsMobileOpen(false)}
+          onMobileClose={() => {}}
           onOpenCommandPalette={openCommandPalette}
           onActionClick={handleActionClick}
         />

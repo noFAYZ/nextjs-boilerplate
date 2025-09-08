@@ -38,7 +38,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { MobileFloatingMenu } from './mobile-floating-menu';
 import { FluentPanelLeftExpand28Filled, LogoMappr } from '@/components/icons';
 import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
@@ -199,7 +199,6 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const router = useRouter();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { profile } = useUserProfile();
@@ -666,7 +665,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
                             : "hover:bg-gradient-to-br hover:from-muted/80 hover:to-muted/60 hover:shadow-md"
                         )}
                         title={subItem.label}
-                        onClick={() => setIsMobileOpen(false)}
+                        onClick={() => {}}
                       >
                         <SubIcon className={cn(
                           "h-6 w-6 transition-colors duration-200", 
@@ -828,39 +827,15 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
     </div>
   );
 
-  const renderMobileSidebar = () => (
-    <div className="flex h-full ">
-      <div className="w-20 shrink-0">
-        {renderMainColumn()}
-      </div>
-      <div className="flex-1">
-        {renderSecondaryColumn()}
-      </div>
-    </div>
-  );
 
   return (
     <>
       {/* Command Palette */}
       <CommandPalette />
       
-      {/* Mobile Trigger */}
+      {/* Mobile Floating Menu */}
       <div className="md:hidden">
-        <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 transition-all duration-200 hover:scale-105 active:scale-95"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-96">
-            {renderMobileSidebar()}
-          </SheetContent>
-        </Sheet>
+        <MobileFloatingMenu />
       </div>
 
       {/* Desktop Sidebar */}

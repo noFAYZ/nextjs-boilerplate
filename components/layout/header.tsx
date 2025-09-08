@@ -394,18 +394,19 @@ export function Header({
         </div>
 
         {/* Center Section - Enhanced Search Combobox */}
-        <div className="hidden md:flex flex-1 max-w-lg mx-6">
+        <div className="hidden md:flex flex-1 max-w-xl mx-6">
           <Popover open={isDesktopSearchOpen} onOpenChange={setIsDesktopSearchOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
+                size={'lg'}
                 role="combobox"
                 aria-expanded={isDesktopSearchOpen}
-                className="w-full justify-between text-muted-foreground hover:text-foreground hover:border-primary/50 h-10 bg-background/50"
+                className="w-full justify-between text-muted-foreground hover:text-foreground rounded-lg shadow-none"
                 aria-label="Search tokens, addresses, and more"
               >
                 <div className="flex items-center flex-1 text-left">
-                  <Search className="mr-2 h-4 w-4 shrink-0" />
+                  <Search className="mr-2 h-5 w-5 shrink-0" />
                   <span className="truncate">
                     {searchValue || "Search tokens, addresses..."}
                   </span>

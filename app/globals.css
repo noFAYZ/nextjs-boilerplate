@@ -99,7 +99,7 @@
   --shadow-2xl: 0px 3px 1px 1px hsl(21.4286 6.8627% 40% / 0.93);
 }
 .light-pro {
-  --background: #fffefe; 
+  --background: #ffffff; 
   --foreground: #3e3a28;
   --card: #faf9f5;
   --card-foreground: #1a1a19;

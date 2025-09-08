@@ -32,7 +32,8 @@
       "Bash(PORT=3001 yarn dev)",
       "Bash(PORT=3002 yarn dev)",
       "Bash(find:*)",
-      "Bash(yarn build:*)"
+      "Bash(yarn build:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

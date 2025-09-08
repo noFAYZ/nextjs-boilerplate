@@ -199,26 +199,17 @@ export default function AccountsPage() {
          
       </div>
 
-      {/* Account Types */}
+      {/* Account Types 
     
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {ACCOUNT_TYPES.map((accountType) => (
               <AccountTypeCard key={accountType.id} accountType={accountType} />
             ))}
-          </div>
+          </div>*/}
         
       {/* Account Groups */}
       <div className="space-y-8">
-        <div className="flex items-center gap-2">
-          <FolderOpen className="h-5 w-5" />
-          <h2 className="text-lg font-semibold">Account Groups</h2>
-          <Link href="/dashboard/accounts/groups">
-            <Button variant="link" size="sm" className="ml-auto">
-              View All
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
+   
         
         
         <AccountGroupsGrid
