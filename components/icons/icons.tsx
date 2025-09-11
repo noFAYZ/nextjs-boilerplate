@@ -174,3 +174,24 @@ export function LetsIconsAddRingDuotone(props: SVGProps<SVGSVGElement>) {
 export function SolarAddSquareBoldDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22" opacity={0.5}></path><path fill="currentColor" d="M12 8.25a.75.75 0 0 1 .75.75v2.25H15a.75.75 0 0 1 0 1.5h-2.25V15a.75.75 0 0 1-1.5 0v-2.25H9a.75.75 0 0 1 0-1.5h2.25V9a.75.75 0 0 1 .75-.75"></path></svg>);
 }
+
+
+export function StreamlineFlexBellNotification(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M5.677 12.458a1.5 1.5 0 0 0 2.646 0M4.262 1.884a3.872 3.872 0 0 1 6.61 2.738c0 .604.1 1.171.25 1.752q.063.198.137.373c.232.545.871.732 1.348 1.084c.711.527.574 1.654-.018 2.092c0 0-.955.827-5.589.827s-5.589-.827-5.589-.827c-.592-.438-.73-1.565-.018-2.092c.477-.352 1.116-.539 1.348-1.084c.231-.544.387-1.24.387-2.125c0-1.027.408-2.012 1.134-2.738" strokeWidth={1.3}></path></svg>);
+}
+
+
+export function StreamlineFlexLabelFolderTag(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeWidth={1.3}><path strokeLinecap="round" strokeLinejoin="round" d="M5.088 12.46q-1.139-.056-2.284-.18c-.978-.106-1.796-.832-1.915-1.83c-.352-2.944-.24-5.89.097-8.827c.056-.48.439-.86.92-.893A27 27 0 0 1 5.362.697a.99.99 0 0 1 .883.648l.2.541a1 1 0 0 0 .915.651c1.652.035 2.587.042 3.931.153c.946.078 1.69.84 1.745 1.788q.021.353.036.692"></path><path d="M10.53 13.053a1.16 1.16 0 0 1-1.482.043a10 10 0 0 1-.909-.781a10 10 0 0 1-.781-.91a1.16 1.16 0 0 1 .042-1.48c.8-.884 1.635-1.7 2.543-2.49c.168-.147.376-.24.599-.26c.656-.059 2.067-.133 2.469.268c.401.402.327 1.813.268 2.469c-.02.222-.113.43-.26.599a30 30 0 0 1-2.49 2.543Z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M11.283 9.347a.25.25 0 1 1 0-.5m0 0a.25.25 0 1 1 0 .5"></path></g></svg>);
+}
+
+
+
+export function StreamlineFlexPieChart(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3}><path d="M7 5.901V.75C11 .75 13.25 3 13.25 7c0 1.372-.265 2.538-.774 3.479l-4.548-2.89A2 2 0 0 1 7 5.901"></path><path d="M7 13.25c4 0 6.25-2.25 6.25-6.25S11 .75 7 .75S.75 3 .75 7S3 13.25 7 13.25"></path></g></svg>);
+}
+
+
+export default function StreamlineUltimateAccountingCoins(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}><path d="M8.25 8.25a7.5 7.5 0 1 0 15 0a7.5 7.5 0 0 0-15 0m-1.875 5.842a1.34 1.34 0 0 0 .843 1.245l2.064.826a1.342 1.342 0 0 1-.5 2.587H6.75m1.5 1.5v-1.5"></path><path d="M5.281 8.867a7.5 7.5 0 1 0 9.853 9.852M17.25 5.25h-2.033a1.342 1.342 0 0 0-.5 2.587l2.064.826a1.342 1.342 0 0 1-.5 2.587H14.25m1.5-6v-1.5m0 9v-1.5"></path></g></svg>);
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {  Readex_Pro, Rubik,Sen, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
+import { GlobalDocks } from "@/components/layout/global-docks";
 
 const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
@@ -24,7 +25,9 @@ export default function RootLayout({
         className={`${geistSans.className}  antialiased`}
       >
         <Providers> 
-        {children}</Providers>
+          {children}
+          <GlobalDocks />
+        </Providers>
       </body>
     </html>
   );

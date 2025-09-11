@@ -212,7 +212,7 @@ export function CreateGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose} >
-      <DialogContent className="sm:max-w-[480px] p-0 gap-0 shadow-none ">
+      <DialogContent className="sm:max-w-[480px] p-0 gap-0 shadow-none bg-card ">
         {/* Header with gradient background */}
         <div className="relative overflow-hidden">
           <div className="relative px-6 pt-6 pb-4">

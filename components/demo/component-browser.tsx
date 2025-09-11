@@ -71,6 +71,12 @@ import {
   Images,
   ListCheck,
   VideoIcon,
+  Bitcoin,
+  Earth,
+  AlertCircle,
+  HardDrive,
+  Database,
+  Server,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -152,7 +158,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { DataTableAdvanced } from "@/components/ui/data-table-advanced"
 
 // Import component demonstrations
-import { Dock, FloatingDock, MiniDock, useDock } from "@/components/ui/dock"
+import { Dock, ExpandableDock, ExpandableItem, FloatingDock, MiniDock, useDock, useExpandableDock } from "@/components/ui/dock"
 import { WalletHeader, CompactWalletHeader } from "@/components/ui/wallet-header"
 import { DatePicker, DateRangePicker } from "@/components/ui/date-picker"
 import { MultiSelect, useMultiSelect } from "@/components/ui/multi-select"
@@ -185,6 +191,7 @@ import { UserProfile } from "@/components/user/user-profile"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import AuthForm from "../auth/auth-form"
+import router from "next/router"
 
 interface ComponentItem {
   id: string
@@ -1599,6 +1606,14 @@ const StatsCardDemo = () => {
 const DockDemo = () => {
   const dock = useDock([
     {
+      id: 'add',
+      label: 'Add',
+      icon: <LetsIconsAddRingDuotone className="w-12 h-12 text-primary"  />,
+     
+      hotkey: '⌘+1',
+      onClick: () => alert('Add clicked!')
+    },
+    {
       id: 'home',
       label: 'Dashboard',
       icon: <StreamlineFlexHome2 className="w-6 h-6 text-accent-foreground/80"/>,
@@ -1612,13 +1627,7 @@ const DockDemo = () => {
       href: '/dashboard/accounts/wallet',
       hotkey: '⌘+1'
     },
-    {
-      id: 'add',
-      label: 'Add',
-      icon: <SolarAddSquareBoldDuotone className="w-12 h-12 text-primary"  />,
-      href: '/dashboard/accounts/wallet',
-      hotkey: '⌘+1'
-    },
+    
     {
       id: 'demo',
       label: 'Demo',
@@ -1649,6 +1658,7 @@ const DockDemo = () => {
           showActiveIndicator={true}
           autoDetectActive={true}
         />
+       
       </div>
       
       <div className="grid grid-cols-2 gap-4">
@@ -1664,6 +1674,176 @@ const DockDemo = () => {
         </div>
       </div>
     </div>
+  )
+}
+
+function NotificationsDock() {
+  const notifications = useExpandableDock()
+  
+  const notificationItems: ExpandableItem[] = [
+    {
+      id: '1',
+      title: 'New message from John',
+      subtitle: 'Hey, let\'s discuss the project details...',
+      status: 'idle',
+      timestamp: '2 min ago',
+      icon: <MessageSquare className="w-4 h-4" />,
+      onClick: () => {
+        // Navigate to message
+        router.push('/messages/john')
+      }
+    },
+    {
+      id: '2', 
+      title: 'Payment received',
+      subtitle: '$1,250.00 from Crypto Wallet',
+      status: 'success',
+      timestamp: '5 min ago',
+      icon: <DollarSign className="w-4 h-4" />,
+      badge: 'New',
+      onClick: () => { }
+    },
+    {
+      id: '3',
+      title: 'Sync error',
+      subtitle: 'Failed to sync Bitcoin wallet data',
+      status: 'error', 
+      timestamp: '10 min ago',
+      icon: <AlertCircle className="w-4 h-4" />,
+      onClick: () => {}
+    }
+  ]
+  
+  return (
+    <ExpandableDock
+      trigger={{
+        icon: <Bell className="w-4 h-4" />,
+        label: 'Notifications',
+        badge: notificationItems.length
+      }}
+      items={notificationItems}
+      isExpanded={notifications.isExpanded}
+      onToggle={notifications.toggle}
+      panelTitle="Notifications" 
+      position="bottom-right"
+    />
+  )
+}
+
+function WalletTrackerDock() {
+  const walletTracker = useExpandableDock()
+  const [wallets, setWallets] = React.useState<ExpandableItem[]>([])
+  
+  React.useEffect(() => {
+    // Fetch wallet data
+    const mockWallets: ExpandableItem[] = [
+      {
+        id: 'btc-wallet',
+        title: 'Bitcoin Wallet',
+    
+        status: 'success',
+        timestamp: 'Last sync: 30s ago',
+        icon: <Bitcoin className="w-5 h-5" />,
+        
+        onClick: () => router.push('/wallets/btc')
+      },
+      {
+        id: 'eth-wallet', 
+        title: 'Ethereum Wallet',
+      
+        status: 'loading',
+        timestamp: 'Syncing...',
+        icon: <Earth className="w-5 h-5" />,
+        onClick: () => router.push('/wallets/eth')
+      },
+      {
+        id: 'ada-wallet',
+        title: 'Cardano Wallet', 
+  
+        status: 'warning',
+        timestamp: 'Sync delayed: 5min',
+        icon: <Wallet className="w-5 h-5" />,
+        badge: 'error',
+        onClick: () => router.push('/wallets/ada')
+      },
+      {
+        id: 'sol-wallet',
+        title: 'Solana Wallet',
+        subtitle: 'Connection failed',
+        status: 'error',
+        timestamp: 'Last sync: 2hrs ago',
+        icon: <AlertTriangle className="w-5 h-5" />,
+        onClick: () => {}
+      }
+    ]
+    setWallets(mockWallets)
+  }, [])
+  
+  const activeWallets = wallets.filter(w => w.status === 'success').length
+  const totalWallets = wallets.length
+  
+  return (
+    <ExpandableDock
+      trigger={{
+        icon: <StreamlineFlexWallet className="w-4 h-4" />,
+        label: 'Wallet Tracker',
+        badge: `${activeWallets}/${totalWallets}`
+      }}
+      items={wallets}
+      isExpanded={walletTracker.isExpanded}
+      onToggle={walletTracker.toggle}
+      panelTitle="Crypto Wallets"
+      position="bottom-left"
+      maxHeight={500}
+    />
+  )
+}
+
+function SystemStatusDock() {
+  const systemStatus = useExpandableDock()
+  const [isLoading, setIsLoading] = React.useState(false)
+  
+  const statusItems: ExpandableItem[] = [
+    {
+      id: 'api-status',
+      title: 'API Server',
+      subtitle: 'All services operational',
+      status: 'success',
+      timestamp: 'Last check: 1min ago',
+      icon: <Server className="w-4 h-4" />
+    },
+    {
+      id: 'database',
+      title: 'Database',
+      subtitle: 'Connection stable',
+      status: 'success', 
+      timestamp: 'Last check: 30s ago',
+      icon: <Database className="w-4 h-4" />
+    },
+    {
+      id: 'backup',
+      title: 'Backup Service',
+      subtitle: 'Daily backup in progress',
+      status: 'loading',
+      timestamp: 'Started: 10min ago',
+      icon: <HardDrive className="w-4 h-4" />
+    }
+  ]
+  
+  return (
+    <ExpandableDock
+      trigger={{
+        icon: <Activity className="w-4 h-4" />,
+        label: 'System Status',
+        badge: statusItems.filter(item => item.status === 'error').length || undefined
+      }}
+      items={statusItems}
+      isExpanded={systemStatus.isExpanded}
+      onToggle={systemStatus.toggle}
+      panelTitle="System Status"
+      isLoading={isLoading}
+      position="top-right"
+    />
   )
 }
 

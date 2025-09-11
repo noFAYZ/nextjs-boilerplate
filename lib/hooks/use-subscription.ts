@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { subscriptionService } from '@/lib/services/subscription-service';
+import { useSubscriptionContext } from '@/lib/contexts/subscription-context';
 import type { 
   SubscriptionPlan,
   CurrentSubscription,
@@ -21,194 +20,51 @@ interface UseSubscriptionReturn {
   paymentHistory: PaymentHistory[];
   usageStats: UsageStats | null;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  lastFetched: Date | null;
+  refetch: (force?: boolean) => Promise<void>;
   createSubscription: (data: CreateSubscriptionData) => Promise<ApiResponse<CurrentSubscription>>;
   upgradeSubscription: (data: UpgradeSubscriptionData) => Promise<ApiResponse<CurrentSubscription>>;
   cancelSubscription: (data: CancelSubscriptionData) => Promise<ApiResponse<CurrentSubscription>>;
   canAccessFeature: (feature: string) => Promise<boolean>;
+  resetState: () => void;
 }
 
+/**
+ * Custom hook for subscription management
+ * 
+ * This hook provides a clean interface to the subscription context,
+ * exposing all subscription-related state and actions in a convenient way.
+ * 
+ * Features:
+ * - Centralized state management via React Context
+ * - Automatic data fetching with caching
+ * - Optimistic updates for better UX
+ * - Comprehensive error handling
+ * - Type-safe API
+ */
 export function useSubscription(): UseSubscriptionReturn {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
-  const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistory[]>([]);
-  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const [
-        plansResponse,
-        currentSubResponse,
-        historyResponse,
-        paymentResponse,
-        usageResponse,
-      ] = await Promise.all([
-        subscriptionService.getPlans(),
-        subscriptionService.getCurrentSubscription(),
-        subscriptionService.getSubscriptionHistory(),
-        subscriptionService.getPaymentHistory(),
-        subscriptionService.getUsageStats(),
-      ]);
-
-      if (plansResponse.success) {
-        setPlans(plansResponse.data);
-      }
-
-      if (currentSubResponse.success) {
-        setCurrentSubscription(currentSubResponse.data);
-      }
-
-      if (historyResponse.success) {
-        setSubscriptionHistory(historyResponse.data);
-      }
-
-      if (paymentResponse.success) {
-        setPaymentHistory(paymentResponse.data);
-      }
-
-      if (usageResponse.success) {
-        setUsageStats(usageResponse.data);
-      }
-
-      // Set error only if critical calls fail
-      if (!plansResponse.success || !currentSubResponse.success) {
-        const plansError = !plansResponse.success ? plansResponse.error.message : '';
-        const currentError = !currentSubResponse.success ? currentSubResponse.error.message : '';
-        setError(plansError || currentError || 'Failed to fetch subscription data');
-      }
-    } catch (err) {
-      setError('Failed to fetch subscription data');
-      console.error('Error fetching subscription data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const createSubscription = useCallback(async (data: CreateSubscriptionData): Promise<ApiResponse<CurrentSubscription>> => {
-    try {
-      setError(null);
-      const response = await subscriptionService.createSubscription(data);
-      
-      if (response.success) {
-        setCurrentSubscription(response.data);
-        // Refetch usage stats as they might have changed
-        const usageResponse = await subscriptionService.getUsageStats();
-        if (usageResponse.success) {
-          setUsageStats(usageResponse.data);
-        }
-      } else {
-        setError(response.error.message);
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = 'Failed to create subscription';
-      setError(errorMessage);
-      console.error('Error creating subscription:', err);
-      
-      return {
-        success: false,
-        error: {
-          code: 'CREATE_FAILED',
-          message: errorMessage,
-          details: err,
-        },
-      };
-    }
-  }, []);
-
-  const upgradeSubscription = useCallback(async (data: UpgradeSubscriptionData): Promise<ApiResponse<CurrentSubscription>> => {
-    try {
-      setError(null);
-      const response = await subscriptionService.upgradeSubscription(data);
-      
-      if (response.success) {
-        setCurrentSubscription(response.data);
-        // Refetch usage stats as limits might have changed
-        const usageResponse = await subscriptionService.getUsageStats();
-        if (usageResponse.success) {
-          setUsageStats(usageResponse.data);
-        }
-      } else {
-        setError(response.error.message);
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = 'Failed to upgrade subscription';
-      setError(errorMessage);
-      console.error('Error upgrading subscription:', err);
-      
-      return {
-        success: false,
-        error: {
-          code: 'UPGRADE_FAILED',
-          message: errorMessage,
-          details: err,
-        },
-      };
-    }
-  }, []);
-
-  const cancelSubscription = useCallback(async (data: CancelSubscriptionData): Promise<ApiResponse<CurrentSubscription>> => {
-    try {
-      setError(null);
-      const response = await subscriptionService.cancelSubscription(data);
-      
-      if (response.success) {
-        setCurrentSubscription(response.data);
-      } else {
-        setError(response.error.message);
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = 'Failed to cancel subscription';
-      setError(errorMessage);
-      console.error('Error canceling subscription:', err);
-      
-      return {
-        success: false,
-        error: {
-          code: 'CANCEL_FAILED',
-          message: errorMessage,
-          details: err,
-        },
-      };
-    }
-  }, []);
-
-  const canAccessFeature = useCallback(async (feature: string): Promise<boolean> => {
-    try {
-      return await subscriptionService.canAccessFeature(feature);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const context = useSubscriptionContext();
 
   return {
-    plans,
-    currentSubscription,
-    subscriptionHistory,
-    paymentHistory,
-    usageStats,
-    isLoading,
-    error,
-    refetch: fetchData,
-    createSubscription,
-    upgradeSubscription,
-    cancelSubscription,
-    canAccessFeature,
+    // State
+    plans: context.plans,
+    currentSubscription: context.currentSubscription,
+    subscriptionHistory: context.subscriptionHistory,
+    paymentHistory: context.paymentHistory,
+    usageStats: context.usageStats,
+    isLoading: context.isLoading,
+    isInitialized: context.isInitialized,
+    error: context.error,
+    lastFetched: context.lastFetched,
+    
+    // Actions
+    refetch: context.fetchSubscriptionData,
+    createSubscription: context.createSubscription,
+    upgradeSubscription: context.upgradeSubscription,
+    cancelSubscription: context.cancelSubscription,
+    canAccessFeature: context.canAccessFeature,
+    resetState: context.resetState,
   };
 }

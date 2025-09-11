@@ -45,9 +45,10 @@ export function ComingSoonPage() {
   ];
 
   return (
+    
     <div className="relative w-full min-h-screen bg-gradient-to-br from-background to-accent/30 overflow-hidden">
-      <Image alt="Background" src="/bg.webp" width={600} height={600} className="absolute bottom-0 right-0   opacity-80" />
-      {/* Orb background */}
+     {/* Orb background  <Image alt="Background" src="/bg.webp" width={600} height={600} className="absolute bottom-0 right-0   opacity-80" />
+     
       <div className="absolute top-0 inset-0">
         <Orb 
           hue={200} // Use orange/warm hue to match your design system
@@ -55,7 +56,7 @@ export function ComingSoonPage() {
           rotateOnHover={true}
           forceHoverState={false}
         />
-      </div>
+      </div>*/} 
       
       {/* Content overlay */}
       <div className="relative z-10 max-w-3xl mx-auto px-4 py-8 lg:py-16 min-h-screen flex flex-col justify-center">

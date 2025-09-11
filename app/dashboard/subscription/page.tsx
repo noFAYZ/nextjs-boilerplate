@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,8 @@ import {
   Calendar, 
   TrendingUp, 
   Users,
-  Star
+  Star,
+  RefreshCw
 } from 'lucide-react';
 import type { SubscriptionPlan, UpgradeSubscriptionData, CancelSubscriptionData } from '@/lib/types';
 import { FailLoader, LogoLoader } from '@/components/icons';
@@ -30,7 +31,10 @@ export default function SubscriptionPage() {
     paymentHistory,
     usageStats,
     isLoading,
+    isInitialized,
     error,
+    lastFetched,
+    refetch,
     upgradeSubscription,
     cancelSubscription,
   } = useSubscription();
@@ -38,7 +42,27 @@ export default function SubscriptionPage() {
   const { toast } = useToast();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      await refetch(true); // Force refresh
+      toast({
+        title: 'Data refreshed',
+        description: 'Subscription data has been updated.',
+      });
+    } catch {
+      toast({
+        title: 'Refresh failed',
+        description: 'Failed to refresh subscription data.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleUpgrade = async (planType: SubscriptionPlan['type']) => {
     try {
@@ -136,7 +160,7 @@ export default function SubscriptionPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isInitialized) {
     return (
       <AuthGuard>
         <div className="flex items-center justify-center min-h-screen">
@@ -170,16 +194,63 @@ export default function SubscriptionPage() {
     );
   }
 
+  useEffect(() => {
+   console.log('Subscription data initialized or updated:', {
+    currentSubscription,
+    subscriptionHistory,
+    paymentHistory,
+    usageStats,
+    lastFetched,
+   });
+  }
+  , [isInitialized, isLoading, refetch]);
+
+
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-3xl mx-auto space-y-8">
+      <div className=" bg-background p-8 relative">
+        {/* Loading Overlay for Refresh */}
+        {isLoading && isInitialized && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+            <Card className="p-6">
+              <div className="flex items-center space-x-3">
+                <LogoLoader className="w-6 h-6" />
+                <span className="text-sm font-medium">Refreshing data...</span>
+              </div>
+            </Card>
+          </div>
+        )}
+        <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">Subscription Management</h1>
-            <p className="text-muted-foreground text-lg">
-              Manage your MoneyMappr subscription and billing preferences
-            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex-1" />
+              <div className="">
+                <h1 className="text-4xl font-bold">Subscription Management</h1>
+                <p className="text-muted-foreground text-lg">
+                  Manage your MoneyMappr subscription and billing preferences
+                </p>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <div className="flex flex-col items-end space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing || isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                  {lastFetched && isInitialized && (
+                    <p className="text-xs text-muted-foreground">
+                      Last updated: {new Date(lastFetched).toLocaleTimeString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Current Subscription */}
@@ -187,7 +258,7 @@ export default function SubscriptionPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {getPlanIcon(currentSubscription.planType)}
+                  {getPlanIcon(currentSubscription.currentPlan)}
                   Current Subscription
                 </CardTitle>
               </CardHeader>
@@ -195,7 +266,7 @@ export default function SubscriptionPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Plan</p>
-                    <p className="text-2xl font-bold">{currentSubscription.planType}</p>
+                    <p className="text-2xl font-bold">{currentSubscription.currentPlan}</p>
                     <Badge variant={currentSubscription.status === 'ACTIVE' ? 'default' : 'destructive'}>
                       {currentSubscription.status}
                     </Badge>

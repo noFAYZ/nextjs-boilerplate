@@ -38,7 +38,7 @@ import { WalletTokens } from '@/components/crypto/wallet-tokens';
 import { WalletNFTs } from '@/components/crypto/wallet-nfts';
 import { WalletTransactions } from '@/components/crypto/wallet-transactions';
 import { WalletChart } from '@/components/crypto/wallet-chart';
-import { SolarWalletBoldDuotone } from '@/components/icons/icons';
+import { SolarWalletBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
 
 interface WalletPageProps {
@@ -297,7 +297,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             {/* Left Side - Wallet Info */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center flex-shrink-0">
-                <SolarWalletBoldDuotone className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                <StreamlineFlexWallet className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
               
               <div className="flex-1 min-w-0">
@@ -499,12 +499,12 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
       {/* Wallet Details Tabs */}
    
-        <Tabs value={activeTab} onValueChange={setActiveTab}  className="w-full"  variant='underline'>
+        <Tabs value={activeTab} onValueChange={setActiveTab}    >
      
-            <TabsList className="grid w-full grid-cols-3  lg:grid-cols-none lg:flex lg:gap-2  mb-4 "
-            variant='underline' size='default'
+            <TabsList className="  mb-4 "
+            variant='card' 
             >
-              <TabsTrigger value="tokens" className="flex items-center gap-2 cursor-pointer  " variant='underline' >
+              <TabsTrigger value="tokens" className="flex items-center gap-2 cursor-pointer  " variant='card' >
                
                 <span className="hidden sm:inline">Tokens</span>
                 <span className="sm:hidden">({walletStats?.assetCount || 0})</span>
@@ -512,7 +512,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                   {walletStats?.assetCount || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="nfts" className="flex items-center gap-2 cursor-pointer" variant='underline'>
+              <TabsTrigger value="nfts" className="flex items-center gap-2 cursor-pointer" variant='animated'>
                
                 <span className="hidden sm:inline">NFTs</span>
                 <span className="sm:hidden">({walletStats?.nftCount || 0})</span>
@@ -520,7 +520,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                   {walletStats?.nftCount || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="transactions" className="flex items-center gap-2 cursor-pointer" variant='underline'>
+              <TabsTrigger value="transactions" className="flex items-center gap-2 cursor-pointer" variant='animated'>
                
                 <span className="hidden sm:inline">Transactions</span>
                 <span className="sm:hidden">({transactions?.length || 0})</span>

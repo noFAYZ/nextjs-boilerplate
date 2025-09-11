@@ -21,11 +21,11 @@ const cardVariants = cva(
         enterprise: "bg-gradient-to-br from-slate-50/80 to-slate-100/80 dark:from-slate-900/50 dark:to-slate-800/50 border-slate-200/80 dark:border-slate-700/80 shadow-lg hover:shadow-xl rounded-xl backdrop-blur-sm",
       },
       size: {
-        xs: "py-3 gap-3",
-        sm: "py-4 gap-4",
-        default: "py-6 gap-6", 
-        lg: "py-8 gap-8",
-        xl: "py-10 gap-10",
+        xs: " gap-3",
+        sm: " gap-4",
+        default: " gap-6", 
+        lg: " gap-8",
+        xl: " gap-10",
       },
       interactive: {
         true: "cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",

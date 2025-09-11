@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useMemo, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,8 @@ import {
   FolderOpen,
   AlertTriangle,
   AlertOctagonIcon,
+  Eye,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -327,18 +329,18 @@ function GroupDetailsView({
             {group.financialAccounts && group.financialAccounts.length > 0 && (
               <AccordionItem
                 value="bank-accounts"
-                className="border-none shadow-sm bg-gradient-to-r from-green-50/50 to-green-100/30 dark:from-green-950/30 dark:to-green-900/20 rounded-xl overflow-hidden"
+                className="border rounded-lg"
               >
-                <AccordionTrigger className="text-sm sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-green-50/60 dark:hover:bg-green-900/20 transition-colors duration-200 border-none">
+                <AccordionTrigger className="text-sm sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-muted/50 border-none">
                   <div className="flex items-center gap-2 sm:gap-3 w-full min-w-0">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-sm shrink-0">
-                      <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                    <div className="size-8 sm:size-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                      <Building2 className="size-4 sm:size-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="text-green-900 dark:text-green-100 font-semibold truncate">
+                      <span className="font-semibold truncate">
                         Bank Accounts
                       </span>
-                      <span className="text-xs text-green-700/70 dark:text-green-300/70 font-normal truncate sm:text-wrap">
+                      <span className="text-xs text-muted-foreground font-normal truncate sm:text-wrap">
                         <span className="inline sm:hidden">
                           {group.financialAccounts.length} • $
                           {group.financialAccounts
@@ -357,23 +359,19 @@ function GroupDetailsView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 ">
                     {group.financialAccounts.map((account, index) => (
                       <Card
                         key={account.id}
-                        className={`group hover:shadow-lg cursor-pointer border-green-100/50 dark:border-green-800/30 bg-white/60 dark:bg-green-950/20 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${
-                          isRemoveMode
-                            ? "hover:bg-green-50/80 dark:hover:bg-green-900/30"
-                            : ""
-                        } ${
-                          selectedAccounts.has(account.id)
-                            ? "ring-2 ring-green-500/50 bg-green-50 dark:bg-green-900/40 shadow-lg scale-[1.02]"
-                            : ""
-                        }`}
+                        variant="elevated"
+                        interactive
+                        className={`
+                          group hover-lift click-shrink border-green-100/50 dark:border-green-800/30 bg-white/60 dark:bg-green-950/20 backdrop-blur-sm
+                          ${isRemoveMode ? "hover:bg-green-50/80 dark:hover:bg-green-900/30" : ""}
+                          ${selectedAccounts.has(account.id) ? "ring-2 ring-green-500/50 bg-green-50 dark:bg-green-900/40 shadow-lg scale-[1.02]" : ""}
+                        `}
                         style={{ animationDelay: `${index * 50}ms` }}
-                        onClick={() =>
-                          isRemoveMode && toggleAccountSelection(account.id)
-                        }
+                        onClick={() => isRemoveMode && toggleAccountSelection(account.id)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
@@ -381,18 +379,14 @@ function GroupDetailsView({
                               {isRemoveMode && (
                                 <div className="flex items-center">
                                   <div
-                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
+                                    className={`size-5 rounded-md border-2 flex items-center justify-center state-transition ${
                                       selectedAccounts.has(account.id)
                                         ? "bg-green-500 border-green-500 scale-110"
                                         : "border-green-300 hover:border-green-400"
                                     }`}
                                   >
                                     {selectedAccounts.has(account.id) && (
-                                      <svg
-                                        className="w-3 h-3 text-white"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
+                                      <svg className="size-3 text-white animate-scale-in" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                           fillRule="evenodd"
                                           d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -403,11 +397,11 @@ function GroupDetailsView({
                                   </div>
                                 </div>
                               )}
-                              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-400 to-green-500 shadow-md group-hover:shadow-lg transition-all duration-300">
-                                <Building2 className="h-6 w-6 text-white" />
+                              <div className="size-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-400 to-green-500 shadow-md group-hover:shadow-lg hover-scale">
+                                <Building2 className="size-6 text-white" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors">
+                                <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-green-700 dark:group-hover:text-green-300 color-transition">
                                   {account.name}
                                 </p>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
@@ -416,7 +410,7 @@ function GroupDetailsView({
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-sm text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                              <p className="font-bold text-sm text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 color-transition">
                                 ${account.balance.toLocaleString()}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -436,13 +430,13 @@ function GroupDetailsView({
             {group.cryptoWallets && group.cryptoWallets.length > 0 && (
               <AccordionItem
                 value="crypto-wallets"
-                className="border shadow-sm rounded-xl overflow-hidden"
+                className="border rounded-lg"
               >
-                <AccordionTrigger className="text-sm sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline border-none">
+                <AccordionTrigger className="text-sm sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-muted/50 border-none">
                   <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center bg-accent shrink-0">
-                        <StreamlineFlexWallet className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <div className="size-8 sm:size-10 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 shrink-0">
+                        <Wallet className="size-4 sm:size-5 text-amber-600 dark:text-amber-400" />
                       </div>
                       <div className="flex flex-col items-start min-w-0">
                         <span className="font-semibold truncate">
@@ -454,7 +448,7 @@ function GroupDetailsView({
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-sm sm:text-base font-bold text-muted-foreground">
+                      <div className="text-sm sm:text-base font-semibold">
                         $
                         {group.cryptoWallets
                           .reduce(
@@ -472,38 +466,30 @@ function GroupDetailsView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 ">
                     {group.cryptoWallets.map((wallet, index) => (
                       <Card
                         key={wallet.id}
-                        className={`group shadow-none cursor-pointer border  py-0 bg-card hover:bg-muted/70 rounded-2xl ${
-                          isRemoveMode ? "" : ""
-                        } ${
-                          selectedWallets.has(wallet.id)
-                            ? " bg-accent shadow-xl "
-                            : ""
-                        }`}
-                        style={{ animationDelay: `${index * 75}ms` }}
+                        className={`
+                          group transition-all duration-200 cursor-pointer hover:shadow-md
+                          ${selectedWallets.has(wallet.id) ? "ring-2 ring-amber-500/50 bg-amber-50/50 dark:bg-amber-900/20" : ""}
+                        `}
                         onClick={() => handleWalletClick(wallet)}
                       >
-                        <CardContent className="px-3 sm:px-4 py-2 sm:py-3 relative overflow-hidden">
+                        <CardContent className="px-3 sm:px-4 py-3 relative overflow-hidden">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3 flex-1">
                               {isRemoveMode && (
                                 <div className="flex items-center">
                                   <div
-                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
+                                    className={`size-5 rounded-md border-2 flex items-center justify-center transition-all ${
                                       selectedWallets.has(wallet.id)
-                                        ? "bg-primary border-primary scale-110"
+                                        ? "bg-primary border-primary"
                                         : "border-primary/50 hover:border-primary/60"
                                     }`}
                                   >
                                     {selectedWallets.has(wallet.id) && (
-                                      <svg
-                                        className="w-3 h-3 text-white"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
+                                      <svg className="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                           fillRule="evenodd"
                                           d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -514,28 +500,27 @@ function GroupDetailsView({
                                   </div>
                                 </div>
                               )}
-                              <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-muted ">
-                                <StreamlineFlexWallet className="h-6 w-6 " />
+                              <div className="size-10 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30">
+                                <Wallet className="size-5 text-amber-600 dark:text-amber-400" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm ">
+                                <p className="font-medium text-sm">
                                   {wallet.name}
                                 </p>
-                                <p className="text-xs font-mono  mt-0.5 bg-muted px-2 py-0.5 rounded-md w-fit">
-                                  {wallet.address?.slice(0, 8)}...
-                                  {wallet.address?.slice(-4)}
+                                <p className="text-xs font-mono text-muted-foreground mt-0.5">
+                                  {wallet.address?.slice(0, 8)}...{wallet.address?.slice(-4)}
                                 </p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-sm">
+                              <p className="font-semibold text-sm">
                                 $
                                 {parseFloat(
                                   wallet?.totalBalanceUsd || "0"
                                 ).toLocaleString()}
                               </p>
                               <div className="flex items-center gap-1 mt-0.5">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-muted-foreground">
                                   {wallet.assetCount} assets
                                 </p>
                               </div>
@@ -553,18 +538,16 @@ function GroupDetailsView({
       ) : (
         /* Empty state */
         <div className="text-center py-8">
-          <div className="h-12 w-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Plus className="h-6 w-6 text-muted-foreground" />
+          <div className="mb-4">
+            <Plus className="size-12 text-muted-foreground mx-auto mb-3" />
+            <h4 className="text-base font-semibold mb-2">No accounts in this group</h4>
+            <p className="text-sm text-muted-foreground">
+              Add your first bank account or crypto wallet to start tracking your finances.
+            </p>
           </div>
-          <p className="text-sm font-medium mb-1">No accounts in this group</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            Add your first account or wallet to get started
-          </p>
           <Button onClick={() => onAddAccount(group)} size="sm">
-            <span className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Account
-            </span>
+            <Plus className="size-4 mr-2" />
+            Add Account
           </Button>
         </div>
       )}
@@ -608,10 +591,34 @@ export function AccountGroupsGrid({
   }, [groups.length, isLoading, fetchGroups]);
 
   // Get limited groups for display
-  const displayGroups = groups.slice(0, limit);
+  const displayGroups = useMemo(() => groups.slice(0, limit), [groups, limit]);
   const hasMore = groups.length > limit;
 
-  const handleGroupClick = (group: AccountGroup) => {
+  // Calculate total values for all groups
+  const groupTotalValues = useMemo(() => {
+    return displayGroups.reduce((acc, group) => {
+      const cryptoTotal = group.cryptoWallets?.reduce(
+        (sum, wallet) => sum + parseFloat(wallet.totalBalanceUsd || "0"),
+        0
+      ) || 0;
+      const bankTotal = group.financialAccounts?.reduce(
+        (sum, account) => sum + account.balance,
+        0
+      ) || 0;
+      acc[group.id] = cryptoTotal + bankTotal;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [displayGroups]);
+
+  const handleToggleGroupForDeletion = useCallback((groupId: string) => {
+    setSelectedForDeletion(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId]
+    );
+  }, []);
+
+  const handleGroupClick = useCallback((group: AccountGroup) => {
     if (isDeleteMode) {
       // In delete mode, toggle selection instead of navigating
       if (!group.isDefault) {
@@ -623,38 +630,30 @@ export function AccountGroupsGrid({
       }
       setSelectedGroup(group);
     }
-  };
+  }, [isDeleteMode, onGroupSelect, handleToggleGroupForDeletion]);
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = useCallback(() => {
     if (onCreateGroup) {
       onCreateGroup();
     }
     setIsCreateDialogOpen(true);
-  };
+  }, [onCreateGroup]);
   
   // Delete mode handlers
-  const handleEnterDeleteMode = () => {
+  const handleEnterDeleteMode = useCallback(() => {
     setIsDeleteMode(true);
     setSelectedForDeletion([]);
-  };
+  }, []);
 
-  const handleExitDeleteMode = () => {
+  const handleExitDeleteMode = useCallback(() => {
     setIsDeleteMode(false);
     setSelectedForDeletion([]);
-  };
+  }, []);
 
-  const handleToggleGroupForDeletion = (groupId: string) => {
-    setSelectedForDeletion(prev => 
-      prev.includes(groupId) 
-        ? prev.filter(id => id !== groupId)
-        : [...prev, groupId]
-    );
-  };
-
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     if (selectedForDeletion.length === 0) return;
     setIsDeleteDialogOpen(true);
-  };
+  }, [selectedForDeletion.length]);
 
   const handleConfirmDelete = async (groupIds: string[]) => {
     const successGroups: string[] = [];
@@ -681,16 +680,16 @@ export function AccountGroupsGrid({
     return displayGroups.filter(group => selectedForDeletion.includes(group.id));
   };
   
-  const handleSelectAllForDeletion = () => {
+  const handleSelectAllForDeletion = useCallback(() => {
     const deletableGroups = displayGroups
       .filter(group => !group.isDefault)
       .map(group => group.id);
     setSelectedForDeletion(deletableGroups);
-  };
+  }, [displayGroups]);
   
-  const handleDeselectAll = () => {
+  const handleDeselectAll = useCallback(() => {
     setSelectedForDeletion([]);
-  };
+  }, []);
 
   const handleGroupCreated = (newGroup: AccountGroup) => {
     // Refresh will happen automatically due to the hook
@@ -731,12 +730,39 @@ export function AccountGroupsGrid({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-sm text-muted-foreground">
-            Loading groups...
-          </span>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="size-5 rounded bg-muted animate-pulse" />
+            <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+            <div className="h-8 w-24 bg-muted animate-pulse rounded" />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} loading className="h-48">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="size-12 rounded-xl bg-muted skeleton" />
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 bg-muted skeleton rounded w-3/4" />
+                    <div className="h-3 bg-muted skeleton rounded w-1/2" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-16 bg-muted skeleton rounded-lg" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="h-12 bg-muted skeleton rounded-lg" />
+                    <div className="h-12 bg-muted skeleton rounded-lg" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
@@ -744,74 +770,94 @@ export function AccountGroupsGrid({
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <div className="text-sm text-red-600 mb-2">Failed to load groups</div>
-        <p className="text-xs text-muted-foreground">{error}</p>
-      </div>
+      <Card variant="destructive" className="text-center p-8">
+        <div className="flex flex-col items-center gap-4">
+          <div className="size-12 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="size-6 text-destructive" />
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-destructive">Failed to load groups</div>
+            <p className="text-xs text-muted-foreground">{error}</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => fetchGroups({
+              details: true,
+              includeAccounts: true,
+              includeWallets: true,
+              includeCounts: true,
+            })}
+          >
+            Retry
+          </Button>
+        </div>
+      </Card>
     );
   }
 
   if (groups.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="h-12 w-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-3">
-          <Plus className="h-6 w-6 text-muted-foreground" />
+      <Card variant="ghost" className="text-center p-12">
+        <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
+          <div className="size-16 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center animate-float">
+            <FolderOpen className="size-8 text-primary" />
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold">No groups yet</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Create your first account group to organize your finances and get better insights into your spending patterns.
+            </p>
+          </div>
+          <Button onClick={handleCreateGroup} size="lg" className="animate-scale-in">
+            <Plus className="size-4 mr-2" />
+            Create First Group
+          </Button>
         </div>
-        <p className="text-sm font-medium mb-1">No groups yet</p>
-        <p className="text-xs text-muted-foreground mb-4">
-          Create your first account group to organize your finances
-        </p>
-        <Button onClick={handleCreateGroup} size="sm">
-          Create First Group
-        </Button>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center ">
-        <div className="flex items-center gap-2">
-          <FolderOpen className="h-5 w-5" />
-          <h2 className="text-sm font-semibold">Groups <span className="ml-1 text-muted-foreground">({displayGroups?.length || 0})</span></h2>
-          {/*    <Link href="/dashboard/accounts/groups">
-            <Button variant="link" size="sm" className="ml-auto">
-              View All
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link> */}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+            <FolderOpen className="size-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Account Groups</h2>
+            <p className="text-sm text-muted-foreground">
+              {displayGroups?.length || 0} group{(displayGroups?.length || 0) !== 1 ? 's' : ''}
+              {hasMore && ` of ${groups.length}`}
+            </p>
+          </div>
         </div>
         
         {/* Create and Delete buttons */}
         <div className="flex items-center gap-2">
           {!isDeleteMode ? (
             <>
-                <Button 
+              <Button 
                 variant="soft" 
                 size="sm"
                 onClick={handleEnterDeleteMode}
                 disabled={displayGroups.filter(g => !g.isDefault).length === 0}
-                className="flex items-center text-xs"
+                className="flex items-center gap-2 text-xs"
               >
-                <Trash2 className=" h-4 w-4" />
-                <span className="md:hidden">Remove</span>
-                
+                <Trash2 className="size-4" />
+                <span className="hidden sm:inline">Manage</span>
               </Button>
               <Button
                 onClick={handleCreateGroup}
-                size={'sm'}
-              
-                className="flex items-center text-xs shadow-none"
+                size="sm"
+                className="flex items-center gap-2 text-xs"
                 disabled={isDeleteMode}
               >
-         <ProiconsFolderAdd className="h-5 w-5" />
-                  <span className="hidden md:inline ">Create Group</span>
-                  <span className="md:hidden">Create</span>
-              
-             
+                <Plus className="size-4" />
+                <span className="hidden sm:inline">Create Group</span>
+                <span className="sm:hidden">Create</span>
               </Button>
-        
-          
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -820,9 +866,9 @@ export function AccountGroupsGrid({
                 size="sm"
                 onClick={handleBulkDelete}
                 disabled={selectedForDeletion.length === 0}
-                className="flex items-center text-xs"
+                className="flex items-center gap-2 text-xs"
               >
-                <Trash2 className=" h-4 w-4" />
+                <Trash2 className="size-4" />
                 Delete ({selectedForDeletion.length})
               </Button>
               <Button 
@@ -840,165 +886,193 @@ export function AccountGroupsGrid({
       
       {/* Delete Mode Info */}
       {isDeleteMode && (
-        <Alert className="items-center text-red-500/80">
-          <AlertOctagonIcon className="h-6 w-6 " />
-          <AlertDescription className="text-red-500/80">
-            <div className="flex items-center justify-between text-xs w-full">
-              <div>
-                <strong>Delete Mode:</strong> Click on the groups you want to delete, then click the "Delete" button. 
-                {selectedForDeletion.length > 0 && (
-                  <span className="ml-2 font-medium">
-                    {selectedForDeletion.length} group{selectedForDeletion.length > 1 ? 's' : ''} selected for deletion.
-                  </span>
-                )}
+        <Card variant="destructive" className="animate-slide-down">
+          <CardContent className="p-2">
+            <div className="flex items-start gap-3">
+              <div className="size-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 mt-1">
+                <AlertOctagonIcon className="size-4 text-destructive" />
               </div>
-              <div className="flex items-center justify-end gap-2">
-                <Button 
-                  variant="soft" 
-                  size="sm" 
-                  onClick={handleSelectAllForDeletion}
-                  disabled={displayGroups.filter(g => !g.isDefault).length === 0}
-                  className="text-xs"
-              
-                >
-                  Select All
-                </Button>
-                {selectedForDeletion.length > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleDeselectAll}
-                    className="text-xs"
-                  
-                  >
-                    Deselect All
-                  </Button>
-                )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium text-destructive">Delete Mode Active</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Click groups to select them for deletion. Default groups cannot be deleted.
+                      {selectedForDeletion.length > 0 && (
+                        <span className="block mt-1 font-medium text-destructive">
+                          {selectedForDeletion.length} group{selectedForDeletion.length > 1 ? 's' : ''} selected
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button 
+                      variant="soft" 
+                      size="sm" 
+                      onClick={handleSelectAllForDeletion}
+                      disabled={displayGroups.filter(g => !g.isDefault).length === 0}
+                      className="text-xs"
+                    >
+                      Select All
+                    </Button>
+                    {selectedForDeletion.length > 0 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleDeselectAll}
+                        className="text-xs"
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </AlertDescription>
-        </Alert>
+          </CardContent>
+        </Card>
       )}
 
       {/* Groups Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {displayGroups.map((group) => (
-          <Card
-            key={group.id}
-            className={`
-              relative cursor-pointer hover:shadow-md  p-2 px-4 group transition-all
-              ${isDeleteMode && selectedForDeletion.includes(group.id) ? 'border  shadow-lg shadow-destructive bg-destructive/5' : ''}
-              ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
-            `}
-            onClick={() => handleGroupClick(group)}
-          >
-            {/* Selection indicator for delete mode */}
-            {isDeleteMode && (
-              <div className="absolute top-2 right-2 z-10">
-                {group.isDefault ? (
-                  <div className="h-5 w-5 rounded-full bg-muted border-2 border-muted-foreground/20 flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground">✕</span>
-                  </div>
-                ) : (
-                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    selectedForDeletion.includes(group.id) 
-                      ? 'bg-destructive border-destructive text-white' 
-                      : 'bg-background border-border hover:border-destructive'
-                  }`}>
-                    {selectedForDeletion.includes(group.id) && (
-                      <span className="text-xs">✓</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-            
-            <div className="flex items-center justify-between ">
-              <div className="flex items-center gap-2">
-                {/* Group Icon */}
-                <div
-                  className="h-10 w-10 rounded-xl flex items-center justify-center text-sm"
-                  style={{
-                    backgroundColor: group.color
-                      ? `${group.color}20`
-                      : "rgb(243 244 246)",
-                    color: group.color || "rgb(107 114 128)",
-                  }}
-                >
-                  {group.icon || "📁"}
-                </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ">
+        {displayGroups.map((group, index) => {
+          const totalValue = groupTotalValues[group.id] || 0;
+          const accountsCount = (group._count?.financialAccounts || 0) + (group._count?.cryptoWallets || 0);
 
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-sm truncate">{group.name}</h3>
-                  {group.isDefault && (
-                    <Badge variant="secondary" className="text-xs mt-1">
-                      Default
-                    </Badge>
+          return (
+            <Card
+              key={group.id}
+              variant={isDeleteMode && selectedForDeletion.includes(group.id) ? 'elevated' : 'outlined'}
+              interactive={!isDeleteMode || !group.isDefault}
+              className={`
+                relative py-4 click-shrink
+                ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isDeleteMode ? 'hover:scale-100' : ''}
+              `}
+              style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => handleGroupClick(group)}
+            >
+              {/* Selection indicator for delete mode */}
+              {isDeleteMode && (
+                <div className="absolute bottom-3 right-3 z-10">
+                  {group.isDefault ? (
+                    <div className="size-6 rounded-full bg-muted border-2 border-muted-foreground/20 flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground">✕</span>
+                    </div>
+                  ) : (
+                    <div className={`size-6 rounded-full border-2 flex items-center justify-center transition-all state-transition ${
+                      selectedForDeletion.includes(group.id) 
+                        ? 'bg-destructive border-destructive text-destructive-foreground scale-110' 
+                        : 'bg-background border-border hover:border-destructive'
+                    }`}>
+                      {selectedForDeletion.includes(group.id) && (
+                        <span className="text-xs animate-scale-in">✓</span>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div>
-              <div className="flex gap-4 ">
-                {group.cryptoWallets && (
-                  <p className="flex text-yellow-700 bg-yellow-500/20 px-2 py-0.5 rounded-md text-sm font-medium">
-                    <span className="mr-1">$</span>
-                    {group.cryptoWallets.reduce(
-                      (sum, wallet) =>
-                        sum + parseFloat(wallet.totalBalanceUsd || "0"),
-                      0
-                    ).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            </div>
+              )}
+              
+              <CardHeader >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {/* Group Icon */}
+                    <div
+                      className="size-10 rounded-lg flex items-center justify-center text-lg font-semibold shadow-sm"
+                      style={{
+                        backgroundColor: group.color
+                          ? `${group.color}25`
+                          : "hsl(var(--muted))",
+                        color: group.color || "hsl(var(--muted-foreground))",
+                 
+                      }}
+                    >
+                      {group.icon || "📁"}
+                    </div>
 
-            <div className="flex justify-between">
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {group._count?.financialAccounts || 0}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <StreamlineFlexWallet className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {group._count?.cryptoWallets || 0}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                {group.cryptoWallets && (
-                  <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
-                    {group.cryptoWallets?.map((item, index) => (
-                      <Avatar key={index}>
-                        {" "}
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                      </Avatar>
-                    ))}
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-sm truncate">{group.name}</CardTitle>
+                      <div className="flex items-center gap-2 ">
+                        {group.isDefault && (
+                          <Badge variant="secondary" className="text-[10px] px-2 py-0">
+                            Default
+                          </Badge>
+                        )}
+                        {accountsCount > 0 && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {accountsCount} account{accountsCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                     {/* Total Value Display */}
+                {totalValue > 0 && (
+                  <div className="">
+                    <div className="text-[10px] text-muted-foreground text-end ">Total Value</div>
+                    <div className="text-base font-bold text-foreground">
+                      ${totalValue.toLocaleString()}
+                    </div>
                   </div>
                 )}
-                <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-          </Card>
-        ))}
+
+                  
+                  {!isDeleteMode && (
+                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+                      <ArrowRight className="size-4 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-0 ">
+             
+                {/* Account Types Summary */}
+                <div className="flex items-baseline gap-3">
+                  <div className="flex items-center gap-2  ">
+                    <div className="size-8 rounded-lg bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center shadow-sm">
+                      <Building2 className="size-5 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                   
+                      <div className="text-sm font-bold text-green-800 dark:text-green-200">
+                        {group._count?.financialAccounts || 0}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 ">
+                    <div className="size-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
+                      <StreamlineFlexWallet className="size-5 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      
+                      <div className="text-sm font-bold text-amber-800 dark:text-amber-200">
+                        {group._count?.cryptoWallets || 0}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+          
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between">
-        {hasMore && (
-          <Button variant="ghost" size="sm" asChild>
-            <Link
-              href="/dashboard/accounts/groups"
-              className="inline-flex items-center"
-            >
+      {hasMore && (
+        <div className="flex items-center justify-center pt-4">
+          <Button variant="outline" size="sm" asChild className="group">
+            <Link href="/dashboard/accounts/groups" className="inline-flex items-center gap-2">
+              <Eye className="size-4" />
               <span>View all {groups.length} groups</span>
-              <ArrowRight className="h-3 w-3 ml-1" />
+              <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Dialogs */}
       <CreateGroupDialog

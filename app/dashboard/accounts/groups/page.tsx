@@ -18,6 +18,7 @@ import {
   Move,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AccountGroupsList } from '@/components/accounts/AccountGroupsList';
 import { useGroupedAccounts, useAccountGroupsHierarchy } from '@/lib/hooks/use-account-groups';
 import { useAccountGroupsStore } from '@/lib/stores';
@@ -28,6 +29,7 @@ import { createOperationItem } from '@/lib/types/progress';
 import type { OperationItem } from '@/lib/types/progress';
 
 export default function AccountGroupsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('list');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -35,10 +37,8 @@ export default function AccountGroupsPage() {
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   
   const { stats } = useGroupedAccounts();
-  const { groups, deleteGroup } = useAccountGroupsStore((state) => ({
-    groups: state.groups,
-    deleteGroup: state.deleteGroup
-  }));
+  const groups = useAccountGroupsStore((state) => state.groups);
+  const deleteGroup = useAccountGroupsStore((state) => state.deleteGroup);
   // Create stable options object to prevent infinite re-renders
   const hierarchyOptions = useMemo(() => ({
     details: true,
@@ -52,7 +52,7 @@ export default function AccountGroupsPage() {
   const handleGroupSelect = (group: AccountGroup) => {
     // Navigate to individual group page
     console.log('Selected group:', group);
-    // router.push(`/dashboard/accounts/groups/${group.id}`);
+    router.push(`/dashboard/accounts/groups/${group.id}`);
   };
 
   const handleBulkAction = (action: 'delete' | 'merge' | 'move') => {
@@ -200,16 +200,16 @@ export default function AccountGroupsPage() {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="list" className="flex items-center gap-2">
+        <TabsList className="" variant={'pill'}>
+          <TabsTrigger value="list" className="flex items-center gap-2" variant={'pill'}>
             <Grid3X3 className="h-4 w-4" />
             Grid View
           </TabsTrigger>
-          <TabsTrigger value="table" className="flex items-center gap-2">
+          <TabsTrigger value="table" className="flex items-center gap-2" variant={'pill'}>
             <List className="h-4 w-4" />
             List View
           </TabsTrigger>
-          <TabsTrigger value="hierarchy" className="flex items-center gap-2">
+          <TabsTrigger value="hierarchy" className="flex items-center gap-2" variant={'pill'}>
             <TreePine className="h-4 w-4" />
             Hierarchy
           </TabsTrigger>

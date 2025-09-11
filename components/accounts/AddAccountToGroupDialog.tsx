@@ -222,7 +222,7 @@ export function AddAccountToGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-card">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div

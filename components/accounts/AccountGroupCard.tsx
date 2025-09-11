@@ -72,12 +72,11 @@ export function AccountGroupCard({
         group transition-all duration-200
         ${isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'}
         ${isSelectable ? 'cursor-pointer hover:ring-2 hover:ring-primary/50' : ''}
-        ${isInSelectionButNotSelectable ? 'opacity-60 cursor-not-allowed bg-muted/20' : 'cursor-pointer'}
-        ${!onClick && !isSelectable && !isInSelectionButNotSelectable ? 'cursor-default' : ''}
+        ${onClick || isSelectable ? 'cursor-pointer' : 'cursor-default'}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={isInSelectionButNotSelectable ? undefined : handleCardClick}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
