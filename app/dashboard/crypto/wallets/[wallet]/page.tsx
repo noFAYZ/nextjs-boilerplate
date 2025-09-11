@@ -456,9 +456,9 @@ console.log('Wallet:', wallet);
                   {nfts.map((nft: CryptoNFT) => (
                     <div key={nft.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                       <div className="aspect-square bg-muted flex items-center justify-center relative">
-                        {nft.image ? (
+                        {nft.imageUrl ? (
                           <Image
-                            src={nft.image}
+                            src={nft.imageUrl}
                             alt={nft.name || 'NFT'}
                             width={200}
                             height={200}
@@ -473,7 +473,7 @@ console.log('Wallet:', wallet);
                         )}
                         {nft.rarity && (
                           <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            #{nft.rarity.rank}
+                            #{nft.rarityRank || 'N/A'}
                           </div>
                         )}
                       </div>
@@ -481,13 +481,13 @@ console.log('Wallet:', wallet);
                         <p className="font-medium text-sm truncate" title={nft.name}>
                           {nft.name || `Token #${nft.tokenId}`}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate" title={nft.collection.name}>
-                          {nft.collection.name}
+                        <p className="text-xs text-muted-foreground truncate" title={nft.collectionName}>
+                          {nft.collectionName}
                         </p>
                         <div className="flex items-center justify-between mt-2">
-                          {nft.estimatedValueUsd ? (
+                          {nft.estimatedValue ? (
                             <p className="text-xs font-medium text-green-600">
-                              ${nft.estimatedValueUsd.toLocaleString()}
+                              ${typeof nft.estimatedValue === 'object' && nft.estimatedValue ? 'Estimated' : 'N/A'}
                             </p>
                           ) : (
                             <span className="text-xs text-muted-foreground">No valuation</span>

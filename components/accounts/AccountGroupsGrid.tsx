@@ -13,6 +13,7 @@ import {
   Trash2,
   FolderOpen,
   AlertTriangle,
+  AlertOctagonIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateGroupDialog } from "./CreateGroupDialog";
 import { AddAccountToGroupDialog } from "./AddAccountToGroupDialog";
 import { DeleteGroupsDialog } from "./DeleteGroupsDialog";
-import { ProiconsFolderAdd, SolarWallet2Outline, StreamlineFlexWallet } from "../icons/icons";
+import { ProiconsFolderAdd, SolarWallet2Outline, StreamlineFlexWallet, StreamlineFlexWalletAdd } from "../icons/icons";
 import { Separator } from "../ui/separator";
 import {
   Accordion,
@@ -280,7 +281,7 @@ function GroupDetailsView({
                 className="text-xs shadow-none"
               >
                 <span className="flex items-center gap-1">
-                  <Plus className="h-4 w-4" />
+                  <StreamlineFlexWalletAdd className="h-4 w-4" />
                   <span className="hidden md:inline">Add Account</span>
                   <span className="md:hidden">Add</span>
                 </span>
@@ -772,7 +773,7 @@ export function AccountGroupsGrid({
       <div className="flex justify-between items-center ">
         <div className="flex items-center gap-2">
           <FolderOpen className="h-5 w-5" />
-          <h2 className="text-sm font-semibold">Account Groups</h2>
+          <h2 className="text-sm font-semibold">Groups <span className="ml-1 text-muted-foreground">({displayGroups?.length || 0})</span></h2>
           {/*    <Link href="/dashboard/accounts/groups">
             <Button variant="link" size="sm" className="ml-auto">
               View All
@@ -785,28 +786,32 @@ export function AccountGroupsGrid({
         <div className="flex items-center gap-2">
           {!isDeleteMode ? (
             <>
-              <Button
-                onClick={handleCreateGroup}
-                size="sm"
-                className="flex items-center text-xs shadow-none"
-                disabled={isDeleteMode}
-              >
-                <span className="flex items-center gap-2">
-                  <ProiconsFolderAdd className="h-5 w-5" />
-                  Create Group
-                </span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
+                <Button 
+                variant="soft" 
                 size="sm"
                 onClick={handleEnterDeleteMode}
                 disabled={displayGroups.filter(g => !g.isDefault).length === 0}
                 className="flex items-center text-xs"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Remove Groups
+                <Trash2 className=" h-4 w-4" />
+                <span className="md:hidden">Remove</span>
+                
               </Button>
+              <Button
+                onClick={handleCreateGroup}
+                size={'sm'}
+              
+                className="flex items-center text-xs shadow-none"
+                disabled={isDeleteMode}
+              >
+         <ProiconsFolderAdd className="h-5 w-5" />
+                  <span className="hidden md:inline ">Create Group</span>
+                  <span className="md:hidden">Create</span>
+              
+             
+              </Button>
+        
+          
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -817,7 +822,7 @@ export function AccountGroupsGrid({
                 disabled={selectedForDeletion.length === 0}
                 className="flex items-center text-xs"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className=" h-4 w-4" />
                 Delete ({selectedForDeletion.length})
               </Button>
               <Button 
@@ -835,10 +840,10 @@ export function AccountGroupsGrid({
       
       {/* Delete Mode Info */}
       {isDeleteMode && (
-        <Alert className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-orange-800 dark:text-orange-200">
-            <div className="flex items-center justify-between">
+        <Alert className="items-center text-red-500/80">
+          <AlertOctagonIcon className="h-6 w-6 " />
+          <AlertDescription className="text-red-500/80">
+            <div className="flex items-center justify-between text-xs w-full">
               <div>
                 <strong>Delete Mode:</strong> Click on the groups you want to delete, then click the "Delete" button. 
                 {selectedForDeletion.length > 0 && (
@@ -847,13 +852,14 @@ export function AccountGroupsGrid({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-end gap-2">
                 <Button 
-                  variant="ghost" 
+                  variant="soft" 
                   size="sm" 
                   onClick={handleSelectAllForDeletion}
                   disabled={displayGroups.filter(g => !g.isDefault).length === 0}
-                  className="text-orange-700 hover:text-orange-800 hover:bg-orange-100 dark:text-orange-300 dark:hover:text-orange-200 dark:hover:bg-orange-900/30"
+                  className="text-xs"
+              
                 >
                   Select All
                 </Button>
@@ -862,7 +868,8 @@ export function AccountGroupsGrid({
                     variant="ghost" 
                     size="sm" 
                     onClick={handleDeselectAll}
-                    className="text-orange-700 hover:text-orange-800 hover:bg-orange-100 dark:text-orange-300 dark:hover:text-orange-200 dark:hover:bg-orange-900/30"
+                    className="text-xs"
+                  
                   >
                     Deselect All
                   </Button>
@@ -879,8 +886,8 @@ export function AccountGroupsGrid({
           <Card
             key={group.id}
             className={`
-              relative cursor-pointer hover:shadow-md hover:bg-muted/30 hover:dark:bg-black/40 dark:bg-sidebar bg-white p-2 px-4 group transition-all
-              ${isDeleteMode && selectedForDeletion.includes(group.id) ? 'ring-2 ring-destructive shadow-lg bg-destructive/5' : ''}
+              relative cursor-pointer hover:shadow-md  p-2 px-4 group transition-all
+              ${isDeleteMode && selectedForDeletion.includes(group.id) ? 'border  shadow-lg shadow-destructive bg-destructive/5' : ''}
               ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
             `}
             onClick={() => handleGroupClick(group)}

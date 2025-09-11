@@ -33,7 +33,20 @@
       "Bash(PORT=3002 yarn dev)",
       "Bash(find:*)",
       "Bash(yarn build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "WebFetch(domain:coinstats.app)",
+      "WebFetch(domain:claude.ai)",
+      "WebSearch",
+      "WebFetch(domain:originui.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git clone:*)",
+      "Bash(cp:*)",
+      "Bash(sed:*)",
+      "Bash(yarn install:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(PORT=3003 yarn dev)"
     ],
     "deny": [],
     "ask": []

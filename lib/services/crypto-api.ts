@@ -188,8 +188,8 @@ class CryptoApiService {
     try {
       const [walletResponse, transactionsResponse, nftsResponse, defiResponse] = await Promise.all([
         this.getWallet(walletId),
-        this.getWalletTransactions(walletId, { limit: 10 }),
-        this.getWalletNFTs(walletId, { limit: 10 }),
+        this.getWalletTransactions(walletId, { limit: 20 }),
+        this.getWalletNFTs(walletId, { limit: 20 }),
         this.getWalletDeFiPositions(walletId)
       ]);
 
@@ -222,7 +222,7 @@ class CryptoApiService {
   async pollSyncStatus(
     walletId: string, 
     jobId: string, 
-    onProgress?: (status: SyncStatus) => void,
+    onProgress?: (status: SyncJobStatus) => void,
     maxAttempts: number = 30,
     interval: number = 2000
   ): Promise<SyncJobStatus> {
@@ -267,7 +267,7 @@ class CryptoApiService {
         .filter((result): result is PromiseFulfilledResult<ApiResponse<CryptoWallet>> => 
           result.status === 'fulfilled' && result.value.success
         )
-        .map(result => result.value.data);
+        .map(result => (result.value as ApiSuccessResponse<CryptoWallet>).data);
 
       const failed = results.filter(result => 
         result.status === 'rejected' || 

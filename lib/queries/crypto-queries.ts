@@ -216,7 +216,7 @@ export const cryptoQueries = {
 // Mutations
 export const cryptoMutations = {
   // Wallet mutations
-  createWallet: () => {
+  useCreateWallet: () => {
     const queryClient = useQueryClient();
     const { addWallet } = useCryptoStore();
 
@@ -247,7 +247,7 @@ export const cryptoMutations = {
     });
   },
 
-  updateWallet: () => {
+  useUpdateWallet: () => {
     const queryClient = useQueryClient();
     const { updateWallet } = useCryptoStore();
 
@@ -270,7 +270,7 @@ export const cryptoMutations = {
     });
   },
 
-  deleteWallet: () => {
+  useDeleteWallet: () => {
     const queryClient = useQueryClient();
     const { removeWallet } = useCryptoStore();
 
@@ -299,7 +299,7 @@ export const cryptoMutations = {
   },
 
   // Sync mutations
-  syncWallet: () => {
+  useSyncWallet: () => {
     const queryClient = useQueryClient();
     const { setSyncStatus } = useCryptoStore();
 
@@ -330,7 +330,7 @@ export const cryptoMutations = {
     });
   },
 
-  syncAllWallets: () => {
+  useSyncAllWallets: () => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -348,7 +348,7 @@ export const cryptoMutations = {
   },
 
   // Export mutation
-  exportPortfolio: () => {
+  useExportPortfolio: () => {
     return useMutation({
       mutationFn: (exportData: ExportRequest) => cryptoApi.exportPortfolioData(exportData),
       onSuccess: (response) => {

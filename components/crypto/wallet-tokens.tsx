@@ -167,16 +167,10 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
 
   return (
     <div className="space-y-3">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4">
-        <h3 className="font-semibold flex items-center gap-2">
-          <PieChart className="h-4 w-4 text-primary" />
-          Token Portfolio
-        </h3>
-      </div>
+ 
 
       {/* Compact Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 ">
             <div className="bg-muted rounded-lg p-2 flex items-center gap-2">
               <div className='w-10 h-10 rounded-lg items-center content-center justify-center flex bg-gradient-to-br from-orange-500 to-pink-500'>
             <BadgeDollarSign className="h-5 w-5  text-white" />
@@ -258,7 +252,7 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
       {/* Conditional Rendering based on View Mode */}
       {isBeginnerMode ? (
         /* Beginner View - Cards */
-        <div className="space-y-3 px-4">
+        <div className="space-y-3 ">
           {paginatedTokens.map((token) => (
           <Card key={token.id} className={cn(
             "group transition-all duration-100 hover:shadow-md relative py-2",
@@ -357,13 +351,12 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
         </div>
       ) : (
         /* Pro View - Data Table */
-        <div className="px-4">
           <TokensDataTable 
             tokens={tokens} 
             totalValue={totalValue}
             isLoading={isLoading}
           />
-        </div>
+        
       )}
 
       {/* Empty State for Beginner View Only */}

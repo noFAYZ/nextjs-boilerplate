@@ -22,8 +22,8 @@ export interface PaginationInfo {
   limit: number;
   total: number;
   totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  hasNext?: boolean;
+  hasPrev?: boolean;
 }
 
 // Crypto Wallet Types
@@ -151,34 +151,42 @@ export interface TransactionParams {
 // NFT Types
 export interface CryptoNFT {
   id: string;
-  tokenId: string;
-  contractAddress: string;
-  name: string;
-  description?: string;
-  image?: string;
-  animationUrl?: string;
-  externalUrl?: string;
-  collection: {
-    name: string;
-    slug: string;
-    description?: string;
-    imageUrl?: string;
-    floorPrice?: number;
-  };
-  metadata?: Record<string, any>;
-  rarity?: {
-    rank: number;
-    score: number;
-    total: number;
-  };
-  lastSale?: {
-    price: number;
-    currency: string;
-    timestamp: string;
-  };
-  network: NetworkType;
   walletId: string;
-  estimatedValueUsd?: number;
+  contractAddress: string;
+  tokenId: string;
+  standard: string;
+  network: NetworkType;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  animationUrl?: string | null;
+  externalUrl?: string | null;
+  attributes: {
+    category: string;
+    zapperType: string;
+    originalAttributes?: any;
+  };
+  collectionName: string;
+  collectionSymbol?: string | null;
+  collectionSlug?: string | null;
+  ownerAddress: string;
+  quantity: string;
+  transferredAt?: string | null;
+  lastSalePrice?: string | null;
+  lastSalePriceUsd?: number | null;
+  floorPrice?: string | null;
+  floorPriceUsd?: number | null;
+  estimatedValue?: {
+    s: number;
+    e: number;
+    d: number[];
+  } | null;
+  isSpam: boolean;
+  isNsfw: boolean;
+  rarity?: number | null;
+  rarityRank?: number | null;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface NFTParams {
@@ -220,6 +228,8 @@ export interface DeFiPosition {
 // Sync Types
 export interface SyncRequest {
   fullSync?: boolean;
+  syncAssets?: boolean;
+  syncNFTs?: boolean;
   syncTypes?: ('assets' | 'transactions' | 'nfts' | 'defi')[];
 }
 

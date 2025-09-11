@@ -94,15 +94,15 @@ export const useWalletSummary = (walletId: string) => {
 };
 
 export const useCreateWallet = () => {
-  return cryptoMutations.createWallet();
+  return cryptoMutations.useCreateWallet();
 };
 
 export const useUpdateWallet = () => {
-  return cryptoMutations.updateWallet();
+  return cryptoMutations.useUpdateWallet();
 };
 
 export const useDeleteWallet = () => {
-  return cryptoMutations.deleteWallet();
+  return cryptoMutations.useDeleteWallet();
 };
 
 // Portfolio Hooks
@@ -344,11 +344,11 @@ export const useWalletDeFiPositions = (walletId: string) => {
 
 // Sync Hooks
 export const useSyncWallet = () => {
-  return cryptoMutations.syncWallet();
+  return cryptoMutations.useSyncWallet();
 };
 
 export const useSyncAllWallets = () => {
-  return cryptoMutations.syncAllWallets();
+  return cryptoMutations.useSyncAllWallets();
 };
 
 export const useSyncStatus = (walletId: string, jobId?: string) => {
@@ -424,7 +424,7 @@ export const useAnalytics = (params?: AnalyticsParams) => {
 
 // Export Hook
 export const useExportPortfolio = () => {
-  return cryptoMutations.exportPortfolio();
+  return cryptoMutations.useExportPortfolio();
 };
 
 // Combined Hooks for Complex Operations
@@ -463,6 +463,8 @@ export const useWalletFullData = (walletId: string) => {
   const transactionsQuery = useWalletTransactions(walletId, { limit: 10 });
   const nftsQuery = useWalletNFTs(walletId, { limit: 10 });
   const defiQuery = useWalletDeFiPositions(walletId);
+
+  console.log('useWalletFullData', nftsQuery.nfts);
 
   return {
     wallet: walletQuery.wallet,

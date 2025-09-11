@@ -39,7 +39,7 @@ export default function SignUpPage() {
             description="Join MoneyMappr and take control of your finances"
             onSubmit={handleFormSubmit}
             isLoading={loading}
-            error={error}
+            error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
             success={success}
             successMessage="Account created successfully! Please check your email to verify your account before signing in."
             links={[

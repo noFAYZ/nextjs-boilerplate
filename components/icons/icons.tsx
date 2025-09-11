@@ -128,3 +128,49 @@ export function SolarTrashBinMinimalisticBoldDuotone(props: SVGProps<SVGSVGEleme
 export function ProiconsFolderAdd(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none"><path fill="currentColor" fillRule="evenodd" d="M17.5 23a5.5 5.5 0 1 0 0-11a5.5 5.5 0 0 0 0 11m0-8.993a.5.5 0 0 1 .5.5V17h2.493a.5.5 0 1 1 0 1H18v2.494a.5.5 0 0 1-1 0V18h-2.493a.5.5 0 1 1 0-1H17v-2.493a.5.5 0 0 1 .5-.5" clipRule="evenodd"></path><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.75 8.623v7.379a4 4 0 0 0 4 4h3.35M2.75 8.623V6.998a3 3 0 0 1 3-3h2.9a2.5 2.5 0 0 1 1.768.732L12 6.313m-9.25 2.31h5.904a2.5 2.5 0 0 0 1.768-.732L12 6.313m0 0l5.25-.002a4 4 0 0 1 4 4v.669"></path></g></svg>);
 }
+
+
+export function StreamlineFlexWalletAdd(props: SVGProps<SVGSVGElement>) {
+	return (
+	  <svg
+		xmlns="http://www.w3.org/2000/svg"
+		width={14}
+		height={14}
+		viewBox="0 0 14 14"
+		{...props}
+	  >
+		<g
+		  fill="none"
+		  stroke="currentColor"
+		  strokeLinecap="round"
+		  strokeLinejoin="round"
+		  strokeWidth={1.3}
+		>
+		  {/* Wallet */}
+		  <path d="M12.33 6.657a16 16 0 0 0-.193-1.163c-.184-.976-1.021-1.761-2.073-1.91l-.037-.005l-.02-.138c1.089-.49.807-2.013-.254-2.234c-.869-.18-2.885-.25-4.09-.25c-1.144 0-1.909.16-2.727.33q-.066.016-.133.028c-.875.183-1.572 1.143-1.726 2.34l-.009.068a21.6 21.6 0 0 0-.217 3.205q0 .381.008.709q-.008.245-.008.53c0 1.235.123 1.887.261 2.618l.01.055c.185.977 1.023 1.761 2.074 1.91l.16.023c.982.14 1.9.27 3.274.27s2.292-.13 3.274-.27l.16-.023c1.052-.149 1.89-.933 2.073-1.91l.011-.055c.066-.35.129-.68.176-1.067"></path>
+		  <path d="M4.391 3.57c.686-.052 1.819-.175 2.997-.175c1.22 0 1.797.062 2.597.174m2.357 6.151h-1.566a1.531 1.531 0 0 1 0-3.063h1.566a1 1 0 0 1 1 1V8.72a1 1 0 0 1-1 1"></path>
+  
+		  {/* Plus Icon (bottom-left) */}
+		  <g transform="translate(1, 10)">
+			<circle cx="2" cy="2" r="2.2" stroke="currentColor" />
+			<path d="M2 0.8v2.4M0.8 2h2.4" />
+		  </g>
+		</g>
+	  </svg>
+	);
+  }
+
+
+export function StreamlineFlexHome2(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3}><path d="M3.837 12.797h6.326c.67 0 1.24-.489 1.341-1.15c.162-1.052.2-2.118.112-3.177h1.224a.5.5 0 0 0 .422-.768l-.212-.333a20 20 0 0 0-4.785-5.205l-.66-.5a1 1 0 0 0-1.21 0l-.66.5A20 20 0 0 0 .95 7.37l-.212.333a.5.5 0 0 0 .422.768h1.224a13.6 13.6 0 0 0 .112 3.176c.102.662.671 1.15 1.34 1.15"></path><path d="M7 8.089c.921 0 1.668.746 1.668 1.667v3.04H5.333v-3.04c0-.92.746-1.667 1.667-1.667"></path></g></svg>);
+}
+
+
+export function LetsIconsAddRingDuotone(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none"><circle cx={12} cy={12} r={9} fill="currentColor" fillOpacity={0.25}></circle><path stroke="currentColor" strokeLinecap="square" strokeWidth={1.2} d="M12 15V9m3 3H9"></path></g></svg>);
+}
+
+
+export function SolarAddSquareBoldDuotone(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22" opacity={0.5}></path><path fill="currentColor" d="M12 8.25a.75.75 0 0 1 .75.75v2.25H15a.75.75 0 0 1 0 1.5h-2.25V15a.75.75 0 0 1-1.5 0v-2.25H9a.75.75 0 0 1 0-1.5h2.25V9a.75.75 0 0 1 .75-.75"></path></svg>);
+}

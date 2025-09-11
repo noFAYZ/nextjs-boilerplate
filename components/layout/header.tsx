@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Settings, Sparkles, Menu, X, TrendingUp, Wallet, History, Crown, LogOut, User, Bell, ChevronDown } from 'lucide-react';
+import { Search, Settings, Menu, X, TrendingUp, Wallet, History, Crown, LogOut, User, Bell, ChevronDown, Plus, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -309,332 +309,116 @@ export function Header({
     <header 
       ref={headerRef}
       className={cn(
-        'w-full  z-50',
+        'w-full z-50',
         sticky && 'sticky top-0',
-        border && 'border-b',
-        blur && 'backdrop-blur-xl supports-[backdrop-filter]:bg-background/80',
-        !blur && 'bg-background',
-        isScrolled && sticky && 'shadow-sm bg-background/95',
+    
+        'bg-sidebar',
+        isScrolled && sticky && 'shadow-sm',
         className
       )}
       role="banner"
       aria-label="Main navigation"
     >
-      {/* Main Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 min-h-[4rem] w-full">
-        {/* Left Section - Logo + Primary Navigation */}
-        <div className="flex items-center gap-4 sm:gap-6 flex-1">
+      {/* Enterprise SaaS Header */}
+      <div className="flex items-center h-16 px-4 lg:px-6">
+        {/* Left Section - Logo + Navigation */}
+        <div className="flex items-center gap-8 flex-1">
           {/* Logo */}
           <Link 
             href="/dashboard" 
-            className="flex items-center gap-2 font-bold text-lg group "
+            className="flex items-center gap-2 group"
             aria-label="MoneyMappr Dashboard"
           >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:rotate-12">
+            <div className="w-8 h-8 transition-transform group-hover:scale-105">
               <LogoMappr />
             </div>
-            <span className="hidden sm:block bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <span className="hidden sm:block text-lg font-semibold text-foreground">
               MoneyMappr
             </span>
           </Link>
 
-          {/* Primary Navigation - Sidebar Menu Items */}
-          <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Primary navigation">
-            {MENU_ITEMS.map((item) => {
+          {/* Primary Navigation */}
+          <nav className="hidden lg:flex items-center gap-1" role="navigation">
+            {MENU_ITEMS.slice(0, 4).map((item) => {
               const isActive = activeMenuItem?.id === item.id;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-1.5 px-3 py-1 text-sm font-medium rounded-lg hover:bg-accent/50",
+                    "px-3 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive 
-                      ? "text-primary bg-accent/70 shadow-sm border" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-foreground bg-accent" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   )}
-                  aria-current={isActive ? 'page' : undefined}
                 >
                   {item.label}
-                  {item.badge && (
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5 ml-1">
-                      {item.badge}
-                    </Badge>
-                  )}
-               
                 </Link>
               );
             })}
           </nav>
+        </div>
 
-          {/* Mobile Menu Button */}
+        {/* Center Section - Search */}
+        <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              className="pl-10 pr-12 h-9 bg-muted/30 border-0 focus:bg-background focus:ring-1 focus:ring-border"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 hidden sm:inline-flex">
+              <Command className="h-3 w-3" />K
+            </kbd>
+          </div>
+        </div>
+
+        {/* Right Section - Actions */}
+        <div className="flex items-center gap-2">
+          {/* Mobile Search */}
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden hover:bg-accent transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-menu"
+            className="md:hidden h-9 w-9"
+            onClick={() => setIsMobileSearchOpen(true)}
           >
-            <div className="relative w-6 h-6">
-              <Menu 
-                className={cn(
-                  "absolute inset-0 ",
-                  isMobileMenuOpen ? "opacity-0 rotate-90" : "opacity-100 rotate-0"
-                )} 
-              />
-              <X 
-                className={cn(
-                  "absolute inset-0 ",
-                  isMobileMenuOpen ? "opacity-100 rotate-0" : "opacity-0 -rotate-90"
-                )} 
-              />
-            </div>
+            <Search className="h-4 w-4" />
           </Button>
-        </div>
 
-        {/* Center Section - Enhanced Search Combobox */}
-        <div className="hidden md:flex flex-1 max-w-xl mx-6">
-          <Popover open={isDesktopSearchOpen} onOpenChange={setIsDesktopSearchOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size={'lg'}
-                role="combobox"
-                aria-expanded={isDesktopSearchOpen}
-                className="w-full justify-between text-muted-foreground hover:text-foreground rounded-lg shadow-none"
-                aria-label="Search tokens, addresses, and more"
-              >
-                <div className="flex items-center flex-1 text-left">
-                  <Search className="mr-2 h-5 w-5 shrink-0" />
-                  <span className="truncate">
-                    {searchValue || "Search tokens, addresses..."}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                    <span className="text-xs">⌘</span>K
-                  </kbd>
-                </div>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[480px] p-0" align="center" sideOffset={8}>
-              <Command>
-                <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                  <CommandInput 
-                    placeholder="Search tokens, addresses, transactions..."
-                    value={searchValue}
-                    onValueChange={setSearchValue}
-                    className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  {isSearchLoading && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                  )}
-                </div>
-                <CommandList className="max-h-[300px] overflow-y-auto">
-                  {filteredSearchResults.length === 0 ? (
-                    <CommandEmpty>
-                      <div className="flex flex-col items-center justify-center py-6">
-                        <Search className="h-8 w-8 text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">No results found</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">
-                          Try searching for tokens, addresses, or transactions
-                        </p>
-                      </div>
-                    </CommandEmpty>
-                  ) : (
-                    <>
-                      {/* Tokens */}
-                      {filteredSearchResults.filter(item => item.type === 'token').length > 0 && (
-                        <CommandGroup heading="Tokens">
-                          {filteredSearchResults
-                            .filter(item => item.type === 'token')
-                            .map((item) => {
-                              const IconComponent = item.icon;
-                              return (
-                                <CommandItem
-                                  key={item.value}
-                                  value={item.value}
-                                  onSelect={() => handleSearchSelect(item)}
-                                  className="flex items-center justify-between py-3 cursor-pointer"
-                                >
-                                  <div className="flex items-center">
-                                    <IconComponent className="mr-3 h-4 w-4 text-primary" />
-                                    <div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium">{item.label}</span>
-                                        {item.verified && (
-                                          <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                                          </div>
-                                        )}
-                                      </div>
-                                      <span className="text-xs text-muted-foreground">{item.description}</span>
-                                    </div>
-                                  </div>
-                                  <div className="text-right text-xs">
-                                    <div className="font-medium">{item.price}</div>
-                                    <div className={cn(
-                                      "text-xs",
-                                      item.change?.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                                    )}>
-                                      {item.change}
-                                    </div>
-                                  </div>
-                                </CommandItem>
-                              );
-                            })}
-                        </CommandGroup>
-                      )}
-
-                      {/* Addresses */}
-                      {filteredSearchResults.filter(item => item.type === 'address').length > 0 && (
-                        <>
-                          <CommandSeparator />
-                          <CommandGroup heading="Addresses">
-                            {filteredSearchResults
-                              .filter(item => item.type === 'address')
-                              .map((item) => {
-                                const IconComponent = item.icon;
-                                return (
-                                  <CommandItem
-                                    key={item.value}
-                                    value={item.value}
-                                    onSelect={() => handleSearchSelect(item)}
-                                    className="py-3 cursor-pointer"
-                                  >
-                                    <IconComponent className="mr-3 h-4 w-4 text-primary" />
-                                    <div>
-                                      <div className="font-mono text-sm">{item.label}</div>
-                                      <div className="text-xs text-muted-foreground">{item.description}</div>
-                                    </div>
-                                  </CommandItem>
-                                );
-                              })}
-                          </CommandGroup>
-                        </>
-                      )}
-
-                      {/* Recent */}
-                      {filteredSearchResults.filter(item => item.type === 'recent').length > 0 && (
-                        <>
-                          <CommandSeparator />
-                          <CommandGroup heading="Recent">
-                            {filteredSearchResults
-                              .filter(item => item.type === 'recent')
-                              .map((item) => {
-                                const IconComponent = item.icon;
-                                return (
-                                  <CommandItem
-                                    key={item.value}
-                                    value={item.value}
-                                    onSelect={() => handleSearchSelect(item)}
-                                    className="py-3 cursor-pointer"
-                                  >
-                                    <IconComponent className="mr-3 h-4 w-4 text-muted-foreground" />
-                                    <div>
-                                      <div className="font-medium">{item.label}</div>
-                                      <div className="text-xs text-muted-foreground">{item.description}</div>
-                                    </div>
-                                  </CommandItem>
-                                );
-                              })}
-                          </CommandGroup>
-                        </>
-                      )}
-                    </>
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        {/* Right Section - Enhanced Action Buttons */}
-        <div className="flex items-center gap-4 sm:gap-2">
-          {/* Mobile Search Button */}
-          <Popover open={isMobileSearchOpen} onOpenChange={setIsMobileSearchOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="md:hidden hover:bg-accent transition-colors" 
-                aria-label="Search"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[90vw] max-w-sm p-0" align="end" sideOffset={8}>
-              <Command>
-                <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                  <CommandInput 
-                    placeholder="Search tokens, addresses..."
-                    value={searchValue}
-                    onValueChange={setSearchValue}
-                    className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-                <CommandList className="max-h-[250px] overflow-y-auto">
-                  {filteredSearchResults.length === 0 ? (
-                    <CommandEmpty>No results found.</CommandEmpty>
-                  ) : (
-                    filteredSearchResults.map((item) => {
-                      const IconComponent = item.icon;
-                      return (
-                        <CommandItem
-                          key={item.value}
-                          value={item.value}
-                          onSelect={() => handleSearchSelect(item)}
-                          className="py-3 cursor-pointer"
-                        >
-                          <IconComponent className="mr-3 h-4 w-4" />
-                          <div>
-                            <div className="font-medium">{item.label}</div>
-                            {item.description && (
-                              <div className="text-xs text-muted-foreground">{item.description}</div>
-                            )}
-                          </div>
-                        </CommandItem>
-                      );
-                    })
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-
-        
-
-          {/* View Mode Switcher */}
-          <GlobalViewSwitcher />
-
-          {/* Theme Switcher */}
           <ThemeSwitcher />
 
-            {/* Notifications */}
-          <Popover open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen} >
+          {/* Create Button */}
+          <Button size="sm" className="hidden sm:flex items-center gap-1">
+            <Plus className="h-4 w-4" />
+            New
+          </Button>
+
+          {/* Help */}
+          <Button variant="ghost" size="icon" className="h-9 w-9">
+            <HelpCircle className="h-4 w-4" />
+          </Button>
+
+          {/* Notifications */}
+          <Popover open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
             <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="relative hover:bg-accent transition-colors"
-                aria-label={`Notifications (${unreadNotificationsCount} unread)`}
-              >
+              <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                 <Bell className="h-4 w-4" />
                 {unreadNotificationsCount > 0 && (
-                  <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs font-medium text-white flex items-center justify-center animate-pulse">
+                  <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs font-medium text-white flex items-center justify-center">
                     {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
                   </div>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-90 p-0 text-xs" align="end" sideOffset={8}>
-     
+            <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
+              <div className="p-3 border-b">
+                <h4 className="text-sm font-semibold">Notifications</h4>
+              </div>
               <div className="max-h-[300px] overflow-y-auto">
                 {mockNotifications.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8">
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
                     <Bell className="h-8 w-8 text-muted-foreground/50 mb-2" />
                     <p className="text-sm text-muted-foreground">No notifications</p>
                   </div>
@@ -643,35 +427,27 @@ export function Header({
                     <div
                       key={notification.id}
                       className={cn(
-                        "border-b px-4 py-2 text-xs cursor-pointer hover:bg-accent/50 transition-colors",
-                        !notification.read && "bg-blue-50/50 dark:bg-blue-950/20"
+                        "border-b px-3 py-3 cursor-pointer hover:bg-accent/50 transition-colors last:border-b-0",
+                        !notification.read && "bg-blue-50/30 dark:bg-blue-950/10"
                       )}
                       onClick={() => handleNotificationClick(notification)}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-medium">{notification.title}</h4>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm font-medium truncate">{notification.title}</h4>
                             {!notification.read && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground ">
+                          <p className="text-xs text-muted-foreground mb-1">
                             {notification.description}
                           </p>
-                       
-                        </div>
-                        <div className={cn(
-                          "w-2 h-2 rounded-full mt-2",
-                          notification.type === 'success' && 'bg-green-500',
-                          notification.type === 'error' && 'bg-red-500',
-                          notification.type === 'warning' && 'bg-yellow-500',
-                          notification.type === 'info' && 'bg-blue-500'
-                        )} />
-                      </div>
-                      <p className="text-[10px] text-end text-muted-foreground/70 ">
+                          <p className="text-xs text-muted-foreground/70">
                             {formatTimestamp(notification.timestamp)}
                           </p>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}
@@ -686,50 +462,44 @@ export function Header({
             </PopoverContent>
           </Popover>
 
-          {/* Profile Dropdown */}
+          {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative h-10 w-10 rounded-full hover:bg-accent  focus-visible:ring-0 "
-                aria-label="User menu"
-              >
+              <Button variant="ghost" className="h-9 w-9 rounded-full">
                 {profileLoading ? (
-                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-8 w-8 rounded-full" />
                 ) : (
-                  <Avatar className="h-10 w-10">
+                  <Avatar className="h-8 w-8">
                     <AvatarImage 
                       src={profile?.profilePicture} 
                       alt={`${profile?.firstName || 'User'}'s avatar`}
                     />
-                    <AvatarFallback className="text-sm bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                    <AvatarFallback className="text-sm bg-muted text-muted-foreground">
                       {profile?.firstName?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 )}
-            
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-              <div className="px-2 py-1.5 text-sm">
-                <div className="font-medium">{profile?.firstName || 'User'}</div>
+              <div className="p-3 border-b">
+                <div className="text-sm font-medium">{profile?.firstName || 'User'}</div>
                 <div className="text-xs text-muted-foreground truncate">{profile?.email}</div>
               </div>
-              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/dashboard/profile" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Profile Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/subscription" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/dashboard/subscription" className="flex items-center gap-2">
                   <Crown className="h-4 w-4" />
                   Subscription
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/dashboard/settings" className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   Settings
                 </Link>
@@ -744,160 +514,60 @@ export function Header({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-9 w-9"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
-      {/* Enhanced Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" 
-            onClick={() => setIsMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-          
-          {/* Menu Panel */}
-          <div 
-            ref={menuRef}
-            id="mobile-menu"
-            className="lg:hidden fixed top-16 left-0 right-0 bg-background border-b shadow-xl z-50 animate-in slide-in-from-top-2 duration-300"
-            role="dialog"
-            aria-label="Mobile navigation menu"
-          >
-            <div className="px-4 sm:px-6 py-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto">
-              {/* Mobile Primary Navigation */}
-              <nav className="space-y-1" role="navigation" aria-label="Mobile primary navigation">
-                {MENU_ITEMS.map((item) => {
-                  const isActive = activeMenuItem?.id === item.id;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-3 text-base font-medium  rounded-lg",
-                        isActive 
-                          ? "text-primary bg-accent/70 shadow-sm" 
-                          : "text-foreground hover:text-primary hover:bg-accent/50"
-                      )}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      aria-current={isActive ? 'page' : undefined}
-                    >
-                      {item.label}
-                      {item.badge && (
-                        <Badge variant="secondary" className="text-xs ml-auto">
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </Link>
-                  );
-                })}
-              </nav>
-
-              {/* Mobile Submenu for Active Item */}
-              {activeSubmenu.length > 0 && (
-                <div className="space-y-3 pt-2 border-t">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                    {activeMenuItem?.label}
-                  </h3>
-                  <nav className="space-y-1 pl-3" role="navigation" aria-label="Mobile submenu">
-                    {activeSubmenu.map((subItem) => {
-                      const isActiveSubItem = pathname === subItem.href;
-                      return (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={cn(
-                            "flex items-center gap-2 px-3 py-2 text-sm font-medium  rounded-lg",
-                            isActiveSubItem
-                              ? "text-primary bg-accent/50"
-                              : "text-muted-foreground hover:text-primary hover:bg-accent/30"
-                          )}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          aria-current={isActiveSubItem ? 'page' : undefined}
-                        >
-                          {subItem.label}
-                          {subItem.badge && (
-                            <Badge variant="secondary" className="text-xs ml-auto">
-                              {subItem.badge}
-                            </Badge>
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                </div>
-              )}
-
-              {/* Mobile Quick Actions */}
-              <div className="space-y-3 pt-4 border-t">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                  Quick Actions
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    className="justify-center relative overflow-hidden group hover:border-primary/50 hover:shadow-lg hover:shadow-primary/25 "
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
-                      Launch
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  </Button>
-                  
-                  <Button 
-                    className="justify-center relative group"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Wallet className="h-4 w-4" />
-                      Connect
-                    </span>
-                    <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  </Button>
-                </div>
-
-                {/* Mobile Account Selector */}
-                <div className="pt-2">
-                  <AccountSelector collapsed={false} />
-                </div>
-              </div>
+      {/* Mobile Search Modal */}
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="fixed inset-0 bg-background/40 backdrop-blur-sm" onClick={() => setIsMobileSearchOpen(false)} />
+          <div className="fixed top-16 left-4 right-4 bg-card border rounded-lg shadow-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="flex-1 border-0 p-2 h-auto bg-background focus:ring-0"
+                autoFocus
+              />
+              <Button variant="ghost" size="sm" onClick={() => setIsMobileSearchOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
-      {/* Enhanced Secondary Navigation Row - Active Menu Submenu */}
-      {activeSubmenu.length > 0 && (
-        <div className="border-t bg-gradient-to-r from-background to-muted/20 px-4 sm:px-6 py-3 w-full">
-          <nav 
-            className="flex items-center gap-6 overflow-x-auto scrollbar-hide pb-1" 
-            role="navigation" 
-            aria-label="Secondary navigation"
-          >
-            {activeSubmenu.map((subItem) => {
-              const isActiveSubItem = pathname === subItem.href;
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden border-t bg-background">
+          <nav className="px-4 py-4 space-y-2">
+            {MENU_ITEMS.map((item) => {
+              const isActive = activeMenuItem?.id === item.id;
               return (
                 <Link
-                  key={subItem.href}
-                  href={subItem.href}
+                  key={item.href}
+                  href={item.href}
                   className={cn(
-                    "relative flex items-center gap-2 text-xs font-medium whitespace-nowrap px-3 py-2 rounded-lg hover:bg-accent/50",
-                    isActiveSubItem
-                      ? "text-primary bg-muted shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                    "block px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    isActive 
+                      ? "text-foreground bg-accent" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   )}
-                  aria-current={isActiveSubItem ? 'page' : undefined}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {subItem.label}
-                  {subItem.badge && (
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                      {subItem.badge}
-                    </Badge>
-                  )}
-               
+                  {item.label}
                 </Link>
               );
             })}

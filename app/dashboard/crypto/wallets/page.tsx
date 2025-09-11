@@ -29,22 +29,32 @@ import {
   useCreateWallet,
   useSyncManager,
   useViewPreferences,
-  useFilterManager
+  useFilterManager,
+  useDeleteWallet,
+  useSyncWallet
 } from '@/lib/hooks/use-crypto';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import type { CryptoWallet, NetworkType, WalletType } from '@/lib/types/crypto';
+import { SyncWalletsDialog } from '@/components/crypto/SyncWalletsDialog';
+import { DeleteProgressDialog } from '@/components/ui/progress-dialog';
+import { createOperationItem } from '@/lib/types/progress';
 
 export default function WalletsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'balance' | 'lastSync'>('name');
+  const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedWallets, setSelectedWallets] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Use custom hooks
   const { wallets, isLoading, error, refetch } = useWallets();
-  const { syncAllWallets, hasActiveSyncs, isSyncing, getActiveSyncs } = useSyncManager();
+  const { syncAllWallets, hasActiveSyncs, isSyncing, getActiveSyncs, syncWallet } = useSyncManager();
   const { preferences, setWalletsView } = useViewPreferences();
   const { filters, setNetworkFilter, setWalletTypeFilter, clearFilters, hasActiveFilters } = useFilterManager();
+  const deleteWalletMutation = useDeleteWallet();
   
   // Get data from store with memoized selectors
   const { portfolio, filters: storeFilters, viewPreferences } = useCryptoStore();
@@ -88,7 +98,67 @@ export default function WalletsPage() {
   };
 
   const handleSyncAll = () => {
-    syncAllWallets();
+    if (wallets.length === 0) return;
+    setIsSyncDialogOpen(true);
+  };
+
+  const handleSyncConfirm = async (walletIds: string[]) => {
+    const successWallets: string[] = [];
+    const failedWallets: string[] = [];
+    
+    for (const walletId of walletIds) {
+      try {
+        await syncWallet(walletId);
+        successWallets.push(walletId);
+      } catch (error) {
+        failedWallets.push(walletId);
+      }
+    }
+    
+    return { success: successWallets, failed: failedWallets };
+  };
+
+  const handleDeleteConfirm = async (walletIds: string[]) => {
+    const successWallets: string[] = [];
+    const failedWallets: string[] = [];
+    
+    for (const walletId of walletIds) {
+      try {
+        await deleteWalletMutation.mutateAsync(walletId);
+        successWallets.push(walletId);
+      } catch (error) {
+        failedWallets.push(walletId);
+      }
+    }
+    
+    return { success: successWallets, failed: failedWallets };
+  };
+
+  const toggleWalletSelection = (walletId: string) => {
+    setSelectedWallets(prev => 
+      prev.includes(walletId) 
+        ? prev.filter(id => id !== walletId)
+        : [...prev, walletId]
+    );
+  };
+
+  const enterSelectionMode = () => {
+    setIsSelectionMode(true);
+    setSelectedWallets([]);
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedWallets([]);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedWallets.length === 0) return;
+    setIsDeleteDialogOpen(true);
+  };
+
+  const getSelectedWalletsData = () => {
+    return wallets.filter(wallet => selectedWallets.includes(wallet.id));
   };
 
   const formatAddress = (address: string) => {
@@ -171,25 +241,58 @@ export default function WalletsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            onClick={handleSyncAll}
-            disabled={isSyncing || hasActiveSyncs()}
-            variant="outline"
-            size="sm"
-          >
-            {isSyncing ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            Sync All
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/crypto/wallets/add">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Wallet
-            </Link>
-          </Button>
+          {!isSelectionMode ? (
+            <>
+              <Button
+                onClick={handleSyncAll}
+                disabled={isSyncing || hasActiveSyncs() || wallets.length === 0}
+                variant="outline"
+                size="sm"
+              >
+                {isSyncing ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Sync All
+              </Button>
+              <Button
+                onClick={enterSelectionMode}
+                disabled={wallets.length === 0}
+                variant="outline"
+                size="sm"
+              >
+                Select
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/crypto/wallets/add">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Wallet
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {selectedWallets.length} selected
+              </span>
+              <Button
+                onClick={handleBulkDelete}
+                disabled={selectedWallets.length === 0}
+                variant="destructive"
+                size="sm"
+              >
+                Delete Selected
+              </Button>
+              <Button
+                onClick={exitSelectionMode}
+                variant="outline"
+                size="sm"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -377,10 +480,11 @@ export default function WalletsPage() {
               {processedWallets.map((wallet) => (
                 <div
                   key={wallet.id}
-                  onClick={() => handleWalletClick(wallet)}
+                  onClick={() => isSelectionMode ? toggleWalletSelection(wallet.id) : handleWalletClick(wallet)}
                   className={`
                     cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200
                     ${preferences.walletsView === 'list' ? 'flex items-center justify-between' : ''}
+                    ${isSelectionMode && selectedWallets.includes(wallet.id) ? 'ring-2 ring-primary bg-primary/5' : ''}
                   `}
                 >
                   {preferences.walletsView === 'grid' ? (
@@ -388,6 +492,19 @@ export default function WalletsPage() {
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
+                          {isSelectionMode && (
+                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                              selectedWallets.includes(wallet.id)
+                                ? 'bg-primary border-primary text-white'
+                                : 'border-muted-foreground'
+                            }`}>
+                              {selectedWallets.includes(wallet.id) && (
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                          )}
                           <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                             <Wallet className="h-5 w-5 text-white" />
                           </div>
@@ -461,6 +578,19 @@ export default function WalletsPage() {
                   ) : (
                     // List View
                     <div className="flex items-center gap-4 w-full">
+                      {isSelectionMode && (
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                          selectedWallets.includes(wallet.id)
+                            ? 'bg-primary border-primary text-white'
+                            : 'border-muted-foreground'
+                        }`}>
+                          {selectedWallets.includes(wallet.id) && (
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      )}
                       <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                         <Wallet className="h-5 w-5 text-white" />
                       </div>
@@ -520,6 +650,24 @@ export default function WalletsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Progress Dialogs */}
+      <SyncWalletsDialog
+        open={isSyncDialogOpen}
+        onOpenChange={setIsSyncDialogOpen}
+        wallets={wallets}
+        onConfirm={handleSyncConfirm}
+      />
+      
+      <DeleteProgressDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        items={getSelectedWalletsData().map(wallet => 
+          createOperationItem(wallet.id, wallet.name || `${wallet.address.slice(0, 8)}...${wallet.address.slice(-4)}`)
+        )}
+        onConfirm={handleDeleteConfirm}
+        itemType="wallet"
+      />
     </div>
   );
 }

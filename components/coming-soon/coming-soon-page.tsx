@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import Orb from '../ui/shadcn-io/orb';
 import DecryptedText from '../ui/shadcn-io/decrypted-text';
 import { LogoMappr } from '../icons';
-
+import Image from 'next/image';
 export function ComingSoonPage() {
   const features = [
     {
@@ -46,6 +46,7 @@ export function ComingSoonPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-gradient-to-br from-background to-accent/30 overflow-hidden">
+      <Image alt="Background" src="/bg.webp" width={600} height={600} className="absolute bottom-0 right-0   opacity-80" />
       {/* Orb background */}
       <div className="absolute top-0 inset-0">
         <Orb 
@@ -89,7 +90,7 @@ export function ComingSoonPage() {
 
           {/* Waitlist Form - Enhanced */}
           <div className="space-y-6 w-full max-w-lg">
-            <WaitlistForm className="bg-card backdrop-blur-md rounded-xl p-8 shadow-2xl border border-primary/20" />
+            <WaitlistForm className="bg-card backdrop-blur-md rounded-xl p-8 shadow-md border border-primary/20" />
             
             {/* Features Button */}
             <div className="text-center">

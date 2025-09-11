@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 // Import custom hooks
@@ -154,6 +154,25 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   const syncWallet = useSyncWallet();
   const { syncStatus } = useSyncStatus(walletIdentifier);
+  const prevSyncStatusRef = useRef<string>();
+
+  // Auto-refresh data when sync completes
+  useEffect(() => {
+    const currentStatus = syncStatus?.status;
+    const prevStatus = prevSyncStatusRef.current;
+    
+    // If sync status changed from 'processing' to 'completed', refetch data
+    if (prevStatus === 'processing' && currentStatus === 'completed') {
+      console.log('Sync completed, refreshing wallet data...');
+      setTimeout(() => {
+        refetch();
+        toast.success('Wallet data updated!');
+      }, 1000); // Small delay to ensure backend has processed the sync
+    }
+    
+    // Update the previous status
+    prevSyncStatusRef.current = currentStatus;
+  }, [syncStatus?.status, refetch]);
 
   // Memoize expensive calculations
   const walletStats = useMemo(() => {
@@ -183,7 +202,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
     if (!walletIdentifier || syncWallet.isPending) return;
     
     syncWallet.mutate(
-      { walletId: walletIdentifier },
+      { walletId: walletIdentifier, syncData: { syncAssets: true, syncNFTs: true,syncTypes: ['assets', 'transactions','nfts'] }},
       {
         onSuccess: () => {
           toast.success('Wallet sync started');
@@ -479,29 +498,30 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       </div>
 
       {/* Wallet Details Tabs */}
-      <Card>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" >
-          <CardHeader className="pb-3">
-            <TabsList className="grid w-full grid-cols-3 lg:w-fit lg:grid-cols-none lg:flex lg:gap-2 h-10 bg-transparent"
+   
+        <Tabs value={activeTab} onValueChange={setActiveTab}  className="w-full"  variant='underline'>
+     
+            <TabsList className="grid w-full grid-cols-3  lg:grid-cols-none lg:flex lg:gap-2  mb-4 "
+            variant='underline' size='default'
             >
-              <TabsTrigger value="tokens" className="flex items-center gap-2 cursor-pointer  " >
-                <Coins className="h-4 w-4" />
+              <TabsTrigger value="tokens" className="flex items-center gap-2 cursor-pointer  " variant='underline' >
+               
                 <span className="hidden sm:inline">Tokens</span>
                 <span className="sm:hidden">({walletStats?.assetCount || 0})</span>
                 <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
                   {walletStats?.assetCount || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="nfts" className="flex items-center gap-2 cursor-pointer">
-                <ImageIcon className="h-4 w-4" />
+              <TabsTrigger value="nfts" className="flex items-center gap-2 cursor-pointer" variant='underline'>
+               
                 <span className="hidden sm:inline">NFTs</span>
                 <span className="sm:hidden">({walletStats?.nftCount || 0})</span>
                 <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
                   {walletStats?.nftCount || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="transactions" className="flex items-center gap-2 cursor-pointer">
-                <ArrowUpDown className="h-4 w-4" />
+              <TabsTrigger value="transactions" className="flex items-center gap-2 cursor-pointer" variant='underline'>
+               
                 <span className="hidden sm:inline">Transactions</span>
                 <span className="sm:hidden">({transactions?.length || 0})</span>
                 <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
@@ -509,33 +529,33 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                 </Badge>
               </TabsTrigger>
             </TabsList>
-          </CardHeader>
+         
 
-          <CardContent className="p-0">
-            <TabsContent value="tokens" className="mt-0 p-6">
+    
+            <TabsContent value="tokens" className=" ">
               <WalletTokens 
                 tokens={wallet?.assets || []} 
                 isLoading={isLoading}
               />
             </TabsContent>
 
-            <TabsContent value="nfts" className="mt-0 p-6">
+            <TabsContent value="nfts" className=" ">
               <WalletNFTs 
                 nfts={nfts || []} 
                 isLoading={isLoading}
               />
             </TabsContent>
 
-            <TabsContent value="transactions" className="mt-0 p-6">
+            <TabsContent value="transactions" className=" ">
               <WalletTransactions 
                 transactions={transactions || []} 
                 isLoading={isLoading}
                 walletAddress={wallet?.walletData?.address}
               />
             </TabsContent>
-          </CardContent>
+
         </Tabs>
-      </Card>
+   
     </div>
   );
 }

@@ -55,7 +55,7 @@ function ThemeSwitcher() {
       data-slot="theme-switcher"
       className={cn(
         "relative shadow-none rounded-full w-10 h-10",
-        "border border-foreground/10 justify-center",
+        "border  justify-center",
         "group",
       )}
       size="icon"

@@ -211,8 +211,8 @@ export function CreateGroupDialog({
   if (!open) return null; // Prevent rendering when dialog is closed
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[480px] p-0 gap-0 ">
+    <Dialog open={open} onOpenChange={handleClose} >
+      <DialogContent className="sm:max-w-[480px] p-0 gap-0 shadow-none ">
         {/* Header with gradient background */}
         <div className="relative overflow-hidden">
           <div className="relative px-6 pt-6 pb-4">
@@ -362,31 +362,38 @@ export function CreateGroupDialog({
                 <div className="text-sm font-medium text-foreground">
                   Customize Appearance
                 </div>
-
+<div className="flex justify-between">
                 {/* Icon Selection */}
                 <div className="space-y-3">
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Icon
                   </div>
-                  <div className="grid grid-cols-6 gap-2">
-                    {PRESET_ICONS.map((item) => (
-                      <Button
-                        key={item.icon}
-                        type="button"
-                        variant="ghost"
-                        className={`h-12 w-full p-0 text-lg border transition-all hover:scale-105 ${
-                          selectedIcon === item.icon
-                            ? "border-primary bg-primary/10 shadow-sm"
-                            : "border-border/50 hover:border-primary/30"
-                        }`}
-                        disabled={isLoading}
-                        onClick={() => handleIconSelect(item.icon)}
-                        title={item.name}
-                      >
-                        {item.icon}
-                      </Button>
-                    ))}
-                  </div>
+                  <Select
+                    onValueChange={handleIconSelect}
+                    value={selectedIcon}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="h-11 border-border shadow-sm backdrop-blur-sm">
+                      <SelectValue>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{selectedIcon}</span>
+                          <span className="text-sm">
+                            {PRESET_ICONS.find(item => item.icon === selectedIcon)?.name || 'Select icon'}
+                          </span>
+                        </div>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRESET_ICONS.map((item) => (
+                        <SelectItem key={item.icon} value={item.icon}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{item.icon}</span>
+                            <span>{item.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Color Selection */}
@@ -394,39 +401,40 @@ export function CreateGroupDialog({
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Color
                   </div>
-                  <div className="grid grid-cols-4 gap-3">
-                    {PRESET_COLORS.map((item) => (
-                      <Button
-                        key={item.color}
-                        type="button"
-                        variant="ghost"
-                        className={`h-12 w-full p-0 relative border transition-all hover:scale-105 ${
-                          selectedColor === item.color
-                            ? "border-border shadow-lg ring-2 ring-primary/20"
-                            : "border-border/30 hover:border-border"
-                        }`}
-                        style={{ backgroundColor: `${item.color}15` }}
-                        disabled={isLoading}
-                        onClick={() => handleColorSelect(item.color)}
-                        title={item.name}
-                      >
-                        <div
-                          className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        {selectedColor === item.color && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <CheckCircle2
-                              className="h-5 w-5 text-white drop-shadow-lg"
-                              style={{ color: item.color }}
+                  <Select
+                    onValueChange={handleColorSelect}
+                    value={selectedColor}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="h-11 border-border shadow-sm backdrop-blur-sm">
+                      <SelectValue>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-6 w-6 rounded-full border-2 border-white shadow-sm"
+                            style={{ backgroundColor: selectedColor }}
+                          />
+                          <span className="text-sm">
+                            {PRESET_COLORS.find(item => item.color === selectedColor)?.name || 'Select color'}
+                          </span>
+                        </div>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRESET_COLORS.map((item) => (
+                        <SelectItem key={item.color} value={item.color}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="h-6 w-6 rounded-full border-2 border-white shadow-sm"
+                              style={{ backgroundColor: item.color }}
                             />
+                            <span>{item.name}</span>
                           </div>
-                        )}
-                      </Button>
-                    ))}
-                  </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-
+</div>
                 {/* Live Preview */}
                 <div className="pt-3 border-t border-border/30">
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">

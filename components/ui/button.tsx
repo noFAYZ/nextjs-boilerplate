@@ -1,93 +1,119 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium  ease-in-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none outline-none cursor-pointer active:scale-[0.98]",
+  "inline-flex items-center justify-center  whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-75 disabled:pointer-events-none disabled:opacity-50   outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary ring-offset-background relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
-        // 🌟 Improved Primary
         default:
-          "bg-gradient-to-r from-primary/80 to-primary/90 text-primary-foreground shadow-sm hover:from-primary/90 hover:to-primary/80 active:from-primary/95 active:to-primary/85 focus-visible:ring-2 focus-visible:ring-primary/50 dark:from-primary dark:to-primary/80 dark:hover:from-primary/80 dark:hover:to-primary/70",
-
-        // 🔥 Improved Destructive
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         destructive:
-          "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-sm hover:from-red-500 hover:to-red-400 active:from-red-700 active:to-red-600 focus-visible:ring-2 focus-visible:ring-red-400/60 dark:from-red-700 dark:to-red-600 dark:hover:from-red-600 dark:hover:to-red-500",
-
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-border/60 bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:text-accent-foreground hover:border-border active:scale-[0.98] shadow-sm hover:shadow-md",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border border-secondary-foreground/10",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-
+          "hover:bg-accent/60 hover:text-accent-foreground active:scale-[0.98] backdrop-blur-sm",
+        link: "text-primary underline-offset-4 hover:underline active:scale-[0.98]",
         success:
-          "bg-green-600 text-white shadow-xs hover:bg-green-700 focus-visible:ring-green-400/40",
+          "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:shadow-md active:scale-[0.98] focus-visible:ring-emerald-500/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         warning:
-          "bg-yellow-500 text-black shadow-xs hover:bg-yellow-600 focus-visible:ring-yellow-400/40",
-        info: "bg-sky-600 text-white shadow-xs hover:bg-sky-700 focus-visible:ring-sky-400/40",
-        subtle:
-          "bg-muted text-muted-foreground hover:bg-muted/80 border border-border",
-        soft: "bg-primary/10 text-primary hover:bg-primary/20",
-        gradient:
-          "bg-gradient-to-r from-primary to-purple-500 text-white shadow-md hover:opacity-90",
+          "bg-amber-500 text-white shadow-sm hover:bg-amber-600 hover:shadow-md active:scale-[0.98] focus-visible:ring-amber-500/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
+        premium:
+          "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg hover:shadow-xl active:scale-[0.98] focus-visible:ring-purple-500/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
+        enterprise:
+          "bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg hover:shadow-xl active:scale-[0.98] focus-visible:ring-slate-500/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity border border-slate-700/50",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-sm gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-11 rounded-md px-6 has-[>svg]:px-4",
-        xl: "h-12 px-8 text-base rounded-lg font-semibold",
+        xs: "h-7 px-2.5 text-xs rounded-md ",
+        sm: "h-8 px-3 text-sm rounded-md ",
+        default: "h-9 px-4 ",
+        lg: "h-10 px-6 text-base ",
+        xl: "h-12 px-8 text-lg ",
         icon: "size-9",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
+        "icon-xl": "size-12",
       },
-      shape: {
-        default: "rounded-md",
-        pill: "rounded-full",
-        square: "rounded-none",
-        circle: "rounded-full size-9 p-0 justify-center",
+      loading: {
+        true: "cursor-not-allowed",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
-      shape: "default",
     },
   }
 )
 
-export interface ButtonProps
+interface ButtonProps
   extends React.ComponentProps<"button">,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
-  isLoading?: boolean
+  loading?: boolean
+  loadingText?: string
+  icon?: React.ReactNode
+  iconPosition?: "left" | "right"
 }
 
 function Button({
   className,
   variant,
   size,
-  shape,
-  
   asChild = false,
-  isLoading = false,
+  loading = false,
+  loadingText,
+  icon,
+  iconPosition = "left",
   children,
+  disabled,
   ...props
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button"
 
+  const isDisabled = disabled || loading
+
+  const content = React.useMemo(() => {
+    if (loading) {
+      return (
+        <>
+          <Loader2 className="size-4 animate-spin" />
+          {loadingText || children}
+        </>
+      )
+    }
+
+    if (icon && !asChild) {
+      return iconPosition === "right" ? (
+        <>
+          {children}
+          {icon}
+        </>
+      ) : (
+        <>
+          {icon}
+          {children}
+        </>
+      )
+    }
+
+    return children
+  }, [loading, loadingText, children, icon, iconPosition, asChild])
+
   return (
     <Comp
       data-slot="button"
-      aria-busy={isLoading}
-      disabled={isLoading || props.disabled}
-      className={cn(buttonVariants({ variant, size, shape,  className }))}
+      className={cn(buttonVariants({ variant, size, loading, className }))}
+      disabled={isDisabled}
       {...props}
     >
- 
-      {children}
+      {content}
     </Comp>
   )
 }

@@ -130,8 +130,8 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
           />
         </div>
         <div className="flex gap-2">
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-[130px] h-9">
+          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)} >
+            <SelectTrigger className="w-[130px] h-9" >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -156,24 +156,25 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
       </div>
 
       {/* Data Table */}
-      <div className="border rounded-lg">
+      <div className=" rounded-lg">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[250px]">Token</TableHead>
-              <TableHead className="text-right">Balance</TableHead>
-              <TableHead className="text-right">Value (USD)</TableHead>
-              <TableHead className="text-right">24h Change</TableHead>
-              <TableHead className="text-right">Portfolio %</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="hover:bg-transparent border-none ">
+              <TableHead className="w-[200px] font-bold">Token</TableHead>
+             <TableHead className="text-right font-bold">Portfolio %</TableHead> 
+              <TableHead className="text-right font-bold">Balance</TableHead>
+              <TableHead className="text-right font-bold">Value (USD)</TableHead>
+              <TableHead className="text-right font-bold">24h Change</TableHead>
+              
+              <TableHead className="text-right font-bold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedTokens.map((token) => (
-              <TableRow key={token.id} className="group">
+              <TableRow key={token.id} className="group border-none">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
                       {token.asset.logoUrl ? (
                         <Image 
                           src={token.asset.logoUrl} 
@@ -190,14 +191,29 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{token.asset.name}</p>
-                      <div className="flex items-center gap-2">
+                    
+                      <div className="flex items-center gap-1">
+                                              <p className="font-semibold text-sm truncate">{token.asset.name}</p>
+
                         <Badge variant="outline" className="text-xs">
                           {token.asset.symbol}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">{token.asset.network}</span>
-                      </div>
+                     
+                      </div>   <span className="text-xs text-muted-foreground">{token.asset.network}</span>
                     </div>
+                  </div>
+                </TableCell>
+                 <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="w-12 bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium min-w-[40px]">
+                      {((token.balanceUsd / totalValue) * 100).toFixed(1)}%
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
@@ -230,19 +246,7 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
                     <span className="text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <div className="w-12 bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium min-w-[40px]">
-                      {((token.balanceUsd / totalValue) * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                </TableCell>
+               
                 <TableCell className="text-right">
                   <Button 
                     variant="ghost" 

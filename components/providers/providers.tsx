@@ -5,6 +5,7 @@ import { StoreProvider } from "./store-provider";
 import { ReactNode } from "react";
 import { ViewModeProvider } from "@/lib/contexts/view-mode-context";
 import { OnboardingGuard } from "@/components/auth/onboarding-guard";
+import { AccountProvider } from "@/lib/contexts/account-context";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -18,9 +19,11 @@ export default function Providers({ children }: { children: ReactNode }) {
         >
           <StoreProvider>
             <ViewModeProvider>
-              <OnboardingGuard>
-                {children}
-              </OnboardingGuard>
+              <AccountProvider>
+                <OnboardingGuard>
+                  {children}
+                </OnboardingGuard>
+              </AccountProvider>
             </ViewModeProvider>
           </StoreProvider>
         </ThemeProvider>

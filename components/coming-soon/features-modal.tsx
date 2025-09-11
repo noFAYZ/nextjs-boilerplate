@@ -101,6 +101,10 @@ export function FeaturesModal({ children }: FeaturesModalProps) {
         {children}
       </DialogTrigger>
       <DialogContent className="min-w-5xl max-h-[90vh] overflow-hidden bg-card/95 backdrop-blur-xl ">
+      <DialogTitle className="text-3xl font-bold text-foreground mb-4 text-center">
+
+          Exciting Features Coming Soon!
+        </DialogTitle>
    
 
         <div className="overflow-y-auto max-h-[70vh] pr-2">

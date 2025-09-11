@@ -14,17 +14,31 @@ import {
   BarChart3,
   Wallet,
   Building2,
+  GitMerge,
+  Move,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AccountGroupsList } from '@/components/accounts/AccountGroupsList';
 import { useGroupedAccounts, useAccountGroupsHierarchy } from '@/lib/hooks/use-account-groups';
+import { useAccountGroupsStore } from '@/lib/stores';
 import type { AccountGroup } from '@/lib/types/account-groups';
+import { DeleteGroupsDialog } from '@/components/accounts/DeleteGroupsDialog';
+import { ProgressDialog } from '@/components/ui/progress-dialog';
+import { createOperationItem } from '@/lib/types/progress';
+import type { OperationItem } from '@/lib/types/progress';
 
 export default function AccountGroupsPage() {
   const [activeTab, setActiveTab] = useState('list');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isMergeDialogOpen, setIsMergeDialogOpen] = useState(false);
+  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   
   const { stats } = useGroupedAccounts();
+  const { groups, deleteGroup } = useAccountGroupsStore((state) => ({
+    groups: state.groups,
+    deleteGroup: state.deleteGroup
+  }));
   // Create stable options object to prevent infinite re-renders
   const hierarchyOptions = useMemo(() => ({
     details: true,
@@ -42,8 +56,81 @@ export default function AccountGroupsPage() {
   };
 
   const handleBulkAction = (action: 'delete' | 'merge' | 'move') => {
-    console.log(`Bulk ${action} for groups:`, selectedGroups);
-    // Implement bulk actions
+    if (selectedGroups.length === 0) return;
+    
+    switch (action) {
+      case 'delete':
+        setIsDeleteDialogOpen(true);
+        break;
+      case 'merge':
+        setIsMergeDialogOpen(true);
+        break;
+      case 'move':
+        setIsMoveDialogOpen(true);
+        break;
+    }
+  };
+
+  const handleDeleteConfirm = async (groupIds: string[]) => {
+    const successGroups: string[] = [];
+    const failedGroups: string[] = [];
+    
+    for (const groupId of groupIds) {
+      try {
+        const success = await deleteGroup(groupId);
+        if (success) {
+          successGroups.push(groupId);
+        } else {
+          failedGroups.push(groupId);
+        }
+      } catch (error) {
+        failedGroups.push(groupId);
+      }
+    }
+    
+    return { success: successGroups, failed: failedGroups };
+  };
+
+  const handleMergeConfirm = async (groupIds: string[]) => {
+    // Simulate merge operation - in real app this would merge groups
+    const successGroups: string[] = [];
+    const failedGroups: string[] = [];
+    
+    // For demo, simulate some successes and failures
+    for (const groupId of groupIds) {
+      // Simulate merge logic here
+      const success = Math.random() > 0.2; // 80% success rate for demo
+      if (success) {
+        successGroups.push(groupId);
+      } else {
+        failedGroups.push(groupId);
+      }
+    }
+    
+    return { success: successGroups, failed: failedGroups };
+  };
+
+  const handleMoveConfirm = async (groupIds: string[]) => {
+    // Simulate move operation - in real app this would move accounts between groups
+    const successGroups: string[] = [];
+    const failedGroups: string[] = [];
+    
+    // For demo, simulate some successes and failures
+    for (const groupId of groupIds) {
+      // Simulate move logic here
+      const success = Math.random() > 0.1; // 90% success rate for demo
+      if (success) {
+        successGroups.push(groupId);
+      } else {
+        failedGroups.push(groupId);
+      }
+    }
+    
+    return { success: successGroups, failed: failedGroups };
+  };
+
+  const getSelectedGroupsData = () => {
+    return groups.filter(group => selectedGroups.includes(group.id));
   };
 
   return (
@@ -221,6 +308,42 @@ export default function AccountGroupsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Progress Dialogs */}
+      <DeleteGroupsDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        groups={getSelectedGroupsData()}
+        onConfirm={handleDeleteConfirm}
+      />
+
+      <ProgressDialog
+        open={isMergeDialogOpen}
+        onOpenChange={setIsMergeDialogOpen}
+        items={getSelectedGroupsData().map(group => createOperationItem(group.id, group.name))}
+        onConfirm={handleMergeConfirm}
+        title="Merge Account Groups"
+        description="Merging selected account groups. This will combine all accounts and settings into a single group."
+        confirmButtonText="Merge Groups"
+        destructive={false}
+        icon={GitMerge}
+        iconColor="text-purple-600"
+        iconBgColor="bg-purple-100 dark:bg-purple-900/20"
+      />
+
+      <ProgressDialog
+        open={isMoveDialogOpen}
+        onOpenChange={setIsMoveDialogOpen}
+        items={getSelectedGroupsData().map(group => createOperationItem(group.id, `Move accounts from ${group.name}`))}
+        onConfirm={handleMoveConfirm}
+        title="Move Account Groups"
+        description="Moving accounts between selected groups. This will reorganize your account structure."
+        confirmButtonText="Move Accounts"
+        destructive={false}
+        icon={Move}
+        iconColor="text-indigo-600"
+        iconBgColor="bg-indigo-100 dark:bg-indigo-900/20"
+      />
     </div>
   );
 }

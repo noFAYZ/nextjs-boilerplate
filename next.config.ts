@@ -4,7 +4,25 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
   images: {
-    remotePatterns: [new URL('https://cdn.zerion.io/**')],
+
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.zerion.io',
+
+        pathname: '/**',
+      
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.zapper.xyz',
+
+        pathname: '/**',
+      
+      },
+      new URL('https://cdn.zerion.io/**')
+    ]
+    
   },
 };
 

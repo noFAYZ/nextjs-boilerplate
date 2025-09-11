@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import {  Rubik,Sen } from "next/font/google";
+import {  Readex_Pro, Rubik,Sen, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 
-const geistSans = Rubik({
+const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });

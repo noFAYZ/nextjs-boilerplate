@@ -15,7 +15,8 @@ function VerifyEmailForm() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const sessionData = useSession();
+  const session = sessionData?.data;
 
   const handleVerification = useCallback(async (token: string) => {
     try {

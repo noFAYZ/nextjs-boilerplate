@@ -30,11 +30,22 @@ import {
   ArrowUpDown,
   ExternalLink,
   Calendar,
-  Clock
+  Clock,
+  Download,
+  Tag,
+  Trash2,
+  MoreHorizontal,
+  Edit
 } from 'lucide-react';
 import { formatDate, formatDistanceToNow, formatRelative } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatBusinessTime, formatRelativeTime, formatTime, parseTimestampz, parseTimestampzString, timestampzPresets, timestampzToReadable } from '@/lib/utils/time';
+import {
+  CategorizeTransactionsDialog,
+  DeleteTransactionsDialog,
+  ExportTransactionsDialog,
+  UpdateTransactionsDialog
+} from '@/components/crypto/TransactionOperationsDialog';
 
 interface Transaction {
   id: string;
@@ -66,6 +77,14 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
   const [sortBy, setSortBy] = useState<'date' | 'value' | 'gas'>('date');
   const [filterBy, setFilterBy] = useState<'all' | 'send' | 'receive' | 'swap'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'failed'>('all');
+  
+  // Bulk operations state
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
+  const [isCategorizeDialogOpen, setIsCategorizeDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
 
   // Filter transactions
   const filteredTransactions = transactions.filter(tx => {
@@ -102,6 +121,74 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
         return 0;
     }
   });
+
+  // Bulk operation handlers
+  const toggleTransactionSelection = (transactionId: string) => {
+    setSelectedTransactions(prev => 
+      prev.includes(transactionId)
+        ? prev.filter(id => id !== transactionId)
+        : [...prev, transactionId]
+    );
+  };
+
+  const enterSelectionMode = () => {
+    setIsSelectionMode(true);
+    setSelectedTransactions([]);
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedTransactions([]);
+  };
+
+  const getSelectedTransactionsData = () => {
+    return sortedTransactions.filter(tx => selectedTransactions.includes(tx.id));
+  };
+
+  const handleBulkCategorize = () => {
+    setIsCategorizeDialogOpen(true);
+  };
+
+  const handleBulkDelete = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleBulkExport = () => {
+    setIsExportDialogOpen(true);
+  };
+
+  const handleBulkUpdate = () => {
+    setIsUpdateDialogOpen(true);
+  };
+
+  // Mock operation handlers (replace with actual API calls)
+  const handleCategorizeConfirm = async (transactionIds: string[]) => {
+    // Simulate categorization
+    const success = transactionIds.filter(() => Math.random() > 0.1);
+    const failed = transactionIds.filter(id => !success.includes(id));
+    return { success, failed };
+  };
+
+  const handleDeleteConfirm = async (transactionIds: string[]) => {
+    // Simulate deletion
+    const success = transactionIds.filter(() => Math.random() > 0.05);
+    const failed = transactionIds.filter(id => !success.includes(id));
+    return { success, failed };
+  };
+
+  const handleExportConfirm = async (transactionIds: string[]) => {
+    // Simulate export
+    const success = transactionIds.filter(() => Math.random() > 0.02);
+    const failed = transactionIds.filter(id => !success.includes(id));
+    return { success, failed };
+  };
+
+  const handleUpdateConfirm = async (transactionIds: string[]) => {
+    // Simulate update
+    const success = transactionIds.filter(() => Math.random() > 0.1);
+    const failed = transactionIds.filter(id => !success.includes(id));
+    return { success, failed };
+  };
 
   // Paginate transactions
   const totalPages = Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE);
@@ -187,16 +274,78 @@ console.log('paginatedTransactions', paginatedTransactions);
           />
         </div>
         <div className="flex gap-2">
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-[120px] h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">By Date</SelectItem>
-              <SelectItem value="value">By Value</SelectItem>
-              <SelectItem value="gas">By Gas</SelectItem>
-            </SelectContent>
-          </Select>
+          {!isSelectionMode ? (
+            <>
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger className="w-[120px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">By Date</SelectItem>
+                  <SelectItem value="value">By Value</SelectItem>
+                  <SelectItem value="gas">By Gas</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={enterSelectionMode}
+                disabled={transactions.length === 0}
+              >
+                <MoreHorizontal className="h-4 w-4 mr-1" />
+                Select
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {selectedTransactions.length} selected
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBulkCategorize}
+                disabled={selectedTransactions.length === 0}
+              >
+                <Tag className="h-4 w-4 mr-1" />
+                Categorize
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBulkExport}
+                disabled={selectedTransactions.length === 0}
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBulkUpdate}
+                disabled={selectedTransactions.length === 0}
+              >
+                <Edit className="h-4 w-4 mr-1" />
+                Update
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleBulkDelete}
+                disabled={selectedTransactions.length === 0}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={exitSelectionMode}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
           <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
             <SelectTrigger className="w-[120px] h-9">
               <Filter className="h-4 w-4" />
@@ -228,6 +377,24 @@ console.log('paginatedTransactions', paginatedTransactions);
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              {isSelectionMode && (
+                <TableHead className="w-[40px]">
+                  <div className="flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded"
+                      checked={selectedTransactions.length === paginatedTransactions.length && paginatedTransactions.length > 0}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTransactions(paginatedTransactions.map(tx => tx.id));
+                        } else {
+                          setSelectedTransactions([]);
+                        }
+                      }}
+                    />
+                  </div>
+                </TableHead>
+              )}
             <TableHead className="w-[80px]">Date</TableHead>
             <TableHead className="">Label</TableHead>
               <TableHead className="w-[80px]">Type</TableHead>
@@ -244,7 +411,28 @@ console.log('paginatedTransactions', paginatedTransactions);
           </TableHeader>
           <TableBody>
             {paginatedTransactions.map((tx) => (
-              <TableRow key={tx.id} className="group">
+              <TableRow 
+                key={tx.id} 
+                className={`group ${isSelectionMode ? 'cursor-pointer' : ''} ${
+                  selectedTransactions.includes(tx.id) ? 'bg-muted/50' : ''
+                }`}
+                onClick={isSelectionMode ? () => toggleTransactionSelection(tx.id) : undefined}
+              >
+                {isSelectionMode && (
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <input 
+                        type="checkbox" 
+                        className="rounded"
+                        checked={selectedTransactions.includes(tx.id)}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleTransactionSelection(tx.id);
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                )}
                     <TableCell>
                   <div className={cn(
                     "text-xs flex items-center gap-1",
@@ -408,6 +596,37 @@ console.log('paginatedTransactions', paginatedTransactions);
           </div>
         </div>
       )}
+
+      {/* Progress Dialogs */}
+      <CategorizeTransactionsDialog
+        open={isCategorizeDialogOpen}
+        onOpenChange={setIsCategorizeDialogOpen}
+        transactions={getSelectedTransactionsData()}
+        onConfirm={handleCategorizeConfirm}
+      />
+      
+      <DeleteTransactionsDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        transactions={getSelectedTransactionsData()}
+        onConfirm={handleDeleteConfirm}
+      />
+      
+      <ExportTransactionsDialog
+        open={isExportDialogOpen}
+        onOpenChange={setIsExportDialogOpen}
+        transactions={getSelectedTransactionsData()}
+        onConfirm={handleExportConfirm}
+        exportFormat="CSV"
+      />
+      
+      <UpdateTransactionsDialog
+        open={isUpdateDialogOpen}
+        onOpenChange={setIsUpdateDialogOpen}
+        transactions={getSelectedTransactionsData()}
+        onConfirm={handleUpdateConfirm}
+        updateType="categories"
+      />
     </div>
   );
 }

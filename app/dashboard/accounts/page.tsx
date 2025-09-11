@@ -18,7 +18,7 @@ import {
   Plus,
 } from "lucide-react";
 import Link from "next/link";
-import { SolarWalletBoldDuotone } from "@/components/icons/icons";
+import { GuidanceBank, SolarWalletBoldDuotone } from "@/components/icons/icons";
 import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
 import { useGroupedAccounts } from "@/lib/hooks/use-account-groups";
 import type { AccountGroup } from "@/lib/types/account-groups";
@@ -165,35 +165,32 @@ export default function AccountsPage() {
   return (
     <div className="mx-auto p-6 max-w-7xl space-y-20">
       {/* Quick Stats */}
-      <div className="flex justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
     
-            <div className="flex items-center gap-3">
-            
+         
               <div>
-                <p className="text-3xl font-bold">${stats.totalValue.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Total Value</p>
+                <p className="text-3xl md:text-4xl font-bold">${stats.totalValue.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground uppercase">Total Value</p>
               </div>
-            </div>
+          
       
 
               
          
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col md:flex-row items-center gap-2">
 
- <div className="">
-                <p className="text-lg font-bold">{stats.totalGroups}</p>
-                <p className="text-[10px] text-muted-foreground">Groups</p>
-              </div>
-              <Separator orientation="vertical" className="h-6" />
 
-             <div>
-                <p className="text-lg font-bold">{stats.totalAccounts}</p>
-                <p className="text-[10px] text-muted-foreground">Bank Accounts</p>
+
+             <div className="bg-muted flex md:flex-col gap-2 md:gap-0 items-baseline px-4 py-1 rounded-lg">
+
+         
+                <p className="text-lg font-semibold">{stats.totalAccounts}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Bank Accounts</p>
               </div>
-              <Separator orientation="vertical" className="h-6" />
-              <div>
-                <p className="text-lg font-bold">{stats.totalWallets}</p>
-                <p className="text-[10px] text-muted-foreground">Crypto Wallets</p>
+              <Separator orientation="vertical" className="hidden md:flex h-6" />
+              <div className="bg-muted flex md:flex-col gap-2 md:gap-0 items-baseline px-4 py-1 rounded-lg">
+                <p className="text-lg font-semibold">{stats.totalWallets}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Crypto Wallets</p>
               </div>
             </div>
          

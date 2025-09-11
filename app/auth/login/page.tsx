@@ -35,7 +35,7 @@ function LoginForm() {
             
             onSubmit={handleFormSubmit}
             isLoading={loading}
-            error={error ? { code: 'AUTH_ERROR', message: error } : null}
+            error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
             success={session ?true :false}
             links={[
               {
