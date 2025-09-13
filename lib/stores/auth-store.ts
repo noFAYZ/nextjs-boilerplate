@@ -296,17 +296,20 @@ export const useAuthStore = create<AuthStore>()(
         },
         
         logout: async () => {
+          console.log('AuthStore logout: Starting logout process');
           set((state) => {
             state.logoutLoading = true;
             state.error = null;
           }, false, 'logout/loading');
           
           try {
+            console.log('AuthStore logout: Calling signOut');
             await signOut();
             
             // Clear auto-logout timer
             get().clearAutoLogoutTimer();
             
+            console.log('AuthStore logout: Clearing auth state');
             set((state) => {
               state.user = null;
               state.session = null;
@@ -315,7 +318,9 @@ export const useAuthStore = create<AuthStore>()(
               state.lastActivity = null;
               // Keep preferences but clear auth data
             }, false, 'logout/success');
+            console.log('AuthStore logout: Logout completed successfully');
           } catch (error) {
+            console.log('AuthStore logout: Error during logout', error);
             const errorMessage = handleBetterAuthError(error);
             set((state) => {
               state.error = errorMessage;
@@ -323,6 +328,7 @@ export const useAuthStore = create<AuthStore>()(
             }, false, 'logout/error');
             
             // Even if logout fails, clear local state
+            console.log('AuthStore logout: Force clearing auth state due to error');
             set((state) => {
               state.user = null;
               state.session = null;
@@ -497,6 +503,20 @@ export const useAuthStore = create<AuthStore>()(
           preferences: state.preferences,
           sessionTimeout: state.sessionTimeout,
         }),
+        onRehydrateStorage: () => (state) => {
+          // Ensure auth state is clean on rehydration
+          if (state) {
+            console.log('AuthStore: Rehydrating, clearing auth state');
+            state.user = null;
+            state.session = null;
+            state.isAuthenticated = false;
+            state.loading = false;
+            state.isInitialized = false;
+            state.sessionChecked = false;
+            state.lastActivity = null;
+            state.autoLogoutTimer = null;
+          }
+        },
       }
     ),
     {

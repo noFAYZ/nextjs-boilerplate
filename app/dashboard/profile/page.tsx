@@ -10,8 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { PageLoader, PageLoaderWrapper } from '@/components/ui/page-loader';
 import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { useToast } from '@/lib/hooks/use-toast';
+import { useLoading } from '@/lib/contexts/loading-context';
 import { User, Mail, Phone, Calendar, DollarSign, Globe, Camera, Trash2 } from 'lucide-react';
 import type { UserProfileUpdateData } from '@/lib/types';
 import { FailLoader, LogoLoader } from '@/components/icons';
@@ -19,6 +21,7 @@ import { FailLoader, LogoLoader } from '@/components/icons';
 export default function ProfilePage() {
   const { profile, stats, isLoading, error, updateProfile, uploadProfilePicture, deleteAccount } = useUserProfile();
   const { toast } = useToast();
+  const { withLoading, showLoading, hideLoading } = useLoading();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -49,7 +52,10 @@ export default function ProfilePage() {
 
     try {
       setIsSaving(true);
-      const response = await updateProfile(formData);
+      const response = await withLoading(
+        updateProfile(formData),
+        'Updating your profile...'
+      );
       
       if (response.success) {
         toast({
@@ -101,7 +107,10 @@ export default function ProfilePage() {
 
     try {
       setIsUploading(true);
-      const response = await uploadProfilePicture(file);
+      const response = await withLoading(
+        uploadProfilePicture(file),
+        'Uploading profile picture...'
+      );
       
       if (response.success) {
         toast({
@@ -133,7 +142,10 @@ export default function ProfilePage() {
 
     try {
       setIsDeleting(true);
-      const response = await deleteAccount();
+      const response = await withLoading(
+        deleteAccount(),
+        'Deleting your account...'
+      );
       
       if (response.success) {
         toast({
@@ -169,15 +181,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <AuthGuard>
-        <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-sm py-10 flex justify-center ">
-        <div className='flex justify-center items-center content-center space-y-2 flex-col '>
-           <LogoLoader className='w-16 h-16'/>
-           <CardTitle >Loading...</CardTitle>
-           <CardDescription>Loading Profile...</CardDescription>
-           </div>
-         </Card>
-        </div>
+        <PageLoader message="Loading your profile..." />
       </AuthGuard>
     );
   }
@@ -186,14 +190,19 @@ export default function ProfilePage() {
     return (
       <AuthGuard>
         <div className="flex items-center justify-center min-h-screen">
-          <Card className="w-full max-w-sm py-10 flex justify-center ">
-            
-            <div className='flex justify-center items-center content-center space-y-2 flex-col '>
-              <span className='w-16 h-16 mb-4'><FailLoader /> </span>
-              <CardTitle className='text-red-300'>Error</CardTitle>
-     
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <FailLoader className="w-16 h-16" />
+              </div>
+              <CardTitle className="text-destructive">Failed to Load Profile</CardTitle>
               <CardDescription>{error}</CardDescription>
-            </div>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Try Again
+              </Button>
+            </CardContent>
           </Card>
         </div>
       </AuthGuard>

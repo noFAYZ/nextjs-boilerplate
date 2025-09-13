@@ -165,48 +165,12 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
     currentPage * ITEMS_PER_PAGE
   );
 
+  console.log({ filteredTokens, sortedTokens, paginatedTokens });
+
   return (
     <div className="space-y-3">
- 
 
-      {/* Compact Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 ">
-            <div className="bg-muted rounded-lg p-2 flex items-center gap-2">
-              <div className='w-10 h-10 rounded-lg items-center content-center justify-center flex bg-gradient-to-br from-orange-500 to-pink-500'>
-            <BadgeDollarSign className="h-5 w-5  text-white" />
-              </div>
-          
-              <div className='flex flex-col '>
-                <span className="text-[10px] text-muted-foreground font-medium uppercase">Value</span>
-             
-              <div className="font-bold text-sm">${totalValue.toLocaleString()}</div>
-               </div>
-            </div>
-            
-            <div className="bg-muted rounded-lg p-2">
-              <div className="flex items-center ">
-             
-                <span className="text-[10px] text-muted-foreground font-medium uppercase">Profit</span>
-              </div>
-              <div className="font-bold text-sm">{profitableCount}</div>
-            </div>
-            
-            <div className="bg-muted rounded-lg p-2">
-              <div className="flex items-center ">
-               
-                <span className="text-[10px] text-muted-foreground font-medium uppercase">Major</span>
-              </div>
-              <div className="font-bold text-sm">{majorHoldings}</div>
-            </div>
-            
-            <div className="bg-muted rounded-lg p-2">
-              <div className="flex items-center ">
-         
-                <span className="text-[10px] text-muted-foreground font-medium uppercase">Top</span>
-              </div>
-              <div className="font-bold text-sm">{topPerformers}</div>
-            </div>
-          </div>
+ 
     
 
       {/* Compact Filters - Beginner View Only */}

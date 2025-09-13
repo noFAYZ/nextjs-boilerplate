@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { logger } from "@/lib/utils/logger";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_BASE_URL || "http://localhost:3000",
@@ -10,11 +11,11 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
       // This will be implemented by the backend
-      console.log("Reset password email sent to:", user.email, "with URL:", url);
+      logger.info("Reset password email sent", { email: user.email });
     },
     sendVerificationEmail: async ({ user, url }: { user: { email: string }; url: string }) => {
       // This will be implemented by the backend
-      console.log("Verification email sent to:", user.email, "with URL:", url);
+      logger.info("Verification email sent", { email: user.email });
     },
     autoSignIn: false, // Require email verification before auto sign-in
   },

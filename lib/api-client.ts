@@ -1,4 +1,5 @@
 import { ApiResponse, AUTH_ERROR_CODES, AuthError, BetterAuthResponse } from './types';
+import { logger } from './utils/logger';
 
 class ApiClient {
   private baseURL: string;
@@ -59,6 +60,7 @@ class ApiClient {
       const err = error as { name?: string; response?: { status: number }; message?: string };
       
       if (err.name === 'NetworkError' || !err.response) {
+        logger.error('Network error in API request', error);
         return {
           code: AUTH_ERROR_CODES.NETWORK_ERROR,
           message: 'Network error. Please check your connection.',
@@ -66,12 +68,14 @@ class ApiClient {
       }
 
       if (err.response?.status === 429) {
+        logger.warn('Rate limit exceeded for API request', { status: err.response.status });
         return {
           code: AUTH_ERROR_CODES.RATE_LIMITED,
           message: 'Too many requests. Please try again later.',
         };
       }
 
+      logger.error('API request error', error, { status: err.response?.status });
       return {
         code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
         message: err.message || 'An unexpected error occurred.',
@@ -106,6 +110,7 @@ class ApiClient {
         // Handle specific HTTP status codes
         if (response.status === 401) {
           // Unauthorized - token might be expired
+          logger.warn('Unauthorized API request', { endpoint, status: 401 });
           throw {
             response,
             message: 'Authentication required',
@@ -116,6 +121,7 @@ class ApiClient {
         
         if (response.status === 403) {
           // Forbidden - insufficient permissions
+          logger.warn('Forbidden API request', { endpoint, status: 403 });
           throw {
             response,
             message: 'Insufficient permissions',
@@ -124,6 +130,18 @@ class ApiClient {
           };
         }
 
+        if (response.status === 404) {
+          // API endpoint not implemented yet (common during development)
+          logger.info('API endpoint not yet implemented', { endpoint, status: 404 });
+          throw {
+            response,
+            message: 'Feature not yet available',
+            code: 'NOT_IMPLEMENTED',
+            details: data,
+          };
+        }
+
+        logger.error('API request failed', { endpoint, status: response.status, error: data.error });
         throw {
           response,
           message: data.error?.message || 'Request failed',

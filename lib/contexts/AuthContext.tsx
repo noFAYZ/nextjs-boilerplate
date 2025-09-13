@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { signIn, signUp, signOut, getSession } from "@/lib/auth-client";
+import { logger } from "@/lib/utils/logger";
+import { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from "@/lib/stores/auth-store";
 
 interface User {
   id: string;
@@ -63,6 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Subscribe to AuthStore changes and actions - use direct state access instead of selectors
+  const storeUser = useAuthStore((state) => state.user);
+  const storeSession = useAuthStore((state) => state.session);
+  const storeIsAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const storeLogin = useAuthStore((state) => state.login);
+  const storeSignup = useAuthStore((state) => state.signup);
+  const storeLogout = useAuthStore((state) => state.logout);
+  const storeRefreshSession = useAuthStore((state) => state.refreshSession);
 
   const clearError = () => setError(null);
 
@@ -92,17 +103,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshSession = async () => {
     try {
       setLoading(true);
-      const sessionData = await getSession();
-
-      if (sessionData?.data?.user && sessionData?.data?.session) {
-        setUser(sessionData.data.user);
-        setSession(sessionData.data.session);
-      } else {
-        setUser(null);
-        setSession(null);
-      }
+      
+      // Delegate to AuthStore
+      await storeRefreshSession();
     } catch (error) {
-      console.error("Session refresh failed:", error);
+      logger.error("Session refresh failed", error);
       setUser(null);
       setSession(null);
     } finally {
@@ -114,27 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-
-      const result = await signIn.email({
-        email,
-        password,
-      });
-
-      if (result.error) {
-        throw new Error(handleBetterAuthError(result));
-      }
-
-      if (result.data?.user && result.data?.token) {
-        setUser(result.data.user);
-        setSession({
-          id: "temp",
-          userId: result.data.user.id,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          token: result.data.token,
-        });
-      } else {
-        throw new Error("Invalid response from authentication server");
-      }
+      
+      // Delegate to AuthStore
+      await storeLogin(email, password);
     } catch (error) {
       const errorMessage = handleBetterAuthError(error);
       setError(errorMessage);
@@ -149,27 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
-      const result = await signUp.email({
-        email: userData.email,
-        password: userData.password,
-        name: `${userData.firstName} ${userData.lastName}`,
-      });
-
-      if (result.error) {
-        throw new Error(handleBetterAuthError(result));
-      }
-
-      if (result.data?.user) {
-        setUser(result.data.user);
-        setSession({
-          id: "temp-signup",
-          userId: result.data.user.id,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          token: result.data.token || "temp-token",
-        });
-      } else {
-        throw new Error("Invalid response from authentication server");
-      }
+      // Delegate to AuthStore
+      await storeSignup(userData);
     } catch (error) {
       const errorMessage = handleBetterAuthError(error);
       setError(errorMessage);
@@ -184,23 +152,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
-      await signOut();
-
-      setUser(null);
-      setSession(null);
+      // Delegate to AuthStore
+      await storeLogout();
     } catch (error) {
       const errorMessage = handleBetterAuthError(error);
       setError(errorMessage);
-      console.error("Logout failed:", error);
+      logger.error("Logout failed", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Synchronize with AuthStore state
   useEffect(() => {
-    // Initialize session on mount
-    refreshSession();
-  }, []);
+    console.log('AuthContext sync - Store state:', {
+      storeIsAuthenticated,
+      hasStoreUser: !!storeUser,
+      hasStoreSession: !!storeSession,
+      currentContextUser: !!user,
+      currentContextSession: !!session,
+      storeUserData: storeUser,
+      storeSessionData: storeSession
+    });
+
+    // Always prioritize the store's isAuthenticated flag
+    if (!storeIsAuthenticated) {
+      // AuthStore is not authenticated, immediately clear AuthContext
+      console.log('AuthContext: Clearing user (store not authenticated)');
+      if (user !== null || session !== null) {
+        setUser(null);
+        setSession(null);
+      }
+      setLoading(false);
+    } else if (storeIsAuthenticated && storeUser && storeSession) {
+      // AuthStore has authenticated user data, sync it to AuthContext
+      console.log('AuthContext: Setting user from store');
+      if (user !== storeUser || session !== storeSession) {
+        setUser(storeUser);
+        setSession(storeSession);
+      }
+      setLoading(false);
+    } else {
+      // Intermediate state - store might be updating
+      console.log('AuthContext: Intermediate state - waiting for store update');
+    }
+  }, [storeIsAuthenticated, storeUser, storeSession]);
+
+  useEffect(() => {
+    // Initialize session on mount - only if AuthStore doesn't have a user
+    if (!storeUser && !storeIsAuthenticated) {
+      refreshSession();
+    }
+  }, [storeUser, storeIsAuthenticated]);
 
   const value: AuthContextType = {
     user,

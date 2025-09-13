@@ -46,7 +46,11 @@
       "Bash(grep:*)",
       "Bash(curl:*)",
       "Bash(pkill:*)",
-      "Bash(PORT=3003 yarn dev)"
+      "Bash(PORT=3003 yarn dev)",
+      "Bash(PORT=3005 yarn dev)",
+      "Bash(PORT=3006 yarn dev)",
+      "Bash(/dev/null)",
+      "Bash(PORT=3007 yarn dev)"
     ],
     "deny": [],
     "ask": []

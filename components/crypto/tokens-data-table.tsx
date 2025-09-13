@@ -33,6 +33,7 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MageCaretDownFill, MageCaretUpFill } from '../icons/icons';
 
 interface TokenPosition {
   id: string;
@@ -119,44 +120,64 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tokens..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-9"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)} >
-            <SelectTrigger className="w-[130px] h-9" >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="value">By Value</SelectItem>
-              <SelectItem value="change">By Change</SelectItem>
-              <SelectItem value="name">By Name</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
-            <SelectTrigger className="w-[120px] h-9">
-              <Filter className="h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tokens</SelectItem>
-              <SelectItem value="profitable">Profitable</SelectItem>
-              <SelectItem value="losing">Losing</SelectItem>
-              <SelectItem value="major">Major ($100+)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+   
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  {/* Left: Value */}
+  <div className="flex items-center gap-3">
+    <div className="flex flex-col">
+      <span className="text-[10px] text-muted-foreground font-medium uppercase">
+        Value
+      </span>
+      <div className="font-bold text-sm">
+        ${totalValue.toLocaleString()}
       </div>
+    </div>
+  </div>
+
+  {/* Right: Search + Filters */}
+  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:items-center">
+    {/* Search */}
+    <div className="relative flex-1 sm:w-64">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+      <Input
+        placeholder="Search tokens..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="pl-10 h-9"
+      />
+    </div>
+
+    {/* Sort & Filter */}
+    <div className="flex gap-2 sm:justify-end">
+      <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+        <SelectTrigger className="w-[140px] h-9">
+          <SelectValue placeholder="Sort by" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="value">By Value</SelectItem>
+          <SelectItem value="change">By Change</SelectItem>
+          <SelectItem value="name">By Name</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+        <SelectTrigger className="w-[140px] h-9">
+          <Filter className="h-4 w-4 mr-2" />
+          <SelectValue placeholder="Filter" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Tokens</SelectItem>
+          <SelectItem value="profitable">Profitable</SelectItem>
+          <SelectItem value="losing">Losing</SelectItem>
+          <SelectItem value="major">Major ($100+)</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  </div>
+</div>
 
       {/* Data Table */}
-      <div className=" rounded-lg">
+      <div className=" bg-card p-4 rounded-2xl">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-none ">
@@ -228,23 +249,27 @@ export function TokensDataTable({ tokens, totalValue, isLoading }: TokensDataTab
                   <p className="font-medium">${token.balanceUsd.toLocaleString()}</p>
                 </TableCell>
                 <TableCell className="text-right">
+           <div className='flex items-center justify-end'>
+    
                   {token.dayChangePct !== undefined ? (
-                    <div className={cn(
-                      "flex items-center justify-end gap-1",
-                      token.dayChangePct >= 0 ? 'text-green-600' : 'text-red-600'
+                    <Badge  className={cn(
+                      "flex items-center justify-end gap-1 rounded-xs",
+                      token.dayChangePct >= 0 ? 'bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30' : 'bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700'
                     )}>
                       {token.dayChangePct >= 0 ? (
-                        <TrendingUp className="h-3 w-3" />
+                        <MageCaretUpFill className="h-4 w-4" />
                       ) : (
-                        <TrendingDown className="h-3 w-3" />
+                        <MageCaretDownFill className="h-4 w-4" />
                       )}
                       <span className="font-medium">
                         {Math.abs(token.dayChangePct).toFixed(2)}%
                       </span>
-                    </div>
+                    </Badge>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
+</div>
+
                 </TableCell>
                
                 <TableCell className="text-right">

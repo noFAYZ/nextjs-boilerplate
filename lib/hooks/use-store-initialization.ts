@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useAuthStore, useAccountGroupsStore, useCryptoStore } from '@/lib/stores';
+import { useAuth } from '@/lib/contexts/AuthContext';
 
 /**
  * Custom hook to initialize all Zustand stores on app startup
  * This ensures consistent state initialization across the application
  */
 export function useStoreInitialization() {
+  const { user, loading: authLoading } = useAuth();
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
   const fetchAccountGroups = useAccountGroupsStore((state) => state.fetchGroups);
   const fetchCryptoWallets = useCryptoStore((state) => state.setWalletsLoading); // Placeholder for crypto init
@@ -16,11 +18,17 @@ export function useStoreInitialization() {
     // Initialize auth store (check for existing session)
     initializeAuth();
 
-    // Initialize other stores after auth is ready
+    // Initialize other stores after auth is ready - only for authenticated users
     const initializeOtherStores = async () => {
+      // Don't initialize if user is not authenticated or auth is still loading
+      if (!user || authLoading) {
+        console.log('StoreInitialization: No authenticated user, skipping store initialization');
+        return;
+      }
+
       try {
         console.log('StoreInitialization: Initializing account groups store...');
-        // Initialize account groups store
+        // Initialize account groups store for authenticated users
         await fetchAccountGroups({
           details: true,
           includeAccounts: true,
@@ -33,15 +41,15 @@ export function useStoreInitialization() {
         // This would typically happen after user is authenticated
         // fetchCryptoWallets(false); // Example initialization
       } catch (error) {
-        console.error('StoreInitialization: Failed to initialize stores:', error);
+        console.log('StoreInitialization: Error during store initialization:', error);
       }
     };
 
-    // Small delay to allow auth to initialize first
-    const timer = setTimeout(initializeOtherStores, 100);
+    // Initialize other stores when user changes
+    initializeOtherStores();
 
-    return () => clearTimeout(timer);
-  }, [initializeAuth, fetchAccountGroups, fetchCryptoWallets]);
+    return () => {}; // No cleanup needed
+  }, [initializeAuth, fetchAccountGroups, fetchCryptoWallets, user, authLoading]);
 }
 
 /**

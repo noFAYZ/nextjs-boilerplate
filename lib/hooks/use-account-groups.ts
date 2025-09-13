@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { AccountGroupsAPI } from '@/lib/api/account-groups';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import type {
   AccountGroup,
   AccountGroupHierarchy,
@@ -27,6 +28,7 @@ export function useAccountGroups(options: AccountGroupsQueryOptions = {}) {
   const [groups, setGroups] = useState<AccountGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   
   // Use ref to store the latest options to avoid infinite re-renders
   const optionsRef = useRef<AccountGroupsQueryOptions>(options);
@@ -37,6 +39,12 @@ export function useAccountGroups(options: AccountGroupsQueryOptions = {}) {
   optionsRef.current = options;
 
   const fetchGroups = useCallback(async () => {
+    // Don't fetch if user is not authenticated
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -54,7 +62,7 @@ export function useAccountGroups(options: AccountGroupsQueryOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     // Only fetch if options have actually changed
@@ -83,6 +91,7 @@ export function useAccountGroupsHierarchy(options: AccountGroupsQueryOptions = {
   const [hierarchy, setHierarchy] = useState<AccountGroupHierarchy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   
   // Use ref to store the latest options to avoid infinite re-renders
   const optionsRef = useRef<AccountGroupsQueryOptions>(options);
@@ -93,6 +102,12 @@ export function useAccountGroupsHierarchy(options: AccountGroupsQueryOptions = {
   optionsRef.current = options;
 
   const fetchHierarchy = useCallback(async () => {
+    // Don't fetch if user is not authenticated
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -110,7 +125,7 @@ export function useAccountGroupsHierarchy(options: AccountGroupsQueryOptions = {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     // Only fetch if options have actually changed
@@ -142,6 +157,7 @@ export function useAccountGroup(
   const [group, setGroup] = useState<AccountGroup | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   
   // Use ref to store the latest options and groupId to avoid infinite re-renders
   const optionsRef = useRef<AccountGroupsQueryOptions>(options);
@@ -158,6 +174,12 @@ export function useAccountGroup(
     
     if (!currentGroupId) {
       setGroup(null);
+      setIsLoading(false);
+      return;
+    }
+
+    // Don't fetch if user is not authenticated
+    if (!user) {
       setIsLoading(false);
       return;
     }
@@ -179,7 +201,7 @@ export function useAccountGroup(
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const fetchKey = `${groupId}-${optionsKey}`;

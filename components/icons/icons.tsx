@@ -195,3 +195,64 @@ export function StreamlineFlexPieChart(props: SVGProps<SVGSVGElement>) {
 export default function StreamlineUltimateAccountingCoins(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}><path d="M8.25 8.25a7.5 7.5 0 1 0 15 0a7.5 7.5 0 0 0-15 0m-1.875 5.842a1.34 1.34 0 0 0 .843 1.245l2.064.826a1.342 1.342 0 0 1-.5 2.587H6.75m1.5 1.5v-1.5"></path><path d="M5.281 8.867a7.5 7.5 0 1 0 9.853 9.852M17.25 5.25h-2.033a1.342 1.342 0 0 0-.5 2.587l2.064.826a1.342 1.342 0 0 1-.5 2.587H14.25m1.5-6v-1.5m0 9v-1.5"></path></g></svg>);
 }
+
+export  function AIMAPPR(props: SVGProps<SVGSVGElement>) {
+	return (<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108.89 108.89">
+		<defs>
+		  
+		</defs>
+		<g id="Layer_1-2" data-name="Layer 1">
+		  <g>
+			<polygon className="clss-1" stroke='1px' fill='#0c64c4' points="108.57 62.77 91.29 47.54 91.29 63.63 47.44 63.63 47.44 88.82 108.89 88.82 108.89 62.77 108.57 62.77"/>
+			<polygon className="clss-1" stroke='1px' fill='#0c64c4' points="63.63 61.45 88.82 61.45 88.82 0 62.77 0 62.77 .32 47.54 17.61 63.63 17.61 63.63 61.45"/>
+			<polygon className="clss-1" stroke='1px' fill='#0c64c4' points="61.45 20.07 0 20.07 0 46.13 .32 46.13 17.61 61.36 17.61 45.26 61.45 45.26 61.45 20.07"/>
+			<polygon className="fill" stroke='1px' fill='#0c64c4' points="45.26 47.44 20.07 47.44 20.07 108.89 46.13 108.89 46.13 108.57 61.36 91.29 45.26 91.29 45.26 47.44"/>
+		  </g>
+		</g>
+	  </svg>);
+}
+
+export function PhBrainDuotone(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 256 256"
+      {...props}
+      className={props.className}
+    >
+      <defs>
+        {/* Shimmer gradient */}
+        <linearGradient id="shimmerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+          <stop offset="50%" stopColor="gray" stopOpacity="1" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
+          <animateTransform
+            attributeName="gradientTransform"
+            type="translate"
+            from="-1 0"
+            to="1 0"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </linearGradient>
+      </defs>
+
+      <g fill="url(#shimmerGradient)">
+        <path
+          d="M240 124a48 48 0 0 1-32 45.27V176a40 40 0 0 1-80 0a40 40 0 0 1-80 0v-6.73a48 48 0 0 1 0-90.54V72a40 40 0 0 1 80 0a40 40 0 0 1 80 0v6.73A48 48 0 0 1 240 124"
+          opacity={0.2}
+        />
+        <path d="M248 124a56.11 56.11 0 0 0-32-50.61V72a48 48 0 0 0-88-26.49A48 48 0 0 0 40 72v1.39a56 56 0 0 0 0 101.2V176a48 48 0 0 0 88 26.49A48 48 0 0 0 216 176v-1.41A56.09 56.09 0 0 0 248 124M88 208a32 32 0 0 1-31.81-28.56A56 56 0 0 0 64 180h8a8 8 0 0 0 0-16h-8a40 40 0 0 1-13.33-77.73A8 8 0 0 0 56 78.73V72a32 32 0 0 1 64 0v68.26A47.8 47.8 0 0 0 88 128a8 8 0 0 0 0 16a32 32 0 0 1 0 64m104-44h-8a8 8 0 0 0 0 16h8a56 56 0 0 0 7.81-.56A32 32 0 1 1 168 144a8 8 0 0 0 0-16a47.8 47.8 0 0 0-32 12.26V72a32 32 0 0 1 64 0v6.73a8 8 0 0 0 5.33 7.54A40 40 0 0 1 192 164m16-52a8 8 0 0 1-8 8h-4a36 36 0 0 1-36-36v-4a8 8 0 0 1 16 0v4a20 20 0 0 0 20 20h4a8 8 0 0 1 8 8m-148 8h-4a8 8 0 0 1 0-16h4a20 20 0 0 0 20-20v-4a8 8 0 0 1 16 0v4a36 36 0 0 1-36 36" />
+      </g>
+    </svg>
+  );
+}
+
+
+export function MageCaretUpFill(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M19.66 16.01a1.35 1.35 0 0 1-.47.54c-.203.13-.439.2-.68.2h-13a1.3 1.3 0 0 1-.69-.2a1.28 1.28 0 0 1-.56-1.25a1.27 1.27 0 0 1 .31-.65l6.09-6.77a1.7 1.7 0 0 1 .58-.45a1.8 1.8 0 0 1 .73-.18c.253.003.503.05.74.14c.23.101.438.247.61.43l6.11 6.83c.163.182.267.408.3.65a1.24 1.24 0 0 1-.07.71"></path></svg>);
+}
+
+export function MageCaretDownFill(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M19.696 8.72a1.2 1.2 0 0 1-.3.64l-6.09 6.76a1.85 1.85 0 0 1-.58.46a1.7 1.7 0 0 1-1.42.03a1.75 1.75 0 0 1-.62-.42l-6.1-6.83a1.3 1.3 0 0 1-.31-.64a1.31 1.31 0 0 1 .56-1.26a1.36 1.36 0 0 1 .68-.21h13a1.29 1.29 0 0 1 1.15.76c.081.228.092.476.03.71"></path></svg>);
+}

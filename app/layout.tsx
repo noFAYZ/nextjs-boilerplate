@@ -4,6 +4,9 @@ import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
 
+// Import environment validation to ensure it runs at startup
+import "@/lib/config/env";
+
 const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -22,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.className}  antialiased`}
+        className={`${geistSans.className}   antialiased`}
       >
         <Providers> 
           {children}

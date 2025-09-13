@@ -258,6 +258,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
     );
   }
 
+  const totalAssetValue = wallet?.assets?.reduce((sum, token) => sum + token?.balanceUsd, 0);
+
   return (
     <div className={`${pageClass} p-4 lg:p-6 space-y-6`}>
       {/* Back Navigation */}
@@ -502,31 +504,25 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
         <Tabs value={activeTab} onValueChange={setActiveTab}    >
      
             <TabsList className="  mb-4 "
-            variant='card' 
+            variant='minimal' 
             >
-              <TabsTrigger value="tokens" className="flex items-center gap-2 cursor-pointer  " variant='card' >
+              <TabsTrigger value="tokens" className="flex px-2 items-center gap-2 cursor-pointer  " variant='minimal' >
                
-                <span className="hidden sm:inline">Tokens</span>
-                <span className="sm:hidden">({walletStats?.assetCount || 0})</span>
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
-                  {walletStats?.assetCount || 0}
-                </Badge>
+                <span className="inline">Tokens</span>
+              
+               
               </TabsTrigger>
-              <TabsTrigger value="nfts" className="flex items-center gap-2 cursor-pointer" variant='animated'>
+              <TabsTrigger value="nfts" className="flex px-2 items-center gap-2 cursor-pointer" variant='minimal'>
                
-                <span className="hidden sm:inline">NFTs</span>
-                <span className="sm:hidden">({walletStats?.nftCount || 0})</span>
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
-                  {walletStats?.nftCount || 0}
-                </Badge>
+                <span className="inline">NFTs</span>
+               
+           
               </TabsTrigger>
-              <TabsTrigger value="transactions" className="flex items-center gap-2 cursor-pointer" variant='animated'>
+              <TabsTrigger value="transactions" className="flex px-2 items-center gap-2 cursor-pointer" variant='minimal'>
                
-                <span className="hidden sm:inline">Transactions</span>
-                <span className="sm:hidden">({transactions?.length || 0})</span>
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex text-xs">
-                  {transactions?.length || 0}
-                </Badge>
+                <span className="inline">Transactions</span>
+              
+              
               </TabsTrigger>
             </TabsList>
          

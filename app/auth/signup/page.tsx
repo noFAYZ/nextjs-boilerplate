@@ -1,27 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AuthForm from '@/components/auth/auth-form';
-
 import { SignUpFormData } from '@/lib/types';
-import { useAuthStore, selectAuthLoading, selectAuthError } from '@/lib/stores';
+import { useAuthStore, selectAuthLoading, selectAuthError, selectIsAuthenticated, selectSession } from '@/lib/stores';
+import { useLoading } from '@/lib/contexts/loading-context';
 
 export default function SignUpPage() {
+  const router = useRouter();
   const signup = useAuthStore((state) => state.signup);
   const loading = useAuthStore(selectAuthLoading);
   const error = useAuthStore(selectAuthError);
   const clearError = useAuthStore((state) => state.clearAuthErrors);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const session = useAuthStore(selectSession);
   const [success, setSuccess] = useState(false);
+  const { showLoading, showSuccess, showError, hideLoading } = useLoading();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && session) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, session, router]);
 
   const handleSignUp = async (data: SignUpFormData) => {
     clearError();
     
     try {
+      showLoading('Creating your account...');
       await signup(data);
       setSuccess(true);
+      showSuccess('Account created successfully! Please check your email to verify your account.');
     } catch (error) {
-      // Error is handled by the store
-      console.error('Signup failed:', error);
+      showError(error instanceof Error ? error.message : 'Signup failed');
     }
   };
 
@@ -38,7 +51,6 @@ export default function SignUpPage() {
             title="Create your account"
             description="Join MoneyMappr and take control of your finances"
             onSubmit={handleFormSubmit}
-            isLoading={loading}
             error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
             success={success}
             successMessage="Account created successfully! Please check your email to verify your account before signing in."

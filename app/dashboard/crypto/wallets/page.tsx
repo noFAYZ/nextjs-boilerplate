@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { PageLoader } from '@/components/ui/page-loader';
 import { 
   Plus, 
   Search, 
@@ -220,14 +221,7 @@ export default function WalletsPage() {
     });
 
   if (isLoading) {
-    return (
-      <div className=" mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading your wallets...</span>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading your crypto wallets..." />;
   }
 
   return (

@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { PageLoader } from '@/components/ui/page-loader';
 import { useSubscription } from '@/lib/hooks/use-subscription';
 import { useToast } from '@/lib/hooks/use-toast';
+import { useLoading } from '@/lib/contexts/loading-context';
 import { 
   Crown, 
   Check, 
@@ -40,6 +42,7 @@ export default function SubscriptionPage() {
   } = useSubscription();
 
   const { toast } = useToast();
+  const { withLoading } = useLoading();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -72,7 +75,10 @@ export default function SubscriptionPage() {
         billingPeriod: selectedBillingPeriod,
       };
 
-      const response = await upgradeSubscription(data);
+      const response = await withLoading(
+        upgradeSubscription(data),
+        `Upgrading to ${planType} plan...`
+      );
       
       if (response.success) {
         toast({
@@ -163,15 +169,7 @@ export default function SubscriptionPage() {
   if (isLoading && !isInitialized) {
     return (
       <AuthGuard>
-        <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-sm py-10 flex justify-center ">
-        <div className='flex justify-center items-center content-center space-y-2 flex-col '>
-           <LogoLoader className='w-16 h-16'/>
-           <CardTitle >Loading...</CardTitle>
-           <CardDescription>Loading Subscriptions...</CardDescription>
-           </div>
-         </Card>
-        </div>
+        <PageLoader message="Loading your subscription details..." />
       </AuthGuard>
     );
   }

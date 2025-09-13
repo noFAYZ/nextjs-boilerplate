@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { authClient } from "./auth-client";
+import { logger } from "./utils/logger";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || "v1";
@@ -26,7 +27,7 @@ apiClient.interceptors.request.use(
       }
       return config;
     } catch (error) {
-      console.warn("Failed to get session for request:", error);
+      logger.warn("Failed to get session for request", error);
       return config;
     }
   },
@@ -41,7 +42,7 @@ apiClient.interceptors.response.use(
 
     // Network error
     if (!response) {
-      console.error("Network error:", error.message);
+      logger.error("Network error", { message: error.message });
       throw new Error("Network error. Please check your connection.");
     }
 
@@ -51,35 +52,35 @@ apiClient.interceptors.response.use(
 
     switch (status) {
       case 401:
-        console.warn("Unauthorized request:", request.url);
+        logger.warn("Unauthorized request", { url: request.url });
         // Better Auth will handle redirect automatically
         throw new Error("Authentication required. Please sign in.");
 
       case 403:
-        console.warn("Forbidden request:", request.url);
+        logger.warn("Forbidden request", { url: request.url });
         throw new Error("Access forbidden. Insufficient permissions.");
 
       case 404:
-        console.warn("Resource not found:", request.url);
+        logger.warn("Resource not found", { url: request.url });
         throw new Error(data?.message || "Resource not found.");
 
       case 422:
-        console.warn("Validation error:", data);
+        logger.warn("Validation error", { data });
         throw new Error(data?.message || "Invalid data provided.");
 
       case 429:
-        console.warn("Rate limit exceeded:", request.url);
+        logger.warn("Rate limit exceeded", { url: request.url });
         throw new Error("Too many requests. Please try again later.");
 
       case 500:
       case 502:
       case 503:
       case 504:
-        console.error("Server error:", status, data);
+        logger.error("Server error", { status, data });
         throw new Error(data?.message || "Server error. Please try again.");
 
       default:
-        console.error("API error:", status, data);
+        logger.error("API error", { status, data });
         throw new Error(data?.message || `Request failed with status ${status}`);
     }
   },

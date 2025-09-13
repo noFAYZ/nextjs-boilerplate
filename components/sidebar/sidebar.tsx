@@ -42,7 +42,8 @@ import { MobileFloatingMenu } from './mobile-floating-menu';
 import { FluentPanelLeftExpand28Filled, LogoMappr } from '@/components/icons';
 import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
-import { authClient } from '@/lib/auth-client';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useLoading } from '@/lib/contexts/loading-context';
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { CompactViewSwitcher } from '../ui/global-view-switcher';
@@ -205,6 +206,8 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
   const { selectedAccount } = useAccount();
   const { openCommandPalette, CommandPalette } = useCommandPalette();
   const pathname = usePathname();
+  const logout = useAuthStore((state) => state.logout);
+  const { showLoading, showSuccess, showError } = useLoading();
   
   // Use the custom sidebar hook for better state management
   const {
@@ -217,12 +220,17 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
 
   const handleSignOut = useCallback(async () => {
     try {
-      await authClient.signOut();
-      router.push('/auth/login');
+      showLoading('Signing you out...');
+      await logout();
+      showSuccess('Signed out successfully! Redirecting...');
+      
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 1000);
     } catch (error) {
-      console.error('Sign out failed:', error);
+      showError(error instanceof Error ? error.message : 'Sign out failed');
     }
-  }, [router]);
+  }, [logout, router, showLoading, showSuccess, showError]);
 
   // Handle keyboard shortcuts
   useEffect(() => {

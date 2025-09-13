@@ -1,20 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Clock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AuthError } from '@/lib/types';
 import { Fa7BrandsGithub, LogosGoogleIcon, SuccessLoader } from '../icons';
 import { useRouter } from 'next/navigation';
+import { useBruteForceProtection, formatTimeRemaining } from '@/lib/security/brute-force-protection';
+import { logger } from '@/lib/utils/logger';
 
 // Validation schemas
 export const signInSchema = z.object({
@@ -92,14 +95,65 @@ export default function AuthForm({
   description,
   onSubmit,
   isLoading = false,
-  // error,
+  error,
   success,
   successMessage,
   links = [],
 }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const router = useRouter()
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
+  const router = useRouter();
+
+  const {
+    checkAttempt,
+    recordFailedAttempt,
+    recordSuccessfulAttempt,
+    getAttemptStats,
+  } = useBruteForceProtection();
+
+  // Check brute force protection on mount and when type changes
+  useEffect(() => {
+    if (type === 'signin' || type === 'signup') {
+      checkBruteForceStatus();
+    }
+  }, [type]);
+
+  // Update countdown timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isBlocked && blockTimeRemaining > 0) {
+      timer = setInterval(() => {
+        setBlockTimeRemaining((prev) => {
+          if (prev <= 1000) {
+            setIsBlocked(false);
+            return 0;
+          }
+          return prev - 1000;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isBlocked, blockTimeRemaining]);
+
+  const checkBruteForceStatus = async () => {
+    try {
+      const result = await checkAttempt();
+      setIsBlocked(!result.allowed);
+      setBlockTimeRemaining(result.nextAttemptIn);
+      
+      if (!result.allowed) {
+        logger.warn('Authentication blocked due to brute force protection', {
+          reason: result.reason,
+          remainingAttempts: result.remainingAttempts,
+          nextAttemptIn: result.nextAttemptIn,
+        });
+      }
+    } catch (error) {
+      logger.error('Error checking brute force protection', error);
+    }
+  };
 
   const getSchema = () => {
     switch (type) {
@@ -142,11 +196,46 @@ export default function AuthForm({
   });
 
   const handleSubmit = async (data: unknown) => {
+    // Check brute force protection before allowing submission
+    if ((type === 'signin' || type === 'signup') && isBlocked) {
+      form.setError('root', {
+        type: 'manual',
+        message: `Too many attempts. Please wait ${formatTimeRemaining(blockTimeRemaining)} before trying again.`
+      });
+      return;
+    }
+
     try {
       // Clear any existing form errors
       form.clearErrors();
+      
+      // Check brute force protection one more time
+      if (type === 'signin' || type === 'signup') {
+        const result = await checkAttempt();
+        if (!result.allowed) {
+          setIsBlocked(true);
+          setBlockTimeRemaining(result.nextAttemptIn);
+          form.setError('root', {
+            type: 'manual',
+            message: `Too many attempts. Please wait ${formatTimeRemaining(result.nextAttemptIn)} before trying again.`
+          });
+          return;
+        }
+      }
+
       await onSubmit(data);
+      
+      // Record successful attempt for brute force protection
+      if (type === 'signin' || type === 'signup') {
+        await recordSuccessfulAttempt();
+      }
     } catch (error) {
+      // Record failed attempt for brute force protection
+      if (type === 'signin') {
+        await recordFailedAttempt();
+        await checkBruteForceStatus(); // Refresh the status
+      }
+      
       // If there's a validation error, show it on the form
       if (error instanceof Error) {
         form.setError('root', { 
@@ -154,22 +243,23 @@ export default function AuthForm({
           message: error.message 
         });
       }
+      
+      logger.error('Authentication attempt failed', error, {
+        type,
+        email: (data as any)?.email,
+      });
     }
   };
 
   if (success) {
-    setTimeout(()=>{
-router.push('/dashboard')
-    },1000)
     return (
       <Card className="w-full max-w-sm mx-auto">
         <CardHeader className="text-center justify-center w-full">
-          <div className=" flex mb-4  justify-center ">
-            <span className='w-40 h-40'><SuccessLoader  /></span>
-            
+          <div className="flex mb-4 justify-center">
+            <span className='w-40 h-40'><SuccessLoader /></span>
           </div>
-          <CardTitle className="text-2xl">Login Success!</CardTitle>
-          <CardDescription>{successMessage}</CardDescription>
+          <CardTitle className="text-2xl">Success!</CardTitle>
+          <CardDescription>{successMessage || 'Operation completed successfully!'}</CardDescription>
         </CardHeader>
         <CardFooter className="flex flex-col space-y-4">
           {links.map((link, index: number) => (
@@ -193,12 +283,24 @@ router.push('/dashboard')
       </CardHeader>
       
       <CardContent>
-    {/*     {error && (
+        {error && (
           <div className="flex items-center gap-2 p-3 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/20">
             <AlertCircle className="w-4 h-4" />
-            <span>{error}</span>
+            <span>{error.message}</span>
           </div>
-        )} */}
+        )}
+             {/* Display brute force protection warning */}
+             {isBlocked && blockTimeRemaining > 0 && (
+              <Alert className="mb-4 border-yellow-200 bg-yellow-50 dark:border-yellow-900/20 dark:bg-yellow-900/10">
+                <Clock className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                  <strong>Account temporarily locked</strong>
+                  <br />
+                  Too many failed attempts. Please wait {formatTimeRemaining(blockTimeRemaining)} before trying again.
+                </AlertDescription>
+              </Alert>
+             )}
+
              {/* Display form root errors */}
              {form.formState.errors.root && (
               <div className="flex items-center gap-2 p-2 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/20">
@@ -381,9 +483,15 @@ router.push('/dashboard')
 
        
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading || (isBlocked && blockTimeRemaining > 0)}
+            >
               {isLoading ? (
                 <LoadingSpinner size="sm" />
+              ) : isBlocked && blockTimeRemaining > 0 ? (
+                `Wait ${formatTimeRemaining(blockTimeRemaining)}`
               ) : (
                 getButtonText()
               )}

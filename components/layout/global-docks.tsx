@@ -29,9 +29,10 @@ import { useWallets } from "@/lib/hooks/use-crypto"
 import { useRealtimeNotifications } from "@/lib/hooks/use-realtime-notifications"
 import { cn } from "@/lib/utils"
 import { WALLET_ICON_CONFIGS, createWalletDockItem } from "@/lib/utils/dock-integration"
-import { LetsIconsAddRingDuotone, SolarPieChart2Outline, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag, StreamlineFlexNewFolderRemix, StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
+import { AIMAPPR, LetsIconsAddRingDuotone, PhBrainDuotone, SolarPieChart2Outline, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag, StreamlineFlexNewFolderRemix, StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useAutoSync } from "@/lib/hooks/use-auto-sync"
+import { useAuth } from "@/lib/contexts/AuthContext"
 
 // Mobile breakpoint hook
 function useIsMobile() {
@@ -67,6 +68,12 @@ export function NotificationDock() {
   const { notifications } = useDockContext()
   const router = useRouter()
   const isMobile = useIsMobile()
+  const { user } = useAuth()
+  
+  // Only show to authenticated users
+  if (!user) {
+    return null
+  }
   
   // Initialize realtime notifications
   useRealtimeNotifications()
@@ -104,6 +111,12 @@ export function WalletsDock() {
   const router = useRouter()
   const pathname = usePathname()
   const isMobile = useIsMobile()
+  const { user } = useAuth()
+
+  // Only show to authenticated users
+  if (!user) {
+    return null
+  }
 
   // Convert real wallet data to dock items with sync status
   React.useEffect(() => {
@@ -293,9 +306,10 @@ export function BottomMenuDock() {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const [showAddModal, setShowAddModal] = React.useState(false)
+  const { user } = useAuth()
 
-  // Don't show on auth pages
-  if (pathname.startsWith('/auth/')) {
+  // Only show to authenticated users
+  if (!user) {
     return null
   }
 
@@ -323,11 +337,10 @@ export function BottomMenuDock() {
       hotkey: '⌘+1'
     },
     {
-      id: 'add',
-      label: 'Add',
-      icon: <LetsIconsAddRingDuotone className="w-12 h-12 text-primary"  />,
-     
-      hotkey: '⌘+A',
+      id: 'maoppr',
+      label: 'Mappr AI',
+      icon: <PhBrainDuotone className="w-12 h-12 text-primary"  />,
+    
       onClick: () => setShowAddModal(true)
     },
     {
@@ -403,11 +416,17 @@ export function BottomMenuDock() {
 export function GlobalDocks() {
   const pathname = usePathname()
   const isMobile = useIsMobile()
+  const { user } = useAuth()
 
-  // Don't show docks on auth pages
-  if (pathname.startsWith('/auth/')) {
+  console.log('GlobalDocks - Auth state:', { hasUser: !!user, userEmail: user?.email });
+
+  // Only show docks to authenticated users
+  if (!user) {
+    console.log('GlobalDocks: Hiding docks - no user');
     return null
   }
+
+  console.log('GlobalDocks: Showing docks - user authenticated');
 
   return (
     <>

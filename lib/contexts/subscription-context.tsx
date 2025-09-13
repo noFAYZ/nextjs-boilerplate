@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
 import { subscriptionService } from '@/lib/services/subscription-service';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import type { 
   SubscriptionPlan,
   CurrentSubscription,
@@ -117,6 +118,7 @@ const CACHE_DURATION = 5 * 60 * 1000;
 // Provider component
 export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const [state, dispatch] = useReducer(subscriptionReducer, initialState);
+  const { user, loading: authLoading } = useAuth();
 
   // Check if data is stale
   const isDataStale = useCallback(() => {
@@ -126,6 +128,11 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
   // Fetch all subscription data
   const fetchSubscriptionData = useCallback(async (force = false) => {
+    // Don't fetch if user is not authenticated
+    if (!user) {
+      return;
+    }
+
     // Don't refetch if data is fresh and not forced
     if (!force && state.isInitialized && !isDataStale()) {
       return;
@@ -178,16 +185,30 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       // Check for critical errors (plans and current subscription are most important)
       const criticalErrors: string[] = [];
       
+      // Helper function to check if error is due to unimplemented endpoint
+      const isNotImplementedError = (response: any) => {
+        return response.status === 'rejected' && 
+               (response.reason?.code === 'NOT_IMPLEMENTED' || 
+                response.reason?.message?.includes('API endpoint not found'));
+      };
+      
       if (plansResponse.status === 'rejected' || (plansResponse.status === 'fulfilled' && !plansResponse.value.success)) {
-        criticalErrors.push('Failed to load subscription plans');
+        if (!isNotImplementedError(plansResponse)) {
+          criticalErrors.push('Failed to load subscription plans');
+        }
       }
       
       if (currentSubResponse.status === 'rejected' || (currentSubResponse.status === 'fulfilled' && !currentSubResponse.value.success)) {
-        criticalErrors.push('Failed to load current subscription');
+        if (!isNotImplementedError(currentSubResponse)) {
+          criticalErrors.push('Failed to load current subscription');
+        }
       }
 
       if (criticalErrors.length > 0) {
         dispatch({ type: 'SET_ERROR', payload: criticalErrors.join(', ') });
+      } else if (isNotImplementedError(plansResponse) || isNotImplementedError(currentSubResponse)) {
+        // Set a development-friendly message for unimplemented endpoints
+        console.info('Subscription features not yet implemented on backend - using default state');
       }
 
       dispatch({ type: 'SET_LAST_FETCHED', payload: new Date() });
@@ -198,7 +219,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [state.isInitialized, isDataStale]);
+  }, [state.isInitialized, isDataStale, user]);
 
   // Create subscription
   const createSubscription = useCallback(async (data: CreateSubscriptionData): Promise<ApiResponse<CurrentSubscription>> => {
@@ -311,12 +332,13 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     dispatch({ type: 'RESET_STATE' });
   }, []);
 
-  // Initialize data on mount
+  // Initialize data on mount - only for authenticated users
   useEffect(() => {
-    if (!state.isInitialized) {
+    // Only fetch subscription data if user is authenticated and auth is not loading
+    if (user && !authLoading && !state.isInitialized) {
       fetchSubscriptionData();
     }
-  }, [fetchSubscriptionData, state.isInitialized]);
+  }, [user, authLoading, state.isInitialized, fetchSubscriptionData]);
 
   const contextValue: SubscriptionContextType = {
     // State

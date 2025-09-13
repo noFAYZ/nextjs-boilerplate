@@ -42,7 +42,7 @@
   --radius: 0.8rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.23rem;
+  --spacing: 0.24rem;
 }
 
 .dark {
@@ -124,14 +124,14 @@
   --radius: 0.8rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.23rem;
+  --spacing: 0.24rem;
 }
 
 .dark-pro {
   --background: oklch(0 0 0);
-  --foreground: oklch(0.8074 0.0142 93.0137);
-  --card: oklch(0.2054 0.0025 67.6857);
-  --card-foreground: oklch(0.8378 0.0112 17.3800);
+  --foreground: oklch(0.9074 0.0142 93.0137);
+  --card: oklch(0.2054 0.0025 57.6857);
+  --card-foreground: oklch(0.9378 0.0112 17.3800);
   --popover: oklch(0.2153 0.0037 48.5451);
   --popover-foreground: oklch(0.9211 0.0040 106.4781);
   --primary: oklch(0.5110 0.1345 39.2633);
@@ -260,7 +260,7 @@
   --shadow-lg: 0px 3px 1px 1px hsl(21.4286 6.8627% 40% / 0.37), 0px 4px 6px 0px hsl(21.4286 6.8627% 40% / 0.37);
   --shadow-xl: 0px 3px 1px 1px hsl(21.4286 6.8627% 40% / 0.37), 0px 8px 10px 0px hsl(21.4286 6.8627% 40% / 0.37);
   --shadow-2xl: 0px 3px 1px 1px hsl(21.4286 6.8627% 40% / 0.93);
-  --spacing: 0.24rem;
+  --spacing: 0.23rem;
 }
 
 @theme inline {
@@ -395,27 +395,155 @@
   display: none;
 }
 
+/* Scrollbar theme variables */
+:root {
+  --scrollbar-thin-thumb: rgba(113, 113, 122, 0.8);
+  --scrollbar-thin-hover: rgba(113, 113, 122, 0.8);
+  --scrollbar-ultra-thumb: rgba(113, 113, 122, 0.25);
+  --scrollbar-ultra-hover: rgba(113, 113, 122, 0.45);
+  --scrollbar-primary-thumb: rgba(214, 113, 76, 0.4);
+  --scrollbar-primary-hover: rgba(214, 113, 76, 0.6);
+  --scrollbar-primary-track: rgba(113, 113, 122, 0.1);
+}
+
+.dark {
+  --scrollbar-thin-thumb: rgba(161, 161, 170, 0.3);
+  --scrollbar-thin-hover: rgba(161, 161, 170, 0.5);
+  --scrollbar-ultra-thumb: rgba(161, 161, 170, 0.25);
+  --scrollbar-ultra-hover: rgba(161, 161, 170, 0.45);
+  --scrollbar-primary-thumb: rgba(222, 119, 82, 0.4);
+  --scrollbar-primary-hover: rgba(222, 119, 82, 0.6);
+  --scrollbar-primary-track: rgba(161, 161, 170, 0.1);
+}
+
+/* Ultra-thin themed scrollbars */
 .scrollbar-thin {
   scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thin-thumb) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 2px;
+  height: 2px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: var(--muted);
-  border-radius: 3px;
+  background: transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 3px;
+  background: var(--scrollbar-thin-thumb);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: var(--border);
+  background: var(--scrollbar-thin-hover);
+}
+
+.scrollbar-thin::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Extra thin scrollbars for fine UI elements */
+.scrollbar-ultra-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-ultra-thumb) transparent;
+}
+
+.scrollbar-ultra-thin::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+
+.scrollbar-ultra-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-ultra-thin::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-ultra-thumb);
+  border-radius: 0.5px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-ultra-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-ultra-hover);
+}
+
+.scrollbar-ultra-thin::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Styled scrollbars with primary accent */
+.scrollbar-primary {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-primary-thumb) transparent;
+}
+
+.scrollbar-primary::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+.scrollbar-primary::-webkit-scrollbar-track {
+  background: var(--scrollbar-primary-track);
+  border-radius: 2px;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-primary-thumb);
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-primary-hover);
+}
+
+.scrollbar-primary::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Scrollbar color variables for theming */
+:root {
+  --scrollbar-thumb-light: rgba(113, 113, 122, 0.2); /* zinc-500 with opacity */
+  --scrollbar-thumb-hover-light: rgba(113, 113, 122, 0.4);
+  --scrollbar-track-light: transparent;
+}
+
+.dark {
+  --scrollbar-thumb-light: rgba(161, 161, 170, 0.2); /* zinc-400 with opacity */
+  --scrollbar-thumb-hover-light: rgba(161, 161, 170, 0.4);
+  --scrollbar-track-light: transparent;
+}
+
+/* Global default scrollbar improvements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-light);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-light);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover-light);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Enterprise design patterns */
@@ -966,4 +1094,8 @@
 
 .animate-reveal-up {
   animation: reveal-up 0.6s ease-out;
+}
+.clss-1 {
+  fill: #0c64c4;
+  stroke-width: 0px;
 }

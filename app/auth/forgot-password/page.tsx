@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { forgetPassword } from '@/lib/auth-client';
 import AuthForm from '@/components/auth/auth-form';
+import { useLoading } from '@/lib/contexts/loading-context';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -17,16 +18,20 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [success, setSuccess] = useState(false);
+  const { withLoading } = useLoading();
 
   const handleForgotPassword = async (data: ForgotPasswordFormData) => {
     setError(null);
     setIsLoading(true);
     
     try {
-      const result = await forgetPassword({
-        email: data.email,
-        redirectTo: '/auth/reset-password'
-      });
+      const result = await withLoading(
+        forgetPassword({
+          email: data.email,
+          redirectTo: '/auth/reset-password'
+        }),
+        'Sending password reset email...'
+      );
       
       if (result.error) {
         setError({

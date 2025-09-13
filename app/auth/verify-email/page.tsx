@@ -6,6 +6,7 @@ import { verifyEmail, useSession } from '@/lib/auth-client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, AlertCircle, Mail } from 'lucide-react';
+import { PageLoader } from '@/components/ui/page-loader';
 import Link from 'next/link';
 
 function VerifyEmailForm() {
@@ -103,7 +104,7 @@ function VerifyEmailForm() {
               <CardDescription>Please wait while we verify your email address...</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <PageLoader message="Verifying your email address..." fullScreen={false} />
             </CardContent>
           </Card>
         );
@@ -211,7 +212,7 @@ function VerifyEmailForm() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div></div>}>
+    <Suspense fallback={<PageLoader message="Loading email verification..." />}>
       <VerifyEmailForm />
     </Suspense>
   );
