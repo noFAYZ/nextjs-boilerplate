@@ -92,7 +92,7 @@ export const ZERION_CHAINS: Chain[] = [
     id: "binance-smart-chain",
     attributes: {
       external_id: "0x38",
-      name: "BNB Chain",
+      name: "BSC",
       icon: {
         url: "https://chain-icons.s3.amazonaws.com/bsc.png",
       },

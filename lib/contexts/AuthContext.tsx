@@ -163,40 +163,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Synchronize with AuthStore state
+  // Synchronize with AuthStore state - with stability checks
   useEffect(() => {
-    console.log('AuthContext sync - Store state:', {
-      storeIsAuthenticated,
-      hasStoreUser: !!storeUser,
-      hasStoreSession: !!storeSession,
-      currentContextUser: !!user,
-      currentContextSession: !!session,
-      storeUserData: storeUser,
-      storeSessionData: storeSession
-    });
+    // Only log meaningful changes to reduce console spam
+    const hasUserChanged = user?.id !== storeUser?.id;
+    const hasSessionChanged = session?.id !== storeSession?.id;
 
-    // Always prioritize the store's isAuthenticated flag
+    if (process.env.NODE_ENV === 'development' && (hasUserChanged || hasSessionChanged)) {
+      console.log('AuthContext sync - Store state:', {
+        storeIsAuthenticated,
+        hasStoreUser: !!storeUser,
+        hasStoreSession: !!storeSession,
+        currentContextUser: !!user,
+        currentContextSession: !!session,
+        userIdChanged: hasUserChanged,
+        sessionIdChanged: hasSessionChanged
+      });
+    }
+
+    // More stable auth state management
     if (!storeIsAuthenticated) {
-      // AuthStore is not authenticated, immediately clear AuthContext
-      console.log('AuthContext: Clearing user (store not authenticated)');
+      // Only clear if we actually have user data to clear
       if (user !== null || session !== null) {
+        console.log('AuthContext: Clearing user (store not authenticated)');
         setUser(null);
         setSession(null);
       }
       setLoading(false);
     } else if (storeIsAuthenticated && storeUser && storeSession) {
-      // AuthStore has authenticated user data, sync it to AuthContext
-      console.log('AuthContext: Setting user from store');
-      if (user !== storeUser || session !== storeSession) {
+      // Only update if the actual data has changed (prevent unnecessary re-renders)
+      if (hasUserChanged || hasSessionChanged) {
+        console.log('AuthContext: Setting user from store');
         setUser(storeUser);
         setSession(storeSession);
       }
       setLoading(false);
-    } else {
-      // Intermediate state - store might be updating
-      console.log('AuthContext: Intermediate state - waiting for store update');
+    } else if (storeIsAuthenticated) {
+      // Store says authenticated but no user/session data yet - wait
+      console.log('AuthContext: Waiting for user/session data from store');
+      setLoading(true);
     }
-  }, [storeIsAuthenticated, storeUser, storeSession]);
+  }, [storeIsAuthenticated, storeUser?.id, storeSession?.id, user?.id, session?.id]); // Stable dependencies
 
   useEffect(() => {
     // Initialize session on mount - only if AuthStore doesn't have a user

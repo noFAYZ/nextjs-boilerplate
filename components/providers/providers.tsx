@@ -3,7 +3,6 @@ import { QueryProvider } from "./query-provider";
 import { ErrorBoundary } from "./error-boundary";
 import { StoreProvider } from "./store-provider";
 import { DockProvider } from "./dock-provider";
-import { AutoSyncProvider } from "./auto-sync-provider";
 import { ReactNode } from "react";
 import { ViewModeProvider } from "@/lib/contexts/view-mode-context";
 import { OnboardingGuard } from "@/components/auth/onboarding-guard";
@@ -12,6 +11,8 @@ import { SubscriptionProvider } from "@/lib/contexts/subscription-context";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { LoadingProvider } from "@/lib/contexts/loading-context";
 import { SessionTimeoutModal } from "@/components/auth/session-timeout-modal";
+import { CurrencyProvider } from "@/lib/contexts/currency-context";
+import { RealtimeSyncProvider } from "./realtime-sync-provider";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -25,22 +26,24 @@ export default function Providers({ children }: { children: ReactNode }) {
               themes={["light", "dark", "light-pro", "dark-pro"]}
               disableTransitionOnChange
             >
-              <StoreProvider>
-                <SubscriptionProvider>
-                  <ViewModeProvider>
-                    <AccountProvider>
-                      <DockProvider>
-                        <AutoSyncProvider>
-                          <OnboardingGuard>
-                            {children}
-                            <SessionTimeoutModal />
-                          </OnboardingGuard>
-                        </AutoSyncProvider>
-                      </DockProvider>
-                    </AccountProvider>
-                  </ViewModeProvider>
-                </SubscriptionProvider>
-              </StoreProvider>
+              <CurrencyProvider defaultCurrency="USD">
+                <StoreProvider>
+                  <RealtimeSyncProvider>
+                    <SubscriptionProvider>
+                      <ViewModeProvider>
+                        <AccountProvider>
+                          <DockProvider>
+                            <OnboardingGuard>
+                              {children}
+                              <SessionTimeoutModal />
+                            </OnboardingGuard>
+                          </DockProvider>
+                        </AccountProvider>
+                      </ViewModeProvider>
+                    </SubscriptionProvider>
+                  </RealtimeSyncProvider>
+                </StoreProvider>
+              </CurrencyProvider>
             </ThemeProvider>
           </QueryProvider>
         </LoadingProvider>

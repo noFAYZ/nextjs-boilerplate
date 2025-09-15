@@ -45,8 +45,9 @@ export class ZerionChartService {
         params.address,
         period as 'hour' | 'day' | 'week' | 'month' | 'year' | 'max'
       );
-
-      console.log('Zerion chart response:', chartResponse);
+      if (!chartResponse) {
+        throw new Error('No chart data received from Zerion');
+      }
       
       // Transform Zerion response to our ChartDataPoint format
       return this.transformZerionData(chartResponse, params.period);

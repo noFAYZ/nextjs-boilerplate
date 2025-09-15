@@ -73,17 +73,17 @@ export function WelcomeBanner() {
 
   return (
     <Card className={`
-      mb-6 border-2 border-primary/20 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20
-      ${isAnimating ? 'animate-in slide-in-from-top-4 duration-500' : ''}
+      mb-6  bg-gradient-to-r from-primary/10 to-secondary/10
+      ${isAnimating ? 'animate-in slide-in-from-top-4 duration-100' : ''}
     `}>
-      <CardContent className="p-6">
+      <CardContent className="p-3">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12  rounded-xl bg-gradient-to-r from-orange-600/60 to-pink-600/70 flex items-center justify-center">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
                 Welcome to MoneyMappr, {user?.name?.split(' ')[0] || 'there'}! 🎉
               </h2>
               <p className="text-muted-foreground">
@@ -106,20 +106,20 @@ export function WelcomeBanner() {
             const Icon = action.icon;
             return (
               <Link key={action.title} href={action.href}>
-                <Card className="p-4 hover:shadow-md transition-all cursor-pointer border-border hover:border-primary/50 group">
+                <Card className="p-2 bg-muted/40 cursor-pointer ">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${action.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <Icon className="h-5 w-5 text-white" />
+                    <div className={`w-10 h-10 bg-muted rounded-lg flex items-center justify-center  `}>
+                      <Icon className="h-5 w-5 " />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium group-hover:text-primary transition-colors">
+                      <h3 className="font-medium ">
                         {action.title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         {action.description}
                       </p>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-all" />
                   </div>
                 </Card>
               </Link>

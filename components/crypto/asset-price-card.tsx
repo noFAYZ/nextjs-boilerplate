@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { TrendChart } from "@/components/ui/chart"
+import { CurrencyDisplay } from "@/components/ui/currency-display"
 
 const assetPriceCardVariants = cva(
   "transition-all duration-200 hover:shadow-md relative overflow-hidden cursor-pointer",
@@ -363,7 +364,11 @@ export function AssetPriceCard({
           <div className="space-y-2">
             <div className="flex items-baseline gap-4">
               <h3 className={cn("font-bold tracking-tight", compact ? "text-xl" : "text-2xl")}>
-                {formatCurrency(asset.price)}
+                <CurrencyDisplay
+                  amountUSD={asset.price}
+                  variant={compact ? "default" : "large"}
+                  formatOptions={{ maximumFractionDigits: asset.price < 0.01 ? 6 : asset.price < 1 ? 4 : 2 }}
+                />
               </h3>
               <div className={cn("flex items-center gap-1", getTrendColor(selectedChange.percent))}>
                 {getTrendIcon(selectedChange.percent)}
@@ -419,17 +424,29 @@ export function AssetPriceCard({
                         <Volume2 className="size-3" />
                         Volume (24h)
                       </p>
-                      <p className="font-medium">{formatNumber(asset.volume24h, true)}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay
+                          amountUSD={asset.volume24h}
+                          variant="small"
+                          formatOptions={{ notation: 'compact' }}
+                        />
+                      </p>
                     </div>
                   )}
-                  
+
                   {showMarketCap && asset.marketCap && (
                     <div className="space-y-1">
                       <p className="text-muted-foreground flex items-center gap-1">
                         <Activity className="size-3" />
                         Market Cap
                       </p>
-                      <p className="font-medium">{formatNumber(asset.marketCap, true)}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay
+                          amountUSD={asset.marketCap}
+                          variant="small"
+                          formatOptions={{ notation: 'compact' }}
+                        />
+                      </p>
                     </div>
                   )}
                 </div>
@@ -439,7 +456,9 @@ export function AssetPriceCard({
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">All-Time High</p>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{formatCurrency(asset.allTimeHigh.price)}</span>
+                    <span className="font-medium">
+                      <CurrencyDisplay amountUSD={asset.allTimeHigh.price} variant="small" />
+                    </span>
                     <div className={cn("flex items-center gap-1", getTrendColor(asset.allTimeHigh.changePercent))}>
                       {getTrendIcon(asset.allTimeHigh.changePercent)}
                       <span>{formatPercentage(asset.allTimeHigh.changePercent)}</span>

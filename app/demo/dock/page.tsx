@@ -24,7 +24,7 @@ export default function DockDemo() {
     notifications.addSuccess(
       'Payment Received',
       '$1,250.00 deposited to your Bitcoin wallet',
-      () => console.log('Navigate to Bitcoin wallet')
+      () => {}
     )
   }
 
@@ -32,7 +32,7 @@ export default function DockDemo() {
     notifications.addWarning(
       'Sync Delay',
       'Ethereum wallet sync is taking longer than usual',
-      () => console.log('Check network status')
+      () => {}
     )
   }
 
@@ -40,7 +40,7 @@ export default function DockDemo() {
     notifications.addError(
       'Connection Failed',
       'Unable to connect to Solana network',
-      () => console.log('Retry connection')
+      () => {}
     )
   }
 

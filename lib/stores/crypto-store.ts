@@ -59,6 +59,19 @@ interface CryptoState {
   // Sync status
   syncStatuses: Record<string, SyncJobStatus>;
 
+  // Real-time sync state
+  realtimeSyncStates: Record<string, {
+    progress: number;
+    status: 'queued' | 'syncing' | 'syncing_assets' | 'syncing_transactions' | 'syncing_nfts' | 'syncing_defi' | 'completed' | 'failed';
+    message?: string;
+    error?: string;
+    startedAt?: Date;
+    completedAt?: Date;
+    syncedData?: string[];
+  }>;
+  realtimeSyncConnected: boolean;
+  realtimeSyncError: string | null;
+
   // Filters and UI state
   filters: {
     networks: NetworkType[];
@@ -123,6 +136,15 @@ interface CryptoActions {
   setSyncStatus: (walletId: string, status: SyncJobStatus) => void;
   removeSyncStatus: (walletId: string) => void;
 
+  // Real-time sync actions
+  setRealtimeSyncState: (walletId: string, state: CryptoState['realtimeSyncStates'][string]) => void;
+  updateRealtimeSyncProgress: (walletId: string, progress: number, status: CryptoState['realtimeSyncStates'][string]['status'], message?: string) => void;
+  completeRealtimeSync: (walletId: string, syncedData?: string[]) => void;
+  failRealtimeSync: (walletId: string, error: string) => void;
+  clearRealtimeSyncState: (walletId: string) => void;
+  setRealtimeSyncConnected: (connected: boolean) => void;
+  setRealtimeSyncError: (error: string | null) => void;
+
   // Filter actions
   setNetworkFilter: (networks: NetworkType[]) => void;
   setWalletTypeFilter: (types: WalletType[]) => void;
@@ -141,6 +163,7 @@ interface CryptoActions {
   // Utility actions
   resetState: () => void;
   clearErrors: () => void;
+  clearAllData: () => void;
 }
 
 type CryptoStore = CryptoState & CryptoActions;
@@ -178,6 +201,11 @@ const initialState: CryptoState = {
   // Sync status
   syncStatuses: {},
 
+  // Real-time sync state
+  realtimeSyncStates: {},
+  realtimeSyncConnected: false,
+  realtimeSyncError: null,
+
   // Filters
   filters: {
     networks: [],
@@ -202,7 +230,7 @@ const initialState: CryptoState = {
 
 export const useCryptoStore = create<CryptoStore>()(
   devtools(
-    immer((set, get) => ({
+    immer((set) => ({
       ...initialState,
 
       // Wallet actions
@@ -368,6 +396,72 @@ export const useCryptoStore = create<CryptoStore>()(
           delete state.syncStatuses[walletId];
         }, false, 'removeSyncStatus'),
 
+      // Real-time sync actions
+      setRealtimeSyncState: (walletId, syncState) =>
+        set((state) => {
+          state.realtimeSyncStates[walletId] = syncState;
+        }, false, 'setRealtimeSyncState'),
+
+      updateRealtimeSyncProgress: (walletId, progress, status, message) =>
+        set((state) => {
+          if (!state.realtimeSyncStates[walletId]) {
+            state.realtimeSyncStates[walletId] = {
+              progress: 0,
+              status: 'queued'
+            };
+          }
+          state.realtimeSyncStates[walletId].progress = progress;
+          state.realtimeSyncStates[walletId].status = status;
+          if (message) {
+            state.realtimeSyncStates[walletId].message = message;
+          }
+          if (status === 'syncing' && !state.realtimeSyncStates[walletId].startedAt) {
+            state.realtimeSyncStates[walletId].startedAt = new Date();
+          }
+        }, false, 'updateRealtimeSyncProgress'),
+
+      completeRealtimeSync: (walletId, syncedData) =>
+        set((state) => {
+          if (state.realtimeSyncStates[walletId]) {
+            state.realtimeSyncStates[walletId].progress = 100;
+            state.realtimeSyncStates[walletId].status = 'completed';
+            state.realtimeSyncStates[walletId].completedAt = new Date();
+            if (syncedData) {
+              state.realtimeSyncStates[walletId].syncedData = syncedData;
+            }
+          }
+        }, false, 'completeRealtimeSync'),
+
+      failRealtimeSync: (walletId, error) =>
+        set((state) => {
+          if (state.realtimeSyncStates[walletId]) {
+            state.realtimeSyncStates[walletId].status = 'failed';
+            state.realtimeSyncStates[walletId].error = error;
+            state.realtimeSyncStates[walletId].completedAt = new Date();
+          }
+        }, false, 'failRealtimeSync'),
+
+      clearRealtimeSyncState: (walletId) =>
+        set((state) => {
+          delete state.realtimeSyncStates[walletId];
+        }, false, 'clearRealtimeSyncState'),
+
+      setRealtimeSyncConnected: (connected) =>
+        set((state) => {
+          state.realtimeSyncConnected = connected;
+          if (connected) {
+            state.realtimeSyncError = null;
+          }
+        }, false, 'setRealtimeSyncConnected'),
+
+      setRealtimeSyncError: (error) =>
+        set((state) => {
+          state.realtimeSyncError = error;
+          if (error) {
+            state.realtimeSyncConnected = false;
+          }
+        }, false, 'setRealtimeSyncError'),
+
       // Filter actions
       setNetworkFilter: (networks) =>
         set((state) => {
@@ -445,6 +539,12 @@ export const useCryptoStore = create<CryptoStore>()(
           state.nftsError = null;
           state.defiError = null;
         }, false, 'clearErrors'),
+
+      clearAllData: () =>
+        set((state) => {
+          // Reset all data to initial state
+          Object.assign(state, initialState);
+        }, false, 'clearAllData'),
     })),
     {
       name: 'crypto-store',
@@ -490,6 +590,21 @@ export const selectActiveSyncCount = (state: CryptoStore) => {
   return Object.values(state.syncStatuses).filter(
     (status) => status.status === 'processing' || status.status === 'queued'
   ).length;
+};
+
+export const selectActiveRealtimeSyncCount = (state: CryptoStore) => {
+  return Object.values(state.realtimeSyncStates).filter(
+    (syncState) => syncState.status === 'syncing' ||
+                   syncState.status === 'syncing_assets' ||
+                   syncState.status === 'syncing_transactions' ||
+                   syncState.status === 'syncing_nfts' ||
+                   syncState.status === 'syncing_defi' ||
+                   syncState.status === 'queued'
+  ).length;
+};
+
+export const selectWalletSyncState = (state: CryptoStore, walletId: string) => {
+  return state.realtimeSyncStates[walletId];
 };
 
 // Helper function to check if network is testnet

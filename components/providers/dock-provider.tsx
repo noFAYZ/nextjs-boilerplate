@@ -19,6 +19,8 @@ interface DockContextValue {
     isExpanded: boolean
     items: ExpandableItem[]
     toggle: () => void
+    expand: () => void
+    collapse: () => void
     addItem: (item: ExpandableItem) => void
     removeItem: (id: string) => void
     updateItem: (id: string, updates: Partial<ExpandableItem>) => void
@@ -66,6 +68,8 @@ export function DockProvider({ children }: DockProviderProps) {
       isExpanded: walletsDock.isExpanded,
       items: walletsDock.items,
       toggle: walletsDock.toggle,
+      expand: walletsDock.expand,
+      collapse: walletsDock.collapse,
       addItem: walletsDock.addItem,
       removeItem: walletsDock.removeItem,
       updateItem: walletsDock.updateItem,
@@ -84,6 +88,8 @@ export function DockProvider({ children }: DockProviderProps) {
     walletsDock.isExpanded,
     walletsDock.items,
     walletsDock.toggle,
+    walletsDock.expand,
+    walletsDock.collapse,
     walletsDock.addItem,
     walletsDock.removeItem,
     walletsDock.updateItem,

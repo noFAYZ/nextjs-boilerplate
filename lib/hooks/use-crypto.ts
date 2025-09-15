@@ -2,7 +2,8 @@ import { useQuery, useMutation, useInfiniteQuery } from '@tanstack/react-query';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { cryptoQueries, cryptoMutations, useInvalidateCryptoQueries } from '@/lib/queries/crypto-queries';
 import { cryptoApi } from '@/lib/services/crypto-api';
-import { useEffect } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { useEffect, useMemo, useCallback, useRef } from 'react';
 import type { 
   CreateWalletRequest,
   UpdateWalletRequest,
@@ -16,16 +17,22 @@ import type {
 
 // Wallets Hooks
 export const useWallets = () => {
-  const { 
-    wallets, 
-    walletsLoading, 
+  const {
+    wallets,
+    walletsLoading,
     walletsError,
     setWallets,
     setWalletsLoading,
     setWalletsError,
   } = useCryptoStore();
 
-  const query = useQuery(cryptoQueries.wallets());
+  const { user, loading: authLoading } = useAuth();
+  const isAuthReady = !!user && !authLoading;
+
+  const query = useQuery({
+    ...cryptoQueries.wallets(),
+    enabled: isAuthReady,
+  });
 
   // Handle success/error manually since onSuccess/onError are deprecated
   useEffect(() => {
@@ -54,22 +61,32 @@ export const useWallets = () => {
 export const useWallet = (walletId: string, timeRange = '24h') => {
   // Don't run if walletId is "add" (from the add wallet route)
   if (walletId === 'add' || !walletId) {
-    return {
+    return useMemo(() => ({
       wallet: null,
       isLoading: false,
       error: null,
       refetch: () => {},
-    };
+    }), []);
   }
 
-  const query = useQuery(cryptoQueries.wallet(walletId, timeRange));
+  const { user, loading: authLoading } = useAuth();
+  const isAuthReady = !!user && !authLoading;
 
-  return {
+  // Memoize the query configuration to prevent unnecessary re-renders
+  const queryConfig = useMemo(() => ({
+    ...cryptoQueries.wallet(walletId, timeRange),
+    enabled: isAuthReady && !!walletId,
+  }), [walletId, timeRange, isAuthReady]);
+
+  const query = useQuery(queryConfig);
+
+  // Memoize the return value to prevent unnecessary re-renders
+  return useMemo(() => ({
     wallet: query.data,
-    isLoading: query.isLoading,
+    isLoading: query.isLoading || authLoading,
     error: query.error,
     refetch: query.refetch,
-  };
+  }), [query.data, query.isLoading, query.error, query.refetch, authLoading]);
 };
 
 export const useWalletSummary = (walletId: string) => {
@@ -445,10 +462,86 @@ export const useWalletWithTransactions = (walletId: string, transactionParams?: 
   };
 };
 
-export const useWalletFullData = (walletId: string) => {
-  // Don't run if walletId is "add" (from the add wallet route)
+// Create a stable hook that minimizes re-renders using direct React Query
+export const useWalletFullDataStable = (walletId: string) => {
+  const { user, loading: authLoading } = useAuth();
+  const hasLoggedRef = useRef(false);
+
+  // Early returns for invalid wallet IDs
+  const emptyResult = useMemo(() => ({
+    wallet: null,
+    transactions: null,
+    nfts: null,
+    defiPositions: null,
+    isLoading: false,
+    error: null,
+    refetch: () => {},
+  }), []);
+
   if (walletId === 'add' || !walletId) {
+    return emptyResult;
+  }
+
+  // Loading result for auth not ready
+  const loadingResult = useMemo(() => ({
+    wallet: null,
+    transactions: null,
+    nfts: null,
+    defiPositions: null,
+    isLoading: authLoading,
+    error: null,
+    refetch: () => {},
+  }), [authLoading]);
+
+  if (!user || authLoading) {
+    return loadingResult;
+  }
+
+  // Direct React Query call with maximum stability
+  const queryConfig = useMemo(() => ({
+    ...cryptoQueries.wallet(walletId),
+    enabled: !!user && !authLoading && !!walletId,
+  }), [walletId, user, authLoading]);
+
+  const query = useQuery(queryConfig);
+
+
+  // Stable return with memoized derived data
+  return useMemo(() => {
+    const wallet = query.data;
     return {
+      wallet,
+      transactions: wallet?.transactions?.length > 0 ? wallet.transactions : null,
+      nfts: wallet?.nfts?.length > 0 ? wallet.nfts : null,
+      defiPositions: wallet?.defiPositions?.length > 0 ? wallet.defiPositions : null,
+      isLoading: query.isLoading || authLoading,
+      error: query.error,
+      refetch: query.refetch,
+    };
+  }, [query.data, query.isLoading, query.error, query.refetch, authLoading]);
+};
+
+let renderCount = 0;
+
+export const useWalletFullData = (walletId: string) => {
+  renderCount++;
+  const currentRender = renderCount;
+  const hasExecutedRef = useRef(false);
+
+  const { user, loading: authLoading } = useAuth();
+
+  // Create stable auth state to prevent unnecessary re-renders
+  const isAuthReady = useMemo(() => !!user && !authLoading, [user, authLoading]);
+
+
+  // Memoize the early return conditions to prevent unnecessary re-renders
+  const shouldSkip = useMemo(() => {
+    return walletId === 'add' || !walletId || !user || authLoading;
+  }, [walletId, user, authLoading]);
+
+  // Early returns with memoized objects
+  if (walletId === 'add' || !walletId) {
+    return useMemo(() => ({
       wallet: null,
       transactions: [],
       nfts: [],
@@ -456,32 +549,46 @@ export const useWalletFullData = (walletId: string) => {
       isLoading: false,
       error: null,
       refetch: () => {},
-    };
+    }), []);
   }
-  
+
+  if (!user || authLoading) {
+    return useMemo(() => ({
+      wallet: null,
+      transactions: [],
+      nfts: [],
+      defiPositions: [],
+      isLoading: authLoading,
+      error: null,
+      refetch: () => {},
+    }), [authLoading]);
+  }
+
   const walletQuery = useWallet(walletId);
-  const transactionsQuery = useWalletTransactions(walletId, { limit: 10 });
-  const nftsQuery = useWalletNFTs(walletId, { limit: 10 });
-  const defiQuery = useWalletDeFiPositions(walletId);
 
-  console.log('useWalletFullData', nftsQuery.nfts);
+  // Memoize derived data to prevent recalculations
+  const derivedData = useMemo(() => ({
+    transactions: walletQuery?.wallet?.transactions?.length > 0 ? walletQuery.wallet.transactions : null,
+    nfts: walletQuery?.wallet?.nfts?.length > 0 ? walletQuery.wallet.nfts : null,
+    defiPositions: walletQuery?.wallet?.defiPositions?.length > 0 ? walletQuery.wallet.defiPositions : null,
+  }), [walletQuery?.wallet]);
 
-  return {
+
+  // Memoize the refetch function
+  const refetch = useCallback(() => {
+    walletQuery.refetch();
+  }, [walletQuery.refetch]);
+
+  // Memoize the final return object
+  return useMemo(() => ({
     wallet: walletQuery.wallet,
-    transactions: transactionsQuery.transactions,
-    nfts: nftsQuery.nfts,
-    defiPositions: defiQuery.positions,
-    isLoading: walletQuery.isLoading || transactionsQuery.isLoading || 
-               nftsQuery.isLoading || defiQuery.isLoading,
-    error: walletQuery.error || transactionsQuery.error || 
-           nftsQuery.error || defiQuery.error,
-    refetch: () => {
-      walletQuery.refetch();
-      transactionsQuery.refetch();
-      nftsQuery.refetch();
-      defiQuery.refetch();
-    },
-  };
+    transactions: derivedData.transactions,
+    nfts: derivedData.nfts,
+    defiPositions: derivedData.defiPositions,
+    isLoading: walletQuery.isLoading,
+    error: walletQuery.error,
+    refetch,
+  }), [walletQuery.wallet, walletQuery.isLoading, walletQuery.error, derivedData, refetch]);
 };
 
 // Sync Management Hook

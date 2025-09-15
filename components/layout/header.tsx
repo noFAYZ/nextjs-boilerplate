@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Settings, Menu, X, Crown, LogOut, User, Plus, HelpCircle } from 'lucide-react';
+import { Search, Settings, Menu, X, Crown, LogOut, User, Plus, HelpCircle, Newspaper, BookOpen, Puzzle, Code,  Play, ExternalLink, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { LogoMappr } from '../icons';
@@ -15,6 +15,10 @@ import { useCallback, useEffect, useRef } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CommandPalette, useCommandPalette } from '@/components/ui/command-palette';
+import { BasilAppsSolid, StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold, SolarGalleryWideOutline, StreamlineUltimateTradingPatternUp, HugeiconsPieChart09 } from '../icons/icons';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { CurrencySelector } from '@/components/ui/currency-selector';
+import { Separator } from '@/components/ui/separator';
 
 
 interface HeaderProps {
@@ -95,6 +99,7 @@ export function Header({
         {/* Simplified Header */}
         <div className="flex items-center justify-between h-16 px-4 lg:px-6">
           {/* Left Section - Logo */}
+            <div className='flex items-center gap-6'>
           <div className="flex items-center">
             <Link 
               href="/dashboard" 
@@ -108,6 +113,115 @@ export function Header({
                 MoneyMappr
               </span>
             </Link>
+          </div>
+        
+           
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant={'ghost'} icon={<BasilAppsSolid className='w-6 h-6'/>} size={'icon'} className='rounded-sm'></Button>
+              </PopoverTrigger>
+              <PopoverContent className='min-w-3xl p-6' align='start' sideOffset={8}>
+                <div className="grid grid-cols-2 gap-8">
+                  {/* Left Column - Products */}
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-4">Products</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-muted transition-colors">
+                            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Integrations</div>
+                            <div className="text-xs text-muted-foreground mt-1">Over 300 platforms supported. Choose your preferred crypto platform and connect.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-muted transition-colors">
+                            <StreamlineUltimateTradingPatternUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Earn</div>
+                            <div className="text-xs text-muted-foreground mt-1">Don't just hodl. Earn 20% on your crypto.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-muted   flex items-center justify-center flex-shrink-0  transition-colors">
+                            <SolarGalleryWideOutline className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">NFT</div>
+                            <div className="text-xs text-muted-foreground mt-1">Track your entire NFT collection right where you track your other crypto assets.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                            <HugeiconsPieChart09 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">DeFi Portfolio Tracker</div>
+                            <div className="text-xs text-muted-foreground mt-1">Track more than 90 DeFi wallets across 10 different networks.</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Main Links & Other */}
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-4">Products</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/50 transition-colors">
+                            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Integrations</div>
+                            <div className="text-xs text-muted-foreground mt-1">Over 300 platforms supported. Choose your preferred crypto platform and connect.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 dark:group-hover:bg-amber-900/50 transition-colors">
+                            <StreamlineUltimateTradingPatternUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Earn</div>
+                            <div className="text-xs text-muted-foreground mt-1">Don't just hodl. Earn 20% on your crypto.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+                            <SolarGalleryWideOutline className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">NFT</div>
+                            <div className="text-xs text-muted-foreground mt-1">Track your entire NFT collection right where you track your other crypto assets.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 cursor-pointer group">
+                          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                            <HugeiconsPieChart09 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">DeFi Portfolio Tracker</div>
+                            <div className="text-xs text-muted-foreground mt-1">Track more than 90 DeFi wallets across 10 different networks.</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+               
+                </div>
+              </PopoverContent>
+            </Popover>
+          
           </div>
 
           {/* Center Section - Command Palette Search */}
@@ -128,6 +242,11 @@ export function Header({
 
           {/* Right Section - Actions */}
           <div className="flex items-center gap-2">
+            {/* Currency Selector */}
+            <div className="hidden md:block">
+              <CurrencySelector variant="compact" showRefresh />
+            </div>
+
             <ThemeSwitcher />
 
             {/* Create Button */}
@@ -210,6 +329,12 @@ export function Header({
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t bg-background">
             <nav className="px-4 py-4 space-y-2">
+              {/* Currency Selector for mobile */}
+              <div className="md:hidden mb-3">
+                <div className="text-xs text-muted-foreground mb-2 px-2">Currency</div>
+                <CurrencySelector variant="compact" />
+              </div>
+
               <Button
                 variant="ghost"
                 className="w-full justify-start text-sm"

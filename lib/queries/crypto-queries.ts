@@ -1,13 +1,13 @@
-import { 
-  useQuery, 
-  useMutation, 
+import {
+  useQuery,
+  useMutation,
   useQueryClient,
   useInfiniteQuery,
-  keepPreviousData 
+  keepPreviousData
 } from '@tanstack/react-query';
 import { cryptoApi } from '@/lib/services/crypto-api';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
-import type { 
+import type {
   CryptoWallet,
   CreateWalletRequest,
   UpdateWalletRequest,
@@ -75,6 +75,11 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getWallet(id, timeRange),
     enabled: !!id,
     staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes - keep in cache longer
+    refetchOnMount: false, // Only refetch if stale
+    refetchOnReconnect: false, // Don't refetch on reconnect
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    notifyOnChangeProps: ['data', 'error', 'isLoading'], // Only notify on these prop changes
     select: (data: any) => data.success ? data.data : null,
   }),
 
@@ -235,10 +240,13 @@ export const cryptoMutations = {
         if (response.success) {
           // Update Zustand store
           addWallet(response.data);
-          
-          // Invalidate related queries
+
+          // Comprehensive cache invalidation for wallet creation
           queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
           queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.transactions() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.nfts() });
         }
       },
       onError: (error) => {
@@ -258,10 +266,15 @@ export const cryptoMutations = {
         if (response.success) {
           // Update Zustand store
           updateWallet(variables.id, response.data);
-          
-          // Invalidate related queries
+
+          // Comprehensive cache invalidation for wallet update
           queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
           queryClient.invalidateQueries({ queryKey: cryptoKeys.wallet(variables.id) });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletTransactions(variables.id) });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletNfts(variables.id) });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletDefi(variables.id) });
         }
       },
       onError: (error) => {
@@ -281,15 +294,19 @@ export const cryptoMutations = {
           // Update Zustand store
           removeWallet(walletId);
           
-          // Remove wallet-specific queries
+          // Remove all wallet-specific queries from cache
           queryClient.removeQueries({ queryKey: cryptoKeys.wallet(walletId) });
           queryClient.removeQueries({ queryKey: cryptoKeys.walletTransactions(walletId) });
           queryClient.removeQueries({ queryKey: cryptoKeys.walletNfts(walletId) });
           queryClient.removeQueries({ queryKey: cryptoKeys.walletDefi(walletId) });
-          
-          // Invalidate related queries
+          queryClient.removeQueries({ queryKey: cryptoKeys.syncStatus(walletId) });
+
+          // Invalidate global queries that depend on wallet list
           queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
           queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.transactions() });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.nfts() });
         }
       },
       onError: (error) => {
@@ -310,17 +327,17 @@ export const cryptoMutations = {
         if (response.success) {
           const { walletId } = variables;
           const { jobId } = response.data;
-          
+
           // Update sync status in store
           setSyncStatus(walletId, {
             jobId,
             status: 'queued',
             startedAt: new Date().toISOString(),
           });
-          
+
           // Start polling sync status
-          queryClient.invalidateQueries({ 
-            queryKey: cryptoKeys.syncStatus(walletId, jobId) 
+          queryClient.invalidateQueries({
+            queryKey: cryptoKeys.syncStatus(walletId, jobId)
           });
         }
       },
@@ -337,13 +354,63 @@ export const cryptoMutations = {
       mutationFn: () => cryptoApi.refreshAllWallets(),
       onSuccess: (response) => {
         if (response.success) {
-          // Invalidate all crypto-related queries
+          // Comprehensive cache invalidation for all wallet sync
           queryClient.invalidateQueries({ queryKey: cryptoKeys.all });
         }
       },
       onError: (error) => {
         console.error('Failed to sync all wallets:', error);
       },
+    });
+  },
+
+  // Sync completion handler - call this after successful sync
+  useSyncComplete: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async (walletId: string) => {
+        // This is called internally after sync tracking completes
+        return Promise.resolve(walletId);
+      },
+      onSuccess: (walletId) => {
+        // Comprehensive cache refresh after successful sync
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.wallet(walletId) });
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.walletTransactions(walletId) });
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.walletNfts(walletId) });
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.walletDefi(walletId) });
+
+        // Update global data that depends on wallet data
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
+        queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
+
+        console.log(`Cache cleared for wallet ${walletId} after successful sync`);
+      }
+    });
+  },
+
+  // Clear all cache - useful for logout or major operations
+  useClearAllCache: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async () => Promise.resolve(),
+      onSuccess: () => {
+        // Clear all TanStack Query cache
+        queryClient.clear();
+
+        // Clear localStorage cache (if using persistent cache)
+        if (typeof window !== 'undefined') {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('moneymappr_')) {
+              localStorage.removeItem(key);
+            }
+          });
+        }
+
+        console.log('All cache cleared');
+      }
     });
   },
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { use, Suspense } from 'react';
+import { use, Suspense, memo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,10 +29,15 @@ import { toast } from 'sonner';
 
 // Import custom hooks
 import {
-  useWalletFullData,
+  useWalletFullDataStable,
   useSyncWallet,
   useSyncStatus
 } from '@/lib/hooks/use-crypto';
+// import { useWalletSyncTracker } from '@/lib/hooks/use-wallet-sync-tracker';
+// import { SyncProgressTracker } from '@/components/crypto/SyncProgressTracker';
+// import { SyncNotificationProvider } from '@/components/crypto/SyncNotification';
+import { WalletSyncProgress } from '@/components/crypto/wallet-sync-progress';
+import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
 import type { CryptoWallet, CryptoTransaction, CryptoNFT } from '@/lib/types/crypto';
 
 interface WalletPageProps {
@@ -82,27 +87,52 @@ function LoadingSpinner({ text }: { text: string }) {
   );
 }
 
-function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
+// Isolated data fetching component that prevents re-renders
+const WalletDataProvider = memo(function WalletDataProvider({
+  walletIdentifier,
+  children
+}: {
+  walletIdentifier: string;
+  children: (data: ReturnType<typeof useWalletFullDataStable>) => React.ReactNode;
+}) {
+  const walletData = useWalletFullDataStable(walletIdentifier);
+
+
+  return <>{children(walletData)}</>;
+}, (prevProps, nextProps) => {
+  // Only re-render if walletIdentifier changes
+  return prevProps.walletIdentifier === nextProps.walletIdentifier;
+});
+
+const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('tokens');
-  
-  // Use the optimized hook that fetches all data efficiently
-  const { 
-    
-    wallet, 
-    transactions, 
-    nfts, 
-    defiPositions,
-    isLoading, 
-    error,
-    refetch 
-  } = useWalletFullData(walletIdentifier);
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
-  
-  
+  // Initialize sync tracker for this wallet
+  // const syncTracker = useWalletSyncTracker();
+  // const walletSyncState = syncTracker.walletStates[walletIdentifier];
+
+  // console.log('WalletPageContent render:', {
+  //   walletIdentifier,
+  //   syncTrackerConnected: syncTracker.isConnected,
+  //   connectionType: syncTracker.connectionType,
+  //   walletSyncState,
+  //   hasActiveSyncs: syncTracker.hasActiveSyncs
+  // });
+
+  return (
+    <>
+      {/* <SyncNotificationProvider /> */}
+      <WalletDataProvider walletIdentifier={walletIdentifier}>
+        {(walletData) => {
+          const { wallet, transactions, nfts, defiPositions, isLoading, error, refetch } = walletData;
+
+          // Removed realtime sync functionality
+          const isConnected = false;
+
   const syncWallet = useSyncWallet();
   const { syncStatus } = useSyncStatus(walletIdentifier);
-console.log('Wallet:', wallet);
   // Memoize expensive calculations
   const walletStats = useMemo(() => {
     if (!wallet) return null;
@@ -128,21 +158,44 @@ console.log('Wallet:', wallet);
   }, [wallet?.address]);
 
   const handleSync = useCallback(() => {
-    if (!walletIdentifier || syncWallet.isPending) return;
-    
+    if (!walletIdentifier || syncWallet.isPending) {
+      console.log('Sync skipped:', { walletIdentifier, isPending: syncWallet.isPending });
+      return;
+    }
+
+    console.log('Starting wallet sync for:', walletIdentifier);
+
     syncWallet.mutate(
       { walletId: walletIdentifier },
       {
-        onSuccess: () => {
-          toast.success('Wallet sync started');
-          refetch();
+        onSuccess: (response) => {
+          console.log('Sync mutation successful:', response);
+          if (response.success) {
+            toast.success(`Wallet sync started (Job ID: ${response.data?.jobId})`);
+            console.log('Sync job started with ID:', response.data?.jobId);
+
+            // Show the sync modal to track progress
+            setShowSyncModal(true);
+          } else {
+            console.error('Sync mutation failed:', response.error);
+            toast.error(response.error?.message || 'Failed to start sync');
+          }
         },
         onError: (error: any) => {
+          console.error('Sync mutation error:', error);
           toast.error(error.message || 'Failed to start sync');
         }
       }
     );
-  }, [walletIdentifier, syncWallet, refetch]);
+  }, [walletIdentifier, syncWallet]);
+
+  const handleSyncComplete = useCallback(() => {
+    console.log('Sync completed for wallet:', walletIdentifier);
+    toast.success('Wallet sync completed successfully!');
+
+    // Refresh wallet data after completion
+    refetch();
+  }, [walletIdentifier, refetch]);
 
   const formatAddress = useCallback((address: string) => {
     if (!address || address.length < 10) return address;
@@ -254,7 +307,7 @@ console.log('Wallet:', wallet);
                   <Badge variant="outline">{wallet.network}</Badge>
                   <Badge variant="secondary">{wallet?.type?.replace('_', ' ')}</Badge>
                   {wallet.syncStatus && (
-                    <Badge 
+                    <Badge
                       variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
                     >
                       {wallet.syncStatus}
@@ -268,15 +321,27 @@ console.log('Wallet:', wallet);
                 variant="outline"
                 size="sm"
                 onClick={handleSync}
-                disabled={syncWallet.isPending || syncStatus?.status === 'processing'}
+                disabled={syncWallet.isPending}
               >
-                {syncWallet.isPending || syncStatus?.status === 'processing' ? (
+                {syncWallet.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-2" />
                 )}
-                Sync
+                {syncWallet.isPending ? 'Syncing...' : 'Sync'}
               </Button>
+
+              {/* Debug sync tracker connection - temporarily disabled */}
+              {/* <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  console.log('Sync Tracker Debug');
+                }}
+                className="text-xs"
+              >
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              </Button> */}
             </div>
           </div>
         </CardHeader>
@@ -333,44 +398,12 @@ console.log('Wallet:', wallet);
             </div>
           </div>
 
-          {/* Sync Status */}
-          {syncStatus && (
-            <div className={`mt-4 p-3 rounded-lg ${
-              syncStatus.status === 'processing'?.toUpperCase() ? 'bg-blue-50 dark:bg-blue-950' :
-              syncStatus.status === 'completed'?.toUpperCase() ? 'bg-green-50 dark:bg-green-950' :
-              syncStatus.status === 'failed'?.toUpperCase() ? 'bg-red-50 dark:bg-red-950' :
-              'bg-yellow-50 dark:bg-yellow-950'
-            }`}>
-              <div className="flex items-center gap-2 mb-2">
-                {syncStatus.status === 'processing'?.toUpperCase() && <Loader2 className="h-4 w-4 animate-spin" />}
-                {syncStatus.status === 'completed'?.toUpperCase() && <CheckCircle className="h-4 w-4 text-green-600" />}
-                {syncStatus.status === 'failed'?.toUpperCase() && <AlertCircle className="h-4 w-4 text-red-600" />}
-                {syncStatus.status === 'queued'?.toUpperCase() && <Clock className="h-4 w-4 text-yellow-600" />}
-                <span className="text-sm font-medium">
-                  {syncStatus.status === 'processing'?.toUpperCase() && 'Syncing wallet data...'}
-                  {syncStatus.status === 'completed'?.toUpperCase() && 'Sync completed successfully'}
-                  {syncStatus.status === 'failed'?.toUpperCase() && 'Sync failed'}
-                  {syncStatus.status === 'queued'?.toUpperCase() && 'Sync queued'}
-                </span>
-              </div>
-              {syncStatus.progress && syncStatus.status === 'processing'?.toUpperCase() && (
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${syncStatus.progress}%` }}
-                  />
-                </div>
-              )}
-              {syncStatus.message && (
-                <p className="text-xs text-muted-foreground mt-2">{syncStatus.message}</p>
-              )}
-              {syncStatus.error && syncStatus.status === 'failed'?.toUpperCase() && (
-                <p className="text-xs text-red-600 mt-2">{syncStatus.error}</p>
-              )}
-            </div>
-          )}
+          {/* Real-time Sync Status */}
         </CardContent>
       </Card>
+
+      {/* Wallet Sync Progress */}
+      <WalletSyncProgress walletId={walletIdentifier} walletName={wallet.name} />
 
       {/* Wallet Details Tabs */}
       <Card>
@@ -398,11 +431,20 @@ console.log('Wallet:', wallet);
                 <h3 className="text-lg font-semibold">Token Holdings</h3>
                 <Badge variant="outline">{walletStats?.assetCount || 0} assets</Badge>
               </div>
-              
+
+              {/* Sync Status Debug Info - temporarily disabled */}
+              {/* {walletSyncState && (
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    Sync Status: {walletSyncState.status}
+                  </div>
+                </div>
+              )} */}
+
               {/* DeFi Positions */}
               {wallet && wallet?.topAssets.length > 0 ? (
                 <div className="space-y-3">
-                  {wallet?.topAssets?.map((position) => (
+                  {wallet?.topAssets?.map((position: any) => (
                     <div key={position.id} className="px-5 py-1 border rounded-xl">
                       <div className="flex items-center justify-between ">
                         <div className="flex items-center gap-3">
@@ -427,7 +469,7 @@ console.log('Wallet:', wallet);
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-2">
-                        {position?.assets?.map((asset, idx) => (
+                        {position?.assets?.map((asset: any, idx: number) => (
                           <div key={idx} className="text-sm p-2 bg-muted rounded">
                             <span className="font-medium">{asset.symbol}:</span> {asset.amount}
                           </div>
@@ -593,9 +635,22 @@ console.log('Wallet:', wallet);
           </CardContent>
         </Tabs>
       </Card>
+
+      {/* Sync Progress Modal */}
+      <WalletSyncModal
+        isOpen={showSyncModal}
+        onClose={() => setShowSyncModal(false)}
+        walletId={walletIdentifier}
+        walletName={wallet?.name}
+        onSyncComplete={handleSyncComplete}
+      />
     </div>
   );
-}
+        }}
+      </WalletDataProvider>
+    </>
+  );
+});
 
 export default function WalletPage({ params }: WalletPageProps) {
   const resolvedParams = use(params);

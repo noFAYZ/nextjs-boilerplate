@@ -39,6 +39,8 @@ import type { CryptoWallet, NetworkType, WalletType } from '@/lib/types/crypto';
 import { SyncWalletsDialog } from '@/components/crypto/SyncWalletsDialog';
 import { DeleteProgressDialog } from '@/components/ui/progress-dialog';
 import { createOperationItem } from '@/lib/types/progress';
+import { SyncProgressBadge, GlobalSyncStatus } from '@/components/crypto/wallet-sync-progress';
+import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
 
 export default function WalletsPage() {
   const router = useRouter();
@@ -49,6 +51,7 @@ export default function WalletsPage() {
   const [selectedWallets, setSelectedWallets] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
 
   // Use custom hooks
   const { wallets, isLoading, error, refetch } = useWallets();
@@ -62,7 +65,6 @@ export default function WalletsPage() {
   
   // Memoize expensive calculations
   const filteredWallets = useMemo(() => {
-    console.log('Filtering wallets with:', wallets);
     return wallets.filter((wallet) => {
       // Filter by networks
       if (storeFilters.networks.length > 0 && !storeFilters.networks.includes(wallet.network)) {
@@ -106,17 +108,28 @@ export default function WalletsPage() {
   const handleSyncConfirm = async (walletIds: string[]) => {
     const successWallets: string[] = [];
     const failedWallets: string[] = [];
-    
+
     for (const walletId of walletIds) {
       try {
         await syncWallet(walletId);
         successWallets.push(walletId);
+
+        // Show sync modal for the first wallet (or if only one wallet)
+        if (walletIds.length === 1) {
+          setSyncingWalletId(walletId);
+        }
       } catch (error) {
         failedWallets.push(walletId);
       }
     }
-    
+
     return { success: successWallets, failed: failedWallets };
+  };
+
+  const handleSyncComplete = () => {
+    console.log('Sync completed for wallet:', syncingWalletId);
+    setSyncingWalletId(null);
+    refetch(); // Refresh the wallet list
   };
 
   const handleDeleteConfirm = async (walletIds: string[]) => {
@@ -419,16 +432,9 @@ export default function WalletsPage() {
           </div>
 
           {/* Active Sync Status */}
-          {hasActiveSyncs() && (
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm font-medium">
-                  {getActiveSyncs().length} wallet{getActiveSyncs().length > 1 ? 's' : ''} syncing...
-                </span>
-              </div>
-            </div>
-          )}
+          <div className="mt-4">
+            <GlobalSyncStatus />
+          </div>
         </CardContent>
       </Card>
 
@@ -511,14 +517,17 @@ export default function WalletsPage() {
                             </div>
                           </div>
                         </div>
-                        {wallet.syncStatus && (
-                          <Badge 
-                            variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
-                            className="text-xs"
-                          >
-                            {wallet.syncStatus}
-                          </Badge>
-                        )}
+                        <div className="flex gap-1">
+                          {wallet.syncStatus && (
+                            <Badge
+                              variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
+                              className="text-xs"
+                            >
+                              {wallet.syncStatus}
+                            </Badge>
+                          )}
+                          <SyncProgressBadge walletId={wallet.id} />
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -596,13 +605,14 @@ export default function WalletsPage() {
                             {wallet.network}
                           </Badge>
                           {wallet.syncStatus && (
-                            <Badge 
+                            <Badge
                               variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
                               className="text-xs"
                             >
                               {wallet.syncStatus}
                             </Badge>
                           )}
+                          <SyncProgressBadge walletId={wallet.id} />
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm text-muted-foreground">
@@ -662,6 +672,17 @@ export default function WalletsPage() {
         onConfirm={handleDeleteConfirm}
         itemType="wallet"
       />
+
+      {/* Sync Progress Modal */}
+      {syncingWalletId && (
+        <WalletSyncModal
+          isOpen={true}
+          onClose={() => setSyncingWalletId(null)}
+          walletId={syncingWalletId}
+          walletName={wallets.find(w => w.id === syncingWalletId)?.name}
+          onSyncComplete={handleSyncComplete}
+        />
+      )}
     </div>
   );
 }

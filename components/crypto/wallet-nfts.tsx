@@ -38,6 +38,10 @@ import { cn } from '@/lib/utils';
 
 import type { CryptoNFT } from '@/lib/types/crypto';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
+import { MultiSelect } from '../ui/multi-select';
+import { Toggle } from '../ui/toggle';
+import { StreamlineFlexFilter2 } from '../icons/icons';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface WalletNFTsProps {
   nfts: CryptoNFT[];
@@ -218,20 +222,21 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
     priceRange: 'all',
     hasValue: false
   });
+  const [toggleFilters, setToggleFilters] = useState(false);
 
   const itemsPerPage = ITEMS_PER_PAGE;
 
   // Helper function to calculate estimated value in USD
   const getEstimatedValueUsd = (nft: CryptoNFT): number => {
-    if (!nft.estimatedValue) return 0;
+    if (!nft.estimatedValue || !nft.estimatedValue.d || nft.estimatedValue.d.length < 2) return 0;
     // Convert from the decimal format: s * 10^e * d[0].d[1] / 10^7
     const { s, e, d } = nft.estimatedValue;
     return s * Math.pow(10, e) * (d[0] + d[1] / 10000000);
   };
 
   // Extract unique networks and collections for filter options
-  const availableNetworks = [...new Set(nfts.map(nft => nft.network))].sort();
-  const availableCollections = [...new Set(nfts.map(nft => nft.collectionName))]
+  const availableNetworks = [...new Set(nfts?.map(nft => nft?.network))].sort();
+  const availableCollections = [...new Set(nfts?.map(nft => nft?.collectionName))]
     .filter(Boolean)
     .sort();
 
@@ -301,7 +306,7 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
     currentPage * itemsPerPage
   );
 
-  const totalValue = nfts.reduce((sum, nft) => sum + getEstimatedValueUsd(nft), 0);
+  const totalValue = nfts.reduce((sum, nft) => sum + Number(nft?.estimatedValue || 0), 0);
   const collectionsCount = new Set(nfts.map(nft => nft.collectionName)).size;
   const rareCount = nfts.filter(nft => nft.rarityRank && nft.rarityRank <= 1000).length;
 
@@ -315,225 +320,178 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
   return (
     <div className="space-y-4">
       {/* Modern Header with Gradient Stats */}
+<div className='px-4 flex justify-between'>
+      <div className=" ">
+         
+         <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Value</span>
+    
+       <div className="text-xl font-bold">
+         <CurrencyDisplay
+           amountUSD={totalValue}
+           variant="default"
+           isLoading={isLoading}
+         />
+       </div>
+     </div>
+     <div className='flex gap-2 items-center'>
+        {/* Search + Sort */}
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    {/* Search */}
+    <div className="relative flex-1 max-w-md">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+      <Input
+        placeholder="Search NFTs or collections..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="pl-10 h-9 bg-background"
+      />
+    </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-card backdrop-blur-sm rounded-lg p-4 border shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">Total</span>
-              </div>
-              <div className="text-2xl font-bold">{nfts.length}</div>
-            </div>
-            <div className="bg-card backdrop-blur-sm rounded-lg p-4 border shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">Value</span>
-              </div>
-              <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-            </div>
-            <div className="bg-card backdrop-blur-sm rounded-lg p-4 border shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">Collections</span>
-              </div>
-              <div className="text-2xl font-bold">{collectionsCount}</div>
-            </div>
-            <div className="bg-card backdrop-blur-sm rounded-lg p-4 border shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">Rare</span>
-              </div>
-              <div className="text-2xl font-bold">{rareCount}</div>
-            </div>
-          </div>
-       
+    {/* Sort */}
+    <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+      <SelectTrigger className="w-full sm:w-[150px] h-9">
+        <SelectValue placeholder="Sort by" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="value">By Value</SelectItem>
+        <SelectItem value="rarity">By Rarity</SelectItem>
+        <SelectItem value="name">By Name</SelectItem>
+        <SelectItem value="collection">Collection</SelectItem>
+        <SelectItem value="network">Network</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+     <Toggle className=" px-2 gap-1.5" title='Filters' variant={'outline'} 
+onClick={()=>setToggleFilters(!toggleFilters)} >
+  <StreamlineFlexFilter2 className="h-4 w-4" />
+      Filters
+        </Toggle>
 
-      {/* Enhanced Filters */}
-      <div className="space-y-4">
-        {/* Search and Sort Row */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search NFTs or collections..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-9 bg-background"
+    </div>
+</div>
+
+
+  {/* Filters Row */}
+  <div className={` px-4 items-center  gap-2 ${toggleFilters ? 'flex flex-wrap sm:justify-end ' : 'hidden'}`}>
+    {/* Networks */}
+    <MultiSelect
+  options={availableNetworks.map((network) => {
+    const chainData = ZERION_CHAINS.find(
+      (chain) => chain.id.toUpperCase() === network.toUpperCase()
+    )
+    return {
+      label: network,
+      value: network,
+      icon: chainData
+        ? () =>
+            <Image
+              src={chainData.attributes.icon.url}
+              alt={network}
+              width={16}
+              height={16}
+              className="rounded-full"
+              unoptimized
             />
-          </div>
-          <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-[120px] h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="value">By Value</SelectItem>
-                <SelectItem value="rarity">By Rarity</SelectItem>
-                <SelectItem value="name">By Name</SelectItem>
-                <SelectItem value="collection">Collection</SelectItem>
-                <SelectItem value="network">Network</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        : undefined,
+    }
+  })}
+  selected={filters.networks}
+  onChange={(newSelected) =>
+    setFilters((prev) => ({ ...prev, networks: newSelected }))
+  }
+  placeholder="Select Networks..."
+  searchPlaceholder="Search networks..."
+  emptyMessage="No networks found."
+  className="w-[220px]"
+/>
 
-        {/* Filter Pills Row */}
-        <div className="flex flex-wrap gap-2">
-          {/* Network Filter */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <Filter className="h-3 w-3 mr-1" />
-                Networks {filters.networks.length > 0 && `(${filters.networks.length})`}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-3" align="start">
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm">Filter by Network</h4>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {availableNetworks.map((network) => (
-                    <div key={network} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={network}
-                        checked={filters.networks.includes(network)}
-                        onCheckedChange={(checked) => {
-                          setFilters(prev => ({
-                            ...prev,
-                            networks: checked
-                              ? [...prev.networks, network]
-                              : prev.networks.filter(n => n !== network)
-                          }));
-                        }}
-                      />
-                      <div className="flex items-center gap-2">
-                        {(() => {
-                          const chainData = ZERION_CHAINS.find((chain) => chain.id.toUpperCase() === network.toUpperCase());
-                          const iconUrl = chainData?.attributes.icon?.url;
-                          return iconUrl ? (
-                            <Image
-                              src={iconUrl}
-                              alt={network}
-                              width={16}
-                              height={16}
-                              className="rounded-full"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-4 h-4 bg-muted rounded-full" />
-                          );
-                        })()}
-                        <span className="text-sm">{network}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+    {/* Collections */}
+    <MultiSelect
+  options={availableCollections.map((collection) => ({
+    label: collection,
+    value: collection,
+  }))}
+  selected={filters.collections}
+  onChange={(newSelected) =>
+    setFilters((prev) => ({ ...prev, collections: newSelected }))
+  }
+  placeholder="Select Collections..."
+  searchPlaceholder="Search collections..."
+  emptyMessage="No collections found."
+  className="w-[260px]"
+/>
 
-          {/* Collections Filter */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <Sparkles className="h-3 w-3 mr-1" />
-                Collections {filters.collections.length > 0 && `(${filters.collections.length})`}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-3" align="start">
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm">Filter by Collection</h4>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {availableCollections.map((collection) => (
-                    <div key={collection} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={collection}
-                        checked={filters.collections.includes(collection)}
-                        onCheckedChange={(checked) => {
-                          setFilters(prev => ({
-                            ...prev,
-                            collections: checked
-                              ? [...prev.collections, collection]
-                              : prev.collections.filter(c => c !== collection)
-                          }));
-                        }}
-                      />
-                      <label htmlFor={collection} className="text-sm truncate cursor-pointer">
-                        {collection}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+    {/* Rarity */}
+    <Select
+      value={filters.rarity}
+      onValueChange={(value: any) => setFilters((prev) => ({ ...prev, rarity: value }))}
+    >
+      <SelectTrigger className="w-[120px] h-8">
+        <Trophy className="h-3 w-3 mr-1" />
+        <SelectValue placeholder="Rarity" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Rarity</SelectItem>
+        <SelectItem value="rare">Rare+</SelectItem>
+        <SelectItem value="epic">Epic+</SelectItem>
+        <SelectItem value="legendary">Legendary</SelectItem>
+      </SelectContent>
+    </Select>
 
-          {/* Rarity Filter */}
-          <Select
-            value={filters.rarity}
-            onValueChange={(value: any) => setFilters(prev => ({ ...prev, rarity: value }))}
-          >
-            <SelectTrigger className="w-[110px] h-8">
-              <Trophy className="h-3 w-3 mr-1" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Rarity</SelectItem>
-              <SelectItem value="rare">Rare+</SelectItem>
-              <SelectItem value="epic">Epic+</SelectItem>
-              <SelectItem value="legendary">Legendary</SelectItem>
-            </SelectContent>
-          </Select>
+    {/* Price */}
+    <Select
+      value={filters.priceRange}
+      onValueChange={(value: any) => setFilters((prev) => ({ ...prev, priceRange: value }))}
+    >
+      <SelectTrigger className="w-[120px] h-8">
+        <TrendingUp className="h-3 w-3 mr-1" />
+        <SelectValue placeholder="Price" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Prices</SelectItem>
+        <SelectItem value="free">Free</SelectItem>
+        <SelectItem value="low">$1-$100</SelectItem>
+        <SelectItem value="mid">$100-$1K</SelectItem>
+        <SelectItem value="high">$1K+</SelectItem>
+      </SelectContent>
+    </Select>
 
-          {/* Price Range Filter */}
-          <Select
-            value={filters.priceRange}
-            onValueChange={(value: any) => setFilters(prev => ({ ...prev, priceRange: value }))}
-          >
-            <SelectTrigger className="w-[100px] h-8">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Prices</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="low">$1-$100</SelectItem>
-              <SelectItem value="mid">$100-$1K</SelectItem>
-              <SelectItem value="high">$1K+</SelectItem>
-            </SelectContent>
-          </Select>
+    {/* Has Value */}
+    <Button
+      variant={filters.hasValue ? "default" : "outline"}
+      size="sm"
+      className="h-8"
+      onClick={() => setFilters((prev) => ({ ...prev, hasValue: !prev.hasValue }))}
+    >
+      <Zap className="h-3 w-3 mr-1" />
+      Valued
+    </Button>
 
-          {/* Has Value Toggle */}
-          <Button
-            variant={filters.hasValue ? "default" : "outline"}
-            size="sm"
-            className="h-8"
-            onClick={() => setFilters(prev => ({ ...prev, hasValue: !prev.hasValue }))}
-          >
-            <Zap className="h-3 w-3 mr-1" />
-            Valued Only
-          </Button>
+    {/* Clear */}
+    {(filters.networks.length > 0 ||
+      filters.collections.length > 0 ||
+      filters.rarity !== "all" ||
+      filters.priceRange !== "all" ||
+      filters.hasValue) && (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 text-muted-foreground"
+        onClick={() =>
+          setFilters({
+            networks: [],
+            collections: [],
+            rarity: "all",
+            priceRange: "all",
+            hasValue: false,
+          })
+        }
+      >
+        Clear all
+      </Button>
+    )}
+  </div>
 
-          {/* Clear Filters */}
-          {(filters.networks.length > 0 || filters.collections.length > 0 || filters.rarity !== 'all' || filters.priceRange !== 'all' || filters.hasValue) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 text-muted-foreground"
-              onClick={() => setFilters({
-                networks: [],
-                collections: [],
-                rarity: 'all',
-                priceRange: 'all',
-                hasValue: false
-              })}
-            >
-              Clear all
-            </Button>
-          )}
-        </div>
-      </div>
-     
 
       {/* NFT Grid Display */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6  gap-4">
@@ -550,17 +508,19 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
                   {nft.collectionName}
                 </p>
                 <div className="flex items-center justify-between pt-1">
-                  {getEstimatedValueUsd(nft) > 0 ? (
+                  {Number(nft?.estimatedValue) > 0 ? (
                     <div className="flex items-center gap-1">
-                     
-                      <p className="text-sm font-semibold text-green-700">
-                        ${getEstimatedValueUsd(nft).toLocaleString()}
-                      </p>
+                      <CurrencyDisplay
+                        amountUSD={Number(nft?.estimatedValue)}
+                        variant="small"
+                        isLoading={isLoading}
+                        className="text-sm font-semibold text-green-700"
+                      />
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">N/A</span>
                   )}
-                  {nft.rarityRank && nft.rarityRank <= 1000 && (
+                  {nft.rarityRank && nft.rarityRank < 1000 && (
                     <Badge variant="outline" className="text-xs px-1">
                       #{nft.rarityRank}
                     </Badge>

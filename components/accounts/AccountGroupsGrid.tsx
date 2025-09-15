@@ -68,7 +68,6 @@ function GroupDetailsView({
     try {
       setRemovingWallet(walletId);
       // TODO: Implement API call to remove wallet from group
-      console.log("Removing wallet:", walletId, "from group:", group.id);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -85,7 +84,6 @@ function GroupDetailsView({
     try {
       setRemovingAccount(accountId);
       // TODO: Implement API call to remove account from group
-      console.log("Removing account:", accountId, "from group:", group.id);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -103,14 +101,6 @@ function GroupDetailsView({
       const walletIds = Array.from(selectedWallets);
       const accountIds = Array.from(selectedAccounts);
 
-      console.log(
-        "Batch removing wallets:",
-        walletIds,
-        "and accounts:",
-        accountIds,
-        "from group:",
-        group.id
-      );
 
       // TODO: Implement API calls for batch removal
       await new Promise((resolve) => setTimeout(resolve, 1500));

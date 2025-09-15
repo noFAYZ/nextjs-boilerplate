@@ -9,12 +9,18 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 export function useStoreInitialization() {
   const { user, loading: authLoading } = useAuth();
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
   const fetchAccountGroups = useAccountGroupsStore((state) => state.fetchGroups);
   const fetchCryptoWallets = useCryptoStore((state) => state.setWalletsLoading); // Placeholder for crypto init
 
   useEffect(() => {
+    // Only initialize once
+    if (isInitialized) {
+      return;
+    }
+
     console.log('StoreInitialization: Starting store initialization...');
-    
+
     // Initialize auth store (check for existing session)
     initializeAuth();
 
@@ -49,7 +55,7 @@ export function useStoreInitialization() {
     initializeOtherStores();
 
     return () => {}; // No cleanup needed
-  }, [initializeAuth, fetchAccountGroups, fetchCryptoWallets, user, authLoading]);
+  }, [isInitialized]); // Only depend on initialization status
 }
 
 /**

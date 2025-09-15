@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
-import { useDockContext } from "@/components/providers/dock-provider";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { cryptoApi } from "@/lib/services/crypto-api";
 import type { SyncJobStatus } from "@/lib/types/crypto";
 
 interface AutoSyncOptions {
@@ -37,7 +37,6 @@ const STORAGE_KEYS = {
 
 export function useAutoSync(options: AutoSyncOptions = {}) {
   const config = { ...DEFAULT_OPTIONS, ...options };
-  const { wallets: dockWallets } = useDockContext();
   const { wallets, syncStatuses } = useCryptoStore();
   
   const [syncStats, setSyncStats] = useState<SyncStats>({
@@ -76,145 +75,111 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
     return isFirstLoginToday || isLongAbsence;
   }, [config.dailySyncEnabled, config.longAbsenceThresholdHours]);
 
-  // Get wallet statistics from dock
-  const getWalletStats = useCallback(() => {
-    const total = dockWallets.items.length;
-    const active = dockWallets.items.filter(w => w.status === 'success').length;
-    const errors = dockWallets.items.filter(w => w.status === 'error').length;
-    const syncing = dockWallets.items.filter(w => w.status === 'loading').length;
+  // Check for outdated wallets (last sync > 1 hour)
+  const getOutdatedWallets = useCallback((): string[] => {
+    if (!wallets || wallets.length === 0) return [];
 
-    return { total, active, errors, syncing };
-  }, [dockWallets.items]);
+    const now = new Date();
+    const oneHourAgo = now.getTime() - (60 * 60 * 1000); // 1 hour in milliseconds
 
-  // Update wallet status in dock
-  const updateWalletStatus = useCallback((walletId: string, status: {
-    id: string;
-    name: string;
-    symbol: string;
-    balance: string;
-    value: string;
-    status: "success" | "loading" | "error" | "warning";
-    lastSync: Date;
-    icon?: React.ReactNode;
-  }) => {
-    const walletItem = {
-      id: walletId,
-      title: status.name,
-      subtitle: `${status.balance} ${status.symbol} • ${status.value}`,
-      status: status.status,
-      timestamp: `Last sync: ${getTimeAgo(status.lastSync)}`,
-      icon: status.icon,
-      onClick: () => {
-        window.location.href = `/dashboard/crypto/wallets/${walletId}`;
+    return wallets.filter(wallet => {
+      // If wallet has never been synced, it's considered outdated
+      if (!wallet.lastSyncAt) {
+        return true;
       }
-    };
 
-    const existingWallet = dockWallets.items.find(item => item.id === walletId);
-    if (existingWallet) {
-      dockWallets.updateItem(walletId, walletItem);
-    } else {
-      dockWallets.addItem(walletItem);
-    }
-  }, [dockWallets]);
+      const lastSync = new Date(wallet.lastSyncAt);
+      return lastSync.getTime() < oneHourAgo;
+    }).map(wallet => wallet.id);
+  }, [wallets]);
 
-  // Start wallet sync
-  const syncWallet = useCallback((walletId: string) => {
-    dockWallets.updateItem(walletId, {
-      status: 'loading',
-      subtitle: 'Syncing...',
-      timestamp: 'Syncing now'
-    });
-  }, [dockWallets]);
+  // Check if there are outdated wallets that need syncing
+  const hasOutdatedWallets = useCallback((): boolean => {
+    const outdatedWallets = getOutdatedWallets();
+    return outdatedWallets.length > 0;
+  }, [getOutdatedWallets]);
 
-  // Set wallet error
-  const setWalletError = useCallback((walletId: string, error: string) => {
-    dockWallets.updateItem(walletId, {
-      status: 'error',
-      subtitle: error,
-      timestamp: 'Sync failed'
-    });
-  }, [dockWallets]);
+  // Simplified wallet operations without dock dependencies
 
-  // Update sync statistics
-  const updateSyncStats = useCallback(() => {
-    const dockStats = getWalletStats();
+  // Simple sync statistics update without problematic dependencies
+  useEffect(() => {
     const lastSyncStr = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.LAST_SYNC) : null;
     const lastSyncTime = lastSyncStr ? new Date(lastSyncStr) : null;
 
-    // Calculate progress based on sync statuses
-    const totalWallets = wallets.length;
-    const syncingWallets = Object.values(syncStatuses).filter((status: SyncJobStatus) => 
-      status.status === 'processing' || status.status === 'queued'
-    ).length;
-    
-    const syncedWallets = Object.values(syncStatuses).filter((status: SyncJobStatus) => 
-      status.status === 'completed'
-    ).length;
-    
-    const failedWallets = Object.values(syncStatuses).filter((status: SyncJobStatus) => 
-      status.status === 'failed'
-    ).length;
-
-    const progress = totalWallets > 0 ? (syncedWallets + failedWallets) / totalWallets * 100 : 0;
-
-    setSyncStats({
-      totalWallets,
-      syncedWallets,
-      failedWallets,
-      syncingWallets,
+    setSyncStats(prev => ({
+      ...prev,
+      totalWallets: wallets.length,
       lastSyncTime,
-      isAutoSyncing: syncingWallets > 0,
-      syncProgress: Math.round(progress),
-    });
-  }, [getWalletStats, wallets.length, syncStatuses]);
+      isAutoSyncing: false, // Simplified for stability
+    }));
+  }, [wallets.length]);
 
-  // Perform wallet sync with retry logic
+  // Real-time wallet sync with progress tracking
   const syncWalletWithRetry = useCallback(async (
-    walletId: string, 
+    walletId: string,
     retryCount = 0
   ): Promise<boolean> => {
     try {
-      syncWallet(walletId);
-      
-      // Simulate sync API call - replace with actual sync logic
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // 90% success rate simulation
-          if (Math.random() < 0.9) {
-            resolve(void 0);
-          } else {
-            reject(new Error('Sync failed'));
-          }
-        }, Math.random() * 3000 + 1000); // 1-4 seconds
+      console.log(`🚀 Starting real-time sync for wallet ${walletId}`);
+
+      // Use crypto API to trigger wallet sync (will be tracked via SSE/polling)
+      const response = await cryptoApi.syncWallet(walletId, {
+        syncAssets: true,
+        syncTransactions: true,
+        syncNFTs: true,
+        syncDeFi: false
       });
 
-      // Update wallet status on success
-      const wallet = wallets.find(w => w.id === walletId);
-      if (wallet) {
-        updateWalletStatus(walletId, {
-          id: walletId,
-          name: wallet.name || 'Unknown Wallet',
-          symbol: 'ETH', // Default or from wallet data
-          balance: wallet.totalBalance || '0',
-          value: `$${parseFloat(wallet.totalBalanceUsd || '0').toLocaleString()}`,
-          status: 'success',
-          lastSync: new Date(),
-        });
+      if (response.success) {
+        console.log(`✅ Real-time sync started for wallet ${walletId}, job ID: ${response.data.jobId}`);
+        return true;
+      } else {
+        throw new Error(response.error.message || 'Failed to start sync');
       }
 
-      return true;
     } catch (error) {
       if (retryCount < config.maxRetries) {
-        // Wait before retry
+        console.log(`Retrying sync for wallet ${walletId} (attempt ${retryCount + 1}/${config.maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, config.retryDelayMs * (retryCount + 1)));
         return syncWalletWithRetry(walletId, retryCount + 1);
       } else {
-        // Final failure
-        setWalletError(walletId, `Sync failed after ${config.maxRetries} attempts`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Sync failed for wallet ${walletId}: ${errorMessage}`);
         return false;
       }
     }
-  }, [wallets, syncWallet, updateWalletStatus, setWalletError, config.maxRetries, config.retryDelayMs]);
+  }, [config]);
+
+  // Start auto-sync for outdated wallets only
+  const startAutoSyncOutdated = useCallback(async (): Promise<{ successful: number; failed: number }> => {
+    const outdatedWalletIds = getOutdatedWallets();
+
+    if (outdatedWalletIds.length === 0) {
+      return { successful: 0, failed: 0 };
+    }
+
+    setSyncStats(prev => ({ ...prev, isAutoSyncing: true }));
+
+    const results = await Promise.allSettled(
+      outdatedWalletIds.map(walletId => syncWalletWithRetry(walletId))
+    );
+
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+    const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && r.value === false)).length;
+
+    // Update last sync time
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+    }
+
+    setSyncStats(prev => ({
+      ...prev,
+      isAutoSyncing: false,
+      lastSyncTime: new Date(),
+    }));
+
+    return { successful, failed };
+  }, [getOutdatedWallets, syncWalletWithRetry]);
 
   // Start auto-sync for all wallets
   const startAutoSync = useCallback(async (): Promise<{ successful: number; failed: number }> => {
@@ -223,7 +188,7 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
     }
 
     setSyncStats(prev => ({ ...prev, isAutoSyncing: true }));
-    
+
     const results = await Promise.allSettled(
       wallets.map(wallet => syncWalletWithRetry(wallet.id))
     );
@@ -235,9 +200,9 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
     }
-    
-    setSyncStats(prev => ({ 
-      ...prev, 
+
+    setSyncStats(prev => ({
+      ...prev,
       isAutoSyncing: false,
       lastSyncTime: new Date(),
     }));
@@ -257,30 +222,24 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
     }
   }, []);
 
-  // Check and trigger auto-sync on component mount
+  // Update login timestamp on hook initialization
   useEffect(() => {
     updateLoginTimestamp();
-    
-    if (shouldAutoSync()) {
-      // Small delay to allow UI to render first
-      const timer = setTimeout(() => {
-        startAutoSync();
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [shouldAutoSync, startAutoSync, updateLoginTimestamp]);
+  }, [updateLoginTimestamp]);
 
-  // Update stats when sync statuses change
-  useEffect(() => {
-    updateSyncStats();
-  }, [updateSyncStats]);
+  // Stats are now updated directly in the useEffect above
+
+  // Dock integration removed to prevent infinite re-renders
+  // The dock should handle its own wallet state management independently
 
   return {
     syncStats,
     shouldAutoSync: shouldAutoSync(),
+    hasOutdatedWallets: hasOutdatedWallets(),
+    getOutdatedWallets,
     triggerSync,
     startAutoSync,
+    startAutoSyncOutdated,
     updateLoginTimestamp,
   };
 }

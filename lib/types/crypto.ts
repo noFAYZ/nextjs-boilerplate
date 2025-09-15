@@ -50,6 +50,7 @@ export interface CryptoWallet {
   syncStatus?: CryptoSyncStatus;
   createdAt: string;
   updatedAt: string;
+  asset?: any;
 }
 
 export interface CreateWalletRequest {

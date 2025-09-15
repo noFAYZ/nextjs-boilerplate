@@ -210,7 +210,6 @@ export default function OnboardingPage() {
     setViewMode(viewMode);
 
     // Here you would save preferences to backend
-    console.log('Saving onboarding preferences:', preferences);
     
     // Mark onboarding as completed
     localStorage.setItem('onboarding-completed', 'true');

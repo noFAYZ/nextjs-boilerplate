@@ -35,6 +35,13 @@ import {
 import { cn } from '@/lib/utils';
 import { TokensDataTable } from './tokens-data-table';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
+import {
+  TokenIconSkeleton,
+  TokenNameSkeleton,
+  TokenSymbolSkeleton,
+  TokenBalanceSkeleton
+} from './wallet-skeletons';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface TokenPosition {
   id: string;
@@ -97,12 +104,16 @@ const PerformanceBadge = ({ token }: { token: TokenPosition }) => {
   );
 };
 
-const TokenIcon = ({ token }: { token: TokenPosition }) => {
+const TokenIcon = ({ token, isLoading }: { token: TokenPosition; isLoading?: boolean }) => {
+  if (isLoading) {
+    return <TokenIconSkeleton />;
+  }
+
   return (
     <div className="relative h-10 w-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
       {token.asset.logoUrl ? (
-        <Image 
-          src={token.asset.logoUrl} 
+        <Image
+          src={token.asset.logoUrl}
           alt={token.asset.name}
           fill
           className="object-cover"
@@ -165,7 +176,7 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
     currentPage * ITEMS_PER_PAGE
   );
 
-  console.log({ filteredTokens, sortedTokens, paginatedTokens });
+  
 
   return (
     <div className="space-y-3">
@@ -228,39 +239,60 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
             
             <CardContent >
               <div className="flex items-center gap-3">
-                <TokenIcon token={token} />
-                
+                <TokenIcon token={token} isLoading={isLoading} />
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-sm truncate">{token.asset.name}</p>
-                    <Badge variant="outline" className="text-xs px-1 py-0">
-                      {token.asset.symbol}
-                    </Badge>
+                    {isLoading ? (
+                      <TokenNameSkeleton />
+                    ) : (
+                      <p className="font-medium text-sm truncate">{token.asset.name}</p>
+                    )}
+                    {isLoading ? (
+                      <TokenSymbolSkeleton />
+                    ) : (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {token.asset.symbol}
+                      </Badge>
+                    )}
                     <div className="flex items-center gap-1">
                     <div className="w-12 bg-muted rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary h-2 rounded-full transition-all duration-100"
-                        style={{ width: `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
+                        style={{ width: isLoading ? '0%' : `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
                       />
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {((token.balanceUsd / totalValue) * 100).toFixed(1)}%
+                      {isLoading ? '—' : `${((token.balanceUsd / totalValue) * 100).toFixed(1)}%`}
                     </span>
                   </div>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
-                    {Number(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} {token.asset.symbol}
+                    {isLoading ? (
+                      <TokenBalanceSkeleton className="h-3 w-24" />
+                    ) : (
+                      `${Number(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} ${token.asset.symbol}`
+                    )}
                   </p>
                 </div>
-                
+
                 <div className="text-right">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm">${token.balanceUsd.toLocaleString()}</span>
-                    {token.dayChangePct !== undefined && (
+                    {isLoading ? (
+                      <TokenBalanceSkeleton />
+                    ) : (
+                      <CurrencyDisplay
+                        amountUSD={token.balanceUsd}
+                        variant="small"
+                        isLoading={isLoading}
+                        className="font-semibold"
+                      />
+                    )}
+                    {!isLoading && token.dayChangePct !== undefined && (
                       <div className={cn(
                         "flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs",
-                        token.dayChangePct >= 0 
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                        token.dayChangePct >= 0
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                           : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                       )}>
                         {token.dayChangePct >= 0 ? (
@@ -272,11 +304,11 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
                       </div>
                     )}
                   </div>
-                  
-                  {/* Portfolio Weight Bar 
+
+                  {/* Portfolio Weight Bar
                   <div className="flex items-center gap-1">
                     <div className="w-8 bg-muted rounded-full h-1">
-                      <div 
+                      <div
                         className="bg-primary h-1 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
                       />

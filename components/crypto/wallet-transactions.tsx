@@ -27,6 +27,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { TransactionsDataTable } from './transactions-data-table';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface Transaction {
   id: string;
@@ -163,7 +164,7 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
             Transaction History
           </h3>
           <p className="text-sm text-muted-foreground">
-            {transactions.length} transactions • ${totalValue.toLocaleString()} total volume
+            {transactions.length} transactions • <CurrencyDisplay amountUSD={totalValue} variant="compact" /> total volume
           </p>
         </div>
       </div>
@@ -255,7 +256,9 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
                       {tx.valueFormatted} {tx.assetSymbol}
                     </p>
                     {tx.valueUsd && (
-                      <p className="font-medium">${tx.valueUsd.toLocaleString()}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay amountUSD={tx.valueUsd} variant="small" />
+                      </p>
                     )}
                   </div>
                   
@@ -266,7 +269,7 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
                     </div>
                     
                   {/*   {tx.gasCostUsd && (
-                      <span className="text-xs">Gas: ${tx.gasCostUsd.toFixed(3)}</span>
+                      <span className="text-xs">Gas: <CurrencyDisplay amountUSD={tx.gasCostUsd} variant="compact" formatOptions={{ maximumFractionDigits: 3 }} /></span>
                     )} */}
                   </div>
                   

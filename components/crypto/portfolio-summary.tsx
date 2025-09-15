@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SimpleBarChart, TrendChart } from "@/components/ui/chart"
+import { CurrencyDisplay } from "@/components/ui/currency-display"
 
 const portfolioSummaryVariants = cva(
   "transition-all duration-200",
@@ -287,7 +288,11 @@ export function PortfolioSummary({
           <div className="space-y-2">
             <div className="flex items-baseline gap-4">
               <h2 className="text-3xl font-bold tracking-tight">
-                {showBalance ? formatCurrency(data.totalValue) : "••••••"}
+                {showBalance ? (
+                  <CurrencyDisplay amountUSD={data.totalValue} variant="large" />
+                ) : (
+                  "••••••"
+                )}
               </h2>
               <div className="flex items-center gap-1">
                 <div className={cn("flex items-center gap-1", getTrendColor(selectedChange.percent))}>
@@ -297,7 +302,11 @@ export function PortfolioSummary({
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  ({showBalance ? formatCurrency(selectedChange.value) : "••••••"})
+                  ({showBalance ? (
+                    <CurrencyDisplay amountUSD={selectedChange.value} variant="compact" />
+                  ) : (
+                    "••••••"
+                  )})
                 </span>
               </div>
             </div>
@@ -422,7 +431,11 @@ export function PortfolioSummary({
                       
                       <div className="text-right">
                         <div className="font-medium">
-                          {showBalance ? formatCurrency(allocation.value) : "••••••"}
+                          {showBalance ? (
+                            <CurrencyDisplay amountUSD={allocation.value} variant="small" />
+                          ) : (
+                            "••••••"
+                          )}
                         </div>
                         <div className={cn(
                           "text-sm flex items-center gap-1",
@@ -487,7 +500,11 @@ export function CompactPortfolioSummary({
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Total Value</p>
           <p className="text-2xl font-bold">
-            {showBalance ? formatCurrency(data.totalValue) : "••••••"}
+            {showBalance ? (
+              <CurrencyDisplay amountUSD={data.totalValue} variant="large" />
+            ) : (
+              "••••••"
+            )}
           </p>
           <div className={cn(
             "text-sm flex items-center gap-1",

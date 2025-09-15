@@ -213,6 +213,76 @@ class ApiClient {
   async deleteUserAccount(): Promise<ApiResponse<unknown>> {
     return this.delete('/account');
   }
+
+  // Server-Sent Events (SSE) support
+  async createEventSource(endpoint: string, options?: {
+    withCredentials?: boolean;
+    onOpen?: () => void;
+    onMessage?: (event: MessageEvent) => void;
+    onError?: (event: Event) => void;
+    timeout?: number;
+  }): Promise<EventSource> {
+    const token = await this.getAuthToken();
+    const url = new URL(`${this.baseURL}${endpoint}`);
+
+    // Add auth token as query parameter for SSE
+    
+
+    const eventSource = new EventSource(url.toString(), {
+      withCredentials: true
+    });
+
+    // Setup event listeners if provided
+    if (options?.onOpen) {
+      eventSource.onopen = options.onOpen;
+    }
+
+    if (options?.onMessage) {
+      eventSource.onmessage = options.onMessage;
+    }
+
+    if (options?.onError) {
+      eventSource.onerror = options.onError;
+    }
+
+    // Optional timeout handling
+    if (options?.timeout) {
+      setTimeout(() => {
+        if (eventSource.readyState === EventSource.CONNECTING) {
+          eventSource.close();
+          if (options.onError) {
+            options.onError(new Event('timeout'));
+          }
+        }
+      }, options.timeout);
+    }
+
+    return eventSource;
+  }
+
+  // Crypto-specific API methods
+  async triggerWalletSync(walletId: string, syncOptions?: {
+    syncAssets?: boolean;
+    syncTransactions?: boolean;
+    syncNFTs?: boolean;
+    syncDeFi?: boolean;
+  }): Promise<ApiResponse<unknown>> {
+    return this.post(`/crypto/wallets/${walletId}/sync`, {
+      syncAssets: true,
+      syncTransactions: true,
+      syncNFTs: true,
+      syncDeFi: true,
+      ...syncOptions
+    });
+  }
+
+  async getWalletSyncStatus(): Promise<ApiResponse<{
+    wallets: Record<string, any>;
+    totalWallets: number;
+    syncingCount: number;
+  }>> {
+    return this.get('/crypto/user/wallets/sync/status');
+  }
 }
 
 export const apiClient = new ApiClient();

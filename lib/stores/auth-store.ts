@@ -504,17 +504,17 @@ export const useAuthStore = create<AuthStore>()(
           sessionTimeout: state.sessionTimeout,
         }),
         onRehydrateStorage: () => (state) => {
-          // Ensure auth state is clean on rehydration
+          // Initialize auth state but don't clear existing auth
           if (state) {
-            console.log('AuthStore: Rehydrating, clearing auth state');
-            state.user = null;
-            state.session = null;
-            state.isAuthenticated = false;
+            console.log('AuthStore: Rehydrating, initializing auth state');
+            // Only set loading to false and mark as not initialized
+            // Don't clear user/session data - let initializeAuth handle session validation
             state.loading = false;
             state.isInitialized = false;
             state.sessionChecked = false;
-            state.lastActivity = null;
-            state.autoLogoutTimer = null;
+            if (state.autoLogoutTimer) {
+              state.autoLogoutTimer = null;
+            }
           }
         },
       }

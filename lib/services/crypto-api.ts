@@ -125,7 +125,10 @@ class CryptoApiService {
 
   // Sync Operations
   async syncWallet(walletId: string, syncData: SyncRequest = {}): Promise<ApiResponse<{ jobId: string }>> {
-    return apiClient.post(`${this.basePath}/wallets/${walletId}/sync`, syncData);
+    console.log('CryptoAPI: Starting wallet sync', { walletId, syncData });
+    const response = await apiClient.post(`${this.basePath}/wallets/${walletId}/sync`, syncData);
+    console.log('CryptoAPI: Sync response', { walletId, response });
+    return response;
   }
 
   async getSyncStatus(walletId: string, jobId?: string): Promise<ApiResponse<SyncJobStatus>> {

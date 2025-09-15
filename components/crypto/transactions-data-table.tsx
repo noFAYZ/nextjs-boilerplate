@@ -40,6 +40,7 @@ import {
 import { formatDate, formatDistanceToNow, formatRelative } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatBusinessTime, formatRelativeTime, formatTime, parseTimestampz, parseTimestampzString, timestampzPresets, timestampzToReadable } from '@/lib/utils/time';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 import {
   CategorizeTransactionsDialog,
   DeleteTransactionsDialog,
@@ -492,17 +493,25 @@ console.log('paginatedTransactions', paginatedTransactions);
                 </TableCell>
                 <TableCell className="text-right">
                   {tx.valueUsd ? (
-                    <p className="font-medium">${tx.valueUsd.toLocaleString()}</p>
+                    <p className="font-medium">
+                      <CurrencyDisplay amountUSD={tx.valueUsd} variant="small" />
+                    </p>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                {/*  */} {tx.gasCostUsd  ? (
-                    <p className="text-sm">${Number(tx?.gasCostUsd)?.toFixed(3)}</p>
+                {tx.gasCostUsd ? (
+                    <p className="text-sm">
+                      <CurrencyDisplay
+                        amountUSD={Number(tx.gasCostUsd)}
+                        variant="compact"
+                        formatOptions={{ maximumFractionDigits: 3 }}
+                      />
+                    </p>
                   ) : (
                     <span className="text-muted-foreground">—</span>
-                  )} 
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge 

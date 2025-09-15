@@ -27,9 +27,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.className}   antialiased`}
       >
-        <Providers> 
-          {children}
-          <GlobalDocks />
+        <Providers>
+            {children}
+            <GlobalDocks />
         </Providers>
       </body>
     </html>

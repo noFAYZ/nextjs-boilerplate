@@ -23,13 +23,13 @@ import {
   PlusCircle,
   ImageIcon
 } from "lucide-react"
-import { ExpandableDock, ExpandableItem, Dock, DockItem, useDock } from "@/components/ui/dock"
+import { ExpandableDock, ExpandableItem, Dock, useDock } from "@/components/ui/dock"
 import { useDockContext } from "@/components/providers/dock-provider"
 import { useWallets } from "@/lib/hooks/use-crypto"
 import { useRealtimeNotifications } from "@/lib/hooks/use-realtime-notifications"
 import { cn } from "@/lib/utils"
 import { WALLET_ICON_CONFIGS, createWalletDockItem } from "@/lib/utils/dock-integration"
-import { AIMAPPR, LetsIconsAddRingDuotone, PhBrainDuotone, SolarPieChart2Outline, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag, StreamlineFlexNewFolderRemix, StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
+import {  PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useAutoSync } from "@/lib/hooks/use-auto-sync"
 import { useAuth } from "@/lib/contexts/AuthContext"
@@ -418,15 +418,17 @@ export function GlobalDocks() {
   const isMobile = useIsMobile()
   const { user } = useAuth()
 
-  console.log('GlobalDocks - Auth state:', { hasUser: !!user, userEmail: user?.email });
+  // Reduce console spam by only logging on meaningful changes
+  const userIdRef = React.useRef(user?.id);
+  if (process.env.NODE_ENV === 'development' && userIdRef.current !== user?.id) {
+    userIdRef.current = user?.id;
+    console.log('GlobalDocks - Auth state:', { hasUser: !!user, userEmail: user?.email });
+  }
 
   // Only show docks to authenticated users
   if (!user) {
-    console.log('GlobalDocks: Hiding docks - no user');
     return null
   }
-
-  console.log('GlobalDocks: Showing docks - user authenticated');
 
   return (
     <>
