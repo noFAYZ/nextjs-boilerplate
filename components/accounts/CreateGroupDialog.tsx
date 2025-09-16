@@ -152,17 +152,13 @@ export function CreateGroupDialog({
             : undefined,
       };
 
-      console.log('CreateGroupDialog: Attempting to create group with payload:', payload);
       const createdGroup = await createGroup(payload);
-      console.log('CreateGroupDialog: Created group result:', createdGroup);
 
       if (createdGroup) {
-        console.log('CreateGroupDialog: Successfully created group, calling onSuccess');
         onSuccess(createdGroup);
         onOpenChange(false);
         handleReset();
       } else {
-        console.log('CreateGroupDialog: Failed to create group');
         setError("Failed to create group. Please try again.");
       }
     } catch (error) {
@@ -203,11 +199,7 @@ export function CreateGroupDialog({
     setSelectedIcon(icon);
     form.setValue("icon", icon);
   };
-  console.log("Render CreateGroupDialog", {
-    open,
-    parentGroups,
-    defaultParentId,
-  });
+
   if (!open) return null; // Prevent rendering when dialog is closed
 
   return (

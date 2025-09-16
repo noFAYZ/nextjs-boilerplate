@@ -120,7 +120,6 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
     retryCount = 0
   ): Promise<boolean> => {
     try {
-      console.log(`🚀 Starting real-time sync for wallet ${walletId}`);
 
       // Use crypto API to trigger wallet sync (will be tracked via SSE/polling)
       const response = await cryptoApi.syncWallet(walletId, {
@@ -131,7 +130,6 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
       });
 
       if (response.success) {
-        console.log(`✅ Real-time sync started for wallet ${walletId}, job ID: ${response.data.jobId}`);
         return true;
       } else {
         throw new Error(response.error.message || 'Failed to start sync');
@@ -139,7 +137,6 @@ export function useAutoSync(options: AutoSyncOptions = {}) {
 
     } catch (error) {
       if (retryCount < config.maxRetries) {
-        console.log(`Retrying sync for wallet ${walletId} (attempt ${retryCount + 1}/${config.maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, config.retryDelayMs * (retryCount + 1)));
         return syncWalletWithRetry(walletId, retryCount + 1);
       } else {

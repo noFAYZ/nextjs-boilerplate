@@ -260,7 +260,6 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
       </div>
     );
   }
-console.log('paginatedTransactions', paginatedTransactions);
   return (
     <div className="space-y-4">
       {/* Filters */}

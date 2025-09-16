@@ -296,20 +296,17 @@ export const useAuthStore = create<AuthStore>()(
         },
         
         logout: async () => {
-          console.log('AuthStore logout: Starting logout process');
           set((state) => {
             state.logoutLoading = true;
             state.error = null;
           }, false, 'logout/loading');
           
           try {
-            console.log('AuthStore logout: Calling signOut');
             await signOut();
             
             // Clear auto-logout timer
             get().clearAutoLogoutTimer();
             
-            console.log('AuthStore logout: Clearing auth state');
             set((state) => {
               state.user = null;
               state.session = null;
@@ -318,9 +315,7 @@ export const useAuthStore = create<AuthStore>()(
               state.lastActivity = null;
               // Keep preferences but clear auth data
             }, false, 'logout/success');
-            console.log('AuthStore logout: Logout completed successfully');
           } catch (error) {
-            console.log('AuthStore logout: Error during logout', error);
             const errorMessage = handleBetterAuthError(error);
             set((state) => {
               state.error = errorMessage;
@@ -328,7 +323,6 @@ export const useAuthStore = create<AuthStore>()(
             }, false, 'logout/error');
             
             // Even if logout fails, clear local state
-            console.log('AuthStore logout: Force clearing auth state due to error');
             set((state) => {
               state.user = null;
               state.session = null;
@@ -459,7 +453,6 @@ export const useAuthStore = create<AuthStore>()(
           
           const timeoutMs = get().sessionTimeout * 60 * 1000;
           const timer = setTimeout(() => {
-            console.log('Auto-logout due to inactivity');
             get().logout();
           }, timeoutMs);
           
@@ -506,7 +499,6 @@ export const useAuthStore = create<AuthStore>()(
         onRehydrateStorage: () => (state) => {
           // Initialize auth state but don't clear existing auth
           if (state) {
-            console.log('AuthStore: Rehydrating, initializing auth state');
             // Only set loading to false and mark as not initialized
             // Don't clear user/session data - let initializeAuth handle session validation
             state.loading = false;

@@ -127,7 +127,6 @@ export default function WalletsPage() {
   };
 
   const handleSyncComplete = () => {
-    console.log('Sync completed for wallet:', syncingWalletId);
     setSyncingWalletId(null);
     refetch(); // Refresh the wallet list
   };

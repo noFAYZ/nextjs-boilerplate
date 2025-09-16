@@ -25,7 +25,6 @@ export function useCacheManager() {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
     queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
 
-    console.log(`Cache cleared for wallet: ${walletId}`);
   }, [queryClient]);
 
   // Refresh wallet data (invalidate + refetch)
@@ -35,7 +34,6 @@ export function useCacheManager() {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.walletNfts(walletId) });
     queryClient.invalidateQueries({ queryKey: cryptoKeys.walletDefi(walletId) });
 
-    console.log(`Refreshing data for wallet: ${walletId}`);
   }, [queryClient]);
 
   // Clear portfolio cache
@@ -43,28 +41,24 @@ export function useCacheManager() {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
     queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
 
-    console.log('Portfolio cache cleared');
   }, [queryClient]);
 
   // Clear all transaction cache
   const clearTransactionsCache = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.transactions() });
 
-    console.log('Transactions cache cleared');
   }, [queryClient]);
 
   // Clear all NFT cache
   const clearNFTsCache = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.nfts() });
 
-    console.log('NFTs cache cleared');
   }, [queryClient]);
 
   // Force refresh all data
   const refreshAllData = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: cryptoKeys.all });
 
-    console.log('All crypto data refreshed');
   }, [queryClient]);
 
   // Clear all cache and local storage (nuclear option)
@@ -86,7 +80,6 @@ export function useCacheManager() {
       keysToRemove.forEach(key => localStorage.removeItem(key));
     }
 
-    console.log('All cache and storage cleared');
   }, [queryClient, clearAllData]);
 
   // Get cache information for debugging

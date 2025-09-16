@@ -193,7 +193,6 @@ export default function SubscriptionPage() {
   }
 
   useEffect(() => {
-   console.log('Subscription data initialized or updated:', {
     currentSubscription,
     subscriptionHistory,
     paymentHistory,

@@ -131,7 +131,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Add Transaction',
       description: 'Record a new transaction',
       icon: CreditCard,
-      action: () => console.log('Add transaction'),
       shortcut: '⌘ ⇧ T',
       group: 'Quick Actions',
       keywords: ['record', 'income', 'expense']
@@ -141,7 +140,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Export Data',
       description: 'Download your financial data',
       icon: Download,
-      action: () => console.log('Export data'),
       group: 'Quick Actions',
       keywords: ['download', 'backup', 'csv', 'pdf']
     },
@@ -150,7 +148,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Import Data',
       description: 'Upload transaction data',
       icon: Upload,
-      action: () => console.log('Import data'),
       group: 'Quick Actions',
       keywords: ['upload', 'csv', 'bank', 'statements']
     },
@@ -160,7 +157,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Calculator',
       description: 'Open financial calculator',
       icon: Calculator,
-      action: () => console.log('Calculator'),
       shortcut: '⌘ C',
       group: 'Tools',
       keywords: ['calc', 'math', 'compute']
@@ -170,7 +166,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Notifications',
       description: 'View notifications',
       icon: Bell,
-      action: () => console.log('Notifications'),
       group: 'Tools',
       keywords: ['alerts', 'updates']
     },

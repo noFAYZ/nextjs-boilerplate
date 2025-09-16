@@ -61,7 +61,6 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
     setError(null);
 
     try {
-      console.log('Loading currency data...');
 
       // Load rates and available currencies in parallel
       const [rates, currencies] = await Promise.all([
@@ -69,7 +68,6 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
         currencyService.getAllCurrencies(),
       ]);
 
-      console.log('Currency data loaded:', { rates: Object.keys(rates).length, currencies: currencies.length });
       setExchangeRates(rates);
       setAvailableCurrencies(currencies);
     } catch (err) {

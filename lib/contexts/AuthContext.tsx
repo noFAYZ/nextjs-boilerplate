@@ -170,22 +170,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const hasSessionChanged = session?.id !== storeSession?.id;
 
     if (process.env.NODE_ENV === 'development' && (hasUserChanged || hasSessionChanged)) {
-      console.log('AuthContext sync - Store state:', {
-        storeIsAuthenticated,
-        hasStoreUser: !!storeUser,
-        hasStoreSession: !!storeSession,
-        currentContextUser: !!user,
-        currentContextSession: !!session,
-        userIdChanged: hasUserChanged,
-        sessionIdChanged: hasSessionChanged
-      });
+      // Auth state synchronization debug info available for development
     }
 
     // More stable auth state management
     if (!storeIsAuthenticated) {
       // Only clear if we actually have user data to clear
       if (user !== null || session !== null) {
-        console.log('AuthContext: Clearing user (store not authenticated)');
         setUser(null);
         setSession(null);
       }
@@ -193,14 +184,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else if (storeIsAuthenticated && storeUser && storeSession) {
       // Only update if the actual data has changed (prevent unnecessary re-renders)
       if (hasUserChanged || hasSessionChanged) {
-        console.log('AuthContext: Setting user from store');
         setUser(storeUser);
         setSession(storeSession);
       }
       setLoading(false);
     } else if (storeIsAuthenticated) {
       // Store says authenticated but no user/session data yet - wait
-      console.log('AuthContext: Waiting for user/session data from store');
       setLoading(true);
     }
   }, [storeIsAuthenticated, storeUser?.id, storeSession?.id, user?.id, session?.id]); // Stable dependencies

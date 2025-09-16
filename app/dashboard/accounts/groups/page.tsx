@@ -51,7 +51,6 @@ export default function AccountGroupsPage() {
 
   const handleGroupSelect = (group: AccountGroup) => {
     // Navigate to individual group page
-    console.log('Selected group:', group);
     router.push(`/dashboard/accounts/groups/${group.id}`);
   };
 

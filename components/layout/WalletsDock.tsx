@@ -53,7 +53,7 @@ export function WalletsDock() {
   React.useEffect(() => {
     if ((isAutoSyncing || hasActiveSyncs) && !isExpanded) {
       expand();
-      console.log('🔧 Auto-expanded wallet dock due to active sync');
+      
     }
   }, [isAutoSyncing, hasActiveSyncs, isExpanded, expand]);
 

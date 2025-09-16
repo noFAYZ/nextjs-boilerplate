@@ -315,12 +315,9 @@ export const useAccountGroupsStore = create<AccountGroupsStore>()(
         }, false, 'createGroup/loading');
         
         try {
-          console.log('AccountGroupsStore: Creating group with data:', data);
           const response = await AccountGroupsAPI.createAccountGroup(data);
-          console.log('AccountGroupsStore: API response:', response);
           
           if (response.success && response.data) {
-            console.log('AccountGroupsStore: Adding group to store:', response.data);
             set((state) => {
               state.groups.push(response.data!);
               state.operationLoading = false;
@@ -329,7 +326,6 @@ export const useAccountGroupsStore = create<AccountGroupsStore>()(
             
             // Calculate stats after state update (outside of immer)
             get().calculateStats();
-            console.log('AccountGroupsStore: Groups after adding:', get().groups.length);
             
             // Refresh hierarchy if it was loaded
             if (get().hierarchy.length > 0) {
@@ -338,7 +334,6 @@ export const useAccountGroupsStore = create<AccountGroupsStore>()(
             
             return response.data;
           } else {
-            console.log('AccountGroupsStore: Failed to create group:', response.error);
             set((state) => {
               state.operationError = response.error?.message || 'Failed to create group';
               state.operationLoading = false;

@@ -2,6 +2,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useAuthStore } from '@/lib/stores/auth-store';
 
 export interface WalletSyncProgress {
   walletId: string;
@@ -42,7 +43,7 @@ export class MultiWalletSyncTracker {
     const now = Date.now();
     const timeSinceLastAttempt = now - this.lastConnectionAttempt;
     if (timeSinceLastAttempt < this.connectionBackoffTime) {
-      console.log(`Throttling connection attempt. Last attempt was ${timeSinceLastAttempt}ms ago`);
+
       return;
     }
 
@@ -62,7 +63,7 @@ export class MultiWalletSyncTracker {
   }
 
   resetConnection(): void {
-    console.log('Resetting SSE connection');
+  
     this.reconnectAttempts = 0;
     this.connectionBackoffTime = 1000;
     this.isClosing = false;
@@ -82,21 +83,20 @@ export class MultiWalletSyncTracker {
   private startSSE(): void {
     try {
       if (this.isClosing) {
-        console.log('Skipping SSE start - connection is closing');
+     
         return;
       }
 
       if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
-        console.log('SSE connection already active');
         return;
       }
 
-      console.log('Starting SSE connection for wallet sync tracking');
+    
       this.cleanup();
       this.startSSEWithEventSource();
 
     } catch (error) {
-      console.error('Failed to establish SSE connection:', error);
+  
       this.onError('Failed to start SSE connection');
       this.scheduleReconnect();
     }
@@ -105,14 +105,14 @@ export class MultiWalletSyncTracker {
   private startSSEWithEventSource(): void {
     try {
       const url = `${this.API_BASE}/crypto/user/sync/stream`;
-      console.log('Attempting to connect to:', url);
+    
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
       });
 
       this.eventSource.onopen = () => {
-        console.log('SSE connection opened successfully');
+        
         this.onConnectionChange(true);
         this.reconnectAttempts = 0;
         this.connectionBackoffTime = 1000;
@@ -123,12 +123,11 @@ export class MultiWalletSyncTracker {
           const data = JSON.parse(event.data);
           this.handleSSEMessage(data);
         } catch (error) {
-          console.error('Failed to parse SSE message:', error, 'Raw data:', event.data);
+         
         }
       };
 
       this.eventSource.onerror = () => {
-        console.error('SSE connection error. ReadyState:', this.eventSource?.readyState);
         this.onConnectionChange(false);
 
         if (this.eventSource) {
@@ -139,7 +138,6 @@ export class MultiWalletSyncTracker {
         if (!this.isClosing && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect();
         } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          console.error('Max reconnection attempts reached. Stopping reconnection attempts.');
           this.onError('Connection failed after multiple attempts. Please refresh the page.');
         }
       };
@@ -167,11 +165,11 @@ export class MultiWalletSyncTracker {
     const jitter = Math.random() * 1000;
     const delay = baseDelay + jitter;
 
-    console.log(`Scheduling reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${Math.round(delay)}ms`);
+
 
     this.reconnectTimeout = setTimeout(() => {
       if (!this.isClosing) {
-        console.log(`Executing reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+       
         this.startSSE();
       }
     }, delay);
@@ -191,12 +189,11 @@ export class MultiWalletSyncTracker {
     syncedData?: string[];
     estimatedTimeRemaining?: number;
   }): void {
-    console.log('Received SSE message:', data);
+ 
 
     // Use only 'type' field for message routing (matches backend)
     switch (data.type) {
       case 'connection_established':
-        console.log('SSE connection confirmed for user:', data.userId);
         break;
 
       case 'wallet_sync_progress':
@@ -212,7 +209,7 @@ export class MultiWalletSyncTracker {
             syncedData: data.syncedData
           };
           
-          console.log('Processing wallet sync progress:', progressData);
+         
           this.onProgress(data.walletId, progressData);
         } else {
           console.warn('Invalid wallet_sync_progress message:', data);
@@ -221,7 +218,7 @@ export class MultiWalletSyncTracker {
 
       case 'wallet_sync_completed':
         if (data.walletId) {
-          console.log('Processing wallet sync completion:', data);
+        
           this.onComplete(data.walletId, {
             syncedData: data.syncedData,
             completedAt: data.completedAt ? new Date(data.completedAt) : 
@@ -234,7 +231,7 @@ export class MultiWalletSyncTracker {
 
       case 'wallet_sync_failed':
         if (data.walletId) {
-          console.log('Processing wallet sync failure:', data);
+         
           const errorMsg = data.error || 'Unknown error';
           this.onError(`Wallet sync failed: ${errorMsg}`);
           
@@ -252,7 +249,7 @@ export class MultiWalletSyncTracker {
         break;
 
       case 'heartbeat':
-        console.log('Heartbeat received at:', data.timestamp);
+     
         // Reset heartbeat timeout
         if (this.heartbeatTimeout) {
           clearTimeout(this.heartbeatTimeout);
@@ -270,7 +267,7 @@ export class MultiWalletSyncTracker {
   }
 
   private cleanup(): void {
-    console.log('Cleaning up SSE connections and timers');
+  
 
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
@@ -301,7 +298,7 @@ export class MultiWalletSyncTracker {
       try {
         this.abortController.abort();
       } catch (error) {
-        console.log('Error aborting request:', error);
+        // Ignore abort errors
       }
       this.abortController = null;
     }
@@ -318,9 +315,10 @@ export class MultiWalletSyncTracker {
 // React Hook
 export function useWalletSyncProgress() {
   const cryptoStore = useCryptoStore();
+  const { isAuthenticated } = useAuthStore();
 
   const handleProgress = useCallback((walletId: string, progress: WalletSyncProgress) => {
-    console.log('Hook: Handling progress for wallet', walletId, progress);
+  
     
     if (progress.status === 'failed' && progress.error) {
       cryptoStore.failRealtimeSync(walletId, progress.error);
@@ -335,18 +333,18 @@ export function useWalletSyncProgress() {
   }, [cryptoStore]);
 
   const handleComplete = useCallback((walletId: string, result: { syncedData?: string[] }) => {
-    console.log('Hook: Handling completion for wallet', walletId, result);
+
     cryptoStore.completeRealtimeSync(walletId, result.syncedData);
     refreshWalletData(walletId);
   }, [cryptoStore]);
 
   const handleError = useCallback((errorMsg: string) => {
-    console.log('Hook: Handling error:', errorMsg);
+  
     cryptoStore.setRealtimeSyncError(errorMsg);
   }, [cryptoStore]);
 
   const handleConnectionChange = useCallback((connected: boolean) => {
-    console.log('Hook: Connection status changed:', connected);
+    
     cryptoStore.setRealtimeSyncConnected(connected);
   }, [cryptoStore]);
 
@@ -364,7 +362,10 @@ export function useWalletSyncProgress() {
   });
 
   useEffect(() => {
-    console.log('useWalletSyncProgress: Effect starting (should only run once)');
+    // Only start tracking if user is authenticated
+    if (!isAuthenticated) {
+      return;
+    }
 
     const tracker = new MultiWalletSyncTracker(
       (walletId, progress) => handleProgressRef.current(walletId, progress),
@@ -377,11 +378,10 @@ export function useWalletSyncProgress() {
     tracker.startTracking();
 
     return () => {
-      console.log('useWalletSyncProgress: Effect cleanup - stopping tracker');
       tracker.stopTracking();
       trackerRef.current = null;
     };
-  }, []);
+  }, [isAuthenticated]);
 
   const resetConnection = useCallback(() => {
     if (trackerRef.current) {
@@ -410,11 +410,8 @@ async function refreshWalletData(walletId: string) {
 
     if (response.status === 200) {
       const walletData = response.data;
-      console.log('Refreshed wallet data:', walletData);
 
       // Here you could trigger a React Query refetch or update Zustand state
-      // For now, just log the successful refresh
-      console.log('Wallet data refreshed successfully for:', walletId);
     }
   } catch (error) {
     console.error('Failed to refresh wallet data:', error);

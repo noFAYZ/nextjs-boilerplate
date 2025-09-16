@@ -12,7 +12,8 @@
       "Bash(rm:*)",
       "Bash(echo $NEXT_PUBLIC_API_BASE_URL)",
       "Bash(cat:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

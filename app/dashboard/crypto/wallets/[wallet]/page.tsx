@@ -38,6 +38,13 @@ import {
 // import { SyncNotificationProvider } from '@/components/crypto/SyncNotification';
 import { WalletSyncProgress } from '@/components/crypto/wallet-sync-progress';
 import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
+import {
+  WalletDetailsSkeleton,
+  TokensTabSkeleton,
+  NFTsTabSkeleton,
+  TransactionsTabSkeleton,
+  WalletEmptyState
+} from '@/components/crypto/wallet-skeletons';
 import type { CryptoWallet, CryptoTransaction, CryptoNFT } from '@/lib/types/crypto';
 
 interface WalletPageProps {
@@ -113,14 +120,6 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
   // const syncTracker = useWalletSyncTracker();
   // const walletSyncState = syncTracker.walletStates[walletIdentifier];
 
-  // console.log('WalletPageContent render:', {
-  //   walletIdentifier,
-  //   syncTrackerConnected: syncTracker.isConnected,
-  //   connectionType: syncTracker.connectionType,
-  //   walletSyncState,
-  //   hasActiveSyncs: syncTracker.hasActiveSyncs
-  // });
-
   return (
     <>
       {/* <SyncNotificationProvider /> */}
@@ -159,30 +158,23 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
 
   const handleSync = useCallback(() => {
     if (!walletIdentifier || syncWallet.isPending) {
-      console.log('Sync skipped:', { walletIdentifier, isPending: syncWallet.isPending });
       return;
     }
-
-    console.log('Starting wallet sync for:', walletIdentifier);
 
     syncWallet.mutate(
       { walletId: walletIdentifier },
       {
         onSuccess: (response) => {
-          console.log('Sync mutation successful:', response);
           if (response.success) {
             toast.success(`Wallet sync started (Job ID: ${response.data?.jobId})`);
-            console.log('Sync job started with ID:', response.data?.jobId);
 
             // Show the sync modal to track progress
             setShowSyncModal(true);
           } else {
-            console.error('Sync mutation failed:', response.error);
             toast.error(response.error?.message || 'Failed to start sync');
           }
         },
         onError: (error: any) => {
-          console.error('Sync mutation error:', error);
           toast.error(error.message || 'Failed to start sync');
         }
       }
@@ -190,7 +182,6 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
   }, [walletIdentifier, syncWallet]);
 
   const handleSyncComplete = useCallback(() => {
-    console.log('Sync completed for wallet:', walletIdentifier);
     toast.success('Wallet sync completed successfully!');
 
     // Refresh wallet data after completion
@@ -229,27 +220,7 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="max-w-3xl mx-auto p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="h-8 w-16 bg-muted animate-pulse rounded" />
-        </div>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 bg-muted animate-pulse rounded-full" />
-              <div className="space-y-2">
-                <div className="h-6 w-32 bg-muted animate-pulse rounded" />
-                <div className="h-4 w-24 bg-muted animate-pulse rounded" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <LoadingSpinner text="Loading wallet details..." />
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <WalletDetailsSkeleton />;
   }
 
   if (error) {
@@ -331,17 +302,6 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                 {syncWallet.isPending ? 'Syncing...' : 'Sync'}
               </Button>
 
-              {/* Debug sync tracker connection - temporarily disabled */}
-              {/* <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  console.log('Sync Tracker Debug');
-                }}
-                className="text-xs"
-              >
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              </Button> */}
             </div>
           </div>
         </CardHeader>
@@ -427,22 +387,17 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
 
           <CardContent>
             <TabsContent value="tokens" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Token Holdings</h3>
-                <Badge variant="outline">{walletStats?.assetCount || 0} assets</Badge>
-              </div>
-
-              {/* Sync Status Debug Info - temporarily disabled */}
-              {/* {walletSyncState && (
-                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Sync Status: {walletSyncState.status}
+              {isLoading ? (
+                <TokensTabSkeleton />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Token Holdings</h3>
+                    <Badge variant="outline">{walletStats?.assetCount || 0} assets</Badge>
                   </div>
-                </div>
-              )} */}
 
-              {/* DeFi Positions */}
-              {wallet && wallet?.topAssets.length > 0 ? (
+                  {/* DeFi Positions */}
+                  {wallet && wallet?.topAssets.length > 0 ? (
                 <div className="space-y-3">
                   {wallet?.topAssets?.map((position: any) => (
                     <div key={position.id} className="px-5 py-1 border rounded-xl">
@@ -477,23 +432,29 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                       </div>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Coins className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No token holdings found in this wallet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Try syncing the wallet to get the latest data</p>
-                </div>
+                  </div>
+                ) : (
+                  <WalletEmptyState
+                    icon={Coins}
+                    title="No token holdings found in this wallet"
+                    description="Try syncing the wallet to get the latest data"
+                  />
+                )}
+              </>
               )}
             </TabsContent>
 
             <TabsContent value="nfts" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">NFT Collection</h3>
-                <Badge variant="outline">{walletStats?.nftCount || 0} NFTs</Badge>
-              </div>
-              
-              {nfts && nfts.length > 0 ? (
+              {isLoading ? (
+                <NFTsTabSkeleton />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">NFT Collection</h3>
+                    <Badge variant="outline">{walletStats?.nftCount || 0} NFTs</Badge>
+                  </div>
+
+                  {nfts && nfts.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {nfts.map((nft: CryptoNFT) => (
                     <div key={nft.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
@@ -541,27 +502,33 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                       </div>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No NFTs found in this wallet</p>
-                  <p className="text-sm text-muted-foreground mt-1">NFTs will appear here after syncing</p>
-                </div>
+                  </div>
+                ) : (
+                  <WalletEmptyState
+                    icon={ImageIcon}
+                    title="No NFTs found in this wallet"
+                    description="NFTs will appear here after syncing"
+                  />
+                )}
+              </>
               )}
             </TabsContent>
 
             <TabsContent value="transactions" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Recent Transactions</h3>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/dashboard/crypto/wallets/${walletIdentifier}/transactions`}>
-                    View All
-                  </Link>
-                </Button>
-              </div>
-              
-              {transactions && transactions.length > 0 ? (
+              {isLoading ? (
+                <TransactionsTabSkeleton />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Recent Transactions</h3>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/dashboard/crypto/wallets/${walletIdentifier}/transactions`}>
+                        View All
+                      </Link>
+                    </Button>
+                  </div>
+
+                  {transactions && transactions.length > 0 ? (
                 <div className="space-y-3">
                   {transactions.slice(0, 10).map((tx: CryptoTransaction) => (
                     <div key={tx.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
@@ -623,13 +590,15 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                       </div>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <ArrowUpDown className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No transactions found</p>
-                  <p className="text-sm text-muted-foreground mt-1">Transactions will appear here after syncing</p>
-                </div>
+                  </div>
+                ) : (
+                  <WalletEmptyState
+                    icon={ArrowUpDown}
+                    title="No transactions found"
+                    description="Transactions will appear here after syncing"
+                  />
+                )}
+              </>
               )}
             </TabsContent>
           </CardContent>

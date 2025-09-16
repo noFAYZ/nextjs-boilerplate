@@ -202,7 +202,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
     // If sync status changed from 'processing' to 'completed', refetch data
     if (prevStatus === "processing" && currentStatus === "completed") {
-      console.log("Sync completed, refreshing wallet data...");
+      
       setTimeout(() => {
         refetch();
         toast.success("Wallet data updated!");
@@ -263,7 +263,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   }, [walletIdentifier, syncWallet]);
 
   const handleSyncComplete = useCallback(() => {
-    console.log('Sync completed for wallet:', walletIdentifier);
+    
     toast.success('Wallet sync completed successfully!');
 
     // Refresh wallet data after completion

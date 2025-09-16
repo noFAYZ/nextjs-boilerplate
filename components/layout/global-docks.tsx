@@ -422,7 +422,6 @@ export function GlobalDocks() {
   const userIdRef = React.useRef(user?.id);
   if (process.env.NODE_ENV === 'development' && userIdRef.current !== user?.id) {
     userIdRef.current = user?.id;
-    console.log('GlobalDocks - Auth state:', { hasUser: !!user, userEmail: user?.email });
   }
 
   // Only show docks to authenticated users

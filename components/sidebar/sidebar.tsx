@@ -164,33 +164,28 @@ const QUICK_ACTIONS: QuickAction[] = [
     id: 'add-transaction', 
     label: 'Add Transaction', 
     icon: Plus, 
-    action: () => console.log('Add Transaction'),
     shortcut: '⌘T'
   },
   { 
     id: 'notifications', 
     label: 'Notifications', 
     icon: Bell, 
-    action: () => console.log('Notifications'),
     badge: 3
   },
   { 
     id: 'calculator', 
     label: 'Calculator', 
     icon: Calculator, 
-    action: () => console.log('Calculator') 
   },
   { 
     id: 'export', 
     label: 'Export Data', 
     icon: Download, 
-    action: () => console.log('Export') 
   },
   { 
     id: 'import', 
     label: 'Import Data', 
     icon: Upload, 
-    action: () => console.log('Import') 
   }
 ];
 

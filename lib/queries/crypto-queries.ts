@@ -385,7 +385,7 @@ export const cryptoMutations = {
         queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
         queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
 
-        console.log(`Cache cleared for wallet ${walletId} after successful sync`);
+        
       }
     });
   },
@@ -409,7 +409,7 @@ export const cryptoMutations = {
           });
         }
 
-        console.log('All cache cleared');
+        
       }
     });
   },

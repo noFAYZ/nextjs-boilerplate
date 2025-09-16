@@ -212,7 +212,6 @@ export default function AccountsPage() {
 
   const handleGroupSelect = (group: AccountGroup) => {
     // Navigate to group detail page or show group contents
-    console.log('Selected group:', group);
   };
 
   return (

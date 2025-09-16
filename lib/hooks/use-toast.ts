@@ -24,9 +24,7 @@ export function useToast() {
     const message = options.description ? `${options.title}: ${options.description}` : options.title;
     
     if (options.variant === 'destructive') {
-      console.log(`[Toast Error] ${message}`);
     } else {
-      console.log(`[Toast] ${message}`);
     }
     
     // You can extend this to show actual toast notifications

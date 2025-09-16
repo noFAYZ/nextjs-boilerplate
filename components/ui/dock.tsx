@@ -1347,7 +1347,6 @@ function CustomDockExample() {
       subtitle: `Notification of type: ${type}`,
       status: type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning',
       timestamp: 'Just now',
-      onClick: () => console.log('Notification clicked:', title)
     })
   }
   
@@ -1407,7 +1406,6 @@ const actionItems: DockItem[] = [
     icon: <Save />,
     onClick: () => {
       // Perform save action
-      console.log('Saving document...')
     },
     hotkey: '⌘+S'
   },
@@ -1465,7 +1463,6 @@ function MyDockComponent() {
         showActiveIndicator={true}
         autoDetectActive={true}
         onItemClick={(item) => {
-          console.log('Dock item clicked:', item.label)
         }}
       />
       

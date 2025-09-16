@@ -19,7 +19,6 @@ export function useStoreInitialization() {
       return;
     }
 
-    console.log('StoreInitialization: Starting store initialization...');
 
     // Initialize auth store (check for existing session)
     initializeAuth();
@@ -28,12 +27,10 @@ export function useStoreInitialization() {
     const initializeOtherStores = async () => {
       // Don't initialize if user is not authenticated or auth is still loading
       if (!user || authLoading) {
-        console.log('StoreInitialization: No authenticated user, skipping store initialization');
         return;
       }
 
       try {
-        console.log('StoreInitialization: Initializing account groups store...');
         // Initialize account groups store for authenticated users
         await fetchAccountGroups({
           details: true,
@@ -41,13 +38,11 @@ export function useStoreInitialization() {
           includeWallets: true,
           includeCounts: true,
         });
-        console.log('StoreInitialization: Account groups initialized');
 
         // Initialize crypto store if needed
         // This would typically happen after user is authenticated
         // fetchCryptoWallets(false); // Example initialization
       } catch (error) {
-        console.log('StoreInitialization: Error during store initialization:', error);
       }
     };
 

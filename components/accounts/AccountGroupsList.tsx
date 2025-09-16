@@ -143,7 +143,6 @@ export function AccountGroupsList({
   // Load groups on mount (but only if not already loaded)
   useEffect(() => {
     if (groups.length === 0 && !isLoading) {
-      console.log('AccountGroupsList: Fetching groups...');
       const options = {
         details: true,
         includeAccounts: true,
@@ -156,8 +155,6 @@ export function AccountGroupsList({
 
   // Debug: Log when groups change
   useEffect(() => {
-    console.log('AccountGroupsList: Groups updated, total:', groups.length, 'filtered:', filteredGroups.length);
-    console.log('AccountGroupsList: Groups data:', groups.map(g => ({ id: g.id, name: g.name })));
   }, [groups, filteredGroups]);
 
   // Apply additional local filters
@@ -192,28 +189,22 @@ export function AccountGroupsList({
 
   // Handle group creation success (Zustand will automatically update the store)
   const handleGroupCreated = (newGroup: AccountGroup) => {
-    console.log('AccountGroupsList: New group created:', newGroup);
-    console.log('AccountGroupsList: Current groups count before:', groups.length);
     
     // Force re-render by calling a dummy state update
     setIsCreateDialogOpen(false);
     
     // Log again after a short delay to see if store updated
     setTimeout(() => {
-      console.log('AccountGroupsList: Groups count after timeout:', groups.length);
     }, 100);
   };
 
   // Handle single group deletion (from card action)
   const handleGroupDelete = async (group: AccountGroup) => {
-    console.log('AccountGroupsList: Deleting group:', group.name);
     
     if (window.confirm(`Are you sure you want to delete the group "${group.name}"? This action cannot be undone.`)) {
       const success = await deleteGroup(group.id);
       if (success) {
-        console.log('AccountGroupsList: Successfully deleted group');
       } else {
-        console.log('AccountGroupsList: Failed to delete group');
         alert('Failed to delete group. Please try again.');
       }
     }
@@ -244,7 +235,6 @@ export function AccountGroupsList({
   };
 
   const handleConfirmDelete = async (groupIds: string[]) => {
-    console.log('AccountGroupsList: Bulk deleting groups:', groupIds);
     
     const successGroups: string[] = [];
     const failedGroups: string[] = [];
