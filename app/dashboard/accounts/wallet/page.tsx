@@ -39,7 +39,7 @@ import {
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
-import { StreamlineFlexWallet } from '@/components/icons/icons';
+import {  SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
 
 interface WalletCardProps {
   wallet: CryptoWallet;
@@ -76,11 +76,11 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
 
     switch (walletSyncState?.status) {
       case 'completed':
-        return <CheckCircle className="h-3 w-3 text-green-600 dark:text-green-400" />;
+        return <SolarCheckCircleBoldDuotone className="h-5 w-5 text-lime-700 dark:text-green-400" />;
       case 'failed':
-        return <AlertCircle className="h-3 w-3 text-destructive" />;
+        return <AlertCircle className="h-5 w-5 text-destructive" />;
       default:
-        return <Clock className="h-3 w-3 text-muted-foreground" />;
+        return <SolarClockCircleBoldDuotone className="h-5 w-5 text-yellow-700" />;
     }
   };
 
@@ -98,7 +98,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
             <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
               <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
             </div>
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-background rounded-full flex items-center justify-center border border-border">
+            <div className="absolute -top-1 -right-1 h-5 w-5 bg-background rounded-full flex items-center justify-center border border-border">
               {getSyncStatusIcon()}
             </div>
           </div>

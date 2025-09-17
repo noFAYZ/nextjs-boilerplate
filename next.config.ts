@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
         hostname: 'chain-icons.s3.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        pathname: '/**',
+      },
     ]
   },
 };

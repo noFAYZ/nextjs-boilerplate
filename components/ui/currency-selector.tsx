@@ -106,7 +106,6 @@ export function CurrencySelector({
     }
   };
 
-  console.log('CurrencySelector render:', filteredCurrencies )
   // Compact variant (for mobile/tight spaces)
   if (variant === 'compact') {
     const popularCurrencies = availableCurrencies.filter(c => POPULAR_CURRENCIES.includes(c.code));

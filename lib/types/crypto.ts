@@ -199,31 +199,72 @@ export interface NFTParams {
 }
 
 // DeFi Types
-export type DeFiProtocol = 'UNISWAP' | 'AAVE' | 'COMPOUND' | 'CURVE' | 'BALANCER' | 'SUSHISWAP' | 'YEARN' | 'CONVEX';
-export type DeFiPositionType = 'LIQUIDITY_POOL' | 'LENDING' | 'BORROWING' | 'STAKING' | 'FARMING' | 'VAULT';
+export type DeFiProtocol = 'UNISWAP' | 'AAVE' | 'COMPOUND' | 'CURVE' | 'BALANCER' | 'SUSHISWAP' | 'YEARN' | 'CONVEX' | 'PANCAKESWAP';
+export type DeFiPositionType = 'LIQUIDITY_POOL' | 'LENDING' | 'BORROWING' | 'STAKING' | 'FARMING' | 'VAULT' | 'app-token';
+export type DeFiMetaType = 'SUPPLIED' | 'BORROWED' | 'CLAIMABLE' | 'STAKED' | 'LOCKED';
+
+export interface DeFiApp {
+  id: string;
+  slug: string;
+  displayName: string;
+  description: string;
+  category: string;
+  subcategory?: string;
+  imgUrl: string;
+  url: string;
+  isVerified: boolean;
+  riskScore: number;
+}
+
+export interface DeFiTokenInfo {
+  type: string;
+  price: number;
+  symbol: string;
+  address: string;
+  balance: string;
+  network: NetworkType;
+  decimals: number;
+  balanceUSD: number;
+}
+
+export interface DeFiPositionDisplayProps {
+  label: string;
+  images: string[];
+  balanceDisplayMode?: string;
+}
 
 export interface DeFiPosition {
   id: string;
-  protocol: DeFiProtocol;
-  type: DeFiPositionType;
-  name: string;
+  contractAddress: string;
   network: NetworkType;
-  totalValueUsd: number;
-  assets: Array<{
-    symbol: string;
-    amount: string;
-    valueUsd: number;
-    isDebt?: boolean;
-  }>;
-  apr?: number;
+  positionType: DeFiPositionType;
+  groupId: string;
+  groupLabel: string;
+  symbol: string;
+  balance: string;
+  balanceFormatted: string;
+  balanceUSD: number;
+  price: number;
+  metaType: DeFiMetaType;
   apy?: number;
-  rewards?: Array<{
-    symbol: string;
-    amount: string;
-    valueUsd: number;
-  }>;
-  lastUpdated: string;
-  walletId: string;
+  apr?: number;
+  yieldEarnedUsd?: number;
+  dailyYield?: number;
+  supply: number;
+  pricePerShare: number[];
+  tokens: DeFiTokenInfo[];
+  displayProps: DeFiPositionDisplayProps;
+  isActive: boolean;
+  canWithdraw: boolean;
+  lockupEnd?: string;
+  lastSyncAt: string;
+}
+
+export interface DeFiAppData {
+  app: DeFiApp;
+  positions: DeFiPosition[];
+  totalValueUsd: number;
+  positionCount: number;
 }
 
 // Sync Types

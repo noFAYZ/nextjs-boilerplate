@@ -40,6 +40,7 @@ import { WalletTokens } from "@/components/crypto/wallet-tokens";
 import { WalletNFTs } from "@/components/crypto/wallet-nfts";
 import { WalletTransactions } from "@/components/crypto/wallet-transactions";
 import { WalletChart } from "@/components/crypto/wallet-chart";
+import { WalletDeFi } from "@/components/crypto/wallet-defi";
 import {
   BalanceSkeleton,
   WalletNameSkeleton,
@@ -193,6 +194,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 
+  console.log('Wallet data:', wallet);
+
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
   const isSyncingSSE = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
@@ -339,7 +342,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           Back
         </Button>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-       <Tooltip content={
+   {/*     <Tooltip content={
          isSyncingSSE ? `Syncing... ${syncProgress}% ${syncMessage ? `- ${syncMessage}` : ''}` :
          walletSyncState?.status === "completed" ? `Last synced: ${lastSyncAt ? new Date(lastSyncAt).toLocaleString() : 'N/A'}` :
          walletSyncState?.status === "failed" ? `Sync failed: ${walletSyncState?.error || 'Unknown error'}` :
@@ -363,7 +366,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                 ? `Sync failed`
                 : "Not synced"}
             </span>
-          </Tooltip>
+          </Tooltip> */}
           <Button
             variant="outline"
             size="sm"
@@ -840,6 +843,10 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
         <TabsContent value="tokens" className=" ">
           <WalletTokens tokens={wallet?.assets || []} isLoading={isLoading || isSyncing} />
+        </TabsContent>
+
+        <TabsContent value="defi" className=" ">
+          <WalletDeFi defiApps={wallet?.defiApps || []} isLoading={isLoading || isSyncing} />
         </TabsContent>
 
         <TabsContent value="nfts" className=" ">

@@ -14,7 +14,10 @@
       "Bash(cat:*)",
       "Bash(npx eslint:*)",
       "Bash(sed:*)",
-      "Bash(npx next clean:*)"
+      "Bash(npx next clean:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)",
+      "Bash(timeout 10 npm run dev)"
     ],
     "deny": [],
     "ask": []
