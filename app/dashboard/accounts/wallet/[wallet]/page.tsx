@@ -55,11 +55,13 @@ import { useCurrency } from "@/lib/contexts/currency-context";
 import StreamlineUltimateAccountingCoins, {
   MageCaretDownFill,
   MageCaretUpFill,
+  MynauiActivitySquare,
   SolarGalleryOutline,
   SolarGalleryWideOutline,
   SolarWalletBoldDuotone,
   StreamlineFlexWallet,
   StreamlineFreehandCryptoCurrencyUsdCoin,
+  StreamlineUltimateCryptoCurrencyBitcoinDollarExchange,
   StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold,
   TablerReportMoney,
 } from "@/components/icons/icons";
@@ -810,7 +812,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             variant="ghost"
           >
            
-             <StreamlineFreehandCryptoCurrencyUsdCoin className="w-4 h-4" />
+             <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
             <span className="inline">Tokens</span>
           </TabsTrigger>
           <TabsTrigger
@@ -818,7 +820,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             className="flex px-2 items-center gap-1.5 cursor-pointer"
             variant="ghost"
           >
-            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold className="w-4 h-4" />
+            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
             
             <span className="inline">Defi</span>
           </TabsTrigger>
@@ -827,7 +829,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             className="flex px-2 items-center gap-1.5 cursor-pointer"
             variant="ghost"
           >
-             <SolarGalleryWideOutline className="w-4 h-4" />
+             <SolarGalleryWideOutline className="w-5 h-5" />
             <span className="inline">NFTs</span>
           </TabsTrigger>
           <TabsTrigger
@@ -835,7 +837,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             className="flex px-2 items-center gap-1.5 cursor-pointer"
             variant="ghost"
           >
-            <TablerReportMoney className="w-4.5 h-4.5" />
+            <MynauiActivitySquare className="w-5.5 h-5.5" />
             
             <span className="inline">Transactions</span>
           </TabsTrigger>

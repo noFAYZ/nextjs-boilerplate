@@ -156,7 +156,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
               <div className="text-xs text-muted-foreground">Portfolio</div>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+         {/*    <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Layers className="h-3 w-3" />
                 {wallet.assetCount || 0}
@@ -165,7 +165,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
                 <Star className="h-3 w-3" />
                 {wallet.nftCount || 0}
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* Mobile Portfolio Value */}
@@ -497,7 +497,7 @@ export default function WalletsPage() {
                 )}
               </div>
             ) : (
-              <div className="grid md:grid-cols-1  gap-4">
+              <div className="grid md:grid-cols-3  gap-4">
                 {processedWallets.map((wallet) => (
                   <WalletCard
                     key={wallet.id}

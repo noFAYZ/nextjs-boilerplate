@@ -300,3 +300,13 @@ export function SolarCheckCircleBoldDuotone(props: SVGProps<SVGSVGElement>) {
 export function SolarClockCircleBoldDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10" opacity={0.5} strokeWidth={0.5} stroke="currentColor"></path><path fill="currentColor" fillRule="evenodd" d="M12 7.25a.75.75 0 0 1 .75.75v3.69l2.28 2.28a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1-.22-.53V8a.75.75 0 0 1 .75-.75" clipRule="evenodd" strokeWidth={0.5} stroke="currentColor"></path></svg>);
 }
+
+
+export function MynauiActivitySquare(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}><path d="M17 12h-2l-2 5l-2-10l-2 5H7"></path><path d="M3 12c0-4.243 0-6.364 1.318-7.682S7.758 3 12 3s6.364 0 7.682 1.318S21 7.758 21 12s0 6.364-1.318 7.682S16.242 21 12 21s-6.364 0-7.682-1.318S3 16.242 3 12"></path></g></svg>);
+}
+
+
+export function StreamlineUltimateCryptoCurrencyBitcoinDollarExchange(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6}><path d="M18.75 3.75h-2.033a1.342 1.342 0 0 0-.5 2.587l2.064.826a1.342 1.342 0 0 1-.5 2.587h-.531m0-6V3"></path><path d="M18.03 12.7a6.001 6.001 0 1 0-6.73-6.742m4.45 9.792a7.5 7.5 0 0 0-7.5-7.5m-6 3a7.5 7.5 0 1 0 12.5 8.25"></path><path d="M6.75 18.75v-6H9a1.5 1.5 0 1 1 0 3a1.5 1.5 0 1 1 0 3zm0-3H9m-.75-3v-1.5m0 7.5v1.5M.75 4.5L3 8.25L6.75 6"></path><path d="M8.189.9a6.75 6.75 0 0 0-4.417 6.886M23.25 19.5L21 15.75L17.25 18"></path><path d="M15.811 23.1a6.75 6.75 0 0 0 4.417-6.884"></path></g></svg>);
+}

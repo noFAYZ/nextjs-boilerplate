@@ -232,7 +232,7 @@ export function WalletDeFi({ defiApps, isLoading }: WalletDeFiProps) {
   );
 
 
-console.log({ defiApps, allPositions, filteredPositions, sortedPositions, groupedPositions, paginatedGroups });
+console.log(defiApps );
   return (
     <div className="space-y-2 ">
       {/* DeFi Portfolio Overview */}
