@@ -231,6 +231,7 @@ export interface SyncRequest {
   fullSync?: boolean;
   syncAssets?: boolean;
   syncNFTs?: boolean;
+  syncDeFi?: boolean;
   syncTypes?: ('assets' | 'transactions' | 'nfts' | 'defi')[];
 }
 

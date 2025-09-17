@@ -106,6 +106,7 @@ export function CurrencySelector({
     }
   };
 
+  console.log('CurrencySelector render:', filteredCurrencies )
   // Compact variant (for mobile/tight spaces)
   if (variant === 'compact') {
     const popularCurrencies = availableCurrencies.filter(c => POPULAR_CURRENCIES.includes(c.code));
@@ -131,11 +132,12 @@ export function CurrencySelector({
           </SelectTrigger>
           <SelectContent>
             {popularCurrencies.map((currency) => (
-              <SelectItem key={currency.code} value={currency.code}>
+              <SelectItem key={currency.code} value={currency.code} className='cursor-pointer'>
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{currency.symbol}</span>
-                  <span className="text-xs font-mono">{currency.code}</span>
-                  <span className="text-xs text-muted-foreground truncate">{currency.name}</span>
+                  <span className="text-xs font-mono ">{currency.code}</span>
+                  <span className="text-xs font-medium text-lime-700 truncate">- {Number(currency.rate).toFixed(2)}</span>
+              
                 </div>
               </SelectItem>
             ))}

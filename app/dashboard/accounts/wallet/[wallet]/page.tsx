@@ -253,6 +253,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
         syncData: {
           syncAssets: true,
           syncNFTs: true,
+          syncDeFi: true,
           syncTypes: ["assets", "transactions", "nfts"],
         },
       },
