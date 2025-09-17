@@ -30,9 +30,9 @@ import { toast } from 'sonner';
 // Import custom hooks
 import {
   useWalletFullDataStable,
-  useSyncWallet,
-  useSyncStatus
+  useSyncWallet
 } from '@/lib/hooks/use-crypto';
+import { useCryptoStore } from '@/lib/stores/crypto-store';
 // import { useWalletSyncTracker } from '@/lib/hooks/use-wallet-sync-tracker';
 // import { SyncProgressTracker } from '@/components/crypto/SyncProgressTracker';
 // import { SyncNotificationProvider } from '@/components/crypto/SyncNotification';
@@ -131,7 +131,14 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
           const isConnected = false;
 
   const syncWallet = useSyncWallet();
-  const { syncStatus } = useSyncStatus(walletIdentifier);
+  const { realtimeSyncStates } = useCryptoStore();
+
+  // Get SSE-based sync status for this wallet
+  const walletSyncState = realtimeSyncStates[walletIdentifier];
+  const isSyncing = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
+  const syncProgress = walletSyncState?.progress || 0;
+  const syncMessage = walletSyncState?.message || '';
+  const lastSyncAt = walletSyncState?.completedAt;
   // Memoize expensive calculations
   const walletStats = useMemo(() => {
     if (!wallet) return null;
@@ -277,11 +284,18 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="outline">{wallet.network}</Badge>
                   <Badge variant="secondary">{wallet?.type?.replace('_', ' ')}</Badge>
-                  {wallet.syncStatus && (
+                  {walletSyncState && (
                     <Badge
-                      variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
+                      variant={
+                        walletSyncState.status === 'completed' ? 'default' :
+                        walletSyncState.status === 'failed' ? 'destructive' :
+                        isSyncing ? 'secondary' : 'outline'
+                      }
                     >
-                      {wallet.syncStatus}
+                      {walletSyncState.status === 'completed' ? 'Synced' :
+                       walletSyncState.status === 'failed' ? 'Failed' :
+                       isSyncing ? `Syncing ${syncProgress}%` :
+                       'Idle'}
                     </Badge>
                   )}
                 </div>
@@ -292,14 +306,14 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                 variant="outline"
                 size="sm"
                 onClick={handleSync}
-                disabled={syncWallet.isPending}
+                disabled={syncWallet.isPending || isSyncing}
               >
-                {syncWallet.isPending ? (
+                {(syncWallet.isPending || isSyncing) ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-2" />
                 )}
-                {syncWallet.isPending ? 'Syncing...' : 'Sync'}
+                {isSyncing ? `Syncing ${syncProgress}%` : syncWallet.isPending ? 'Starting...' : 'Sync'}
               </Button>
 
             </div>
@@ -352,13 +366,39 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <div className="text-lg font-bold">
-                {new Date(syncStatus?.lastSyncAt)?.toLocaleDateString() || 'Never'}
+                {lastSyncAt ? new Date(lastSyncAt).toLocaleDateString() : 'Never'}
               </div>
               <div className="text-sm text-muted-foreground">Last Sync</div>
             </div>
           </div>
 
           {/* Real-time Sync Status */}
+          {isSyncing && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    Syncing Wallet
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  {syncProgress}%
+                </span>
+              </div>
+              {syncMessage && (
+                <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                  {syncMessage}
+                </p>
+              )}
+              <div className="w-full bg-blue-200 dark:bg-blue-900 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${syncProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

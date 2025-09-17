@@ -15,7 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { useAutoSync } from "@/lib/hooks/use-auto-sync";
+import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { useWalletSyncProgress } from "@/lib/hooks/use-realtime-sync";
 import { cn } from "@/lib/utils";
 
 interface SyncStatusIndicatorProps {
@@ -33,7 +34,8 @@ export function SyncStatusIndicator({
   showTrigger = true,
   className
 }: SyncStatusIndicatorProps) {
-  const { syncStats, triggerSync, shouldAutoSync } = useAutoSync();
+  const { realtimeSyncStates, realtimeSyncConnected, realtimeSyncError, wallets } = useCryptoStore();
+  const { resetConnection } = useWalletSyncProgress();
   const [isOnline, setIsOnline] = React.useState(true);
 
   // Monitor online status
@@ -51,6 +53,23 @@ export function SyncStatusIndicator({
     };
   }, []);
 
+  // Calculate sync stats from SSE states
+  const syncingWallets = Object.values(realtimeSyncStates).filter(
+    state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+  );
+
+  const completedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'completed'
+  );
+
+  const failedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'failed'
+  );
+
+  const totalWallets = wallets.length;
+  const isAnySyncing = syncingWallets.length > 0;
+  const hasConnectionError = realtimeSyncError || !realtimeSyncConnected;
+
   const getStatusInfo = () => {
     if (!isOnline) {
       return {
@@ -63,29 +82,40 @@ export function SyncStatusIndicator({
       };
     }
 
-    if (syncStats.isAutoSyncing) {
+    if (hasConnectionError) {
+      return {
+        icon: XCircle,
+        color: "text-red-600 dark:text-red-400",
+        bgColor: "bg-red-100 dark:bg-red-900/30",
+        status: "connection_error",
+        message: "Connection error",
+        description: realtimeSyncError || "Not connected to sync service"
+      };
+    }
+
+    if (isAnySyncing) {
       return {
         icon: RefreshCw,
         color: "text-blue-600 dark:text-blue-400",
         bgColor: "bg-blue-100 dark:bg-blue-900/30",
         status: "syncing",
         message: "Syncing wallets...",
-        description: `${syncStats.syncingWallets} wallet${syncStats.syncingWallets !== 1 ? 's' : ''} syncing`
+        description: `${syncingWallets.length} wallet${syncingWallets.length !== 1 ? 's' : ''} syncing`
       };
     }
 
-    if (syncStats.failedWallets > 0) {
+    if (failedWallets.length > 0) {
       return {
         icon: XCircle,
         color: "text-red-600 dark:text-red-400",
         bgColor: "bg-red-100 dark:bg-red-900/30",
         status: "error",
-        message: `${syncStats.failedWallets} wallet${syncStats.failedWallets !== 1 ? 's' : ''} failed`,
+        message: `${failedWallets.length} wallet${failedWallets.length !== 1 ? 's' : ''} failed`,
         description: "Some wallets couldn't be synced. Try manual sync."
       };
     }
 
-    if (syncStats.totalWallets === 0) {
+    if (totalWallets === 0) {
       return {
         icon: Clock,
         color: "text-muted-foreground",
@@ -96,31 +126,42 @@ export function SyncStatusIndicator({
       };
     }
 
-    if (syncStats.syncedWallets === syncStats.totalWallets) {
+    if (completedWallets.length === totalWallets && totalWallets > 0) {
       return {
         icon: CheckCircle2,
         color: "text-green-600 dark:text-green-400",
         bgColor: "bg-green-100 dark:bg-green-900/30",
         status: "success",
         message: "All wallets synced",
-        description: `${syncStats.totalWallets} wallet${syncStats.totalWallets !== 1 ? 's' : ''} up to date`
+        description: `${totalWallets} wallet${totalWallets !== 1 ? 's' : ''} up to date`
       };
     }
 
     return {
-      icon: AlertTriangle,
-      color: "text-amber-600 dark:text-amber-400",
-      bgColor: "bg-amber-100 dark:bg-amber-900/30",
-      status: "partial",
-      message: "Sync incomplete",
-      description: `${syncStats.syncedWallets}/${syncStats.totalWallets} wallets synced`
+      icon: Wifi,
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      status: "connected",
+      message: "Connected",
+      description: "Ready to sync wallets"
     };
   };
 
   const statusInfo = getStatusInfo();
+
+  // Get latest completion time from any wallet
+  const getLastSyncTime = () => {
+    const completionTimes = Object.values(realtimeSyncStates)
+      .map(state => state.completedAt)
+      .filter(Boolean) as Date[];
+
+    if (completionTimes.length === 0) return null;
+    return new Date(Math.max(...completionTimes.map(d => d.getTime())));
+  };
+
   const formatLastSync = (date: Date | null) => {
     if (!date) return "Never";
-    
+
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -131,17 +172,19 @@ export function SyncStatusIndicator({
     return `${Math.floor(diffMinutes / 1440)}d ago`;
   };
 
+  const lastSyncTime = getLastSyncTime();
+
   // Minimal variant - just an icon
   if (variant === "minimal") {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <div className={cn("flex items-center", className)}>
-            <statusInfo.icon 
+            <statusInfo.icon
               className={cn(
                 "size-4",
                 statusInfo.color,
-                syncStats.isAutoSyncing && "animate-spin"
+                isAnySyncing && "animate-spin"
               )}
             />
           </div>
@@ -150,8 +193,8 @@ export function SyncStatusIndicator({
           <div className="text-xs">
             <p className="font-medium">{statusInfo.message}</p>
             <p className="text-muted-foreground">{statusInfo.description}</p>
-            {showLastSync && syncStats.lastSyncTime && (
-              <p className="text-muted-foreground">Last sync: {formatLastSync(syncStats.lastSyncTime)}</p>
+            {showLastSync && lastSyncTime && (
+              <p className="text-muted-foreground">Last sync: {formatLastSync(lastSyncTime)}</p>
             )}
           </div>
         </TooltipContent>
@@ -164,38 +207,32 @@ export function SyncStatusIndicator({
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <div className={cn("flex items-center gap-1.5 px-2 py-1 rounded-md", statusInfo.bgColor)}>
-          <statusInfo.icon 
+          <statusInfo.icon
             className={cn(
               "size-3",
               statusInfo.color,
-              syncStats.isAutoSyncing && "animate-spin"
+              isAnySyncing && "animate-spin"
             )}
           />
           <span className={cn("text-xs font-medium", statusInfo.color)}>
-            {syncStats.totalWallets > 0 ? `${syncStats.syncedWallets}/${syncStats.totalWallets}` : '0'}
+            {totalWallets > 0 ? `${completedWallets.length}/${totalWallets}` : '0'}
           </span>
         </div>
 
-        {showProgress && syncStats.isAutoSyncing && (
+        {showProgress && isAnySyncing && (
           <div className="flex-1 max-w-20">
-            <Progress value={syncStats.syncProgress} className="h-1" />
+            <Progress value={Math.round((syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) || 0)} className="h-1" />
           </div>
         )}
 
-        {shouldAutoSync && !syncStats.isAutoSyncing && (
-          <Badge variant="outline" className="text-xs h-5 px-1">
-            <Zap className="size-2 mr-0.5" />
-            Auto
-          </Badge>
-        )}
 
-        {showTrigger && !syncStats.isAutoSyncing && isOnline && (
+        {showTrigger && !isAnySyncing && hasConnectionError && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={triggerSync}
+            onClick={resetConnection}
             className="h-6 w-6 p-0"
-            title="Sync now"
+            title="Reconnect"
           >
             <RefreshCw className="size-3" />
           </Button>
@@ -210,11 +247,11 @@ export function SyncStatusIndicator({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={cn("p-1 rounded", statusInfo.bgColor)}>
-            <statusInfo.icon 
+            <statusInfo.icon
               className={cn(
                 "size-4",
                 statusInfo.color,
-                syncStats.isAutoSyncing && "animate-spin"
+                isAnySyncing && "animate-spin"
               )}
             />
           </div>
@@ -224,33 +261,33 @@ export function SyncStatusIndicator({
           </div>
         </div>
 
-        {showTrigger && !syncStats.isAutoSyncing && isOnline && (
+        {showTrigger && hasConnectionError && (
           <Button
             variant="outline"
             size="sm"
-            onClick={triggerSync}
+            onClick={resetConnection}
             className="h-7"
           >
             <RefreshCw className="size-3 mr-1" />
-            Sync
+            Reconnect
           </Button>
         )}
       </div>
 
-      {showProgress && syncStats.isAutoSyncing && (
+      {showProgress && isAnySyncing && (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{syncStats.syncProgress}%</span>
+            <span className="font-medium">{Math.round((syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) || 0)}%</span>
           </div>
-          <Progress value={syncStats.syncProgress} className="h-1.5" />
+          <Progress value={Math.round((syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) || 0)} className="h-1.5" />
         </div>
       )}
 
       {showLastSync && (
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Last sync:</span>
-          <span>{formatLastSync(syncStats.lastSyncTime)}</span>
+          <span>{formatLastSync(lastSyncTime)}</span>
         </div>
       )}
 
@@ -263,10 +300,10 @@ export function SyncStatusIndicator({
           </Badge>
         )}
         
-        {shouldAutoSync && !syncStats.isAutoSyncing && (
+        {realtimeSyncConnected && !isAnySyncing && (
           <Badge variant="outline" className="text-xs">
-            <Zap className="size-2 mr-1" />
-            Auto-sync Ready
+            <CheckCircle2 className="size-2 mr-1" />
+            Connected
           </Badge>
         )}
 

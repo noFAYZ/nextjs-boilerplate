@@ -258,6 +258,8 @@ export const useAuthStore = create<AuthStore>()(
             const result = await signUp.email({
               email: userData.email,
               password: userData.password,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
               name: `${userData.firstName} ${userData.lastName}`,
             });
             

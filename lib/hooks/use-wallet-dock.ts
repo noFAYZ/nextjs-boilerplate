@@ -3,7 +3,8 @@
 import * as React from "react"
 import { useDockContext } from "@/components/providers/dock-provider"
 import { ExpandableItem } from "@/components/ui/dock"
-import { useAutoSync } from "./use-auto-sync"
+import { useCryptoStore } from "@/lib/stores/crypto-store"
+import { useWalletSyncProgress } from "./use-realtime-sync"
 
 export interface WalletStatus {
   id: string
@@ -18,7 +19,8 @@ export interface WalletStatus {
 
 export function useWalletDock() {
   const { wallets } = useDockContext()
-  const { syncStats, triggerSync } = useAutoSync()
+  const { realtimeSyncStates, realtimeSyncConnected } = useCryptoStore()
+  const { resetConnection } = useWalletSyncProgress()
 
   // Update wallet status
   const updateWalletStatus = React.useCallback((
@@ -83,6 +85,11 @@ export function useWalletDock() {
     return { total, active, errors, syncing }
   }, [wallets.items])
 
+  // Calculate sync stats from SSE states
+  const syncingWallets = Object.values(realtimeSyncStates).filter(
+    state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+  );
+
   return {
     ...wallets,
     updateWalletStatus,
@@ -90,10 +97,10 @@ export function useWalletDock() {
     setWalletError,
     removeWallet,
     getWalletStats,
-    // Auto-sync integration
-    syncStats,
-    triggerSync,
-    isAutoSyncing: syncStats.isAutoSyncing
+    // SSE sync integration
+    realtimeSyncStates,
+    realtimeSyncConnected,
+    resetConnection
   }
 }
 

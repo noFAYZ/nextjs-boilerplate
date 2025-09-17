@@ -37,7 +37,7 @@ const STORAGE_KEYS = {
 
 export function useAutoSync(options: AutoSyncOptions = {}) {
   const config = { ...DEFAULT_OPTIONS, ...options };
-  const { wallets, syncStatuses } = useCryptoStore();
+  const { wallets } = useCryptoStore();
   
   const [syncStats, setSyncStats] = useState<SyncStats>({
     totalWallets: 0,

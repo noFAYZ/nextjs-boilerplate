@@ -49,6 +49,7 @@ interface WalletCardProps {
 }
 
 function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUrl }: WalletCardProps) {
+  const { realtimeSyncStates } = useCryptoStore();
   const avataUrl = createAvatar(botttsNeutral, {
     size: 128,
     seed: wallet.address,
@@ -64,13 +65,19 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
     return 'bg-secondary text-secondary-foreground';
   };
 
-  const getSyncStatusIcon = (status?: string) => {
-    switch (status) {
-      case 'SUCCESS':
+  // Get SSE-based sync status for this wallet
+  const walletSyncState = realtimeSyncStates[wallet.id];
+  const isSyncing = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
+
+  const getSyncStatusIcon = () => {
+    if (isSyncing) {
+      return <Activity className="h-3 w-3 text-primary animate-pulse" />;
+    }
+
+    switch (walletSyncState?.status) {
+      case 'completed':
         return <CheckCircle className="h-3 w-3 text-green-600 dark:text-green-400" />;
-      case 'PROCESSING':
-        return <Activity className="h-3 w-3 text-primary animate-pulse" />;
-      case 'FAILED':
+      case 'failed':
         return <AlertCircle className="h-3 w-3 text-destructive" />;
       default:
         return <Clock className="h-3 w-3 text-muted-foreground" />;
@@ -92,7 +99,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
               <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
             </div>
             <div className="absolute -top-1 -right-1 h-4 w-4 bg-background rounded-full flex items-center justify-center border border-border">
-              {getSyncStatusIcon(wallet.syncStatus)}
+              {getSyncStatusIcon()}
             </div>
           </div>
 

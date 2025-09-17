@@ -13,7 +13,8 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useAutoSync } from "@/lib/hooks/use-auto-sync";
+import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { useWalletSyncProgress } from "@/lib/hooks/use-realtime-sync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface LiveSyncStatsProps {
@@ -22,12 +23,42 @@ interface LiveSyncStatsProps {
   className?: string;
 }
 
-export function LiveSyncStats({ 
-  compact = false, 
+export function LiveSyncStats({
+  compact = false,
   showHeader = true,
   className = ""
 }: LiveSyncStatsProps) {
-  const { syncStats, triggerSync, shouldAutoSync } = useAutoSync();
+  const { realtimeSyncStates, realtimeSyncConnected, wallets } = useCryptoStore();
+  const { resetConnection } = useWalletSyncProgress();
+
+  // Calculate sync stats from SSE states
+  const syncingWallets = Object.values(realtimeSyncStates).filter(
+    state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+  );
+
+  const completedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'completed'
+  );
+
+  const failedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'failed'
+  );
+
+  const totalWallets = wallets.length;
+  const isAnySyncing = syncingWallets.length > 0;
+  const averageProgress = isAnySyncing ? Math.round(syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) : 0;
+
+  // Get latest completion time
+  const getLastSyncTime = () => {
+    const completionTimes = Object.values(realtimeSyncStates)
+      .map(state => state.completedAt)
+      .filter(Boolean) as Date[];
+
+    if (completionTimes.length === 0) return null;
+    return new Date(Math.max(...completionTimes.map(d => d.getTime())));
+  };
+
+  const lastSyncTime = getLastSyncTime();
 
   const formatLastSync = (date: Date | null) => {
     if (!date) return "Never";
@@ -45,9 +76,9 @@ export function LiveSyncStats({
   };
 
   const getSyncStatusColor = () => {
-    if (syncStats.isAutoSyncing) return "text-blue-600 dark:text-blue-400";
-    if (syncStats.failedWallets > 0) return "text-red-600 dark:text-red-400";
-    if (syncStats.syncedWallets === syncStats.totalWallets && syncStats.totalWallets > 0) {
+    if (isAnySyncing) return "text-blue-600 dark:text-blue-400";
+    if (failedWallets.length > 0) return "text-red-600 dark:text-red-400";
+    if (completedWallets.length === totalWallets && totalWallets > 0) {
       return "text-green-600 dark:text-green-400";
     }
     return "text-muted-foreground";
@@ -57,24 +88,24 @@ export function LiveSyncStats({
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <div className="flex items-center gap-1">
-          {syncStats.isAutoSyncing ? (
+          {isAnySyncing ? (
             <RefreshCw className="size-4 animate-spin text-blue-500" />
           ) : (
             <Activity className="size-4 text-muted-foreground" />
           )}
           <span className="text-xs text-muted-foreground">
-            {syncStats.syncedWallets}/{syncStats.totalWallets}
+            {completedWallets.length}/{totalWallets}
           </span>
         </div>
-        
-        {syncStats.isAutoSyncing && (
+
+        {isAnySyncing && (
           <div className="flex-1 max-w-20">
-            <Progress value={syncStats.syncProgress} className="h-1" />
+            <Progress value={averageProgress} className="h-1" />
           </div>
         )}
-        
+
         <span className="text-xs text-muted-foreground">
-          {formatLastSync(syncStats.lastSyncTime)}
+          {formatLastSync(lastSyncTime)}
         </span>
       </div>
     );
@@ -92,11 +123,11 @@ export function LiveSyncStats({
             <Button
               variant="ghost"
               size="sm"
-              onClick={triggerSync}
-              disabled={syncStats.isAutoSyncing}
+              onClick={resetConnection}
+              disabled={isAnySyncing}
               className="h-6 px-2"
             >
-              <RefreshCw className={`size-3 ${syncStats.isAutoSyncing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`size-3 ${isAnySyncing ? 'animate-spin' : ''}`} />
             </Button>
           </CardTitle>
         </CardHeader>
@@ -111,7 +142,7 @@ export function LiveSyncStats({
               <span className="text-xs text-muted-foreground">Synced</span>
             </div>
             <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-              {syncStats.syncedWallets}
+              {completedWallets.length}
             </div>
           </div>
           
@@ -121,22 +152,22 @@ export function LiveSyncStats({
               <span className="text-xs text-muted-foreground">Failed</span>
             </div>
             <div className="text-lg font-semibold text-red-600 dark:text-red-400">
-              {syncStats.failedWallets}
+              {failedWallets.length}
             </div>
           </div>
         </div>
 
         {/* Progress Bar */}
-        {syncStats.isAutoSyncing && (
+        {isAnySyncing && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Syncing wallets...</span>
-              <span className="font-medium">{syncStats.syncProgress}%</span>
+              <span className="font-medium">{averageProgress}%</span>
             </div>
-            <Progress value={syncStats.syncProgress} className="h-2" />
+            <Progress value={averageProgress} className="h-2" />
             <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
               <RefreshCw className="size-3 animate-spin" />
-              <span>{syncStats.syncingWallets} wallet{syncStats.syncingWallets !== 1 ? 's' : ''} syncing</span>
+              <span>{syncingWallets.length} wallet{syncingWallets.length !== 1 ? 's' : ''} syncing</span>
             </div>
           </div>
         )}
@@ -144,20 +175,20 @@ export function LiveSyncStats({
         {/* Status Badges */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">
-            {syncStats.isAutoSyncing ? (
+            {isAnySyncing ? (
               <Badge variant="secondary" className="text-xs">
                 <RefreshCw className="size-3 mr-1 animate-spin" />
                 Syncing
               </Badge>
-            ) : syncStats.totalWallets === 0 ? (
+            ) : totalWallets === 0 ? (
               <Badge variant="outline" className="text-xs">
                 <Clock className="size-3 mr-1" />
                 No Wallets
               </Badge>
-            ) : syncStats.failedWallets > 0 ? (
+            ) : failedWallets.length > 0 ? (
               <Badge variant="destructive" className="text-xs">
                 <XCircle className="size-3 mr-1" />
-                {syncStats.failedWallets} Failed
+                {failedWallets.length} Failed
               </Badge>
             ) : (
               <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">
@@ -165,17 +196,17 @@ export function LiveSyncStats({
                 All Synced
               </Badge>
             )}
-            
-            {shouldAutoSync && !syncStats.isAutoSyncing && (
+
+            {realtimeSyncConnected && !isAnySyncing && (
               <Badge variant="outline" className="text-xs">
-                <Zap className="size-3 mr-1" />
-                Auto-sync Ready
+                <CheckCircle2 className="size-3 mr-1" />
+                Connected
               </Badge>
             )}
           </div>
           
           <span className="text-xs text-muted-foreground">
-            {formatLastSync(syncStats.lastSyncTime)}
+            {formatLastSync(lastSyncTime)}
           </span>
         </div>
 
@@ -185,7 +216,7 @@ export function LiveSyncStats({
             <span className="text-muted-foreground">Total Wallets</span>
             <div className="flex items-center gap-1">
               <TrendingUp className="size-3 text-muted-foreground" />
-              <span className="font-medium">{syncStats.totalWallets}</span>
+              <span className="font-medium">{totalWallets}</span>
             </div>
           </div>
         </div>

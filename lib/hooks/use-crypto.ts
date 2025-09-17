@@ -369,8 +369,8 @@ export const useSyncAllWallets = () => {
 };
 
 export const useSyncStatus = (walletId: string, jobId?: string) => {
-  const { setSyncStatus, removeSyncStatus, syncStatuses } = useCryptoStore();
-  
+  const { realtimeSyncStates } = useCryptoStore();
+
   // Don't run if walletId is "add" (from the add wallet route)
   if (walletId === 'add' || !walletId) {
     return {
@@ -379,51 +379,38 @@ export const useSyncStatus = (walletId: string, jobId?: string) => {
       error: null,
     };
   }
-  
-  // Check if we have an active sync in the store
-  const hasActiveSyncInStore = syncStatuses[walletId] && 
-    (syncStatuses[walletId].status === 'processing' || syncStatuses[walletId].status === 'queued');
 
-  // Only enable the query if we have an active sync or if we're specifically checking a job
-  // Also check that we're on a wallet-specific page (not add page or main wallets page)
-  const isOnWalletPage = typeof window !== 'undefined' && 
-    window.location.pathname.includes('/wallet/') && 
-    !window.location.pathname.includes('/add');
-  
-  const shouldQuery = (!!jobId || hasActiveSyncInStore) && isOnWalletPage;
+  // Get sync status from SSE states
+  const syncState = realtimeSyncStates[walletId];
 
-  const query = useQuery({
-    ...cryptoQueries.syncStatus(walletId, jobId),
-    enabled: !!walletId && shouldQuery,
-  });
-
-  // Handle success manually since onSuccess is deprecated
-  useEffect(() => {
-    if (query.data) {
-      setSyncStatus(walletId, query.data);
-      
-      // Remove from store when completed or failed
-      if (query.data.status === 'completed' || query.data.status === 'failed') {
-        setTimeout(() => {
-          removeSyncStatus(walletId);
-        }, 5000); // Keep for 5 seconds for user feedback
-      }
-    }
-  }, [query.data, walletId, setSyncStatus, removeSyncStatus]);
-
-  // Cleanup effect - remove sync status when component unmounts or page changes
-  useEffect(() => {
-    return () => {
-      if (!isOnWalletPage) {
-        removeSyncStatus(walletId);
-      }
-    };
-  }, [isOnWalletPage, walletId, removeSyncStatus]);
+  // Convert SSE sync state to legacy format for backward compatibility
+  const legacySyncStatus = syncState ? {
+    walletId,
+    status: syncState.status === 'syncing' ||
+            syncState.status === 'syncing_assets' ||
+            syncState.status === 'syncing_transactions' ||
+            syncState.status === 'syncing_nfts' ||
+            syncState.status === 'syncing_defi' ? 'processing' :
+            syncState.status === 'queued' ? 'queued' :
+            syncState.status === 'completed' ? 'completed' :
+            syncState.status === 'failed' ? 'failed' : 'idle',
+    progress: syncState.progress,
+    message: syncState.message,
+    error: syncState.error,
+    startedAt: syncState.startedAt,
+    completedAt: syncState.completedAt,
+    syncedData: syncState.syncedData
+  } : null;
 
   return {
-    syncStatus: query.data || syncStatuses[walletId],
-    isLoading: query.isLoading,
-    error: query.error,
+    syncStatus: legacySyncStatus,
+    isLoading: syncState?.status === 'syncing' ||
+               syncState?.status === 'syncing_assets' ||
+               syncState?.status === 'syncing_transactions' ||
+               syncState?.status === 'syncing_nfts' ||
+               syncState?.status === 'syncing_defi' ||
+               syncState?.status === 'queued',
+    error: syncState?.error || null,
   };
 };
 
@@ -593,7 +580,7 @@ export const useWalletFullData = (walletId: string) => {
 
 // Sync Management Hook
 export const useSyncManager = () => {
-  const { syncStatuses } = useCryptoStore();
+  const { realtimeSyncStates } = useCryptoStore();
   const syncMutation = useSyncWallet();
   const syncAllMutation = useSyncAllWallets();
   const { invalidateAll } = useInvalidateCryptoQueries();
@@ -607,8 +594,8 @@ export const useSyncManager = () => {
   };
 
   const getActiveSyncs = () => {
-    return Object.entries(syncStatuses).filter(([_, status]) => 
-      status.status === 'processing' || status.status === 'queued'
+    return Object.entries(realtimeSyncStates).filter(([_, state]) =>
+      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
     );
   };
 
@@ -617,7 +604,7 @@ export const useSyncManager = () => {
   };
 
   return {
-    syncStatuses,
+    realtimeSyncStates,
     syncWallet,
     syncAllWallets,
     getActiveSyncs,

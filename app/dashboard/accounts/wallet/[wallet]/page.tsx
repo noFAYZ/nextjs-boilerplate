@@ -33,6 +33,7 @@ import {
   useSyncWallet,
   useSyncStatus,
 } from "@/lib/hooks/use-crypto";
+import { useCryptoStore } from "@/lib/stores/crypto-store";
 
 // Import new components
 import { WalletTokens } from "@/components/crypto/wallet-tokens";
@@ -189,20 +190,26 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
     useWalletFullData(walletIdentifier);
 
   const syncWallet = useSyncWallet();
-  const { syncStatus } = useSyncStatus(walletIdentifier);
+  const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 
+  // Get SSE-based sync status for this wallet
+  const walletSyncState = realtimeSyncStates[walletIdentifier];
+  const isSyncingSSE = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
+  const syncProgress = walletSyncState?.progress || 0;
+  const syncMessage = walletSyncState?.message || '';
+  const lastSyncAt = walletSyncState?.completedAt;
+
   // Track if we're currently syncing
-  const isSyncing = syncWallet.isPending || syncStatus?.status === "processing";
+  const isSyncing = syncWallet.isPending || isSyncingSSE;
 
   // Auto-refresh data when sync completes
   useEffect(() => {
-    const currentStatus = syncStatus?.status;
+    const currentStatus = walletSyncState?.status;
     const prevStatus = prevSyncStatusRef.current;
 
-    // If sync status changed from 'processing' to 'completed', refetch data
-    if (prevStatus === "processing" && currentStatus === "completed") {
-      
+    // If sync status changed from syncing to completed, refetch data
+    if (prevStatus && ['syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(prevStatus) && currentStatus === "completed") {
       setTimeout(() => {
         refetch();
         toast.success("Wallet data updated!");
@@ -211,7 +218,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
     // Update the previous status
     prevSyncStatusRef.current = currentStatus;
-  }, [syncStatus?.status, refetch]);
+  }, [walletSyncState?.status, refetch]);
 
   // Memoize expensive calculations
   const walletStats = useMemo(() => {
@@ -331,22 +338,27 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           Back
         </Button>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-       <Tooltip content={syncStatus?.status === "processing"  ? `Last synced: ${wallet?.walletData?.lastSyncAt ? timestampzToReadable(wallet?.walletData?.lastSyncAt) : 'N/A'}` : syncStatus?.status === "completed" ? `Last synced: ${wallet?.walletData?.lastSyncAt ? timestampzToReadable(wallet?.walletData?.lastSyncAt) : 'N/A'}` : syncStatus?.status === "failed" ? `Sync failed: ${syncStatus?.errorMessage || 'Unknown error'}` : 'Sync status unknown'}>
-            {syncStatus?.status === "processing" ? (
+       <Tooltip content={
+         isSyncingSSE ? `Syncing... ${syncProgress}% ${syncMessage ? `- ${syncMessage}` : ''}` :
+         walletSyncState?.status === "completed" ? `Last synced: ${lastSyncAt ? new Date(lastSyncAt).toLocaleString() : 'N/A'}` :
+         walletSyncState?.status === "failed" ? `Sync failed: ${walletSyncState?.error || 'Unknown error'}` :
+         'Sync status unknown'
+       }>
+            {isSyncingSSE ? (
               <Activity className="h-4 w-4 text-blue-500 animate-spin" />
-            ) : syncStatus?.status === "completed" ? (
+            ) : walletSyncState?.status === "completed" ? (
               <CheckCircle className="h-4 w-4 text-green-500" />
-            ) : syncStatus?.status === "failed" ? (
+            ) : walletSyncState?.status === "failed" ? (
               <AlertCircle className="h-4 w-4 text-red-500" />
             ) : (
               <Clock className="h-4 w-4 text-muted-foreground" />
             )}
             <span>
-              {syncStatus?.status === "processing"
-                ? "Syncing..."
-                : syncStatus?.status === "completed"
-                ? `Last synced: ${wallet?.walletData?.lastSyncAt ? timestampzToReadable(wallet?.walletData?.lastSyncAt) : 'N/A'}`
-                : syncStatus?.status === "failed"
+              {isSyncingSSE
+                ? `Syncing... ${syncProgress}%`
+                : walletSyncState?.status === "completed"
+                ? `Last synced: ${lastSyncAt ? new Date(lastSyncAt).toLocaleString() : 'N/A'}`
+                : walletSyncState?.status === "failed"
                 ? `Sync failed`
                 : "Not synced"}
             </span>
@@ -355,17 +367,15 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             variant="outline"
             size="sm"
             onClick={handleSync}
-            disabled={
-              syncWallet.isPending || syncStatus?.status === "processing"
-            }
+            disabled={syncWallet.isPending || isSyncingSSE}
             className="min-w-[80px]"
           >
-            {syncWallet.isPending || syncStatus?.status === "processing" ? (
+            {syncWallet.isPending || isSyncingSSE ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
               <RefreshCw className="h-4 w-4 mr-2" />
             )}
-            Sync
+            {isSyncingSSE ? `${syncProgress}%` : 'Sync'}
           
           </Button>
             {wallet?.walletData?.lastSyncAt && !isSyncing ? (
@@ -554,13 +564,19 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                   <span className="text-muted-foreground">Status</span>
                   <Badge
                     variant={
-                      wallet?.walletData?.syncStatus === "SUCCESS"
+                      walletSyncState?.status === "completed"
                         ? "default"
-                        : "destructive"
+                        : walletSyncState?.status === "failed"
+                        ? "destructive"
+                        : isSyncingSSE
+                        ? "secondary"
+                        : "outline"
                     }
                     className="text-[10px] py-0 px-1.5 h-4"
                   >
-                    {wallet?.walletData?.syncStatus || "Unknown"}
+                    {walletSyncState?.status === "completed" ? "Synced" :
+                     walletSyncState?.status === "failed" ? "Failed" :
+                     isSyncingSSE ? "Syncing" : "Unknown"}
                   </Badge>
                 </div>
               </div>

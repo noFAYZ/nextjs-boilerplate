@@ -517,14 +517,6 @@ export default function WalletsPage() {
                           </div>
                         </div>
                         <div className="flex gap-1">
-                          {wallet.syncStatus && (
-                            <Badge
-                              variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
-                              className="text-xs"
-                            >
-                              {wallet.syncStatus}
-                            </Badge>
-                          )}
                           <SyncProgressBadge walletId={wallet.id} />
                         </div>
                       </div>
@@ -603,14 +595,6 @@ export default function WalletsPage() {
                           <Badge className={getNetworkColor(wallet.network)} variant="secondary">
                             {wallet.network}
                           </Badge>
-                          {wallet.syncStatus && (
-                            <Badge
-                              variant={wallet.syncStatus === 'SUCCESS' ? 'default' : 'destructive'}
-                              className="text-xs"
-                            >
-                              {wallet.syncStatus}
-                            </Badge>
-                          )}
                           <SyncProgressBadge walletId={wallet.id} />
                         </div>
                         <div className="flex items-center gap-2">

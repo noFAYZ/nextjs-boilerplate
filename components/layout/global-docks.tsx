@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils"
 import { WALLET_ICON_CONFIGS, createWalletDockItem } from "@/lib/utils/dock-integration"
 import {  PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
-import { useAutoSync } from "@/lib/hooks/use-auto-sync"
+import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
 
 // Mobile breakpoint hook
@@ -107,16 +107,68 @@ export function NotificationDock() {
 export function WalletsDock() {
   const { wallets: dockWallets } = useDockContext()
   const { wallets, isLoading, error } = useWallets()
-  const { syncStats, triggerSync, isAutoSyncing } = useAutoSync()
+  const { realtimeSyncStates } = useCryptoStore()
   const router = useRouter()
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const { user } = useAuth()
 
+  // Memoize sync stats calculations to prevent unnecessary re-renders
+  const syncStats = React.useMemo(() => {
+    const syncingWallets = Object.values(realtimeSyncStates).filter(
+      state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+    );
+
+    const completedWallets = Object.values(realtimeSyncStates).filter(
+      state => state.status === 'completed'
+    );
+
+    const failedWallets = Object.values(realtimeSyncStates).filter(
+      state => state.status === 'failed'
+    );
+
+    const isAnySyncing = syncingWallets.length > 0;
+    const averageProgress = isAnySyncing ? Math.round(syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) : 0;
+
+    // Get latest completion time
+    const getLastSyncTime = () => {
+      const completionTimes = Object.values(realtimeSyncStates)
+        .map(state => state.completedAt)
+        .filter(Boolean) as Date[];
+
+      if (completionTimes.length === 0) return null;
+      return new Date(Math.max(...completionTimes.map(d => d.getTime())));
+    };
+
+    return {
+      syncingWallets,
+      completedWallets,
+      failedWallets,
+      isAnySyncing,
+      averageProgress,
+      lastSyncTime: getLastSyncTime()
+    };
+  }, [realtimeSyncStates]);
+
   // Only show to authenticated users
   if (!user) {
     return null
   }
+
+  // Memoize wallet IDs to prevent unnecessary re-renders
+  const walletIds = React.useMemo(() =>
+    wallets?.map(w => w.id).join(',') || '',
+    [wallets]
+  );
+
+  // Memoize sync state keys to prevent unnecessary re-renders
+  const syncStateKeys = React.useMemo(() =>
+    Object.keys(realtimeSyncStates).join(','),
+    [realtimeSyncStates]
+  );
+
+  // Track last processed state to prevent unnecessary updates
+  const lastProcessedRef = React.useRef<string>('')
 
   // Convert real wallet data to dock items with sync status
   React.useEffect(() => {
@@ -124,6 +176,13 @@ export function WalletsDock() {
       dockWallets.setIsLoading(isLoading)
       return
     }
+
+    // Create a hash of current state to check if update is needed
+    const currentStateHash = `${walletIds}-${syncStateKeys}-${isLoading}`
+    if (lastProcessedRef.current === currentStateHash) {
+      return // Skip if no actual changes
+    }
+    lastProcessedRef.current = currentStateHash
 
     dockWallets.setIsLoading(false)
     dockWallets.clearItems()
@@ -141,9 +200,12 @@ export function WalletsDock() {
       // Determine status based on auto-sync state and wallet sync state
       let status: 'success' | 'loading' | 'error' | 'warning' = 'success'
       
-      // Check if wallet is currently syncing
-      if (isAutoSyncing && syncStats.syncingWallets > 0) {
+      // Check if wallet is currently syncing from SSE states
+      const walletSyncState = realtimeSyncStates[wallet.id];
+      if (walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status)) {
         status = 'loading'
+      } else if (walletSyncState?.status === 'failed') {
+        status = 'error'
       } else if (wallet.lastSyncAt) {
         const lastSync = new Date(wallet.lastSyncAt)
         const now = new Date()
@@ -169,7 +231,7 @@ export function WalletsDock() {
 
       dockWallets.addItem(walletItem)
     })
-  }, [wallets, isLoading, isAutoSyncing, syncStats.syncingWallets])
+  }, [walletIds, isLoading, syncStateKeys, wallets, realtimeSyncStates])
 
   // Handle error state
   React.useEffect(() => {
@@ -193,27 +255,27 @@ export function WalletsDock() {
 
   // Get sync status icon for the trigger
   const getSyncIcon = () => {
-    if (isAutoSyncing) {
+    if (syncStats.isAnySyncing) {
       return <RefreshCw className="w-5 h-5 animate-spin text-blue-500" />
     }
-    
-    if (syncStats.failedWallets > 0) {
+
+    if (syncStats.failedWallets.length > 0) {
       return <AlertTriangle className="w-5 h-5 text-amber-500" />
     }
-    
+
     return <StreamlineFlexWallet className="w-5 h-5" />
   }
 
   // Create sync badge
   const getSyncBadge = () => {
-    if (isAutoSyncing) {
-      return `⟳ ${syncStats.syncProgress}%`
+    if (syncStats.isAnySyncing) {
+      return `⟳ ${syncStats.averageProgress}%`
     }
-    
-    if (syncStats.failedWallets > 0) {
-      return `${syncStats.failedWallets} ✗`
+
+    if (syncStats.failedWallets.length > 0) {
+      return `${syncStats.failedWallets.length} ✗`
     }
-    
+
     return totalWallets > 0 ? `${activeWallets}/${totalWallets}` : undefined
   }
 
@@ -231,14 +293,14 @@ export function WalletsDock() {
         panelTitle={
           <div className="flex items-center justify-between w-full">
             <span>Crypto Wallets</span>
-            {isAutoSyncing ? (
+            {syncStats.isAnySyncing ? (
               <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
                 <RefreshCw className="w-3 h-3 animate-spin" />
                 Syncing...
               </div>
-            ) : syncStats.totalWallets > 0 && (
+            ) : wallets.length > 0 && (
               <button
-                onClick={triggerSync}
+                onClick={() => {}}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 title="Sync all wallets"
               >
@@ -254,26 +316,26 @@ export function WalletsDock() {
         className={cn(isMobile && "bottom-20")} // Account for mobile nav
         header={
           // Live sync stats at the top of the dock panel
-          syncStats.totalWallets > 0 ? (
+          wallets.length > 0 ? (
             <div className="px-3 pb-3 border-b">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  {isAutoSyncing ? (
+                  {syncStats.isAnySyncing ? (
                     <>
                       <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />
                       <span className="text-blue-600 dark:text-blue-400">
-                        Syncing {syncStats.syncingWallets} wallet{syncStats.syncingWallets !== 1 ? 's' : ''}
+                        Syncing {syncStats.syncingWallets.length} wallet{syncStats.syncingWallets.length !== 1 ? 's' : ''}
                       </span>
                     </>
                   ) : (
                     <>
-                      {syncStats.failedWallets > 0 ? (
+                      {syncStats.failedWallets.length > 0 ? (
                         <AlertTriangle className="w-3 h-3 text-amber-500" />
                       ) : (
                         <CheckCircle className="w-3 h-3 text-green-500" />
                       )}
                       <span className="text-muted-foreground">
-                        {syncStats.syncedWallets}/{syncStats.totalWallets} synced
+                        {syncStats.completedWallets.length}/{wallets.length} synced
                       </span>
                     </>
                   )}
@@ -282,12 +344,12 @@ export function WalletsDock() {
                   {syncStats.lastSyncTime ? formatTimeAgo(syncStats.lastSyncTime) : 'Never'}
                 </span>
               </div>
-              {isAutoSyncing && (
+              {syncStats.isAnySyncing && (
                 <div className="mt-2">
                   <div className="w-full bg-muted rounded-full h-1">
-                    <div 
+                    <div
                       className="bg-blue-500 h-1 rounded-full transition-all duration-500"
-                      style={{ width: `${syncStats.syncProgress}%` }}
+                      style={{ width: `${syncStats.averageProgress}%` }}
                     />
                   </div>
                 </div>

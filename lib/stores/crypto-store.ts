@@ -1,15 +1,14 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { 
-  CryptoWallet, 
-  PortfolioData, 
-  CryptoTransaction, 
-  CryptoNFT, 
+import type {
+  CryptoWallet,
+  PortfolioData,
+  CryptoTransaction,
+  CryptoNFT,
   DeFiPosition,
-  SyncJobStatus,
   NetworkType,
-  WalletType 
+  WalletType
 } from '@/lib/types/crypto';
 
 interface CryptoState {
@@ -56,8 +55,6 @@ interface CryptoState {
   defiLoading: boolean;
   defiError: string | null;
 
-  // Sync status
-  syncStatuses: Record<string, SyncJobStatus>;
 
   // Real-time sync state
   realtimeSyncStates: Record<string, {
@@ -132,9 +129,6 @@ interface CryptoActions {
   setDefiLoading: (loading: boolean) => void;
   setDefiError: (error: string | null) => void;
 
-  // Sync actions
-  setSyncStatus: (walletId: string, status: SyncJobStatus) => void;
-  removeSyncStatus: (walletId: string) => void;
 
   // Real-time sync actions
   setRealtimeSyncState: (walletId: string, state: CryptoState['realtimeSyncStates'][string]) => void;
@@ -198,8 +192,6 @@ const initialState: CryptoState = {
   defiLoading: false,
   defiError: null,
 
-  // Sync status
-  syncStatuses: {},
 
   // Real-time sync state
   realtimeSyncStates: {},
@@ -385,16 +377,6 @@ export const useCryptoStore = create<CryptoStore>()(
           state.defiError = error;
         }, false, 'setDefiError'),
 
-      // Sync actions
-      setSyncStatus: (walletId, status) =>
-        set((state) => {
-          state.syncStatuses[walletId] = status;
-        }, false, 'setSyncStatus'),
-
-      removeSyncStatus: (walletId) =>
-        set((state) => {
-          delete state.syncStatuses[walletId];
-        }, false, 'removeSyncStatus'),
 
       // Real-time sync actions
       setRealtimeSyncState: (walletId, syncState) =>
@@ -586,11 +568,6 @@ export const selectTotalPortfolioValue = (state: CryptoStore) => {
   return state.portfolio?.totalValueUsd || 0;
 };
 
-export const selectActiveSyncCount = (state: CryptoStore) => {
-  return Object.values(state.syncStatuses).filter(
-    (status) => status.status === 'processing' || status.status === 'queued'
-  ).length;
-};
 
 export const selectActiveRealtimeSyncCount = (state: CryptoStore) => {
   return Object.values(state.realtimeSyncStates).filter(

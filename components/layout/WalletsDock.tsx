@@ -17,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ExpandableDock } from "@/components/ui/dock";
 import { useWalletDock } from "@/lib/hooks/use-wallet-dock";
-import { useAutoSync } from "@/lib/hooks/use-auto-sync";
 import { useSession } from "@/lib/auth-client";
 import { useDockContext } from "@/components/providers/dock-provider";
 import { SyncProgressIndicator } from "@/components/crypto/SyncProgressIndicator";
@@ -30,92 +29,57 @@ export function WalletsDock() {
     items,
     toggle,
     expand,
-    syncStats,
-    triggerSync,
-    isAutoSyncing
+    realtimeSyncStates,
+    realtimeSyncConnected,
+    resetConnection
   } = useWalletDock();
 
-  const {
-    hasOutdatedWallets,
-    getOutdatedWallets,
-    startAutoSyncOutdated
-  } = useAutoSync();
+  // Calculate sync stats from SSE states
+  const syncingWallets = Object.values(realtimeSyncStates).filter(
+    state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+  );
 
-  // Simplified sync state since realtime sync is removed
-  const hasActiveSyncs = false;
-  const syncConnected = false;
+  const completedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'completed'
+  );
+
+  const failedWallets = Object.values(realtimeSyncStates).filter(
+    state => state.status === 'failed'
+  );
+
+  const hasActiveSyncs = syncingWallets.length > 0;
+  const syncConnected = realtimeSyncConnected;
 
   const { data: session } = useSession();
   const { notifications } = useDockContext();
   const [hasCheckedForOutdated, setHasCheckedForOutdated] = React.useState(false);
 
-  // Auto-expand when sync starts (real-time or traditional)
+  // Auto-expand when sync starts
   React.useEffect(() => {
-    if ((isAutoSyncing || hasActiveSyncs) && !isExpanded) {
+    if (hasActiveSyncs && !isExpanded) {
       expand();
-      
     }
-  }, [isAutoSyncing, hasActiveSyncs, isExpanded, expand]);
+  }, [hasActiveSyncs, isExpanded, expand]);
 
-  // Check for outdated wallets when user is logged in
+  // Show notification when SSE connection is lost
   React.useEffect(() => {
-    if (session?.user && !hasCheckedForOutdated && hasOutdatedWallets) {
+    if (session?.user && !syncConnected && !hasCheckedForOutdated) {
       setHasCheckedForOutdated(true);
 
-      const outdatedWalletIds = getOutdatedWallets();
-
-      // Auto-expand dock when outdated wallets detected
-      if (!isExpanded) {
-        expand();
-      }
-
-      // Show notification about outdated wallets
       notifications.addItem({
-        id: 'outdated-wallets-detected',
-        title: 'Outdated Wallets Detected',
-        subtitle: `${outdatedWalletIds.length} wallet${outdatedWalletIds.length !== 1 ? 's' : ''} need syncing (>1hr old)`,
+        id: 'sync-connection-lost',
+        title: 'Sync Connection Lost',
+        subtitle: 'Real-time wallet sync is disconnected',
         status: 'warning',
         timestamp: 'Now',
-        icon: <Zap className="size-4" />,
-        onClick: async () => {
-          toast.loading('Starting wallet sync...', { id: 'auto-sync' });
-          try {
-            const { successful, failed } = await startAutoSyncOutdated();
-            toast.success(`Sync completed: ${successful} successful, ${failed} failed`, { id: 'auto-sync' });
-          } catch (error) {
-            toast.error('Auto-sync failed', { id: 'auto-sync' });
-          }
-          notifications.removeItem('outdated-wallets-detected');
+        icon: <XCircle className="size-4" />,
+        onClick: () => {
+          resetConnection();
+          notifications.removeItem('sync-connection-lost');
         }
       });
-
-      // Auto-start sync for outdated wallets
-      setTimeout(() => {
-        startAutoSyncOutdated().then(({ successful, failed }) => {
-          if (failed === 0) {
-            toast.success(`All ${successful} outdated wallets synced successfully!`);
-          } else if (successful === 0) {
-            toast.error(`Failed to sync ${failed} wallets`);
-          } else {
-            toast.info(`Sync completed: ${successful} successful, ${failed} failed`);
-          }
-          notifications.removeItem('outdated-wallets-detected');
-        }).catch(() => {
-          toast.error('Auto-sync failed');
-          notifications.removeItem('outdated-wallets-detected');
-        });
-      }, 2000); // 2 second delay to allow UI to render
     }
-  }, [
-    session?.user,
-    hasCheckedForOutdated,
-    hasOutdatedWallets,
-    getOutdatedWallets,
-    startAutoSyncOutdated,
-    isExpanded,
-    expand,
-    notifications
-  ]);
+  }, [session?.user, syncConnected, hasCheckedForOutdated, notifications, resetConnection]);
 
   // Format sync status for badge (using real-time data)
   const getSyncBadge = () => {
@@ -138,30 +102,19 @@ export function WalletsDock() {
       );
     }
 
-    if (isAutoSyncing) {
-      return (
-        <Badge variant="secondary" className="h-5 px-2 text-xs animate-pulse">
-          <RefreshCw className="size-3 mr-1 animate-spin" />
-          Syncing
-        </Badge>
-      );
-    }
+    // Use SSE-based sync stats
+    const totalWallets = Object.keys(realtimeSyncStates).length || 0;
 
-    // Use local sync stats
-    const failedWallets = syncStats.failedWallets;
-    const totalWallets = syncStats.totalWallets;
-    const completedWallets = syncStats.syncedWallets;
-
-    if (failedWallets > 0) {
+    if (failedWallets.length > 0) {
       return (
         <Badge variant="destructive" className="h-5 px-2 text-xs">
           <XCircle className="size-3 mr-1" />
-          {failedWallets} Failed
+          {failedWallets.length} Failed
         </Badge>
       );
     }
 
-    if (totalWallets > 0 && completedWallets === totalWallets) {
+    if (totalWallets > 0 && completedWallets.length === totalWallets) {
       return (
         <Badge variant="default" className="h-5 px-2 text-xs bg-green-600 hover:bg-green-700">
           <CheckCircle2 className="size-3 mr-1" />
@@ -182,26 +135,24 @@ export function WalletsDock() {
     return (
       <Badge variant="outline" className="h-5 px-2 text-xs">
         <Activity className="size-3 mr-1" />
-        {completedWallets}/{totalWallets}
+        {completedWallets.length}/{totalWallets}
       </Badge>
     );
   };
 
   const getSyncIcon = () => {
-    if (hasActiveSyncs || isAutoSyncing) {
+    if (hasActiveSyncs) {
       return <RefreshCw className="size-4 animate-spin text-blue-500" />;
     }
 
-    // Use local sync stats
-    const failedWallets = syncStats.failedWallets;
-    const totalWallets = syncStats.totalWallets;
-    const completedWallets = syncStats.syncedWallets;
+    // Use SSE-based sync stats
+    const totalWallets = Object.keys(realtimeSyncStates).length || 0;
 
-    if (failedWallets > 0) {
+    if (failedWallets.length > 0) {
       return <XCircle className="size-4 text-red-500" />;
     }
 
-    if (totalWallets > 0 && completedWallets === totalWallets) {
+    if (totalWallets > 0 && completedWallets.length === totalWallets) {
       return <CheckCircle2 className="size-4 text-green-500" />;
     }
 
@@ -217,12 +168,12 @@ export function WalletsDock() {
           variant="ghost"
           size="sm"
           className="relative h-9 w-9 p-0"
-          title={`Crypto Wallets (${syncStats.totalWallets})`}
+          title={`Crypto Wallets (${Object.keys(realtimeSyncStates).length})`}
         >
           {getSyncIcon()}
-          {syncStats.totalWallets > 0 && (
+          {Object.keys(realtimeSyncStates).length > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs font-medium text-primary-foreground flex items-center justify-center">
-              {syncStats.totalWallets}
+              {Object.keys(realtimeSyncStates).length}
             </span>
           )}
         </Button>
@@ -233,7 +184,7 @@ export function WalletsDock() {
             <Wallet className="size-4" />
             <span>Crypto Wallets</span>
             <span className="text-xs text-muted-foreground">
-              ({syncStats.totalWallets})
+              ({Object.keys(realtimeSyncStates).length})
             </span>
           </div>
           {getSyncBadge()}
@@ -244,12 +195,12 @@ export function WalletsDock() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={triggerSync}
-            disabled={isAutoSyncing}
+            onClick={resetConnection}
+            disabled={hasActiveSyncs}
             className="h-7 w-7 p-0"
-            title="Sync All Wallets"
+            title="Reset Connection"
           >
-            <RefreshCw className={`size-3 ${isAutoSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`size-3 ${hasActiveSyncs ? 'animate-spin' : ''}`} />
           </Button>
           <Button
             variant="ghost"
@@ -276,7 +227,7 @@ export function WalletsDock() {
       <div className="px-3 pb-3">
         <SyncProgressIndicator
           syncStats={syncStats}
-          isAutoSyncing={isAutoSyncing}
+          isAutoSyncing={hasActiveSyncs}
         />
         <Separator className="mt-3" />
       </div>
@@ -305,11 +256,11 @@ export function WalletsDock() {
             <Button
               variant="outline"
               size="sm"
-              onClick={triggerSync}
-              disabled={isAutoSyncing}
+              onClick={resetConnection}
+              disabled={hasActiveSyncs}
               className="text-xs"
             >
-              <RefreshCw className={`size-3 mr-1 ${isAutoSyncing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`size-3 mr-1 ${hasActiveSyncs ? 'animate-spin' : ''}`} />
               Sync All
             </Button>
             <Button

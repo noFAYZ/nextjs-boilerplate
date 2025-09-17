@@ -318,7 +318,6 @@ export const cryptoMutations = {
   // Sync mutations
   useSyncWallet: () => {
     const queryClient = useQueryClient();
-    const { setSyncStatus } = useCryptoStore();
 
     return useMutation({
       mutationFn: ({ walletId, syncData }: { walletId: string; syncData?: SyncRequest }) =>
@@ -328,14 +327,8 @@ export const cryptoMutations = {
           const { walletId } = variables;
           const { jobId } = response.data;
 
-          // Update sync status in store
-          setSyncStatus(walletId, {
-            jobId,
-            status: 'queued',
-            startedAt: new Date().toISOString(),
-          });
-
-          // Start polling sync status
+          // SSE will handle sync status updates automatically
+          // Just invalidate queries to refresh UI data when sync completes
           queryClient.invalidateQueries({
             queryKey: cryptoKeys.syncStatus(walletId, jobId)
           });
