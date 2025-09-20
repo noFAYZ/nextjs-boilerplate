@@ -80,10 +80,44 @@ export class MultiWalletSyncTracker {
     return typeof EventSource !== 'undefined';
   }
 
-  private startSSE(): void {
+  private async testServerConnectivity(): Promise<void> {
+    try {
+      // First try a simple health check
+      const response = await fetch(`${this.API_BASE}/health`, {
+        method: 'GET',
+        credentials: 'include',
+        signal: AbortSignal.timeout(5000)
+      });
+
+      if (response.ok) {
+        // Test if the SSE endpoint exists (but don't establish connection)
+        const sseTest = await fetch(`${this.API_BASE}/crypto/user/sync/stream`, {
+          method: 'HEAD', // Just check if endpoint exists
+          credentials: 'include',
+          signal: AbortSignal.timeout(3000)
+        });
+      } else {
+        if (response.status === 401) {
+          throw new Error('Authentication required');
+        } else if (response.status === 403) {
+          throw new Error('Access forbidden');
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error('Server connection timeout');
+        } else if (error.message.includes('Authentication') || error.message.includes('forbidden')) {
+          throw error;
+        }
+      }
+      // Don't throw for connectivity test - let SSE attempt anyway
+    }
+  }
+
+  private async startSSE(): Promise<void> {
     try {
       if (this.isClosing) {
-     
         return;
       }
 
@@ -91,28 +125,27 @@ export class MultiWalletSyncTracker {
         return;
       }
 
-    
       this.cleanup();
-      this.startSSEWithEventSource();
+      await this.startSSEWithEventSource();
 
     } catch (error) {
-  
-      this.onError('Failed to start SSE connection');
+      this.onError(error instanceof Error ? error.message : 'Failed to start SSE connection');
       this.scheduleReconnect();
     }
   }
 
-  private startSSEWithEventSource(): void {
+  private async startSSEWithEventSource(): Promise<void> {
     try {
       const url = `${this.API_BASE}/crypto/user/sync/stream`;
-    
+
+      // Test basic connectivity first
+      await this.testServerConnectivity();
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
       });
 
       this.eventSource.onopen = () => {
-        
         this.onConnectionChange(true);
         this.reconnectAttempts = 0;
         this.connectionBackoffTime = 1000;
@@ -123,15 +156,21 @@ export class MultiWalletSyncTracker {
           const data = JSON.parse(event.data);
           this.handleSSEMessage(data);
         } catch (error) {
-         
+          console.error('Failed to parse SSE message:', error);
+          // Log the error but don't let it crash the connection
         }
       };
 
       this.eventSource.onerror = () => {
         this.onConnectionChange(false);
 
+        // Clean up the connection
         if (this.eventSource) {
-          this.eventSource.close();
+          try {
+            this.eventSource.close();
+          } catch (closeError) {
+            console.warn('Error closing EventSource:', closeError);
+          }
           this.eventSource = null;
         }
 
@@ -143,7 +182,6 @@ export class MultiWalletSyncTracker {
       };
 
     } catch (error) {
-      console.error('Failed to create EventSource:', error);
       this.onConnectionChange(false);
       this.onError(error instanceof Error ? error.message : 'SSE connection failed');
       this.scheduleReconnect();
@@ -165,11 +203,8 @@ export class MultiWalletSyncTracker {
     const jitter = Math.random() * 1000;
     const delay = baseDelay + jitter;
 
-
-
     this.reconnectTimeout = setTimeout(() => {
       if (!this.isClosing) {
-       
         this.startSSE();
       }
     }, delay);
@@ -189,80 +224,99 @@ export class MultiWalletSyncTracker {
     syncedData?: string[];
     estimatedTimeRemaining?: number;
   }): void {
- 
+    try {
+      // Use only 'type' field for message routing (matches backend)
+      switch (data.type) {
+        case 'connection_established':
+          break;
 
-    // Use only 'type' field for message routing (matches backend)
-    switch (data.type) {
-      case 'connection_established':
-        break;
+        case 'wallet_sync_progress':
+          if (data.walletId && data.progress !== undefined && data.status) {
+            const progressData: WalletSyncProgress = {
+              walletId: data.walletId,
+              progress: data.progress,
+              status: data.status as WalletSyncProgress['status'],
+              message: data.message,
+              error: data.error,
+              startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
+              completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
+              syncedData: data.syncedData
+            };
 
-      case 'wallet_sync_progress':
-        if (data.walletId && data.progress !== undefined && data.status) {
-          const progressData: WalletSyncProgress = {
-            walletId: data.walletId,
-            progress: data.progress,
-            status: data.status as WalletSyncProgress['status'],
-            message: data.message,
-            error: data.error,
-            startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
-            completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
-            syncedData: data.syncedData
-          };
-          
-         
-          this.onProgress(data.walletId, progressData);
-        } else {
-          console.warn('Invalid wallet_sync_progress message:', data);
-        }
-        break;
+            try {
+              this.onProgress(data.walletId, progressData);
+            } catch (callbackError) {
+              console.error('Error in onProgress callback:', callbackError);
+            }
+          } else {
+            console.warn('Invalid wallet_sync_progress message:', data);
+          }
+          break;
 
-      case 'wallet_sync_completed':
-        if (data.walletId) {
-        
-          this.onComplete(data.walletId, {
-            syncedData: data.syncedData,
-            completedAt: data.completedAt ? new Date(data.completedAt) : 
-                        data.timestamp ? new Date(data.timestamp) : new Date()
-          });
-        } else {
-          console.warn('Invalid wallet_sync_completed message:', data);
-        }
-        break;
+        case 'wallet_sync_completed':
+          if (data.walletId) {
+            try {
+              this.onComplete(data.walletId, {
+                syncedData: data.syncedData,
+                completedAt: data.completedAt ? new Date(data.completedAt) :
+                            data.timestamp ? new Date(data.timestamp) : new Date()
+              });
+            } catch (callbackError) {
+              console.error('Error in onComplete callback:', callbackError);
+            }
+          } else {
+            console.warn('Invalid wallet_sync_completed message:', data);
+          }
+          break;
 
-      case 'wallet_sync_failed':
-        if (data.walletId) {
-         
-          const errorMsg = data.error || 'Unknown error';
-          this.onError(`Wallet sync failed: ${errorMsg}`);
-          
-          // Also update progress state to failed
-          this.onProgress(data.walletId, {
-            walletId: data.walletId,
-            progress: 0,
-            status: 'failed',
-            error: errorMsg,
-            completedAt: data.timestamp ? new Date(data.timestamp) : new Date()
-          });
-        } else {
-          console.warn('Invalid wallet_sync_failed message:', data);
-        }
-        break;
+        case 'wallet_sync_failed':
+          if (data.walletId) {
+            const errorMsg = data.error || 'Unknown error';
+            try {
+              this.onError(`Wallet sync failed: ${errorMsg}`);
 
-      case 'heartbeat':
-     
-        // Reset heartbeat timeout
-        if (this.heartbeatTimeout) {
-          clearTimeout(this.heartbeatTimeout);
-        }
-        // Set timeout to detect missed heartbeats (45 seconds - 1.5x server interval)
-        this.heartbeatTimeout = setTimeout(() => {
-          console.warn('Heartbeat timeout - connection may be stale');
-          this.onConnectionChange(false);
-        }, 45000);
-        break;
+              // Also update progress state to failed
+              this.onProgress(data.walletId, {
+                walletId: data.walletId,
+                progress: 0,
+                status: 'failed',
+                error: errorMsg,
+                completedAt: data.timestamp ? new Date(data.timestamp) : new Date()
+              });
+            } catch (callbackError) {
+              console.error('Error in onError/onProgress callbacks:', callbackError);
+            }
+          } else {
+            console.warn('Invalid wallet_sync_failed message:', data);
+          }
+          break;
 
-      default:
-        console.warn('Unknown SSE message type:', data.type, 'Full message:', data);
+        case 'heartbeat':
+          try {
+            // Reset heartbeat timeout
+            if (this.heartbeatTimeout) {
+              clearTimeout(this.heartbeatTimeout);
+            }
+
+            // Set timeout to detect missed heartbeats (45 seconds - 1.5x server interval)
+            this.heartbeatTimeout = setTimeout(() => {
+              try {
+                this.onConnectionChange(false);
+              } catch (callbackError) {
+                console.error('Error in onConnectionChange from heartbeat timeout:', callbackError);
+              }
+            }, 45000);
+          } catch (heartbeatError) {
+            console.error('Error processing heartbeat:', heartbeatError);
+          }
+          break;
+
+        default:
+          console.warn('Unknown SSE message type:', data.type, 'Full message:', data);
+      }
+    } catch (error) {
+      console.error('Error processing SSE message:', error, 'Message:', data);
+      // Don't rethrow - this could be causing the connection error
     }
   }
 
@@ -308,7 +362,11 @@ export class MultiWalletSyncTracker {
       this.pollInterval = null;
     }
 
-    this.onConnectionChange(false);
+    try {
+      this.onConnectionChange(false);
+    } catch (callbackError) {
+      console.error('❌ Error in onConnectionChange callback during cleanup:', callbackError);
+    }
   }
 }
 
@@ -318,34 +376,49 @@ export function useWalletSyncProgress() {
   const { isAuthenticated } = useAuthStore();
 
   const handleProgress = useCallback((walletId: string, progress: WalletSyncProgress) => {
-  
-    
-    if (progress.status === 'failed' && progress.error) {
-      cryptoStore.failRealtimeSync(walletId, progress.error);
-    } else {
-      cryptoStore.updateRealtimeSyncProgress(
-        walletId,
-        progress.progress,
-        progress.status,
-        progress.message
-      );
+    try {
+      if (progress.status === 'failed' && progress.error) {
+        cryptoStore.failRealtimeSync(walletId, progress.error);
+      } else {
+        cryptoStore.updateRealtimeSyncProgress(
+          walletId,
+          progress.progress,
+          progress.status,
+          progress.message
+        );
+      }
+    } catch (error) {
+      console.error('Error in handleProgress:', error);
+      throw error; // Re-throw so SSE error handler can catch it
     }
   }, [cryptoStore]);
 
   const handleComplete = useCallback((walletId: string, result: { syncedData?: string[] }) => {
-
-    cryptoStore.completeRealtimeSync(walletId, result.syncedData);
-    refreshWalletData(walletId);
+    try {
+      cryptoStore.completeRealtimeSync(walletId, result.syncedData);
+      refreshWalletData(walletId);
+    } catch (error) {
+      console.error('Error in handleComplete:', error);
+      throw error; // Re-throw so SSE error handler can catch it
+    }
   }, [cryptoStore]);
 
   const handleError = useCallback((errorMsg: string) => {
-  
-    cryptoStore.setRealtimeSyncError(errorMsg);
+    try {
+      cryptoStore.setRealtimeSyncError(errorMsg);
+    } catch (error) {
+      console.error('Error in handleError:', error);
+      throw error; // Re-throw so SSE error handler can catch it
+    }
   }, [cryptoStore]);
 
   const handleConnectionChange = useCallback((connected: boolean) => {
-    
-    cryptoStore.setRealtimeSyncConnected(connected);
+    try {
+      cryptoStore.setRealtimeSyncConnected(connected);
+    } catch (error) {
+      console.error('Error in handleConnectionChange:', error);
+      throw error; // Re-throw so SSE error handler can catch it
+    }
   }, [cryptoStore]);
 
   const handleProgressRef = useRef(handleProgress);
@@ -367,6 +440,12 @@ export function useWalletSyncProgress() {
       return;
     }
 
+    // Prevent multiple simultaneous trackers
+    if (trackerRef.current) {
+      trackerRef.current.stopTracking();
+      trackerRef.current = null;
+    }
+
     const tracker = new MultiWalletSyncTracker(
       (walletId, progress) => handleProgressRef.current(walletId, progress),
       (walletId, result) => handleCompleteRef.current(walletId, result),
@@ -378,8 +457,10 @@ export function useWalletSyncProgress() {
     tracker.startTracking();
 
     return () => {
-      tracker.stopTracking();
-      trackerRef.current = null;
+      if (trackerRef.current) {
+        trackerRef.current.stopTracking();
+        trackerRef.current = null;
+      }
     };
   }, [isAuthenticated]);
 

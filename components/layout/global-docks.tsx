@@ -486,8 +486,13 @@ export function GlobalDocks() {
     userIdRef.current = user?.id;
   }
 
-  // Only show docks to authenticated users
-  if (!user) {
+  // Define public pages where docks should be hidden
+  const isPublicPage = pathname === '/' ||
+                      pathname.startsWith('/auth') ||
+                      pathname.startsWith('/onboarding')
+
+  // Only show docks to authenticated users and not on public pages
+  if (!user || isPublicPage) {
     return null
   }
 

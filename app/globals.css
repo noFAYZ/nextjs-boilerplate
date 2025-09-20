@@ -18,7 +18,7 @@
   --muted-foreground: oklch(0.6059 0.0075 97.4233);
   --accent: oklch(0.9248 0.0125 91.5235);
   --accent-foreground: oklch(0.2699 0.0211 103.7300);
-  --destructive: oklch(0.2174 0.0019 106.5582);
+  --destructive: #F92F60;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.8118 0.0152 102.5130);
@@ -46,7 +46,7 @@
 }
 
 .dark {
-  --background: oklch(0 0 0);
+  --background: oklch(10 0 20);
   --foreground: oklch(0.8074 0.0142 93.0137);
   --card: oklch(0.2054 0.0025 67.6857);
   --card-foreground: oklch(0.8378 0.0112 17.3800);
@@ -60,7 +60,7 @@
   --muted-foreground: oklch(0.6567 0 0);
   --accent: oklch(0.3540 0.0130 57.8503);
   --accent-foreground: oklch(0.8203 0 0);
-  --destructive: oklch(0.6434 0.2168 26.5004);
+  --destructive: #F92F60;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.3618 0.0101 106.8928);
   --input: oklch(0.4336 0.0113 100.2195);
@@ -100,7 +100,7 @@
   --muted-foreground: oklch(0.6059 0.0075 97.4233);
   --accent: oklch(0.9248 0.0125 91.5235);
   --accent-foreground: oklch(0.2699 0.0211 103.7300);
-  --destructive: oklch(0.2174 0.0019 106.5582);
+  --destructive: #d10a3c;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.8118 0.0152 102.5130);
@@ -128,7 +128,7 @@
 }
 
 .dark-pro {
-  --background: oklch(0 0 0);
+  --background: oklch(0.15 0 20);
   --foreground: oklch(0.9074 0.0142 93.0137);
   --card: oklch(0.2054 0.0025 57.6857);
   --card-foreground: oklch(0.9378 0.0112 17.3800);
@@ -142,7 +142,7 @@
   --muted-foreground: oklch(0.6567 0 0);
   --accent: oklch(0.3540 0.0130 57.8503);
   --accent-foreground: oklch(0.8203 0 0);
-  --destructive: oklch(0.6434 0.2168 26.5004);
+  --destructive: #8a0828;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.3018 0.0101 106.8928);
   --input: oklch(0.3036 0.0113 100.2195);
@@ -182,7 +182,7 @@
   --muted-foreground: #83827d;
   --accent: #e9e6dd;
   --accent-foreground: #28271b;
-  --destructive: #1a1a19;
+  --destructive: #ca360a;
   --destructive-foreground: #ffffff;
   --border: #dad9d4;
   --input: #c3c2b7;

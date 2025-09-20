@@ -25,7 +25,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateGroupDialog } from "./CreateGroupDialog";
 import { AddAccountToGroupDialog } from "./AddAccountToGroupDialog";
 import { DeleteGroupsDialog } from "./DeleteGroupsDialog";
-import { ProiconsFolderAdd, SolarWallet2Outline, StreamlineFlexWallet, StreamlineFlexWalletAdd } from "../icons/icons";
+import { ProiconsFolderAdd, SolarWallet2Outline, StreamlineFlexLabelFolderTag, StreamlineFlexWallet, StreamlineFlexWalletAdd } from "../icons/icons";
 import { Separator } from "../ui/separator";
 import {
   Accordion,
@@ -311,9 +311,10 @@ function GroupDetailsView({
       {hasAccounts ? (
         <div className="space-y-4">
           <Accordion
+          
             type="multiple"
             defaultValue={["bank-accounts", "crypto-wallets"]}
-            className="w-full space-y-3"
+            className="w-full "
           >
             {/* Bank Accounts Accordion */}
             {group.financialAccounts && group.financialAccounts.length > 0 && (
@@ -349,7 +350,7 @@ function GroupDetailsView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 ">
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4 ">
                     {group.financialAccounts.map((account, index) => (
                       <Card
                         key={account.id}
@@ -420,13 +421,13 @@ function GroupDetailsView({
             {group.cryptoWallets && group.cryptoWallets.length > 0 && (
               <AccordionItem
                 value="crypto-wallets"
-                className="border rounded-lg"
+                className="border rounded-2xl"
               >
-                <AccordionTrigger className="text-sm sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-muted/50 border-none">
+                <AccordionTrigger className="text-sm bg-muted/60 sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-muted/50 rounded-t-2xl aria-expanded:rounded-b-none">
                   <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="size-8 sm:size-10 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 shrink-0">
-                        <Wallet className="size-4 sm:size-5 text-amber-600 dark:text-amber-400" />
+                      <div className="size-8 sm:size-10 rounded-lg flex items-center justify-center bg-accent shrink-0">
+                        <StreamlineFlexWallet className="size-4 sm:size-5 " />
                       </div>
                       <div className="flex flex-col items-start min-w-0">
                         <span className="font-semibold truncate">
@@ -456,12 +457,12 @@ function GroupDetailsView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 ">
+                  <div className="grid grid-cols-1 sm:grid-cols-2  gap-3 sm:gap-4 ">
                     {group.cryptoWallets.map((wallet, index) => (
                       <Card
                         key={wallet.id}
                         className={`
-                          group transition-all duration-200 cursor-pointer hover:shadow-md
+                          group transition-all duration-75 py-0 cursor-pointer hover:shadow-md
                           ${selectedWallets.has(wallet.id) ? "ring-2 ring-amber-500/50 bg-amber-50/50 dark:bg-amber-900/20" : ""}
                         `}
                         onClick={() => handleWalletClick(wallet)}
@@ -490,8 +491,8 @@ function GroupDetailsView({
                                   </div>
                                 </div>
                               )}
-                              <div className="size-10 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30">
-                                <Wallet className="size-5 text-amber-600 dark:text-amber-400" />
+                              <div className="size-10 rounded-lg flex items-center justify-center bg-muted">
+                                <StreamlineFlexWallet className="size-5 " />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm">
@@ -774,9 +775,6 @@ export function AccountGroupsGrid({
             size="sm" 
             onClick={() => fetchGroups({
               details: true,
-              includeAccounts: true,
-              includeWallets: true,
-              includeCounts: true,
             })}
           >
             Retry
@@ -811,26 +809,25 @@ export function AccountGroupsGrid({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
-            <FolderOpen className="size-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight">Account Groups</h2>
-            <p className="text-sm text-muted-foreground">
-              {displayGroups?.length || 0} group{(displayGroups?.length || 0) !== 1 ? 's' : ''}
-              {hasMore && ` of ${groups.length}`}
-            </p>
-          </div>
-        </div>
+      <div className="flex items-center gap-3">
+              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
+                <StreamlineFlexLabelFolderTag className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold tracking-tight">Groups</h1>
+                <p className="text-xs text-muted-foreground">
+                  Monitor and manage your crypto wallets and bank accounts 
+                </p>
+              </div>
+            </div>
         
         {/* Create and Delete buttons */}
         <div className="flex items-center gap-2">
           {!isDeleteMode ? (
             <>
               <Button 
-                variant="soft" 
-                size="sm"
+                variant="secondary" 
+                size="xs"
                 onClick={handleEnterDeleteMode}
                 disabled={displayGroups.filter(g => !g.isDefault).length === 0}
                 className="flex items-center gap-2 text-xs"
@@ -840,7 +837,7 @@ export function AccountGroupsGrid({
               </Button>
               <Button
                 onClick={handleCreateGroup}
-                size="sm"
+                size="xs"
                 className="flex items-center gap-2 text-xs"
                 disabled={isDeleteMode}
               >
@@ -852,18 +849,18 @@ export function AccountGroupsGrid({
           ) : (
             <div className="flex items-center gap-2">
               <Button 
-                variant="destructive" 
-                size="sm"
+         
+                size="xs"
                 onClick={handleBulkDelete}
                 disabled={selectedForDeletion.length === 0}
-                className="flex items-center gap-2 text-xs"
+                className="flex items-center gap-2 text-xs bg-destructive"
               >
                 <Trash2 className="size-4" />
                 Delete ({selectedForDeletion.length})
               </Button>
               <Button 
                 variant="outline" 
-                size="sm"
+                size="xs"
                 onClick={handleExitDeleteMode}
                 className="text-xs"
               >
@@ -876,7 +873,7 @@ export function AccountGroupsGrid({
       
       {/* Delete Mode Info */}
       {isDeleteMode && (
-        <Card variant="destructive" className="animate-slide-down">
+        <Card variant="destructive" className="animate-slide-down py-0">
           <CardContent className="p-2">
             <div className="flex items-start gap-3">
               <div className="size-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 mt-1">
@@ -924,22 +921,20 @@ export function AccountGroupsGrid({
       )}
 
       {/* Groups Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ">
+      <div className="grid grid-cols-1  gap-4 ">
         {displayGroups.map((group, index) => {
           const totalValue = groupTotalValues[group.id] || 0;
           const accountsCount = (group._count?.financialAccounts || 0) + (group._count?.cryptoWallets || 0);
 
           return (
             <Card
-              key={group.id}
-              variant={isDeleteMode && selectedForDeletion.includes(group.id) ? 'elevated' : 'outlined'}
-              interactive={!isDeleteMode || !group.isDefault}
-              className={`
-                relative py-4 click-shrink
+              key={group.id}    
+              className={` border bg-muted/60 rounded-xl hover:bg-muted
+                relative py-4 cursor-pointer
                 ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
-                ${isDeleteMode ? 'hover:scale-100' : ''}
+                ${isDeleteMode ? '' : ''}
               `}
-              style={{ animationDelay: `${index * 100}ms` }}
+             
               onClick={() => handleGroupClick(group)}
             >
               {/* Selection indicator for delete mode */}
@@ -963,7 +958,7 @@ export function AccountGroupsGrid({
                 </div>
               )}
               
-              <CardHeader >
+              <CardHeader className="pb-0" >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     {/* Group Icon */}
@@ -971,7 +966,7 @@ export function AccountGroupsGrid({
                       className="size-10 rounded-lg flex items-center justify-center text-lg font-semibold shadow-sm"
                       style={{
                         backgroundColor: group.color
-                          ? `${group.color}25`
+                          ? `${group.color}40`
                           : "hsl(var(--muted))",
                         color: group.color || "hsl(var(--muted-foreground))",
                  
@@ -1000,7 +995,7 @@ export function AccountGroupsGrid({
                 {totalValue > 0 && (
                   <div className="">
                     <div className="text-[10px] text-muted-foreground text-end ">Total Value</div>
-                    <div className="text-base font-bold text-foreground">
+                    <div className="text-base font-semibold text-foreground">
                       ${totalValue.toLocaleString()}
                     </div>
                   </div>
@@ -1018,26 +1013,26 @@ export function AccountGroupsGrid({
               <CardContent className="pt-0 ">
              
                 {/* Account Types Summary */}
-                <div className="flex items-baseline gap-3">
-                  <div className="flex items-center gap-2  ">
-                    <div className="size-8 rounded-lg bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center shadow-sm">
-                      <Building2 className="size-5 text-white" />
+                <div className="flex items-baseline gap-2">
+                  <div className="flex items-center gap-1 ">
+                    <div className="size-6 rounded-sm bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
+                      <Building2 className="size-4 text-white" />
                     </div>
                     <div className="min-w-0">
                    
-                      <div className="text-sm font-bold text-green-800 dark:text-green-200">
+                      <div className="text-sm font-semibold text-foreground ">
                         {group._count?.financialAccounts || 0}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 ">
-                    <div className="size-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
-                      <StreamlineFlexWallet className="size-5 text-white" />
+                    <div className="size-6 rounded-sm bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
+                      <StreamlineFlexWallet className="size-4 text-white" />
                     </div>
                     <div className="min-w-0">
                       
-                      <div className="text-sm font-bold text-amber-800 dark:text-amber-200">
+                      <div className="text-sm font-semibold text-foreground">
                         {group._count?.cryptoWallets || 0}
                       </div>
                     </div>

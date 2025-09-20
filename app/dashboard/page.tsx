@@ -23,7 +23,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button  variant="secondary" size={'xs'} size="sm">
             <Bell className="h-4 w-4" />
           </Button>
         </div>
@@ -98,19 +98,19 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="flex flex-col gap-2">
                   <Link href="/dashboard/wallets/crypto">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start" variant="secondary" size={'xs'}>
                       <Wallet className="w-4 h-4 mr-2" />
                       Crypto Wallets (2)
                     </Button>
                   </Link>
                   <Link href="/dashboard/wallets/bank">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start"  variant="secondary" size={'xs'}>
                       <CreditCard className="w-4 h-4 mr-2" />
                       Bank Accounts (6)
                     </Button>
                   </Link>
                   <Link href="/dashboard/wallets/add">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start"  variant="secondary" size={'xs'}>
                       <User className="w-4 h-4 mr-2" />
                       Add New Wallet
                     </Button>
@@ -130,19 +130,19 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="flex flex-col gap-2">
                   <Link href="/dashboard/portfolio">
-                    <Button className="justify-start" variant="outline">
+                    <Button className="justify-start"  variant="secondary" size={'xs'}>
                       <PieChart className="w-4 h-4 mr-2" />
                       Portfolio Overview
                     </Button>
                   </Link>
                   <Link href="/dashboard/portfolio/holdings">
-                    <Button className="justify-start" variant="outline">
+                    <Button className="justify-start"  variant="secondary" size={'xs'}>
                       <FileText className="w-4 h-4 mr-2" />
                       View Holdings
                     </Button>
                   </Link>
                   <Link href="/dashboard/portfolio/performance">
-                    <Button className="justify-start" variant="outline">
+                    <Button className="justify-start"  variant="secondary" size={'xs'}>
                       <Activity className="w-4 h-4 mr-2" />
                       Performance
                     </Button>
@@ -162,19 +162,19 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="flex flex-col gap-2">
                   <Link href="/dashboard/profile">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start"  variant="secondary" size={'xs'}>
                       <User className="w-4 h-4 mr-2" />
                       Profile Settings
                     </Button>
                   </Link>
                   <Link href="/dashboard/goals">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start"  variant="secondary" size={'xs'}>
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Financial Goals
                     </Button>
                   </Link>
                   <Link href="/dashboard/subscription">
-                    <Button className=" justify-start" variant="outline">
+                    <Button className=" justify-start"  variant="secondary" size={'xs'}>
                       <CreditCard className="w-4 h-4 mr-2" />
                       Subscription
                     </Button>
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 
                 <div className="pt-4 w-full flex justify-center">
                   <Link href="/dashboard/transactions">
-                    <Button variant="outline" className="">
+                    <Button  variant="secondary" size={'xs'} className="">
                       <ArrowDown size={16} /> View All
                     </Button>
                   </Link>

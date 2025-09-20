@@ -1,348 +1,307 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  ArrowLeft,
-  FolderOpen,
-  Grid3X3,
-  List,
-  TreePine,
-  BarChart3,
-  Wallet,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Building,
   Building2,
-  GitMerge,
-  Move,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { AccountGroupsList } from '@/components/accounts/AccountGroupsList';
-import { useGroupedAccounts, useAccountGroupsHierarchy } from '@/lib/hooks/use-account-groups';
-import { useAccountGroupsStore } from '@/lib/stores';
-import type { AccountGroup } from '@/lib/types/account-groups';
-import { DeleteGroupsDialog } from '@/components/accounts/DeleteGroupsDialog';
-import { ProgressDialog } from '@/components/ui/progress-dialog';
-import { createOperationItem } from '@/lib/types/progress';
-import type { OperationItem } from '@/lib/types/progress';
+  Store,
+  FolderOpen,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Wallet,
+  CreditCard,
+  ArrowUpRight,
+  Eye,
+  MoreHorizontal,
+  Activity,
+  Heart,
+  SearchIcon
+} from "lucide-react";
+import Link from "next/link";
+import StreamlineUltimateAccountingCoins, { GuidanceBank, MageDashboard, SolarWalletBoldDuotone, StreamlineFlexWallet } from "@/components/icons/icons";
+import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
+import { useGroupedAccounts } from "@/lib/hooks/use-account-groups";
+import type { AccountGroup } from "@/lib/types/account-groups";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function AccountGroupsPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('list');
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isMergeDialogOpen, setIsMergeDialogOpen] = useState(false);
-  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+const ACCOUNT_TYPES = [
+  {
+    id: "wallet",
+    title: "Crypto Wallets",
+    description:
+      "Connect and track your cryptocurrency wallets across multiple networks",
+    icon: SolarWalletBoldDuotone,
+    href: "/dashboard/accounts/wallet",
+    addHref: "/dashboard/accounts/wallet/add",
+    color: "from-orange-500/60 to-pink-600/60",
+    features: [
+      "Multi-network support",
+      "Real-time balance tracking",
+      "Transaction history",
+      "DeFi positions",
+    ],
+    status: "active",
+    count: "5 wallets",
+  },
+  {
+    id: "bank",
+    title: "Bank Accounts",
+    description:
+      "Link your traditional banking accounts for complete financial visibility",
+    icon: Building2,
+    href: "/dashboard/accounts/bank",
+    addHref: "/dashboard/accounts/bank/add",
+    color: "from-green-500 to-blue-600",
+    features: [
+      "Account balances",
+      "Transaction categorization",
+      "Bill tracking",
+      "Spending analysis",
+    ],
+    status: "coming-soon",
+    count: "Coming soon",
+  },
+  {
+    id: "exchange",
+    title: "Exchanges",
+    description: "Connect cryptocurrency exchanges via secure API keys",
+    icon: Building,
+    href: "/dashboard/accounts/exchange",
+    addHref: "/dashboard/accounts/exchange/add",
+    color: "from-orange-500 to-red-600",
+    features: [
+      "Trading analytics",
+      "Portfolio tracking",
+      "P&L analysis",
+      "Multi-exchange view",
+    ],
+    status: "coming-soon",
+    count: "Coming soon",
+  },
+  {
+    id: "service",
+    title: "Business Services",
+    description:
+      "Integrate with business tools like Shopify, QuickBooks, and payment processors",
+    icon: Store,
+    href: "/dashboard/accounts/service",
+    addHref: "/dashboard/accounts/service/add",
+    color: "from-indigo-500 to-purple-600",
+    features: [
+      "Revenue tracking",
+      "Expense management",
+      "Tax reporting",
+      "Business insights",
+    ],
+    status: "coming-soon",
+    count: "Coming soon",
+  },
+];
+
+// Enhanced Account Type Card Component
+function EnhancedAccountTypeCard({
+  accountType,
+  index,
+}: {
+  accountType: (typeof ACCOUNT_TYPES)[0];
+  index: number;
+}) {
+  const isActive = accountType.status === "active";
   
-  const { stats } = useGroupedAccounts();
-  const groups = useAccountGroupsStore((state) => state.groups);
-  const deleteGroup = useAccountGroupsStore((state) => state.deleteGroup);
-  // Create stable options object to prevent infinite re-renders
-  const hierarchyOptions = useMemo(() => ({
-    details: true,
-    includeAccounts: true,
-    includeWallets: true,
-    includeCounts: true,
-  }), []);
-  
-  const { hierarchy, isLoading: isLoadingHierarchy } = useAccountGroupsHierarchy(hierarchyOptions);
-
-  const handleGroupSelect = (group: AccountGroup) => {
-    // Navigate to individual group page
-    router.push(`/dashboard/accounts/groups/${group.id}`);
-  };
-
-  const handleBulkAction = (action: 'delete' | 'merge' | 'move') => {
-    if (selectedGroups.length === 0) return;
-    
-    switch (action) {
-      case 'delete':
-        setIsDeleteDialogOpen(true);
-        break;
-      case 'merge':
-        setIsMergeDialogOpen(true);
-        break;
-      case 'move':
-        setIsMoveDialogOpen(true);
-        break;
+  const CardWrapper = ({ children }: { children: React.ReactNode }) => {
+    if (isActive) {
+      return (
+        <Link href={accountType.href}>
+          <Card className={cn(
+            "group relative overflow-hidden cursor-pointer transition-all duration-100 hover:shadow-2xl",
+            "  border-1 hover:border-primary/20",
+            "bg-gradient-to-br from-background to-muted/30"
+          )}>
+            {children}
+          </Card>
+        </Link>
+      );
     }
-  };
-
-  const handleDeleteConfirm = async (groupIds: string[]) => {
-    const successGroups: string[] = [];
-    const failedGroups: string[] = [];
-    
-    for (const groupId of groupIds) {
-      try {
-        const success = await deleteGroup(groupId);
-        if (success) {
-          successGroups.push(groupId);
-        } else {
-          failedGroups.push(groupId);
-        }
-      } catch (error) {
-        failedGroups.push(groupId);
-      }
-    }
-    
-    return { success: successGroups, failed: failedGroups };
-  };
-
-  const handleMergeConfirm = async (groupIds: string[]) => {
-    // Simulate merge operation - in real app this would merge groups
-    const successGroups: string[] = [];
-    const failedGroups: string[] = [];
-    
-    // For demo, simulate some successes and failures
-    for (const groupId of groupIds) {
-      // Simulate merge logic here
-      const success = Math.random() > 0.2; // 80% success rate for demo
-      if (success) {
-        successGroups.push(groupId);
-      } else {
-        failedGroups.push(groupId);
-      }
-    }
-    
-    return { success: successGroups, failed: failedGroups };
-  };
-
-  const handleMoveConfirm = async (groupIds: string[]) => {
-    // Simulate move operation - in real app this would move accounts between groups
-    const successGroups: string[] = [];
-    const failedGroups: string[] = [];
-    
-    // For demo, simulate some successes and failures
-    for (const groupId of groupIds) {
-      // Simulate move logic here
-      const success = Math.random() > 0.1; // 90% success rate for demo
-      if (success) {
-        successGroups.push(groupId);
-      } else {
-        failedGroups.push(groupId);
-      }
-    }
-    
-    return { success: successGroups, failed: failedGroups };
-  };
-
-  const getSelectedGroupsData = () => {
-    return groups.filter(group => selectedGroups.includes(group.id));
+    return (
+      <Card className={cn(
+        "relative overflow-hidden opacity-60 border-dashed",
+        "bg-gradient-to-br from-muted/30 to-muted/60"
+      )}>
+        {children}
+      </Card>
+    );
   };
 
   return (
-    <div className="mx-auto py-6 max-w-7xl space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/accounts" className="inline-flex items-center">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Accounts
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">Account Groups</h1>
-            <p className="text-muted-foreground">
-              Organize your financial accounts and crypto wallets into custom groups
-            </p>
+    <CardWrapper>
+      <CardContent className="p-3 relative">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/10 to-primary/20" />
+        </div>
+  
+        <div className="relative space-y-4">
+          {/* Icon and Title */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-100",
+                  "bg-gradient-to-br shadow-lg",
+                  accountType.color,
+       
+                )}
+              >
+                <accountType.icon className="h-6 w-6 text-white" />
+              </div>
+              
+              
+                <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {accountType.title}
+                </h3>
+          
+            </div>
+            
+            {isActive && (
+              <ArrowUpRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-100" />
+            )}
+          </div>
+
+          {/* Features */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Badge
+                variant={isActive ? "default" : "secondary"}
+                className="text-[10px] rounded-md px-2 py-0"
+              >
+                {isActive ? "Active" : "Coming Soon"}
+              </Badge>
+              <span className="text-xs font-semibold text-muted-foreground">
+                {accountType.count}
+              </span>
+            </div>
+            
+          
           </div>
         </div>
-      </div>
+        
+        {/* Hover Effect Overlay */}
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        )}
+      </CardContent>
+    </CardWrapper>
+  );
+}
 
-      {/* Bulk Actions Bar */}
-      {selectedGroups.length > 0 && (
-        <Card>
+export default function AccountsPage() {
+  const { stats } = useGroupedAccounts();
+
+  const handleGroupSelect = (group: AccountGroup) => {
+    // Navigate to group detail page or show group contents
+  };
+
+  return (
+
+      <div className="mx-auto max-w-3xl space-y-8 p-6">
+        {/* Page Header 
+  
+
+
+        <Card className="border-dashed border-2 hover:border-solid hover:bg-muted/90 bg-muted/70 py-0 transition-all duration-100">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Badge variant="secondary">
-                  {selectedGroups.length} group{selectedGroups.length > 1 ? 's' : ''} selected
-                </Badge>
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Plus className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm">Quick Actions</h3>
+                  <p className="text-xs text-muted-foreground">Add accounts, create groups, or connect new services</p>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkAction('move')}
-                >
-                  Move Accounts
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="text-xs">
+                  <Building2 className="h-3 w-3 mr-1" />
+                  Add Bank
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkAction('merge')}
-                >
-                  Merge Groups
+                <Button variant="outline" size="sm" className="text-xs">
+                  <StreamlineFlexWallet className="h-3 w-3 mr-1" />
+                  Add Wallet
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleBulkAction('delete')}
-                >
-                  Delete Groups
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedGroups([])}
-                >
-                  Clear Selection
+                <Button size="sm" className="text-xs">
+                  <FolderOpen className="h-3 w-3 mr-1" />
+                  Create Group
                 </Button>
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card> */}
 
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="" variant={'pill'}>
-          <TabsTrigger value="list" className="flex items-center gap-2" variant={'pill'}>
-            <Grid3X3 className="h-4 w-4" />
-            Grid View
-          </TabsTrigger>
-          <TabsTrigger value="table" className="flex items-center gap-2" variant={'pill'}>
-            <List className="h-4 w-4" />
-            List View
-          </TabsTrigger>
-          <TabsTrigger value="hierarchy" className="flex items-center gap-2" variant={'pill'}>
-            <TreePine className="h-4 w-4" />
-            Hierarchy
-          </TabsTrigger>
-        </TabsList>
+        {/* Enhanced Account Types Section 
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Account Types</h2>
+              <p className="text-sm text-muted-foreground">Connect different types of financial accounts</p>
+            </div>
+            <Button variant="ghost" size="sm" className="text-xs">
+              View All
+              <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {ACCOUNT_TYPES.map((accountType, index) => (
+              <EnhancedAccountTypeCard 
+                key={accountType.id} 
+                accountType={accountType}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>*/}
 
-        <TabsContent value="list" className="space-y-6">
-          <AccountGroupsList
+        {/* Account Groups with Enhanced Design */}
+        <div className="space-y-6">
+          <AccountGroupsGrid
             onGroupSelect={handleGroupSelect}
-            showCreateButton={true}
-            viewMode="grid"
-            allowSelection={true}
-            selectedGroups={selectedGroups}
-            onSelectionChange={setSelectedGroups}
+            limit={5}
           />
-        </TabsContent>
-
-        <TabsContent value="table" className="space-y-6">
-          <AccountGroupsList
-            onGroupSelect={handleGroupSelect}
-            showCreateButton={true}
-            viewMode="list"
-            allowSelection={true}
-            selectedGroups={selectedGroups}
-            onSelectionChange={setSelectedGroups}
-          />
-        </TabsContent>
-
-        <TabsContent value="hierarchy" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Group Hierarchy</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingHierarchy ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-muted-foreground">Loading hierarchy...</div>
-                </div>
-              ) : hierarchy.length === 0 ? (
-                <div className="text-center py-8">
-                  <TreePine className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No hierarchical groups found</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {hierarchy.map((group) => (
-                    <div key={group.id} className="space-y-2">
-                      {/* Top level group */}
-                      <div className="flex items-center gap-3 p-3 border rounded-lg">
-                        <div
-                          className="h-8 w-8 rounded flex items-center justify-center text-sm"
-                          style={{
-                            backgroundColor: group.color ? `${group.color}20` : undefined,
-                            color: group.color || 'inherit',
-                          }}
-                        >
-                          {group.icon || '📁'}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium">{group.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {(group._count?.financialAccounts || 0) + (group._count?.cryptoWallets || 0)} accounts
-                          </div>
-                        </div>
-                        {group.isDefault && (
-                          <Badge variant="secondary" className="text-xs">
-                            Default
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Child groups */}
-                      {group.children?.map((child) => (
-                        <div key={child.id} className="ml-6 flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
-                          <div
-                            className="h-6 w-6 rounded flex items-center justify-center text-xs"
-                            style={{
-                              backgroundColor: child.color ? `${child.color}20` : undefined,
-                              color: child.color || 'inherit',
-                            }}
-                          >
-                            {child.icon || '📁'}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{child.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {(child._count?.financialAccounts || 0) + (child._count?.cryptoWallets || 0)} accounts
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Progress Dialogs */}
-      <DeleteGroupsDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        groups={getSelectedGroupsData()}
-        onConfirm={handleDeleteConfirm}
-      />
-
-      <ProgressDialog
-        open={isMergeDialogOpen}
-        onOpenChange={setIsMergeDialogOpen}
-        items={getSelectedGroupsData().map(group => createOperationItem(group.id, group.name))}
-        onConfirm={handleMergeConfirm}
-        title="Merge Account Groups"
-        description="Merging selected account groups. This will combine all accounts and settings into a single group."
-        confirmButtonText="Merge Groups"
-        destructive={false}
-        icon={GitMerge}
-        iconColor="text-purple-600"
-        iconBgColor="bg-purple-100 dark:bg-purple-900/20"
-      />
-
-      <ProgressDialog
-        open={isMoveDialogOpen}
-        onOpenChange={setIsMoveDialogOpen}
-        items={getSelectedGroupsData().map(group => createOperationItem(group.id, `Move accounts from ${group.name}`))}
-        onConfirm={handleMoveConfirm}
-        title="Move Account Groups"
-        description="Moving accounts between selected groups. This will reorganize your account structure."
-        confirmButtonText="Move Accounts"
-        destructive={false}
-        icon={Move}
-        iconColor="text-indigo-600"
-        iconBgColor="bg-indigo-100 dark:bg-indigo-900/20"
-      />
-    </div>
+          {/*  <Tabs defaultValue="tab1" className="flex flex-col gap-2">
+            <TabsList variant="minimal" size="default">
+              <TabsTrigger variant="minimal" value="tab1">
+                <StreamlineUltimateAccountingCoins className="w-5 h-5" />
+                Assets
+              </TabsTrigger>
+              <TabsTrigger variant="minimal" value="tab2">
+                <SearchIcon className="w-5 h-5" />
+                Explore
+              </TabsTrigger>
+              <TabsTrigger variant="minimal" value="tab3">
+                <Heart className="w-5 h-5" />
+                Favorites
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="tab1" className="mt-4 p-4 bg-background rounded-lg">
+              <p className="text-muted-foreground">Floating action tabs with elevated design and shadow effects.</p>
+            </TabsContent>
+          </Tabs> */}
+        </div>
+      </div>
+   
   );
 }

@@ -21,9 +21,11 @@ import {
   DollarSign,
   Clock,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Settings,
+  Trash2,
+  X
 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -34,21 +36,30 @@ import { botttsNeutral } from '@dicebear/collection';
 import {
   useWallets,
   useSyncManager,
-  useFilterManager
+  useFilterManager,
+  useDeleteWallet
 } from '@/lib/hooks/use-crypto';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
 import {  SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
+import { AddWalletModal } from '@/components/crypto/AddWalletModal';
+import { SyncStatusIndicator } from '@/components/crypto/SyncStatusIndicator';
+import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
+import { LogoLoader } from '@/components/icons';
 
 interface WalletCardProps {
   wallet: CryptoWallet;
   onWalletClick: (wallet: CryptoWallet) => void;
   onCopyAddress: (address: string, e: React.MouseEvent) => void;
   getNetworkExplorerUrl: (network: string, address: string) => string;
+  isManageMode?: boolean;
+  isSelected?: boolean;
+  onSelect?: (walletId: string, selected: boolean) => void;
+  onSyncStatusClick?: (walletId: string) => void;
 }
 
-function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUrl }: WalletCardProps) {
+function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUrl, isManageMode = false, isSelected = false, onSelect, onSyncStatusClick }: WalletCardProps) {
   const { realtimeSyncStates } = useCryptoStore();
   const avataUrl = createAvatar(botttsNeutral, {
     size: 128,
@@ -86,21 +97,54 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
 
   
 
+  const handleCardClick = () => {
+    if (isManageMode && onSelect) {
+      onSelect(wallet.id, !isSelected);
+    } else {
+      onWalletClick(wallet);
+    }
+  };
+
   return (
     <div
-      className="group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer"
-      onClick={() => onWalletClick(wallet)}
+      className={cn(
+        "group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer",
+        isSelected && " border-primary/55 "
+      )}
+      onClick={handleCardClick}
     >
       <div className="px-4 py-3">
         <div className="flex items-center gap-3">
+          {/* Selection Checkbox in Manage Mode */}
+          {isManageMode && (
+            <div className="flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  onSelect?.(wallet.id, e.target.checked);
+                }}
+                className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+              />
+            </div>
+          )}
+
           {/* Compact Avatar */}
           <div className="relative flex-shrink-0">
             <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
               <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
             </div>
-            <div className="absolute -top-1 -right-1 h-5 w-5 bg-background rounded-full flex items-center justify-center border border-border">
+            <button
+              className="absolute -top-1 -right-1 h-5 w-5 bg-background rounded-full flex items-center justify-center border border-border hover:bg-muted transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSyncStatusClick?.(wallet.id);
+              }}
+              title="View sync status"
+            >
               {getSyncStatusIcon()}
-            </div>
+            </button>
           </div>
 
           {/* Wallet Name & Network */}
@@ -194,11 +238,16 @@ export default function WalletsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'balance' | 'lastSync'>('balance');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [isManageMode, setIsManageMode] = useState(false);
+  const [selectedWallets, setSelectedWallets] = useState<Set<string>>(new Set());
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
 
   // Use custom hooks
   const { wallets, isLoading, error } = useWallets();
   const { syncAllWallets, hasActiveSyncs, isSyncing, getActiveSyncs } = useSyncManager();
   const { setNetworkFilter, clearFilters, hasActiveFilters } = useFilterManager();
+  const deleteWallet = useDeleteWallet();
 
   // Get data from store with memoized selectors
   const { filters: storeFilters } = useCryptoStore();
@@ -253,6 +302,54 @@ export default function WalletsPage() {
     syncAllWallets();
   };
 
+  const handleSyncComplete = () => {
+    setSyncingWalletId(null);
+  };
+
+  const handleSyncStatusClick = (walletId: string) => {
+    setSyncingWalletId(walletId);
+  };
+
+  const handleManageMode = () => {
+    setIsManageMode(!isManageMode);
+    setSelectedWallets(new Set()); // Clear selections when toggling mode
+  };
+
+  const handleWalletSelect = (walletId: string, selected: boolean) => {
+    const newSelected = new Set(selectedWallets);
+    if (selected) {
+      newSelected.add(walletId);
+    } else {
+      newSelected.delete(walletId);
+    }
+    setSelectedWallets(newSelected);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedWallets.size === 0) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedWallets.size} wallet${selectedWallets.size > 1 ? 's' : ''}? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Delete all selected wallets
+      const deletePromises = Array.from(selectedWallets).map(walletId =>
+        deleteWallet.mutateAsync(walletId)
+      );
+
+      await Promise.all(deletePromises);
+
+      // Clear selections and exit manage mode
+      setSelectedWallets(new Set());
+      setIsManageMode(false);
+    } catch (error) {
+      console.error('Failed to delete wallets:', error);
+    }
+  };
+
   const getNetworkExplorerUrl = (network: string, address: string) => {
     const explorers = {
       ETHEREUM: `https://etherscan.io/address/${address}`,
@@ -296,22 +393,33 @@ export default function WalletsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen ">
         <div className="max-w-7xl mx-auto p-4 lg:p-6">
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-lg font-medium">Loading your wallets...</span>
+
+        <div className="flex justify-center items-center gap-3">
+          <div className="flex flex-col items-center justify-center  bg-accent p-12 rounded-3xl">
+            <div>
+              <LogoLoader className="h-16 w-16   mx-auto mb-4" />
             </div>
+    
+           
+              <span className="text-sm font-medium">Loading your wallets...</span>
+            </div>
+
           </div>
+
+
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-4">
+    <>
+
+
+
+      <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-4">
         {/* Modern Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
@@ -329,12 +437,32 @@ export default function WalletsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {isManageMode && selectedWallets.size > 0 && (
+              <Button
+                onClick={handleDeleteSelected}
+                disabled={deleteWallet.isPending}
+                variant="destructive"
+                size="xs"
+              >
+                {deleteWallet.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete ({selectedWallets.size})
+                  </>
+                )}
+              </Button>
+            )}
+
             <Button
               onClick={handleSyncAll}
-              disabled={isSyncing || hasActiveSyncs()}
+              disabled={isSyncing || hasActiveSyncs() || isManageMode}
               variant="outline"
               size="xs"
-         
             >
               {isSyncing || hasActiveSyncs() ? (
                 <>
@@ -348,12 +476,35 @@ export default function WalletsPage() {
                 </>
               )}
             </Button>
-            <Button asChild size="xs">
-              <Link href="/dashboard/accounts/wallet/add" className="inline-flex items-center">
+
+            <Button
+              onClick={handleManageMode}
+              variant={isManageMode ? "default" : "outline"}
+              size="xs"
+              disabled={isSyncing || hasActiveSyncs()}
+            >
+              {isManageMode ? (
+                <>
+                  <X className="h-4 w-4 mr-1" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Settings className="h-4 w-4 mr-1" />
+                  Manage
+                </>
+              )}
+            </Button>
+
+            {!isManageMode && (
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                size="xs"
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 Add Wallet
-              </Link>
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -438,24 +589,17 @@ export default function WalletsPage() {
             </div>*/}
       
 
-        {/* Active Sync Status */}
-        {hasActiveSyncs() && (
-          <Card variant="outlined" className="border-primary/20 bg-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Activity className="h-5 w-5 text-primary animate-pulse" />
-                <div>
-                  <p className="font-medium">
-                    Syncing {getActiveSyncs().length} wallet{getActiveSyncs().length > 1 ? 's' : ''}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Your wallet data is being updated with the latest information
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Sync Status Indicator 
+        <Card className='p-4'>
+</Card>*/}
+
+            <SyncStatusIndicator
+              variant="compact"
+              showProgress={true}
+              showLastSync={true}
+              showTrigger={true}
+            />
+    
 
         {/* Wallets Display */}
    
@@ -488,16 +632,17 @@ export default function WalletsPage() {
                   }
                 </p>
                 {wallets.length === 0 && (
-                  <Button asChild size="lg">
-                    <Link href="/dashboard/accounts/wallet/add" className="inline-flex items-center">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Connect Your First Wallet
-                    </Link>
+                  <Button
+                    onClick={() => setIsAddModalOpen(true)}
+                    size="lg"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Connect Your First Wallet
                   </Button>
                 )}
               </div>
             ) : (
-              <div className="grid md:grid-cols-3  gap-4">
+              <div className="grid md:grid-cols-1  gap-4">
                 {processedWallets.map((wallet) => (
                   <WalletCard
                     key={wallet.id}
@@ -505,12 +650,56 @@ export default function WalletsPage() {
                     onWalletClick={handleWalletClick}
                     onCopyAddress={handleCopyAddress}
                     getNetworkExplorerUrl={getNetworkExplorerUrl}
+                    isManageMode={isManageMode}
+                    isSelected={selectedWallets.has(wallet.id)}
+                    onSelect={handleWalletSelect}
+                    onSyncStatusClick={handleSyncStatusClick}
                   />
                 ))}
               </div>
             )}
-         
+
       </div>
-    </div>
+
+      {/* Add Wallet Modal */}
+      <AddWalletModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+      />
+
+      {/* Sync Progress Modal */}
+      {syncingWalletId && (
+        <WalletSyncModal
+          isOpen={true}
+          onClose={() => setSyncingWalletId(null)}
+          walletId={syncingWalletId}
+          walletName={wallets.find(w => w.id === syncingWalletId)?.name}
+          onSyncComplete={handleSyncComplete}
+        />
+      )}
+
+{/*
+<Image  src="/coin2.png"
+        alt="Background"
+        width={200}
+        height={200}
+        className="absolute bottom-0 right-25  "
+        unoptimized
+        />
+        <Image  src="/coin2.png"
+        alt="Background"
+        width={200}
+        height={200}
+        className="absolute bottom-20 right-80  "
+        unoptimized
+        />
+     <Image  src="/coin2.png"
+        alt="Background"
+        width={200}
+        height={200}
+        className="absolute bottom-40 right-50  "
+        unoptimized
+        />*/}
+    </> 
   );
 }

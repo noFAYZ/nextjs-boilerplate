@@ -1,16 +1,20 @@
 'use client'
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useWalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
+import { useWalletSyncProgress, WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
 
 interface RealtimeSyncContextValue {
   isConnected: boolean;
   error: string | null;
+  walletStates: Record<string, WalletSyncProgress>;
+  resetConnection: () => void;
 }
 
 const RealtimeSyncContext = createContext<RealtimeSyncContextValue>({
   isConnected: false,
-  error: null
+  error: null,
+  walletStates: {},
+  resetConnection: () => {}
 });
 
 export const useRealtimeSync = () => {
@@ -26,10 +30,10 @@ interface RealtimeSyncProviderProps {
 }
 
 export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
-  const { isConnected, error } = useWalletSyncProgress();
+  const { isConnected, error, walletStates, resetConnection } = useWalletSyncProgress();
 
   return (
-    <RealtimeSyncContext.Provider value={{ isConnected, error }}>
+    <RealtimeSyncContext.Provider value={{ isConnected, error, walletStates, resetConnection }}>
       {children}
     </RealtimeSyncContext.Provider>
   );

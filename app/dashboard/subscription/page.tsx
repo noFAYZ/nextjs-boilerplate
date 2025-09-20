@@ -109,11 +109,11 @@ export default function SubscriptionPage() {
       const data: CancelSubscriptionData = { immediately };
 
       const response = await cancelSubscription(data);
-      
+
       if (response.success) {
         toast({
           title: 'Subscription cancelled',
-          description: immediately 
+          description: immediately
             ? 'Your subscription has been cancelled immediately.'
             : 'Your subscription will be cancelled at the end of the billing period.',
         });
@@ -127,6 +127,36 @@ export default function SubscriptionPage() {
     } catch {
       toast({
         title: 'Cancellation failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    try {
+      setIsCanceling(true);
+      const data: CancelSubscriptionData = { immediately: false };
+
+      const response = await cancelSubscription(data);
+
+      if (response.success) {
+        toast({
+          title: 'Subscription reactivated',
+          description: 'Your subscription has been reactivated and will continue as normal.',
+        });
+      } else {
+        toast({
+          title: 'Reactivation failed',
+          description: response.error.message,
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Reactivation failed',
         description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
@@ -193,14 +223,16 @@ export default function SubscriptionPage() {
   }
 
   useEffect(() => {
-    currentSubscription,
-    subscriptionHistory,
-    paymentHistory,
-    usageStats,
-    lastFetched,
-   });
-  }
-  , [isInitialized, isLoading, refetch]);
+    if (isInitialized && !isLoading) {
+      console.debug('Subscription data loaded:', {
+        currentSubscription,
+        subscriptionHistory,
+        paymentHistory,
+        usageStats,
+        lastFetched,
+      });
+    }
+  }, [isInitialized, isLoading, currentSubscription, subscriptionHistory, paymentHistory, usageStats, lastFetched]);
 
 
   return (
@@ -255,7 +287,7 @@ export default function SubscriptionPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {getPlanIcon(currentSubscription.currentPlan)}
+                  {getPlanIcon(currentSubscription.planType)}
                   Current Subscription
                 </CardTitle>
               </CardHeader>
@@ -263,7 +295,7 @@ export default function SubscriptionPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Plan</p>
-                    <p className="text-2xl font-bold">{currentSubscription.currentPlan}</p>
+                    <p className="text-2xl font-bold">{currentSubscription.planType}</p>
                     <Badge variant={currentSubscription.status === 'ACTIVE' ? 'default' : 'destructive'}>
                       {currentSubscription.status}
                     </Badge>
@@ -307,7 +339,7 @@ export default function SubscriptionPage() {
                   </Button>
                   {currentSubscription.cancelAtPeriodEnd && (
                     <Button
-                      onClick={() => handleCancel(true)}
+                      onClick={handleReactivate}
                       disabled={isCanceling}
                     >
                       {isCanceling ? <LoadingSpinner size="sm" className="mr-2" /> : null}

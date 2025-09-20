@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCryptoStore, selectWalletSyncState } from '@/lib/stores/crypto-store';
-import { useWalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
+import { useRealtimeSync } from '@/components/providers/realtime-sync-provider';
 import { Button } from '@/components/ui/button';
 
 interface WalletSyncProgressProps {
@@ -211,7 +211,7 @@ interface GlobalSyncStatusProps {
 
 export function GlobalSyncStatus({ className }: GlobalSyncStatusProps) {
   const { realtimeSyncStates, realtimeSyncConnected, realtimeSyncError } = useCryptoStore();
-  const { resetConnection } = useWalletSyncProgress();
+  const { resetConnection } = useRealtimeSync();
   const activeSyncs = Object.values(realtimeSyncStates).filter(
     syncState => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(syncState.status)
   );

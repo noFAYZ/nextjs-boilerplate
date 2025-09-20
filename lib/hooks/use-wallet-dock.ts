@@ -4,7 +4,7 @@ import * as React from "react"
 import { useDockContext } from "@/components/providers/dock-provider"
 import { ExpandableItem } from "@/components/ui/dock"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
-import { useWalletSyncProgress } from "./use-realtime-sync"
+import { useRealtimeSync } from "@/components/providers/realtime-sync-provider"
 
 export interface WalletStatus {
   id: string
@@ -20,7 +20,7 @@ export interface WalletStatus {
 export function useWalletDock() {
   const { wallets } = useDockContext()
   const { realtimeSyncStates, realtimeSyncConnected } = useCryptoStore()
-  const { resetConnection } = useWalletSyncProgress()
+  const { resetConnection } = useRealtimeSync()
 
   // Update wallet status
   const updateWalletStatus = React.useCallback((

@@ -46,7 +46,8 @@ export function ComingSoonPage() {
 
   return (
     
-    <div className="relative w-full min-h-screen bg-gradient-to-br from-background to-accent/30 overflow-hidden">
+    <div className="relative w-full  bg-gradient-to-br from-background to-accent/30 overflow-hidden">
+         <Image alt="Background" src="/bg-greek2.png" width={600} height={600} className="absolute bottom-0 right-0   opacity-80 pointer-events-none select-none" />
      {/* Orb background  <Image alt="Background" src="/bg.webp" width={600} height={600} className="absolute bottom-0 right-0   opacity-80" />
      
       <div className="absolute top-0 inset-0">
@@ -68,22 +69,22 @@ export function ComingSoonPage() {
         <LogoMappr className="mx-auto h-24 w-auto text-primary" />
   
               <DecryptedText 
-      text="MoneyMappr"
-      speed={60}
-      maxIterations={15}
-      sequential={false}
-      className={cn(
-        "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight",
-      
-        "drop-shadow-lg"
-      )}
-      encryptedClassName={cn(
-        "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight",
-      
-        "drop-shadow-lg"
-      )}
-      animateOn="hover"
-    />
+                  text="MoneyMappr"
+                  speed={60}
+                  maxIterations={15}
+                  sequential={false}
+                  className={cn(
+                    "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight",
+                  
+                    "drop-shadow-lg"
+                  )}
+                  encryptedClassName={cn(
+                    "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight",
+                  
+                    "drop-shadow-lg"
+                  )}
+                  animateOn="hover"
+                />
            
           
           </div>
@@ -91,7 +92,7 @@ export function ComingSoonPage() {
 
           {/* Waitlist Form - Enhanced */}
           <div className="space-y-6 w-full max-w-lg">
-            <WaitlistForm className="bg-card backdrop-blur-md rounded-xl p-8 shadow-md border border-primary/20" />
+            <WaitlistForm className="bg-muted/80 backdrop-blur-md rounded-xl p-8 shadow-md border border-border/40" />
             
             {/* Features Button */}
             <div className="text-center">
@@ -113,6 +114,7 @@ export function ComingSoonPage() {
           </div>
         </div>
         
+     
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ class ErrorHandler {
     let severity: AppError['severity'] = 'medium';
     let recoverable = true;
     let retryable = true;
-    let details = error;
+    const details = error;
 
     // Network/API errors
     if (this.isNetworkError(error)) {
@@ -100,30 +100,50 @@ class ErrorHandler {
       severity = 'high';
       retryable = true;
     }
+    // Plan limit errors
+    else if (this.isPlanLimitError(error)) {
+      const limitError = error as any;
+      code = limitError.details?.error?.code || 'PLAN_LIMIT_EXCEEDED';
+      message = limitError.details?.error?.message || 'Plan limit exceeded';
+      userMessage = customUserMessage || this.getPlanLimitUserMessage(limitError);
+      severity = 'medium';
+      recoverable = true;
+      retryable = false;
+    }
     // API response errors
     else if (this.isApiError(error)) {
       const apiError = error as any;
       code = apiError.code || 'API_ERROR';
       message = apiError.message || 'API request failed';
-      
-      switch (apiError.response?.status) {
-        case 400:
-          userMessage = 'Invalid request. Please check your input and try again.';
-          severity = 'medium';
-          retryable = false;
-          break;
-        case 401:
-          code = 'UNAUTHORIZED';
-          userMessage = 'Please log in again to continue.';
-          severity = 'high';
-          retryable = false;
-          break;
-        case 403:
-          code = 'FORBIDDEN';
-          userMessage = 'You do not have permission to perform this action.';
-          severity = 'medium';
-          retryable = false;
-          break;
+
+      // Check for plan limit errors in API responses
+      if (apiError.details?.error?.code === 'WALLET_LIMIT_EXCEEDED' ||
+          apiError.details?.error?.code?.includes('LIMIT_EXCEEDED')) {
+        code = apiError.details.error.code;
+        message = apiError.details.error.message;
+        userMessage = customUserMessage || this.getPlanLimitUserMessage(apiError);
+        severity = 'medium';
+        recoverable = true;
+        retryable = false;
+      } else {
+        switch (apiError.response?.status) {
+          case 400:
+            userMessage = 'Invalid request. Please check your input and try again.';
+            severity = 'medium';
+            retryable = false;
+            break;
+          case 401:
+            code = 'UNAUTHORIZED';
+            userMessage = 'Please log in again to continue.';
+            severity = 'high';
+            retryable = false;
+            break;
+          case 403:
+            code = 'FORBIDDEN';
+            userMessage = 'You do not have permission to perform this action.';
+            severity = 'medium';
+            retryable = false;
+            break;
         case 404:
           code = 'NOT_FOUND';
           userMessage = 'The requested resource was not found.';
@@ -147,6 +167,7 @@ class ErrorHandler {
           break;
         default:
           userMessage = 'Request failed. Please try again.';
+        }
       }
     }
     // Authentication errors
@@ -272,6 +293,21 @@ class ErrorHandler {
         });
         break;
 
+      case 'WALLET_LIMIT_EXCEEDED':
+      case 'ACCOUNT_LIMIT_EXCEEDED':
+      case 'TRANSACTION_LIMIT_EXCEEDED':
+      case 'CATEGORY_LIMIT_EXCEEDED':
+      case 'BUDGET_LIMIT_EXCEEDED':
+      case 'GOAL_LIMIT_EXCEEDED':
+        actions.push({
+          label: 'View Plans',
+          action: () => {
+            window.location.href = '/dashboard/subscription';
+          },
+          primary: true
+        });
+        break;
+
       default:
         if (error.retryable) {
           actions.push({
@@ -339,9 +375,38 @@ class ErrorHandler {
   }
 
   private isValidationError(error: unknown): boolean {
-    return typeof error === 'object' && 
-           error !== null && 
+    return typeof error === 'object' &&
+           error !== null &&
            ('name' in error && (error as any).name === 'ValidationError');
+  }
+
+  private isPlanLimitError(error: unknown): boolean {
+    return typeof error === 'object' &&
+           error !== null &&
+           ('details' in error &&
+            (error as any).details?.error?.code?.includes('LIMIT_EXCEEDED'));
+  }
+
+  private getPlanLimitUserMessage(error: any): string {
+    const details = error.details?.error?.details;
+    if (!details) return 'You have reached your plan limit.';
+
+    const feature = details.feature || 'feature';
+    const limit = details.limit || 0;
+    const planType = details.planType || 'current';
+
+    const featureLabels: Record<string, string> = {
+      maxWallets: 'wallet',
+      maxAccounts: 'account',
+      maxTransactions: 'transaction',
+      maxCategories: 'category',
+      maxBudgets: 'budget',
+      maxGoals: 'goal'
+    };
+
+    const featureLabel = featureLabels[feature] || feature.replace('max', '').toLowerCase();
+
+    return `You've reached your ${planType.toLowerCase()} plan limit of ${limit} ${featureLabel}${limit !== 1 ? 's' : ''}. Upgrade to add more.`;
   }
 
   /**

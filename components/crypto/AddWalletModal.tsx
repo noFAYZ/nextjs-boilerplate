@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  ArrowLeft, 
+import {
   Wallet,
   Shield,
   Building,
@@ -20,27 +23,22 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  CheckCircle2,
-  PlusCircle,
   PlusIcon
 } from 'lucide-react';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import React from 'react';
 
 import { useCreateWallet } from '@/lib/hooks/use-crypto';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
-import React from 'react';
-import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { NetworkSelector } from '@/components/crypto/ui/network-selector';
 import { cn } from '@/lib/utils';
 import { SolarWalletBoldDuotone } from '@/components/icons/icons';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
 import { useSubscription } from '@/lib/hooks/use-subscription';
-import { DebugPlanLimit } from '@/components/ui/debug-plan-limit';
 
 // Form validation schema
 const walletSchema = z.object({
@@ -65,22 +63,14 @@ const WALLET_TYPES = [
   { value: 'SMART_CONTRACT', label: 'Smart Contract', icon: Coins, description: 'Contract-based wallet' },
 ] as const;
 
-const NETWORKS = [
-  { value: 'ETHEREUM', label: 'Ethereum', color: 'bg-blue-100 text-blue-800' },
-  { value: 'POLYGON', label: 'Polygon', color: 'bg-purple-100 text-purple-800' },
-  { value: 'BSC', label: 'Binance Smart Chain', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'ARBITRUM', label: 'Arbitrum', color: 'bg-blue-100 text-blue-800' },
-  { value: 'OPTIMISM', label: 'Optimism', color: 'bg-red-100 text-red-800' },
-  { value: 'AVALANCHE', label: 'Avalanche', color: 'bg-red-100 text-red-800' },
-  { value: 'SOLANA', label: 'Solana', color: 'bg-green-100 text-green-800' },
-  { value: 'BITCOIN', label: 'Bitcoin', color: 'bg-orange-100 text-orange-800' },
-] as const;
+interface AddWalletModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-export default function AddWalletPage() {
-  const router = useRouter();
+export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
   const [isValidating, setIsValidating] = useState(false);
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
-  const [searchTerm, setSearchTerm] = useState("");
 
   const createWallet = useCreateWallet();
   const { plans, upgradeSubscription } = useSubscription();
@@ -92,6 +82,7 @@ export default function AddWalletPage() {
     watch,
     setValue,
     control,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm<WalletFormData>({
     resolver: zodResolver(walletSchema),
@@ -107,13 +98,13 @@ export default function AddWalletPage() {
   // Validate wallet address format
   const validateAddress = async (address: string, network: NetworkType) => {
     if (!address) return;
-    
+
     setIsValidating(true);
     try {
       // Basic format validation based on network
       let isValid = false;
-      
-      if (network === 'ETHEREUM' || network === 'POLYGON' || network === 'BSC' || 
+
+      if (network === 'ETHEREUM' || network === 'POLYGON' || network === 'BSC' ||
           network === 'ARBITRUM' || network === 'OPTIMISM' || network === 'AVALANCHE') {
         // EVM address format
         isValid = /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -124,7 +115,7 @@ export default function AddWalletPage() {
         // Bitcoin address format
         isValid = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/.test(address);
       }
-      
+
       setAddressStatus(isValid ? 'valid' : 'invalid');
     } catch (error) {
       setAddressStatus('invalid');
@@ -145,7 +136,6 @@ export default function AddWalletPage() {
     }
   }, [watchedAddress, watchedNetwork]);
 
-
   const onSubmit = async (data: WalletFormData) => {
     try {
       const formattedData = {
@@ -156,16 +146,13 @@ export default function AddWalletPage() {
       await createWallet.mutateAsync(formattedData);
 
       toast.success('Wallet added successfully!');
-      router.push('/dashboard/accounts/wallet');
+      reset(); // Reset form
+      onOpenChange(false); // Close modal
     } catch (error: any) {
       console.error('Create wallet error:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error structure:', JSON.stringify(error, null, 2));
 
       // Handle plan limit errors
       const planLimitError = handlePlanLimitError(error, 'wallet-creation', planLimitDialog.showDialog);
-
-      console.log('Plan limit error extracted:', planLimitError);
 
       if (!planLimitError) {
         // Only show toast for non-plan-limit errors
@@ -190,47 +177,38 @@ export default function AddWalletPage() {
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-      </div>
+  const handleCancel = () => {
+    reset();
+    onOpenChange(false);
+  };
 
-      {/* Main Form Card */}
-      <Card>
-        <CardHeader className='flex justify-between'>
-          <div className="flex gap-3">
-            <div className="h-12 w-12 bg-gradient-to-br from-orange-500/70 to-pink-600/70 rounded-xl flex items-center justify-center">
-              <SolarWalletBoldDuotone className="h-6 w-6 text-white" />
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex gap-3 items-start">
+              <div className="h-12 w-12 bg-gradient-to-br from-orange-500/70 to-pink-600/70 rounded-xl flex items-center justify-center">
+                <SolarWalletBoldDuotone className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <DialogTitle className="text-lg">Add New Wallet</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Connect a crypto wallet to track your portfolio
+                </p>
+              </div>
+              <NetworkSelector
+                defaultNetworkId="ethereum"
+                onChange={(id) => setValue("network", id?.toUpperCase() as NetworkType)}
+              />
             </div>
-            <div>
-              <CardTitle className="text-lg">Add New Wallet</CardTitle>
-              <CardDescription className='text-xs'>
-                Connect a crypto wallet to track your portfolio
-              </CardDescription>
-            </div>
-          </div>
-          <NetworkSelector
-            defaultNetworkId="ethereum"
-            onChange={(id) => setValue("network", id?.toUpperCase() as NetworkType)}
-          />
-        </CardHeader>
-        
-        <CardContent>
+          </DialogHeader>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Information</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Wallet Name *</Label>
@@ -267,7 +245,7 @@ export default function AddWalletPage() {
                     placeholder="0x742d3ab8..."
                     {...register('address')}
                     className={`pr-10 ${
-                      errors.address ? 'border-red-500' : 
+                      errors.address ? 'border-red-500' :
                       addressStatus === 'valid' ? 'border-green-500' :
                       addressStatus === 'invalid' ? 'border-red-500' : ''
                     }`}
@@ -285,7 +263,7 @@ export default function AddWalletPage() {
             </div>
 
             <Separator />
-            
+
             {/* Wallet Type Selection */}
             <div className="space-y-4">
               <div className="space-y-2">
@@ -295,7 +273,7 @@ export default function AddWalletPage() {
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="h-16 cursor-ponter">
+                      <SelectTrigger className="h-16">
                         <SelectValue placeholder="Select wallet type">
                           {field.value && (
                             <div className="flex items-center gap-3">
@@ -316,7 +294,7 @@ export default function AddWalletPage() {
                         {WALLET_TYPES.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
                             <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground cursor-pointer">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
                                 <type.icon className="h-5 w-5" />
                               </div>
                               <div className="flex flex-col">
@@ -337,13 +315,13 @@ export default function AddWalletPage() {
                 )}
               </div>
             </div>
-            
+
             <Separator />
 
             {/* Additional Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Additional Information</h3>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="tags">Tags</Label>
                 <Input
@@ -355,7 +333,6 @@ export default function AddWalletPage() {
                   Add tags to help organize your wallets
                 </p>
               </div>
-              
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
@@ -372,13 +349,12 @@ export default function AddWalletPage() {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex justify-end gap-4 pt-4">
+            <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.back()}
+                onClick={handleCancel}
                 disabled={isSubmitting}
-                className=""
               >
                 Cancel
               </Button>
@@ -399,13 +375,10 @@ export default function AddWalletPage() {
                   </>
                 )}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
-        </CardContent>
-      </Card>
-
-      {/* Debug Tool - Remove in production */}
-      <DebugPlanLimit />
+        </DialogContent>
+      </Dialog>
 
       {/* Plan Limit Dialog */}
       {planLimitDialog.error && (
@@ -418,6 +391,6 @@ export default function AddWalletPage() {
           isUpgrading={createWallet.isPending}
         />
       )}
-    </div>
+    </>
   );
 }

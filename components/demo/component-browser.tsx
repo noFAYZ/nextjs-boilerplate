@@ -152,7 +152,7 @@ import { MetricCard } from "@/components/ui/metric-card"
 import { StatsCard } from "@/components/ui/stats-card"
 import { Chart } from "@/components/ui/chart"
 import { AdvancedChart } from "@/components/ui/advanced-chart"
-import { ComparisonTable } from "@/components/ui/comparison-table"
+import { ComparisonTable, saasPricingFeatures, saasPricingPlans } from "@/components/ui/comparison-table"
 import { Testimonials } from "@/components/ui/testimonials"
 import { DataTable } from "@/components/ui/data-table"
 import { DataTableAdvanced } from "@/components/ui/data-table-advanced"
@@ -2577,11 +2577,15 @@ const CommandPaletteDemo = () => {
 
 const ComparisonTableDemo = () => {
   return (
-    <div className="text-center py-8">
-      <p className="text-muted-foreground">Comparison Table Component</p>
-      <p className="text-sm text-muted-foreground mt-2">
-        Feature comparison table for pricing plans and products
-      </p>
+    <div className="text-center max-w-7xl mx-auto py-8">
+          <ComparisonTable
+                  plans={saasPricingPlans}
+                  features={saasPricingFeatures}
+                  showYearly
+                  highlightDifferences
+                  maxColumns={4}
+                />
+
     </div>
   )
 }

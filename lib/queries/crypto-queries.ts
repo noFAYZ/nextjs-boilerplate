@@ -228,12 +228,13 @@ export const cryptoMutations = {
     return useMutation({
       mutationFn: async (data: CreateWalletRequest) => {
         const response = await cryptoApi.createWallet(data);
-        
-        // If the API call succeeded but the response indicates failure, throw an error
+
+        // If the API call succeeded but the response indicates failure, throw the full response
         if (!response.success) {
-          throw new Error(response.error?.message || 'Failed to create wallet');
+          // Preserve the full error structure for plan limit handling
+          throw response;
         }
-        
+
         return response;
       },
       onSuccess: (response) => {

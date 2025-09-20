@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
-import { useWalletSyncProgress } from "@/lib/hooks/use-realtime-sync";
+import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface LiveSyncStatsProps {
@@ -29,7 +29,7 @@ export function LiveSyncStats({
   className = ""
 }: LiveSyncStatsProps) {
   const { realtimeSyncStates, realtimeSyncConnected, wallets } = useCryptoStore();
-  const { resetConnection } = useWalletSyncProgress();
+  const { resetConnection } = useRealtimeSync();
 
   // Calculate sync stats from SSE states
   const syncingWallets = Object.values(realtimeSyncStates).filter(

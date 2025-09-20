@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useWalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
+import { useRealtimeSync } from '@/components/providers/realtime-sync-provider';
 import { RefreshCw, AlertCircle, CheckCircle, X } from 'lucide-react';
 
 interface RealtimeSyncDebugProps {
@@ -15,7 +15,7 @@ interface RealtimeSyncDebugProps {
 export function RealtimeSyncDebug({ className }: RealtimeSyncDebugProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { realtimeSyncStates, realtimeSyncConnected, realtimeSyncError } = useCryptoStore();
-  const { resetConnection } = useWalletSyncProgress();
+  const { resetConnection } = useRealtimeSync();
 
   if (!isVisible) {
     return (
@@ -132,31 +132,65 @@ export function RealtimeSyncDebug({ className }: RealtimeSyncDebugProps) {
           )}
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetConnection}
+                className="flex-1"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Reset Connection
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  console.log('Real-time Sync Debug Info:', {
+                    connected: realtimeSyncConnected,
+                    error: realtimeSyncError,
+                    activeSyncs: activeSyncCount,
+                    allStates: realtimeSyncStates,
+                    apiEndpoint: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'}/crypto/user/sync/stream`
+                  });
+                }}
+                className="flex-1"
+              >
+                Log Details
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={resetConnection}
-              className="flex-1"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Reset Connection
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                console.log('Real-time Sync Debug Info:', {
-                  connected: realtimeSyncConnected,
-                  error: realtimeSyncError,
-                  activeSyncs: activeSyncCount,
-                  allStates: realtimeSyncStates,
-                  apiEndpoint: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'}/crypto/user/sync/stream`
-                });
+              onClick={async () => {
+                const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+                try {
+                  console.log('🧪 Testing manual SSE connection...');
+                  const testSource = new EventSource(`${apiBase}/crypto/user/sync/stream`, {
+                    withCredentials: true
+                  });
+
+                  testSource.onopen = () => {
+                    console.log('✅ Manual SSE test: Connection opened');
+                    setTimeout(() => testSource.close(), 5000);
+                  };
+
+                  testSource.onerror = (e) => {
+                    console.error('❌ Manual SSE test error:', e);
+                    testSource.close();
+                  };
+
+                  testSource.onmessage = (e) => {
+                    console.log('📩 Manual SSE test message:', e.data);
+                  };
+                } catch (error) {
+                  console.error('❌ Manual SSE test failed:', error);
+                }
               }}
-              className="flex-1"
+              className="w-full"
             >
-              Log Details
+              Test Manual SSE
             </Button>
           </div>
         </div>

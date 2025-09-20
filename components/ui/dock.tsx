@@ -329,11 +329,18 @@ export function Dock({
   // Auto-detect active items based on current pathname
   const activeItemIds = React.useMemo(() => {
     if (!autoDetectActive) return activeItems
-    
-    const detectedActive = items
-      .filter(item => item.href && pathname.startsWith(item.href))
-      .map(item => item.id)
-    
+
+    // Find items that match the current pathname
+    const matchingItems = items.filter(item => item.href && pathname.startsWith(item.href))
+
+    // If multiple items match, select the one with the longest matching path (most specific)
+    const bestMatch = matchingItems.reduce((prev, current) => {
+      if (!prev) return current
+      return (current.href?.length || 0) > (prev.href?.length || 0) ? current : prev
+    }, null as typeof items[0] | null)
+
+    const detectedActive = bestMatch ? [bestMatch.id] : []
+
     return [...activeItems, ...detectedActive]
   }, [items, pathname, activeItems, autoDetectActive])
 

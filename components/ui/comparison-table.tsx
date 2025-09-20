@@ -48,7 +48,7 @@ const getPlanIcon = (plan: Plan) => {
 const formatPrice = (price: number, yearly = false) => {
   if (price === 0) return "Free"
   const amount = yearly ? price * 12 * 0.8 : price // 20% yearly discount
-  return `$${amount}${yearly ? "/year" : "/month"}`
+  return `$${(amount)?.toFixed(0)}${yearly ? "/year" : "/month"}`
 }
 
 const formatFeatureValue = (value: boolean | string | number) => {
@@ -139,7 +139,7 @@ export function ComparisonTable({
           <Card
             key={plan.id}
             className={cn(
-              "relative",
+              "relative overflow-visible",
               plan.popular && "ring-2 ring-primary",
               plan.enterprise && "ring-2 ring-purple-500 bg-gradient-to-b from-purple-50/50 to-background dark:from-purple-950/20"
             )}
@@ -163,18 +163,18 @@ export function ComparisonTable({
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-2">
                   {getPlanIcon(plan)}
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
+                  <CardTitle className="text-lg">{plan.name}</CardTitle>
                 </div>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <p className="text-xs text-muted-foreground">{plan.description}</p>
               </div>
               
               <div className="space-y-2">
-                <div className="text-4xl font-bold">
+                <div className="text-2xl font-bold">
                   {formatPrice(plan.price.monthly, isYearly)}
                 </div>
                 {isYearly && plan.price.yearly && (
                   <div className="text-sm text-muted-foreground">
-                    <span className="line-through">${plan.price.monthly * 12}/year</span>
+                    <span className="line-through">${Number(plan.price.monthly * 12)?.toFixed()}/year</span>
                   </div>
                 )}
               </div>
@@ -182,6 +182,7 @@ export function ComparisonTable({
               <Button
                 variant={plan.buttonVariant || (plan.popular ? "default" : "outline")}
                 className="w-full"
+                size={'xs'}
                 onClick={plan.onSelect}
               >
                 {plan.buttonText || "Get Started"}

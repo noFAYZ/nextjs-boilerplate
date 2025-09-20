@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -31,9 +31,31 @@ import {
   Users,
   Lock,
   Unlock,
+  Loader2,
 } from 'lucide-react';
 import { useToast } from '@/lib/hooks/use-toast';
 import type { AccountGroup } from '@/lib/types/account-groups';
+import {
+  getGroupSettings,
+  updateGroupSettings,
+  exportGroupSettings,
+  importGroupSettings,
+  archiveGroup,
+} from '@/lib/api/account-groups-settings';
+import { deleteAccountGroup } from '@/lib/api/account-groups';
+
+// Extended settings interface for group preferences
+export interface GroupSettings {
+  hideEmptyAccounts: boolean;
+  autoArchiveInactive: boolean;
+  enableNotifications: boolean;
+  shareWithFamily: boolean;
+  requireApproval: boolean;
+  lockBalances: boolean;
+  dustThreshold?: number;
+  inactivityDays?: number;
+  approvalThreshold?: number;
+}
 
 interface GroupSettingsProps {
   group: AccountGroup;
@@ -43,50 +65,247 @@ interface GroupSettingsProps {
 
 export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps) {
   const { toast } = useToast();
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<GroupSettings>({
     hideEmptyAccounts: false,
     autoArchiveInactive: false,
     enableNotifications: true,
     shareWithFamily: false,
     requireApproval: false,
     lockBalances: false,
+    dustThreshold: 10,
+    inactivityDays: 90,
+    approvalThreshold: 1000,
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleSettingChange = (key: keyof typeof settings, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-    
-    // Show toast for immediate feedback
-    toast({
-      title: 'Setting updated',
-      description: `${key.replace(/([A-Z])/g, ' $1').toLowerCase()} has been ${value ? 'enabled' : 'disabled'}.`,
-    });
+  // Initialize settings from API or localStorage fallback
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setIsLoading(true);
+
+        // Try to load from API first
+        const response = await getGroupSettings(group.id);
+
+        if (response.success && response.data) {
+          setSettings(prev => ({ ...prev, ...response.data }));
+          // Cache in localStorage for offline access
+          localStorage.setItem(`group-settings-${group.id}`, JSON.stringify(response.data));
+        } else {
+          // Fallback to localStorage if API fails
+          const savedSettings = localStorage.getItem(`group-settings-${group.id}`);
+          if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            setSettings(prev => ({ ...prev, ...parsed }));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading group settings:', error);
+        // Fallback to localStorage on error
+        try {
+          const savedSettings = localStorage.getItem(`group-settings-${group.id}`);
+          if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            setSettings(prev => ({ ...prev, ...parsed }));
+          }
+        } catch (fallbackError) {
+          console.error('Error loading fallback settings:', fallbackError);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [group.id]);
+
+  const handleSettingChange = async (key: keyof GroupSettings, value: boolean | number) => {
+    const oldSettings = { ...settings };
+
+    try {
+      setIsLoading(true);
+      const newSettings = { ...settings, [key]: value };
+
+      // Optimistically update UI
+      setSettings(newSettings);
+
+      // Save to localStorage immediately for better UX
+      localStorage.setItem(`group-settings-${group.id}`, JSON.stringify(newSettings));
+
+      // Make API call to save settings
+      const response = await updateGroupSettings(group.id, { [key]: value });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to update settings');
+      }
+
+      // Update with server response to ensure consistency
+      if (response.data) {
+        setSettings(response.data);
+        localStorage.setItem(`group-settings-${group.id}`, JSON.stringify(response.data));
+      }
+
+      // Format the key name for display
+      const displayName = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+      const action = typeof value === 'boolean' ? (value ? 'enabled' : 'disabled') : 'updated';
+
+      toast({
+        title: 'Setting updated',
+        description: `${displayName} has been ${action}.`,
+      });
+    } catch (error) {
+      // Revert the setting on error
+      setSettings(oldSettings);
+      localStorage.setItem(`group-settings-${group.id}`, JSON.stringify(oldSettings));
+
+      toast({
+        title: 'Update failed',
+        description: 'Failed to update setting. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Error updating setting:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleExportData = () => {
-    toast({
-      title: 'Export started',
-      description: 'Your group data is being prepared for download.',
-    });
-    // TODO: Implement actual export functionality
+  const handleExportData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Get export data from API
+      const response = await exportGroupSettings(group.id);
+
+      if (!response.success || !response.data) {
+        throw new Error(response.error?.message || 'Failed to export settings');
+      }
+
+      const exportData = {
+        group: {
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          icon: group.icon,
+          color: group.color,
+          createdAt: group.createdAt,
+        },
+        ...response.data,
+        accountCount: (group._count?.financialAccounts || 0) + (group._count?.cryptoWallets || 0),
+        exportedAt: new Date().toISOString(),
+      };
+
+      // Create and download file
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `group-${group.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Export successful',
+        description: 'Group data has been downloaded to your device.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Export failed',
+        description: 'Failed to export group data. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Export error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImportData = () => {
-    toast({
-      title: 'Import coming soon',
-      description: 'Data import functionality will be available soon.',
-    });
-    // TODO: Implement actual import functionality
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        setIsLoading(true);
+        const text = await file.text();
+        const importData = JSON.parse(text);
+
+        // Validate import data structure
+        if (importData.settings && typeof importData.settings === 'object') {
+          // Make API call to import settings
+          const response = await importGroupSettings(group.id, {
+            settings: importData.settings,
+            metadata: importData.metadata,
+          });
+
+          if (!response.success) {
+            throw new Error(response.error?.message || 'Failed to import settings');
+          }
+
+          // Update local state with server response
+          if (response.data) {
+            setSettings(response.data);
+            localStorage.setItem(`group-settings-${group.id}`, JSON.stringify(response.data));
+          }
+
+          toast({
+            title: 'Import successful',
+            description: 'Group settings have been imported and applied.',
+          });
+        } else {
+          throw new Error('Invalid file format');
+        }
+      } catch (error) {
+        toast({
+          title: 'Import failed',
+          description: 'Failed to import data. Please check the file format.',
+          variant: 'destructive',
+        });
+        console.error('Import error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    input.click();
   };
 
-  const handleArchiveGroup = () => {
-    toast({
-      title: 'Group archived',
-      description: `"${group.name}" has been archived and will be hidden from lists.`,
-    });
-    // TODO: Implement actual archive functionality
+  const handleArchiveGroup = async () => {
+    try {
+      setIsArchiving(true);
+
+      // Make API call to archive the group
+      const response = await archiveGroup(group.id);
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to archive group');
+      }
+
+      toast({
+        title: 'Group archived',
+        description: `"${group.name}" has been archived and will be hidden from lists.`,
+      });
+
+      // Notify parent component
+      onUpdate?.({ ...group, isArchived: true });
+    } catch (error) {
+      toast({
+        title: 'Archive failed',
+        description: 'Failed to archive the group. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Archive error:', error);
+    } finally {
+      setIsArchiving(false);
+    }
   };
 
-  const handleDeleteGroup = () => {
+  const handleDeleteGroup = async () => {
     if (group.isDefault) {
       toast({
         title: 'Cannot delete',
@@ -95,8 +314,37 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
       });
       return;
     }
-    
-    onDelete?.();
+
+    try {
+      setIsDeleting(true);
+
+      // Make API call to delete the group
+      const response = await deleteAccountGroup(group.id);
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to delete group');
+      }
+
+      // Clean up localStorage
+      localStorage.removeItem(`group-settings-${group.id}`);
+
+      toast({
+        title: 'Group deleted',
+        description: `"${group.name}" has been permanently deleted.`,
+      });
+
+      // Notify parent component
+      onDelete?.();
+    } catch (error) {
+      toast({
+        title: 'Delete failed',
+        description: 'Failed to delete the group. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Delete error:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -123,6 +371,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.hideEmptyAccounts}
               onCheckedChange={(value) => handleSettingChange('hideEmptyAccounts', value)}
+              disabled={isLoading}
             />
           </div>
 
@@ -138,6 +387,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.autoArchiveInactive}
               onCheckedChange={(value) => handleSettingChange('autoArchiveInactive', value)}
+              disabled={isLoading}
             />
           </div>
 
@@ -153,6 +403,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.lockBalances}
               onCheckedChange={(value) => handleSettingChange('lockBalances', value)}
+              disabled={isLoading}
             />
           </div>
         </CardContent>
@@ -180,6 +431,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.enableNotifications}
               onCheckedChange={(value) => handleSettingChange('enableNotifications', value)}
+              disabled={isLoading}
             />
           </div>
         </CardContent>
@@ -207,6 +459,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.shareWithFamily}
               onCheckedChange={(value) => handleSettingChange('shareWithFamily', value)}
+              disabled={isLoading}
             />
           </div>
 
@@ -222,6 +475,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <Switch
               checked={settings.requireApproval}
               onCheckedChange={(value) => handleSettingChange('requireApproval', value)}
+              disabled={isLoading}
             />
           </div>
         </CardContent>
@@ -240,11 +494,15 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button variant="outline" onClick={handleExportData}>
-              <Download className="h-4 w-4 mr-2" />
+            <Button variant="outline" onClick={handleExportData} disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
               Export Data
             </Button>
-            <Button variant="outline" onClick={handleImportData}>
+            <Button variant="outline" onClick={handleImportData} disabled={isLoading}>
               <Upload className="h-4 w-4 mr-2" />
               Import Data
             </Button>
@@ -268,8 +526,12 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline">
-                    <Archive className="h-4 w-4 mr-2" />
+                  <Button variant="outline" disabled={isArchiving || isDeleting || isLoading}>
+                    {isArchiving ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Archive className="h-4 w-4 mr-2" />
+                    )}
                     Archive Group
                   </Button>
                 </AlertDialogTrigger>
@@ -277,14 +539,21 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
                   <AlertDialogHeader>
                     <AlertDialogTitle>Archive this group?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will hide the group from your lists but preserve all data. 
+                      This will hide the group from your lists but preserve all data.
                       You can restore it later from your archived groups.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleArchiveGroup}>
-                      Archive Group
+                    <AlertDialogCancel disabled={isArchiving}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleArchiveGroup} disabled={isArchiving}>
+                      {isArchiving ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Archiving...
+                        </>
+                      ) : (
+                        'Archive Group'
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -292,8 +561,12 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
+                  <Button variant="destructive" disabled={isDeleting || isArchiving || isLoading}>
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 mr-2" />
+                    )}
                     Delete Group
                   </Button>
                 </AlertDialogTrigger>
@@ -301,18 +574,26 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete this group?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the 
-                      group "{group.name}" and remove all accounts from it. The accounts 
+                      This action cannot be undone. This will permanently delete the
+                      group "{group.name}" and remove all accounts from it. The accounts
                       themselves will not be deleted, just ungrouped.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteGroup}
+                      disabled={isDeleting}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      Delete Group
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        'Delete Group'
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

@@ -35,7 +35,7 @@ export function SyncStatusIndicator({
   className
 }: SyncStatusIndicatorProps) {
   const { realtimeSyncStates, realtimeSyncConnected, realtimeSyncError, wallets } = useCryptoStore();
-  const { resetConnection } = useRealtimeSync();
+  const { resetConnection } = useWalletSyncProgress();
   const [isOnline, setIsOnline] = React.useState(true);
 
   // Monitor online status
@@ -220,8 +220,8 @@ export function SyncStatusIndicator({
         </div>
 
         {showProgress && isAnySyncing && (
-          <div className="flex-1 max-w-28">
-            <Progress value={Math.round((syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) || 0)} className="h-5" />
+          <div className="flex-1 max-w-20">
+            <Progress value={Math.round((syncingWallets.reduce((sum, w) => sum + w.progress, 0) / syncingWallets.length) || 0)} className="h-1" />
           </div>
         )}
 
