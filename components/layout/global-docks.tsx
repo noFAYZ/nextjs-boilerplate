@@ -33,6 +33,7 @@ import {  PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, S
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
+import { useAutoWalletSync } from "@/lib/hooks/use-auto-wallet-sync"
 
 // Mobile breakpoint hook
 function useIsMobile() {
@@ -112,6 +113,9 @@ export function WalletsDock() {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const { user } = useAuth()
+
+  // Initialize auto-sync functionality
+  const { hasActiveSyncs, isFirstLoginToday } = useAutoWalletSync()
 
   // Memoize sync stats calculations to prevent unnecessary re-renders
   const syncStats = React.useMemo(() => {
@@ -218,16 +222,44 @@ export function WalletsDock() {
         }
       }
 
-      const walletItem: ExpandableItem = createWalletDockItem(
-        wallet.id,
-        wallet.label || `${symbol} Wallet`,
-        parseFloat(wallet.totalBalance || '0'),
-        symbol,
-        parseFloat(wallet.totalBalanceUsd || '0'),
+      // Enhanced subtitle with sync progress
+      let subtitle = `${parseFloat(wallet.totalBalance || '0').toFixed(4)} ${symbol} • $${parseFloat(wallet.totalBalanceUsd || '0').toLocaleString()}`
+      let timestamp = wallet.lastSyncAt ? `Last sync: ${formatTimeAgo(new Date(wallet.lastSyncAt))}` : 'Never synced'
+
+      // Show individual sync progress for this wallet
+      if (walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status)) {
+        const statusMessages = {
+          'queued': 'Queued for sync...',
+          'syncing': 'Syncing wallet data...',
+          'syncing_assets': 'Syncing assets...',
+          'syncing_transactions': 'Syncing transactions...',
+          'syncing_nfts': 'Syncing NFTs...',
+          'syncing_defi': 'Syncing DeFi positions...'
+        }
+        subtitle = walletSyncState.message || statusMessages[walletSyncState.status as keyof typeof statusMessages] || 'Syncing...'
+        timestamp = `Progress: ${walletSyncState.progress}%`
+      } else if (walletSyncState?.status === 'failed') {
+        subtitle = walletSyncState.error || 'Sync failed'
+        timestamp = 'Click to retry'
+      }
+
+      const walletItem: ExpandableItem = {
+        id: wallet.id,
+        title: wallet.label || `${symbol} Wallet`,
+        subtitle,
         status,
-        wallet.lastSyncAt ? new Date(wallet.lastSyncAt) : new Date(),
-        icon
-      )
+        timestamp,
+        icon,
+        onClick: () => {
+          // Navigate to wallet details or retry sync if failed
+          if (walletSyncState?.status === 'failed') {
+            // Trigger manual sync retry - we could add this functionality
+            console.log('Retrying sync for wallet:', wallet.id)
+          } else {
+            router.push(`/dashboard/crypto/wallets/${wallet.id}`)
+          }
+        }
+      }
 
       dockWallets.addItem(walletItem)
     })
@@ -292,7 +324,14 @@ export function WalletsDock() {
         onToggle={dockWallets.toggle}
         panelTitle={
           <div className="flex items-center justify-between w-full">
-            <span>Crypto Wallets</span>
+            <div className="flex items-center gap-2">
+              <span>Crypto Wallets</span>
+              {isFirstLoginToday && syncStats.isAnySyncing && (
+                <span className="px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                  Daily Sync
+                </span>
+              )}
+            </div>
             {syncStats.isAnySyncing ? (
               <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
                 <RefreshCw className="w-3 h-3 animate-spin" />

@@ -86,6 +86,7 @@ interface AuthState {
   
   // Session management
   lastActivity: Date | null;
+  lastLoginDate: string | null; // Track last login date (YYYY-MM-DD format)
   sessionTimeout: number; // in minutes
   autoLogoutTimer: NodeJS.Timeout | null;
 }
@@ -112,6 +113,8 @@ interface AuthActions {
   
   // Session management
   updateLastActivity: () => void;
+  updateLastLoginDate: () => void;
+  isFirstLoginToday: () => boolean;
   startAutoLogoutTimer: () => void;
   clearAutoLogoutTimer: () => void;
   isSessionExpired: () => boolean;
@@ -166,6 +169,7 @@ const initialState: AuthState = {
   
   // Session management
   lastActivity: null,
+  lastLoginDate: null,
   sessionTimeout: 60, // 60 minutes
   autoLogoutTimer: null,
 };
@@ -230,8 +234,9 @@ export const useAuthStore = create<AuthStore>()(
                 state.loginLoading = false;
                 state.lastActivity = new Date();
               }, false, 'login/success');
-              
-              // Start auto-logout timer
+
+              // Update last login date and start auto-logout timer
+              get().updateLastLoginDate();
               get().startAutoLogoutTimer();
             } else {
               throw new Error('Invalid response from authentication server');
@@ -280,8 +285,9 @@ export const useAuthStore = create<AuthStore>()(
                 state.signupLoading = false;
                 state.lastActivity = new Date();
               }, false, 'signup/success');
-              
-              // Start auto-logout timer
+
+              // Update last login date and start auto-logout timer
+              get().updateLastLoginDate();
               get().startAutoLogoutTimer();
             } else {
               throw new Error('Invalid response from authentication server');
@@ -443,11 +449,24 @@ export const useAuthStore = create<AuthStore>()(
           set((state) => {
             state.lastActivity = new Date();
           }, false, 'updateLastActivity');
-          
+
           // Restart the auto-logout timer
           if (get().isAuthenticated) {
             get().startAutoLogoutTimer();
           }
+        },
+
+        updateLastLoginDate: () => {
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+          set((state) => {
+            state.lastLoginDate = today;
+          }, false, 'updateLastLoginDate');
+        },
+
+        isFirstLoginToday: () => {
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+          const lastLogin = get().lastLoginDate;
+          return lastLogin !== today;
         },
         
         startAutoLogoutTimer: () => {
@@ -497,6 +516,7 @@ export const useAuthStore = create<AuthStore>()(
           // Only persist these parts of the state
           preferences: state.preferences,
           sessionTimeout: state.sessionTimeout,
+          lastLoginDate: state.lastLoginDate,
         }),
         onRehydrateStorage: () => (state) => {
           // Initialize auth state but don't clear existing auth
