@@ -54,7 +54,7 @@ function ThemeSwitcher() {
     <Button
       data-slot="theme-switcher"
       className={cn(
-        "relative shadow-none rounded-full w-10 h-10",
+        "relative shadow-none rounded-full w-8 h-8",
         "border  justify-center",
         "group",
       )}
@@ -72,7 +72,7 @@ function ThemeSwitcher() {
       >
         <Sun
           className={cn(
-            "w-5 h-5",
+            "w-4.5 h-4.5",
             "text-orange-500",
             "transition-transform duration-200",
             "group-hover:rotate-90"
@@ -96,7 +96,7 @@ function ThemeSwitcher() {
       >
         <Moon
           className={cn(
-            "w-5 h-5",
+            "w-4.5 h-4.5",
             "text-white/60",
             "transition-transform duration-200",
             "group-hover:rotate-90"

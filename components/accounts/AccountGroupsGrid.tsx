@@ -35,7 +35,9 @@ import {
 } from "@/components/ui/accordion";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import AvatarGroup from "../ui/avatar-group";
-
+import { createAvatar } from "@dicebear/core";
+import { botttsNeutral } from "@dicebear/collection";
+import Image from "next/image";
 interface AccountGroupsGridProps {
   onGroupSelect?: (group: AccountGroup) => void;
   limit?: number; // Limit number of groups shown
@@ -63,6 +65,11 @@ function GroupDetailsView({
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(
     new Set()
   );
+
+  const avataUrl = createAvatar(botttsNeutral, {
+    size: 128,
+    radius: 20,
+  }).toDataUri();
 
   const handleRemoveWallet = async (walletId: string) => {
     try {
@@ -166,8 +173,8 @@ function GroupDetailsView({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <Button
-              variant="subtle"
-              size="sm"
+              variant="ghost"
+              size="xs"
               className="text-xs font-semibold shrink-0"
               onClick={onBack}
             >
@@ -180,12 +187,7 @@ function GroupDetailsView({
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <div
                 className="h-8 w-8 sm:h-10 sm:w-10 rounded-[0.7rem] flex items-center justify-center text-base sm:text-lg shrink-0"
-                style={{
-                  backgroundColor: group.color
-                    ? `${group.color}30`
-                    : "rgb(243 244 246)",
-                  color: group.color || "rgb(107 114 128)",
-                }}
+               
               >
                 {group.icon || "📁"}
               </div>
@@ -223,23 +225,22 @@ function GroupDetailsView({
               </Button>
             )}
           </div>
-        </div>
 
-        {/* Desktop Action Buttons - Hidden on mobile, full on desktop */}
+            {/* Desktop Action Buttons - Hidden on mobile, full on desktop */}
         <div className="hidden sm:flex sm:items-center sm:justify-end sm:-mt-2">
           {isRemoveMode ? (
             <div className="flex items-center gap-2">
               <Button
                 onClick={cancelRemoveMode}
-                variant="subtle"
-                size="sm"
+                variant="ghost"
+                size="xs"
                 className="text-xs"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleBatchRemove}
-                size="sm"
+                size="xs"
                 variant="destructive"
                 disabled={!hasSelectedItems}
                 className="text-xs shadow-none"
@@ -257,8 +258,8 @@ function GroupDetailsView({
               {hasAccounts && (
                 <Button
                   onClick={() => setIsRemoveMode(true)}
-                  variant="soft"
-                  size="sm"
+                  variant="secondary"
+                  size="xs"
                   className="text-xs shadow-none"
                 >
                   <span className="flex items-center gap-1">
@@ -269,7 +270,7 @@ function GroupDetailsView({
               )}
               <Button
                 onClick={() => onAddAccount(group)}
-                size="sm"
+                size="xs"
                 className="text-xs shadow-none"
               >
                 <span className="flex items-center gap-1">
@@ -281,6 +282,9 @@ function GroupDetailsView({
             </div>
           )}
         </div>
+        </div>
+
+      
 
         {/* Mobile Remove Mode Actions - Only show when in remove mode on mobile */}
         {isRemoveMode && (
@@ -423,14 +427,14 @@ function GroupDetailsView({
                 value="crypto-wallets"
                 className="border rounded-2xl"
               >
-                <AccordionTrigger className="text-sm bg-muted/60 sm:text-base font-semibold px-4 sm:px-6 py-3 sm:py-4 hover:no-underline hover:bg-muted/50 rounded-t-2xl aria-expanded:rounded-b-none">
+                <AccordionTrigger className="text-sm bg-muted/80 sm:text-base font-semibold px-3  py-2 hover:no-underline hover:bg-muted rounded-t-2xl aria-expanded:rounded-b-none">
                   <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="size-8 sm:size-10 rounded-lg flex items-center justify-center bg-accent shrink-0">
-                        <StreamlineFlexWallet className="size-4 sm:size-5 " />
+                      <div className="size-8 rounded-md flex items-center justify-center bg-primary/20 shrink-0">
+                        <StreamlineFlexWallet className="size-4  " />
                       </div>
                       <div className="flex flex-col items-start min-w-0">
-                        <span className="font-semibold truncate">
+                        <span className="text-sm font-semibold truncate">
                           Crypto Wallets
                         </span>
                         <span className="text-xs text-muted-foreground truncate sm:hidden">
@@ -439,7 +443,7 @@ function GroupDetailsView({
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-sm sm:text-base font-semibold">
+                      <div className="text-sm  font-semibold">
                         $
                         {group.cryptoWallets
                           .reduce(
@@ -449,7 +453,7 @@ function GroupDetailsView({
                           )
                           .toLocaleString()}
                       </div>
-                      <div className="text-xs text-muted-foreground hidden sm:block">
+                      <div className="text-[11px] text-muted-foreground hidden sm:block">
                         {group.cryptoWallets.length} wallet
                         {group.cryptoWallets.length !== 1 ? "s" : ""}
                       </div>
@@ -462,7 +466,7 @@ function GroupDetailsView({
                       <Card
                         key={wallet.id}
                         className={`
-                          group transition-all duration-75 py-0 cursor-pointer hover:shadow-md
+                          group transition-all duration-75 py-0 cursor-pointer hover:shadow-md bg-muted/80 hover:bg-muted
                           ${selectedWallets.has(wallet.id) ? "ring-2 ring-amber-500/50 bg-amber-50/50 dark:bg-amber-900/20" : ""}
                         `}
                         onClick={() => handleWalletClick(wallet)}
@@ -491,8 +495,12 @@ function GroupDetailsView({
                                   </div>
                                 </div>
                               )}
-                              <div className="size-10 rounded-lg flex items-center justify-center bg-muted">
-                                <StreamlineFlexWallet className="size-5 " />
+                              <div className="size-10 relative rounded-lg flex items-center justify-center bg-muted">
+                              <Image src={createAvatar(botttsNeutral, {
+                                seed:wallet?.address,
+    size: 128,
+    radius: 20,
+  }).toDataUri()} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm">
@@ -920,130 +928,122 @@ export function AccountGroupsGrid({
         </Card>
       )}
 
+
+
+
       {/* Groups Grid */}
-      <div className="grid grid-cols-1  gap-4 ">
-        {displayGroups.map((group, index) => {
-          const totalValue = groupTotalValues[group.id] || 0;
-          const accountsCount = (group._count?.financialAccounts || 0) + (group._count?.cryptoWallets || 0);
+      <div className="grid sm:grid-cols-3  gap-4 ">
+ 
+ 
+      {displayGroups.map((group) => {
+  const totalValue = groupTotalValues[group.id] || 0
+  const accountsCount =
+    (group._count?.financialAccounts || 0) +
+    (group._count?.cryptoWallets || 0)
 
-          return (
-            <Card
-              key={group.id}    
-              className={` border bg-muted/60 rounded-xl hover:bg-muted
-                relative py-4 cursor-pointer
-                ${isDeleteMode && group.isDefault ? 'opacity-50 cursor-not-allowed' : ''}
-                ${isDeleteMode ? '' : ''}
-              `}
-             
-              onClick={() => handleGroupClick(group)}
-            >
-              {/* Selection indicator for delete mode */}
-              {isDeleteMode && (
-                <div className="absolute bottom-3 right-3 z-10">
-                  {group.isDefault ? (
-                    <div className="size-6 rounded-full bg-muted border-2 border-muted-foreground/20 flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">✕</span>
-                    </div>
-                  ) : (
-                    <div className={`size-6 rounded-full border-2 flex items-center justify-center transition-all state-transition ${
-                      selectedForDeletion.includes(group.id) 
-                        ? 'bg-destructive border-destructive text-destructive-foreground scale-110' 
-                        : 'bg-background border-border hover:border-destructive'
-                    }`}>
-                      {selectedForDeletion.includes(group.id) && (
-                        <span className="text-xs animate-scale-in">✓</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <CardHeader className="pb-0" >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {/* Group Icon */}
-                    <div
-                      className="size-10 rounded-lg flex items-center justify-center text-lg font-semibold shadow-sm"
-                      style={{
-                        backgroundColor: group.color
-                          ? `${group.color}40`
-                          : "hsl(var(--muted))",
-                        color: group.color || "hsl(var(--muted-foreground))",
-                 
-                      }}
-                    >
-                      {group.icon || "📁"}
-                    </div>
+  return (
+    <div
+      key={group.id}
+      onClick={() => handleGroupClick(group)}
+      className={`
+        group relative w-56 h-44 cursor-pointer select-none transition-all
+        ${isDeleteMode && group.isDefault ? "opacity-50 cursor-not-allowed" : ""}
+      `}
+    >
+      {/* Folder Tab */}
+      <div
+        className="absolute -top-3 left-6 w-28 h-7 rounded-t-md border border-b-0 shadow-xl transition-all duration-200 px-4 dark:bg-secondary bg-amber-50
+        "
 
-                    <div className="min-w-0 flex-1">
-                      <CardTitle className="text-sm truncate">{group.name}</CardTitle>
-                      <div className="flex items-center gap-2 ">
-                        {group.isDefault && (
-                          <Badge variant="secondary" className="text-[10px] px-2 py-0">
-                            Default
-                          </Badge>
-                        )}
-                        {accountsCount > 0 && (
-                          <span className="text-[10px] text-muted-foreground">
-                            {accountsCount} account{accountsCount !== 1 ? 's' : ''}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                     {/* Total Value Display */}
-                {totalValue > 0 && (
-                  <div className="">
-                    <div className="text-[10px] text-muted-foreground text-end ">Total Value</div>
-                    <div className="text-base font-semibold text-foreground">
-                      ${totalValue.toLocaleString()}
-                    </div>
-                  </div>
+      />
+
+      {/* Folder Body */}
+      <div
+        className="relative w-full h-full rounded-lg border shadow-xl dark:bg-secondary bg-amber-50
+        transition-all duration-100 group-hover:shadow-xl group-hover:-translate-y-1"
+       
+      >
+        {/* Delete Mode Selector */}
+        {isDeleteMode && (
+          <div className="absolute top-3 right-3 z-10">
+            {group.isDefault ? (
+              <div className="size-4 rounded-full bg-muted border-1 border-muted-foreground/20 flex items-center justify-center">
+                <span className="text-xs text-muted-foreground">✕</span>
+              </div>
+            ) : (
+              <div
+                className={`
+                  size-4 rounded-full border-2 flex items-center justify-center transition-all
+                  ${
+                    selectedForDeletion.includes(group.id)
+                      ? "bg-destructive border-destructive text-destructive-foreground scale-102"
+                      : "bg-background border-border hover:border-destructive"
+                  }
+                `}
+              >
+                {selectedForDeletion.includes(group.id) && (
+                  <span className="text-xs font-bold">✓</span>
                 )}
+              </div>
+            )}
+          </div>
+        )}
 
-                  
-                  {!isDeleteMode && (
-                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-                      <ArrowRight className="size-4 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
+        {/* Content */}
+        <div className="flex flex-col items-center justify-center h-full   text-center">
+     
 
-              <CardContent className="pt-0 ">
-             
-                {/* Account Types Summary */}
-                <div className="flex items-baseline gap-2">
-                  <div className="flex items-center gap-1 ">
-                    <div className="size-6 rounded-sm bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
-                      <Building2 className="size-4 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                   
-                      <div className="text-sm font-semibold text-foreground ">
-                        {group._count?.financialAccounts || 0}
-                      </div>
-                    </div>
-                  </div>
+          <div className="absolute bottom-0 left-0 flex items-center">
+ 
+          {/* Name */}
+            <div className=" w-10 h-10  flex items-center justify-center ">
+            {group.icon || "📁"}
+           
+          </div>
 
-                  <div className="flex items-center gap-2 ">
-                    <div className="size-6 rounded-sm bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-sm">
-                      <StreamlineFlexWallet className="size-4 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      
-                      <div className="text-sm font-semibold text-foreground">
-                        {group._count?.cryptoWallets || 0}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  <div className="font-semibold text-sm truncate max-w-[120px] dark:text-background">
+            {group.name}
+          </div>
+          </div>
+          {/* Folder Icon */}
+       
+          {/* Labels 
+          <div className="flex flex-wrap items-center justify-center gap-1 mt-1">
+            {group.isDefault && (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                Default
+              </span>
+            )}
+            {accountsCount > 0 && (
+              <span className="text-[10px] text-muted-foreground">
+                {accountsCount} account{accountsCount !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>*/}
 
-          
-              </CardContent>
-            </Card>
-          );
-        })}
+          {/* Total Value */}
+          {totalValue > 0 && (
+            <div className="">
+              <div className="text-[10px] text-muted-foreground">Total</div>
+              <div className="text-sm font-semibold tracking-tight dark:text-background">
+                ${totalValue.toLocaleString()}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Hover Arrow */}
+        {!isDeleteMode && (
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <ArrowRight className="size-4 text-muted-foreground" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+})}
+
+
       </div>
 
       {/* Actions */}

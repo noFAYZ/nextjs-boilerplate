@@ -34,6 +34,7 @@ import { AddOptionsModal } from "./AddOptionsModal"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useAutoWalletSync } from "@/lib/hooks/use-auto-wallet-sync"
+import { useViewMode } from "@/lib/contexts/view-mode-context"
 
 // Mobile breakpoint hook
 function useIsMobile() {
@@ -518,6 +519,7 @@ export function GlobalDocks() {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const { user } = useAuth()
+  const { isBeginnerMode } = useViewMode()
 
   // Reduce console spam by only logging on meaningful changes
   const userIdRef = React.useRef(user?.id);
@@ -538,9 +540,9 @@ export function GlobalDocks() {
   return (
     <>
       <NotificationDock />
-      <WalletsDock />
+      {!isBeginnerMode && <WalletsDock />}
       <BottomMenuDock />
-      
+
       {/* Mobile spacing for bottom navigation */}
       {isMobile && <div className="h-16" />}
     </>

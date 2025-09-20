@@ -28,7 +28,7 @@ function GlobalViewSwitcher({
   const { viewMode, setViewMode, isProMode, isBeginnerMode, toggleViewMode } = useViewMode()
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
+    sm: "h-7 text-xs",
     md: "h-9 text-sm",
     lg: "h-10 text-base"
   }
@@ -53,13 +53,13 @@ function GlobalViewSwitcher({
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-3 font-medium transition-all text-xs relative",
+                "px-2 font-medium transition-all text-xs relative overflow-visible",
                 isBeginnerMode 
                   ? "bg-background text-foreground shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <PhUser className={cn(iconSizes[size], "mr-2")} />
+              <PhUser className={cn(iconSizes[size], "mr-1")} />
               {showLabels && "Lite"}
               {isBeginnerMode && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -83,13 +83,13 @@ function GlobalViewSwitcher({
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-3 font-medium transition-all relative text-xs",
+                "px-2 font-medium transition-all relative text-xs",
                 isProMode 
                   ? "bg-background text-foreground shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <GameIconsUpgrade className={cn(iconSizes[size], "mr-2")} />
+              <GameIconsUpgrade className={cn(iconSizes[size], "mr-1")} />
               {showLabels && "Pro"}
         
               {isProMode && (

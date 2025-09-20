@@ -7,6 +7,7 @@ export interface MenuItem {
   href: string;
   submenu?: SubMenuItem[];
   badge?: string | number;
+  quickActions?: QuickAction[];
 }
 
 export interface SubMenuItem {

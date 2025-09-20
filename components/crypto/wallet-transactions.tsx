@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -49,11 +49,12 @@ interface WalletTransactionsProps {
   transactions: Transaction[];
   isLoading?: boolean;
   walletAddress?: string;
+  selectedChain?: string | null;
 }
 
 const ITEMS_PER_PAGE = 20;
 
-export function WalletTransactions({ transactions, isLoading, walletAddress }: WalletTransactionsProps) {
+export function WalletTransactions({ transactions, isLoading, walletAddress, selectedChain }: WalletTransactionsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'value' | 'gas'>('date');
@@ -62,14 +63,36 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
   const { isBeginnerMode, isProMode } = useViewMode();
 
   // Filter transactions
-  const filteredTransactions = transactions.filter(tx => {
-    const matchesSearch = tx.hash.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tx.assetSymbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tx.methodName?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    if (filterBy !== 'all') {
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(tx => {
+      const matchesSearch = tx.hash.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           tx.assetSymbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           tx.methodName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      // Filter by selected chain
+      if (selectedChain) {
+        const txNetwork = tx.network?.toLowerCase();
+        // Map some network names to match chain keys
+        const networkMapping: Record<string, string> = {
+          'binance-smart-chain': 'bsc',
+          'bsc': 'bsc',
+          'ethereum': 'ethereum',
+          'arbitrum': 'arbitrum',
+          'polygon': 'polygon',
+          'base': 'base',
+          'avalanche': 'avalanche',
+          'fantom': 'fantom',
+          'linea': 'linea',
+          'celo': 'celo',
+        };
+
+        const mappedNetwork = networkMapping[txNetwork] || txNetwork;
+        if (mappedNetwork !== selectedChain) return false;
+      }
+
+      if (filterBy !== 'all') {
       const filterMap: Record<string, string[]> = {
         send: ['SEND'],
         receive: ['RECEIVE'],
@@ -80,8 +103,9 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
     
     if (statusFilter !== 'all' && tx.status.toLowerCase() !== statusFilter) return false;
     
-    return true;
-  });
+      return true;
+    });
+  }, [transactions, searchTerm, selectedChain, filterBy, statusFilter]);
 
   // Sort transactions
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
@@ -326,8 +350,8 @@ export function WalletTransactions({ transactions, isLoading, walletAddress }: W
         </div>
       ) : (
         /* Pro View - Data Table */
-        <TransactionsDataTable 
-          transactions={transactions}
+        <TransactionsDataTable
+          transactions={sortedTransactions}
           isLoading={isLoading}
           walletAddress={walletAddress}
         />

@@ -39,7 +39,7 @@ export function SidebarSecondaryColumn({
   return (
     <div className={cn(
       "flex h-full flex-col backdrop-blur-xl transition-all duration-200 ease-out relative bg-sidebar",
-      isExpanded ? "w-76" : "w-20"
+      isExpanded ? "w-56" : "w-20"
     )}>
    
       
@@ -49,27 +49,27 @@ export function SidebarSecondaryColumn({
           <div className="flex items-center justify-between w-full">
             
            {/*    <AccountSelector collapsed={false} /> */}
-              <GlobalViewSwitcher />
+              <GlobalViewSwitcher size='sm' />
       
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 shrink-0 transition-all duration-200 hover:scale-102 active:scale-98 rounded-xl"
+              className="h-8 w-8 shrink-0 transition-all duration-100  rounded-sm"
               onClick={onToggleExpanded}
               title="Collapse sidebar"
             >
-              <FluentPanelLeftExpand28Filled className="h-7 w-7 rotate-180" />
+              <FluentPanelLeftExpand28Filled className="h-6 w-6 rotate-180" />
             </Button>
           </div>
         ) : (
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 mx-auto transition-all duration-200 hover:scale-102 active:scale-98 rounded-xl" 
+            className="h-8 w-8 mx-auto transition-all duration-100  rounded-xl" 
             onClick={onToggleExpanded}
             title="Expand sidebar"
           >
-            <FluentPanelLeftExpand28Filled className="h-7 w-7" />
+            <FluentPanelLeftExpand28Filled className="h-6 w-6" />
           </Button>
         )}
       </div>
@@ -105,7 +105,10 @@ export function SidebarSecondaryColumn({
           
             {/* Main Navigation */}
             {selectedMenuData?.submenu ? (
-              <SidebarMenuContent submenu={selectedMenuData?.submenu} onMobileClose={onMobileClose} />
+              <>
+                <SidebarMenuContent submenu={selectedMenuData?.submenu} onMobileClose={onMobileClose} />
+            
+              </>
             ) : (
               <SidebarQuickActions actions={actions} onActionClick={onActionClick} />
             )}

@@ -19,6 +19,8 @@ import { BasilAppsSolid, StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBo
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { CurrencySelector } from '@/components/ui/currency-selector';
 import { Separator } from '@/components/ui/separator';
+import { ViewSwitcher } from '../crypto/view-switcher';
+import { GlobalViewSwitcher } from '../ui/global-view-switcher';
 
 
 interface HeaderProps {
@@ -247,18 +249,19 @@ export function Header({
               <CurrencySelector variant="compact" showRefresh />
             </div>
 
-            <ThemeSwitcher />
+           <div  className='hidden sm:flex' ><ThemeSwitcher  /></div> 
+            <GlobalViewSwitcher size='sm' className='hidden sm:flex' />
 
-            {/* Create Button */}
+            {/* Create Button
             <Button size="sm" className="hidden sm:flex items-center gap-1">
               <Plus className="h-4 w-4" />
               New
             </Button>
 
-            {/* Help */}
+           
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <HelpCircle className="h-4 w-4" />
-            </Button>
+            </Button> */}
 
             {/* User Profile */}
             <DropdownMenu>
@@ -327,44 +330,26 @@ export function Header({
 
         {/* Mobile Menu - Now showing help and profile options */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t bg-background">
-            <nav className="px-4 py-4 space-y-2">
-              {/* Currency Selector for mobile */}
-              <div className="md:hidden mb-3">
-                <div className="text-xs text-muted-foreground mb-2 px-2">Currency</div>
-                <CurrencySelector variant="compact" />
-              </div>
+  <div className="lg:hidden border-t bg-card">
+    <nav className="px-4 py-4 space-y-6">
+      
+      {/* Theme + Currency */}
+ 
+        <div className="flex items-center gap-4">
+          <ThemeSwitcher />
+    
+           <GlobalViewSwitcher size="sm" />
+            <CurrencySelector variant="compact" />
+            
+        </div>
+ 
 
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => {
-                  commandPalette.setOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                <Search className="mr-2 h-4 w-4" />
-                Search
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                New
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Help & Support
-              </Button>
-            </nav>
-          </div>
-        )}
+  
+
+    </nav>
+  </div>
+)}
+
       </header>
 
       {/* Command Palette */}

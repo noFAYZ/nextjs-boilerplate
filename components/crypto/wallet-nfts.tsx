@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +46,7 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 interface WalletNFTsProps {
   nfts: CryptoNFT[];
   isLoading?: boolean;
+  selectedChain?: string | null;
 }
 
 interface NFTFilters {
@@ -211,7 +212,7 @@ const NFTImage = ({ nft, getOpenseaUrl }: { nft: CryptoNFT; getOpenseaUrl: (nft:
   );
 };
 
-export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
+export function WalletNFTs({ nfts, isLoading, selectedChain }: WalletNFTsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'value' | 'rarity' | 'name' | 'collection' | 'network'>('value');
@@ -241,17 +242,39 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
     .sort();
 
   // Filter and search NFTs
-  const filteredNFTs = nfts.filter(nft => {
-    // Search filter
-    const matchesSearch = (nft.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          nft.collectionName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          nft.tokenId.includes(searchTerm));
-    if (!matchesSearch) return false;
-    
-    // Network filter
-    if (filters.networks.length > 0 && !filters.networks.includes(nft.network)) {
-      return false;
-    }
+  const filteredNFTs = useMemo(() => {
+    return nfts.filter(nft => {
+      // Search filter
+      const matchesSearch = (nft.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            nft.collectionName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            nft.tokenId.includes(searchTerm));
+      if (!matchesSearch) return false;
+
+      // Chain filter (from chain buttons)
+      if (selectedChain) {
+        const nftNetwork = nft.network?.toLowerCase();
+        // Map some network names to match chain keys
+        const networkMapping: Record<string, string> = {
+          'binance-smart-chain': 'bsc',
+          'bsc': 'bsc',
+          'ethereum': 'ethereum',
+          'arbitrum': 'arbitrum',
+          'polygon': 'polygon',
+          'base': 'base',
+          'avalanche': 'avalanche',
+          'fantom': 'fantom',
+          'linea': 'linea',
+          'celo': 'celo',
+        };
+
+        const mappedNetwork = networkMapping[nftNetwork] || nftNetwork;
+        if (mappedNetwork !== selectedChain) return false;
+      }
+
+      // Network filter (from internal filters)
+      if (filters.networks.length > 0 && !filters.networks.includes(nft.network)) {
+        return false;
+      }
     
     // Collection filter
     if (filters.collections.length > 0 && !filters.collections.includes(nft.collectionName)) {
@@ -278,8 +301,9 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
     // Has value filter
     if (filters.hasValue && value === 0) return false;
     
-    return true;
-  });
+      return true;
+    });
+  }, [nfts, searchTerm, selectedChain, filters]);
 
   // Sort NFTs
   const sortedNFTs = [...filteredNFTs].sort((a, b) => {
@@ -319,6 +343,7 @@ export function WalletNFTs({ nfts, isLoading }: WalletNFTsProps) {
 
   return (
     <div className="space-y-4">
+
       {/* Modern Header with Gradient Stats */}
 <div className='px-4 flex justify-between'>
       <div className=" ">

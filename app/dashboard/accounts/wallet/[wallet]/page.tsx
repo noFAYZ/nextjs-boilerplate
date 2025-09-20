@@ -71,6 +71,7 @@ import { cn } from "@/lib/utils";
 import { timestampzToReadable } from "@/lib/utils/time";
 import { Tooltip } from "@/components/ui/tooltip";
 import { WalletSyncModal } from "@/components/crypto/wallet-sync-modal";
+import { ChainFilters } from "@/components/crypto/chain-filters";
 
 interface WalletPageProps {
   params: Promise<{
@@ -178,6 +179,7 @@ function WalletSkeleton() {
 function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("tokens");
+  const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const { pageClass } = useViewModeClasses();
 
@@ -197,6 +199,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const prevSyncStatusRef = useRef<string>();
 
   console.log('Wallet data:', wallet);
+  console.log('Selected chain:', selectedChain);
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
@@ -802,10 +805,18 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
         )}
       </div>
 
+      {/* Chain Filters */}
+      <ChainFilters
+        portfolio={wallet?.portfolio || {}}
+        selectedChain={selectedChain}
+        onChainSelect={setSelectedChain}
+        isLoading={isLoading || isSyncing}
+      />
+
       {/* Wallet Details Tabs */}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="  mt-8 " variant="ghost">
+        <TabsList className="  mt-2 " variant="ghost">
           <TabsTrigger
             value="tokens"
             className="flex px-2 items-center gap-1.5 cursor-pointer  "
@@ -843,23 +854,36 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tokens" className=" ">
-          <WalletTokens tokens={wallet?.assets || []} isLoading={isLoading || isSyncing} />
+        <TabsContent value="tokens" className=" " key={`tokens-${selectedChain || 'all'}`}>
+          <WalletTokens
+            tokens={wallet?.assets || []}
+            isLoading={isLoading || isSyncing}
+            selectedChain={selectedChain}
+          />
         </TabsContent>
 
-        <TabsContent value="defi" className=" ">
-          <WalletDeFi defiApps={wallet?.defiApps || []} isLoading={isLoading || isSyncing} />
+        <TabsContent value="defi" className=" " key={`defi-${selectedChain || 'all'}`}>
+          <WalletDeFi
+            defiApps={wallet?.defiApps || []}
+            isLoading={isLoading || isSyncing}
+            selectedChain={selectedChain}
+          />
         </TabsContent>
 
-        <TabsContent value="nfts" className=" ">
-          <WalletNFTs nfts={nfts || []} isLoading={isLoading || isSyncing} />
+        <TabsContent value="nfts" className=" " key={`nfts-${selectedChain || 'all'}`}>
+          <WalletNFTs
+            nfts={nfts || []}
+            isLoading={isLoading || isSyncing}
+            selectedChain={selectedChain}
+          />
         </TabsContent>
 
-        <TabsContent value="transactions" className=" ">
+        <TabsContent value="transactions" className=" " key={`transactions-${selectedChain || 'all'}`}>
           <WalletTransactions
             transactions={transactions || []}
             isLoading={isLoading || isSyncing}
             walletAddress={wallet?.walletData?.address}
+            selectedChain={selectedChain}
           />
         </TabsContent>
       </Tabs>

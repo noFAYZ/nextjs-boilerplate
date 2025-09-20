@@ -310,3 +310,13 @@ export function MynauiActivitySquare(props: SVGProps<SVGSVGElement>) {
 export function StreamlineUltimateCryptoCurrencyBitcoinDollarExchange(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6}><path d="M18.75 3.75h-2.033a1.342 1.342 0 0 0-.5 2.587l2.064.826a1.342 1.342 0 0 1-.5 2.587h-.531m0-6V3"></path><path d="M18.03 12.7a6.001 6.001 0 1 0-6.73-6.742m4.45 9.792a7.5 7.5 0 0 0-7.5-7.5m-6 3a7.5 7.5 0 1 0 12.5 8.25"></path><path d="M6.75 18.75v-6H9a1.5 1.5 0 1 1 0 3a1.5 1.5 0 1 1 0 3zm0-3H9m-.75-3v-1.5m0 7.5v1.5M.75 4.5L3 8.25L6.75 6"></path><path d="M8.189.9a6.75 6.75 0 0 0-4.417 6.886M23.25 19.5L21 15.75L17.25 18"></path><path d="M15.811 23.1a6.75 6.75 0 0 0 4.417-6.884"></path></g></svg>);
 }
+
+
+export function RivetIconsCheckAll(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 16 16" {...props}><path fill="currentColor" d="m4.261 13.49l6.614-10.822l-1.707-1.043l-5.43 8.885l-2.394-1.916l-1.25 1.562zM16 3h-4v2h4zm0 4h-6v2h6zm0 4v2H8v-2z" strokeWidth={0.5} stroke="currentColor"></path></svg>);
+}
+
+
+export function FluentSelectAllOn24Regular(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M15.28 9.03a.75.75 0 0 0-1.06-1.06L10 12.19l-1.97-1.97a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0zM3 6.25A3.25 3.25 0 0 1 6.25 3h9.5A3.25 3.25 0 0 1 19 6.25v9.5A3.25 3.25 0 0 1 15.75 19h-9.5A3.25 3.25 0 0 1 3 15.75zM6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v9.5c0 .966.784 1.75 1.75 1.75h9.5a1.75 1.75 0 0 0 1.75-1.75v-9.5a1.75 1.75 0 0 0-1.75-1.75zm2.991 17A3.25 3.25 0 0 1 6.5 19.999h9.746A3.753 3.753 0 0 0 20 16.246V6.5a3.25 3.25 0 0 1 1.5 2.741v7.005a5.254 5.254 0 0 1-5.254 5.254z" strokeWidth={0.5} stroke="currentColor"></path></svg>);
+}

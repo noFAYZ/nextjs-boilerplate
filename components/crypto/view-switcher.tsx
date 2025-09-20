@@ -4,22 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LayoutGrid, Table2, User, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useViewMode } from '@/lib/contexts/view-mode-context';
 
 export type ViewMode = 'beginner' | 'pro';
 
 interface ViewSwitcherProps {
   viewMode: ViewMode;
-  onViewModeChange: (mode: ViewMode) => void;
+  onViewModeChange?: (mode: ViewMode) => void;
   className?: string;
 }
 
 export function ViewSwitcher({ viewMode, onViewModeChange, className }: ViewSwitcherProps) {
+
+  const {setViewMode} = useViewMode();
+
   return (
     <div className={cn("flex items-center gap-1 bg-muted p-1 rounded-lg", className)}>
       <Button
         variant={viewMode === 'beginner' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => onViewModeChange('beginner')}
+        onClick={() => setViewMode('beginner')}
         className={cn(
           "h-8 px-3 text-xs font-medium transition-all",
           viewMode === 'beginner' 
@@ -37,7 +41,7 @@ export function ViewSwitcher({ viewMode, onViewModeChange, className }: ViewSwit
       <Button
         variant={viewMode === 'pro' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => onViewModeChange('pro')}
+        onClick={() => setViewMode('pro')}
         className={cn(
           "h-8 px-3 text-xs font-medium transition-all",
           viewMode === 'pro' 

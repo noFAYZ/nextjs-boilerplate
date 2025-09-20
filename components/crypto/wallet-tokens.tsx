@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,7 @@ interface TokenPosition {
 interface WalletTokensProps {
   tokens: TokenPosition[];
   isLoading?: boolean;
+  selectedChain?: string | null;
 }
 
 const ITEMS_PER_PAGE = 15;
@@ -129,7 +130,7 @@ const TokenIcon = ({ token, isLoading }: { token: TokenPosition; isLoading?: boo
   );
 };
 
-export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
+export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'value' | 'change' | 'name'>('value');
@@ -143,17 +144,67 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
   const topPerformers = tokens.filter(token => token.dayChangePct && token.dayChangePct >= 5).length;
 
   // Filter and search tokens
-  const filteredTokens = tokens.filter(token => {
-    const matchesSearch = token.asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         token.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    if (filterBy === 'profitable') return (token.dayChangePct || 0) > 0;
-    if (filterBy === 'losing') return (token.dayChangePct || 0) < 0;
-    if (filterBy === 'major') return token.balanceUsd >= 100;
-    return true;
-  });
+  const filteredTokens = useMemo(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('WalletTokens filtering with selectedChain:', selectedChain, 'tokens count:', tokens.length);
+      console.log('Available networks in tokens:', [...new Set(tokens.map(t => t.asset.network))]);
+    }
+
+    const filtered = tokens.filter(token => {
+      const matchesSearch = token.asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           token.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      // Filter by selected chain
+      if (selectedChain) {
+        const tokenNetwork = token.asset.network?.toLowerCase();
+
+        // Map some network names to match chain keys - more comprehensive mapping
+        const networkMapping: Record<string, string> = {
+          'binance-smart-chain': 'bsc',
+          'bsc': 'bsc',
+          'bnb': 'bsc',
+          'bnb-smart-chain': 'bsc',
+          'ethereum': 'ethereum',
+          'eth': 'ethereum',
+          'arbitrum': 'arbitrum',
+          'arbitrum-one': 'arbitrum',
+          'polygon': 'polygon',
+          'matic': 'polygon',
+          'polygon-matic': 'polygon',
+          'base': 'base',
+          'avalanche': 'avalanche',
+          'avax': 'avalanche',
+          'avalanche-c-chain': 'avalanche',
+          'fantom': 'fantom',
+          'ftm': 'fantom',
+          'linea': 'linea',
+          'celo': 'celo',
+        };
+
+        const mappedNetwork = networkMapping[tokenNetwork] || tokenNetwork;
+        const shouldInclude = mappedNetwork === selectedChain;
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🔍 Token "${token.asset.symbol}": network="${tokenNetwork}" mapped="${mappedNetwork}" selectedChain="${selectedChain}" include=${shouldInclude}`);
+        }
+
+        if (!shouldInclude) return false;
+      }
+
+      if (filterBy === 'profitable') return (token.dayChangePct || 0) > 0;
+      if (filterBy === 'losing') return (token.dayChangePct || 0) < 0;
+      if (filterBy === 'major') return token.balanceUsd >= 100;
+      return true;
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('WalletTokens filtered result:', filtered.length, 'tokens');
+    }
+
+    return filtered;
+  }, [tokens, searchTerm, selectedChain, filterBy]);
 
   // Sort tokens
   const sortedTokens = [...filteredTokens].sort((a, b) => {
@@ -180,9 +231,6 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
 
   return (
     <div className="space-y-3">
-
- 
-    
 
       {/* Compact Filters - Beginner View Only */}
       {isBeginnerMode && (
@@ -347,8 +395,8 @@ export function WalletTokens({ tokens, isLoading }: WalletTokensProps) {
         </div>
       ) : (
         /* Pro View - Data Table */
-          <TokensDataTable 
-            tokens={tokens} 
+          <TokensDataTable
+            tokens={sortedTokens}
             totalValue={totalValue}
             isLoading={isLoading}
           />

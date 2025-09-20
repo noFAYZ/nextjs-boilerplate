@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { 
+import {
   Search,
   Plus,
   Bell,
@@ -12,7 +12,17 @@ import {
   Upload,
   Building,
   Store,
-  Menu
+  Menu,
+  BarChart3,
+  FileText,
+  TrendingUp,
+  Target,
+  Lightbulb,
+  RefreshCw,
+  Filter,
+  Calendar,
+  Share,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -46,6 +56,14 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'overview', label: 'Overview', href: '/dashboard', description: 'Main dashboard view', icon: TablerEyeDollar},
       { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics', description: 'Detailed analytics', icon: HugeiconsAnalyticsUp },
       { id: 'reports', label: 'Reports', href: '/dashboard/reports', description: 'Financial reports', icon: StreamlinePlumpFileReport }
+    ],
+    quickActions: [
+      { id: 'refresh-data', label: 'Refresh Data', icon: RefreshCw, action: () => window.location.reload(), shortcut: '⌘R' },
+      { id: 'export-dashboard', label: 'Export Dashboard', icon: Download, action: () => {}, shortcut: '⌘E' },
+      { id: 'dashboard-settings', label: 'Dashboard Settings', icon: Settings, action: () => {}, },
+      { id: 'filter-data', label: 'Filter Data', icon: Filter, action: () => {}, shortcut: '⌘F' },
+      { id: 'schedule-report', label: 'Schedule Report', icon: Calendar, action: () => {}, },
+      { id: 'share-dashboard', label: 'Share Dashboard', icon: Share, action: () => {}, }
     ]
   },
   {
@@ -59,6 +77,13 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
       { id: 'services', label: 'Business Services', href: '/dashboard/accounts/service', icon: Store, description: 'Shopify, QuickBooks, etc.' },
       { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
+    ],
+    quickActions: [
+      { id: 'add-account', label: 'Add Account', icon: Plus, action: () => {}, shortcut: '⌘A' },
+      { id: 'sync-accounts', label: 'Sync All Accounts', icon: RefreshCw, action: () => {}, shortcut: '⌘S' },
+      { id: 'export-accounts', label: 'Export Accounts', icon: Download, action: () => {}, },
+      { id: 'account-settings', label: 'Account Settings', icon: Settings, action: () => {}, },
+      { id: 'bulk-actions', label: 'Bulk Actions', icon: BarChart3, action: () => {}, }
     ]
   },
   {
@@ -71,6 +96,13 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'holdings', label: 'Holdings', href: '/dashboard/portfolio/holdings' },
       { id: 'performance', label: 'Performance', href: '/dashboard/portfolio/performance' },
       { id: 'allocation', label: 'Asset Allocation', href: '/dashboard/portfolio/allocation' }
+    ],
+    quickActions: [
+      { id: 'rebalance', label: 'Rebalance Portfolio', icon: BarChart3, action: () => {}, },
+      { id: 'analyze-performance', label: 'Analyze Performance', icon: TrendingUp, action: () => {}, shortcut: '⌘P' },
+      { id: 'export-portfolio', label: 'Export Portfolio', icon: Download, action: () => {}, },
+      { id: 'portfolio-alerts', label: 'Set Alerts', icon: Bell, action: () => {}, },
+      { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
     ]
   },
   {
@@ -83,6 +115,13 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'income', label: 'Income', href: '/dashboard/transactions/income' },
       { id: 'expenses', label: 'Expenses', href: '/dashboard/transactions/expenses' },
       { id: 'transfers', label: 'Transfers', href: '/dashboard/transactions/transfers' }
+    ],
+    quickActions: [
+      { id: 'add-transaction', label: 'Add Transaction', icon: Plus, action: () => {}, shortcut: '⌘T' },
+      { id: 'import-csv', label: 'Import CSV', icon: Upload, action: () => {}, },
+      { id: 'export-transactions', label: 'Export Transactions', icon: Download, action: () => {}, },
+      { id: 'categorize-bulk', label: 'Bulk Categorize', icon: Filter, action: () => {}, },
+      { id: 'transaction-rules', label: 'Auto-Rules', icon: Settings, action: () => {}, }
     ]
   },
   {
@@ -94,6 +133,13 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'savings', label: 'Savings Goals', href: '/dashboard/goals/savings' },
       { id: 'investment', label: 'Investment Goals', href: '/dashboard/goals/investment' },
       { id: 'create', label: 'Create Goal', href: '/dashboard/goals/create', icon: Plus }
+    ],
+    quickActions: [
+      { id: 'create-goal', label: 'Create Goal', icon: Plus, action: () => {}, shortcut: '⌘G' },
+      { id: 'track-progress', label: 'Track Progress', icon: Target, action: () => {}, },
+      { id: 'goal-insights', label: 'Goal Insights', icon: Lightbulb, action: () => {}, },
+      { id: 'share-goals', label: 'Share Goals', icon: Share, action: () => {}, },
+      { id: 'goal-reminders', label: 'Set Reminders', icon: Bell, action: () => {}, }
     ]
   },
   {
@@ -105,6 +151,13 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'market', label: 'Market Analysis', href: '/dashboard/insights/market' },
       { id: 'trends', label: 'Spending Trends', href: '/dashboard/insights/trends' },
       { id: 'recommendations', label: 'AI Recommendations', href: '/dashboard/insights/recommendations' }
+    ],
+    quickActions: [
+      { id: 'generate-insights', label: 'Generate Insights', icon: Lightbulb, action: () => {}, shortcut: '⌘I' },
+      { id: 'market-alerts', label: 'Market Alerts', icon: Bell, action: () => {}, },
+      { id: 'custom-report', label: 'Custom Report', icon: FileText, action: () => {}, },
+      { id: 'insight-history', label: 'Insight History', icon: Calendar, action: () => {}, },
+      { id: 'share-insights', label: 'Share Insights', icon: Share, action: () => {}, }
     ]
   }
 ];

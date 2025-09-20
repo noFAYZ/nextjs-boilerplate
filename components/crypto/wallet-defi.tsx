@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +58,7 @@ import type { DeFiAppData, DeFiPosition } from '@/lib/types/crypto';
 interface WalletDeFiProps {
   defiApps: DeFiAppData[];
   isLoading?: boolean;
+  selectedChain?: string | null;
 }
 
 const ITEMS_PER_PAGE = 15;
@@ -155,7 +156,7 @@ const TokenPairIcons = ({ position, isLoading }: { position: DeFiPosition; isLoa
   );
 };
 
-export function WalletDeFi({ defiApps, isLoading }: WalletDeFiProps) {
+export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'value' | 'apy' | 'name'>('value');
@@ -177,20 +178,43 @@ export function WalletDeFi({ defiApps, isLoading }: WalletDeFiProps) {
     : 0;
 
   // Filter and search positions
-  const filteredPositions = allPositions.filter(position => {
-    const matchesSearch =
-      position.app?.displayName?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-      position.displayProps?.label?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-      position.groupLabel?.toLowerCase()?.includes(searchTerm?.toLowerCase());
+  const filteredPositions = useMemo(() => {
+    return allPositions.filter(position => {
+      const matchesSearch =
+        position.app?.displayName?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        position.displayProps?.label?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        position.groupLabel?.toLowerCase()?.includes(searchTerm?.toLowerCase());
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (filterBy === 'pools') return position.groupId === 'pool' || position.positionType === 'LIQUIDITY_POOL';
-    if (filterBy === 'lending') return position.metaType === 'SUPPLIED' || position.metaType === 'BORROWED';
-    if (filterBy === 'staking') return position.metaType === 'STAKED' || position.metaType === 'LOCKED';
-    if (filterBy === 'high-yield') return (position.apy || 0) >= 10;
-    return true;
-  });
+      // Filter by selected chain
+      if (selectedChain) {
+        const positionNetwork = position.network?.toLowerCase();
+        // Map some network names to match chain keys
+        const networkMapping: Record<string, string> = {
+          'binance-smart-chain': 'bsc',
+          'bsc': 'bsc',
+          'ethereum': 'ethereum',
+          'arbitrum': 'arbitrum',
+          'polygon': 'polygon',
+          'base': 'base',
+          'avalanche': 'avalanche',
+          'fantom': 'fantom',
+          'linea': 'linea',
+          'celo': 'celo',
+        };
+
+        const mappedNetwork = networkMapping[positionNetwork] || positionNetwork;
+        if (mappedNetwork !== selectedChain) return false;
+      }
+
+      if (filterBy === 'pools') return position.groupId === 'pool' || position.positionType === 'LIQUIDITY_POOL';
+      if (filterBy === 'lending') return position.metaType === 'SUPPLIED' || position.metaType === 'BORROWED';
+      if (filterBy === 'staking') return position.metaType === 'STAKED' || position.metaType === 'LOCKED';
+      if (filterBy === 'high-yield') return (position.apy || 0) >= 10;
+      return true;
+    });
+  }, [allPositions, searchTerm, selectedChain, filterBy]);
 
   // Sort positions
   const sortedPositions = [...filteredPositions].sort((a, b) => {

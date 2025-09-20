@@ -48,12 +48,12 @@ export function SidebarMainColumn({
   }, [router]);
 
   return (
-    <div className="flex h-full w-22 flex-col bg-sidebar">
+    <div className="flex h-full w-20 flex-col bg-sidebar">
       {/* Logo */}
       <div className="flex h-20 items-center justify-center">
         <Link href="/dashboard" className="flex items-center transition-transform hover:scale-105 group relative">
-          <LogoMappr className="h-12 w-12" />
-          <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+          <LogoMappr className="h-8 w-8" />
+          <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md border opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none whitespace-nowrap z-50">
             MoneyMappr Dashboard
           </div>
         </Link> 
@@ -61,7 +61,7 @@ export function SidebarMainColumn({
 
       {/* Main Menu */}
       <div className="flex-1 py-4 overflow-visible z-50">
-        <nav className="flex flex-col gap-4 px-4">
+        <nav className="flex flex-col gap-3 px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeMenuItem === item.id;
@@ -70,17 +70,17 @@ export function SidebarMainColumn({
             return (
               <Button
                 key={item.id}
-                variant={isSelected ? "outline" : "ghost"}
+                variant={ "ghost"}
                 size="icon"
                 className={cn(
-                  "relative h-12 w-12 group",
-                  isSelected && " relative  shadow-sm",
-                  "hover:scale-105 active:scale-98"
+                  "relative h-9 w-9 group",
+                  isSelected && " relative bg-muted  shadow-sm",
+                  "hover:scale-102 active:scale-98 hover:bg-muted/90"
                 )}
                 onClick={() => onMenuItemClick(item.id)}
                 title={item.label}
               >
-                <Icon className="h-7 w-7" />
+                <Icon className="h-6 w-6" />
                 {item.badge && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground animate-pulse">
                     {item.badge}
