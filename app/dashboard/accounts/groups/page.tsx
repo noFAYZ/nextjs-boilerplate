@@ -31,7 +31,7 @@ import {
 import Link from "next/link";
 import StreamlineUltimateAccountingCoins, { GuidanceBank, MageDashboard, SolarWalletBoldDuotone, StreamlineFlexWallet } from "@/components/icons/icons";
 import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
-import { useGroupedAccounts } from "@/lib/hooks/use-account-groups";
+import { useAccountGroupsStore } from "@/lib/stores/account-groups-store";
 import type { AccountGroup } from "@/lib/types/account-groups";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -208,7 +208,11 @@ function EnhancedAccountTypeCard({
 }
 
 export default function AccountsPage() {
-  const { stats } = useGroupedAccounts();
+  // Use Zustand store directly to avoid duplicate API calls
+  const groups = useAccountGroupsStore((state) => state.groups);
+  const isLoading = useAccountGroupsStore((state) => state.groupsLoading);
+  const error = useAccountGroupsStore((state) => state.groupsError);
+  const stats = useAccountGroupsStore((state) => state.stats);
 
   const handleGroupSelect = (group: AccountGroup) => {
     // Navigate to group detail page or show group contents

@@ -576,10 +576,12 @@ export function AccountGroupsGrid({
   const error = useAccountGroupsStore((state) => state.groupsError);
   const fetchGroups = useAccountGroupsStore((state) => state.fetchGroups);
   const deleteGroup = useAccountGroupsStore((state) => state.deleteGroup);
-  
-  // Load groups on mount
+
+  // Load groups on mount - prevent infinite fetching
+  const hasLoaded = React.useRef(false);
   React.useEffect(() => {
-    if (groups.length === 0 && !isLoading) {
+    if (!hasLoaded.current && groups.length === 0 && !isLoading && !error) {
+      hasLoaded.current = true;
       fetchGroups({
         details: true,
         includeAccounts: true,
@@ -587,7 +589,7 @@ export function AccountGroupsGrid({
         includeCounts: true,
       });
     }
-  }, [groups.length, isLoading, fetchGroups]);
+  }, [groups.length, isLoading, error, fetchGroups]);
 
   // Get limited groups for display
   const displayGroups = useMemo(() => groups.slice(0, limit), [groups, limit]);
@@ -794,7 +796,7 @@ export function AccountGroupsGrid({
 
   if (groups.length === 0) {
     return (
-      <Card variant="ghost" className="text-center p-12">
+      <Card  className="text-center justify-center p-12 border border-dashed">
         <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
           <div className="size-16 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center animate-float">
             <FolderOpen className="size-8 text-primary" />
@@ -805,11 +807,18 @@ export function AccountGroupsGrid({
               Create your first account group to organize your finances and get better insights into your spending patterns.
             </p>
           </div>
-          <Button onClick={handleCreateGroup} size="lg" className="animate-scale-in">
+          <Button onClick={handleCreateGroup} size="xs" className="animate-scale-in">
             <Plus className="size-4 mr-2" />
             Create First Group
           </Button>
         </div>
+
+        <CreateGroupDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSuccess={handleGroupCreated}
+        parentGroups={groups.filter((g) => !g.parentId)}
+      />
       </Card>
     );
   }

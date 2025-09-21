@@ -64,13 +64,7 @@ export function useAccountGroups(options: AccountGroupsQueryOptions = {}) {
     }
   }, [user]);
 
-  useEffect(() => {
-    // Only fetch if options have actually changed
-    if (lastOptionsKeyRef.current !== optionsKey) {
-      lastOptionsKeyRef.current = optionsKey;
-      fetchGroups();
-    }
-  }, [optionsKey, fetchGroups]);
+
 
   const refetch = useCallback(() => {
     fetchGroups();
@@ -303,14 +297,14 @@ export function useAccountGroupMutations() {
  * Hook for organizing accounts by groups
  */
 export function useGroupedAccounts() {
-  // Use static options object to prevent infinite re-renders
+  // Use stable options object to prevent infinite re-renders
   const staticOptions = useMemo(() => ({
     details: true,
     includeAccounts: true,
     includeWallets: true,
     includeCounts: true,
   }), []);
-  
+
   const { groups, isLoading, error, refetch } = useAccountGroups(staticOptions);
 
   // Organize accounts by groups

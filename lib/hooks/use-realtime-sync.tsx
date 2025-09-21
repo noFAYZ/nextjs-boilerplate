@@ -2,7 +2,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore, selectSession } from '@/lib/stores/auth-store';
 
 export interface WalletSyncProgress {
   walletId: string;
@@ -50,9 +50,10 @@ export class MultiWalletSyncTracker {
     this.lastConnectionAttempt = now;
 
     if (this.isSSESupported()) {
+      console.log('SSE: Starting connection');
       this.startSSE();
     } else {
-      console.warn('SSE not supported in this environment');
+      console.warn('SSE: Not supported in this environment');
       this.onError('Server-Sent Events not supported');
     }
   }
@@ -82,6 +83,7 @@ export class MultiWalletSyncTracker {
 
   private async testServerConnectivity(): Promise<void> {
     try {
+      console.log('🔍 Testing server connectivity...');
       // First try a simple health check
       const response = await fetch(`${this.API_BASE}/health`, {
         method: 'GET',
@@ -90,12 +92,13 @@ export class MultiWalletSyncTracker {
       });
 
       if (response.ok) {
+        console.log('✅ Health check passed');
         // Test if the SSE endpoint exists (but don't establish connection)
         const sseTest = await fetch(`${this.API_BASE}/crypto/user/sync/stream`, {
-          method: 'HEAD', // Just check if endpoint exists
           credentials: 'include',
           signal: AbortSignal.timeout(3000)
         });
+        console.log('🔗 SSE endpoint exists');
       } else {
         if (response.status === 401) {
           throw new Error('Authentication required');
@@ -139,13 +142,23 @@ export class MultiWalletSyncTracker {
       const url = `${this.API_BASE}/crypto/user/sync/stream`;
 
       // Test basic connectivity first
-      await this.testServerConnectivity();
+    //  await this.testServerConnectivity();
 
+      // Get auth token for SSE connection
+      const session = selectSession(useAuthStore.getState());
+      const token = session?.token;
+
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      // Create EventSource with authorization header (sent automatically with credentials)
       this.eventSource = new EventSource(url, {
         withCredentials: true
       });
 
       this.eventSource.onopen = () => {
+        console.log('SSE: Connection established');
         this.onConnectionChange(true);
         this.reconnectAttempts = 0;
         this.connectionBackoffTime = 1000;
@@ -156,12 +169,12 @@ export class MultiWalletSyncTracker {
           const data = JSON.parse(event.data);
           this.handleSSEMessage(data);
         } catch (error) {
-          console.error('Failed to parse SSE message:', error);
-          // Log the error but don't let it crash the connection
+          console.error('SSE: Failed to parse message:', error);
         }
       };
 
       this.eventSource.onerror = () => {
+        console.log('SSE: Connection error');
         this.onConnectionChange(false);
 
         // Clean up the connection
@@ -169,7 +182,7 @@ export class MultiWalletSyncTracker {
           try {
             this.eventSource.close();
           } catch (closeError) {
-            console.warn('Error closing EventSource:', closeError);
+            console.warn('SSE: Error closing connection:', closeError);
           }
           this.eventSource = null;
         }
@@ -177,6 +190,7 @@ export class MultiWalletSyncTracker {
         if (!this.isClosing && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect();
         } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          console.log('SSE: Max reconnection attempts reached');
           this.onError('Connection failed after multiple attempts. Please refresh the page.');
         }
       };
@@ -303,16 +317,16 @@ export class MultiWalletSyncTracker {
               try {
                 this.onConnectionChange(false);
               } catch (callbackError) {
-                console.error('Error in onConnectionChange from heartbeat timeout:', callbackError);
+                console.error('SSE: Error in heartbeat timeout:', callbackError);
               }
             }, 45000);
           } catch (heartbeatError) {
-            console.error('Error processing heartbeat:', heartbeatError);
+            console.error('SSE: Error processing heartbeat:', heartbeatError);
           }
           break;
 
         default:
-          console.warn('Unknown SSE message type:', data.type, 'Full message:', data);
+          console.warn('SSE: Unknown message type:', data.type);
       }
     } catch (error) {
       console.error('Error processing SSE message:', error, 'Message:', data);
@@ -321,8 +335,6 @@ export class MultiWalletSyncTracker {
   }
 
   private cleanup(): void {
-  
-
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -343,7 +355,7 @@ export class MultiWalletSyncTracker {
           this.eventSource.close();
         }
       } catch (error) {
-        console.warn('Error closing EventSource:', error);
+        console.warn('SSE: Error closing connection:', error);
       }
       this.eventSource = null;
     }
@@ -365,7 +377,7 @@ export class MultiWalletSyncTracker {
     try {
       this.onConnectionChange(false);
     } catch (callbackError) {
-      console.error('❌ Error in onConnectionChange callback during cleanup:', callbackError);
+      console.error('SSE: Error in cleanup:', callbackError);
     }
   }
 }
@@ -389,7 +401,6 @@ export function useWalletSyncProgress() {
       }
     } catch (error) {
       console.error('Error in handleProgress:', error);
-      throw error; // Re-throw so SSE error handler can catch it
     }
   }, [cryptoStore]);
 
@@ -399,7 +410,6 @@ export function useWalletSyncProgress() {
       refreshWalletData(walletId);
     } catch (error) {
       console.error('Error in handleComplete:', error);
-      throw error; // Re-throw so SSE error handler can catch it
     }
   }, [cryptoStore]);
 
@@ -408,7 +418,6 @@ export function useWalletSyncProgress() {
       cryptoStore.setRealtimeSyncError(errorMsg);
     } catch (error) {
       console.error('Error in handleError:', error);
-      throw error; // Re-throw so SSE error handler can catch it
     }
   }, [cryptoStore]);
 
@@ -417,7 +426,6 @@ export function useWalletSyncProgress() {
       cryptoStore.setRealtimeSyncConnected(connected);
     } catch (error) {
       console.error('Error in handleConnectionChange:', error);
-      throw error; // Re-throw so SSE error handler can catch it
     }
   }, [cryptoStore]);
 
@@ -445,7 +453,6 @@ export function useWalletSyncProgress() {
       trackerRef.current.stopTracking();
       trackerRef.current = null;
     }
-
     const tracker = new MultiWalletSyncTracker(
       (walletId, progress) => handleProgressRef.current(walletId, progress),
       (walletId, result) => handleCompleteRef.current(walletId, result),

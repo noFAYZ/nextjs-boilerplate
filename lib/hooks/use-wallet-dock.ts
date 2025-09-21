@@ -5,6 +5,15 @@ import { useDockContext } from "@/components/providers/dock-provider"
 import { ExpandableItem } from "@/components/ui/dock"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider"
+import type { WalletSyncProgressProps } from "@/components/crypto/SyncProgressIndicator"
+
+export interface WalletSyncProgress {
+  walletId: string;
+  progress: number;
+  status: string;
+  message?: string;
+  startedAt?: string;
+}
 
 export interface WalletStatus {
   id: string
