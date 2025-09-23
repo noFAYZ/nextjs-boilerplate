@@ -331,3 +331,9 @@ export function CircumBank(props: SVGProps<SVGSVGElement>) {
 export function HugeiconsPieChart01(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" d="M21 12.502a9.5 9.5 0 1 1-9.5-9.5"></path><path strokeLinejoin="round" d="m13.705 7.386l.876-2.613c.545-1.627.818-2.44 1.668-2.699s1.414.176 2.541 1.046a11.6 11.6 0 0 1 2.09 2.09c.87 1.127 1.304 1.69 1.046 2.54c-.259.851-1.072 1.124-2.7 1.67l-2.612.875c-1.909.64-2.863.96-3.367.457c-.503-.503-.183-1.457.458-3.366Z"></path></g></svg>);
 }
+
+
+
+export function StreamlinePlumpBuildingOffice(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={48} height={48} viewBox="0 0 48 48" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={4.3}><path d="M28.61 3.492a5.37 5.37 0 0 1 4.899 4.995C33.748 11.807 34 16.973 34 24c0 8.605-.189 14.836-.324 18.182A2.94 2.94 0 0 1 30.722 45H6.288a2.95 2.95 0 0 1-2.96-2.83C3.193 38.746 3 32.383 3 24c0-6.858.258-12.082.5-15.467a5.42 5.42 0 0 1 4.933-5.045C11.098 3.242 14.689 3 18.5 3c3.831 0 7.44.244 10.11.492"></path><path d="M30.722 45h11.07a2.957 2.957 0 0 0 2.968-2.836c.106-2.688.24-7 .24-11.664c0-3.563-.156-6.775-.325-9.202c-.188-2.72-2.296-4.858-5.017-5.047a104 104 0 0 0-5.775-.241M23.416 45l.006-.105c.043-1.1.078-2.677.078-4.895s-.035-3.795-.078-4.895c-.059-1.488-.89-2.746-2.365-2.95A19 19 0 0 0 18.5 32a19 19 0 0 0-2.557.155c-1.475.204-2.306 1.462-2.365 2.95c-.043 1.1-.078 2.677-.078 4.895a127 127 0 0 0 .084 5M13 12v2m0 9v2m11-13v2m0 9v2"></path></g></svg>);
+}
