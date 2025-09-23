@@ -1,12 +1,21 @@
-import { ApiResponse, AUTH_ERROR_CODES, AuthError, BetterAuthResponse } from './types';
+import { ApiResponse, AUTH_ERROR_CODES, API_ERROR_CODES, AuthError, BetterAuthResponse } from './types';
 import { logger } from './utils/logger';
+import { errorHandler } from './utils/error-handler';
 
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
+  private consecutiveFailures: number = 0;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+  }
+
+  private notifyErrorHandler(error: any) {
+    // Notify the global error handler if available
+    if (typeof window !== 'undefined' && (window as any).showBackendError) {
+      (window as any).showBackendError(error);
+    }
   }
 
   setToken(token: string | null) {
@@ -56,37 +65,35 @@ class ApiClient {
   }
 
   private handleError(error: unknown): AuthError {
-    if (typeof error === 'object' && error !== null) {
-      const err = error as { name?: string; response?: { status: number }; message?: string };
-      
-      if (err.name === 'NetworkError' || !err.response) {
-        logger.error('Network error in API request', error);
-        return {
-          code: AUTH_ERROR_CODES.NETWORK_ERROR,
-          message: 'Network error. Please check your connection.',
-        };
-      }
+    // Use centralized error handler
+    const appError = errorHandler.handleError(error, 'api-client', {
+      showToast: false, // Don't show toast here, let the caller decide
+      logError: true,
+      throwError: false
+    });
 
-      if (err.response?.status === 429) {
-        logger.warn('Rate limit exceeded for API request', { status: err.response.status });
-        return {
-          code: AUTH_ERROR_CODES.RATE_LIMITED,
-          message: 'Too many requests. Please try again later.',
-        };
-      }
+    // Track consecutive failures for backend errors
+    if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
+      this.consecutiveFailures++;
 
-      logger.error('API request error', error, { status: err.response?.status });
-      return {
-        code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
-        message: err.message || 'An unexpected error occurred.',
-        details: error,
-      };
+      // Trigger global error handler after 2 consecutive failures
+      if (this.consecutiveFailures >= 2) {
+        setTimeout(() => {
+          this.notifyErrorHandler({
+            code: appError.code,
+            message: appError.message
+          });
+        }, 100);
+      }
+    } else {
+      // Reset consecutive failures for non-backend errors
+      this.consecutiveFailures = 0;
     }
 
     return {
-      code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
-      message: 'An unexpected error occurred.',
-      details: error,
+      code: appError.code,
+      message: appError.message,
+      details: appError.details,
     };
   }
 
@@ -149,10 +156,13 @@ class ApiClient {
         };
       }
 
+      // Reset consecutive failures on successful response
+      this.consecutiveFailures = 0;
+
       return data as ApiResponse<T>;
     } catch (error) {
       const authError = this.handleError(error);
-      
+
       return {
         success: false,
         error: {
@@ -212,6 +222,40 @@ class ApiClient {
 
   async deleteUserAccount(): Promise<ApiResponse<unknown>> {
     return this.delete('/account');
+  }
+
+  // Health check method
+  async checkHealth(): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseURL.replace('/api/v1', '')}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Health check failed with status: ${response.status}`);
+      }
+
+      const healthData = await response.json();
+
+      // Reset consecutive failures on successful health check
+      this.consecutiveFailures = 0;
+
+      return healthData;
+    } catch (error) {
+      logger.error('Health check failed', error);
+      this.handleError(error);
+      throw error;
+    }
+  }
+
+  // Get current backend status
+  getBackendStatus() {
+    return {
+      consecutiveFailures: this.consecutiveFailures,
+      isHealthy: this.consecutiveFailures < 2,
+    };
   }
 
   // Server-Sent Events (SSE) support

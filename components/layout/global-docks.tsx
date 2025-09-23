@@ -29,7 +29,7 @@ import { useWallets } from "@/lib/hooks/use-crypto"
 import { useRealtimeNotifications } from "@/lib/hooks/use-realtime-notifications"
 import { cn } from "@/lib/utils"
 import { WALLET_ICON_CONFIGS, createWalletDockItem } from "@/lib/utils/dock-integration"
-import {  PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
+import {  CircumBank, CuidaPieChartOutline, HugeiconsPieChart01, PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
@@ -432,12 +432,13 @@ export function BottomMenuDock() {
       hotkey: '⌘+1'
     },
     {
-      id: 'groups',
-      label: 'Groups',
-      icon: <StreamlineFlexLabelFolderTag className="w-5 h-5 text-accent-foreground/80" />,
-      href: '/dashboard/accounts/groups',
-      hotkey: '⌘+1'
+      id: 'banks',
+      label: 'Banks',
+      icon: <CircumBank className="w-6 h-6 text-accent-foreground/80"/>,
+      href: '/dashboard/accounts/bank',
+      hotkey: '⌘+2'
     },
+   
     {
       id: 'maoppr',
       label: 'Mappr AI',
@@ -448,16 +449,16 @@ export function BottomMenuDock() {
     {
       id: 'portfolios',
       label: 'Portfolios',
-      icon: <StreamlineFlexPieChart className="w-5 h-5 text-accent-foreground/80" />,
+      icon: <HugeiconsPieChart01 className="w-5.5 h-5.5 text-accent-foreground/80" />,
       href: '/dashboard/portfolios',
       hotkey: '⌘+1'
     },
     {
-      id: 'demo',
-      label: 'Demo',
-      icon: <ImageIcon className="w-5 h-5 text-accent-foreground/80"/>,
-      href: '/demo',
-      badge: 2
+      id: 'groups',
+      label: 'Groups',
+      icon: <StreamlineFlexLabelFolderTag className="w-5 h-5 text-accent-foreground/80" />,
+      href: '/dashboard/accounts/groups',
+      hotkey: '⌘+1'
     },
     {
       id: 'settings',

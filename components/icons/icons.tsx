@@ -320,3 +320,14 @@ export function RivetIconsCheckAll(props: SVGProps<SVGSVGElement>) {
 export function FluentSelectAllOn24Regular(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M15.28 9.03a.75.75 0 0 0-1.06-1.06L10 12.19l-1.97-1.97a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0zM3 6.25A3.25 3.25 0 0 1 6.25 3h9.5A3.25 3.25 0 0 1 19 6.25v9.5A3.25 3.25 0 0 1 15.75 19h-9.5A3.25 3.25 0 0 1 3 15.75zM6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v9.5c0 .966.784 1.75 1.75 1.75h9.5a1.75 1.75 0 0 0 1.75-1.75v-9.5a1.75 1.75 0 0 0-1.75-1.75zm2.991 17A3.25 3.25 0 0 1 6.5 19.999h9.746A3.753 3.753 0 0 0 20 16.246V6.5a3.25 3.25 0 0 1 1.5 2.741v7.005a5.254 5.254 0 0 1-5.254 5.254z" strokeWidth={0.5} stroke="currentColor"></path></svg>);
 }
+
+
+export function CircumBank(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M19.505 17.943v-7.581a1.49 1.49 0 0 0 1.39-1.12a1.47 1.47 0 0 0-.7-1.68l-7.45-4.3a1.52 1.52 0 0 0-1.49 0l-7.45 4.3a1.47 1.47 0 0 0-.7 1.68a1.49 1.49 0 0 0 1.45 1.12h.13v7.57h-.12a1.5 1.5 0 0 0 0 3h14.87a1.5 1.5 0 0 0 .07-2.989M4.555 9.362a.505.505 0 0 1-.25-.94l7.45-4.289a.47.47 0 0 1 .49 0L19.7 8.422a.5.5 0 0 1-.25.94Zm13.95 1v7.57H14.9v-7.57Zm-4.61 0v7.57h-3.61v-7.57Zm-4.61 0v7.57h-3.6v-7.57Zm10.15 9.57H4.565a.5.5 0 0 1-.5-.5a.5.5 0 0 1 .5-.5h14.87a.5.5 0 0 1 .5.5a.5.5 0 0 1-.5.5" strokeWidth={0.6} stroke="currentColor"></path></svg>);
+}
+
+
+
+export function HugeiconsPieChart01(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" d="M21 12.502a9.5 9.5 0 1 1-9.5-9.5"></path><path strokeLinejoin="round" d="m13.705 7.386l.876-2.613c.545-1.627.818-2.44 1.668-2.699s1.414.176 2.541 1.046a11.6 11.6 0 0 1 2.09 2.09c.87 1.127 1.304 1.69 1.046 2.54c-.259.851-1.072 1.124-2.7 1.67l-2.612.875c-1.909.64-2.863.96-3.367.457c-.503-.503-.183-1.457.458-3.366Z"></path></g></svg>);
+}

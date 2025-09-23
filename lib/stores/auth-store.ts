@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { signIn, signUp, signOut, getSession } from '@/lib/auth-client';
+import { errorHandler } from '@/lib/utils/error-handler';
 
 interface User {
   id: string;
@@ -242,7 +243,21 @@ export const useAuthStore = create<AuthStore>()(
               throw new Error('Invalid response from authentication server');
             }
           } catch (error) {
-            const errorMessage = handleBetterAuthError(error);
+            // Use centralized error handler
+            const appError = errorHandler.handleError(error, 'auth-login', {
+              showToast: false,
+              logError: true,
+              throwError: false
+            });
+
+            // Check if it's a backend connection error
+            if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
+              if (typeof window !== 'undefined' && (window as any).showBackendError) {
+                (window as any).showBackendError(error);
+              }
+            }
+
+            const errorMessage = appError.userMessage;
             set((state) => {
               state.loginError = errorMessage;
               state.error = errorMessage;
@@ -293,7 +308,21 @@ export const useAuthStore = create<AuthStore>()(
               throw new Error('Invalid response from authentication server');
             }
           } catch (error) {
-            const errorMessage = handleBetterAuthError(error);
+            // Use centralized error handler
+            const appError = errorHandler.handleError(error, 'auth-signup', {
+              showToast: false,
+              logError: true,
+              throwError: false
+            });
+
+            // Check if it's a backend connection error
+            if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
+              if (typeof window !== 'undefined' && (window as any).showBackendError) {
+                (window as any).showBackendError(error);
+              }
+            }
+
+            const errorMessage = appError.userMessage;
             set((state) => {
               state.signupError = errorMessage;
               state.error = errorMessage;
@@ -324,12 +353,21 @@ export const useAuthStore = create<AuthStore>()(
               // Keep preferences but clear auth data
             }, false, 'logout/success');
           } catch (error) {
-            const errorMessage = handleBetterAuthError(error);
+            // Use centralized error handler
+            const appError = errorHandler.handleError(error, 'auth-logout', {
+              showToast: false,
+              logError: true,
+              throwError: false
+            });
+
+            // For logout errors, we don't need to show backend error UI since we're logging out anyway
+            // Just log the error and continue with clearing local state
+
             set((state) => {
-              state.error = errorMessage;
+              state.error = appError.userMessage;
               state.logoutLoading = false;
             }, false, 'logout/error');
-            
+
             // Even if logout fails, clear local state
             set((state) => {
               state.user = null;
@@ -337,7 +375,7 @@ export const useAuthStore = create<AuthStore>()(
               state.isAuthenticated = false;
               state.lastActivity = null;
             }, false, 'logout/force');
-            
+
             get().clearAutoLogoutTimer();
             console.error('Logout failed:', error);
           }
@@ -347,10 +385,10 @@ export const useAuthStore = create<AuthStore>()(
           set((state) => {
             state.refreshLoading = true;
           }, false, 'refreshSession/loading');
-          
+
           try {
             const sessionData = await getSession();
-            
+
             if (sessionData?.data?.user && sessionData?.data?.session) {
               set((state) => {
                 state.user = sessionData.data!.user;
@@ -360,7 +398,7 @@ export const useAuthStore = create<AuthStore>()(
                 state.refreshLoading = false;
                 state.lastActivity = new Date();
               }, false, 'refreshSession/success');
-              
+
               // Restart auto-logout timer with fresh session
               get().startAutoLogoutTimer();
             } else {
@@ -372,11 +410,27 @@ export const useAuthStore = create<AuthStore>()(
                 state.refreshLoading = false;
                 state.lastActivity = null;
               }, false, 'refreshSession/unauthenticated');
-              
+
               get().clearAutoLogoutTimer();
             }
           } catch (error) {
             console.error('Session refresh failed:', error);
+
+            // Use centralized error handler for backend connection errors
+            const appError = errorHandler.handleError(error, 'auth-session', {
+              showToast: false, // Don't show toast for auth errors, let global handler decide
+              logError: true,
+              throwError: false
+            });
+
+            // Check if it's a backend connection error that should trigger global error UI
+            if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
+              // Trigger global error handler through window
+              if (typeof window !== 'undefined' && (window as any).showBackendError) {
+                (window as any).showBackendError(error);
+              }
+            }
+
             set((state) => {
               state.user = null;
               state.session = null;
@@ -385,7 +439,7 @@ export const useAuthStore = create<AuthStore>()(
               state.refreshLoading = false;
               state.lastActivity = null;
             }, false, 'refreshSession/error');
-            
+
             get().clearAutoLogoutTimer();
           }
         },

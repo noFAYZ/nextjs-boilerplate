@@ -13,9 +13,10 @@ import { LoadingProvider } from "@/lib/contexts/loading-context";
 import { SessionTimeoutModal } from "@/components/auth/session-timeout-modal";
 import { CurrencyProvider } from "@/lib/contexts/currency-context";
 import { RealtimeSyncProvider } from "./realtime-sync-provider";
+import { GlobalErrorHandler } from "./global-error-handler";
 
 export default function Providers({ children }: { children: ReactNode }) {
-  return (
+  return (<GlobalErrorHandler>
     <ErrorBoundary>
       <AuthProvider>
         <LoadingProvider>
@@ -25,7 +26,7 @@ export default function Providers({ children }: { children: ReactNode }) {
               defaultTheme="light"
               themes={["light", "dark", "light-pro", "dark-pro"]}
               disableTransitionOnChange
-            >
+            > 
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
                   <RealtimeSyncProvider>
@@ -33,21 +34,23 @@ export default function Providers({ children }: { children: ReactNode }) {
                       <ViewModeProvider>
                         <AccountProvider>
                           <DockProvider>
-                            <OnboardingGuard>
-                              {children}
-                              <SessionTimeoutModal />
-                            </OnboardingGuard>
+                           
+                              <OnboardingGuard>
+                                {children}
+                                <SessionTimeoutModal />
+                              </OnboardingGuard>
+                           
                           </DockProvider>
                         </AccountProvider>
                       </ViewModeProvider>
                     </SubscriptionProvider>
                   </RealtimeSyncProvider>
                 </StoreProvider>
-              </CurrencyProvider>
+              </CurrencyProvider> 
             </ThemeProvider>
           </QueryProvider>
         </LoadingProvider>
       </AuthProvider>
-    </ErrorBoundary>
+    </ErrorBoundary></GlobalErrorHandler>
   )
 }

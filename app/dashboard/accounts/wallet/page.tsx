@@ -619,13 +619,13 @@ export default function WalletsPage() {
 
             {processedWallets.length === 0 ? (
               <div className="text-center py-16">
-                <div className="h-24 w-24 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Wallet className="h-12 w-12 text-muted-foreground" />
+                <div className="h-18 w-18 bg-muted/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <StreamlineFlexWallet className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-lg font-semibold mb-2">
                   {wallets.length === 0 ? 'No wallets connected' : 'No wallets match your filters'}
                 </h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto text-sm">
                   {wallets.length === 0
                     ? 'Connect your first crypto wallet to start tracking your portfolio and managing your digital assets'
                     : 'Try adjusting your search terms or filters to find the wallets you\'re looking for'
@@ -634,9 +634,9 @@ export default function WalletsPage() {
                 {wallets.length === 0 && (
                   <Button
                     onClick={() => setIsAddModalOpen(true)}
-                    size="lg"
+                    size="xs"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4 mr-1" />
                     Connect Your First Wallet
                   </Button>
                 )}

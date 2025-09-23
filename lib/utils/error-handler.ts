@@ -84,8 +84,17 @@ class ErrorHandler {
     let retryable = true;
     const details = error;
 
+    // Backend connection errors (ERR_CONNECTION_REFUSED, etc.)
+    if (this.isBackendConnectionError(error)) {
+      code = 'BACKEND_UNREACHABLE';
+      message = 'Backend server is unreachable';
+      userMessage = 'Unable to connect to the backend server. Please check if the server is running and try again.';
+      severity = 'critical';
+      recoverable = true;
+      retryable = true;
+    }
     // Network/API errors
-    if (this.isNetworkError(error)) {
+    else if (this.isNetworkError(error)) {
       code = 'NETWORK_ERROR';
       message = 'Network connection failed';
       userMessage = 'Connection problem. Check your internet and try again.';
@@ -243,6 +252,31 @@ class ErrorHandler {
     const actions: ErrorRecoveryAction[] = [];
 
     switch (error.code) {
+      case 'BACKEND_UNREACHABLE':
+      case 'BACKEND_DOWN':
+        actions.push({
+          label: 'Check Server Status',
+          action: async () => {
+            // Try to check if backend is available
+            try {
+              const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:3000'}/health`);
+              if (response.ok) {
+                window.location.reload();
+              } else {
+                alert('Backend server is still unavailable. Please try again later.');
+              }
+            } catch {
+              alert('Backend server is still unavailable. Please try again later.');
+            }
+          },
+          primary: true
+        });
+        actions.push({
+          label: 'Try Again',
+          action: () => window.location.reload()
+        });
+        break;
+
       case 'NETWORK_ERROR':
       case 'FETCH_ERROR':
         actions.push({
@@ -355,9 +389,35 @@ class ErrorHandler {
   /**
    * Type guards for different error types
    */
+  private isBackendConnectionError(error: unknown): boolean {
+    if (typeof error === 'object' && error !== null) {
+      const err = error as {
+        name?: string;
+        response?: { status: number };
+        message?: string;
+        cause?: { code?: string };
+        code?: string;
+      };
+
+      // Check for ERR_CONNECTION_REFUSED and other backend down errors
+      return err.message?.includes('ERR_CONNECTION_REFUSED') ||
+             err.message?.includes('Failed to fetch') ||
+             err.message?.includes('fetch') ||
+             err.name === 'NetworkError' ||
+             err.name === 'TypeError' ||
+             err.cause?.code === 'ECONNREFUSED' ||
+             err.cause?.code === 'ENOTFOUND' ||
+             err.code === 'ERR_CONNECTION_REFUSED' ||
+             err.code === 'BACKEND_UNREACHABLE' ||
+             err.code === 'BACKEND_DOWN' ||
+             !err.response;
+    }
+    return false;
+  }
+
   private isNetworkError(error: unknown): boolean {
-    return error instanceof Error && 
-           (error.name === 'NetworkError' || 
+    return error instanceof Error &&
+           (error.name === 'NetworkError' ||
             error.message.toLowerCase().includes('network'));
   }
 

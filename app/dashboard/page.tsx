@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore, selectUser } from '@/lib/stores';
 import { WelcomeBanner } from '@/components/onboarding/welcome-banner';
+// import { BackendErrorTrigger } from '@/components/test/backend-error-trigger';
 import { User, CreditCard, Settings, Wallet, PieChart, FileText, TrendingUp, Bell, DollarSign, Activity, ArrowDown } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -23,7 +24,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button  variant="secondary" size={'xs'} size="sm">
+          <Button variant="secondary" size="sm">
             <Bell className="h-4 w-4" />
           </Button>
         </div>
@@ -224,7 +225,10 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Backend Error Testing - Development Only */}
+          {/* <BackendErrorTrigger /> */}
         </div>
-  
+
   );
 }

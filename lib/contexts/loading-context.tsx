@@ -168,12 +168,12 @@ function LoadingOverlay({ state, className }: LoadingOverlayProps) {
     <div 
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center",
-        "bg-background/80 backdrop-blur-sm",
+        " backdrop-blur-sm",
         "transition-opacity duration-200",
         className
       )}
     >
-      <div className="flex flex-col items-center gap-4 text-center max-w-sm mx-4">
+      <div className="flex flex-col items-center gap-4 text-center max-w-xl bg-muted px-18 py-10 rounded-2xl">
         {/* Icon */}
         <div className="flex items-center justify-center">
           {getIcon()}
@@ -182,7 +182,7 @@ function LoadingOverlay({ state, className }: LoadingOverlayProps) {
         {/* Message */}
         <div className="space-y-2">
           <p className={cn(
-            "text-lg font-medium",
+            "text-sm font-medium",
             state.type === "error" && "text-destructive",
             state.type === "success" && "text-green-600"
           )}>

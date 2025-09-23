@@ -1,10 +1,12 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { logger } from '@/lib/utils/logger';
+import { apiClient } from '@/lib/api-client';
+import router from 'next/router';
 
 interface Props {
   children: ReactNode;
@@ -57,6 +59,8 @@ export class ErrorBoundary extends Component<Props, State> {
   private handleReload = () => {
     window.location.reload();
   };
+
+  
 
   public render() {
     if (this.state.hasError) {
@@ -125,6 +129,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
 // Hook version for functional components
 export function useErrorHandler() {
+  
+
   return (error: Error, errorInfo?: ErrorInfo) => {
     logger.error('Error caught by hook', error, { errorInfo });
     

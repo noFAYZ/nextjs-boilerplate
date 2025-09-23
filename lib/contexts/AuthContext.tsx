@@ -108,6 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await storeRefreshSession();
     } catch (error) {
       logger.error("Session refresh failed", error);
+      const errorMessage = handleBetterAuthError(error);
+      setError(errorMessage);
       setUser(null);
       setSession(null);
     } finally {

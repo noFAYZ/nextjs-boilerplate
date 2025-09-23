@@ -24,7 +24,7 @@ const getVisiblePages = (currentPage: number, totalPages: number, maxVisible: nu
 
   const sidePages = Math.floor((maxVisible - 1) / 2)
   let startPage = Math.max(currentPage - sidePages, 1)
-  let endPage = Math.min(startPage + maxVisible - 1, totalPages)
+  const endPage = Math.min(startPage + maxVisible - 1, totalPages)
 
   if (endPage - startPage < maxVisible - 1) {
     startPage = Math.max(endPage - maxVisible + 1, 1)

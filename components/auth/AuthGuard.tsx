@@ -47,14 +47,14 @@ export default function AuthGuard({
           <h1 className="text-lg font-medium ">Authentication Error</h1>
           <p className=" max-w-md">{error}</p>
 <div className="flex gap-2 justify-center">
-          <Button className="flex gap-2" size={'default'} variant={'outline'}>
+          <Button className="flex gap-2" size={'sm'} variant={'outline'}>
            
-           <span className="w-6 h-6"> <RefreshCcw  /></span> 
+           <span className="w-4 h-4"> <RefreshCcw  /></span> 
            Reload
           </Button>
-          <Button className="flex gap-2" size={'default'} variant={'outline'} onClick={() =>router.push('/auth/login')}>
+          <Button className="flex gap-2" size={'sm'} variant={'outline'} onClick={() =>router.push('/auth/login')}>
            
-           <span className="w-6 h-6"> <User2  /></span> 
+           <span className="w-4 h-4"> <User2  /></span> 
            Login
           </Button></div>
         </div>
@@ -67,10 +67,10 @@ export default function AuthGuard({
     return (
       fallback || (
         <div className="w-screen h-screen flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col items-center gap-2 text-center bg-muted px-18 py-10 rounded-2xl">
             <LogoLoader className="w-18 h-18 " />
           
-            <p className="text-lg font-medium">Authenticating...</p>
+            <p className="text-sm font-medium">Authenticating...</p>
           </div>
         </div>
       )
