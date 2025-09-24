@@ -31,7 +31,7 @@ import {
 import Link from "next/link";
 import StreamlineUltimateAccountingCoins, { GuidanceBank, MageDashboard, SolarWalletBoldDuotone, StreamlineFlexWallet } from "@/components/icons/icons";
 import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
-import { useAccountGroupsStore } from "@/lib/stores/account-groups-store";
+import { useAccountGroupsNew } from "@/lib/queries/account-group-queries-new";
 import type { AccountGroup } from "@/lib/types/account-groups";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -208,11 +208,18 @@ function EnhancedAccountTypeCard({
 }
 
 export default function AccountsPage() {
-  // Use Zustand store directly to avoid duplicate API calls
-  const groups = useAccountGroupsStore((state) => state.groups);
-  const isLoading = useAccountGroupsStore((state) => state.groupsLoading);
-  const error = useAccountGroupsStore((state) => state.groupsError);
-  const stats = useAccountGroupsStore((state) => state.stats);
+  // Use new TanStack Query hooks with server actions
+  const { data: groupsResponse, isLoading, error } = useAccountGroupsNew();
+  const groups = groupsResponse?.data || [];
+
+  // Calculate stats from groups data
+  const stats = {
+    totalGroups: groups.length,
+    totalAccounts: groups.reduce((sum: number, group: any) =>
+      sum + (group._count?.financial_accounts || 0), 0),
+    totalWallets: groups.reduce((sum: number, group: any) =>
+      sum + (group._count?.crypto_wallets || 0), 0),
+  };
 
   const handleGroupSelect = (group: AccountGroup) => {
     // Navigate to group detail page or show group contents

@@ -27,11 +27,12 @@ import { useRouter } from 'next/navigation';
 import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 
-// Import custom hooks
+// Import custom hooks - Updated to use new server actions + TanStack Query
 import {
-  useWalletFullDataStable,
-  useSyncWallet
-} from '@/lib/hooks/use-crypto';
+  useWalletWithPortfolioNew,
+  useWalletTransactionsNew,
+  useWalletNFTsNew
+} from '@/lib/queries/crypto-queries-new';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 // import { useWalletSyncTracker } from '@/lib/hooks/use-wallet-sync-tracker';
 // import { SyncProgressTracker } from '@/components/crypto/SyncProgressTracker';
@@ -94,16 +95,42 @@ function LoadingSpinner({ text }: { text: string }) {
   );
 }
 
-// Isolated data fetching component that prevents re-renders
+// Isolated data fetching component that prevents re-renders - Updated to use new hooks
 const WalletDataProvider = memo(function WalletDataProvider({
   walletIdentifier,
   children
 }: {
   walletIdentifier: string;
-  children: (data: ReturnType<typeof useWalletFullDataStable>) => React.ReactNode;
+  children: (data: {
+    wallet: any;
+    portfolio: any;
+    transactions: any[];
+    nfts: any[];
+    defiPositions: any[];
+    isLoading: boolean;
+    error: any;
+    refetch: () => void;
+  }) => React.ReactNode;
 }) {
-  const walletData = useWalletFullDataStable(walletIdentifier);
+  // Use new TanStack Query hooks with server actions
+  const walletWithPortfolio = useWalletWithPortfolioNew(walletIdentifier);
+  const transactionsQuery = useWalletTransactionsNew(walletIdentifier, {}, { page: 1, limit: 10 });
+  const nftsQuery = useWalletNFTsNew(walletIdentifier, {}, { page: 1, limit: 20 });
 
+  const walletData = {
+    wallet: walletWithPortfolio.wallet,
+    portfolio: walletWithPortfolio.portfolio,
+    transactions: transactionsQuery.data?.data?.data || [],
+    nfts: nftsQuery.data?.data?.data || [],
+    defiPositions: walletWithPortfolio.portfolio?.defiApps || [],
+    isLoading: walletWithPortfolio.isLoading || transactionsQuery.isLoading || nftsQuery.isLoading,
+    error: walletWithPortfolio.error || transactionsQuery.error || nftsQuery.error,
+    refetch: () => {
+      walletWithPortfolio.refetch();
+      transactionsQuery.refetch();
+      nftsQuery.refetch();
+    }
+  };
 
   return <>{children(walletData)}</>;
 }, (prevProps, nextProps) => {
@@ -125,13 +152,11 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
       {/* <SyncNotificationProvider /> */}
       <WalletDataProvider walletIdentifier={walletIdentifier}>
         {(walletData) => {
-          const { wallet, transactions, nfts, defiPositions, isLoading, error, refetch } = walletData;
+          const { wallet, portfolio, transactions, nfts, defiPositions, isLoading, error, refetch } = walletData;
 
-          // Removed realtime sync functionality
-          const isConnected = false;
-
-  const syncWallet = useSyncWallet();
-  const { realtimeSyncStates } = useCryptoStore();
+          // For now, disable sync functionality until it's properly integrated
+          const syncWallet = { isPending: false };
+          const { realtimeSyncStates } = useCryptoStore();
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
@@ -139,18 +164,18 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
   const syncProgress = walletSyncState?.progress || 0;
   const syncMessage = walletSyncState?.message || '';
   const lastSyncAt = walletSyncState?.completedAt;
-  // Memoize expensive calculations
+  // Memoize expensive calculations - Updated to use portfolio data
   const walletStats = useMemo(() => {
-    if (!wallet) return null;
+    if (!wallet && !portfolio) return null;
     return {
-      totalBalance: parseFloat(wallet.totalValueUsd || '0'),
-      assetCount: wallet.totalAssets || 0,
-      nftCount: wallet.totalNfts || 0,
-      lastSyncFormatted: wallet.lastSyncAt ? 
-        new Date(wallet.lastSyncAt).toLocaleDateString() : 
+      totalBalance: portfolio?.portfolio?.totalPositionsValue || wallet?.totalBalanceUsd || 0,
+      assetCount: portfolio?.assets?.length || 0,
+      nftCount: portfolio?.nfts?.length || 0,
+      lastSyncFormatted: portfolio?.portfolio?.lastSyncAt ?
+        new Date(portfolio.portfolio.lastSyncAt).toLocaleDateString() :
         'Never'
     };
-  }, [wallet]);
+  }, [wallet, portfolio]);
 
   const handleCopyAddress = useCallback(async () => {
     if (!wallet?.address) return;
@@ -164,29 +189,10 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
   }, [wallet?.address]);
 
   const handleSync = useCallback(() => {
-    if (!walletIdentifier || syncWallet.isPending) {
-      return;
-    }
-
-    syncWallet.mutate(
-      { walletId: walletIdentifier },
-      {
-        onSuccess: (response) => {
-          if (response.success) {
-            toast.success(`Wallet sync started (Job ID: ${response.data?.jobId})`);
-
-            // Show the sync modal to track progress
-            setShowSyncModal(true);
-          } else {
-            toast.error(response.error?.message || 'Failed to start sync');
-          }
-        },
-        onError: (error: any) => {
-          toast.error(error.message || 'Failed to start sync');
-        }
-      }
-    );
-  }, [walletIdentifier, syncWallet]);
+    // Sync functionality temporarily disabled while migrating to server actions
+    toast.info('Sync functionality is being updated. Please check back soon!');
+    return;
+  }, [walletIdentifier]);
 
   const handleSyncComplete = useCallback(() => {
     toast.success('Wallet sync completed successfully!');
@@ -436,39 +442,32 @@ const WalletPageContent = memo(function WalletPageContent({ walletIdentifier }: 
                     <Badge variant="outline">{walletStats?.assetCount || 0} assets</Badge>
                   </div>
 
-                  {/* DeFi Positions */}
-                  {wallet && wallet?.topAssets.length > 0 ? (
+                  {/* Portfolio Assets */}
+                  {portfolio && portfolio?.assets && portfolio.assets.length > 0 ? (
                 <div className="space-y-3">
-                  {wallet?.topAssets?.map((position: any) => (
-                    <div key={position.id} className="px-5 py-1 border rounded-xl">
+                  {portfolio.assets.map((asset: any) => (
+                    <div key={asset.id} className="px-5 py-1 border rounded-xl">
                       <div className="flex items-center justify-between ">
                         <div className="flex items-center gap-3">
-
-
-                          <div className="h-10 w-10  rounded-full flex items-center justify-center">
-                           <Image src={position?.logoUrl || '/ss.png'} alt={''} width={32} height={32} />
+                          <div className="h-10 w-10 rounded-full flex items-center justify-center">
+                           <Image src={asset?.asset?.logoUrl || '/ss.png'} alt={asset?.asset?.name || ''} width={32} height={32} />
                           </div>
                           <div>
-                            <p className="font-medium">{position.name}</p>
+                            <p className="font-medium">{asset.asset?.name}</p>
                             <div className="flex items-center gap-2">
-                          <span className='text-xs'> {Number(position.balance).toFixed(3)}</span>
-                              <Badge variant="outline">{position?.symbol?.replace('_', ' ')}</Badge>
+                          <span className='text-xs'>{asset.balance}</span>
+                              <Badge variant="outline">{asset.asset?.symbol}</Badge>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${position?.balanceUsd?.toLocaleString()}</p>
-                          {position?.change24h && (
-                            <p className="text-sm text-green-600"> {position?.change24h?.toFixed(2)}%</p>
+                          <p className="font-medium">${asset?.balanceUsd?.toLocaleString()}</p>
+                          {asset?.dayChangePct && (
+                            <p className={`text-sm ${asset.dayChangePct > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {asset.dayChangePct > 0 ? '+' : ''}{asset.dayChangePct.toFixed(2)}%
+                            </p>
                           )}
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        {position?.assets?.map((asset: any, idx: number) => (
-                          <div key={idx} className="text-sm p-2 bg-muted rounded">
-                            <span className="font-medium">{asset.symbol}:</span> {asset.amount}
-                          </div>
-                        ))}
                       </div>
                     </div>
                   ))}
