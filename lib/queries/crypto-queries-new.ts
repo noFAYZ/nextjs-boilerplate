@@ -63,7 +63,7 @@ export function useWalletsNew() {
 
   return useQuery({
     queryKey: cryptoQueryKeys.wallets,
-    queryFn: getUserWallets,
+    queryFn: getUserWallets(user.id),
     enabled: !!user && !authLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

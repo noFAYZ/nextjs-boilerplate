@@ -45,7 +45,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xa4b1",
       name: "Arbitrum",
       icon: {
-        url: "/blockchains/logos/arbitrum.png",
+        url: "https://chain-icons.s3.amazonaws.com/arbitrum.png",
       },
       explorer: {
         name: "Arbiscan",
@@ -94,7 +94,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x38",
       name: "BSC",
       icon: {
-        url: "/blockchains/logos/bsc.png",
+        url: "https://chain-icons.s3.amazonaws.com/bsc.png",
       },
       explorer: {
         name: "BscScan",
@@ -157,7 +157,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1",
       name: "Ethereum",
       icon: {
-        url: "/blockchains/logos/ethereum.png",
+        url: "https://chain-icons.s3.amazonaws.com/ethereum.png",
       },
       explorer: {
         name: "Etherscan",
@@ -209,7 +209,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x13e31",
       name: "Blast",
       icon: {
-        url: "/blockchains/logos/81457.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/81457",
       },
       explorer: {
         name: "Blastscan",
@@ -258,7 +258,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x8173",
       name: "Ape Chain",
       icon: {
-        url: "/blockchains/logos/apechain.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/apechain.png",
       },
       explorer: {
         name: "Apechain Explorer",
@@ -299,7 +299,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xa86a",
       name: "Avalanche",
       icon: {
-        url: "/blockchains/logos/avalanche.png",
+        url: "https://chain-icons.s3.amazonaws.com/avalanche.png",
       },
       explorer: {
         name: "SnowScan",
@@ -349,7 +349,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xab5",
       name: "Abstract",
       icon: {
-        url: "/blockchains/logos/abstract.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/abstract.png",
       },
       explorer: {
         name: "Abstract Explorer",
@@ -398,7 +398,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xcc",
       name: "opBNB",
       icon: {
-        url: "/blockchains/logos/opBNB.png",
+        url: "https://chain-icons.s3.amazonaws.com/opBNB.png",
       },
       explorer: {
         name: "opBNB Block Explorer",
@@ -448,7 +448,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x138de",
       name: "Berachain",
       icon: {
-        url: "/blockchains/logos/berra.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/berra.png",
       },
       explorer: {
         name: "Berachain Explorer",
@@ -498,7 +498,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x144",
       name: "ZKsync Era",
       icon: {
-        url: "/blockchains/logos/324.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/324",
       },
       explorer: {
         name: "ZKsync Era Block Explorer",
@@ -547,7 +547,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xed88",
       name: "BOB",
       icon: {
-        url: "/blockchains/logos/bob.png",
+        url: "https://chain-icons.s3.amazonaws.com/bob.png",
       },
       explorer: {
         name: "bobscout",
@@ -586,7 +586,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1d88",
       name: "Cyber",
       icon: {
-        url: "/blockchains/logos/cyber.png",
+        url: "https://chain-icons.s3.amazonaws.com/cyber.png",
       },
       explorer: {
         name: "Cyber Explorer",
@@ -630,7 +630,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x27bc86aa",
       name: "Degen Chain",
       icon: {
-        url: "/blockchains/logos/666666666.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/666666666",
       },
       explorer: {
         name: "Degen Explorer",
@@ -680,7 +680,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xfc",
       name: "Fraxtal",
       icon: {
-        url: "/blockchains/logos/fraxtal.png",
+        url: "https://chain-icons.s3.amazonaws.com/fraxtal.png",
       },
       explorer: {
         name: "Fraxscan",
@@ -720,7 +720,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x659",
       name: "Gravity Alpha",
       icon: {
-        url: "/blockchains/logos/gravity.png",
+        url: "https://chain-icons.s3.amazonaws.com/gravity.png",
       },
       explorer: {
         name: "Gravity Alpha Mainnet Explorer",
@@ -770,7 +770,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x3e7",
       name: "HyperEVM",
       icon: {
-        url: "/blockchains/logos/999.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/999",
       },
       explorer: {
         name: "Purrsec",
@@ -826,7 +826,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xdef1",
       name: "Ink",
       icon: {
-        url: "/blockchains/logos/ink.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/ink.png",
       },
       explorer: {
         name: "Ink Explorer",
@@ -875,7 +875,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xe8",
       name: "Lens",
       icon: {
-        url: "/blockchains/logos/lens.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/lens.png",
       },
       explorer: {
         name: "Lens Explorer",
@@ -925,7 +925,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x46f",
       name: "Lisk",
       icon: {
-        url: "/blockchains/logos/lisk.png",
+        url: "https://chain-icons.s3.amazonaws.com/lisk.png",
       },
       explorer: {
         name: "Lisk",
@@ -964,7 +964,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x868b",
       name: "Mode",
       icon: {
-        url: "/blockchains/logos/mode.png",
+        url: "https://chain-icons.s3.amazonaws.com/mode.png",
       },
       explorer: {
         name: "Blockscout",
@@ -1007,7 +1007,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x2105",
       name: "Base",
       icon: {
-        url: "/blockchains/logos/8453.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/8453",
       },
       explorer: {
         name: "Base Explorer",
@@ -1056,7 +1056,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1388",
       name: "Mantle",
       icon: {
-        url: "/blockchains/logos/mantle.png",
+        url: "https://chain-icons.s3.amazonaws.com/mantle.png",
       },
       explorer: {
         name: "Mantle Explorer",
@@ -1110,7 +1110,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xa",
       name: "Optimism",
       icon: {
-        url: "/blockchains/logos/optimism.png",
+        url: "https://chain-icons.s3.amazonaws.com/optimism.png",
       },
       explorer: {
         name: "Etherscan",
@@ -1159,7 +1159,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x89",
       name: "Polygon",
       icon: {
-        url: "/blockchains/logos/polygon.png",
+        url: "https://chain-icons.s3.amazonaws.com/polygon.png",
       },
       explorer: {
         name: "PolygonScan",
@@ -1216,7 +1216,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xa4ec",
       name: "Celo",
       icon: {
-        url: "/blockchains/logos/42220.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/42220",
       },
       explorer: {
         name: "Celoscan",
@@ -1259,7 +1259,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xa9",
       name: "Manta Pacific",
       icon: {
-        url: "/blockchains/logos/manta.png",
+        url: "https://chain-icons.s3.amazonaws.com/manta.png",
       },
       explorer: {
         name: "manta-pacific Explorer",
@@ -1303,7 +1303,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x64",
       name: "Gnosis Chain",
       icon: {
-        url: "/blockchains/logos/xdai.png",
+        url: "https://chain-icons.s3.amazonaws.com/xdai.png",
       },
       explorer: {
         name: "GnosisScan",
@@ -1358,7 +1358,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xfa",
       name: "Fantom",
       icon: {
-        url: "/blockchains/logos/fantom.png",
+        url: "https://chain-icons.s3.amazonaws.com/fantom.png",
       },
       explorer: {
         name: "FtmScan",
@@ -1408,7 +1408,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x7e4",
       name: "Ronin",
       icon: {
-        url: "/blockchains/logos/2020.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/2020",
       },
       explorer: {
         name: "Ronin Block Explorer",
@@ -1458,7 +1458,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xe708",
       name: "Linea",
       icon: {
-        url: "/blockchains/logos/59144.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/59144",
       },
       explorer: {
         name: "Etherscan",
@@ -1510,7 +1510,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x440",
       name: "Metis Andromeda",
       icon: {
-        url: "/blockchains/logos/metis.png",
+        url: "https://chain-icons.s3.amazonaws.com/metis.png",
       },
       explorer: {
         name: "blockscout",
@@ -1554,7 +1554,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x4e454152",
       name: "Aurora",
       icon: {
-        url: "/blockchains/logos/aurora.png",
+        url: "https://chain-icons.s3.amazonaws.com/aurora.png",
       },
       explorer: {
         name: "Aurora Explorer",
@@ -1603,7 +1603,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x32",
       name: "XDC",
       icon: {
-        url: "/blockchains/logos/xdc.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/xdc.png",
       },
       explorer: {
         name: "xdcscan",
@@ -1663,7 +1663,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x184",
       name: "Cronos zkEVM",
       icon: {
-        url: "/blockchains/logos/icons/cronos-zkevm.png",
+        url: "https://protocol-icons.s3.amazonaws.com/icons/cronos-zkevm.png",
       },
       explorer: {
         name: "Cronos zkEVM",
@@ -1703,7 +1703,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x44d",
       name: "Polygon zkEVM",
       icon: {
-        url: "/blockchains/logos/1101.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/1101",
       },
       explorer: {
         name: "blockscout",
@@ -1752,7 +1752,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1f48",
       name: "Polynomial",
       icon: {
-        url: "/blockchains/logos/polynomial.png",
+        url: "https://chain-icons.s3.amazonaws.com/polynomial.png",
       },
       explorer: {
         name: "PolynomialExplorer",
@@ -1791,7 +1791,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x52415249",
       name: "Rari",
       icon: {
-        url: "/blockchains/logos/1380012617.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/1380012617",
       },
       explorer: {
         name: "rarichain-explorer",
@@ -1831,7 +1831,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x2b2",
       name: "Redstone",
       icon: {
-        url: "/blockchains/logos/redstone.png",
+        url: "https://chain-icons.s3.amazonaws.com/redstone.png",
       },
       explorer: {
         name: "blockscout",
@@ -1873,7 +1873,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x82750",
       name: "Scroll",
       icon: {
-        url: "/blockchains/logos/scroll.png",
+        url: "https://chain-icons.s3.amazonaws.com/scroll.png",
       },
       explorer: {
         name: "Scrollscan",
@@ -1927,7 +1927,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x531",
       name: "Sei",
       icon: {
-        url: "/blockchains/logos/icons/sei.png",
+        url: "https://protocol-icons.s3.amazonaws.com/icons/sei.png",
       },
       explorer: {
         name: "Sei Explorer",
@@ -1967,7 +1967,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x65",
       name: "Solana",
       icon: {
-        url: "/blockchains/logos/solana.png",
+        url: "https://chain-icons.s3.amazonaws.com/solana.png",
       },
       explorer: {
         name: "Solscan",
@@ -2017,7 +2017,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x74c",
       name: "Soneium",
       icon: {
-        url: "/blockchains/logos/soneium.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/soneium.png",
       },
       explorer: {
         name: "Soneium Explorer",
@@ -2066,7 +2066,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x92",
       name: "Sonic",
       icon: {
-        url: "/blockchains/logos/sonic_s.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/sonic_s.png",
       },
       explorer: {
         name: "Sonic Explorer",
@@ -2116,7 +2116,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x783",
       name: "Swellchain",
       icon: {
-        url: "/blockchains/logos/swellchain.png",
+        url: "https://chain-icons.s3.amazonaws.com/swellchain.png",
       },
       explorer: {
         name: "Swell Explorer",
@@ -2158,7 +2158,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x28c58",
       name: "Taiko",
       icon: {
-        url: "/blockchains/logos/taiko.png",
+        url: "https://chain-icons.s3.amazonaws.com/taiko.png",
       },
       explorer: {
         name: "Taiko Explorer",
@@ -2207,7 +2207,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x58",
       name: "Viction",
       icon: {
-        url: "/blockchains/logos/viction.png",
+        url: "https://chain-icons.s3.amazonaws.com/viction.png",
       },
       explorer: {
         name: "Vicscan",
@@ -2247,7 +2247,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x82",
       name: "Unichain",
       icon: {
-        url: "/blockchains/logos/unichain.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/unichain.png",
       },
       explorer: {
         name: "Unichain Explorer",
@@ -2296,7 +2296,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x25a5",
       name: "Wonder",
       icon: {
-        url: "/blockchains/logos/9637.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/9637",
       },
       explorer: {
         name: "Wonder Block Explorer",
@@ -2346,7 +2346,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xc4",
       name: "X Layer",
       icon: {
-        url: "/blockchains/logos/okx.png",
+        url: "https://chain-icons.s3.amazonaws.com/okx.png",
       },
       explorer: {
         name: "OKLink",
@@ -2399,7 +2399,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1e0",
       name: "World Chain",
       icon: {
-        url: "/blockchains/logos/worldchain.png",
+        url: "https://protocol-icons.s3.amazonaws.com/worldchain.png",
       },
       explorer: {
         name: "WorldScan",
@@ -2448,7 +2448,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x849ea",
       name: "ZERϴ",
       icon: {
-        url: "/blockchains/logos/543210.png",
+        url: "https://chain-icons.s3.amazonaws.com/chainlist/543210",
       },
       explorer: {
         name: "ZERϴ Explorer",
@@ -2497,7 +2497,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x140",
       name: "ZKcandy",
       icon: {
-        url: "/blockchains/logos/zkcandy.png",
+        url: "https://chain-icons.s3.amazonaws.com/zkcandy.png",
       },
       explorer: {
         name: "ZKcandy Block Explorer",
@@ -2546,7 +2546,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xc5cc4",
       name: "ZkLink Nova",
       icon: {
-        url: "/blockchains/logos/zklink.png",
+        url: "https://chain-icons.s3.amazonaws.com/zklink.png",
       },
       explorer: {
         name: "zkLink Nova Block Explorer",
@@ -2585,7 +2585,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0xb67d2",
       name: "katana",
       icon: {
-        url: "/blockchains/logos/katana.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/katana.png",
       },
       explorer: {
         name: "katana explorer",
@@ -2637,7 +2637,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x76adf1",
       name: "Zora",
       icon: {
-        url: "/blockchains/logos/zora.png",
+        url: "https://chain-icons.s3.amazonaws.com/zora",
       },
       explorer: {
         name: "Zora Network Explorer",
@@ -2686,7 +2686,7 @@ export const ZERION_CHAINS: Chain[] = [
       external_id: "0x1b254",
       name: "re.al",
       icon: {
-        url: "/blockchains/logos/real.png",
+        url: "https://chain-icons.s3.us-east-1.amazonaws.com/real.png",
       },
       explorer: {
         name: "blockscout",

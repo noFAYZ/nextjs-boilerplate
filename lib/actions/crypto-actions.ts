@@ -51,9 +51,9 @@ async function getAuthenticatedUser() {
 /**
  * Get all user wallets
  */
-export async function getUserWallets() {
+export async function getUserWallets(userId: string) {
   try {
-    const userId = await getAuthenticatedUser();
+
     const wallets = await cryptoService.getUserWallets(userId);
 
     return {
