@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "download-logos": "node scripts/download-blockchain-logos.js",
+    "download-logos:force": "node scripts/download-blockchain-logos.js --force"
   },
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-beta.3",

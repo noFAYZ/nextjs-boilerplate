@@ -594,7 +594,7 @@ export default function WalletsPage() {
 </Card>*/}
 
             <SyncStatusIndicator
-              variant="compact"
+              variant="detailed"
               showProgress={true}
               showLastSync={true}
               showTrigger={true}

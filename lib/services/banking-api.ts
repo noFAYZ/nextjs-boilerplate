@@ -1,0 +1,428 @@
+import { apiClient } from '@/lib/api-client';
+import type {
+  BankAccount,
+  BankTransaction,
+  BankingOverview,
+  TellerEnrollment,
+  CreateBankAccountRequest,
+  UpdateBankAccountRequest,
+  BankTransactionParams,
+  BankSyncRequest,
+  BankSyncJob,
+  TellerConnectEnrollment,
+  BankingHealthCheck,
+  BankingExportRequest,
+  BankingExportResponse,
+  BankingDashboardData
+} from '@/lib/types/banking';
+import type { ApiResponse } from '@/lib/types/crypto';
+
+class BankingApiService {
+  private readonly basePath = '/banking';
+
+  // Bank Account Management
+  async connectAccount(enrollmentData: CreateBankAccountRequest): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.post(`${this.basePath}/connect`, enrollmentData);
+  }
+
+  async getAccounts(): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.get(`${this.basePath}/accounts`);
+  }
+
+  async getAccount(accountId: string): Promise<ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>> {
+    return apiClient.get(`${this.basePath}/accounts/${accountId}`);
+  }
+
+  async updateAccount(accountId: string, updates: UpdateBankAccountRequest): Promise<ApiResponse<BankAccount>> {
+    return apiClient.put(`${this.basePath}/accounts/${accountId}`, updates);
+  }
+
+  async disconnectAccount(accountId: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.delete(`${this.basePath}/accounts/${accountId}`);
+  }
+
+  // Banking Overview
+  async getOverview(): Promise<ApiResponse<BankingOverview>> {
+    return apiClient.get(`${this.basePath}/overview`);
+  }
+
+  async getDashboardData(): Promise<ApiResponse<BankingDashboardData>> {
+    return apiClient.get(`${this.basePath}/dashboard`);
+  }
+
+  // Transaction Management
+  async getTransactions(params: BankTransactionParams = {}): Promise<ApiResponse<BankTransaction[]>> {
+    const searchParams = new URLSearchParams();
+
+    if (params.page) searchParams.set('page', params.page.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.accountId) searchParams.set('accountId', params.accountId);
+    if (params.startDate) searchParams.set('startDate', params.startDate);
+    if (params.endDate) searchParams.set('endDate', params.endDate);
+    if (params.category) searchParams.set('category', params.category);
+    if (params.type) searchParams.set('type', params.type);
+
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`);
+  }
+
+  async getAccountTransactions(
+    accountId: string,
+    params: Omit<BankTransactionParams, 'accountId'> = {}
+  ): Promise<ApiResponse<BankTransaction[]>> {
+    const searchParams = new URLSearchParams();
+
+    if (params.page) searchParams.set('page', params.page.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.startDate) searchParams.set('startDate', params.startDate);
+    if (params.endDate) searchParams.set('endDate', params.endDate);
+    if (params.category) searchParams.set('category', params.category);
+    if (params.type) searchParams.set('type', params.type);
+
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/accounts/${accountId}/transactions${query ? `?${query}` : ''}`);
+  }
+
+  // Sync Operations
+  async syncAccount(accountId: string, syncData: BankSyncRequest = {}): Promise<ApiResponse<{ jobId: string }>> {
+    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync`, syncData);
+  }
+
+  async getSyncStatus(accountId: string, jobId?: string): Promise<ApiResponse<BankSyncJob>> {
+    const query = jobId ? `?jobId=${jobId}` : '';
+    return apiClient.get(`${this.basePath}/accounts/${accountId}/sync/status${query}`);
+  }
+
+  // Health Check
+  async getHealthStatus(): Promise<ApiResponse<BankingHealthCheck>> {
+    return apiClient.get(`${this.basePath}/health`);
+  }
+
+  // Data Export
+  async exportBankingData(exportData: BankingExportRequest): Promise<ApiResponse<BankingExportResponse>> {
+    return apiClient.post(`${this.basePath}/export`, exportData);
+  }
+
+  // Teller Enrollments
+  async getEnrollments(): Promise<ApiResponse<TellerEnrollment[]>> {
+    return apiClient.get(`${this.basePath}/enrollments`);
+  }
+
+  async getEnrollment(enrollmentId: string): Promise<ApiResponse<TellerEnrollment>> {
+    return apiClient.get(`${this.basePath}/enrollments/${enrollmentId}`);
+  }
+
+  // Utility methods for common operations
+  async refreshAllAccounts(): Promise<ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>> {
+    const accountsResponse = await this.getAccounts();
+
+    if (!accountsResponse.success) {
+      return accountsResponse as ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>;
+    }
+
+    const syncJobs = await Promise.allSettled(
+      accountsResponse.data
+        .filter(account => account.isActive) // Only sync active accounts
+        .map(async (account) => {
+          const syncResponse = await this.syncAccount(account.id, { fullSync: false });
+          if (syncResponse.success) {
+            return { accountId: account.id, jobId: syncResponse.data.jobId };
+          }
+          throw new Error(`Failed to sync account ${account.id}`);
+        })
+    );
+
+    const successfulSyncs = syncJobs
+      .filter((result): result is PromiseFulfilledResult<{ accountId: string; jobId: string }> =>
+        result.status === 'fulfilled'
+      )
+      .map(result => result.value);
+
+    return {
+      success: true,
+      data: { syncJobs: successfulSyncs }
+    };
+  }
+
+  async getAccountSummary(accountId: string): Promise<ApiResponse<{
+    account: BankAccount;
+    transactions: BankTransaction[];
+    recentActivity: BankTransaction[];
+  }>> {
+    try {
+      const [accountResponse, transactionsResponse, recentResponse] = await Promise.all([
+        this.getAccount(accountId),
+        this.getAccountTransactions(accountId, { limit: 50 }),
+        this.getAccountTransactions(accountId, {
+          limit: 10,
+          startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last 7 days
+        })
+      ]);
+
+      if (!accountResponse.success) {
+        return accountResponse as ApiResponse<any>;
+      }
+
+      return {
+        success: true,
+        data: {
+          account: accountResponse.data,
+          transactions: transactionsResponse.success ? transactionsResponse.data : [],
+          recentActivity: recentResponse.success ? recentResponse.data : []
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'API_ERROR',
+          message: 'Failed to fetch account summary',
+          details: error
+        }
+      };
+    }
+  }
+
+  // Polling helper for sync status
+  async pollSyncStatus(
+    accountId: string,
+    jobId: string,
+    onProgress?: (status: BankSyncJob) => void,
+    maxAttempts: number = 30,
+    interval: number = 3000 // Banking sync might be slower than crypto
+  ): Promise<BankSyncJob> {
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const response = await this.getSyncStatus(accountId, jobId);
+
+      if (!response.success) {
+        throw new Error(response.error.message);
+      }
+
+      const status = response.data;
+
+      if (onProgress) {
+        onProgress(status);
+      }
+
+      if (status.status === 'completed' || status.status === 'failed') {
+        return status;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, interval));
+      attempts++;
+    }
+
+    throw new Error('Banking sync polling timeout');
+  }
+
+  // Batch operations
+  async bulkUpdateAccounts(
+    updates: { accountId: string; updates: UpdateBankAccountRequest }[]
+  ): Promise<ApiResponse<BankAccount[]>> {
+    try {
+      const results = await Promise.allSettled(
+        updates.map(({ accountId, updates }) =>
+          this.updateAccount(accountId, updates)
+        )
+      );
+
+      const successful = results
+        .filter((result): result is PromiseFulfilledResult<ApiResponse<BankAccount>> =>
+          result.status === 'fulfilled' && result.value.success
+        )
+        .map(result => (result.value as any).data);
+
+      const failed = results.filter(result =>
+        result.status === 'rejected' ||
+        (result.status === 'fulfilled' && !result.value.success)
+      );
+
+      if (failed.length > 0) {
+        console.warn(`${failed.length} account updates failed`);
+      }
+
+      return {
+        success: true,
+        data: successful
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'BULK_UPDATE_ERROR',
+          message: 'Failed to update accounts',
+          details: error
+        }
+      };
+    }
+  }
+
+  // Analytics helpers
+  async getSpendingCategories(
+    timeRange: 'week' | 'month' | 'quarter' | 'year' = 'month',
+    accountIds?: string[]
+  ): Promise<ApiResponse<Array<{ category: string; amount: number; count: number }>>> {
+    const endDate = new Date();
+    const startDate = new Date();
+
+    switch (timeRange) {
+      case 'week':
+        startDate.setDate(endDate.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(endDate.getMonth() - 1);
+        break;
+      case 'quarter':
+        startDate.setMonth(endDate.getMonth() - 3);
+        break;
+      case 'year':
+        startDate.setFullYear(endDate.getFullYear() - 1);
+        break;
+    }
+
+    const params: BankTransactionParams = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      type: 'debit', // Only look at outgoing transactions for spending
+      limit: 1000 // Large limit to get all transactions
+    };
+
+    if (accountIds?.length) {
+      // If specific accounts are requested, we'd need to make multiple requests
+      // For now, we'll use the general endpoint and filter client-side
+    }
+
+    const response = await this.getTransactions(params);
+
+    if (!response.success) {
+      return response as ApiResponse<any>;
+    }
+
+    // Group transactions by category
+    const categoryMap = new Map<string, { amount: number; count: number }>();
+
+    response.data.forEach(transaction => {
+      const category = transaction.category || 'Uncategorized';
+      const current = categoryMap.get(category) || { amount: 0, count: 0 };
+
+      categoryMap.set(category, {
+        amount: current.amount + Math.abs(transaction.amount),
+        count: current.count + 1
+      });
+    });
+
+    const categories = Array.from(categoryMap.entries())
+      .map(([category, data]) => ({
+        category,
+        amount: data.amount,
+        count: data.count
+      }))
+      .sort((a, b) => b.amount - a.amount);
+
+    return {
+      success: true,
+      data: categories
+    };
+  }
+
+  async getMonthlySpendingTrend(
+    months: number = 12,
+    accountIds?: string[]
+  ): Promise<ApiResponse<Array<{ month: string; spending: number; income: number; net: number }>>> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(endDate.getMonth() - months);
+
+    const params: BankTransactionParams = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      limit: 5000 // Large limit to get all transactions
+    };
+
+    const response = await this.getTransactions(params);
+
+    if (!response.success) {
+      return response as ApiResponse<any>;
+    }
+
+    // Group transactions by month
+    const monthlyData = new Map<string, { spending: number; income: number }>();
+
+    response.data.forEach(transaction => {
+      const date = new Date(transaction.date);
+      const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      const current = monthlyData.get(monthKey) || { spending: 0, income: 0 };
+
+      if (transaction.type === 'debit') {
+        current.spending += Math.abs(transaction.amount);
+      } else {
+        current.income += transaction.amount;
+      }
+
+      monthlyData.set(monthKey, current);
+    });
+
+    const trends = Array.from(monthlyData.entries())
+      .map(([month, data]) => ({
+        month,
+        spending: data.spending,
+        income: data.income,
+        net: data.income - data.spending
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+
+    return {
+      success: true,
+      data: trends
+    };
+  }
+
+  // Real-time sync connection helper
+  async createSyncEventSource(onMessage?: (event: MessageEvent) => void): Promise<EventSource> {
+    return apiClient.createEventSource(`${this.basePath}/user/sync/stream`, {
+      withCredentials: true,
+      onMessage,
+      onError: (event) => {
+        console.error('Banking sync stream error:', event);
+      },
+      timeout: 30000 // 30 second timeout
+    });
+  }
+
+  // Account status helpers
+  async checkAccountsHealth(): Promise<ApiResponse<{
+    totalAccounts: number;
+    activeAccounts: number;
+    syncingAccounts: number;
+    errorAccounts: number;
+    lastSyncTimes: Record<string, string>;
+  }>> {
+    const accountsResponse = await this.getAccounts();
+
+    if (!accountsResponse.success) {
+      return accountsResponse as ApiResponse<any>;
+    }
+
+    const accounts = accountsResponse.data;
+    const health = {
+      totalAccounts: accounts.length,
+      activeAccounts: accounts.filter(a => a.isActive).length,
+      syncingAccounts: accounts.filter(a => a.syncStatus === 'syncing').length,
+      errorAccounts: accounts.filter(a => a.syncStatus === 'error').length,
+      lastSyncTimes: accounts.reduce((acc, account) => {
+        acc[account.id] = account.lastTellerSync;
+        return acc;
+      }, {} as Record<string, string>)
+    };
+
+    return {
+      success: true,
+      data: health
+    };
+  }
+}
+
+export const bankingApi = new BankingApiService();
+export default bankingApi;
