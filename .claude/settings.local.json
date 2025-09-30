@@ -18,7 +18,13 @@
       "Bash(npm run typecheck:*)",
       "Bash(npm run:*)",
       "Bash(timeout 10 npm run dev)",
-      "Bash(timeout 30 npm run build)"
+      "Bash(timeout 30 npm run build)",
+      "Bash(timeout 15 npm run build)",
+      "Bash(timeout 10 npm run build)",
+      "Bash(timeout 15 npm run dev)",
+      "Bash(timeout 20 npm run build)",
+      "Bash(npx next lint:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

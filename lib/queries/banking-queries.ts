@@ -24,6 +24,8 @@ export const bankingKeys = {
 
   // Accounts
   accounts: () => [...bankingKeys.all, 'accounts'] as const,
+  groupedAccounts: () => [...bankingKeys.all, 'groupedAccounts'] as const,
+
   account: (id: string) => [...bankingKeys.accounts(), id] as const,
   accountSummary: (id: string) => [...bankingKeys.accounts(), id, 'summary'] as const,
 
@@ -54,9 +56,25 @@ export const bankingKeys = {
 };
 
 // Helper function for error handling
-const handleApiError = (error: unknown, mockData: any) => {
+interface ApiErrorResponse {
+  response?: {
+    status: number;
+  };
+}
+
+// Interface for grouped banking data
+interface BankAccountGroup {
+  enrollment: TellerEnrollment;
+  accounts: BankAccount[];
+}
+
+interface GroupedBankAccounts {
+  [enrollmentId: string]: BankAccountGroup;
+}
+
+const handleApiError = (error: unknown, mockData: unknown) => {
   if (error && typeof error === 'object' && 'response' in error &&
-      ((error as any).response?.status === 401 || (error as any).response?.status === 404)) {
+      ((error as ApiErrorResponse).response?.status === 401 || (error as ApiErrorResponse).response?.status === 404)) {
     console.log('Banking endpoint not available, using mock data');
     return { success: true, data: mockData };
   }
@@ -90,8 +108,52 @@ export const bankingQueries = {
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false, // Don't retry on 401/404 errors
-    select: (data: ApiResponse<BankAccount[]>) => data.success ? data.data : [],
+    select: (data: ApiResponse<BankAccount[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
   }),
+
+    // Accounts
+    groupedAccounts: () => ({
+      queryKey: bankingKeys.accounts(),
+      queryFn: async () => {
+        try {
+          return await bankingApi.getGroupedAccounts();
+        } catch (error: unknown) {
+          return handleApiError(error, mockBankAccounts);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false, // Don't retry on 401/404 errors
+      select: (data: ApiResponse<BankAccount[]>) => {
+        if (!data.success) {
+          return [];
+        }
+
+        // The API returns grouped data by enrollment ID
+        // Structure: { enrollmentId: { enrollment: {...}, accounts: [...] } }
+        const groupedData = data.data as GroupedBankAccounts;
+
+        if (!groupedData || typeof groupedData !== 'object') {
+          return [];
+        }
+
+        // Extract all accounts from all enrollment groups into a flat array
+        const allAccounts: BankAccount[] = [];
+
+        Object.values(groupedData).forEach((group: BankAccountGroup) => {
+          if (group && group.accounts && Array.isArray(group.accounts)) {
+            allAccounts.push(...group.accounts);
+          }
+        });
+
+        console.log('Extracted accounts count:', allAccounts.length);
+        return allAccounts;
+      },
+    }),
 
   account: (id: string) => ({
     queryKey: bankingKeys.account(id),
@@ -120,7 +182,7 @@ export const bankingQueries = {
     enabled: !!id,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   // Overview & Dashboard
@@ -136,7 +198,7 @@ export const bankingQueries = {
     staleTime: 1000 * 60 * 3, // 3 minutes
     refetchInterval: false, // Disable auto-refresh for mock data
     retry: false,
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   dashboard: () => ({
@@ -151,7 +213,7 @@ export const bankingQueries = {
     staleTime: 1000 * 60 * 3, // 3 minutes
     refetchInterval: false, // Disable auto-refresh for mock data
     retry: false,
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   // Transactions
@@ -167,8 +229,12 @@ export const bankingQueries = {
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2, // 2 minutes
     retry: false,
-    select: (data: ApiResponse<{ data: BankTransaction[]; pagination: PaginationInfo | null }>) =>
-      data.success ? data.data : [],
+    select: (data: ApiResponse<{ data: BankTransaction[]; pagination: PaginationInfo | null }>) => {
+      if (data.success && data.data && Array.isArray(data.data.data)) {
+        return data.data.data;
+      }
+      return [];
+    },
   }),
 
   accountTransactions: (accountId: string, params?: Omit<BankTransactionParams, 'accountId'>) => ({
@@ -184,8 +250,13 @@ export const bankingQueries = {
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2, // 2 minutes
     retry: false,
-    select: (data: ApiResponse<{ data: BankTransaction[]; pagination: PaginationInfo | null }>) =>
-      data.success ? data.data : [],
+    select: (data: ApiResponse<{ data: BankTransaction[]; pagination: PaginationInfo | null }>) => {
+
+      if (data.success && data.data && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
   }),
 
   // Infinite query for transactions
@@ -201,11 +272,11 @@ export const bankingQueries = {
       return undefined;
     },
     staleTime: 1000 * 60 * 2,
-    select: (data: any) => ({
+    select: (data: { pages: ApiResponse<{ data: BankTransaction[] }>[]; pageParams: unknown[] }) => ({
       pages: data.pages,
       pageParams: data.pageParams,
       transactions: data.pages.flatMap((page: ApiResponse<{ data: BankTransaction[] }>) =>
-        page.success ? (page.data || []) : []
+        page.success && page.data && Array.isArray(page.data.data) ? page.data.data : []
       ),
     }),
   }),
@@ -215,7 +286,12 @@ export const bankingQueries = {
     queryKey: bankingKeys.enrollments(),
     queryFn: () => bankingApi.getEnrollments(),
     staleTime: 1000 * 60 * 10, // 10 minutes (enrollments change less frequently)
-    select: (data: ApiResponse<any[]>) => data.success ? data.data : [],
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
   }),
 
   enrollment: (id: string) => ({
@@ -223,7 +299,7 @@ export const bankingQueries = {
     queryFn: () => bankingApi.getEnrollment(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 10,
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   // Sync Status
@@ -231,7 +307,7 @@ export const bankingQueries = {
     queryKey: bankingKeys.syncStatus(accountId, jobId),
     queryFn: () => bankingApi.getSyncStatus(accountId, jobId),
     enabled: false, // Will be overridden by the hook with proper shouldQuery logic
-    refetchInterval: (data: ApiResponse<any>) => {
+    refetchInterval: (data: ApiResponse<BankSyncJob>) => {
       // If the API returned an error (like 404 for no sync job), stop polling
       if (!data || !data.success) {
         return false;
@@ -260,7 +336,7 @@ export const bankingQueries = {
     },
     retry: 1, // Only retry once for 404s
     staleTime: 1000, // Consider data stale after 1 second during active sync
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   // Health Check
@@ -269,7 +345,7 @@ export const bankingQueries = {
     queryFn: () => bankingApi.getHealthStatus(),
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchInterval: 1000 * 60 * 5, // Check every 5 minutes
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
   // Analytics
@@ -277,14 +353,19 @@ export const bankingQueries = {
     queryKey: bankingKeys.spendingCategories(timeRange, accountIds),
     queryFn: async () => {
       try {
-        return await bankingApi.getSpendingCategories(timeRange as any, accountIds);
+        return await bankingApi.getSpendingCategories(timeRange as 'week' | 'month' | 'quarter' | 'year', accountIds);
       } catch (error: unknown) {
         return handleApiError(error, []);
       }
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
     retry: false,
-    select: (data: ApiResponse<any[]>) => data.success ? data.data : [],
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
   }),
 
   monthlyTrend: (months = 12, accountIds?: string[]) => ({
@@ -298,7 +379,12 @@ export const bankingQueries = {
     },
     staleTime: 1000 * 60 * 15, // 15 minutes
     retry: false,
-    select: (data: ApiResponse<any[]>) => data.success ? data.data : [],
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
   }),
 };
 
@@ -488,6 +574,63 @@ export const bankingMutations = {
       }
     });
   },
+
+  // Enrollment mutations
+  useDeleteEnrollment: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (enrollmentId: string) => bankingApi.deleteEnrollment(enrollmentId),
+      onSuccess: (response, enrollmentId) => {
+        if (response.success) {
+          // Remove enrollment-specific queries from cache
+          queryClient.removeQueries({ queryKey: bankingKeys.enrollment(enrollmentId) });
+
+          // Invalidate global queries that depend on enrollment data
+          queryClient.invalidateQueries({ queryKey: bankingKeys.enrollments() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to delete enrollment:', error);
+      },
+    });
+  },
+
+  // Transaction sync mutations
+  useSyncAccountTransactions: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ accountId, options }: {
+        accountId: string;
+        options?: {
+          startDate?: string;
+          endDate?: string;
+          limit?: number;
+          force?: boolean;
+        }
+      }) => bankingApi.syncAccountTransactions(accountId, options),
+      onSuccess: (response, variables) => {
+        if (response.success) {
+          const { accountId } = variables;
+
+          // Invalidate transaction-related queries to refresh data
+          queryClient.invalidateQueries({ queryKey: bankingKeys.accountTransactions(accountId) });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.transactions() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.account(accountId) });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.spendingCategories() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.monthlyTrend() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to sync account transactions:', error);
+      },
+    });
+  },
 };
 
 // Custom hook to invalidate all banking queries
@@ -529,6 +672,41 @@ export const useBankingAccounts = () => {
   return useQuery({
     ...bankingQueries.accounts(),
     enabled: isAuthReady,
+  });
+};
+
+export const useBankingGroupedAccounts = () => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...bankingQueries.groupedAccounts(),
+    enabled: isAuthReady,
+  });
+};
+
+export const useBankingGroupedAccountsRaw = () => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    queryKey: bankingKeys.accounts(),
+    queryFn: async () => {
+      try {
+        return await bankingApi.getGroupedAccounts();
+      } catch (error: unknown) {
+        return handleApiError(error, {});
+      }
+    },
+    enabled: isAuthReady,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<GroupedBankAccounts>) => {
+      if (!data.success) {
+        return {};
+      }
+      return data.data || {};
+    },
   });
 };
 

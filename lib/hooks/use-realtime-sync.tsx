@@ -32,7 +32,10 @@ export class MultiWalletSyncTracker {
     private onProgress: (walletId: string, progress: WalletSyncProgress) => void,
     private onComplete: (walletId: string, result: { syncedData?: string[]; completedAt?: Date }) => void,
     private onError: (error: string) => void,
-    private onConnectionChange: (connected: boolean) => void
+    private onConnectionChange: (connected: boolean) => void,
+    private onBankingProgress?: (accountId: string, progress: { progress: number; status: string; message?: string }) => void,
+    private onBankingComplete?: (accountId: string, result: { syncedData?: string[]; completedAt?: Date }) => void,
+    private onBankingError?: (accountId: string, error: string) => void
   ) {}
 
   startTracking(): void {
@@ -228,6 +231,8 @@ export class MultiWalletSyncTracker {
     type: string;
     userId?: string;
     walletId?: string;
+    accountId?: string;
+    enrollmentId?: string;
     progress?: number;
     status?: string;
     message?: string;
@@ -244,6 +249,7 @@ export class MultiWalletSyncTracker {
         case 'connection_established':
           break;
 
+        // Crypto events (existing functionality)
         case 'wallet_sync_progress':
           if (data.walletId && data.progress !== undefined && data.status) {
             const progressData: WalletSyncProgress = {
@@ -302,6 +308,102 @@ export class MultiWalletSyncTracker {
             }
           } else {
             console.warn('Invalid wallet_sync_failed message:', data);
+          }
+          break;
+
+        // Banking events (new functionality - unified sync_progress handler)
+        case 'sync_progress':
+          if (data.accountId && data.status && this.onBankingProgress) {
+            try {
+              // Map status values from backend to store values
+              const statusMap: Record<string, string> = {
+                'syncing_bank': 'syncing',
+                'syncing_balance': 'syncing_balance',
+                'syncing_transactions': 'syncing_transactions',
+                'completed_bank': 'completed',
+                'failed_bank': 'failed'
+              };
+
+              const mappedStatus = statusMap[data.status] || data.status;
+
+              if (data.status === 'completed_bank') {
+                // Handle completion
+                if (this.onBankingComplete) {
+                  this.onBankingComplete(data.accountId, {
+                    syncedData: data.syncedData,
+                    completedAt: data.timestamp ? new Date(data.timestamp) : new Date()
+                  });
+                }
+              } else if (data.status === 'failed_bank') {
+                // Handle failure
+                if (this.onBankingError) {
+                  this.onBankingError(data.accountId, data.message || 'Bank sync failed');
+                }
+              } else {
+                // Handle progress updates
+                this.onBankingProgress(data.accountId, {
+                  progress: data.progress || 0,
+                  status: mappedStatus,
+                  message: data.message || 'Syncing bank account...'
+                });
+              }
+            } catch (callbackError) {
+              console.error('Error in banking sync_progress callback:', callbackError);
+            }
+          }
+          break;
+
+        // Legacy banking event handlers (keep for backwards compatibility)
+        case 'syncing_bank':
+          if (data.accountId && this.onBankingProgress) {
+            try {
+              this.onBankingProgress(data.accountId, {
+                progress: data.progress || 10,
+                status: 'syncing',
+                message: data.message || 'Starting bank account sync...'
+              });
+            } catch (callbackError) {
+              console.error('Error in banking onProgress callback:', callbackError);
+            }
+          }
+          break;
+
+        case 'syncing_transactions_bank':
+          if (data.accountId && this.onBankingProgress) {
+            try {
+              this.onBankingProgress(data.accountId, {
+                progress: data.progress || 50,
+                status: 'syncing_transactions',
+                message: data.message || 'Syncing bank transactions...'
+              });
+            } catch (callbackError) {
+              console.error('Error in banking onProgress callback:', callbackError);
+            }
+          }
+          break;
+
+        case 'completed_bank':
+          if (data.accountId && this.onBankingComplete) {
+            try {
+              this.onBankingComplete(data.accountId, {
+                syncedData: data.syncedData,
+                completedAt: data.completedAt ? new Date(data.completedAt) :
+                            data.timestamp ? new Date(data.timestamp) : new Date()
+              });
+            } catch (callbackError) {
+              console.error('Error in banking onComplete callback:', callbackError);
+            }
+          }
+          break;
+
+        case 'failed_bank':
+          if (data.accountId && this.onBankingError) {
+            const errorMsg = data.error || 'Unknown error occurred';
+            try {
+              this.onBankingError(data.accountId, errorMsg);
+            } catch (callbackError) {
+              console.error('Error in banking onError callback:', callbackError);
+            }
           }
           break;
 
@@ -458,6 +560,123 @@ export function useWalletSyncProgress() {
       (walletId, result) => handleCompleteRef.current(walletId, result),
       (error) => handleErrorRef.current(error),
       (connected) => handleConnectionChangeRef.current(connected)
+    );
+
+    trackerRef.current = tracker;
+    tracker.startTracking();
+
+    return () => {
+      if (trackerRef.current) {
+        trackerRef.current.stopTracking();
+        trackerRef.current = null;
+      }
+    };
+  }, [isAuthenticated]);
+
+  const resetConnection = useCallback(() => {
+    if (trackerRef.current) {
+      trackerRef.current.resetConnection();
+    }
+  }, []);
+
+  return {
+    walletStates: cryptoStore.realtimeSyncStates,
+    isConnected: cryptoStore.realtimeSyncConnected,
+    error: cryptoStore.realtimeSyncError,
+    resetConnection
+  };
+}
+
+// Unified hook that supports both crypto and banking events
+export function useUnifiedSyncProgress(
+  onBankingProgress?: (accountId: string, progress: { progress: number; status: string; message?: string }) => void,
+  onBankingComplete?: (accountId: string, result: { syncedData?: string[] }) => void,
+  onBankingError?: (accountId: string, error: string) => void
+) {
+  const cryptoStore = useCryptoStore();
+  const { isAuthenticated } = useAuthStore();
+
+  const handleProgress = useCallback((walletId: string, progress: WalletSyncProgress) => {
+    try {
+      if (progress.status === 'failed' && progress.error) {
+        cryptoStore.failRealtimeSync(walletId, progress.error);
+      } else {
+        cryptoStore.updateRealtimeSyncProgress(
+          walletId,
+          progress.progress,
+          progress.status,
+          progress.message
+        );
+      }
+    } catch (error) {
+      console.error('Error in handleProgress:', error);
+    }
+  }, [cryptoStore]);
+
+  const handleComplete = useCallback((walletId: string, result: { syncedData?: string[] }) => {
+    try {
+      cryptoStore.completeRealtimeSync(walletId, result.syncedData);
+      refreshWalletData(walletId);
+    } catch (error) {
+      console.error('Error in handleComplete:', error);
+    }
+  }, [cryptoStore]);
+
+  const handleError = useCallback((errorMsg: string) => {
+    try {
+      cryptoStore.setRealtimeSyncError(errorMsg);
+    } catch (error) {
+      console.error('Error in handleError:', error);
+    }
+  }, [cryptoStore]);
+
+  const handleConnectionChange = useCallback((connected: boolean) => {
+    try {
+      cryptoStore.setRealtimeSyncConnected(connected);
+    } catch (error) {
+      console.error('Error in handleConnectionChange:', error);
+    }
+  }, [cryptoStore]);
+
+  const handleProgressRef = useRef(handleProgress);
+  const handleCompleteRef = useRef(handleComplete);
+  const handleErrorRef = useRef(handleError);
+  const handleConnectionChangeRef = useRef(handleConnectionChange);
+  const onBankingProgressRef = useRef(onBankingProgress);
+  const onBankingCompleteRef = useRef(onBankingComplete);
+  const onBankingErrorRef = useRef(onBankingError);
+  const trackerRef = useRef<MultiWalletSyncTracker | null>(null);
+
+  useEffect(() => {
+    handleProgressRef.current = handleProgress;
+    handleCompleteRef.current = handleComplete;
+    handleErrorRef.current = handleError;
+    handleConnectionChangeRef.current = handleConnectionChange;
+    onBankingProgressRef.current = onBankingProgress;
+    onBankingCompleteRef.current = onBankingComplete;
+    onBankingErrorRef.current = onBankingError;
+  });
+
+  useEffect(() => {
+    // Only start tracking if user is authenticated
+    if (!isAuthenticated) {
+      return;
+    }
+
+    // Prevent multiple simultaneous trackers
+    if (trackerRef.current) {
+      trackerRef.current.stopTracking();
+      trackerRef.current = null;
+    }
+
+    const tracker = new MultiWalletSyncTracker(
+      (walletId, progress) => handleProgressRef.current(walletId, progress),
+      (walletId, result) => handleCompleteRef.current(walletId, result),
+      (error) => handleErrorRef.current(error),
+      (connected) => handleConnectionChangeRef.current(connected),
+      (accountId, progress) => onBankingProgressRef.current?.(accountId, progress),
+      (accountId, result) => onBankingCompleteRef.current?.(accountId, result),
+      (accountId, error) => onBankingErrorRef.current?.(accountId, error)
     );
 
     trackerRef.current = tracker;

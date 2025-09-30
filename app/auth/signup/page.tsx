@@ -4,19 +4,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthForm from '@/components/auth/auth-form';
 import { SignUpFormData } from '@/lib/types';
-import { useAuthStore, selectAuthLoading, selectAuthError, selectIsAuthenticated, selectSession } from '@/lib/stores';
+import { useAuthStore, selectAuthError, selectIsAuthenticated, selectSession } from '@/lib/stores';
 import { useLoading } from '@/lib/contexts/loading-context';
 
 export default function SignUpPage() {
   const router = useRouter();
   const signup = useAuthStore((state) => state.signup);
-  const loading = useAuthStore(selectAuthLoading);
   const error = useAuthStore(selectAuthError);
   const clearError = useAuthStore((state) => state.clearAuthErrors);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const session = useAuthStore(selectSession);
   const [success, setSuccess] = useState(false);
-  const { showLoading, showSuccess, showError, hideLoading } = useLoading();
+  const { showLoading, showSuccess, showError } = useLoading();
 
   // Redirect if already authenticated
   useEffect(() => {

@@ -113,7 +113,7 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
                     <Input
                       placeholder="Enter your email address"
                       {...field}
-                      className="h-14 pl-12 text-lg border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm hover:shadow-md"
+                      className="h-12 pl-12 text-lg border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm hover:shadow-md"
                       disabled={isLoading}
                     />
                   </div>
@@ -126,18 +126,18 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
           <Button
             type="submit"
             size={'sm'}
-            className="w-fit h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs transition-all duration-200 hover:shadow-lg "
+            className="w-fit h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm transition-all duration-100 hover:shadow-lg "
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Joining...
               </>
             ) : (
               <>
                 Join
-                <GameIconsUpgrade className="w-5 h-5 ml-3" />
+                
               </>
             )}
           </Button>

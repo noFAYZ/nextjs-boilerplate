@@ -252,8 +252,8 @@ export const useAuthStore = create<AuthStore>()(
 
             // Check if it's a backend connection error
             if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
-              if (typeof window !== 'undefined' && (window as any).showBackendError) {
-                (window as any).showBackendError(error);
+              if (typeof window !== 'undefined' && (window as Record<string, unknown>).showBackendError) {
+                ((window as Record<string, unknown>).showBackendError as (error: unknown) => void)(error);
               }
             }
 
@@ -317,8 +317,8 @@ export const useAuthStore = create<AuthStore>()(
 
             // Check if it's a backend connection error
             if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
-              if (typeof window !== 'undefined' && (window as any).showBackendError) {
-                (window as any).showBackendError(error);
+              if (typeof window !== 'undefined' && (window as Record<string, unknown>).showBackendError) {
+                ((window as Record<string, unknown>).showBackendError as (error: unknown) => void)(error);
               }
             }
 
@@ -426,8 +426,8 @@ export const useAuthStore = create<AuthStore>()(
             // Check if it's a backend connection error that should trigger global error UI
             if (appError.code === 'BACKEND_UNREACHABLE' || appError.code === 'BACKEND_DOWN') {
               // Trigger global error handler through window
-              if (typeof window !== 'undefined' && (window as any).showBackendError) {
-                (window as any).showBackendError(error);
+              if (typeof window !== 'undefined' && (window as Record<string, unknown>).showBackendError) {
+                ((window as Record<string, unknown>).showBackendError as (error: unknown) => void)(error);
               }
             }
 

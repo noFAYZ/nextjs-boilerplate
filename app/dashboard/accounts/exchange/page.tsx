@@ -3,25 +3,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
+import {
+  Plus,
   Building,
-  TrendingUp,
   Shield,
   Clock,
-  Globe,
   BarChart3,
-  Zap,
-  DollarSign
+  Zap
 } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
 
 const EXCHANGES = [
   {
     name: 'Binance',
     logo: '/exchanges/binance.png',
-    description: 'World\'s largest cryptocurrency exchange',
+    description: 'World&apos;s largest cryptocurrency exchange',
     features: ['Spot Trading', 'Futures', 'Staking', 'NFTs'],
     color: 'from-yellow-500 to-yellow-600',
     status: 'planned'
@@ -130,7 +125,7 @@ export default function ExchangeAccountsPage() {
           </div>
           <CardTitle className="mb-2">Coming Soon</CardTitle>
           <CardDescription className="mb-4">
-            Exchange API integration is currently in development. You'll be able to securely connect your favorite 
+            Exchange API integration is currently in development. You&apos;ll be able to securely connect your favorite 
             exchanges using read-only API keys to track your trading portfolios and transaction history.
           </CardDescription>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -145,7 +140,7 @@ export default function ExchangeAccountsPage() {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Supported Exchanges</h2>
           <p className="text-muted-foreground">
-            Connect with the world's leading cryptocurrency exchanges
+            Connect with the world&apos;s leading cryptocurrency exchanges
           </p>
         </div>
         
@@ -251,7 +246,7 @@ export default function ExchangeAccountsPage() {
               </div>
               <h3 className="font-semibold">Connect Securely</h3>
               <p className="text-sm text-muted-foreground">
-                Enter your API credentials in MoneyMappr's secure form
+                Enter your API credentials in MoneyMappr&apos;s secure form
               </p>
             </div>
             <div className="text-center space-y-3">

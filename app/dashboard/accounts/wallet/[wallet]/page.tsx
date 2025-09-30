@@ -11,15 +11,8 @@ import {
   Copy,
   ExternalLink,
   RefreshCw,
-  Wallet,
-  Coins,
-  Image as ImageIcon,
-  ArrowUpDown,
   Loader2,
   AlertCircle,
-  CheckCircle,
-  Clock,
-  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,7 +24,6 @@ import { botttsNeutral } from '@dicebear/collection';
 import {
   useWalletFullData,
   useSyncWallet,
-  useSyncStatus,
 } from "@/lib/hooks/use-crypto";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 

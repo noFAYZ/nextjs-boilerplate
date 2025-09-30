@@ -6,11 +6,7 @@ import type {
   BankTransaction,
   BankingOverview,
   BankAccountType,
-  BankingSyncStatus,
-  BankTransactionParams,
-  BankSyncJob,
-  TellerEnrollment,
-  BankingDashboardData
+  TellerEnrollment
 } from '@/lib/types/banking';
 import type { PaginationInfo } from '@/lib/types/crypto';
 
@@ -235,6 +231,12 @@ export const useBankingStore = create<BankingStore>()(
           set((state) => {
             state.accounts.push(account);
           }, false, 'addAccount'),
+
+            // Account actions
+        setGroupedAccounts: (accounts) =>
+          set((state) => {
+            state.accounts = accounts;
+          }, false, 'setGroupedAccounts'),
 
         updateAccount: (id, updates) =>
           set((state) => {

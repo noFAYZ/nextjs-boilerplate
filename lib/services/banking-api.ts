@@ -9,7 +9,6 @@ import type {
   BankTransactionParams,
   BankSyncRequest,
   BankSyncJob,
-  TellerConnectEnrollment,
   BankingHealthCheck,
   BankingExportRequest,
   BankingExportResponse,
@@ -27,6 +26,10 @@ class BankingApiService {
 
   async getAccounts(): Promise<ApiResponse<BankAccount[]>> {
     return apiClient.get(`${this.basePath}/accounts`);
+  }
+
+  async getGroupedAccounts(): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.get(`${this.basePath}/accounts/grouped`);
   }
 
   async getAccount(accountId: string): Promise<ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>> {
@@ -112,6 +115,28 @@ class BankingApiService {
     return apiClient.get(`${this.basePath}/enrollments/${enrollmentId}`);
   }
 
+  async deleteEnrollment(enrollmentId: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.delete(`${this.basePath}/enrollments/${enrollmentId}`);
+  }
+
+  // Transaction Sync
+  async syncAccountTransactions(
+    accountId: string,
+    options?: {
+      startDate?: string;
+      endDate?: string;
+      limit?: number;
+      force?: boolean;
+    }
+  ): Promise<ApiResponse<{
+    syncJobId: string;
+    processed: number;
+    skipped: number;
+    totalFromTeller: number;
+  }>> {
+    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync/transactions`, options || {});
+  }
+
   // Utility methods for common operations
   async refreshAllAccounts(): Promise<ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>> {
     const accountsResponse = await this.getAccounts();
@@ -160,7 +185,7 @@ class BankingApiService {
       ]);
 
       if (!accountResponse.success) {
-        return accountResponse as ApiResponse<any>;
+        return accountResponse as ApiResponse<BankAccountDetails>;
       }
 
       return {
@@ -232,7 +257,7 @@ class BankingApiService {
         .filter((result): result is PromiseFulfilledResult<ApiResponse<BankAccount>> =>
           result.status === 'fulfilled' && result.value.success
         )
-        .map(result => (result.value as any).data);
+        .map(result => (result.value as { data: BankTransactionSyncResult }).data);
 
       const failed = results.filter(result =>
         result.status === 'rejected' ||
@@ -297,7 +322,7 @@ class BankingApiService {
     const response = await this.getTransactions(params);
 
     if (!response.success) {
-      return response as ApiResponse<any>;
+      return response as ApiResponse<BankTransactionSyncResult>;
     }
 
     // Group transactions by category
@@ -344,7 +369,7 @@ class BankingApiService {
     const response = await this.getTransactions(params);
 
     if (!response.success) {
-      return response as ApiResponse<any>;
+      return response as ApiResponse<BankTransactionSyncResult>;
     }
 
     // Group transactions by month
@@ -380,15 +405,12 @@ class BankingApiService {
   }
 
   // Real-time sync connection helper
+  // Banking sync now uses the unified crypto SSE stream
   async createSyncEventSource(onMessage?: (event: MessageEvent) => void): Promise<EventSource> {
-    return apiClient.createEventSource(`${this.basePath}/user/sync/stream`, {
-      withCredentials: true,
-      onMessage,
-      onError: (event) => {
-        console.error('Banking sync stream error:', event);
-      },
-      timeout: 30000 // 30 second timeout
-    });
+    console.log('Banking sync: Using unified crypto SSE stream instead of separate banking stream');
+    // Banking events are now handled by the unified crypto SSE connection
+    // This method is kept for compatibility but doesn't create actual connections
+    throw new Error('Banking sync now uses unified crypto SSE stream. Use the crypto sync stream instead.');
   }
 
   // Account status helpers
@@ -402,7 +424,7 @@ class BankingApiService {
     const accountsResponse = await this.getAccounts();
 
     if (!accountsResponse.success) {
-      return accountsResponse as ApiResponse<any>;
+      return accountsResponse as ApiResponse<BankAccountDetails[]>;
     }
 
     const accounts = accountsResponse.data;

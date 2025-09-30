@@ -54,5 +54,5 @@ export const cacheTestUtils = {
 
 // Export for development console access
 if (typeof window !== 'undefined') {
-  (window as any).cacheTest = cacheTestUtils;
+  (window as Record<string, unknown>).cacheTest = cacheTestUtils;
 }

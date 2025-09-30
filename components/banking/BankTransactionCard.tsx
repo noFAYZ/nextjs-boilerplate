@@ -1,29 +1,35 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   ArrowUpRight,
   ArrowDownLeft,
   Clock,
   CheckCircle,
-  Building2,
-  MoreVertical,
   Tag,
-  Calendar,
-  Eye
+  Smartphone,
+  Globe,
+  Store,
+  Car,
+  Coffee,
+  ShoppingBag,
+  Home,
+  Zap,
+  X,
+  Copy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
 
-import type { BankTransaction, BankTransactionType, BankTransactionStatus } from '@/lib/types/banking';
+import type { BankTransaction, CounterpartyType } from '@/lib/types/banking';
 
 interface BankTransactionCardProps {
   transaction: BankTransaction;
@@ -37,51 +43,251 @@ const TRANSACTION_TYPE_CONFIG = {
   debit: {
     icon: ArrowUpRight,
     label: 'Outgoing',
-    color: 'text-red-600',
-    bgColor: 'bg-red-50',
-    iconColor: 'text-red-600',
+    color: 'text-foreground/80',
+    bgColor: 'bg-muted/50',
+    iconColor: 'text-muted-foreground',
     sign: '-'
   },
   credit: {
     icon: ArrowDownLeft,
     label: 'Incoming',
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    iconColor: 'text-green-600',
+    color: 'text-foreground',
+    bgColor: 'bg-muted/50',
+    iconColor: 'text-muted-foreground',
+    sign: '+'
+  },
+  outgoing: {
+    icon: ArrowUpRight,
+    label: 'Outgoing',
+    color: 'text-foreground/80',
+    bgColor: 'bg-muted/50',
+    iconColor: 'text-muted-foreground',
+    sign: '-'
+  },
+  incoming: {
+    icon: ArrowDownLeft,
+    label: 'Incoming',
+    color: 'text-foreground',
+    bgColor: 'bg-muted/50',
+    iconColor: 'text-muted-foreground',
     sign: '+'
   }
 } as const;
 
-const TRANSACTION_STATUS_CONFIG = {
-  pending: {
-    icon: Clock,
-    label: 'Pending',
-    color: 'text-orange-600',
-    variant: 'secondary' as const
-  },
-  posted: {
-    icon: CheckCircle,
-    label: 'Posted',
-    color: 'text-green-600',
-    variant: 'secondary' as const
-  }
+
+// Minimal category icons
+const CATEGORY_ICONS = {
+  'food': Coffee,
+  'groceries': ShoppingBag,
+  'shopping': ShoppingBag,
+  'transportation': Car,
+  'gas': Car,
+  'fuel': Car,
+  'rent': Home,
+  'mortgage': Home,
+  'utilities': Zap,
+  'bills': Zap,
+  'online': Globe,
+  'digital': Smartphone,
+  'retail': Store,
+  'restaurant': Coffee,
+  'default': Tag
 } as const;
 
-export function BankTransactionCard({
+const getCategoryIcon = (category?: string) => {
+  if (!category) return CATEGORY_ICONS.default;
+
+  const lowerCategory = category.toLowerCase();
+  for (const [key, icon] of Object.entries(CATEGORY_ICONS)) {
+    if (lowerCategory.includes(key)) {
+      return icon;
+    }
+  }
+  return CATEGORY_ICONS.default;
+};
+
+// Transaction Details Modal Component
+function TransactionDetailsModal({
   transaction,
-  onView,
-  onCategorize,
-  className,
-  compact = false
-}: BankTransactionCardProps) {
-  const typeConfig = TRANSACTION_TYPE_CONFIG[transaction.type];
-  const statusConfig = TRANSACTION_STATUS_CONFIG[transaction.status];
+  isOpen,
+  onClose
+}: {
+  transaction: BankTransaction | null;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  if (!transaction) return null;
+
+  const typeConfig = TRANSACTION_TYPE_CONFIG[transaction.type as keyof typeof TRANSACTION_TYPE_CONFIG] || TRANSACTION_TYPE_CONFIG.debit;
+  const TypeIcon = typeConfig.icon;
+  const CategoryIcon = getCategoryIcon(transaction.category);
 
   const formatCurrency = (amount: number) => {
     const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Math.abs(amount));
+    return `${typeConfig.sign}${formatted}`;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] p-0">
+        <DialogHeader className="p-3 pb-4">
+   
+            <DialogTitle className="text-sm font-semibold">Transaction Details</DialogTitle>
+       
+       
+        </DialogHeader>
+
+        <div className="px-6 pb-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-start gap-4">
+            <div className={cn(
+              'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center',
+              typeConfig.bgColor
+            )}>
+              <TypeIcon className={cn('w-6 h-6', typeConfig.iconColor)} />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-semibold text-lg text-foreground truncate">
+                  {transaction.counterpartyName || transaction.merchantName || transaction.description}
+                </h3>
+                {transaction.category && (
+                  <Badge variant="subtle" size="sm">
+                    <CategoryIcon className="w-3 h-3 mr-1" />
+                    {transaction.category}
+                  </Badge>
+                )}
+                {transaction.counterpartyType && (
+                  <Badge variant="outline" size="sm">
+                    {transaction.counterpartyType === 'organization' ? (
+                      <Store className="w-3 h-3 mr-1" />
+                    ) : (
+                      <Smartphone className="w-3 h-3 mr-1" />
+                    )}
+                    {transaction.counterpartyType}
+                  </Badge>
+                )}
+              </div>
+
+              <div className={cn('text-2xl font-bold', typeConfig.color)}>
+                {formatCurrency(transaction.amount)}
+              </div>
+            </div>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</div>
+              <div className="text-sm font-medium">
+                {format(new Date(transaction.date), 'PPP')}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {format(new Date(transaction.date), 'p')}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  {transaction.status === 'pending' ? (
+                    <Badge variant="warning-soft" size="sm">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Pending
+                    </Badge>
+                  ) : (
+                    <Badge variant="success-soft" size="sm">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Posted
+                    </Badge>
+                  )}
+                </div>
+                {transaction.processingStatus && (
+                  <div className="text-xs text-muted-foreground">
+                    Processing: {transaction.processingStatus}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Account</div>
+              <div className="text-sm font-medium">{transaction.account.name}</div>
+              <div className="text-xs text-muted-foreground">{transaction.account.institutionName}</div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</div>
+              <div className="text-sm font-medium">{typeConfig.label}</div>
+              {transaction.tellerType && (
+                <div className="text-xs text-muted-foreground">
+                  Teller: {transaction.tellerType.replace(/_/g, ' ')}
+                </div>
+              )}
+            </div>
+
+            {transaction.runningBalance && (
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Running Balance</div>
+                <div className="text-sm font-medium">${Number(transaction?.runningBalance || 0)?.toFixed(2) }</div>
+              </div>
+            )}
+          </div>
+
+          {/* Transaction ID */}
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Transaction ID</div>
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+              <code className="text-xs font-mono flex-1">{transaction.id}</code>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(transaction.id)}
+                className="h-6 w-6 p-0"
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Description */}
+          {transaction.description && transaction.merchantName && transaction.description !== transaction.merchantName && (
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</div>
+              <div className="text-sm">{transaction.description}</div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function BankTransactionCard({
+  transaction,
+  onView,
+  className
+}: BankTransactionCardProps) {
+  const [showModal, setShowModal] = useState(false);
+  const typeConfig = TRANSACTION_TYPE_CONFIG[transaction.type as keyof typeof TRANSACTION_TYPE_CONFIG] || TRANSACTION_TYPE_CONFIG.debit;
+
+  const formatCurrency = (amount: number) => {
+    const formatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(Math.abs(amount));
 
     return `${typeConfig.sign}${formatted}`;
@@ -95,11 +301,11 @@ export function BankTransactionCard({
     } else if (isYesterday(date)) {
       return 'Yesterday';
     } else if (isThisWeek(date)) {
-      return format(date, 'EEEE'); // Day of week
+      return format(date, 'EEEE');
     } else if (isThisMonth(date)) {
-      return format(date, 'MMM d'); // Month and day
+      return format(date, 'MMM d');
     } else {
-      return format(date, 'MMM d, yyyy'); // Full date
+      return format(date, 'MMM d, yyyy');
     }
   };
 
@@ -108,149 +314,91 @@ export function BankTransactionCard({
   };
 
   const TypeIcon = typeConfig.icon;
-  const StatusIcon = statusConfig.icon;
+  const CategoryIcon = getCategoryIcon(transaction.category);
 
-  if (compact) {
-    return (
-      <Card className={cn('hover:shadow-sm transition-all duration-200', className)}>
-        <CardContent className="p-3">
-          <div className="flex items-center gap-3">
-            {/* Transaction Type Icon */}
-            <div className={cn('p-1.5 rounded-lg', typeConfig.bgColor)}>
-              <TypeIcon className={cn('h-3 w-3', typeConfig.iconColor)} />
-            </div>
+  const merchantName = transaction.merchantName || transaction.description;
+  const shortDescription = merchantName.length > 35 ? `${merchantName.slice(0, 35)}...` : merchantName;
 
-            {/* Transaction Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <p className="font-medium text-sm truncate">
-                  {transaction.merchantName || transaction.description}
-                </p>
-                <p className={cn('font-semibold text-sm', typeConfig.color)}>
-                  {formatCurrency(transaction.amount)}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-xs text-muted-foreground">
-                  {formatDate(transaction.date)}
-                </span>
-                {transaction.category && (
-                  <Badge variant="outline" className="text-xs px-1 py-0">
-                    {transaction.category}
-                  </Badge>
-                )}
-                {transaction.status === 'pending' && (
-                  <Badge variant="secondary" className="text-xs px-1 py-0">
-                    <Clock className="h-2 w-2 mr-1" />
-                    Pending
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handleClick = () => {
+    setShowModal(true);
+    onView?.(transaction);
+  };
 
   return (
-    <Card className={cn('group hover:shadow-md transition-all duration-200', className)}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            {/* Transaction Type Icon */}
-            <div className={cn('p-2 rounded-lg', typeConfig.bgColor)}>
-              <TypeIcon className={cn('h-4 w-4', typeConfig.iconColor)} />
-            </div>
+    <>
+      <div
+        className={cn(
+          'group relative bg-background  border  cursor-pointer',
+          'hover:shadow-xs hover:translate-y-[-1px]',
+          className
+        )}
+        onClick={handleClick}
+      >
+        <div className="flex items-center gap-3 py-3 px-2">
+          {/* Icon */}
+          <div className={cn(
+            'flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
+            'group-hover:scale-105',
+            typeConfig.bgColor
+          )}>
+            <TypeIcon className={cn('w-4 h-4 transition-all duration-200', typeConfig.iconColor)} />
+          </div>
 
-            {/* Transaction Details */}
-            <div className="flex-1 min-w-0 space-y-2">
-              {/* Main Info */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm truncate">
-                    {transaction.merchantName || transaction.description}
-                  </h3>
-                  {transaction.merchantName && transaction.description && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                      {transaction.description}
-                    </p>
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h4 className="font-medium text-sm text-foreground truncate transition-colors duration-200">
+                    {shortDescription}
+                  </h4>
+                  {transaction.category && (
+                    <div className="flex-shrink-0 w-3 h-3 text-muted-foreground transition-all duration-200 group-hover:text-foreground/70">
+                      <CategoryIcon className="w-full h-full" />
+                    </div>
                   )}
                 </div>
-                <div className="text-right ml-3">
-                  <p className={cn('font-semibold text-lg', typeConfig.color)}>
-                    {formatCurrency(transaction.amount)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatTime(transaction.date)}
-                  </p>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>{formatDate(transaction.date)}</span>
+                  <span>•</span>
+                  <span>{formatTime(transaction.date)}</span>
+                  {transaction.status === 'pending' && (
+                    <>
+                      <span>•</span>
+                      <Badge variant="warning-soft" size="sm">
+                        Pending
+                      </Badge>
+                    </>
+                  )}
                 </div>
               </div>
 
-              {/* Meta Information */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Date */}
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  {formatDate(transaction.date)}
+              {/* Amount */}
+              <div className="text-right ml-4 flex-shrink-0">
+                <div className={cn(
+                  'font-semibold text-sm transition-all duration-200',
+                  'group-hover:scale-105',
+                  typeConfig.color
+                )}>
+                  {formatCurrency(transaction.amount)}
                 </div>
-
-                {/* Account */}
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Building2 className="h-3 w-3" />
-                  {transaction.account.name}
-                </div>
-
-                {/* Status */}
-                <Badge variant={statusConfig.variant} className="text-xs">
-                  <StatusIcon className={cn('h-3 w-3 mr-1', statusConfig.color)} />
-                  {statusConfig.label}
-                </Badge>
-
-                {/* Category */}
-                {transaction.category && (
-                  <Badge variant="outline" className="text-xs">
-                    <Tag className="h-3 w-3 mr-1" />
-                    {transaction.category}
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
-
-          {/* Actions Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {onView && (
-                <DropdownMenuItem onClick={() => onView(transaction)}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Details
-                </DropdownMenuItem>
-              )}
-              {onCategorize && (
-                <DropdownMenuItem onClick={() => onCategorize(transaction)}>
-                  <Tag className="h-4 w-4 mr-2" />
-                  Categorize
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <TransactionDetailsModal
+        transaction={transaction}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
+    </>
   );
 }
 
-// Bank Transaction List Component
+// Minimal Transaction List
 interface BankTransactionListProps {
   transactions: BankTransaction[];
   onView?: (transaction: BankTransaction) => void;
@@ -269,25 +417,20 @@ export function BankTransactionList({
   loading = false,
   emptyMessage = 'No transactions found',
   className,
-  compact = false,
+  compact = true,
   groupByDate = true
 }: BankTransactionListProps) {
+
+  console.log('Rendering BankTransactionList with transactions:', transactions);
   if (loading) {
     return (
-      <div className={cn('space-y-3', className)}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 bg-muted rounded-lg" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-3/4" />
-                  <div className="h-3 bg-muted rounded w-1/2" />
-                </div>
-                <div className="h-6 bg-muted rounded w-20" />
-              </div>
-            </CardContent>
-          </Card>
+      <div className={cn('space-y-1', className)}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="animate-pulse bg-muted/50 rounded-lg h-14 transition-opacity duration-300"
+            style={{ animationDelay: `${i * 50}ms` }}
+          />
         ))}
       </div>
     );
@@ -295,10 +438,12 @@ export function BankTransactionList({
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <ArrowUpRight className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="font-semibold text-lg mb-2">No Transactions</h3>
-        <p className="text-muted-foreground max-w-md">
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+          <ArrowUpRight className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <h3 className="font-medium text-foreground mb-1">No transactions</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">
           {emptyMessage}
         </p>
       </div>
@@ -307,7 +452,7 @@ export function BankTransactionList({
 
   if (!groupByDate) {
     return (
-      <div className={cn('space-y-3', className)}>
+      <div className={cn('divide-y divide-border/50', className)}>
         {transactions.map((transaction) => (
           <BankTransactionCard
             key={transaction.id}
@@ -321,7 +466,7 @@ export function BankTransactionList({
     );
   }
 
-  // Group transactions by date
+  // Group by date
   const groupedTransactions = transactions.reduce((groups, transaction) => {
     const date = format(new Date(transaction.date), 'yyyy-MM-dd');
     if (!groups[date]) {
@@ -343,34 +488,64 @@ export function BankTransactionList({
           return sum + (t.type === 'credit' ? t.amount : -t.amount);
         }, 0);
 
+        const income = dayTransactions
+          .filter(t => t.type === 'credit')
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const expenses = dayTransactions
+          .filter(t => t.type === 'debit')
+          .reduce((sum, t) => sum + t.amount, 0);
+
         return (
-          <div key={date} className="space-y-3">
-            {/* Date Header */}
-            <div className="flex items-center justify-between border-b pb-2">
-              <h3 className="font-semibold text-sm">
-                {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
+          <div key={date} className="space-y-2">
+            {/* Date header */}
+            <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <div>
+                <h3 className="font-semibold text-foreground text-sm">
+                  {format(new Date(date), 'EEEE, MMMM d')}
+                </h3>
+                <p className="text-xs text-muted-foreground">
                   {dayTransactions.length} transaction{dayTransactions.length !== 1 ? 's' : ''}
-                </span>
+                </p>
+              </div>
+
+              <div className="text-right text-sm">
                 {totalAmount !== 0 && (
-                  <span className={cn(
-                    'text-xs font-medium',
-                    totalAmount >= 0 ? 'text-green-600' : 'text-red-600'
+                  <div className={cn(
+                    'font-semibold',
+                    totalAmount >= 0 ? 'text-foreground' : 'text-foreground/80'
                   )}>
                     {totalAmount >= 0 ? '+' : ''}
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: 'USD'
                     }).format(totalAmount)}
-                  </span>
+                  </div>
                 )}
+
+                <div className="flex gap-2 text-xs text-muted-foreground mt-0.5">
+                  {income > 0 && (
+                    <span>
+                      +{new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                      }).format(income)}
+                    </span>
+                  )}
+                  {expenses > 0 && (
+                    <span>
+                      -{new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                      }).format(expenses)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Transactions for this date */}
-            <div className="space-y-2">
+            {/* Transactions */}
+            <div className="divide-y divide-border/30">
               {dayTransactions.map((transaction) => (
                 <BankTransactionCard
                   key={transaction.id}

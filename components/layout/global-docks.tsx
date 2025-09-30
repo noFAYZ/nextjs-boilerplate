@@ -475,7 +475,7 @@ export function BottomMenuDock() {
       {isMobile ? (
         // Mobile: Full-width bottom navigation using Dock component
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t">
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center ">
             <Dock
               items={dock.items}
               position="bottom"
@@ -491,11 +491,11 @@ export function BottomMenuDock() {
         </div>
       ) : (
         // Desktop: Floating dock in bottom center
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
+        <div className="fixed bottom-0 left-1/2  z-40">
           <Dock
             items={dock.items}
             position="bottom"
-            size="md"
+            size="sm"
             magnification={false}
             indicatorStyle="windows11"
             blur={false}

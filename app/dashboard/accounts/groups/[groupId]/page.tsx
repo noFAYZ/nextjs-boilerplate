@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,15 +10,10 @@ import { Progress } from '@/components/ui/progress';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   ArrowLeft,
-  Settings,
   Users,
   Wallet,
   Building2,
-  TrendingUp,
-  TrendingDown,
   DollarSign,
-  Calendar,
-  BarChart3,
   PieChart,
   Activity,
   Plus,
@@ -27,9 +22,6 @@ import {
   Edit,
   RefreshCw,
   Download,
-  Filter,
-  Search,
-  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAccountGroup } from '@/lib/hooks/use-account-groups';

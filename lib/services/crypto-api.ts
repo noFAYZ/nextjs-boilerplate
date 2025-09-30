@@ -197,7 +197,7 @@ class CryptoApiService {
       ]);
 
       if (!walletResponse.success) {
-        return walletResponse as ApiResponse<any>;
+        return walletResponse as ApiResponse<CryptoWalletDetails>;
       }
 
       return {

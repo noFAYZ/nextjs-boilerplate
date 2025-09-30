@@ -63,14 +63,14 @@ export class ZerionChartService {
   /**
    * Transform Zerion API response to our ChartDataPoint format
    */
-  private transformZerionData(chartResponse: any, period: TimePeriod): ChartDataPoint[] {
+  private transformZerionData(chartResponse: { data?: { attributes?: { points?: [number, string][] } } }, period: TimePeriod): ChartDataPoint[] {
     if (!chartResponse?.data?.attributes?.points) {
       throw new Error('Invalid chart data received from Zerion');
     }
     
     const chartData = chartResponse.data.attributes.points;
     
-    return chartData.map((point: any, index: number) => {
+    return chartData.map((point: [number, string]) => {
       const timestamp = point[0]; // Convert to milliseconds
       const date = new Date(timestamp);
       

@@ -4,7 +4,7 @@
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-type LogData = Record<string, any>;
+type LogData = Record<string, unknown>;
 
 interface LogEntry {
   level: LogLevel;
@@ -48,7 +48,7 @@ class SecureLogger {
   /**
    * Sanitize data by removing sensitive information
    */
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }
@@ -57,7 +57,7 @@ class SecureLogger {
       return data.map(item => this.sanitizeData(item));
     }
 
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const lowerKey = key.toLowerCase();
       
@@ -138,7 +138,7 @@ class SecureLogger {
   /**
    * Log error messages
    */
-  error(message: string, error?: Error | any, data?: LogData, userId?: string, sessionId?: string): void {
+  error(message: string, error?: Error | unknown, data?: LogData, userId?: string, sessionId?: string): void {
     const errorData = error instanceof Error 
       ? { 
           name: error.name, 
@@ -184,8 +184,8 @@ class SecureLogger {
       }
 
       // Example: Send to Sentry (if configured)
-      if (typeof window !== 'undefined' && (window as any).Sentry) {
-        (window as any).Sentry.addBreadcrumb({
+      if (typeof window !== 'undefined' && (window as Record<string, unknown>).Sentry) {
+        ((window as Record<string, unknown>).Sentry as { addBreadcrumb: (breadcrumb: Record<string, unknown>) => void }).addBreadcrumb({
           message: entry.message,
           level: entry.level,
           data: entry.data,
@@ -228,8 +228,8 @@ class SecureLogger {
       console.log('[PERFORMANCE]', metric, value, data);
     } else if (this.isProduction && typeof window !== 'undefined') {
       // Send to performance monitoring service
-      if ((window as any).gtag) {
-        (window as any).gtag('event', 'timing_complete', {
+      if ((window as Record<string, unknown>).gtag) {
+        ((window as Record<string, unknown>).gtag as (...args: unknown[]) => void)('event', 'timing_complete', {
           name: metric,
           value: Math.round(value),
           ...data
@@ -252,17 +252,17 @@ export const logPerformance = logger.performance.bind(logger);
 
 // Development-only logger that's completely silent in production
 export const devLog = {
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (process.env.NODE_ENV === 'development') {
       console.log('[DEV]', ...args);
     }
   },
-  error: (...args: any[]) => {
+  error: (...args: unknown[]) => {
     if (process.env.NODE_ENV === 'development') {
       console.error('[DEV_ERROR]', ...args);
     }
   },
-  warn: (...args: any[]) => {
+  warn: (...args: unknown[]) => {
     if (process.env.NODE_ENV === 'development') {
       console.warn('[DEV_WARN]', ...args);
     }

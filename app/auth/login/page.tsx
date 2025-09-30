@@ -6,17 +6,16 @@ import { useRouter } from 'next/navigation';
 import AuthForm from '@/components/auth/auth-form';
 import { SignInFormData } from '@/lib/types';
 import { PageLoader } from '@/components/ui/page-loader';
-import { useAuthStore, selectAuthLoading, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
+import { useAuthStore, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
 import { useLoading } from '@/lib/contexts/loading-context';
 function LoginForm() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const error = useAuthStore(selectAuthError);
   const clearError = useAuthStore((state) => state.clearAuthErrors);
-  const loading = useAuthStore(selectAuthLoading);
   const session = useAuthStore(selectSession);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
-  const { showLoading, showSuccess, showError, hideLoading } = useLoading();
+  const { showLoading, showSuccess, showError } = useLoading();
 
   // Redirect if already authenticated
   useEffect(() => {

@@ -1,5 +1,5 @@
 // Base API response types
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
   success: true;
   data: T;
   message?: string;
@@ -11,7 +11,7 @@ export interface ApiErrorResponse {
   error: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 }
 
@@ -50,7 +50,7 @@ export interface CryptoWallet {
   syncStatus?: CryptoSyncStatus;
   createdAt: string;
   updatedAt: string;
-  asset?: any;
+  asset?: CryptoAsset;
 }
 
 export interface CreateWalletRequest {
@@ -165,7 +165,7 @@ export interface CryptoNFT {
   attributes: {
     category: string;
     zapperType: string;
-    originalAttributes?: any;
+    originalAttributes?: Record<string, unknown>;
   };
   collectionName: string;
   collectionSymbol?: string | null;
@@ -186,8 +186,8 @@ export interface CryptoNFT {
   isNsfw: boolean;
   rarity?: number | null;
   rarityRank?: number | null;
-  createdAt: any;
-  updatedAt: any;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface NFTParams {
@@ -344,5 +344,5 @@ export type CryptoErrorCode =
 
 export interface CryptoError extends Error {
   code: CryptoErrorCode;
-  details?: any;
+  details?: Record<string, unknown>;
 }

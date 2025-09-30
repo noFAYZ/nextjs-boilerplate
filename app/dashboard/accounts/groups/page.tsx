@@ -1,41 +1,16 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  ArrowRight,
   Building,
   Building2,
   Store,
-  FolderOpen,
-  Plus,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Wallet,
-  CreditCard,
-  ArrowUpRight,
-  Eye,
-  MoreHorizontal,
-  Activity,
-  Heart,
-  SearchIcon
+  ArrowUpRight
 } from "lucide-react";
-import Link from "next/link";
-import StreamlineUltimateAccountingCoins, { GuidanceBank, MageDashboard, SolarWalletBoldDuotone, StreamlineFlexWallet } from "@/components/icons/icons";
+import { SolarWalletBoldDuotone } from "@/components/icons/icons";
 import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
-import { useAccountGroupsStore } from "@/lib/stores/account-groups-store";
-import type { AccountGroup } from "@/lib/types/account-groups";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 const ACCOUNT_TYPES = [
   {
@@ -114,10 +89,8 @@ const ACCOUNT_TYPES = [
 // Enhanced Account Type Card Component
 function EnhancedAccountTypeCard({
   accountType,
-  index,
 }: {
   accountType: (typeof ACCOUNT_TYPES)[0];
-  index: number;
 }) {
   const isActive = accountType.status === "active";
   
@@ -209,12 +182,12 @@ function EnhancedAccountTypeCard({
 
 export default function AccountsPage() {
   // Use Zustand store directly to avoid duplicate API calls
-  const groups = useAccountGroupsStore((state) => state.groups);
-  const isLoading = useAccountGroupsStore((state) => state.groupsLoading);
-  const error = useAccountGroupsStore((state) => state.groupsError);
-  const stats = useAccountGroupsStore((state) => state.stats);
+  // const groups = useAccountGroupsStore((state) => state.groups);
+  // const isLoading = useAccountGroupsStore((state) => state.groupsLoading);
+  // const error = useAccountGroupsStore((state) => state.groupsError);
+  // const stats = useAccountGroupsStore((state) => state.stats);
 
-  const handleGroupSelect = (group: AccountGroup) => {
+  const handleGroupSelect = () => {
     // Navigate to group detail page or show group contents
   };
 
@@ -269,11 +242,10 @@ export default function AccountsPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {ACCOUNT_TYPES.map((accountType, index) => (
-              <EnhancedAccountTypeCard 
-                key={accountType.id} 
+            {ACCOUNT_TYPES.map((accountType) => (
+              <EnhancedAccountTypeCard
+                key={accountType.id}
                 accountType={accountType}
-                index={index}
               />
             ))}
           </div>

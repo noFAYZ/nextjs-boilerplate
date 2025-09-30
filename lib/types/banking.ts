@@ -21,6 +21,8 @@ export interface BankAccount {
   lastTellerSync: string;
   syncStatus: BankingSyncStatus;
   groupId?: string;
+  ledgerBalance?: string;
+  availableBalance?: string;
   createdAt: string;
   updatedAt: string;
   tellerEnrollment: TellerEnrollment;
@@ -51,7 +53,74 @@ export interface UpdateBankAccountRequest {
 // Bank Transaction Types
 export type BankTransactionType = 'debit' | 'credit';
 export type BankTransactionStatus = 'pending' | 'posted';
+export type BankTransactionProcessingStatus = 'pending' | 'complete';
 
+// Teller Transaction Enums
+export enum TellerTransactionCategory {
+  Accommodation = "accommodation",
+  Advertising = "advertising",
+  Bar = "bar",
+  Charity = "charity",
+  Clothing = "clothing",
+  Dining = "dining",
+  Education = "education",
+  Electronics = "electronics",
+  Entertainment = "entertainment",
+  Fuel = "fuel",
+  General = "general",
+  Groceries = "groceries",
+  Health = "health",
+  Home = "home",
+  Income = "income",
+  Insurance = "insurance",
+  Investment = "investment",
+  Loan = "loan",
+  Office = "office",
+  Phone = "phone",
+  Service = "service",
+  Shopping = "shopping",
+  Software = "software",
+  Sport = "sport",
+  Tax = "tax",
+  Transport = "transport",
+  Transportation = "transportation",
+  Utilities = "utilities",
+}
+
+export type CounterpartyType = "organization" | "person";
+
+export interface TransactionCounterparty {
+  name?: string | null;
+  type?: CounterpartyType | null;
+}
+
+export interface TransactionDetails {
+  [key: string]: unknown;
+}
+
+export interface TransactionLinks {
+  self: string;
+  account: string;
+}
+
+// Teller Transaction Response
+export interface TellerTransaction {
+  id: string;
+  account_id: string;
+  amount: string;
+  date: string;
+  description: string;
+  details: TransactionDetails;
+  processing_status: BankTransactionProcessingStatus;
+  category?: TellerTransactionCategory | null;
+  counterparty?: TransactionCounterparty;
+  status: BankTransactionStatus;
+  links: TransactionLinks;
+  running_balance?: string | null;
+  type: string;
+}
+
+// Internal Bank Transaction Type
 export interface BankTransaction {
   id: string;
   userId: string;
@@ -64,7 +133,12 @@ export interface BankTransaction {
   status: BankTransactionStatus;
   type: BankTransactionType;
   merchantName?: string;
-  tellerRawData?: any;
+  counterpartyName?: string;
+  counterpartyType?: CounterpartyType;
+  processingStatus?: BankTransactionProcessingStatus;
+  runningBalance?: number;
+  tellerType?: string;
+  tellerRawData?: TellerTransaction;
   createdAt: string;
   updatedAt: string;
   account: {
@@ -93,6 +167,9 @@ export interface TellerEnrollment {
   status: TellerEnrollmentStatus;
   expiresAt?: string;
   lastSyncAt?: string;
+  totalLedgerBalance?: string;
+  totalAvailableBalance?: string;
+  lastBalanceUpdate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -148,7 +225,7 @@ export interface TellerConnectConfig {
   environment: 'sandbox' | 'production';
   onSuccess: (enrollment: TellerConnectEnrollment) => void;
   onExit: () => void;
-  onEvent?: (event: any) => void;
+  onEvent?: (event: unknown) => void;
 }
 
 // Banking Service Health Types
@@ -167,9 +244,10 @@ export interface BankingHealthCheck {
 // Real-time Sync Event Types (based on BANKING_API_DOCUMENTATION.md)
 export type BankingSyncEventType =
   | 'connection_established'
-  | 'sync_progress'
-  | 'sync_completed'
-  | 'sync_failed'
+  | 'syncing_bank'
+  | 'syncing_transactions_bank'
+  | 'completed_bank'
+  | 'failed_bank'
   | 'heartbeat';
 
 // Connection Established Event
@@ -182,31 +260,46 @@ export interface BankingConnectionEstablishedEvent {
   totalConnections: number;
 }
 
-// Sync Progress Event
-export interface BankingSyncProgressEvent {
-  type: 'sync_progress';
+// Syncing Bank Event (Initial sync phase)
+export interface BankingSyncingBankEvent {
+  type: 'syncing_bank';
   userId: string;
-  progress: number; // 0-100
-  status: 'queued' | 'syncing' | 'syncing_balance' | 'syncing_transactions' | 'completed' | 'failed';
+  accountId: string;
+  enrollmentId?: string;
+  progress: number;
+  message?: string;
   timestamp: string;
 }
 
-// Sync Completed Event
-export interface BankingSyncCompletedEvent {
-  type: 'sync_completed';
+// Syncing Transactions Bank Event (Transaction sync phase)
+export interface BankingSyncingTransactionsBankEvent {
+  type: 'syncing_transactions_bank';
   userId: string;
-  progress: 100;
-  status: 'completed';
+  accountId: string;
+  enrollmentId?: string;
+  progress: number;
+  message?: string;
   timestamp: string;
+}
+
+// Bank Sync Completed Event
+export interface BankingSyncCompletedBankEvent {
+  type: 'completed_bank';
+  userId: string;
+  accountId: string;
+  enrollmentId?: string;
   message: string;
+  syncedData?: string[];
+  timestamp: string;
+  duration?: number;
 }
 
-// Sync Failed Event
-export interface BankingSyncFailedEvent {
-  type: 'sync_failed';
+// Bank Sync Failed Event
+export interface BankingSyncFailedBankEvent {
+  type: 'failed_bank';
   userId: string;
-  progress: 0;
-  status: 'failed';
+  accountId: string;
+  enrollmentId?: string;
   error: string;
   message: string;
   timestamp: string;
@@ -222,9 +315,10 @@ export interface BankingHeartbeatEvent {
 // Union type for all banking sync events
 export type BankingSyncEvent =
   | BankingConnectionEstablishedEvent
-  | BankingSyncProgressEvent
-  | BankingSyncCompletedEvent
-  | BankingSyncFailedEvent
+  | BankingSyncingBankEvent
+  | BankingSyncingTransactionsBankEvent
+  | BankingSyncCompletedBankEvent
+  | BankingSyncFailedBankEvent
   | BankingHeartbeatEvent;
 
 // Error Types
@@ -240,7 +334,7 @@ export type BankingErrorCode =
 
 export interface BankingError extends Error {
   code: BankingErrorCode;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Account Summary Types (for dashboard integration)

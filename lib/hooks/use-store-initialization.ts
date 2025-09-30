@@ -50,7 +50,7 @@ export function useStoreInitialization() {
     initializeOtherStores();
 
     return () => {}; // No cleanup needed
-  }, [isInitialized]); // Only depend on initialization status
+  }, [isInitialized, authLoading, fetchAccountGroups, initializeAuth, user]); // Include all dependencies
 }
 
 /**

@@ -111,7 +111,7 @@ class ErrorHandler {
     }
     // Plan limit errors
     else if (this.isPlanLimitError(error)) {
-      const limitError = error as any;
+      const limitError = error as { details?: { error?: { code?: string; message?: string } } };
       code = limitError.details?.error?.code || 'PLAN_LIMIT_EXCEEDED';
       message = limitError.details?.error?.message || 'Plan limit exceeded';
       userMessage = customUserMessage || this.getPlanLimitUserMessage(limitError);
@@ -121,7 +121,7 @@ class ErrorHandler {
     }
     // API response errors
     else if (this.isApiError(error)) {
-      const apiError = error as any;
+      const apiError = error as { code?: string; message?: string; details?: { error?: { code?: string } } };
       code = apiError.code || 'API_ERROR';
       message = apiError.message || 'API request failed';
 
@@ -431,23 +431,23 @@ class ErrorHandler {
     return typeof error === 'object' && 
            error !== null && 
            ('code' in error && 
-            (error as any).code?.includes('AUTH'));
+            (error as { code?: string }).code?.includes('AUTH'));
   }
 
   private isValidationError(error: unknown): boolean {
     return typeof error === 'object' &&
            error !== null &&
-           ('name' in error && (error as any).name === 'ValidationError');
+           ('name' in error && (error as { name?: string }).name === 'ValidationError');
   }
 
   private isPlanLimitError(error: unknown): boolean {
     return typeof error === 'object' &&
            error !== null &&
            ('details' in error &&
-            (error as any).details?.error?.code?.includes('LIMIT_EXCEEDED'));
+            (error as { details?: { error?: { code?: string } } }).details?.error?.code?.includes('LIMIT_EXCEEDED'));
   }
 
-  private getPlanLimitUserMessage(error: any): string {
+  private getPlanLimitUserMessage(error: { details?: { error?: { details?: { feature?: string; limit?: number; planType?: string } } } }): string {
     const details = error.details?.error?.details;
     if (!details) return 'You have reached your plan limit.';
 

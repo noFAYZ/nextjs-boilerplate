@@ -1,118 +1,39 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { toast } from 'sonner';
 
+// This hook is now simplified since banking events are handled by the unified SSE connection
 export function useBankingSyncStream() {
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const reconnectAttempts = useRef(0);
-
   const { user, isInitialized } = useAuthStore();
   const isAuthReady = !!user && isInitialized;
+  const { setRealtimeSyncConnected } = useBankingStore();
 
-  const {
-    setRealtimeSyncConnected,
-    setRealtimeSyncError
-  } = useBankingStore();
-
-  const cleanup = useCallback(() => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-    setRealtimeSyncConnected(false);
-  }, [setRealtimeSyncConnected]);
-
-  
   const connect = useCallback(async () => {
-    // Only run in browser environment and when auth is ready
-    if (typeof window === 'undefined' || typeof EventSource === 'undefined' || !isAuthReady) {
-      return;
-    }
-
-    try {
-      // Don't connect if already connected
-      if (eventSourceRef.current?.readyState === EventSource.OPEN) {
-        return;
-      }
-
-      cleanup();
-
-      console.log('Banking sync stream not yet implemented - using mock connection');
-
-      // Since the banking SSE endpoint is not implemented yet, we'll provide a mock connection
-      // This allows the UI to work properly while the backend endpoint is being developed
+    // Banking sync is now handled by the unified crypto SSE connection
+    // This is just a placeholder for compatibility
+    console.log('Banking sync: Using unified SSE connection via crypto endpoint');
+    if (isAuthReady) {
       setRealtimeSyncConnected(true);
-      setRealtimeSyncError(null);
-      reconnectAttempts.current = 0;
-
-      // TODO: Remove this mock implementation once the backend SSE endpoint is ready
-      console.log('Banking sync: Mock connection established');
-
-    } catch (error) {
-      console.error('Failed to setup banking sync mock:', error);
-      setRealtimeSyncError('Banking sync service not available');
     }
-  }, [cleanup, setRealtimeSyncConnected, setRealtimeSyncError, isAuthReady]);
+  }, [isAuthReady, setRealtimeSyncConnected]);
 
   const disconnect = useCallback(() => {
-    console.log('Disconnecting from banking sync stream');
-    cleanup();
-  }, [cleanup]);
+    console.log('Banking sync: Disconnect handled by unified SSE connection');
+  }, []);
 
   const reconnect = useCallback(() => {
-    console.log('Manually reconnecting to banking sync stream');
-    reconnectAttempts.current = 0;
-    connect();
-  }, [connect]);
-
-  // Auto-connect when hook is used
-  useEffect(() => {
-    connect();
-
-    // Cleanup on unmount
-    return () => {
-      cleanup();
-    };
-  }, [connect, cleanup]);
-
-  // Cleanup on page visibility change
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Reconnect when page becomes visible
-        if (typeof EventSource !== 'undefined' &&
-            (!eventSourceRef.current || eventSourceRef.current.readyState !== EventSource.OPEN)) {
-          console.log('Page visible, reconnecting banking sync...');
-          connect();
-        }
-      } else {
-        // Optional: disconnect when page is hidden to save resources
-        // disconnect();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [connect]);
+    console.log('Banking sync: Reconnect handled by unified SSE connection');
+  }, []);
 
   return {
     connect,
     disconnect,
     reconnect,
-    isConnected: typeof EventSource !== 'undefined'
-      ? eventSourceRef.current?.readyState === EventSource.OPEN
-      : false,
-    readyState: eventSourceRef.current?.readyState
+    isConnected: true, // Always true since handled by unified connection
+    readyState: 1 // OPEN state
   };
 }
 

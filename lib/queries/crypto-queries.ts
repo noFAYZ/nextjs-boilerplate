@@ -3,7 +3,8 @@ import {
   useMutation,
   useQueryClient,
   useInfiniteQuery,
-  keepPreviousData
+  keepPreviousData,
+  type InfiniteData
 } from '@tanstack/react-query';
 import { cryptoApi } from '@/lib/services/crypto-api';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
@@ -67,7 +68,7 @@ export const cryptoQueries = {
     queryKey: cryptoKeys.wallets(),
     queryFn: () => cryptoApi.getWallets(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: any) => data.success ? data.data : [],
+    select: (data: ApiResponse<CryptoWallet[]>) => data.success ? data.data : [],
   }),
 
   wallet: (id: string, timeRange = '24h') => ({
@@ -80,7 +81,7 @@ export const cryptoQueries = {
     refetchOnReconnect: false, // Don't refetch on reconnect
     refetchOnWindowFocus: false, // Don't refetch on window focus
     notifyOnChangeProps: ['data', 'error', 'isLoading'], // Only notify on these prop changes
-    select: (data: any) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
   walletSummary: (id: string) => ({
@@ -88,7 +89,7 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getWalletSummary(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: any) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
   // Portfolio
@@ -97,7 +98,7 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getPortfolio(params),
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchInterval: 1000 * 60 * 5, // Auto-refresh every 5 minutes
-    select: (data: any) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
   // Transactions
@@ -106,7 +107,7 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getTransactions(params),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: any) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
   }),
 
   walletTransactions: (walletId: string, params?: TransactionParams) => ({
@@ -115,7 +116,7 @@ export const cryptoQueries = {
     enabled: !!walletId,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: any) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
   }),
 
   // Infinite query for transactions
@@ -124,17 +125,17 @@ export const cryptoQueries = {
     queryFn: ({ pageParam = 1 }) => 
       cryptoApi.getTransactions({ ...params, page: pageParam }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: ApiResponse<CryptoTransaction[]>) => {
       if (lastPage.success && lastPage.pagination?.hasNext) {
         return lastPage.pagination.page + 1;
       }
       return undefined;
     },
     staleTime: 1000 * 60 * 3,
-    select: (data: any) => ({
+    select: (data: InfiniteData<ApiResponse<CryptoTransaction[]>>) => ({
       pages: data.pages,
       pageParams: data.pageParams,
-      transactions: data.pages.flatMap((page: any) => 
+      transactions: data.pages.flatMap((page: ApiResponse<CryptoTransaction[]>) =>
         page.success ? page.data : []
       ),
     }),
@@ -146,7 +147,7 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getNFTs(params),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 10, // 10 minutes (NFTs change less frequently)
-    select: (data: any) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
   }),
 
   walletNfts: (walletId: string, params?: NFTParams) => ({
@@ -155,7 +156,7 @@ export const cryptoQueries = {
     enabled: !!walletId,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 10,
-    select: (data: any) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
   }),
 
   // DeFi
@@ -163,7 +164,7 @@ export const cryptoQueries = {
     queryKey: cryptoKeys.defi(),
     queryFn: () => cryptoApi.getDeFiPositions(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: any) => data.success ? data.data : [],
+    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
   }),
 
   walletDefi: (walletId: string) => ({
@@ -171,7 +172,7 @@ export const cryptoQueries = {
     queryFn: () => cryptoApi.getWalletDeFiPositions(walletId),
     enabled: !!walletId,
     staleTime: 1000 * 60 * 5,
-    select: (data: any) => data.success ? data.data : [],
+    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
   }),
 
   // Sync Status
@@ -179,7 +180,7 @@ export const cryptoQueries = {
     queryKey: cryptoKeys.syncStatus(walletId, jobId),
     queryFn: () => cryptoApi.getSyncStatus(walletId, jobId),
     enabled: false, // Will be overridden by the hook with proper shouldQuery logic
-    refetchInterval: (data: any) => {
+    refetchInterval: (data: ApiResponse<SyncJobStatus>) => {
       // If the API returned an error (like 404 for no sync job), stop polling
       if (!data || !data.success) {
         return false;
@@ -206,7 +207,7 @@ export const cryptoQueries = {
     },
     retry: 1, // Only retry once for 404s
     staleTime: 1000, // Consider data stale after 1 second during active sync
-    select: (data: any) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
   // Analytics
@@ -214,7 +215,7 @@ export const cryptoQueries = {
     queryKey: cryptoKeys.analytics(params),
     queryFn: () => cryptoApi.getAnalytics(params),
     staleTime: 1000 * 60 * 10, // 10 minutes
-    select: (data: any) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 };
 

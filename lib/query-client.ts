@@ -5,7 +5,7 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: { response?: { status?: number } }) => {
         // Don't retry on 401 or 403 errors
         if (error?.response?.status === 401 || error?.response?.status === 403) {
           return false;
@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       retry: false,
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         // Global error handling for mutations
         console.error('Mutation error:', error);
       },

@@ -6,14 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api-client';
 import {
-  AlertTriangle,
   CheckCircle,
-  XCircle,
   RefreshCw,
-  ServerCrash,
   Wifi,
   WifiOff,
-  TestTube,
   Activity
 } from 'lucide-react';
 
@@ -24,10 +20,8 @@ export default function BackendStatusPage() {
     error?: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [testResults, setTestResults] = useState<string[]>([]);
-
   const addTestResult = useCallback((result: string) => {
-    setTestResults(prev => [result, ...prev.slice(0, 9)]); // Keep last 10 results
+    console.log('Test result:', result);
   }, []);
 
   const checkBackendStatus = useCallback(async () => {
@@ -46,29 +40,6 @@ export default function BackendStatusPage() {
     }
   }, [addTestResult]);
 
-  const triggerBackendError = useCallback(() => {
-    if (typeof window !== 'undefined' && 'showBackendError' in window) {
-      (window as unknown as { showBackendError: (error: unknown) => void }).showBackendError({
-        code: 'BACKEND_UNREACHABLE',
-        message: 'Simulated backend error'
-      });
-      addTestResult('🔴 Triggered backend error overlay');
-    } else {
-      addTestResult('❌ Error handler not available');
-    }
-  }, [addTestResult]);
-
-  const testApiCall = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await apiClient.get('/test-endpoint-that-does-not-exist');
-      addTestResult('✅ API call completed');
-    } catch (error) {
-      addTestResult('❌ API call failed (expected)');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addTestResult]);
 
   useEffect(() => {
     checkBackendStatus();
