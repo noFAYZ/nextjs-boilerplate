@@ -19,11 +19,6 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Dashboard',
     icon: HugeiconsHome04,
     href: '/dashboard',
-    submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard', description: 'Main dashboard view', icon: TablerEyeDollar},
-      { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics', description: 'Detailed analytics', icon: HugeiconsAnalyticsUp },
-      { id: 'reports', label: 'Reports', href: '/dashboard/reports', description: 'Financial reports', icon: StreamlinePlumpFileReport }
-    ]
   },
   {
     id: 'accounts',

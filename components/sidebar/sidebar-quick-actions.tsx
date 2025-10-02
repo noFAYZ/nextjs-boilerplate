@@ -19,7 +19,7 @@ export function SidebarQuickActions({ actions, onActionClick }: SidebarQuickActi
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Portfolio</span>
         </div>
         
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-border/50 p-4 group shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all duration-200">
+        <div className="relative overflow-hidden rounded-xl bg-muted border border-border/50 p-4 group shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all duration-200">
       
           
           <div className="relative space-y-3">
@@ -36,7 +36,7 @@ export function SidebarQuickActions({ actions, onActionClick }: SidebarQuickActi
             </div>
 
             {/* Mini Chart Visualization */}
-            <div className="relative h-12 bg-gradient-to-r from-muted/30 to-muted/20 rounded-lg overflow-hidden">
+            <div className="relative h-12 bg-gradient-to-r from-background/30 to-muted/20 rounded-xl overflow-hidden">
               <div className="absolute inset-0 flex items-end justify-between px-1 py-1">
                 {/* Simple bar chart representation */}
                 {[65, 70, 45, 85, 75, 90, 80, 95, 85, 100].map((height, i) => (
@@ -85,7 +85,7 @@ export function SidebarQuickActions({ actions, onActionClick }: SidebarQuickActi
               <button
                 key={action.id}
                 onClick={() => onActionClick(action.id)}
-                className="group relative flex flex-col items-center gap-2 rounded-md p-2 text-sm  hover:bg-gradient-to-br hover:from-background/95 hover:to-muted/50  hover:shadow-lg hover:shadow-primary/15 hover:scale-[1.02] active:scale-[0.98] border border-transparent  hover:border cursor-pointer "
+                className="group relative flex flex-col items-center gap-2 rounded-md p-2 text-sm  hover:bg-gradient-to-br hover:from-muted/95 hover:to-muted/50  hover:shadow-lg hover:shadow-primary/15 border border-transparent  hover:border cursor-pointer "
               
               >
          

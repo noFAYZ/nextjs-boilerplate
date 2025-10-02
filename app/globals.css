@@ -39,10 +39,10 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.8rem;
+  --radius: 0rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.24rem;
+  --spacing: 0.25rem;
 }
 
 .dark {
@@ -81,7 +81,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.8rem;
+  --radius: 0rem;
 
 }
 
@@ -132,7 +132,7 @@
 }
 
 .dark-pro {
-  --background: oklch(0.15 0 20);
+  --background: oklch(0 0 0);
   --foreground: oklch(0.9074 0.0142 93.0137);
   --card: oklch(0.2054 0.0025 57.6857);
   --card-foreground: oklch(0.9378 0.0112 17.3800);

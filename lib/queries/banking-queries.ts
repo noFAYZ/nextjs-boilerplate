@@ -221,6 +221,7 @@ export const bankingQueries = {
     queryKey: bankingKeys.transactions(params),
     queryFn: async () => {
       try {
+        const tx = await bankingApi.getTransactions(params);
         return await bankingApi.getTransactions(params);
       } catch (error: unknown) {
         return handleApiError(error, { data: mockTransactions, pagination: null });
@@ -230,8 +231,8 @@ export const bankingQueries = {
     staleTime: 1000 * 60 * 2, // 2 minutes
     retry: false,
     select: (data: ApiResponse<{ data: BankTransaction[]; pagination: PaginationInfo | null }>) => {
-      if (data.success && data.data && Array.isArray(data.data.data)) {
-        return data.data.data;
+      if (data.success && data.data && Array.isArray(data.data)) {
+        return data.data;
       }
       return [];
     },
@@ -578,6 +579,7 @@ export const bankingMutations = {
   // Enrollment mutations
   useDeleteEnrollment: () => {
     const queryClient = useQueryClient();
+    const { removeAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: (enrollmentId: string) => bankingApi.deleteEnrollment(enrollmentId),
@@ -586,11 +588,21 @@ export const bankingMutations = {
           // Remove enrollment-specific queries from cache
           queryClient.removeQueries({ queryKey: bankingKeys.enrollment(enrollmentId) });
 
+          // Remove all accounts associated with this enrollment from the store
+          const accounts = useBankingStore.getState().accounts;
+          accounts
+            .filter(account => account.tellerEnrollmentId === enrollmentId)
+            .forEach(account => removeAccount(account.id));
+
           // Invalidate global queries that depend on enrollment data
           queryClient.invalidateQueries({ queryKey: bankingKeys.enrollments() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.groupedAccounts() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() });
+
+          // Force refetch to get updated data immediately
+          queryClient.refetchQueries({ queryKey: bankingKeys.accounts() });
         }
       },
       onError: (error) => {

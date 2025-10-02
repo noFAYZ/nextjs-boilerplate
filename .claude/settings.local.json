@@ -24,7 +24,8 @@
       "Bash(timeout 15 npm run dev)",
       "Bash(timeout 20 npm run build)",
       "Bash(npx next lint:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Read(//c/Users/Faizan/Downloads/**)"
     ],
     "deny": [],
     "ask": []

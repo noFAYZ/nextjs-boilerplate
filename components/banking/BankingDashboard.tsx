@@ -86,16 +86,19 @@ export function BankingDashboard({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Queries
-  const { data: accounts = [], isLoading: accountsLoading, refetch: refetchAccounts } = useBankingGroupedAccounts();
-  const { data: groupedAccountsRaw = {}, isLoading: groupedAccountsLoading } = useBankingGroupedAccountsRaw();
+  const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useBankingGroupedAccountsRaw();
   const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
   const { data: transactionsData = [], isLoading: transactionsLoading } = useBankingTransactions({
     limit: 10,
     startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd')
   });
 
+  // Extract all accounts from grouped data
+  const accounts = useMemo(() => {
+    return Object.values(groupedAccountsRaw).flatMap(group => group.accounts || []);
+  }, [groupedAccountsRaw]);
 
-console.log(accounts)
+  console.log('Grouped accounts raw:', transactionsData);
 
   // Extract transactions from the response
   const recentTransactions = Array.isArray(transactionsData)
@@ -225,7 +228,8 @@ console.log(accounts)
 
     for (const enrollmentId of enrollmentIds) {
       try {
-        await deleteEnrollment.mutateAsync(enrollmentId);
+        const result = await deleteEnrollment.mutateAsync(enrollmentId);
+        console.log('Delete enrollment result:', result);
         successEnrollments.push(enrollmentId);
       } catch (error) {
         failedEnrollments.push(enrollmentId);
@@ -233,35 +237,26 @@ console.log(accounts)
       }
     }
 
-    // Exit manage mode and refresh data
+    // Exit manage mode first
     exitManageMode();
-    refetchAccounts();
-    refetchOverview();
+
+    // Force refresh of all data after deletion
+    setTimeout(() => {
+      refetchAccounts();
+      refetchOverview();
+    }, 500);
 
     return { success: successEnrollments, failed: failedEnrollments };
   };
 
   const getSelectedEnrollmentsData = () => {
-    // Group accounts by enrollment for selection
-    const accountGroups: Record<string, { enrollment: { id: string; institutionName: string }, accounts: BankAccount[] }> = {};
-
-    accounts.forEach(account => {
-      const enrollmentId = account.tellerEnrollmentId || account.id;
-      if (!accountGroups[enrollmentId]) {
-        accountGroups[enrollmentId] = {
-          enrollment: {
-            id: enrollmentId,
-            institutionName: account.institutionName || 'Unknown Bank'
-          },
-          accounts: []
-        };
-      }
-      accountGroups[enrollmentId].accounts.push(account);
-    });
-
-    return Object.values(accountGroups)
-      .filter(group => selectedEnrollments.includes(group.enrollment.id))
-      .map(group => group.enrollment);
+    // Use the grouped accounts data directly
+    return Object.entries(groupedAccounts)
+      .filter(([enrollmentId]) => selectedEnrollments.includes(enrollmentId))
+      .map(([enrollmentId, { enrollment }]) => ({
+        id: enrollment.id,
+        institutionName: enrollment.institutionName || 'Unknown Bank'
+      }));
   };
 
   const handleAccountClick = (account: BankAccount) => {
@@ -269,24 +264,8 @@ console.log(accounts)
     router.push(`/dashboard/accounts/bank/${account.id}`);
   };
 
-  // Use the raw grouped data from API instead of manually grouping
-  const groupedAccounts = useMemo(() => {
-    // The API already returns the correctly grouped data structure
-    // Just need to map it to the expected format
-    const groups: Record<string, { enrollment: any; accounts: BankAccount[] }> = {};
-
-    Object.entries(groupedAccountsRaw).forEach(([enrollmentId, groupData]: [string, any]) => {
-      if (groupData && groupData.enrollment && groupData.accounts) {
-        groups[enrollmentId] = {
-          enrollment: groupData.enrollment,
-          accounts: groupData.accounts
-        };
-      }
-    });
-
-    console.log('Final grouped accounts:', groups);
-    return groups;
-  }, [groupedAccountsRaw]);
+  // Use the raw grouped data directly - it's already in the correct format
+  const groupedAccounts = groupedAccountsRaw;
 
   // Memoize expensive calculations
   const balanceChange = useMemo(() => getBalanceChange(), [monthlyTrend]);
@@ -533,28 +512,33 @@ console.log(accounts)
         </div>
 
       {/* Overview Cards */}
-      <div className="flex flex-row justify-between  items-center gap-4">
+      <div className="flex flex-row justify-between items-center gap-4">
 
-        <div className=' items-center'>
-        <h3 className="text-[10px] font-medium uppercase">Net Worth</h3>
-        <div className="text-2xl font-bold">
-              {accounts.length > 0 ? formatCurrency(1200) : (overview ? formatCurrency(overview.totalBalance) : '...')}
-            </div>
-            {balanceChange && (
-              <p className={cn(
-                'text-xs flex items-center gap-1',
-                balanceChange.isPositive ? 'text-green-600' : 'text-red-600'
-              )}>
-                {balanceChange.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                {balanceChange.isPositive ? '+' : ''}
-                {formatCurrency(Math.abs(balanceChange.amount))} ({balanceChange.percent.toFixed(1)}%)
-              </p>
-            )}
+        <div className='items-center'>
+          <h3 className="text-[10px] font-medium uppercase">Total Balance</h3>
+          <div className="text-2xl font-bold">
+            {overview?.totalBalance !== undefined
+              ? formatCurrency(overview.totalBalance)
+              : accounts.length > 0
+                ? formatCurrency(accounts.reduce((sum, acc) => sum + acc.balance, 0))
+                : '...'
+            }
+          </div>
+          {balanceChange && (
+            <p className={cn(
+              'text-xs flex items-center gap-1',
+              balanceChange.isPositive ? 'text-green-600' : 'text-red-600'
+            )}>
+              {balanceChange.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {balanceChange.isPositive ? '+' : ''}
+              {formatCurrency(Math.abs(balanceChange.amount))} ({balanceChange.percent.toFixed(1)}%)
+            </p>
+          )}
         </div>
 
-    
-<div className='flex gap-2 '>
-   
+
+        <div className='flex gap-2'>
+
           <div className='bg-muted/60 p-2 rounded-xl'>
             <div className="text-2xl font-bold text-red-600">
               {monthlyTrend.length > 0
@@ -566,9 +550,7 @@ console.log(accounts)
               vs {formatCurrency(Math.abs(monthlyTrend[monthlyTrend.length - 2]?.spending || 0))} last month
             </p>
           </div>
-       
 
-     
           <div className='bg-muted/60 p-2 rounded-xl'>
             <div className="text-2xl font-bold text-green-600">
               {monthlyTrend.length > 0
@@ -580,9 +562,9 @@ console.log(accounts)
               vs {formatCurrency(Math.abs(monthlyTrend[monthlyTrend.length - 2]?.income || 0))} last month
             </p>
           </div>
-      
-</div>
-      
+
+        </div>
+
       </div>
 
       {/* Main Content Tabs */}
@@ -590,7 +572,6 @@ console.log(accounts)
         <TabsList variant={'ghost'}>
           <TabsTrigger value="accounts" variant={'ghost'}>Accounts</TabsTrigger>
           <TabsTrigger value="transactions" variant={'ghost'}>Recent Transactions</TabsTrigger>
-          <TabsTrigger value="analytics" variant={'ghost'}>Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="accounts" className="space-y-4">
@@ -643,7 +624,7 @@ console.log(accounts)
           
 
           {/* Accounts by Enrollment */}
-          {(accountsLoading || groupedAccountsLoading) ? (
+          {accountsLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className=" bg-card p-4 rounded-xl space-y-2 border">
@@ -740,11 +721,17 @@ console.log(accounts)
                         <div className="text-right mr-4">
                           <div className="space-y-1">
                             <div className="font-semibold text-sm">
-                              {formatCurrency(getEnrollmentBalances(enrollment).ledger, enrollment.accounts?.[0]?.currency)}
+                              {formatCurrency(
+                                enrollmentAccounts.reduce((sum, acc) => sum + (parseFloat(acc.ledgerBalance?.toString() || acc.balance.toString()) || 0), 0),
+                                enrollmentAccounts[0]?.currency
+                              )}
                             </div>
 
                             <div className="text-xs text-green-600">
-                              Available: {formatCurrency(getEnrollmentBalances(enrollment).available, enrollment.accounts?.[0]?.currency)}
+                              Available: {formatCurrency(
+                                enrollmentAccounts.reduce((sum, acc) => sum + (parseFloat(acc.availableBalance?.toString() || acc.balance.toString()) || 0), 0),
+                                enrollmentAccounts[0]?.currency
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1101,101 +1088,6 @@ console.log(accounts)
           />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Spending Analytics</h2>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={selectedTimeRange === 'week' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTimeRange('week')}
-              >
-                Week
-              </Button>
-              <Button
-                variant={selectedTimeRange === 'month' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTimeRange('month')}
-              >
-                Month
-              </Button>
-              <Button
-                variant={selectedTimeRange === 'quarter' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTimeRange('quarter')}
-              >
-                Quarter
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Spending Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Top Spending Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {spendingCategories.slice(0, 5).map((category, index) => (
-                    <div key={category.category} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={cn(
-                          'w-3 h-3 rounded-full',
-                          index === 0 ? 'bg-blue-500' :
-                          index === 1 ? 'bg-green-500' :
-                          index === 2 ? 'bg-yellow-500' :
-                          index === 3 ? 'bg-purple-500' : 'bg-gray-500'
-                        )} />
-                        <span className="text-sm font-medium">{category.category}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold">{formatCurrency(category.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{category.count} transactions</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Monthly Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  6-Month Trend
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {monthlyTrend.slice(-4).map((month: { month: string; spending: number; income: number; net: number }) => (
-                    <div key={month.month} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">
-                          {format(new Date(month.month + '-01'), 'MMM yyyy')}
-                        </span>
-                        <span className={cn(
-                          'font-semibold',
-                          month.net >= 0 ? 'text-green-600' : 'text-red-600'
-                        )}>
-                          {month.net >= 0 ? '+' : ''}{formatCurrency(Math.abs(month.net))}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                        <div>Income: {formatCurrency(month.income)}</div>
-                        <div>Spending: {formatCurrency(Math.abs(month.spending))}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* Teller Connect Modal */}
