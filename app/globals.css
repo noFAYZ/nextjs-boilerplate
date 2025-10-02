@@ -39,7 +39,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0rem;
+  --radius: 0.2rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.25rem;
@@ -81,7 +81,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0rem;
+  --radius: 0.2rem;
 
 }
 
@@ -121,7 +121,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0rem;
+  --radius: 0.2rem;
   --shadow-2xs: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.43);
   --shadow-xs: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.43);
   --shadow-sm: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.86), 0px 1px 2px -2.5px hsl(0 0% 78.0392% / 0.86);

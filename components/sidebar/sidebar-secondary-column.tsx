@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Crown } from 'lucide-react';
+import { Search, Crown, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { FluentPanelLeftExpand28Filled, GameIconsUpgrade } from '@/components/icons';
@@ -10,6 +10,7 @@ import { AccountSelector } from './account-selector';
 import { SidebarMenuContent } from './sidebar-menu-content';
 import { SidebarQuickActions } from './sidebar-quick-actions';
 import { SidebarCollapsedContent } from './sidebar-collapsed-content';
+import { SidebarDynamicContent } from './sidebar-dynamic-content';
 import { MenuItem, QuickAction } from './types';
 import { GlobalViewSwitcher } from '../ui/global-view-switcher';
 import { ThemeSwitcher } from '../ui/theme-switcher';
@@ -40,16 +41,11 @@ export function SidebarSecondaryColumn({
   return (
     <div className={cn(
       "flex h-full flex-col transition-[width] duration-75 bg-background dark:bg-muted/20 border-r border-border",
-      isExpanded ? "w-72" : "w-16"
+      isExpanded ? "w-80" : "w-16"
     )}>
       {/* Header */}
-      <div className="flex h-16 items-center px-4  ">
-        {isExpanded ? (
-          <div className="flex items-center justify-between w-full gap-3">
-            <GlobalViewSwitcher size='sm' />
-            <ThemeSwitcher />
-          </div>
-        ) : (
+      <div className="flex h-16 items-center px-4">
+        {!isExpanded && (
           <Button
             variant="ghost"
             size="icon"
@@ -60,17 +56,8 @@ export function SidebarSecondaryColumn({
             <FluentPanelLeftExpand28Filled className="h-4 w-4" />
           </Button>
         )}
-      </div>
+                    <div className="w-full ">
 
-      {/* Content Area */}
-      <div className="flex-1 py-4 overflow-hidden">
-        {isExpanded ? (
-          <div className="px-4 space-y-6 h-full flex flex-col">
-            {/* Search Bar */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                Search
-              </label>
               <button
                 onClick={onOpenCommandPalette}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 border border-border hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring transition-colors text-left"
@@ -81,28 +68,84 @@ export function SidebarSecondaryColumn({
                   ⌘K
                 </kbd>
               </button>
+</div>
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 py-4 overflow-hidden">
+        {isExpanded ? (
+          <div className="px-4 space-y-6 h-full flex flex-col">
+            {/* Search Bar */}
+            {selectedMenuItem != 'dashboard' && (   <div className="relative">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Portfolio</span>
+        </div>
+        
+        <div className="relative overflow-hidden rounded-xl bg-muted border border-border/50 p-4 group shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all duration-75">
+      
+          
+          <div className="relative space-y-3">
+            {/* Portfolio Value */}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground/70 font-medium">Total Value</div>
+                <div className="text-lg font-bold text-foreground">$124,567.89</div>
+              </div>
+              <div className="flex items-center gap-1 text-xs">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                <span className="text-green-600 font-semibold">+12.4%</span>
+              </div>
             </div>
 
-            {/* Main Navigation */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div className="space-y-6">
-                {selectedMenuItem == 'dashboard' ? (
-                  <SidebarQuickActions actions={actions} onActionClick={onActionClick} />
-                ) : selectedMenuData?.submenu ? (
-                  <div>
-                    <div className="mb-3 pb-2 border-b border-border">
-                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                        {selectedMenuData.label}
-                      </span>
-                    </div>
-                    <SidebarMenuContent submenu={selectedMenuData.submenu} onMobileClose={onMobileClose} />
-                  </div>
-                ) : (
-                  <SidebarQuickActions actions={actions} onActionClick={onActionClick} />
-                )}
+            {/* Mini Chart Visualization */}
+            <div className="relative h-12 bg-gradient-to-r from-background/30 to-muted/20 rounded-xl overflow-hidden">
+              <div className="absolute inset-0 flex items-end justify-between px-1 py-1">
+                {/* Simple bar chart representation */}
+                {[65, 70, 45, 85, 75, 90, 80, 95, 85, 100].map((height, i) => (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-t from-primary/60 to-primary/80 rounded-sm transition-all duration-75 hover:from-primary/80 hover:to-primary"
+                    style={{ 
+                      height: `${height}%`, 
+                      width: '8%',
+                      animationDelay: `${i * 100}ms`
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-primary/10 opacity-50" />
+            </div>
+
+            {/* Performance Stats */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="text-muted-foreground">Crypto</span>
+                <span className="font-semibold text-foreground ml-auto">68%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-muted-foreground">Stocks</span>
+                <span className="font-semibold text-foreground ml-auto">32%</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>)}
+
+         
+
+            {/* Main Navigation - Dynamic Content */}
+            <SidebarDynamicContent
+              selectedMenuItem={selectedMenuItem}
+              selectedMenuData={selectedMenuData}
+              actions={actions}
+              onMobileClose={onMobileClose}
+              onActionClick={onActionClick}
+            />
+          </div>
+          
         ) : (
           <SidebarCollapsedContent
             submenu={selectedMenuData?.submenu}
@@ -114,7 +157,8 @@ export function SidebarSecondaryColumn({
       </div>
 
       {/* Premium Upgrade Banner */}
-      <div className="p-4  ">
+      
+      <div className="p-4 space-y-2 ">
         {isExpanded ? (
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-3.5">
             <div className="space-y-3">
@@ -168,7 +212,13 @@ export function SidebarSecondaryColumn({
             </div>
           </Button>
         )}
+          
+
       </div>
+      <div className="flex items-center justify-between w-full gap-3 p-4">
+            <GlobalViewSwitcher size='sm' className='items-start justify-start mx-0' />
+            <ThemeSwitcher />
+          </div>
     </div>
   );
 }

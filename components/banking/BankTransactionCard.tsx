@@ -30,6 +30,8 @@ import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
 
 import type { BankTransaction, CounterpartyType } from '@/lib/types/banking';
+import { categoryIcons } from '@/lib/constants/transaction-categories';
+import { CurrencyDisplay } from '../ui/currency-display';
 
 interface BankTransactionCardProps {
   transaction: BankTransaction;
@@ -313,8 +315,9 @@ export function BankTransactionCard({
     return format(new Date(dateString), 'h:mm a');
   };
 
-  const TypeIcon = typeConfig.icon;
-  const CategoryIcon = getCategoryIcon(transaction.category);
+  const iconBg =categoryIcons[transaction.category as keyof typeof categoryIcons].gradient;
+  const CategoryIcon = categoryIcons[transaction.category as keyof typeof categoryIcons].icon;
+  const TypeIcon = getCategoryIcon(transaction.category);
 
   const merchantName = transaction.merchantName || transaction.description;
   const shortDescription = merchantName.length > 35 ? `${merchantName.slice(0, 35)}...` : merchantName;
@@ -328,7 +331,7 @@ export function BankTransactionCard({
     <>
       <div
         className={cn(
-          'group relative bg-background  border  cursor-pointer',
+          'group relative bg-muted/50    cursor-pointer',
           'hover:shadow-xs hover:translate-y-[-1px]',
           className
         )}
@@ -337,11 +340,11 @@ export function BankTransactionCard({
         <div className="flex items-center gap-3 py-3 px-2">
           {/* Icon */}
           <div className={cn(
-            'flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
-            'group-hover:scale-105',
-            typeConfig.bgColor
+            'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-100 bg-background',
+            
+            iconBg
           )}>
-            <TypeIcon className={cn('w-4 h-4 transition-all duration-200', typeConfig.iconColor)} />
+            <CategoryIcon className={cn('w-7 h-7 transition-all duration-100 ',typeConfig.iconColor)} />
           </div>
 
           {/* Content */}
@@ -354,15 +357,35 @@ export function BankTransactionCard({
                   </h4>
                   {transaction.category && (
                     <div className="flex-shrink-0 w-3 h-3 text-muted-foreground transition-all duration-200 group-hover:text-foreground/70">
-                      <CategoryIcon className="w-full h-full" />
+                      <TypeIcon className="w-full h-full" />
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                   <span>{formatDate(transaction.date)}</span>
                   <span>•</span>
                   <span>{formatTime(transaction.date)}</span>
+                  {transaction.account && (
+                    <>
+                      <span>•</span>
+                      {transaction.account.institutionName && (
+                        <span className="truncate max-w-[100px]" title={`${transaction.account.institutionName} - ${transaction.account.name}`}>
+                          {transaction.account.institutionName}
+                        </span>
+                      )}
+                      {transaction.account.name && (
+                        <span className="truncate max-w-[100px]" title={transaction.account.name}>
+                          {transaction.account.name}
+                        </span>
+                      )}
+                      {transaction.account.accountNumber && (
+                        <span className="font-mono">
+                          ••••{transaction.account.accountNumber.slice(-4)}
+                        </span>
+                      )}
+                    </>
+                  )}
                   {transaction.status === 'pending' && (
                     <>
                       <span>•</span>
@@ -381,7 +404,9 @@ export function BankTransactionCard({
                   'group-hover:scale-105',
                   typeConfig.color
                 )}>
-                  {formatCurrency(transaction.amount)}
+                 
+                  
+                {formatCurrency(transaction.amount)}
                 </div>
               </div>
             </div>
@@ -499,7 +524,7 @@ export function BankTransactionList({
         return (
           <div key={date} className="space-y-2">
             {/* Date header */}
-            <div className="flex items-center justify-between py-2 border-b border-border/50">
+            <div className="flex items-center justify-between py-2 border-b ">
               <div>
                 <h3 className="font-semibold text-foreground text-sm">
                   {format(new Date(date), 'EEEE, MMMM d')}

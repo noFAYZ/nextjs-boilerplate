@@ -100,11 +100,11 @@ export function Header({
       >
         {/* Simplified Header */}
         <div className="flex items-center justify-between h-16 px-4 lg:px-6">
-          {/* Left Section - Logo */}
+          {/* Left Section - Logo & Search */}
             <div className='flex items-center gap-6'>
           <div className="flex items-center">
-            <Link 
-              href="/dashboard" 
+            <Link
+              href="/dashboard"
               className="flex items-center gap-2 group"
               aria-label="MoneyMappr Dashboard"
             >
@@ -116,6 +116,18 @@ export function Header({
               </span>
             </Link>
           </div>
+
+          {/* Search Bar */}
+          <button
+            onClick={commandPalette.open}
+            className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring transition-colors text-left min-w-[240px]"
+          >
+            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <span className="text-muted-foreground text-xs flex-1">Search...</span>
+            <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              ⌘K
+            </kbd>
+          </button>
         
            
             <Popover>

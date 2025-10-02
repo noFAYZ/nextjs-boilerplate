@@ -24,7 +24,7 @@ export function SidebarLayout({
         defaultExpanded={defaultSidebarExpanded}
       />
    
-        <div className="h-full w-full  overflow-y-auto">
+        <div className="h-full w-full p-4 overflow-y-auto">
           {children}
         </div>
      
