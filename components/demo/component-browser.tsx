@@ -77,6 +77,11 @@ import {
   HardDrive,
   Database,
   Server,
+  Check,
+  Send,
+  Download,
+  Rocket,
+  Sparkles,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -237,76 +242,298 @@ const COMPONENT_CATEGORIES: CategoryItem[] = [
 // Basic UI Components
 const ButtonDemo = () => {
   return (
-    <div className="space-y-6">
-      {/* Primary Variants */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">Variants</h4>
-        <div className="flex flex-wrap gap-2">
-          <Button>Default</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="outline">Outline</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="link">Link</Button>
-          <Button variant="destructive">Destructive</Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-8">
+      <div className="max-w-7xl mx-auto space-y-12">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            Button Component Showcase
+          </h1>
+          <p className="text-muted-foreground">Explore all 26 creative button variants</p>
         </div>
-      </div>
 
-      {/* Sizes */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">Sizes</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm">Small</Button>
-          <Button size="default">Default</Button>
-          <Button size="lg">Large</Button>
-          <Button size="icon"><Settings className="h-4 w-4" /></Button>
-        </div>
-      </div>
+        {/* Basic Variants */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Basic Variants</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button>Default</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+            <Button variant="destructive">Destructive</Button>
+          </div>
+        </section>
 
-      {/* States */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">States</h4>
-        <div className="flex flex-wrap gap-2">
-          <Button disabled>Disabled</Button>
-          <Button>
-            <Loader className="mr-2 h-4 w-4 animate-spin" />
-            Loading
-          </Button>
-        </div>
-      </div>
+        {/* Status Variants */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Status Variants</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="success">
+              <Check className="w-4 h-4" />
+              Success
+            </Button>
+            <Button variant="warning">
+              <Zap className="w-4 h-4" />
+              Warning
+            </Button>
+            <Button variant="premium">
+              <Sparkles className="w-4 h-4" />
+              Premium
+            </Button>
+            <Button variant="enterprise">
+              <Star className="w-4 h-4" />
+              Enterprise
+            </Button>
+          </div>
+        </section>
 
-      {/* With Icons */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">With Icons</h4>
-        <div className="flex flex-wrap gap-2">
-          <Button>
-            <Mail className="mr-2 h-4 w-4" />
-            Email
-          </Button>
-          <Button variant="outline">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-          <Button variant="secondary">
-            Download
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+        {/* Modern Effects */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Modern Effects</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="glassmorphism">
+              <Sparkles className="w-4 h-4" />
+              Glassmorphism
+            </Button>
+            <Button variant="shimmer">
+              <Zap className="w-4 h-4" />
+              Shimmer
+            </Button>
+            <Button variant="neumorphism">
+              <Heart className="w-4 h-4" />
+              Neumorphism
+            </Button>
+            <Button variant="minimal">
+              Minimal
+            </Button>
+          </div>
+        </section>
 
-      {/* As Link */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">As Link</h4>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild>
-            <a href="#" onClick={(e) => e.preventDefault()}>
-              Button as Link
-            </a>
-          </Button>
-        </div>
+        {/* Gradient Variants */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Gradient Variants</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="gradient">
+              <Sparkles className="w-4 h-4" />
+              Gradient
+            </Button>
+            <Button variant="aurora">
+              <Star className="w-4 h-4" />
+              Aurora
+            </Button>
+            <Button variant="holographic">
+              <Sparkles className="w-4 h-4" />
+              Holographic
+            </Button>
+            <Button variant="liquid">
+              <Zap className="w-4 h-4" />
+              Liquid
+            </Button>
+            <Button variant="sunset">
+              <Heart className="w-4 h-4" />
+              Sunset
+            </Button>
+            <Button variant="candy">
+              <Heart className="w-4 h-4" />
+              Candy
+            </Button>
+          </div>
+        </section>
+
+        {/* Tech & Futuristic */}
+        <section className="space-y-4 bg-slate-900 p-6 rounded-xl">
+          <h2 className="text-2xl font-bold text-white">Tech & Futuristic</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="neon">
+              <Zap className="w-4 h-4" />
+              Neon
+            </Button>
+            <Button variant="cyberpunk">
+              <Rocket className="w-4 h-4" />
+              Cyberpunk
+            </Button>
+            <Button variant="cosmic">
+              <Star className="w-4 h-4" />
+              Cosmic
+            </Button>
+            <Button variant="matrix">
+              <Zap className="w-4 h-4" />
+              Matrix
+            </Button>
+          </div>
+        </section>
+
+        {/* Retro & Playful */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Retro & Playful</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="neobrutalism">
+              <Star className="w-4 h-4" />
+              Neobrutalism
+            </Button>
+            <Button variant="retro">
+              <Heart className="w-4 h-4" />
+              Retro
+            </Button>
+            <Button variant="pixelated">
+              <Zap className="w-4 h-4" />
+              Pixelated
+            </Button>
+          </div>
+        </section>
+
+        {/* Material */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Material</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="steel">
+              <Settings className="w-4 h-4" />
+              Steel
+            </Button>
+          </div>
+        </section>
+
+        {/* Sizes */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Sizes</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="xs">Extra Small</Button>
+            <Button size="sm">Small</Button>
+            <Button size="default">Default</Button>
+            <Button size="lg">Large</Button>
+            <Button size="xl">Extra Large</Button>
+            <Button size="2xl">2X Large</Button>
+          </div>
+        </section>
+
+        {/* Icon Sizes */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Icon Sizes</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="icon-sm" variant="outline">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button size="icon" variant="secondary">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button size="icon-lg" variant="premium">
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Button size="icon-xl" variant="gradient">
+              <Settings className="h-6 w-6" />
+            </Button>
+          </div>
+        </section>
+
+        {/* States */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">States</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button disabled>Disabled</Button>
+            <Button loading loadingText="Loading...">
+              Submit
+            </Button>
+            <Button variant="premium" loading>
+              Processing
+            </Button>
+          </div>
+        </section>
+
+        {/* With Icons */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">With Icons</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="default" icon={<Mail className="w-4 h-4" />}>
+              Email
+            </Button>
+            <Button variant="success" icon={<Check className="w-4 h-4" />}>
+              Confirm
+            </Button>
+            <Button variant="gradient" icon={<Send className="w-4 h-4" />} iconPosition="right">
+              Send Message
+            </Button>
+            <Button variant="neon" icon={<Download className="w-4 h-4" />}>
+              Download
+            </Button>
+          </div>
+        </section>
+
+        {/* Creative Combinations */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Creative Combinations</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="aurora" size="lg" icon={<Sparkles className="w-5 h-5" />}>
+              Get Started
+            </Button>
+            <Button variant="cyberpunk" size="xl" icon={<Rocket className="w-5 h-5" />}>
+              Launch App
+            </Button>
+            <Button variant="neobrutalism" size="lg" icon={<Star className="w-5 h-5" />}>
+              Click Me!
+            </Button>
+            <Button variant="holographic" size="xl" icon={<Heart className="w-5 h-5" />} iconPosition="right">
+              Subscribe
+            </Button>
+          </div>
+        </section>
+
+        {/* As Link */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">As Link</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="gradient">
+              <a href="#" onClick={(e) => e.preventDefault()}>
+                <Sparkles className="w-4 h-4" />
+                Button as Link
+              </a>
+            </Button>
+            <Button asChild variant="neon">
+              <a href="#" onClick={(e) => e.preventDefault()}>
+                External Link
+              </a>
+            </Button>
+          </div>
+        </section>
+
+        {/* Grid Showcase */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">All Variants Grid</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <Button variant="default">Default</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="success">Success</Button>
+            <Button variant="warning">Warning</Button>
+            <Button variant="premium">Premium</Button>
+            <Button variant="enterprise">Enterprise</Button>
+            <Button variant="neon">Neon</Button>
+            <Button variant="glassmorphism">Glass</Button>
+            <Button variant="neobrutalism">Brutal</Button>
+            <Button variant="gradient">Gradient</Button>
+            <Button variant="shimmer">Shimmer</Button>
+            <Button variant="aurora">Aurora</Button>
+            <Button variant="cyberpunk">Cyber</Button>
+            <Button variant="minimal">Minimal</Button>
+            <Button variant="neumorphism">Neomorph</Button>
+            <Button variant="retro">Retro</Button>
+            <Button variant="holographic">Holo</Button>
+            <Button variant="liquid">Liquid</Button>
+            <Button variant="pixelated">Pixel</Button>
+            <Button variant="cosmic">Cosmic</Button>
+            <Button variant="sunset">Sunset</Button>
+            <Button variant="matrix">Matrix</Button>
+            <Button variant="candy">Candy</Button>
+            <Button variant="steel">Steel</Button>
+          </div>
+        </section>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const InputDemo = () => {
   const [value, setValue] = React.useState("")

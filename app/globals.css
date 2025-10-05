@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *, .dark-pro *));
 /* fffefa */
 :root {
-  --background: oklch(1.0000 0 0);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(0.9818 0.0054 95.0986);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -12,13 +12,13 @@
   --popover-foreground: oklch(0.2699 0.0211 103.7300);
   --primary: oklch(0.6571 0.1369 40.4555);
   --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.9189 0.0104 67.6966);
+  --secondary: oklch(0.98 0.01 30);
   --secondary-foreground: oklch(0.4358 0.0191 103.2508);
   --muted: oklch(0.9366 0.0178 92.6877);
   --muted-foreground: oklch(0.6059 0.0075 97.4233);
   --accent: oklch(0.9248 0.0125 91.5235);
   --accent-foreground: oklch(0.2699 0.0211 103.7300);
-  --destructive: #F92F60;
+  --destructive: #d60000;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.8118 0.0152 102.5130);
@@ -39,7 +39,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.2rem;
+  --radius: 0.6rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.25rem;
@@ -54,8 +54,8 @@
   --popover-foreground: oklch(0.9211 0.0040 106.4781);
   --primary: oklch(0.5110 0.1345 39.2633);
   --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.806 0.0222 77);
-  --secondary-foreground: oklch(0.3085 0.0035 106.6039);
+  --secondary: oklch(0.1582 0.0328 27.2855);
+  --secondary-foreground: oklch(0.9 0 0);
   --muted: oklch(0.3582 0.0028 17.2855);
   --muted-foreground: oklch(0.6567 0 0);
   --accent: oklch(0.3540 0.0130 57.8503);
@@ -81,7 +81,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.2rem;
+  --radius: 0.6rem;
 
 }
 
@@ -121,7 +121,7 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.2rem;
+  --radius: 0.6rem;
   --shadow-2xs: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.43);
   --shadow-xs: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.43);
   --shadow-sm: 0px 3px 6.5px -1.5px hsl(0 0% 78.0392% / 0.86), 0px 1px 2px -2.5px hsl(0 0% 78.0392% / 0.86);
@@ -167,11 +167,11 @@
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --radius: 0.8rem;
+  --radius: 0.4rem;
 
 }
 
-.lighst-pro {
+.ligsht-pro {
   --background: #ffffff; 
   --foreground: #3e3a28;
   --card: #faf9f5;
@@ -211,13 +211,9 @@
   --shadow-2xs: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 0.50);
   --shadow-xs: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 0.50);
   --shadow-sm: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 1.00), 0px 1px 2px -1.5px hsl(27.2727 100% 87.0588% / 1.00);
-  --shadow: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 1.00), 0px 1px 2px -1.5px hsl(27.2727 100% 87.0588% / 1.00);
-  --shadow-md: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 1.00), 0px 2px 4px -1.5px hsl(27.2727 100% 87.0588% / 1.00);
-  --shadow-lg: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 1.00), 0px 4px 6px -1.5px hsl(27.2727 100% 87.0588% / 1.00);
-  --shadow-xl: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 1.00), 0px 8px 10px -1.5px hsl(27.2727 100% 87.0588% / 1.00);
-  --shadow-2xl: 0px 3px 0px -0.5px hsl(27.2727 100% 87.0588% / 2.50);
+
   --tracking-normal: 0em;
-  --spacing: 0.19rem;
+  --spacing: 0.22rem;
 }
 .darsk-pro {
   --background: #000000;

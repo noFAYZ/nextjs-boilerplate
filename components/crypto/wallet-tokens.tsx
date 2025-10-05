@@ -233,7 +233,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
     <div className="space-y-3">
 
       {/* Compact Filters - Beginner View Only */}
-      {isBeginnerMode && (
+      {!isBeginnerMode && (
         <div className="flex flex-col sm:flex-row gap-2 px-4 py-2">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
@@ -273,7 +273,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
   
 
       {/* Conditional Rendering based on View Mode */}
-      {isBeginnerMode ? (
+      {!isBeginnerMode ? (
         /* Beginner View - Cards */
         <div className="space-y-3 ">
           {paginatedTokens.map((token) => (
@@ -404,7 +404,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
       )}
 
       {/* Empty State for Beginner View Only */}
-      {isBeginnerMode && filteredTokens.length === 0 && !isLoading && (
+      {!isBeginnerMode && filteredTokens.length === 0 && !isLoading && (
         <Card>
           <CardContent className="text-center py-8">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
@@ -423,7 +423,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
       )}
 
       {/* Compact Pagination for Beginner View Only */}
-      {isBeginnerMode && totalPages > 1 && (
+      {!isBeginnerMode && totalPages > 1 && (
         <Card className='py-3'>
           <CardContent >
             <div className="flex items-center justify-between">

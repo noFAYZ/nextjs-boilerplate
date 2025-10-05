@@ -1,16 +1,16 @@
-import { Plus, Search, Bell, Calculator, Download, Upload, Building, Store } from 'lucide-react';
+import { Plus, Search, Bell, Calculator, Download, Upload, Building, Store, Plug } from 'lucide-react';
 import { MenuItem, QuickAction } from './types';
-import { 
-  GuidanceBank, 
-  HugeiconsAnalytics02, 
-  HugeiconsAnalyticsUp,  
-  HugeiconsHome04, 
-  HugeiconsPieChart09, 
-  HugeiconsTransactionHistory, 
-  MageGoals, 
-  SolarWallet2Outline, 
-  StreamlinePlumpFileReport, 
-  TablerEyeDollar 
+import {
+  GuidanceBank,
+  HugeiconsAnalytics02,
+  HugeiconsAnalyticsUp,
+  HugeiconsHome04,
+  HugeiconsPieChart09,
+  HugeiconsTransactionHistory,
+  MageGoals,
+  SolarWallet2Outline,
+  StreamlinePlumpFileReport,
+  TablerEyeDollar
 } from '../icons/icons';
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -29,9 +29,14 @@ export const MENU_ITEMS: MenuItem[] = [
       { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
       { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
       { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
-      { id: 'services', label: 'Business Services', href: '/dashboard/accounts/service', icon: Store, description: 'Shopify, QuickBooks, etc.' },
       { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
     ]
+  },
+  {
+    id: 'integrations',
+    label: 'Integrations',
+    icon: Plug,
+    href: '#',
   },
   {
     id: 'portfolio',

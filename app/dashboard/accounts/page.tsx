@@ -39,6 +39,7 @@ import { cn } from '@/lib/utils';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useBankingGroupedAccounts } from '@/lib/queries/banking-queries';
+import { StreamlineFlexWallet } from '@/components/icons/icons';
 
 // Network icon colors mapping
 const networkColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -177,315 +178,400 @@ export default function AccountsPage() {
     : filteredData.bank.map(b => ({ ...b, _type: 'bank' as const }));
 
   const isLoading = cryptoLoading || bankingLoading;
+  const brandColor = '#FF6900';
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Accounts</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage all your financial accounts in one place
-          </p>
+
+      <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden p-4">
+
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted" >
+                <StreamlineFlexWallet className="w-4 h-4 " />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold">Accounts</h1>
+               
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="xs" className="gap-1">
+                <Download className="w-3 h-3" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+              <Button size="xs" className="gap-1" >
+                <Plus className="w-3 h-3" />
+                Add Account
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="default" size="sm">
-            <Plus className="w-4 h-4 mr-2" />
+        {/* Stats Grid */}
+        <div className="grid gap-3 lg:grid-cols-4">
+          {/* Total Net Worth */}
+          <div className="lg:col-span-2">
+            <Card className="bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-800 rounded-xl border-0 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br opacity-10" style={{ background: `linear-gradient(135deg, ${brandColor} 0%, transparent 100%)` }} />
+              <CardContent className="p-3 relative">
+                <div className="flex items-start justify-between mb-1">
+                  <div className="flex items-center gap-2">
+               
+              
+                      <p className="text-[9px] uppercase tracking-wide text-muted-foreground font-semibold">Net Worth</p>
+                  
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => setBalanceVisible(!balanceVisible)}
+                    className="h-6 w-6 p-0"
+                  >
+                    {balanceVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-xl md:text-2xl font-bold">
+                    {balanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••••'}
+                  </h2>
+
+                  <div className="flex items-center gap-1.5">
+                    <div className={cn(
+                      "flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold",
+                      totalChange >= 0
+                        ? "bg-green-500/15 text-green-600 dark:text-green-400"
+                        : "bg-red-500/15 text-red-600 dark:text-red-400"
+                    )}>
+                      {totalChange >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                      {totalChange >= 0 ? '+' : ''}{totalChange.toFixed(2)}%
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">Last 24h</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Crypto & Bank Stats */}
+          <div className="lg:col-span-2 grid grid-cols-2 gap-3">
+            {/* Crypto */}
+            <Card className="bg-white dark:bg-zinc-900 rounded-xl border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+              <CardContent className="p-3">
+          
+                <div className="space-y-1">
+                  <p className="text-[10px] font-medium text-muted-foreground">Crypto Wallets</p>
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-xl font-bold">{cryptoCount}</p>
+                    <span className="text-[10px] text-muted-foreground">wallets</span>
+                  </div>
+                  <div className="pt-1 border-t border-border/50">
+                    <p className="text-xs font-semibold" style={{ color: brandColor }}>
+                      ${totalCrypto.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground">Total value</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bank */}
+            <Card className="bg-white dark:bg-zinc-900 rounded-xl border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+              <CardContent className="p-3">
+          
+                <div className="space-y-1">
+                  <p className="text-[10px] font-medium text-muted-foreground">Bank Accounts</p>
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-xl font-bold">{bankCount}</p>
+                    <span className="text-[10px] text-muted-foreground">accounts</span>
+                  </div>
+                  <div className="pt-1 border-t border-border/50">
+                    <p className="text-xs font-semibold text-green-600 dark:text-green-400">
+                      ${totalBank.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground">Total balance</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col lg:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1  w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+            <Input
+              placeholder="Search accounts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 rounded-lg text-sm max-w-sm justify-end "
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+              >
+                ✕
+              </Button>
+            )}
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center bg-muted rounded-lg p-1">
+              <Button
+                variant={activeTab === 'all' ? 'default' : 'ghost'}
+                size="xs"
+                onClick={() => setActiveTab('all')}
+                className={cn(
+                  "gap-1 text-xs font-medium transition-all",
+                )}
+       
+              >
+                All
+              </Button>
+              <Button
+                variant={activeTab === 'crypto' ? 'default' : 'ghost'}
+                size="xs"
+                onClick={() => setActiveTab('crypto')}
+                className={cn(
+                  "gap-1 text-xs font-medium transition-all",
+                )}
+           
+              >
+                <Wallet2 className="w-3 h-3" />
+                Crypto 
+              </Button>
+              <Button
+                variant={activeTab === 'bank' ? 'default' : 'ghost'}
+                size="xs"
+                onClick={() => setActiveTab('bank')}
+                className={cn(
+                  "  gap-1 text-xs font-medium transition-all",
+                )}
+            
+              >
+                <Building2 className="w-3 h-3" />
+                Banks 
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              size="xs"
+  
+              disabled={isLoading}
+            >
+              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+            </Button>
+          </div>
+        </div>
+
+     {/* Accounts Grid */}
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+  {displayAccounts.map((account) => {
+    const isCrypto = account._type === "crypto";
+
+    if (isCrypto) {
+      const wallet = account;
+      const balance = parseFloat(wallet.totalBalanceUsd || "0");
+      const networkColor = networkColors[wallet.network] || networkColors.DEFAULT;
+      const syncConfig = syncStatusConfig[wallet.syncStatus || "SUCCESS"];
+
+      return (
+        <Card
+          key={wallet.id}
+          className="group relative overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl bg-gradient-to-br from-white/70 to-purple-50/40 dark:from-zinc-900/70 dark:to-purple-950/30 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+        >
+   
+
+          <CardContent className="px-5 relative">
+            <div className="flex items-start justify-between mb-4">
+              <div
+                className={cn(
+                  "w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110",
+                  networkColor.bg
+                )}
+              >
+                <Wallet2 className={cn("w-5 h-5", networkColor.text)} />
+              </div>
+
+              {syncConfig && (
+                <Badge variant={syncConfig.variant} size="xs" className="rounded-full px-2 py-0.5 text-[10px] font-medium">
+                  {syncConfig.icon}
+                  {syncConfig.label}
+                </Badge>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold mb-1.5 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                {wallet.name}
+              </h3>
+              <div className="space-y-1">
+                <code className="block px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono truncate">
+                  {wallet.address.slice(0, 10)}...{wallet.address.slice(-8)}
+                </code>
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <span className="px-1.5 py-0.5 rounded bg-muted/50 font-medium">{wallet.network}</span>
+                  {wallet.assetCount > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>{wallet.assetCount} assets</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-end justify-between">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-0.5">Total Balance</p>
+                <p className="text-lg font-bold" style={{ color: brandColor }}>
+                  {balanceVisible
+                    ? `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : "••••••"}
+                </p>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-xl backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 shadow-md">
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <Eye className="w-3 h-3 mr-2" /> View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <RefreshCw className="w-3 h-3 mr-2" /> Sync Now
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <Edit3 className="w-3 h-3 mr-2" /> Edit Wallet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <ExternalLink className="w-3 h-3 mr-2" /> View on Explorer
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:text-destructive text-xs rounded-md">
+                    <Trash2 className="w-3 h-3 mr-2" /> Remove Wallet
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    } else {
+      const bankAccount = account;
+      const syncConfig = syncStatusConfig[bankAccount.syncStatus || "connected"];
+
+      return (
+        <Card
+          key={bankAccount.id}
+          className="group relative overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl bg-gradient-to-br from-white/70 to-green-50/40 dark:from-zinc-900/70 dark:to-green-950/30 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+        >
+
+          <CardContent className="px-5 relative">
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                <Building2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              {syncConfig && (
+                <Badge variant={syncConfig.variant} size="xs" className="rounded-full px-2 py-0.5 text-[10px] font-medium">
+                  {syncConfig.icon}
+                  {syncConfig.label}
+                </Badge>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold mb-1.5 truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                {bankAccount.name}
+              </h3>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground truncate">{bankAccount.institutionName}</p>
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <code className="px-1.5 py-0.5 rounded bg-muted/50 font-mono">{bankAccount.accountNumber}</code>
+                  <span>•</span>
+                  <span className="font-medium">{bankAccount.type}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-end justify-between">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-0.5">Current Balance</p>
+                <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                  {balanceVisible
+                    ? `$${bankAccount.balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : "••••••"}
+                </p>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-xl backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 shadow-md">
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <Eye className="w-3 h-3 mr-2" /> View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <RefreshCw className="w-3 h-3 mr-2" /> Sync Now
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs rounded-md">
+                    <Edit3 className="w-3 h-3 mr-2" /> Edit Account
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:text-destructive text-xs rounded-md">
+                    <Trash2 className="w-3 h-3 mr-2" /> Remove Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+  })}
+
+  {displayAccounts.length === 0 && !isLoading && (
+    <Card className="bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-950 rounded-2xl border-2 border-dashed border-border">
+      <CardContent className="py-12 text-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${brandColor}15` }}>
+            <Search className="w-6 h-6" style={{ color: brandColor }} />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold mb-1">No accounts found</h3>
+            <p className="text-xs text-muted-foreground max-w-sm">
+              {searchQuery
+                ? "Try adjusting your search or filters"
+                : "Get started by adding your first account to track your finances"}
+            </p>
+          </div>
+          <Button className="mt-2 text-xs font-semibold" size="sm" style={{ backgroundColor: brandColor, color: "white" }}>
+            <Plus className="w-3 h-3 mr-1.5" />
             Add Account
           </Button>
         </div>
+      </CardContent>
+    </Card>
+  )}
+</div>
+
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="md:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Net Worth</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setBalanceVisible(!balanceVisible)}
-              className="h-6 w-6"
-            >
-              {balanceVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {balanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••••'}
-            </div>
-            <p className={cn(
-              "text-xs",
-              totalChange >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
-            )}>
-              {totalChange >= 0 ? '+' : ''}{totalChange.toFixed(2)}% from last 24h
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Crypto Accounts</CardTitle>
-            <Wallet2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{cryptoCount}</div>
-            <p className="text-xs text-muted-foreground">
-              ${totalCrypto.toLocaleString('en-US', { maximumFractionDigits: 0 })} total
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bank Accounts</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{bankCount}</div>
-            <p className="text-xs text-muted-foreground">
-              ${totalBank.toLocaleString('en-US', { maximumFractionDigits: 0 })} total
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, address, or institution..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center border border-border rounded-lg p-0.5 bg-muted/30">
-            <Button
-              variant={activeTab === 'all' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('all')}
-              className="h-8 px-3"
-            >
-              All
-            </Button>
-            <Button
-              variant={activeTab === 'crypto' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('crypto')}
-              className="h-8 px-3"
-            >
-              <Wallet2 className="w-4 h-4 mr-1.5" />
-              Crypto
-            </Button>
-            <Button
-              variant={activeTab === 'bank' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('bank')}
-              className="h-8 px-3"
-            >
-              <Building2 className="w-4 h-4 mr-1.5" />
-              Banks
-            </Button>
-          </div>
-
-          <Button variant="secondary" size="sm">
-            <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Accounts List */}
-      <div className="space-y-4">
-        {displayAccounts.map((account) => {
-          const isCrypto = account._type === 'crypto';
-
-          if (isCrypto) {
-            const wallet = account as any;
-            const balance = parseFloat(wallet.totalBalanceUsd || '0');
-            const networkColor = networkColors[wallet.network] || networkColors.DEFAULT;
-            const syncConfig = syncStatusConfig[wallet.syncStatus || 'SUCCESS'];
-
-            return (
-              <Card key={wallet.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    {/* Icon */}
-                    <div className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                      networkColor.bg
-                    )}>
-                      <Wallet2 className={cn("w-5 h-5", networkColor.text)} />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium truncate">{wallet.name}</h3>
-                        {syncConfig && (
-                          <Badge variant={syncConfig.variant} size="sm" className="shrink-0">
-                            {syncConfig.icon}
-                            {syncConfig.label}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <code className="text-xs">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</code>
-                        <span>•</span>
-                        <span>{wallet.network}</span>
-                        {wallet.assetCount > 0 && (
-                          <>
-                            <span>•</span>
-                            <span>{wallet.assetCount} assets</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Balance */}
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold">
-                        {balanceVisible ? `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••'}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Sync Now
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit3 className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          View on Explorer
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          } else {
-            const bankAccount = account as any;
-            const syncConfig = syncStatusConfig[bankAccount.syncStatus || 'connected'];
-
-            return (
-              <Card key={bankAccount.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    {/* Icon */}
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
-                      <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium truncate">{bankAccount.name}</h3>
-                        {syncConfig && (
-                          <Badge variant={syncConfig.variant} size="sm" className="shrink-0">
-                            {syncConfig.icon}
-                            {syncConfig.label}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <code className="text-xs">{bankAccount.accountNumber}</code>
-                        <span>•</span>
-                        <span>{bankAccount.type}</span>
-                        <span>•</span>
-                        <span className="truncate">{bankAccount.institutionName}</span>
-                      </div>
-                    </div>
-
-                    {/* Balance */}
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold">
-                        {balanceVisible ? `$${bankAccount.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••'}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Sync Now
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit3 className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          }
-        })}
-
-        {displayAccounts.length === 0 && !isLoading && (
-          <Card className="border-dashed">
-            <CardContent className="py-12 text-center">
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-2">
-                  <Search className="w-6 h-6 text-muted-foreground" />
-                </div>
-                <h3 className="font-medium">No accounts found</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  {searchQuery ? 'Try adjusting your search or filters' : 'Get started by adding your first account'}
-                </p>
-                <Button className="mt-4" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Account
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </div>
   );
 }

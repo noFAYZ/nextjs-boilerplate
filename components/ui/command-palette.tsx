@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Search, ChevronRight, Hash, File, Settings, Users, Zap, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 
 interface CommandItem {
@@ -234,6 +234,7 @@ export function CommandPalette({
       <DialogContent className={cn("overflow-hidden p-0 shadow-2xl max-w-2xl", className)}>
         <div className="flex flex-col max-h-[600px]">
           {/* Header */}
+          <DialogTitle className="sr-only">Command Palette</DialogTitle>
           <div className="flex items-center border-b px-4 py-3">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <input

@@ -78,12 +78,7 @@ function ThemeSwitcher() {
             "group-hover:rotate-90"
           )}
         />
-        <div
-          className={cn(
-            "absolute inset-0 rounded-3xl bg-orange-500",
-            "animate-pulse opacity-10"
-          )}
-        />
+    
       </div>
 
       {/* Moon & Stars */}

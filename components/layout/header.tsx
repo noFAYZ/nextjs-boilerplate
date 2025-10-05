@@ -91,7 +91,7 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          'bg-sidebar',
+          'bg-background dark:bg-card shadow-sm ',
           isScrolled && sticky && 'shadow-sm',
           className
         )}
@@ -117,17 +117,7 @@ export function Header({
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <button
-            onClick={commandPalette.open}
-            className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring transition-colors text-left min-w-[240px]"
-          >
-            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground text-xs flex-1">Search...</span>
-            <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-              ⌘K
-            </kbd>
-          </button>
+
         
            
             <Popover>
@@ -241,7 +231,7 @@ export function Header({
           {/* Center Section - Command Palette Search */}
           <div className="flex-1 max-w-xl mx-8">
             <Button
-              variant="outline"
+              variant="ghost"
               className="w-full justify-start text-sm text-muted-foreground  h-10 px-4 bg-muted border hover:bg-muted/80"
               onClick={() => commandPalette.setOpen(true)}
             >

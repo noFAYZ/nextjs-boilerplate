@@ -191,7 +191,7 @@ const DockItemComponent = React.memo<{
     >
       <motion.button
         className={cn(
-          "relative flex items-center justify-center rounded-lg transition-colors duration-0 outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer",
+          "relative flex items-center justify-center rounded-xl transition-colors duration-0 outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer",
           "hover:bg-accent/70 active:bg-accent/70",
           sizeConfig.item,
           item.disabled && "opacity-50 cursor-not-allowed",
@@ -434,7 +434,7 @@ export function Dock({
   }, [])
 
   const containerClasses = cn(
-    "flex items-center justify-center p-3 rounded-none border shadow-xl transition-all duration-0",
+    "flex items-center justify-center p-3 rounded-2xl border shadow-xl transition-all duration-0",
     blur && "backdrop-blur-xl bg-background/80 supports-[backdrop-filter]:bg-background/60",
     !blur && "bg-card",
     isHorizontal ? "flex-row gap-2" : "flex-col gap-2",

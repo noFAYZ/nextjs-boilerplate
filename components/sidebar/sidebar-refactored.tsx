@@ -22,7 +22,8 @@ import {
   Filter,
   Calendar,
   Share,
-  Settings
+  Settings,
+  Plug
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -75,7 +76,6 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
       { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
       { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
-      { id: 'services', label: 'Business Services', href: '/dashboard/accounts/service', icon: Store, description: 'Shopify, QuickBooks, etc.' },
       { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
     ],
     quickActions: [
@@ -84,6 +84,17 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'export-accounts', label: 'Export Accounts', icon: Download, action: () => {}, },
       { id: 'account-settings', label: 'Account Settings', icon: Settings, action: () => {}, },
       { id: 'bulk-actions', label: 'Bulk Actions', icon: BarChart3, action: () => {}, }
+    ]
+  },
+  {
+    id: 'integrations',
+    label: 'Integrations',
+    icon: Plug,
+    href: '#',
+    quickActions: [
+      { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
+      { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
+      { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
     ]
   },
   {

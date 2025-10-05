@@ -19,6 +19,7 @@ import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { authClient } from '@/lib/auth-client';
 import { MenuItem } from './types';
 import { ThemeSwitcher } from '../ui/theme-switcher';
+import { MapprLogoM, MapprLogoMT } from '../icons/icons';
 
 
 interface SidebarMainColumnProps {
@@ -53,9 +54,9 @@ export function SidebarMainColumn({
       <div className="flex h-16 items-center justify-center border-b border-white/5">
         <Link
           href="/dashboard"
-          className="group relative flex items-center justify-center w-12 h-12 rounded-lg hover:bg-white/5 transition-colors"
+          className="group relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/5 transition-colors"
         >
-          <LogoMappr className="h-8 w-8 text-white" />
+          <MapprLogoMT className=" w-8 h-8 text-white"  />
 
           {/* Tooltip */}
           <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -71,45 +72,60 @@ export function SidebarMainColumn({
             const Icon = item.icon;
             // Only mark as active if exact match or if not dashboard and starts with href
             const isActive = pathname === item.href ||
-              (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
+              (item.href !== '/dashboard' && item.href !== '#' && pathname.startsWith(item.href + '/'));
             const isSelected = selectedMenuItem === item.id;
 
-            return (
+            const handleClick = (e: React.MouseEvent) => {
+              if (item.href === '#') {
+                e.preventDefault();
+              }
+              onMenuItemClick(item.id);
+            };
+
+            const content = (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "relative h-11 w-11 group rounded-lg transition-all",
+                  isActive || isSelected
+                    ? "bg-white/15  hover:bg-white/20 text-white hover:text-white"
+                    : "text-white/60 hover:text-white hover:bg-white/15"
+                )}
+                title={item.label}
+              >
+                <Icon className="h-6 w-6" />
+
+                {/* Active indicator */}
+                {(isActive || isSelected) && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-r-full" />
+                )}
+
+                {/* Badge */}
+                {item.badge && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[#1a1a1a]">
+                    {item.badge}
+                  </span>
+                )}
+
+                {/* Tooltip */}
+                <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  {item.label}
+                </div>
+              </Button>
+            );
+
+            return item.href === '#' ? (
+              <div key={item.id} onClick={handleClick}>
+                {content}
+              </div>
+            ) : (
               <Link
                 key={item.id}
                 href={item.href}
-                onClick={() => onMenuItemClick(item.id)}
+                onClick={handleClick}
               >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "relative h-11 w-11 group rounded-lg transition-all",
-                    isActive
-                      ? "bg-white/15  hover:bg-white/20 text-white hover:text-white"
-                      : "text-white/60 hover:text-white hover:bg-white/15"
-                  )}
-                  title={item.label}
-                >
-                  <Icon className="h-6 w-6" />
-
-                  {/* Active indicator */}
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-r-full" />
-                  )}
-
-                  {/* Badge */}
-                  {item.badge && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[#1a1a1a]">
-                      {item.badge}
-                    </span>
-                  )}
-
-                  {/* Tooltip */}
-                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                    {item.label}
-                  </div>
-                </Button>
+                {content}
               </Link>
             );
           })}

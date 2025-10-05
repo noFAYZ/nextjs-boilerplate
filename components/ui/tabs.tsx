@@ -59,6 +59,7 @@ const tabsTriggerVariants = cva(
         card: "rounded-lg px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-md border border-transparent data-[state=active]:border-border",
         minimal: "rounded-none border-b-2 border-transparent px-0 py-3 text-muted-foreground hover:text-foreground hover:border-border data-[state=active]:border-primary/80 data-[state=active]:text-foreground",
         ghost: "py-3 px-2 hover:bg-muted rounded-lg data-[state=active]:bg-muted data-[state=active]:hover:bg-muted/70",
+        outline: "py-0 px-2 border border-transparent data-[state=active]:border-border hover:bg-muted rounded-lg data-[state=active]:bg-muted data-[state=active]:hover:bg-muted/70",
         pill: "rounded-full px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-foreground data-[state=active]:text-background",
         badge: "rounded-lg px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-sm relative data-[state=active]:text-foreground before:content-[''] before:absolute before:top-0 before:right-0 before:w-2 before:h-2 before:bg-red-500 before:rounded-full",
         progress: "rounded-lg px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-primary/10 data-[state=active]:text-primary",
