@@ -8,7 +8,6 @@ export { SidebarSecondaryColumn } from './sidebar-secondary-column';
 export { SidebarMenuContent } from './sidebar-menu-content';
 export { SidebarQuickActions } from './sidebar-quick-actions';
 export { SidebarCollapsedContent } from './sidebar-collapsed-content';
-export { AccountSelector } from './account-selector';
 
 // Export types
 export type { MenuItem, SubMenuItem, QuickAction } from './types';

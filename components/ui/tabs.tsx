@@ -13,6 +13,7 @@ const tabsListVariants = cva(
         default: "bg-muted rounded-lg p-1",
         floating: " shadow-lg rounded-xl p-2 border border-border",
         segmented: "bg-muted rounded-lg p-1",
+        outline: "bg-background border rounded-xl p-1 border-border",
         steps: "bg-transparent",
         accent: " rounded-xl p-1 shadow-sm",
         sidebar: "bg-transparent flex-col w-fit",

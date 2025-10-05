@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-import { SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone } from '@/components/icons/icons';
+import { SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
 
@@ -100,10 +100,10 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
     return (
       <div className="text-center py-8 px-4">
         <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3">
-          <Wallet2 className="h-5 w-5 text-muted-foreground" />
+          <StreamlineFlexWallet className="h-5 w-5 text-muted-foreground" />
         </div>
         <p className="text-xs text-muted-foreground mb-4">No wallets connected</p>
-        <Button size="sm" onClick={handleAddWallet} className="w-full">
+        <Button size="xs" onClick={handleAddWallet} className="w-fit">
           <Plus className="w-3.5 h-3.5 mr-1.5" />
           Add Wallet
         </Button>

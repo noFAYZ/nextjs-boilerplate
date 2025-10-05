@@ -25,7 +25,11 @@
       "Bash(timeout 20 npm run build)",
       "Bash(npx next lint:*)",
       "Bash(timeout:*)",
-      "Read(//c/Users/Faizan/Downloads/**)"
+      "Read(//c/Users/Faizan/Downloads/**)",
+      "Bash(tasklist)",
+      "Bash(taskkill:*)",
+      "Bash(yarn add:*)",
+      "Bash(cmd //c taskkill:*)"
     ],
     "deny": [],
     "ask": []

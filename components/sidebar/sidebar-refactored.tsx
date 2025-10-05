@@ -40,9 +40,11 @@ import {
   HugeiconsAnalyticsUp,  
   HugeiconsHome04, 
   HugeiconsPieChart09, 
+  HugeiconsPuzzle, 
   HugeiconsTransactionHistory, 
   MageGoals, 
   SolarWallet2Outline, 
+  SolarWalletMoneyLinear, 
   StreamlinePlumpFileReport, 
   TablerEyeDollar 
 } from '../icons/icons';
@@ -70,7 +72,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'accounts',
     label: 'Accounts',
-    icon: SolarWallet2Outline,
+    icon: SolarWalletMoneyLinear,
     href: '/dashboard/accounts',
     submenu: [
       { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
@@ -89,8 +91,8 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'integrations',
     label: 'Integrations',
-    icon: Plug,
-    href: '#',
+    icon: HugeiconsPuzzle,
+    href: '/dashboard/integrations',
     quickActions: [
       { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },

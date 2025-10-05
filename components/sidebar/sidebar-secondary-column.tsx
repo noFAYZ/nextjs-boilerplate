@@ -2,11 +2,10 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Crown, TrendingUp } from 'lucide-react';
+import { Search, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { FluentPanelLeftExpand28Filled, GameIconsUpgrade } from '@/components/icons';
-import { AccountSelector } from './account-selector';
 import { SidebarMenuContent } from './sidebar-menu-content';
 import { SidebarQuickActions } from './sidebar-quick-actions';
 import { SidebarCollapsedContent } from './sidebar-collapsed-content';
@@ -75,67 +74,6 @@ export function SidebarSecondaryColumn({
       <div className="flex-1 py-4 overflow-hidden">
         {isExpanded ? (
           <div className="px-4 space-y-6 h-full flex flex-col">
-            {/* Search Bar */}
-            {selectedMenuItem != 'dashboard' && (   <div className="relative">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Portfolio</span>
-        </div>
-        
-        <div className="relative overflow-hidden rounded-xl bg-muted border border-border/50 p-4 group shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all duration-75">
-      
-          
-          <div className="relative space-y-3">
-            {/* Portfolio Value */}
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground/70 font-medium">Total Value</div>
-                <div className="text-lg font-bold text-foreground">$124,567.89</div>
-              </div>
-              <div className="flex items-center gap-1 text-xs">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-600 font-semibold">+12.4%</span>
-              </div>
-            </div>
-
-            {/* Mini Chart Visualization */}
-            <div className="relative h-12 bg-gradient-to-r from-background/30 to-muted/20 rounded-xl overflow-hidden">
-              <div className="absolute inset-0 flex items-end justify-between px-1 py-1">
-                {/* Simple bar chart representation */}
-                {[65, 70, 45, 85, 75, 90, 80, 95, 85, 100].map((height, i) => (
-                  <div
-                    key={i}
-                    className="bg-gradient-to-t from-primary/60 to-primary/80 rounded-sm transition-all duration-75 hover:from-primary/80 hover:to-primary"
-                    style={{ 
-                      height: `${height}%`, 
-                      width: '8%',
-                      animationDelay: `${i * 100}ms`
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-primary/10 opacity-50" />
-            </div>
-
-            {/* Performance Stats */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-muted-foreground">Crypto</span>
-                <span className="font-semibold text-foreground ml-auto">68%</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-muted-foreground">Stocks</span>
-                <span className="font-semibold text-foreground ml-auto">32%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>)}
-
-         
-
             {/* Main Navigation - Dynamic Content */}
             <SidebarDynamicContent
               selectedMenuItem={selectedMenuItem}

@@ -1,5 +1,8 @@
 import React from 'react';
 import type { SVGProps } from 'react';
+import Image from "next/image";
+import tellerLogo from "@/public/banks/logos/tellerLogo.png"; // adjust the path as needed
+
 
 export function MageDashboard(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.557 2.75H4.682A1.93 1.93 0 0 0 2.75 4.682v3.875a1.94 1.94 0 0 0 1.932 1.942h3.875a1.94 1.94 0 0 0 1.942-1.942V4.682A1.94 1.94 0 0 0 8.557 2.75m10.761 0h-3.875a1.94 1.94 0 0 0-1.942 1.932v3.875a1.943 1.943 0 0 0 1.942 1.942h3.875a1.94 1.94 0 0 0 1.932-1.942V4.682a1.93 1.93 0 0 0-1.932-1.932m0 10.75h-3.875a1.94 1.94 0 0 0-1.942 1.933v3.875a1.94 1.94 0 0 0 1.942 1.942h3.875a1.94 1.94 0 0 0 1.932-1.942v-3.875a1.93 1.93 0 0 0-1.932-1.932M8.557 13.5H4.682a1.943 1.943 0 0 0-1.932 1.943v3.875a1.93 1.93 0 0 0 1.932 1.932h3.875a1.94 1.94 0 0 0 1.942-1.932v-3.875a1.94 1.94 0 0 0-1.942-1.942"></path></svg>);
@@ -27,12 +30,12 @@ export function MynauiSidebarAlt(props: SVGProps<SVGSVGElement>) {
 
 
 export function HugeiconsHome04(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 11.99v2.51c0 3.3 0 4.95 1.025 5.975S6.7 21.5 10 21.5h4c3.3 0 4.95 0 5.975-1.025S21 17.8 21 14.5v-2.51c0-1.682 0-2.522-.356-3.25s-1.02-1.244-2.346-2.276l-2-1.555C14.233 3.303 13.2 2.5 12 2.5s-2.233.803-4.298 2.409l-2 1.555C4.375 7.496 3.712 8.012 3.356 8.74S3 10.308 3 11.99M16 17H8"></path></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.stroke} d="M3 11.99v2.51c0 3.3 0 4.95 1.025 5.975S6.7 21.5 10 21.5h4c3.3 0 4.95 0 5.975-1.025S21 17.8 21 14.5v-2.51c0-1.682 0-2.522-.356-3.25s-1.02-1.244-2.346-2.276l-2-1.555C14.233 3.303 13.2 2.5 12 2.5s-2.233.803-4.298 2.409l-2 1.555C4.375 7.496 3.712 8.012 3.356 8.74S3 10.308 3 11.99M16 17H8"></path></svg>);
 }
 
 
 export function HugeiconsPieChart09(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.556 4.619a10 10 0 0 0-2.6-1.259c-1.158-.364-1.736-.545-2.346-.088C11 3.728 11 4.47 11 5.954v4.551c0 1.264 0 1.895.234 2.462c.234.566.678 1.008 1.566 1.892l3.199 3.187c1.043 1.038 1.565 1.558 2.313 1.435c.748-.122 1.025-.67 1.58-1.764a10.3 10.3 0 0 0 .348-8.54a10.13 10.13 0 0 0-3.684-4.56M14 20.419A8 8 0 1 1 8.21 5.5"></path></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.stroke} d="M16.556 4.619a10 10 0 0 0-2.6-1.259c-1.158-.364-1.736-.545-2.346-.088C11 3.728 11 4.47 11 5.954v4.551c0 1.264 0 1.895.234 2.462c.234.566.678 1.008 1.566 1.892l3.199 3.187c1.043 1.038 1.565 1.558 2.313 1.435c.748-.122 1.025-.67 1.58-1.764a10.3 10.3 0 0 0 .348-8.54a10.13 10.13 0 0 0-3.684-4.56M14 20.419A8 8 0 1 1 8.21 5.5"></path></svg>);
 }
 
 
@@ -42,13 +45,13 @@ export function StreamlineUltimateTradingPatternUp(props: SVGProps<SVGSVGElement
 
 
 export function SolarWallet2Outline(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M19 12a1 1 0 1 1-2 0a1 1 0 0 1 2 0"></path><path fill="currentColor" fillRule="evenodd" d="M9.944 3.25h3.112c1.838 0 3.294 0 4.433.153c1.172.158 2.121.49 2.87 1.238c.924.925 1.219 2.163 1.326 3.77c.577.253 1.013.79 1.06 1.47c.005.061.005.126.005.186v3.866c0 .06 0 .125-.004.185c-.048.68-.484 1.218-1.061 1.472c-.107 1.606-.402 2.844-1.326 3.769c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433v-.112c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238c1.14-.153 2.595-.153 4.433-.153m10.224 12.5H18.23c-2.145 0-3.981-1.628-3.981-3.75s1.836-3.75 3.98-3.75h1.938c-.114-1.341-.371-2.05-.87-2.548c-.423-.423-1.003-.677-2.009-.812c-1.027-.138-2.382-.14-4.289-.14h-3c-1.907 0-3.261.002-4.29.14c-1.005.135-1.585.389-2.008.812S3.025 6.705 2.89 7.71c-.138 1.028-.14 2.382-.14 4.289s.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h3c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812c.499-.498.756-1.206.87-2.548m.756-6H18.23c-1.424 0-2.481 1.059-2.481 2.25s1.057 2.25 2.48 2.25h2.718c.206-.013.295-.152.302-.236V9.986c-.007-.084-.096-.223-.302-.235zM7 8.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0V9A.75.75 0 0 1 7 8.25" clipRule="evenodd"></path></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" strokeWidth={props.stroke} d="M19 12a1 1 0 1 1-2 0a1 1 0 0 1 2 0"></path><path fill="currentColor" fillRule="evenodd" d="M9.944 3.25h3.112c1.838 0 3.294 0 4.433.153c1.172.158 2.121.49 2.87 1.238c.924.925 1.219 2.163 1.326 3.77c.577.253 1.013.79 1.06 1.47c.005.061.005.126.005.186v3.866c0 .06 0 .125-.004.185c-.048.68-.484 1.218-1.061 1.472c-.107 1.606-.402 2.844-1.326 3.769c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433v-.112c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238c1.14-.153 2.595-.153 4.433-.153m10.224 12.5H18.23c-2.145 0-3.981-1.628-3.981-3.75s1.836-3.75 3.98-3.75h1.938c-.114-1.341-.371-2.05-.87-2.548c-.423-.423-1.003-.677-2.009-.812c-1.027-.138-2.382-.14-4.289-.14h-3c-1.907 0-3.261.002-4.29.14c-1.005.135-1.585.389-2.008.812S3.025 6.705 2.89 7.71c-.138 1.028-.14 2.382-.14 4.289s.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h3c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812c.499-.498.756-1.206.87-2.548m.756-6H18.23c-1.424 0-2.481 1.059-2.481 2.25s1.057 2.25 2.48 2.25h2.718c.206-.013.295-.152.302-.236V9.986c-.007-.084-.096-.223-.302-.235zM7 8.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0V9A.75.75 0 0 1 7 8.25" clipRule="evenodd"></path></svg>);
 }
 
 
 
 export function HugeiconsTransactionHistory(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}><path d="M19 10.5V10c0-3.771 0-5.657-1.172-6.828S14.771 2 11 2S5.343 2 4.172 3.172S3 6.229 3 10v4.5c0 3.287 0 4.931.908 6.038q.25.304.554.554C5.57 22 7.212 22 10.5 22M7 7h8m-8 4h4"></path><path d="m18 18.5l-1.5-.55V15.5m-4.5 2a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0"></path></g></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.stroke}><path d="M19 10.5V10c0-3.771 0-5.657-1.172-6.828S14.771 2 11 2S5.343 2 4.172 3.172S3 6.229 3 10v4.5c0 3.287 0 4.931.908 6.038q.25.304.554.554C5.57 22 7.212 22 10.5 22M7 7h8m-8 4h4"></path><path d="m18 18.5l-1.5-.55V15.5m-4.5 2a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0"></path></g></svg>);
 }
 
 
@@ -58,7 +61,7 @@ export function HugeiconsAnalyticsUp(props: SVGProps<SVGSVGElement>) {
 
 
 export function MageGoals(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}><path d="M10.66 10.66A1.9 1.9 0 0 0 10.1 12a1.9 1.9 0 0 0 1.9 1.9a1.9 1.9 0 0 0 1.34-.56"></path><path d="M12 6.3a5.7 5.7 0 1 0 5.7 5.7"></path><path d="M12 2.5a9.5 9.5 0 1 0 9.5 9.5m-5.975-3.524L12.95 11.05"></path><path d="M20.94 5.844L17.7 6.3l.456-3.24a.19.19 0 0 0-.313-.161l-2.148 2.137a1.9 1.9 0 0 0-.513 1.72l.342 1.72l1.72.341a1.9 1.9 0 0 0 1.72-.513L21.1 6.157a.19.19 0 0 0-.162-.313"></path></g></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.stroke}><path d="M10.66 10.66A1.9 1.9 0 0 0 10.1 12a1.9 1.9 0 0 0 1.9 1.9a1.9 1.9 0 0 0 1.34-.56"></path><path d="M12 6.3a5.7 5.7 0 1 0 5.7 5.7"></path><path d="M12 2.5a9.5 9.5 0 1 0 9.5 9.5m-5.975-3.524L12.95 11.05"></path><path d="M20.94 5.844L17.7 6.3l.456-3.24a.19.19 0 0 0-.313-.161l-2.148 2.137a1.9 1.9 0 0 0-.513 1.72l.342 1.72l1.72.341a1.9 1.9 0 0 0 1.72-.513L21.1 6.157a.19.19 0 0 0-.162-.313"></path></g></svg>);
 }
 
 
@@ -68,7 +71,7 @@ export function StreamlinePlumpFileReport(props: SVGProps<SVGSVGElement>) {
 
 
 export function HugeiconsAnalytics02(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" d="M6.5 17.5v-3m5 3v-9m5 9v-4"></path><path d="M21.5 5.5a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M21.496 11s.004.34.004 1c0 4.478 0 6.718-1.391 8.109S16.479 21.5 12 21.5c-4.478 0-6.718 0-8.109-1.391S2.5 16.479 2.5 12c0-4.478 0-6.717 1.391-8.109C5.282 2.5 7.521 2.5 12 2.5h1"></path></g></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeWidth={props.stroke}><path strokeLinecap="round" d="M6.5 17.5v-3m5 3v-9m5 9v-4"></path><path d="M21.5 5.5a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M21.496 11s.004.34.004 1c0 4.478 0 6.718-1.391 8.109S16.479 21.5 12 21.5c-4.478 0-6.718 0-8.109-1.391S2.5 16.479 2.5 12c0-4.478 0-6.717 1.391-8.109C5.282 2.5 7.521 2.5 12 2.5h1"></path></g></svg>);
 }
 
 
@@ -113,7 +116,7 @@ export function LetsIconsDoneDuotone(props: SVGProps<SVGSVGElement>) {
 
 
 export function StreamlineFlexWallet(props: SVGProps<SVGSVGElement>) {
-	return (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3}><path d="M12.33 6.657a16 16 0 0 0-.193-1.163c-.184-.976-1.021-1.761-2.073-1.91l-.037-.005l-.02-.138c1.089-.49.807-2.013-.254-2.234c-.869-.18-2.885-.25-4.09-.25c-1.144 0-1.909.16-2.727.33q-.066.016-.133.028c-.875.183-1.572 1.143-1.726 2.34l-.009.068a21.6 21.6 0 0 0-.217 3.205q0 .381.008.709q-.008.245-.008.53c0 1.235.123 1.887.261 2.618l.01.055c.185.977 1.023 1.761 2.074 1.91l.16.023c.982.14 1.9.27 3.274.27s2.292-.13 3.274-.27l.16-.023c1.052-.149 1.89-.933 2.073-1.91l.011-.055c.066-.35.129-.68.176-1.067"></path><path d="M4.391 3.57c.686-.052 1.819-.175 2.997-.175c1.22 0 1.797.062 2.597.174m2.357 6.151h-1.566a1.531 1.531 0 0 1 0-3.063h1.566a1 1 0 0 1 1 1V8.72a1 1 0 0 1-1 1"></path></g></svg>);
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={10} height={10} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.3}><path d="M12.33 6.657a16 16 0 0 0-.193-1.163c-.184-.976-1.021-1.761-2.073-1.91l-.037-.005l-.02-.138c1.089-.49.807-2.013-.254-2.234c-.869-.18-2.885-.25-4.09-.25c-1.144 0-1.909.16-2.727.33q-.066.016-.133.028c-.875.183-1.572 1.143-1.726 2.34l-.009.068a21.6 21.6 0 0 0-.217 3.205q0 .381.008.709q-.008.245-.008.53c0 1.235.123 1.887.261 2.618l.01.055c.185.977 1.023 1.761 2.074 1.91l.16.023c.982.14 1.9.27 3.274.27s2.292-.13 3.274-.27l.16-.023c1.052-.149 1.89-.933 2.073-1.91l.011-.055c.066-.35.129-.68.176-1.067"></path><path d="M4.391 3.57c.686-.052 1.819-.175 2.997-.175c1.22 0 1.797.062 2.597.174m2.357 6.151h-1.566a1.531 1.531 0 0 1 0-3.063h1.566a1 1 0 0 1 1 1V8.72a1 1 0 0 1-1 1"></path></g></svg>);
 }
 
 export function FluentDelete28Regular(props: SVGProps<SVGSVGElement>) {
@@ -479,14 +482,14 @@ export function MdiHomeElectricityOutline(props: SVGProps<SVGSVGElement>) {
 }
 
 export function StripeLogo(props: SVGProps<SVGSVGElement>) {
-	return (<svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+	return (<svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<circle cx={512} cy={512} r={512} style={{fill: '#635bff'}} />
 		<path d="M781.67 515.75c0-38.35-18.58-68.62-54.08-68.62s-57.23 30.26-57.23 68.32c0 45.09 25.47 67.87 62 67.87 17.83 0 31.31-4 41.5-9.74v-30c-10.19 5.09-21.87 8.24-36.7 8.24-14.53 0-27.42-5.09-29.06-22.77h73.26c.01-1.92.31-9.71.31-13.3zm-74-14.23c0-16.93 10.34-24 19.78-24 9.14 0 18.88 7 18.88 24zm-95.14-54.39a42.32 42.32 0 0 0-29.36 11.69l-1.95-9.29h-33v174.68l37.45-7.94.15-42.4c5.39 3.9 13.33 9.44 26.52 9.44 26.82 0 51.24-21.57 51.24-69.06-.12-43.45-24.84-67.12-51.05-67.12zm-9 103.22c-8.84 0-14.08-3.15-17.68-7l-.15-55.58c3.9-4.34 9.29-7.34 17.83-7.34 13.63 0 23.07 15.28 23.07 34.91.01 20.03-9.28 35.01-23.06 35.01zM496.72 438.29l37.6-8.09v-30.41l-37.6 7.94v30.56zm0 11.39h37.6v131.09h-37.6zm-40.3 11.08L454 449.68h-32.34v131.08h37.45v-88.84c8.84-11.54 23.82-9.44 28.46-7.79v-34.45c-4.78-1.8-22.31-5.1-31.15 11.08zm-74.91-43.59L345 425l-.15 120c0 22.17 16.63 38.5 38.8 38.5 12.28 0 21.27-2.25 26.22-4.94v-30.45c-4.79 1.95-28.46 8.84-28.46-13.33v-53.19h28.46v-31.91h-28.51zm-101.27 70.56c0-5.84 4.79-8.09 12.73-8.09a83.56 83.56 0 0 1 37.15 9.59V454a98.8 98.8 0 0 0-37.12-6.87c-30.41 0-50.64 15.88-50.64 42.4 0 41.35 56.93 34.76 56.93 52.58 0 6.89-6 9.14-14.38 9.14-12.43 0-28.32-5.09-40.9-12v35.66a103.85 103.85 0 0 0 40.9 8.54c31.16 0 52.58-15.43 52.58-42.25-.17-44.63-57.25-36.69-57.25-53.47z" style={{fill: '#fff'}} />
 	  </svg>);
 }
 
 export function IntuitLogo(props: SVGProps<SVGSVGElement>) {
-	return (<svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+	return (<svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<circle cx={512} cy={512} r={512} style={{fill: '#0077c5'}} />
 		<path d="M390.5 486.8h37v102.9h32.9V486.8h36.9v-29.2H390.5v29.2zm218.3 43.4c0 17.6-9.9 35.8-30.7 35.8-21.1 0-24.7-19.5-24.7-35.2v-73.1h-32.9v82.5c0 27 14.3 53.3 48.6 53.3 19.5 0 35.1-11.8 40.9-25h.5v21.2h31.3v-132h-33v72.5zm66.6 59.5h33v-132h-33v132zM444 440.3c5.3 0 10.4-2.1 14.1-5.8 3.7-3.7 5.8-8.8 5.8-14.1 0-5.3-2.1-10.4-5.8-14.1s-8.8-5.8-14.1-5.8c-2.6 0-5.2.5-7.6 1.5-2.4 1-4.6 2.5-6.5 4.3-1.8 1.9-3.3 4.1-4.3 6.5-1 2.4-1.5 5-1.5 7.6 0 11 8.9 19.9 19.9 19.9zm340.9 0c2.6 0 5.2-.5 7.6-1.5 2.4-1 4.6-2.5 6.5-4.3 1.9-1.9 3.3-4.1 4.3-6.5 1-2.4 1.5-5 1.5-7.6 0-3.9-1.2-7.8-3.4-11.1s-5.3-5.8-8.9-7.3c-3.6-1.5-7.6-1.9-11.5-1.1-3.9.8-7.4 2.7-10.2 5.5-2.8 2.8-4.7 6.3-5.4 10.2-.8 3.9-.4 7.9 1.1 11.5 1.5 3.6 4.1 6.7 7.3 8.9 3.3 2.2 7.2 3.3 11.1 3.3zm-53.4 17.3v29.3h37v102.9h32.9v-103h37v-29.2H731.5zM185.7 589.7h33v-132h-33v132zm139.5-135.9c-19.5 0-35.1 11.8-40.9 25h-.5v-21.2h-31.3v132h32.9V517c0-17.6 9.9-35.8 30.8-35.8 21.1 0 24.7 19.6 24.7 35.2v73.2h33v-82.5c-.1-26.9-14.4-53.3-48.7-53.3z" style={{fill: '#fff'}} />
 	  </svg>
@@ -500,6 +503,7 @@ export function PayPalLogo(props: SVGProps<SVGSVGElement>) {
 		viewBox="0 0 48 48"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
+		{...props}
 	  >
 		<circle cx={24} cy={24} r={20} fill="#0070BA" />
 		<path
@@ -530,6 +534,7 @@ export function XeroLogo(props: SVGProps<SVGSVGElement>) {
 		xmlns="http://www.w3.org/2000/svg"
 		xmlnsXlink="http://www.w3.org/1999/xlink"
 		preserveAspectRatio="xMidYMid"
+		{...props}
 	  >
 		<g>
 		  <path
@@ -613,3 +618,40 @@ export function MapprLogoMT(props: SVGProps<SVGSVGElement>) {
 	  </svg>
 	);
 }
+
+
+
+export function HugeiconsPuzzle(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} className={props.className} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth={props.stroke} d="M12.828 6.001a3 3 0 1 0-5.658 0c-2.285.008-3.504.09-4.292.878S2.008 8.886 2 11.17a3 3 0 1 1 0 5.66c.008 2.284.09 3.503.878 4.291s2.007.87 4.291.878a3 3 0 1 1 5.66 0c2.284-.008 3.503-.09 4.291-.878s.87-2.007.878-4.292a3 3 0 1 0 0-5.658c-.008-2.285-.09-3.504-.878-4.292c-.788-.789-2.007-.87-4.292-.878Z"></path></svg>);
+}
+
+
+export function SolarWalletMoneyLinear(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeWidth={props.stroke}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.stroke} d="M6 10h4"></path><path strokeWidth={props.stroke} d="M20.833 11h-2.602C16.446 11 15 12.343 15 14s1.447 3 3.23 3h2.603c.084 0 .125 0 .16-.002c.54-.033.97-.432 1.005-.933c.002-.032.002-.071.002-.148v-3.834c0-.077 0-.116-.002-.148c-.036-.501-.465-.9-1.005-.933c-.035-.002-.076-.002-.16-.002Z"></path><path strokeWidth={props.stroke} d="M20.965 11c-.078-1.872-.328-3.02-1.137-3.828C18.657 6 16.771 6 13 6h-3C6.229 6 4.343 6 3.172 7.172S2 10.229 2 14s0 5.657 1.172 6.828S6.229 22 10 22h3c3.771 0 5.657 0 6.828-1.172c.809-.808 1.06-1.956 1.137-3.828"></path><path strokeLinecap="round" strokeWidth={props.stroke} d="m6 6l3.735-2.477a3.24 3.24 0 0 1 3.53 0L17 6"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M17.991 14h.01"></path></g></svg>);
+}
+
+
+export function HugeiconsCsv01(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={1.8}><path d="M7.5 17.22C7.445 16.03 6.622 16 5.505 16c-1.72 0-2.005.406-2.005 2v2c0 1.594.285 2 2.005 2c1.117 0 1.94-.03 1.995-1.22m13-4.78l-1.777 4.695c-.33.87-.494 1.305-.755 1.305c-.26 0-.426-.435-.755-1.305L15.436 16m-2.56 0h-1.18c-.473 0-.709 0-.895.076c-.634.26-.625.869-.625 1.424s-.009 1.165.625 1.424c.186.076.422.076.894.076s.708 0 .894.076c.634.26.625.869.625 1.424s.009 1.165-.625 1.424c-.186.076-.422.076-.894.076H10.41"></path><path strokeLinejoin="round" d="M20 13v-2.343c0-.818 0-1.226-.152-1.594c-.152-.367-.441-.657-1.02-1.235l-4.736-4.736c-.499-.499-.748-.748-1.058-.896a2 2 0 0 0-.197-.082C12.514 2 12.161 2 11.456 2c-3.245 0-4.868 0-5.967.886a4 4 0 0 0-.603.603C4 4.59 4 6.211 4 9.456V13m9-10.5V3c0 2.828 0 4.243.879 5.121C14.757 9 16.172 9 19 9h.5"></path></g></svg>);
+}
+
+export function HugeiconsUpload03(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}><path d="M14 21.5h-4c-3.288 0-4.931 0-6.038-.908a4 4 0 0 1-.554-.554C2.5 18.93 2.5 17.288 2.5 14c0-3.287 0-4.931.908-6.038a4 4 0 0 1 .554-.554C5.07 6.5 6.712 6.5 10 6.5h4c3.287 0 4.931 0 6.038.908q.304.25.554.554c.908 1.107.908 2.75.908 6.038s0 4.931-.908 6.038a4 4 0 0 1-.554.554c-1.107.908-2.75.908-6.038.908"></path><path d="M2.5 14.5v-4c0-3.771 0-5.657 1.172-6.828S6.729 2.5 10.5 2.5h3c3.771 0 5.657 0 6.828 1.172S21.5 6.729 21.5 10.5v4"></path><path d="M15 13.5s-2.21-3-3-3s-3 3-3 3m3-2.5v6.5"></path></g></svg>);
+}
+
+
+export function MynauiGridOne(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.4 21h5.2m-5.2 0c-2.24 0-3.36 0-4.216-.436a4 4 0 0 1-1.748-1.748C3 17.96 3 16.84 3 14.6M9.4 21V3M3 14.6V9.4m0 5.2h18m0 0V9.4m0 5.2c0 2.24 0 3.36-.436 4.216a4 4 0 0 1-1.748 1.748C17.96 21 16.84 21 14.6 21m0 0V3m0 0H9.4m5.2 0c2.24 0 3.36 0 4.216.436a4 4 0 0 1 1.748 1.748C21 6.04 21 7.16 21 9.4m0 0H3M9.4 3c-2.24 0-3.36 0-4.216.436a4 4 0 0 0-1.748 1.748C3 6.04 3 7.16 3 9.4"></path></svg>);
+}
+
+export function TellerLogo(props: React.ComponentProps<typeof Image>) {
+	return (
+	  <Image
+		src={tellerLogo}
+		alt="Teller Logo"
+		width={80}
+		height={80}
+	
+	  />
+	);
+  }

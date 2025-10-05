@@ -67,7 +67,7 @@ export function SidebarMainColumn({
 
       {/* Main Menu */}
       <div className="flex-1 py-3 overflow-visible">
-        <nav className="flex flex-col gap-0.5 px-2">
+        <nav className="flex flex-col gap-1 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Only mark as active if exact match or if not dashboard and starts with href
@@ -87,14 +87,14 @@ export function SidebarMainColumn({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "relative h-11 w-11 group rounded-lg transition-all",
+                  "relative h-11 w-11 group rounded-xl transition-all",
                   isActive || isSelected
                     ? "bg-white/15  hover:bg-white/20 text-white hover:text-white"
                     : "text-white/60 hover:text-white hover:bg-white/15"
                 )}
                 title={item.label}
               >
-                <Icon className="h-6 w-6" />
+                <Icon className="h-6.5 w-6.5 antialiased" stroke={'1.9'} />
 
                 {/* Active indicator */}
                 {(isActive || isSelected) && (
