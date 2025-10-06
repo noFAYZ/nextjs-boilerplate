@@ -21,13 +21,15 @@ interface UseSidebarReturn {
 }
 
 const STORAGE_KEY = 'sidebar-state';
-const MENU_ROUTES = {
-  dashboard: '/dashboard',
-  wallets: '/dashboard/wallets',
-  portfolio: '/dashboard/portfolio', 
+// Order matters: more specific routes first
+const MENU_ROUTES: Record<string, string> = {
+  integrations: '/dashboard/accounts/integrations',
+  accounts: '/dashboard/accounts',
+  portfolio: '/dashboard/portfolio',
   transactions: '/dashboard/transactions',
   goals: '/dashboard/goals',
-  insights: '/dashboard/insights'
+  insights: '/dashboard/insights',
+  dashboard: '/dashboard'
 };
 
 export function useSidebar(options: UseSidebarOptions = {}): UseSidebarReturn {
@@ -67,13 +69,29 @@ export function useSidebar(options: UseSidebarOptions = {}): UseSidebarReturn {
   });
 
   // Determine active menu item based on current pathname
+  // Match the most specific (longest) route first
   const activeMenuItem = React.useMemo(() => {
+    // Check for exact match first
     for (const [key, route] of Object.entries(MENU_ROUTES)) {
-      if (pathname.startsWith(route)) {
+      if (pathname === route) {
         return key;
       }
     }
-    return null;
+
+    // Then check for partial matches, preferring the longest match
+    let bestMatch = null;
+    let longestMatchLength = 0;
+
+    for (const [key, route] of Object.entries(MENU_ROUTES)) {
+      if (pathname.startsWith(route + '/')) {
+        if (route.length > longestMatchLength) {
+          longestMatchLength = route.length;
+          bestMatch = key;
+        }
+      }
+    }
+
+    return bestMatch;
   }, [pathname]);
 
   // Persist state to localStorage

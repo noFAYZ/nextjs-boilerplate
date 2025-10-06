@@ -124,7 +124,11 @@ export function IntegrationCard({
   const statusInfo = status ? statusConfig[status] : null;
 
   const handleCardClick = () => {
-    router.push(`/dashboard/integrations/${provider.provider.toLowerCase()}`);
+    if (isConnected) {
+      router.push(`/dashboard/integrations/${provider.provider.toLowerCase()}`);
+    } else {
+      router.push(`/dashboard/accounts/connection?integration=${provider.provider.toLowerCase()}&type=service`);
+    }
   };
 
   const handleMenuClick = (e: React.MouseEvent) => {

@@ -25,7 +25,10 @@ import {
   Plus,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useUserIntegrations } from "@/lib/queries/integrations-queries";
+import { RequestIntegrationDialog } from "@/components/integrations/RequestIntegrationDialog";
 import {
   ExchangeBinance,
   ExchangeCoinbase,
@@ -232,9 +235,14 @@ const CATEGORIES = [
 ];
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+
+  // Fetch user integrations to check connection status
+  const { data: userIntegrations } = useUserIntegrations();
 
   const allIntegrations = useMemo(() => {
     return [
@@ -272,6 +280,15 @@ export default function IntegrationsPage() {
     return allIntegrations.filter((i) => i.category == categoryId);
   };
 
+  // Get connection type for routing
+  const getConnectionType = (category: string) => {
+    if (category === 'banking') return 'bank';
+    if (category === 'exchange') return 'exchange';
+    if (category === 'wallet') return 'wallet';
+    if (category === 'accounting' || category === 'payments') return 'service';
+    return 'exchange'; // default
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
@@ -283,10 +300,7 @@ export default function IntegrationsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="xs">
-            <LayoutList className="h-3 w-3" />
-          </Button>
-          <Button size="xs">
+          <Button size="xs" onClick={() => setIsRequestDialogOpen(true)}>
             <Plus className="h-3 w-3 mr-1" />
             Request Integration
           </Button>
@@ -301,7 +315,7 @@ export default function IntegrationsPage() {
             placeholder="Search integrations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/40 border border-border hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-0 focus:ring-ring transition-colors text-left pl-9 h-11"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/40 border border-border shadow-none hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-0 focus:ring-ring transition-colors text-left pl-9 h-11"
               >
                
               </Input>
@@ -323,7 +337,7 @@ export default function IntegrationsPage() {
           {CATEGORIES.map((category) => (
             <Button
               key={category.id}
-              variant={selectedCategory === category.id ? "default" : "outline"}
+              variant={selectedCategory === category.id ? "secondary" : "outline"}
               size="xs"
               onClick={() => setSelectedCategory(category.id)}
               className={cn("gap-1.5 transition-all")}
@@ -351,12 +365,20 @@ export default function IntegrationsPage() {
           {/* Grid View */}
           {viewMode === "grid" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-              {filteredIntegrations.map((integration) => (
-                <IntegrationGridCard
-                  key={integration.id}
-                  integration={integration}
-                />
-              ))}
+              {filteredIntegrations.map((integration) => {
+                const userIntegration = userIntegrations?.find(
+                  (ui) => ui.provider.toLowerCase() === integration.id.toLowerCase()
+                );
+                const isConnected = userIntegration?.status === 'CONNECTED';
+
+                return (
+                  <IntegrationGridCard
+                    key={integration.id}
+                    integration={integration}
+                    isConnected={isConnected}
+                  />
+                );
+              })}
             </div>
           )}
 
@@ -388,21 +410,50 @@ export default function IntegrationsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Request Integration Dialog */}
+      <RequestIntegrationDialog
+        open={isRequestDialogOpen}
+        onOpenChange={setIsRequestDialogOpen}
+      />
     </div>
   );
 }
 
 // Grid Card Component
-function IntegrationGridCard({ integration }: { integration: any }) {
+function IntegrationGridCard({ integration, isConnected }: { integration: any; isConnected?: boolean }) {
+  const getConnectionType = (category: string) => {
+    if (category === 'banking') return 'bank';
+    if (category === 'exchange') return 'exchange';
+    if (category === 'wallet') return 'wallet';
+    if (category === 'accounting' || category === 'payments') return 'service';
+    return 'exchange'; // default
+  };
+
   return (
-    <Link href={`/dashboard/accounts/connection?integration=${integration.id}`}>
+    <Link href={`/dashboard/accounts/connection?integration=${integration.id}&type=${getConnectionType(integration.category)}`}>
       <div
         className={cn(
-          "group relative bg-background dark:bg-muted/60 flex flex-col border items-center justify-center text-center  rounded-2xl",
-          "p-3 h-full transition-all duration-75 hover:shadow-lg  shadow hover:shadow-primary/10",
-          " hover:bg-muted/40 cursor-pointer"
+          "group relative bg-background dark:bg-muted/60 flex flex-col border items-center justify-center text-center rounded-2xl",
+          "p-3 h-full transition-all duration-75 hover:shadow-lg shadow-xs hover:shadow-primary/10",
+          "hover:bg-muted/40 cursor-pointer",
+          isConnected && "ring-2 ring-green-500/30 border-green-500/50"
         )}
       >
+        {/* Connected Badge */}
+        {isConnected && (
+          <div className="absolute -top-2 -right-2 z-10">
+            <Badge
+              variant="default"
+              className="bg-green-600 hover:bg-green-600 text-white shadow-lg flex items-center gap-1 px-2 py-0.5"
+              size="sm"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              Active
+            </Badge>
+          </div>
+        )}
+
         <div className="flex flex-col items-center justify-center gap-2 p-0 relative">
           <span className="text-2xl">{integration.icon}</span>
 

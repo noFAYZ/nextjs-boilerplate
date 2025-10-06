@@ -6,6 +6,7 @@ import { useEffect, ReactNode } from "react";
 import { RefreshCcw, User2 } from "lucide-react";
 import { FailLoader, LogoLoader } from "../icons";
 import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -66,13 +67,16 @@ export default function AuthGuard({
   if (loading) {
     return (
       fallback || (
-        <div className="w-screen h-screen flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 text-center bg-muted px-18 py-10 rounded-2xl">
-            <LogoLoader className="w-18 h-18 " />
-          
-            <p className="text-sm font-medium">Authenticating...</p>
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm  z-10 flex items-center justify-center">
+        <Card className="px-6 shadow-none">
+          <div className="flex items-center space-x-3">
+            <LogoLoader className="w-8 h-8" />
+            <span className="text-sm font-medium">Authenticating....</span>
           </div>
-        </div>
+        </Card>
+      </div>
+        
+
       )
     );
   }

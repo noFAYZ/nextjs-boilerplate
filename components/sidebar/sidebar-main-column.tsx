@@ -70,9 +70,8 @@ export function SidebarMainColumn({
         <nav className="flex flex-col gap-1 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            // Only mark as active if exact match or if not dashboard and starts with href
-            const isActive = pathname === item.href ||
-              (item.href !== '/dashboard' && item.href !== '#' && pathname.startsWith(item.href + '/'));
+            // Only mark as active if this is the most specific matching route
+            const isActive = activeMenuItem === item.id;
             const isSelected = selectedMenuItem === item.id;
 
             const handleClick = (e: React.MouseEvent) => {

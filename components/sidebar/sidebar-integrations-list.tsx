@@ -40,7 +40,7 @@ export function SidebarIntegrationsList({ onMobileClose }: SidebarIntegrationsLi
   };
 
   const handleAddClick = () => {
-    router.push('/dashboard/integrations');
+    router.push('/dashboard/accounts/integrations');
     onMobileClose();
   };
 
@@ -65,11 +65,11 @@ export function SidebarIntegrationsList({ onMobileClose }: SidebarIntegrationsLi
               <button
                 key={integration.id}
                 onClick={() => handleIntegrationClick(integration.provider)}
-                className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent transition-colors text-left group"
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 flex items-center justify-center shrink-0">
                   {LogoComponent ? (
-                    <LogoComponent className="w-5 h-5" />
+                    <LogoComponent className="w-8 h-8" />
                   ) : (
                     <div className="w-5 h-5 rounded bg-muted flex items-center justify-center text-xs font-medium">
                       {integration.provider.charAt(0)}
@@ -79,7 +79,7 @@ export function SidebarIntegrationsList({ onMobileClose }: SidebarIntegrationsLi
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium truncate capitalize">
+                    <span className="text-sm font-semibold truncate capitalize">
                       {integration.provider}
                     </span>
                     {statusIcons[integration.status]}
@@ -100,15 +100,18 @@ export function SidebarIntegrationsList({ onMobileClose }: SidebarIntegrationsLi
         </div>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
+<div className='flex justify-center'>
+  <Button
+        variant="default"
+        size="xs"
         onClick={handleAddClick}
-        className="w-full justify-start gap-2 mt-2"
+        className=" justify-center gap-1 mt-2"
       >
         <Plus className="w-4 h-4" />
         Add Integration
       </Button>
+</div>
+      
     </div>
   );
 }

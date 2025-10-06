@@ -393,24 +393,16 @@ export default function WalletsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen ">
-        <div className="max-w-7xl mx-auto p-4 lg:p-6">
-
-        <div className="flex justify-center items-center gap-3">
-          <div className="flex flex-col items-center justify-center  bg-accent p-12 rounded-3xl">
-            <div>
-              <LogoLoader className="h-16 w-16   mx-auto mb-4" />
-            </div>
-    
-           
-              <span className="text-sm font-medium">Loading your wallets...</span>
-            </div>
-
-          </div>
 
 
-        </div>
-      </div>
+<div className=" relative h-screen  bg-background/50 backdrop-blur-sm  z-10 flex items-center justify-center">
+<Card className="px-5 border-border shadow-none " >
+  <div className="flex items-center space-x-3">
+    <LogoLoader className="w-8 h-8" />
+    <span className="text-sm font-medium">Loading your wallets....</span>
+  </div>
+</Card>
+</div>
     );
   }
 

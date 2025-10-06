@@ -240,11 +240,12 @@ export default function SubscriptionPage() {
       <div className=" bg-background p-8 relative">
         {/* Loading Overlay for Refresh */}
         {isLoading && isInitialized && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-            <Card className="p-6">
+    
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+            <Card className="px-6 shadow-none">
               <div className="flex items-center space-x-3">
-                <LogoLoader className="w-6 h-6" />
-                <span className="text-sm font-medium">Refreshing data...</span>
+                <LogoLoader className="w-8 h-8" />
+                <span className="text-sm font-medium">Refreshing data....</span>
               </div>
             </Card>
           </div>

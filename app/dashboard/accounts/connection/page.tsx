@@ -1,303 +1,1285 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, Suspense, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Eye, User, FileText, Upload } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft, CheckCircle2, Lock, CreditCard, Loader2, Building2, AlertCircle, Shield, Eye, RefreshCw, DollarSign, Receipt, FileText, Users, Package, ChevronDown } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PhUser } from '@/components/icons';
-import { HugeiconsCsv01, HugeiconsUpload03 } from '@/components/icons/icons';
+import Link from 'next/link';
+import { Stepper, useStepper, type Step } from '@/components/ui/stepper';
+import { DataSelectionAccordion } from '@/components/integrations/DataSelectionAccordion';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/lib/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { bankingMutations } from '@/lib/queries/banking-queries';
+import { useConnectProvider, useSyncProvider } from '@/lib/queries/integrations-queries';
+import type { IntegrationProvider } from '@/lib/types/integrations';
+import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-export default function IntegrationNewPage() {
-  const [apiKey, setApiKey] = useState('');
-  const [apiSecret, setApiSecret] = useState('');
-  const [activeTab, setActiveTab] = useState('api-sync');
+// Teller Connect Widget Interface
+declare global {
+  interface Window {
+    TellerConnect: {
+      setup: (config: any) => {
+        open: () => void;
+        close: () => void;
+      };
+    };
+  }
+}
 
-  const handleConnect = () => {
-    console.log('Connecting with:', { apiKey, apiSecret });
+// Bank Connection Steps
+const BANK_STEPS: Step[] = [
+  { id: 'intro', title: 'Introduction', description: 'Security information' },
+  { id: 'connect', title: 'Connect', description: 'Select your bank' },
+  { id: 'select', title: 'Select Accounts', description: 'Choose accounts' },
+  { id: 'sync', title: 'Sync', description: 'Import accounts' },
+  { id: 'complete', title: 'Complete', description: 'All set!' },
+];
+
+// Service Connection Steps
+const SERVICE_STEPS: Step[] = [
+  { id: 'intro', title: 'Introduction', description: 'Get started' },
+  { id: 'authorize', title: 'Authorize', description: 'Grant access' },
+  { id: 'select', title: 'Select Data', description: 'Choose what to sync' },
+  { id: 'sync', title: 'Sync', description: 'Import data' },
+  { id: 'complete', title: 'Complete', description: 'All set!' },
+];
+
+function ConnectionPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const integrationType = searchParams.get('type') || 'exchange';
+  const integrationId = searchParams.get('integration') || '';
+
+  // Stepper state
+  const steps = integrationType === 'bank' ? BANK_STEPS : SERVICE_STEPS;
+  const stepper = useStepper(steps.length);
+
+  // Bank connection state (Teller)
+  const [isTellerScriptLoaded, setIsTellerScriptLoaded] = useState(false);
+  const [tellerError, setTellerError] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const tellerInstanceRef = useRef<any>(null);
+  const [tellerEnrollment, setTellerEnrollment] = useState<any>(null);
+  const [bankPreviewData, setBankPreviewData] = useState<any>(null);
+  const [isLoadingBankPreview, setIsLoadingBankPreview] = useState(false);
+  const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<string[]>([]);
+
+  // Service connection state (QuickBooks, etc.)
+  const [authWindow, setAuthWindow] = useState<Window | null>(null);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isWaitingForAuth, setIsWaitingForAuth] = useState(false);
+  const [isAlreadyConnected, setIsAlreadyConnected] = useState(false);
+  const [syncPreferences, setSyncPreferences] = useState({
+    syncAccounts: true,
+    syncTransactions: true,
+    syncInvoices: true,
+    syncBills: true,
+    syncCustomers: false,
+    syncVendors: false,
+    selectedAccountIds: [] as string[],
+    selectedTransactionIds: [] as string[],
+    selectedInvoiceIds: [] as string[],
+    selectedBillIds: [] as string[],
+    selectedCustomerIds: [] as string[],
+    selectedVendorIds: [] as string[],
+  });
+  const connectServiceMutation = useConnectProvider();
+  const syncServiceMutation = useSyncProvider();
+
+  // Mutations
+  const connectBankMutation = bankingMutations.useConnectAccount();
+
+  const getIntegrationName = () => {
+    return integrationId.charAt(0).toUpperCase() + integrationId.slice(1).replace(/[-_]/g, ' ');
+  };
+
+  const getProviderType = (): IntegrationProvider => {
+    return integrationId.toUpperCase() as IntegrationProvider;
+  };
+
+  // Selection helper functions
+  const toggleItemSelection = (type: 'accounts' | 'transactions' | 'invoices' | 'bills' | 'customers' | 'vendors', itemId: string) => {
+    const key = `selected${type.charAt(0).toUpperCase() + type.slice(1, -1)}Ids` as keyof typeof syncPreferences;
+    const currentIds = syncPreferences[key] as string[];
+
+    setSyncPreferences(prev => ({
+      ...prev,
+      [key]: currentIds.includes(itemId)
+        ? currentIds.filter(id => id !== itemId)
+        : [...currentIds, itemId]
+    }));
+  };
+
+  const toggleSelectAll = (type: 'accounts' | 'transactions' | 'invoices' | 'bills' | 'customers' | 'vendors', allIds: string[]) => {
+    const key = `selected${type.charAt(0).toUpperCase() + type.slice(1, -1)}Ids` as keyof typeof syncPreferences;
+    const currentIds = syncPreferences[key] as string[];
+
+    setSyncPreferences(prev => ({
+      ...prev,
+      [key]: currentIds.length === allIds.length ? [] : allIds
+    }));
+  };
+
+  const isAllSelected = (type: 'accounts' | 'transactions' | 'invoices' | 'bills' | 'customers' | 'vendors', allIds: string[]) => {
+    const key = `selected${type.charAt(0).toUpperCase() + type.slice(1, -1)}Ids` as keyof typeof syncPreferences;
+    const currentIds = syncPreferences[key] as string[];
+    return currentIds.length === allIds.length && allIds.length > 0;
+  };
+
+  // Check if already connected on mount
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      if (integrationType === 'service' && integrationId) {
+        const isConnected = await checkConnectionStatus();
+
+        if (isConnected) {
+          console.log('QuickBooks already connected, jumping to selection step');
+          setIsAlreadyConnected(true);
+          toast({
+            title: 'Already Connected',
+            description: 'QuickBooks is already connected. Select what to sync.',
+          });
+          // Jump directly to selection step (Step 2 = Select Data)
+          stepper.goToStep(2);
+          fetchPreviewData();
+        }
+      } else if (integrationType === 'bank') {
+        // For banks, check if there are existing bank accounts
+        // If user is reconnecting, they can still go through the flow
+        console.log('Bank connection flow - starting from beginning');
+      }
+    };
+
+    checkExistingConnection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
+  // Load Teller Connect SDK for banks
+  useEffect(() => {
+    if (integrationType === 'bank' && stepper.currentStep >= 1) {
+      const loadTellerScript = () => {
+        if (typeof window !== 'undefined' && window.TellerConnect) {
+          setIsTellerScriptLoaded(true);
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.teller.io/connect/connect.js';
+        script.async = true;
+        script.onload = () => {
+          setIsTellerScriptLoaded(true);
+          setTellerError(null);
+        };
+        script.onerror = () => {
+          setTellerError('Failed to load Teller Connect SDK');
+        };
+
+        document.head.appendChild(script);
+      };
+
+      loadTellerScript();
+    }
+  }, [integrationType, stepper.currentStep]);
+
+  // Initialize Teller Connect
+  useEffect(() => {
+    if (!isTellerScriptLoaded || stepper.currentStep !== 1 || integrationType !== 'bank') {
+      return;
+    }
+
+    const applicationId = process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID;
+    const environment = (process.env.NEXT_PUBLIC_TELLER_ENVIRONMENT || 'sandbox') as 'sandbox' | 'production';
+
+    if (!applicationId) {
+      setTellerError('Teller application ID not configured');
+      return;
+    }
+
+    try {
+      const tellerConfig = {
+        applicationId,
+        environment,
+        onSuccess: async (enrollment: any) => {
+          try {
+            // Validate enrollment data
+            if (!enrollment || !enrollment.accessToken || !enrollment.enrollment) {
+              throw new Error('Invalid enrollment data received from Teller');
+            }
+
+            // Store enrollment data
+            const enrollmentData = {
+              accessToken: enrollment.accessToken,
+              enrollment: {
+                id: enrollment.enrollment.id,
+                institution: {
+                  id: enrollment.enrollment.institution.id,
+                  name: enrollment.enrollment.institution.name
+                }
+              }
+            };
+
+            setTellerEnrollment(enrollmentData);
+
+            // Move to account selection step (step 2 for banks)
+            stepper.nextStep();
+
+            // Fetch preview of available accounts
+            await fetchBankPreviewData(enrollmentData);
+          } catch (error: any) {
+            console.error('Teller enrollment error:', error);
+            toast({
+              title: 'Authorization Failed',
+              description: error?.message || 'Failed to process bank authorization. Please try again.',
+              variant: 'destructive',
+            });
+            // Stay on connection step
+            stepper.goToStep(1);
+          }
+        },
+        onExit: () => {
+          console.log('User exited Teller Connect');
+        },
+        onEvent: (event: any) => {
+          console.log('Teller event:', event);
+        }
+      };
+
+      tellerInstanceRef.current = window.TellerConnect.setup(tellerConfig);
+    } catch (error) {
+      console.error('Failed to initialize Teller:', error);
+      setTellerError('Failed to initialize Teller Connect');
+    }
+  }, [isTellerScriptLoaded, stepper.currentStep, integrationType, connectBankMutation, stepper, toast]);
+
+  // Fetch preview data from QuickBooks
+  const fetchPreviewData = async () => {
+    setIsLoadingPreview(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/integrations/quickbooks/preview?limit=50`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to fetch preview (${response.status})`);
+      }
+
+      const data = await response.json();
+
+      if (!data.data) {
+        throw new Error('No preview data available');
+      }
+
+      setPreviewData(data.data);
+    } catch (error: any) {
+      console.error('QuickBooks preview error:', error);
+      toast({
+        title: 'Failed to Load Data',
+        description: error?.message || 'Unable to retrieve QuickBooks data. Please try again.',
+        variant: 'destructive',
+      });
+
+      // Go back to authorize step on error
+      stepper.prevStep();
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
+  // Fetch bank accounts preview from Teller
+  const fetchBankPreviewData = async (enrollment: any) => {
+    setIsLoadingBankPreview(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/banking/preview`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ enrollment }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to fetch preview (${response.status})`);
+      }
+
+      const data = await response.json();
+
+      if (!data.data || !data.data.accounts || data.data.accounts.length === 0) {
+        throw new Error('No accounts available from this bank');
+      }
+
+      setBankPreviewData(data.data);
+    } catch (error: any) {
+      console.error('Bank preview error:', error);
+      toast({
+        title: 'Failed to Load Accounts',
+        description: error?.message || 'Unable to retrieve bank accounts. Please try again.',
+        variant: 'destructive',
+      });
+
+      // Go back to connection step on error
+      stepper.prevStep();
+    } finally {
+      setIsLoadingBankPreview(false);
+    }
+  };
+
+  // Save sync preferences
+  const saveSyncPreferences = async () => {
+    try {
+      // Validate that at least one category is enabled
+      const hasEnabledCategory = Object.values(syncPreferences).some(
+        (value, index) => index < 6 && value === true
+      );
+
+      if (!hasEnabledCategory) {
+        toast({
+          title: 'No Data Selected',
+          description: 'Please enable at least one data type to sync.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Build preferences object with selected IDs only for enabled categories
+      const preferences = {
+        syncAccounts: syncPreferences.syncAccounts,
+        syncTransactions: syncPreferences.syncTransactions,
+        syncInvoices: syncPreferences.syncInvoices,
+        syncBills: syncPreferences.syncBills,
+        syncCustomers: syncPreferences.syncCustomers,
+        syncVendors: syncPreferences.syncVendors,
+        selectedAccountIds: syncPreferences.syncAccounts && syncPreferences.selectedAccountIds.length > 0
+          ? syncPreferences.selectedAccountIds
+          : null,
+        selectedTransactionIds: syncPreferences.syncTransactions && syncPreferences.selectedTransactionIds.length > 0
+          ? syncPreferences.selectedTransactionIds
+          : null,
+        selectedInvoiceIds: syncPreferences.syncInvoices && syncPreferences.selectedInvoiceIds.length > 0
+          ? syncPreferences.selectedInvoiceIds
+          : null,
+        selectedBillIds: syncPreferences.syncBills && syncPreferences.selectedBillIds.length > 0
+          ? syncPreferences.selectedBillIds
+          : null,
+        selectedCustomerIds: syncPreferences.syncCustomers && syncPreferences.selectedCustomerIds.length > 0
+          ? syncPreferences.selectedCustomerIds
+          : null,
+        selectedVendorIds: syncPreferences.syncVendors && syncPreferences.selectedVendorIds.length > 0
+          ? syncPreferences.selectedVendorIds
+          : null,
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/integrations/quickbooks/sync-preferences`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(preferences),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to save preferences (${response.status})`);
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error('Save preferences error:', error);
+      toast({
+        title: 'Failed to Save Preferences',
+        description: error?.message || 'Unable to save sync preferences. Please try again.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  // Check if QuickBooks is connected
+  const checkConnectionStatus = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/integrations/quickbooks/status`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      return data.data?.connected === true;
+    } catch (error) {
+      console.error('Connection status check failed:', error);
+      return false;
+    }
+  };
+
+  // Handle service OAuth connection
+  const handleServiceAuth = async () => {
+    try {
+      const response = await connectServiceMutation.mutateAsync(getProviderType());
+
+      if (response.data?.authorizationUrl) {
+        // Open OAuth window
+        const width = 600;
+        const height = 700;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+
+        const popup = window.open(
+          response.data.authorizationUrl,
+          'oauth_window',
+          `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        if (!popup) {
+          toast({
+            title: 'Popup Blocked',
+            description: 'Please allow popups for this site and try again',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        setAuthWindow(popup);
+        setIsWaitingForAuth(true);
+
+        console.log('OAuth popup opened, starting polling...');
+
+        // Poll for window close
+        const checkClosed = setInterval(async () => {
+          console.log('Checking popup status...', popup.closed);
+
+          if (!popup || popup.closed) {
+            console.log('Popup closed, processing...');
+            clearInterval(checkClosed);
+            setIsWaitingForAuth(false);
+
+            // Wait a moment for backend to process callback
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Check if connection was successful
+            console.log('Checking connection status...');
+            const isConnected = await checkConnectionStatus();
+            console.log('Connection status:', isConnected);
+
+            if (isConnected) {
+              // After OAuth completes successfully, fetch preview data
+              toast({
+                title: 'Authorization Successful',
+                description: 'Loading your QuickBooks data...',
+              });
+              stepper.nextStep(); // Move to select step
+              fetchPreviewData();
+            } else {
+              toast({
+                title: 'Authorization Complete',
+                description: 'Loading available data...',
+              });
+              // Still proceed even if status check is uncertain
+              stepper.nextStep();
+              fetchPreviewData();
+            }
+          }
+        }, 300); // Check more frequently
+
+        // Safety timeout - force continue after 60 seconds
+        setTimeout(() => {
+          if (isWaitingForAuth) {
+            console.log('Timeout reached, forcing continue...');
+            clearInterval(checkClosed);
+            setIsWaitingForAuth(false);
+            toast({
+              title: 'Authorization Timeout',
+              description: 'Proceeding anyway. If data doesn\'t load, please try again.',
+              variant: 'default',
+            });
+            stepper.nextStep();
+            fetchPreviewData();
+          }
+        }, 60000);
+      }
+    } catch (error: any) {
+      setIsWaitingForAuth(false);
+      toast({
+        title: 'Authorization Failed',
+        description: error?.message || 'Failed to start authorization',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Manual continue after auth (if auto-progress fails)
+  const handleManualContinue = async () => {
+    setIsWaitingForAuth(false);
+    stepper.nextStep();
+    fetchPreviewData();
+  };
+
+  const handleProceedToSync = async () => {
+    // Save preferences first
+    const saved = await saveSyncPreferences();
+    if (saved) {
+      stepper.nextStep(); // Move to sync step
+      handleServiceSync();
+    }
+  };
+
+  const handleServiceSync = async () => {
+    setSyncProgress(0);
+
+    try {
+      // Start sync (backend will use saved preferences)
+      await syncServiceMutation.mutateAsync({
+        provider: getProviderType(),
+        syncData: syncPreferences,
+      });
+
+      // Simulate progress
+      const interval = setInterval(() => {
+        setSyncProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            stepper.nextStep(); // Move to complete
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 500);
+    } catch (error: any) {
+      toast({
+        title: 'Sync Failed',
+        description: error?.message || 'Failed to sync data',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBankConnect = () => {
+    if (tellerInstanceRef.current) {
+      tellerInstanceRef.current.open();
+    }
+  };
+
+  const handleConnectSelectedBankAccounts = async () => {
+    if (!tellerEnrollment) {
+      toast({
+        title: 'Connection Error',
+        description: 'Missing enrollment data. Please try connecting again.',
+        variant: 'destructive',
+      });
+      stepper.goToStep(1);
+      return;
+    }
+
+    if (selectedBankAccountIds.length === 0) {
+      toast({
+        title: 'No Accounts Selected',
+        description: 'Please select at least one account to import.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    stepper.nextStep(); // Move to sync step
+
+    try {
+      await connectBankMutation.mutateAsync({
+        enrollment: tellerEnrollment,
+        selectedAccountIds: selectedBankAccountIds.length > 0 ? selectedBankAccountIds : undefined,
+      });
+
+      // Simulate sync progress
+      const interval = setInterval(() => {
+        setSyncProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            stepper.nextStep(); // Move to complete step
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 300);
+
+    } catch (error: any) {
+      console.error('Bank connection error:', error);
+
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to connect bank accounts';
+
+      toast({
+        title: 'Connection Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+
+      // Go back to selection step on error
+      stepper.goToStep(2);
+      setSyncProgress(0);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleFinish = () => {
+    toast({
+      title: 'Connection Successful',
+      description: `${getIntegrationName()} has been connected successfully.`,
+    });
+
+    if (integrationType === 'bank') {
+      router.push('/dashboard/accounts/bank');
+    } else {
+      router.push('/dashboard/accounts/integrations');
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Back Button */}
+      <Link href="/dashboard/accounts/integrations">
+        <Button variant="ghost" size="sm">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Integrations
+        </Button>
+      </Link>
 
-      {/* Main Card */}
-      <Card>
-        <CardContent className="px-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}
-          >
-            <TabsList   variant={'outline'}>
-              <TabsTrigger
-                value="api-sync"
-              variant={'outline'}
-              size={'sm'}
-              >
-                API Sync
-              </TabsTrigger>
-              <TabsTrigger
-                value="csv"
-                variant={'outline'}
-                size={'sm'}
-              >
-                CSV
-              </TabsTrigger>
-              <TabsTrigger
-                value="oauth"
-                variant={'outline'}
-                size={'sm'}
-              >
-                OAuth
-              </TabsTrigger>
-            </TabsList>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-1">Connect {getIntegrationName()}</h1>
+        <p className="text-sm text-muted-foreground">
+          Follow the steps below to securely connect your account
+        </p>
+      </div>
 
-            {/* API Sync Tab */}
-            <TabsContent value="api-sync" className="mt-6 space-y-6">
-              <div className="space-y-4">
-                {/* API Key Input */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">API Key</label>
-                  <div className="relative">
-                    <Input
-                      placeholder="Enter here"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      className="pr-20"
-                    />
-                    <Button className="absolute right-6 top-1/2 -translate-y-1/2 text-sm  font-medium" variant={'link'}>
-                      Paste
+      {/* Stepper */}
+      <Stepper steps={steps} currentStep={stepper.currentStep} variant="indicator" />
+
+      {/* Step Content */}
+      <Card className='bg-background border-border'>
+        <CardContent className="p-8">
+          {/* Bank Flow */}
+          {integrationType === 'bank' && (
+            <>
+              {/* Step 0: Introduction */}
+              {stepper.currentStep === 0 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-20 w-20 bg-gradient-to-br from-blue-500/70 to-green-600/70 rounded-xl flex items-center justify-center mb-4">
+                      <CreditCard className="h-10 w-10 text-white" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Connect Your Bank Securely</h2>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      We use Teller to securely connect to over 10,000+ banks. Your credentials are never stored on our servers.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 max-w-lg mx-auto">
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">Bank-Level Security</h3>
+                        <p className="text-xs text-muted-foreground">
+                          256-bit encryption protects your data at all times
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Lock className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">Read-Only Access</h3>
+                        <p className="text-xs text-muted-foreground">
+                          We can only view your data, never move funds
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Building2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">10,000+ Banks Supported</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Connect to most major banks and credit unions
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center gap-3 mt-8">
+                    <Button variant="outline" onClick={() => router.back()}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => stepper.nextStep()}>
+                      Get Started
                     </Button>
                   </div>
                 </div>
+              )}
 
-                {/* API Secret Input */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">API Secret</label>
-                  <div className="relative">
-                    <Input
-                      type="password"
-                      placeholder="Enter here"
-                      value={apiSecret}
-                      onChange={(e) => setApiSecret(e.target.value)}
-                      className="pr-20"
-                    />
-                    <Button className="absolute right-6 top-1/2 -translate-y-1/2 text-sm  font-medium" variant={'link'}>
-                      Paste
+              {/* Step 1: Connect Bank */}
+              {stepper.currentStep === 1 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Select Your Bank</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Click the button below to open the secure Teller Connect window
+                    </p>
+                  </div>
+
+                  {tellerError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{tellerError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {!isTellerScriptLoaded && !tellerError && (
+                    <Alert>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <AlertDescription>Loading secure connection...</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="flex justify-center gap-3">
+                    <Button variant="outline" onClick={() => stepper.prevStep()}>
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleBankConnect}
+                      disabled={!isTellerScriptLoaded || !!tellerError}
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Open Bank Selector
                     </Button>
                   </div>
                 </div>
+              )}
 
-                {/* Connect Button */}
-                <div className='flex justify-center'>   <Button
-                  className=" mt-4"
-                  size="sm"
-                  disabled={!apiKey || !apiSecret}
-                  onClick={handleConnect}
-                >
-                  Connect
-                </Button></div>
-             
-              </div>
-
-              {/* Security Features */}
-              <div className="space-y-2 mt-8">
-                <div className="flex items-start gap-3 p-2 bg-muted/30 rounded-xl border border-border">
-                  <div className="h-10 w-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-5 w-5 text-foreground" />
+              {/* Step 2: Select Accounts */}
+              {stepper.currentStep === 2 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl font-semibold mb-2">Select Accounts to Import</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {bankPreviewData ? `${bankPreviewData.institutionName} · ${bankPreviewData.totalAccounts} accounts found` : 'Choose which accounts you want to sync'}
+                    </p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm ">Secure Connection</h3>
-                    <p className="text-xs text-muted-foreground">
-                      All data is exchanged over a secure, encrypted connection to protect your information.
+
+                  {isLoadingBankPreview ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                      <p className="text-sm text-muted-foreground">Loading available accounts...</p>
+                    </div>
+                  ) : !bankPreviewData ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <AlertCircle className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-medium mb-2">Failed to Load Accounts</h3>
+                      <p className="text-sm text-muted-foreground mb-4">Unable to retrieve accounts from your bank.</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => stepper.prevStep()}>
+                          Go Back
+                        </Button>
+                        <Button onClick={() => tellerEnrollment && fetchBankPreviewData(tellerEnrollment)}>
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Retry
+                        </Button>
+                      </div>
+                    </div>
+                  ) : bankPreviewData?.accounts && bankPreviewData.accounts.length > 0 ? (
+                    <Accordion type="single" collapsible className="w-full" defaultValue="accounts">
+                      <DataSelectionAccordion
+                        value="accounts"
+                        title="Bank Accounts"
+                        description={`Found ${bankPreviewData.totalAccounts} accounts from ${bankPreviewData.institutionName}`}
+                        icon={Building2}
+                        color="blue"
+                        totalCount={bankPreviewData.totalAccounts}
+                        previewItems={bankPreviewData.accounts || []}
+                        isEnabled={true}
+                        selectedIds={selectedBankAccountIds}
+                        onToggleEnabled={() => {}}
+                        onToggleItem={(itemId) => {
+                          setSelectedBankAccountIds(prev =>
+                            prev.includes(itemId)
+                              ? prev.filter(id => id !== itemId)
+                              : [...prev, itemId]
+                          );
+                        }}
+                        onToggleAll={(allIds) => {
+                          setSelectedBankAccountIds(
+                            selectedBankAccountIds.length === allIds.length ? [] : allIds
+                          );
+                        }}
+                        renderItemContent={(item) => (
+                          <div className="flex justify-between items-center gap-4 w-full">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold">{item.name}</span>
+                                {item.status === 'closed' && (
+                                  <Badge variant="muted" size="sm">Closed</Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                <span className="capitalize">{item.subtype?.replace('_', ' ')}</span>
+                                <span>****{item.lastFour}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">
+                                ${item.balance?.available?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
+                              </p>
+                              {item.type === 'credit' && item.balance?.ledger < 0 && (
+                                <p className="text-xs text-red-600 dark:text-red-400">
+                                  Owe: ${Math.abs(item.balance.ledger).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      />
+                    </Accordion>
+                  ) : (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>No accounts available to import</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="flex justify-center gap-3 mt-6 pt-6 border-t">
+                    <Button variant="outline" onClick={() => stepper.prevStep()}>
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleConnectSelectedBankAccounts}
+                      disabled={isLoadingBankPreview || selectedBankAccountIds.length === 0}
+                    >
+                      Import {selectedBankAccountIds.length} Account{selectedBankAccountIds.length !== 1 ? 's' : ''}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Syncing */}
+              {stepper.currentStep === 3 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <RefreshCw className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Syncing Your Accounts</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Please wait while we import your bank accounts and transactions
+                    </p>
+                  </div>
+
+                  <div className="max-w-md mx-auto">
+                    <Progress value={syncProgress} className="h-2" />
+                    <p className="text-center text-sm text-muted-foreground mt-2">
+                      {syncProgress}% complete
                     </p>
                   </div>
                 </div>
+              )}
 
-                <div className="flex items-start gap-3 p-2 bg-muted/30 rounded-xl border border-border">
-                  <div className="h-10 w-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                    <Eye className="h-5 w-5 " />
+              {/* Step 4: Complete */}
+              {stepper.currentStep === 4 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Connection Successful!</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Your bank account has been connected and synced successfully
+                    </p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">Read-Only Access</h3>
-                    <p className="text-xs text-muted-foreground">
-                      This integration has read-only access and cannot make changes to your account or move funds.
+
+                  <div className="flex justify-center">
+                    <Button onClick={handleFinish}>
+                      Go to Banking Dashboard
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Service Flow (QuickBooks, etc.) */}
+          {integrationType === 'service' && (
+            <>
+              {/* Step 0: Introduction */}
+              {stepper.currentStep === 0 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <Shield className="h-10 w-10 text-primary" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">
+                      {isAlreadyConnected ? 'Reconnect' : 'Connect'} {getIntegrationName()}
+                    </h2>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      {isAlreadyConnected
+                        ? `${getIntegrationName()} is already connected. You can reconnect to update your authorization.`
+                        : `Securely connect your ${getIntegrationName()} account using OAuth`
+                      }
+                    </p>
+                  </div>
+
+                  {isAlreadyConnected && (
+                    <Alert>
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertDescription>
+                        Your {getIntegrationName()} account is currently active. You can skip to data selection or reconnect to refresh your authorization.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="grid gap-3 max-w-lg mx-auto">
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">Secure OAuth Connection</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Industry-standard OAuth protocol ensures maximum security
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Eye className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">Read-Only Access</h3>
+                        <p className="text-xs text-muted-foreground">
+                          We can only view your data, never make changes
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
+                      <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-sm">Full Control</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Revoke access anytime from your settings
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center gap-3 mt-8">
+                    <Button variant="outline" onClick={() => router.back()}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => stepper.nextStep()}>
+                      Get Started
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 1: Authorize */}
+              {stepper.currentStep === 1 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Authorize {getIntegrationName()}</h2>
+                    <p className="text-sm text-muted-foreground">
+                      You'll be redirected to {getIntegrationName()} to grant access
+                    </p>
+                  </div>
+
+                  {isWaitingForAuth && (
+                    <Alert>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <AlertDescription>
+                        Waiting for authorization to complete. Complete the process in the popup window.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="flex justify-center gap-3">
+                    <Button variant="outline" onClick={() => stepper.prevStep()} disabled={isWaitingForAuth}>
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleServiceAuth}
+                      disabled={connectServiceMutation.isPending || isWaitingForAuth}
+                    >
+                      {connectServiceMutation.isPending ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Connecting...</>
+                      ) : (
+                        <><Shield className="h-4 w-4 mr-2" />Authorize Connection</>
+                      )}
+                    </Button>
+                    {isWaitingForAuth && (
+                      <Button variant="outline" onClick={handleManualContinue}>
+                        Continue Anyway
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Select Data */}
+              {stepper.currentStep === 2 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl font-semibold mb-2">Select Data to Sync</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Choose which data types and specific items you want to import from {getIntegrationName()}
+                    </p>
+                  </div>
+
+                  {isLoadingPreview ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                      <p className="text-sm text-muted-foreground">Loading available data...</p>
+                    </div>
+                  ) : (
+                    <Accordion type="multiple" className="w-full space-y-0" defaultValue={['accounts', 'transactions']}>
+                        {/* Accounts */}
+                        {previewData?.accounts?.available && (
+                          <DataSelectionAccordion
+                            value="accounts"
+                            title="Accounts"
+                            description="Chart of accounts, bank accounts, credit cards"
+                            icon={DollarSign}
+                            color="blue"
+                            totalCount={previewData.accounts.count}
+                            previewItems={previewData.accounts.preview || []}
+                            isEnabled={syncPreferences.syncAccounts}
+                            selectedIds={syncPreferences.selectedAccountIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncAccounts: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('accounts', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('accounts', allIds)}
+                            renderItemContent={(item) => (
+                              <div className="flex justify-between items-center gap-4 w-full">
+                                <span className="font-semibold truncate">{item.name}</span>
+                                <span className="text-xs text-muted-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap font-medium">
+                                  {item.type}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        )}
+
+                        {/* Transactions */}
+                        {previewData?.transactions?.available && (
+                          <DataSelectionAccordion
+                            value="transactions"
+                            title="Transactions"
+                            description="Financial transactions and journal entries"
+                            icon={Receipt}
+                            color="green"
+                            totalCount={previewData.transactions.count}
+                            previewItems={previewData.transactions.preview || []}
+                            isEnabled={syncPreferences.syncTransactions}
+                            selectedIds={syncPreferences.selectedTransactionIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncTransactions: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('transactions', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('transactions', allIds)}
+                            renderItemContent={(item) => (
+                              <div className="flex justify-between items-center gap-4 w-full">
+                                <span className="font-semibold truncate">{item.description || item.number || item.id}</span>
+                                <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
+                                  ${item.amount}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        )}
+
+                        {/* Invoices */}
+                        {previewData?.invoices?.available && (
+                          <DataSelectionAccordion
+                            value="invoices"
+                            title="Invoices"
+                            description="Customer invoices and sales receipts"
+                            icon={FileText}
+                            color="purple"
+                            totalCount={previewData.invoices.count}
+                            previewItems={previewData.invoices.preview || []}
+                            isEnabled={syncPreferences.syncInvoices}
+                            selectedIds={syncPreferences.selectedInvoiceIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncInvoices: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('invoices', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('invoices', allIds)}
+                            renderItemContent={(item) => (
+                              <div className="flex justify-between items-center gap-4 w-full">
+                                <span className="font-semibold truncate">{item.number || item.id}</span>
+                                <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
+                                  ${item.amount}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        )}
+
+                        {/* Bills */}
+                        {previewData?.bills?.available && (
+                          <DataSelectionAccordion
+                            value="bills"
+                            title="Bills"
+                            description="Vendor bills and expenses"
+                            icon={Receipt}
+                            color="orange"
+                            totalCount={previewData.bills.count}
+                            previewItems={previewData.bills.preview || []}
+                            isEnabled={syncPreferences.syncBills}
+                            selectedIds={syncPreferences.selectedBillIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncBills: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('bills', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('bills', allIds)}
+                            renderItemContent={(item) => (
+                              <div className="flex justify-between items-center gap-4 w-full">
+                                <span className="font-semibold truncate">{item.number || item.id}</span>
+                                <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
+                                  ${item.amount}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        )}
+
+                        {/* Customers */}
+                        {previewData?.customers?.available && (
+                          <DataSelectionAccordion
+                            value="customers"
+                            title="Customers"
+                            description="Customer list and contact information"
+                            icon={Users}
+                            color="cyan"
+                            totalCount={previewData.customers.count}
+                            previewItems={previewData.customers.preview || []}
+                            isEnabled={syncPreferences.syncCustomers}
+                            selectedIds={syncPreferences.selectedCustomerIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncCustomers: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('customers', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('customers', allIds)}
+                            renderItemContent={(item) => (
+                              <span className="font-semibold truncate">{item.name || item.displayName}</span>
+                            )}
+                          />
+                        )}
+
+                        {/* Vendors */}
+                        {previewData?.vendors?.available && (
+                          <DataSelectionAccordion
+                            value="vendors"
+                            title="Vendors"
+                            description="Vendor list and supplier information"
+                            icon={Package}
+                            color="amber"
+                            totalCount={previewData.vendors.count}
+                            previewItems={previewData.vendors.preview || []}
+                            isEnabled={syncPreferences.syncVendors}
+                            selectedIds={syncPreferences.selectedVendorIds}
+                            onToggleEnabled={(checked) =>
+                              setSyncPreferences((prev) => ({ ...prev, syncVendors: !!checked }))
+                            }
+                            onToggleItem={(itemId) => toggleItemSelection('vendors', itemId)}
+                            onToggleAll={(allIds) => toggleSelectAll('vendors', allIds)}
+                            renderItemContent={(item) => (
+                              <span className="font-semibold truncate">{item.name || item.displayName}</span>
+                            )}
+                          />
+                        )}
+                      </Accordion>
+                  )}
+
+                  <div className="flex justify-center gap-3 mt-6 pt-6 border-t">
+                    <Button variant="outline" onClick={() => stepper.prevStep()}>
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleProceedToSync}
+                      disabled={isLoadingPreview || !Object.values(syncPreferences).some((v) => v === true)}
+                    >
+                      Continue to Sync
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Syncing */}
+              {stepper.currentStep === 3 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <RefreshCw className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Syncing Your Data</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Please wait while we import your data from {getIntegrationName()}
+                    </p>
+                  </div>
+
+                  <div className="max-w-md mx-auto">
+                    <Progress value={syncProgress} className="h-2" />
+                    <p className="text-center text-sm text-muted-foreground mt-2">
+                      {syncProgress}% complete
                     </p>
                   </div>
                 </div>
+              )}
 
-                <div className="flex items-start gap-3 p-2 bg-muted/30 rounded-xl border border-border">
-                  <div className="h-10 w-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                    <PhUser className="h-5 w-5 " />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">User-Controlled Permissions</h3>
-                    <p className="text-xs text-muted-foreground">
-                      You are in control. You can review and revoke access at any time from your account settings.
+              {/* Step 4: Complete */}
+              {stepper.currentStep === 4 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Connection Successful!</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {getIntegrationName()} has been connected successfully
                     </p>
                   </div>
-                </div>
-              </div>
-            </TabsContent>
 
-            {/* CSV Tab */}
-            <TabsContent value="csv" className="mt-6 space-y-6">
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                  <div className="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                    <HugeiconsCsv01 className="h-8 w-8 text-primary" />
+                  <div className="flex justify-center">
+                    <Button onClick={handleFinish}>
+                      Go to Integrations
+                    </Button>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Upload CSV File</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Drag and drop your Coinbase transaction CSV file here, or click to browse
-                  </p>
-                  <Button variant="outline" size="xs">
-                    <HugeiconsUpload03 className="h-4 w-4 mr-1" />
-                    Select File
-                  </Button>
                 </div>
-
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <h4 className="font-medium text-sm">How to export from Coinbase:</h4>
-                  <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                    <li>Log in to your Coinbase account</li>
-                    <li>Go to Settings → Reports</li>
-                    <li>Select the date range you want to export</li>
-                    <li>Click "Generate Report" and download the CSV file</li>
-                    <li>Upload the CSV file here</li>
-                  </ol>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* OAuth Tab */}
-            <TabsContent value="oauth" className="mt-6 space-y-6">
-              <div className="space-y-4">
-                <div className="text-center py-8">
-                  <div className="mx-auto h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                    <Shield className="h-8 w-8 " />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Connect with OAuth</h3>
-                  <p className="text-xs text-muted-foreground mb-6 max-w-md mx-auto">
-                    The most secure way to connect your Coinbase account. You&apos;ll be redirected to Coinbase to authorize access.
-                  </p>
-                  <Button size="sm" className="">
-                    <Shield className="h-4 w-4 mr-1" />
-                    Connect with Coinbase
-                  </Button>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <h4 className="font-medium text-sm flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Why OAuth is more secure:
-                  </h4>
-                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>No need to share API keys or passwords</li>
-                    <li>Coinbase controls and manages the connection</li>
-                    <li>Easy to revoke access from Coinbase settings</li>
-                    <li>Automatic token refresh for uninterrupted access</li>
-                  </ul>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
-
- 
-      <Accordion type="single" collapsible className="w-full" >
-  <AccordionItem value="instructions" >
-    <AccordionTrigger className="text-base font-semibold bg-background border border-border  px-4" >
-      Step-by-Step Instructions
-    </AccordionTrigger>
-    <AccordionContent>
-      <Card className="border-border">
-        <CardContent className="pt-4">
-          <ol className="space-y-4">
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                1
-              </div>
-              <p className="text-sm">Login to your Coinbase account.</p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                2
-              </div>
-              <p className="text-sm">
-                Click on your Profile icon and go to the Settings.
-              </p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                3
-              </div>
-              <p className="text-sm">In Settings open the API Keys Tab.</p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                4
-              </div>
-              <p className="text-sm">
-                In Secret API Keys section click on the Create API Key button.
-              </p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                5
-              </div>
-              <p className="text-sm">Set API key nickname.</p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                6
-              </div>
-              <p className="text-sm">
-                Keep the ED25519 option as Signature algorithm.
-              </p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                7
-              </div>
-              <p className="text-sm">Click the Create and Download button.</p>
-            </li>
-
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">
-                8
-              </div>
-              <p className="text-sm">
-                Copy/paste your API key and API Secret into CoinStats.
-              </p>
-            </li>
-          </ol>
-
-          <div className="mt-6 pt-6 border-t">
-            <p className="text-sm text-muted-foreground text-center">
-              Problems with connection?{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-700 underline font-medium"
-              >
-                Contact Support
-              </a>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
-
-
     </div>
+  );
+}
+
+export default function IntegrationConnectionPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto p-6">Loading...</div>}>
+      <ConnectionPageContent />
+    </Suspense>
   );
 }

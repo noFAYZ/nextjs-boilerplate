@@ -92,7 +92,7 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'integrations',
     label: 'Integrations',
     icon: HugeiconsPuzzle,
-    href: '/dashboard/integrations',
+    href: '/dashboard/accounts/integrations',
     quickActions: [
       { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },

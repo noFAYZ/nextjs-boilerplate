@@ -31,6 +31,7 @@ import {
   Users,
   ChevronRight,
   Activity,
+  Unlink2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -48,6 +49,8 @@ import {
 import { IntegrationProvider, QuickBooksAccount } from '@/lib/types/integrations';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Pagination, PaginationInfo, usePagination } from '@/components/ui/pagination';
+import { LogoLoader } from '@/components/icons';
+import { StreamlineUltimatePowerPlugDisconnected } from '@/components/icons/icons';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -131,11 +134,13 @@ export default function QuickBooksDetailPage() {
 
   if (statusLoading) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6 py-6 px-4">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="w-8 h-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center gap-2 text-center dark:bg-muted/60 bg-background px-18 py-10 rounded-2xl border shadow">
+        <LogoLoader className="w-18 h-18 " />
+      
+        <p className="text-sm font-medium">Loading Quickbooks...</p>
       </div>
+    </div>
     );
   }
 
@@ -152,7 +157,7 @@ export default function QuickBooksDetailPage() {
               <p className="text-sm text-muted-foreground max-w-sm">
                 Connect your QuickBooks account to get started
               </p>
-              <Button onClick={() => router.push('/dashboard/integrations')} className="mt-4">
+              <Button onClick={() => router.push('/dashboard/accounts/integrations')} className="mt-4" size={'sm'}>
                 Go to Integrations
               </Button>
             </div>
@@ -167,7 +172,7 @@ export default function QuickBooksDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/integrations')}>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/accounts/integrations')}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -185,12 +190,12 @@ export default function QuickBooksDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleDisconnect} disabled={disconnectMutation.isPending}>
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+          <Button variant="default" size="xs" className='bg-red-700' onClick={handleDisconnect} disabled={disconnectMutation.isPending}>
+            <StreamlineUltimatePowerPlugDisconnected className="w-4 h-4 mr-1" />
+            Disconnect
           </Button>
-          <Button variant="outline" size="sm" onClick={handleSync} disabled={syncMutation.isPending}>
-            <RefreshCw className={cn('w-4 h-4 mr-2', syncMutation.isPending && 'animate-spin')} />
+          <Button variant="outline" size="xs" onClick={handleSync} disabled={syncMutation.isPending}>
+            <RefreshCw className={cn('w-4 h-4 mr-1', syncMutation.isPending && 'animate-spin')} />
             {syncMutation.isPending ? 'Syncing...' : 'Sync Now'}
           </Button>
         </div>
@@ -273,7 +278,7 @@ export default function QuickBooksDetailPage() {
               <CardContent>
                 {companyLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <LogoLoader className="w-10 h-10 text-muted-foreground" />
                   </div>
                 ) : company ? (
                   <div className="space-y-4">
@@ -369,7 +374,7 @@ export default function QuickBooksDetailPage() {
             <CardContent>
               {accountsLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                  <LogoLoader className="w-10 h-10 " />
                 </div>
               ) : accounts && accounts.length > 0 ? (
                 <>
@@ -460,7 +465,7 @@ export default function QuickBooksDetailPage() {
             <CardContent>
               {transactionsLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <LogoLoader className="w-10 h-10 " />
                 </div>
               ) : transactions && transactions.length > 0 ? (
                 <>
@@ -530,7 +535,7 @@ export default function QuickBooksDetailPage() {
             <CardContent>
               {invoicesLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <LogoLoader className="w-10 h-10 " />
                 </div>
               ) : invoices && invoices.length > 0 ? (
                 <>
