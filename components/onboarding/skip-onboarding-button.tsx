@@ -3,7 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { SkipForward } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface SkipOnboardingButtonProps {
   className?: string;
@@ -12,23 +22,15 @@ interface SkipOnboardingButtonProps {
 export function SkipOnboardingButton({ className }: SkipOnboardingButtonProps) {
   const router = useRouter();
   const [isSkipping, setIsSkipping] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   const handleSkip = async () => {
-    // Simple confirmation
-    const confirmed = window.confirm(
-      "Skip onboarding? You can always complete it later from your settings.\n\nSkipping means you'll miss personalized recommendations and interface customization."
-    );
-    
-    if (!confirmed) return;
-    
     setIsSkipping(true);
-    
+
     try {
-      // Mark onboarding as completed but skipped
       localStorage.setItem('onboarding-completed', 'true');
       localStorage.setItem('onboarding-skipped', 'true');
-      
-      // Set default preferences for skipped users
+
       const defaultPreferences = {
         experienceLevel: 'intermediate',
         primaryGoals: [],
@@ -44,10 +46,8 @@ export function SkipOnboardingButton({ className }: SkipOnboardingButtonProps) {
         skipped: true,
         completedAt: new Date().toISOString()
       };
-      
+
       localStorage.setItem('onboarding-preferences', JSON.stringify(defaultPreferences));
-      
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
       console.error('Error skipping onboarding:', error);
@@ -56,15 +56,34 @@ export function SkipOnboardingButton({ className }: SkipOnboardingButtonProps) {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleSkip}
-      className={className}
-      disabled={isSkipping}
-    >
-      <X className="h-4 w-4 mr-2" />
-      {isSkipping ? 'Skipping...' : 'Skip for now'}
-    </Button>
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setShowDialog(true)}
+        className={className}
+        disabled={isSkipping}
+      >
+        {isSkipping ? 'Skipping...' : 'Skip'}
+      </Button>
+
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Skip onboarding?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>You'll miss personalized recommendations and customizations.</p>
+              <p className="text-xs">You can complete this later from settings.</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue Setup</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSkip}>
+              Skip Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

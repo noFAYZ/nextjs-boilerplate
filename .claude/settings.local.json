@@ -29,7 +29,8 @@
       "Bash(tasklist)",
       "Bash(taskkill:*)",
       "Bash(yarn add:*)",
-      "Bash(cmd //c taskkill:*)"
+      "Bash(cmd //c taskkill:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

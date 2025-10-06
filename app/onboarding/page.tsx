@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,21 +16,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { 
+import {
   ArrowRight,
   ArrowLeft,
-  CheckCircle,
+  CheckCircle2,
   User,
   Target,
-  Wallet,
   PieChart,
   Shield,
   Sparkles,
   Crown,
-  Zap,
   TrendingUp,
-  DollarSign,
-  Building,
   GraduationCap,
   Briefcase,
   Home,
@@ -38,18 +34,15 @@ import {
   Plane,
   Heart,
   BookOpen,
-  Dot,
-  BadgeCheck,
-  ListCheck,
-  LucideCheckCheck
+  Check,
+  Circle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
-import { GameIconsUpgrade, LogoMappr } from '@/components/icons';
-import {  LetsIconsDoneDuotone, SolarWalletBoldDuotone } from '@/components/icons/icons';
-import DecryptedText from '@/components/ui/shadcn-io/decrypted-text';
+import { LogoMappr } from '@/components/icons';
+import { HugeiconsBriefcase02 } from '@/components/icons/icons';
 
 interface OnboardingStep {
   id: string;
@@ -75,59 +68,53 @@ interface UserPreferences {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to MoneyMappr',
-    description: "Let's get you started on your financial journey",
+    title: 'Welcome',
+    description: "Let's get started",
     icon: Sparkles
   },
   {
     id: 'profile',
-    title: 'Tell us about yourself',
-    description: 'Help us personalize your experience',
+    title: 'Profile',
+    description: 'Tell us about yourself',
     icon: User
   },
   {
     id: 'experience',
-    title: 'Your experience level',
-    description: 'This helps us customize the interface for you',
+    title: 'Experience',
+    description: 'Your skill level',
     icon: GraduationCap
   },
   {
     id: 'goals',
-    title: 'Financial goals',
-    description: 'What are you hoping to achieve?',
+    title: 'Goals',
+    description: 'What you want to achieve',
     icon: Target
   },
   {
     id: 'investments',
-    title: 'Investment preferences',
-    description: 'What types of assets interest you?',
+    title: 'Preferences',
+    description: 'Investment types',
     icon: PieChart
-  },
-  {
-    id: 'setup',
-    title: 'Account setup',
-    description: 'Final details to get you started',
-    icon: Shield
   }
 ];
 
 const FINANCIAL_GOALS = [
   { id: 'emergency-fund', label: 'Emergency Fund', icon: Shield },
-  { id: 'retirement', label: 'Retirement Savings', icon: Crown },
+  { id: 'retirement', label: 'Retirement', icon: Crown },
   { id: 'house', label: 'Buy a Home', icon: Home },
   { id: 'car', label: 'Buy a Car', icon: Car },
-  { id: 'travel', label: 'Travel & Vacation', icon: Plane },
+  { id: 'travel', label: 'Travel', icon: Plane },
   { id: 'education', label: 'Education', icon: BookOpen },
-  { id: 'health', label: 'Health & Wellness', icon: Heart },
+  { id: 'health', label: 'Health', icon: Heart },
   { id: 'wealth', label: 'Build Wealth', icon: TrendingUp }
 ];
 
 const INVESTMENT_TYPES = [
-  { id: 'crypto', label: 'Cryptocurrency', description: 'Bitcoin, Ethereum, DeFi' },
+  { id: 'crypto', label: 'Cryptocurrency', description: 'Digital assets & DeFi' },
   { id: 'stocks', label: 'Stocks & ETFs', description: 'Traditional equities' },
-  { id: 'bonds', label: 'Bonds', description: 'Government & corporate bonds' },
-  { id: 'real-estate', label: 'Real Estate', description: 'REITs and property' },
-  { id: 'commodities', label: 'Commodities', description: 'Gold, silver, oil' },
+  { id: 'bonds', label: 'Bonds', description: 'Fixed income securities' },
+  { id: 'real-estate', label: 'Real Estate', description: 'Property & REITs' },
+  { id: 'commodities', label: 'Commodities', description: 'Precious metals & resources' },
   { id: 'cash', label: 'Cash & Savings', description: 'High-yield accounts' }
 ];
 
@@ -135,23 +122,23 @@ const EXPERIENCE_LEVELS = [
   {
     id: 'beginner',
     title: 'Beginner',
-    description: 'New to investing and personal finance',
+    description: 'New to investing',
     icon: GraduationCap,
-    features: ['Simple card-based interface', 'Educational content', 'Basic portfolio tracking']
+    features: ['Simplified interface', 'Guided tutorials', 'Basic tracking']
   },
   {
     id: 'intermediate',
     title: 'Intermediate',
-    description: 'Some experience with investments',
-    icon: Briefcase,
+    description: 'Some experience',
+    icon: HugeiconsBriefcase02,
     features: ['Advanced charts', 'Portfolio analysis', 'Goal tracking']
   },
   {
     id: 'advanced',
     title: 'Advanced',
-    description: 'Experienced trader and investor',
+    description: 'Experienced investor',
     icon: Crown,
-    features: ['Professional data tables', 'Advanced analytics', 'Custom indicators']
+    features: ['Pro data tables', 'Advanced analytics', 'Custom indicators']
   }
 ];
 
@@ -174,7 +161,6 @@ export default function OnboardingPage() {
     }
   });
 
-  // Auto-populate user info if available
   useEffect(() => {
     if (user) {
       setPreferences(prev => ({
@@ -205,18 +191,11 @@ export default function OnboardingPage() {
   };
 
   const completeOnboarding = async () => {
-    // Set view mode based on experience level
     const viewMode = preferences.experienceLevel === 'beginner' ? 'beginner' : 'pro';
     setViewMode(viewMode);
-
-    // Here you would save preferences to backend
-    
-    // Mark onboarding as completed
     localStorage.setItem('onboarding-completed', 'true');
     localStorage.setItem('onboarding-just-completed', 'true');
     localStorage.setItem('onboarding-preferences', JSON.stringify(preferences));
-    
-    // Redirect to dashboard
     router.push('/dashboard');
   };
 
@@ -244,75 +223,56 @@ export default function OnboardingPage() {
     switch (step.id) {
       case 'welcome':
         return (
-          <div className="text-center space-y-6">
-            <div className="relative">
-              <div className="w-24 h-24 mx-auto bg-muted rounded-full flex items-center justify-center mb-3">
-                <LogoMappr className="h-16 w-16 " />
-              </div>
-           
-            </div>
-            
+          <div className="max-w-2xl mx-auto text-center space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold  ">
-                Welcome to
-                
-                <DecryptedText 
-      text="MoneyMappr"
-      speed={60}
-      maxIterations={15}
-      sequential={false}
-      className="text-4xl font-bold text-foreground "
-      parentClassName='inline-block ml-2'
-      encryptedClassName="text-4xl font-bold text-muted-foreground"
-      animateOn="hover"
-    /> 
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Your all-in-one platform for managing traditional finances and cryptocurrency portfolios
-              </p>
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center">
+                <LogoMappr className="h-10 w-10" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight mb-2">
+                  Welcome to MoneyMappr
+                </h1>
+                <p className="text-muted-foreground">
+                  Let's personalize your financial management experience
+                </p>
+              </div>
             </div>
 
-            <Card className="grid md:grid-cols-3 gap-6 mt-12">
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                  <SolarWalletBoldDuotone className="h-8 w-8 text-green-600" />
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-semibold">Multi-Asset Tracking</h3>
-                <p className="text-xs text-muted-foreground">Connect crypto wallets, bank accounts, and investment portfolios</p>
+                <p className="text-sm text-muted-foreground">Secure</p>
               </div>
-              
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-8 w-8 text-blue-600" />
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-semibold">Smart Analytics</h3>
-                <p className="text-xs text-muted-foreground">AI-powered insights and personalized recommendations</p>
+                <p className="text-sm text-muted-foreground">Insightful</p>
               </div>
-              
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
-                  <GameIconsUpgrade className="h-8 w-8 text-purple-600" />
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-semibold">Bank-Grade Security</h3>
-                <p className="text-xs text-muted-foreground">Your data is encrypted and protected with enterprise security</p>
+                <p className="text-sm text-muted-foreground">Simple</p>
               </div>
-            </Card>
+            </div>
           </div>
         );
 
       case 'profile':
         return (
-          <div className="space-y-6 max-w-md mx-auto">
-            <div className="text-center space-y-2">
-              <User className="h-12 w-12 mx-auto text-primary" />
-              <h2 className="text-2xl font-bold">Tell us about yourself</h2>
-              <p className="text-muted-foreground">This helps us personalize your MoneyMappr experience</p>
+          <div className="max-w-xl mx-auto space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">Tell us about yourself</h2>
+              <p className="text-sm text-muted-foreground">This helps us personalize your experience</p>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName" className="text-sm">First Name</Label>
                   <Input
                     id="firstName"
                     value={preferences.profileInfo.firstName}
@@ -323,8 +283,8 @@ export default function OnboardingPage() {
                     placeholder="John"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName" className="text-sm">Last Name</Label>
                   <Input
                     id="lastName"
                     value={preferences.profileInfo.lastName}
@@ -337,8 +297,8 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="occupation">Occupation</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="occupation" className="text-sm">Occupation</Label>
                 <Input
                   id="occupation"
                   value={preferences.profileInfo.occupation}
@@ -350,14 +310,14 @@ export default function OnboardingPage() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="monthlyIncome">Monthly Income (Optional)</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="monthlyIncome" className="text-sm">Monthly Income <span className="text-muted-foreground">(Optional)</span></Label>
                 <Select
                   value={preferences.monthlyIncome}
                   onValueChange={(value) => setPreferences(prev => ({ ...prev, monthlyIncome: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select income range" />
+                    <SelectValue placeholder="Select range" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="under-30k">Under $30k</SelectItem>
@@ -370,8 +330,8 @@ export default function OnboardingPage() {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="bio">Bio (Optional)</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="bio" className="text-sm">Bio <span className="text-muted-foreground">(Optional)</span></Label>
                 <Textarea
                   id="bio"
                   value={preferences.profileInfo.bio}
@@ -379,8 +339,9 @@ export default function OnboardingPage() {
                     ...prev,
                     profileInfo: { ...prev.profileInfo, bio: e.target.value }
                   }))}
-                  placeholder="Tell us a bit about yourself and your financial interests..."
+                  placeholder="Tell us about your financial interests..."
                   rows={3}
+                  className="resize-none"
                 />
               </div>
             </div>
@@ -389,49 +350,50 @@ export default function OnboardingPage() {
 
       case 'experience':
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <GraduationCap className="h-12 w-12 mx-auto text-primary" />
-              <h2 className="text-2xl font-bold">What's your experience level?</h2>
-              <p className="text-muted-foreground">We'll customize the interface based on your comfort level</p>
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">What's your experience level?</h2>
+              <p className="text-sm text-muted-foreground">We'll customize the interface accordingly</p>
             </div>
 
-            <div className="space-y-4 max-w-md mx-auto">
+            <div className="space-y-3">
               {EXPERIENCE_LEVELS.map((level) => {
                 const Icon = level.icon;
                 const isSelected = preferences.experienceLevel === level.id;
-                
+
                 return (
                   <Card
                     key={level.id}
                     className={cn(
-                      "p-5 cursor-pointer transition-all hover:shadow-md shadow-primary/50",
-                      isSelected ? " shadow-lg bg-primary/5" : "border-border hover:bg-primary/10 "
+                      "cursor-pointer transition-all border-border shadow-none dark:bg-muted/40",
+                      isSelected ? "border-primary/10 shadow-xs" : "hover:border-border/80"
                     )}
                     onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as any }))}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-lg flex items-center justify-center",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                      )}>
-                        <Icon className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm">{level.title}</h3>
-                          {isSelected && <CheckCircle className="h-5 w-5 text-primary" />}
+                    <CardContent className="px-4">
+                      <div className="flex items-start gap-4">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                        )}>
+                          <Icon className="h-5 w-5" />
                         </div>
-                        <p className="text-muted-foreground text-xs mb-3">{level.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {level.features.map((feature) => (
-                            <Badge key={feature} variant="outline" className="text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium">{level.title}</h3>
+                            {isSelected && <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />}
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{level.description}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {level.features.map((feature) => (
+                              <Badge key={feature} variant="outline" className="text-xs font-normal">
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </CardContent>
                   </Card>
                 );
               })}
@@ -441,38 +403,42 @@ export default function OnboardingPage() {
 
       case 'goals':
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <Target className="h-12 w-12 mx-auto text-primary" />
-              <h2 className="text-2xl font-bold">What are your financial goals?</h2>
-              <p className="text-muted-foreground">Select all that apply - we'll help you track progress</p>
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">What are your financial goals?</h2>
+              <p className="text-sm text-muted-foreground">Select all that apply</p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {FINANCIAL_GOALS.map((goal) => {
                 const Icon = goal.icon;
                 const isSelected = preferences.primaryGoals.includes(goal.id);
-                
+
                 return (
                   <Card
                     key={goal.id}
                     className={cn(
-                        "p-3 flex relative flex-row gap-3 text-pretty cursor-pointer transition-all hover:shadow-md shadow-primary/50",
-                      isSelected ? " shadow-lg bg-primary/5" : " hover:bg-primary/10 "
+                      "cursor-pointer transition-all relative",
+                      isSelected ? "border-primary" : "hover:border-border/80"
                     )}
                     onClick={() => toggleGoal(goal.id)}
                   >
-                  
+                    <CardContent className="p-3 text-center">
                       <div className={cn(
-                        "w-12 h-12  rounded-lg flex items-center justify-center",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                        "w-10 h-10 mx-auto mb-2 rounded-lg flex items-center justify-center",
+                        isSelected ? "bg-primary/10" : "bg-muted"
                       )}>
-                          <Icon className="h-6 w-6" />
-             
+                        <Icon className={cn("h-5 w-5", isSelected ? "text-primary" : "text-muted-foreground")} />
                       </div>
-                      <h3 className="font-medium text-sm items-center text-start">{goal.label}</h3>
-                      {isSelected && <LucideCheckCheck className="absolute -top-2 -right-2 h-6 w-6 text-primary mx-auto" />}
-                  
+                      <p className="text-sm font-medium">{goal.label}</p>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-3 w-3 text-primary-foreground" />
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
                   </Card>
                 );
               })}
@@ -481,7 +447,7 @@ export default function OnboardingPage() {
             {preferences.primaryGoals.length > 0 && (
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
-                  Selected {preferences.primaryGoals.length} goal{preferences.primaryGoals.length !== 1 ? 's' : ''}
+                  {preferences.primaryGoals.length} goal{preferences.primaryGoals.length !== 1 ? 's' : ''} selected
                 </p>
               </div>
             )}
@@ -490,126 +456,68 @@ export default function OnboardingPage() {
 
       case 'investments':
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <PieChart className="h-12 w-12 mx-auto text-primary" />
-              <h2 className="text-2xl font-bold">Investment preferences</h2>
-              <p className="text-muted-foreground">What types of assets interest you?</p>
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">Investment preferences</h2>
+              <p className="text-sm text-muted-foreground">What assets interest you?</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               {INVESTMENT_TYPES.map((type) => {
                 const isSelected = preferences.investmentTypes.includes(type.id);
-                
+
                 return (
                   <Card
                     key={type.id}
                     className={cn(
-                       "p-3 flex relative flex-row gap-3 text-pretty cursor-pointer transition-all hover:shadow-md shadow-primary/50",
-                      isSelected ? " shadow-lg bg-primary/5" : " hover:bg-primary/10 "
+                      "cursor-pointer transition-all",
+                      isSelected ? "border-primary" : "hover:border-border/80"
                     )}
                     onClick={() => toggleInvestmentType(type.id)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-sm">{type.label}</h3>
-                        <p className="text-xs text-muted-foreground">{type.description}</p>
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                          isSelected ? "bg-primary/10" : "bg-muted"
+                        )}>
+                          <Circle className={cn("h-4 w-4", isSelected ? "text-primary fill-primary" : "text-muted-foreground")} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium">{type.label}</h3>
+                          <p className="text-xs text-muted-foreground">{type.description}</p>
+                        </div>
+                        {isSelected && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
                       </div>
-                      {isSelected && <LucideCheckCheck className="absolute -top-2 -right-2 h-6 w-6 text-primary mx-auto" />}
-                    </div>
+                    </CardContent>
                   </Card>
                 );
               })}
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label>Risk Tolerance</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {[
-                    { id: 'conservative', label: 'Conservative', desc: 'Lower risk, steady returns' },
-                    { id: 'moderate', label: 'Moderate', desc: 'Balanced risk and growth' },
-                    { id: 'aggressive', label: 'Aggressive', desc: 'Higher risk, potential high returns' }
-                  ].map((risk) => (
-                    <Card
-                      key={risk.id}
-                      className={cn(
-                         "p-3  relative gap-0 text-pretty cursor-pointer transition-all hover:shadow-md shadow-primary/50",
-                         preferences.riskTolerance === risk.id ? " shadow-lg bg-primary/5" : " hover:bg-primary/10 "
-                       
-                      )}
-                      onClick={() => setPreferences(prev => ({ ...prev, riskTolerance: risk.id as any }))}
-                    >
-                      <div className="text-sm font-medium">{risk.label}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{risk.desc}</div>
-                    </Card>
-                  ))}
-                </div>
+            <div className="space-y-3 pt-2">
+              <Label className="text-sm font-medium">Risk Tolerance</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'conservative', label: 'Conservative', desc: 'Lower risk' },
+                  { id: 'moderate', label: 'Moderate', desc: 'Balanced' },
+                  { id: 'aggressive', label: 'Aggressive', desc: 'Higher risk' }
+                ].map((risk) => (
+                  <Card
+                    key={risk.id}
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      preferences.riskTolerance === risk.id ? "border-primary" : "hover:border-border/80"
+                    )}
+                    onClick={() => setPreferences(prev => ({ ...prev, riskTolerance: risk.id as any }))}
+                  >
+                    <CardContent className="p-3 text-center">
+                      <p className="text-sm font-medium mb-0.5">{risk.label}</p>
+                      <p className="text-xs text-muted-foreground">{risk.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </div>
-          </div>
-        );
-
-      case 'setup':
-        return (
-          <div className="text-center space-y-4">
-            <div className="relative">
-              <div className="mx-auto  rounded-full flex items-center justify-center mb-2">
-                <LetsIconsDoneDuotone className="h-24 w-24 text-lime-500" />
-              </div>
-       
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-green-600">You're all set!</h2>
-              <p className="text-muted-foreground max-w-md mx-auto text-sm">
-                Based on your preferences, we've configured MoneyMappr to give you the best experience
-              </p>
-            </div>
-
-            <Card className="max-w-md mx-auto bg-accent">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="font-semibold text-lg">Your Setup Summary</h3>
-                
-                <div className="space-y-3 text-left">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Experience Level:</span>
-                    <Badge variant="outline" className="capitalize">
-                      {preferences.experienceLevel}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Interface Mode:</span>
-                    <Badge variant={preferences.experienceLevel === 'beginner' ? 'secondary' : 'default'}>
-                      {preferences.experienceLevel === 'beginner' ? 'Beginner' : 'Pro'}
-                    </Badge>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Primary Goals:</span>
-                    <span className="text-sm">{preferences.primaryGoals.length} selected</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Investment Types:</span>
-                    <span className="text-sm">{preferences.investmentTypes.length} selected</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Risk Tolerance:</span>
-                    <Badge variant="outline" className="capitalize">
-                      {preferences.riskTolerance}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                You can always change these settings later in your profile
-              </p>
             </div>
           </div>
         );
@@ -621,74 +529,83 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Progress Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm text-muted-foreground">
-              Step {currentStep + 1} of {ONBOARDING_STEPS.length}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm font-medium">
-                {Math.round(progress)}% Complete
-              </div>
-              <SkipOnboardingButton />
-            </div>
+
+
+      {/* Step Indicators */}
+      <div className="">
+        <div className=" max-w-5xl mx-auto px-12 py-4">
+          <div className="flex items-center justify-between overflow-x-auto">
+            {ONBOARDING_STEPS.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = index === currentStep;
+              const isCompleted = index < currentStep;
+
+              return (
+                <div key={step.id} className="flex items-center flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-colors",
+                      isCompleted
+                        ? "bg-primary text-primary-foreground"
+                        : isActive
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {isCompleted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                    </div>
+                    <div className="hidden sm:block">
+                      <p className={cn(
+                        "text-sm font-medium",
+                        isActive ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {step.title}
+                      </p>
+                    </div>
+                  </div>
+                  {index < ONBOARDING_STEPS.length - 1 && (
+                    <div className="w-8 sm:w-12 h-px bg-border mx-2 sm:mx-3" />
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <Progress value={progress} className="h-2" />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="min-h-[600px] flex flex-col justify-center">
+      {/* Content */}
+      <div className=" max-w-3xl mx-auto px-4 py-8 sm:py-12">
+        <div className="flex flex-col min-h-[70vh] items-center justify-center">
           {renderStepContent()}
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between pt-8">
-          <Button
+        <div className="flex items-center justify-between pt-8 max-w-2xl mx-auto">
+          <div className='flex gap-2'>
+                     <Button
             variant="outline"
             onClick={handlePrevious}
             disabled={currentStep === 0}
-            className="flex items-center gap-2"
+            size={'sm'}
+            className={cn(currentStep === 0 && "invisible")}
           >
             <ArrowLeft className="h-4 w-4" />
             Previous
           </Button>
-
-          <div className="flex items-center gap-2">
-            {ONBOARDING_STEPS.map((_, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all",
-                  index <= currentStep ? "bg-primary" : "bg-muted"
-                )}
-              />
-            ))}
+          <SkipOnboardingButton />
           </div>
+ 
 
           <Button
             onClick={handleNext}
-            className="flex items-center gap-2"
             disabled={
               (currentStep === 1 && !preferences.profileInfo.firstName) ||
               (currentStep === 3 && preferences.primaryGoals.length === 0) ||
               (currentStep === 4 && preferences.investmentTypes.length === 0)
             }
+            size={'sm'}
           >
-            {currentStep === ONBOARDING_STEPS.length - 1 ? (
-              <>
-                Complete Setup
-                <CheckCircle className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Next
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
+            {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
+            <ArrowRight className="h-4 w-4 " />
           </Button>
         </div>
       </div>
