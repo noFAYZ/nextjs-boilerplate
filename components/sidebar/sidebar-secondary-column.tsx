@@ -39,7 +39,7 @@ export function SidebarSecondaryColumn({
 
   return (
     <div className={cn(
-      "flex h-full flex-col transition-[width] duration-75 bg-background dark:bg-muted/20 border-r border-border",
+      "flex h-full flex-col transition-[width] duration-75 bg-background dark:bg-sidebar-accent border-r border-border/60 shadow-xl",
       isExpanded ? "w-80" : "w-16"
     )}>
       {/* Header */}

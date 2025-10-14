@@ -76,6 +76,7 @@ const badgeVariants = cva(
           "border-blue-200 bg-blue-50 text-blue-700 pl-1.5 [a&]:hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300 relative before:content-[''] before:w-1.5 before:h-1.5 before:bg-blue-500 before:rounded-full before:mr-1.5",
       },
       size: {
+        icon:'p-0.5',
         sm: "px-1.5 py-0.5 text-[10px] font-medium",
         default: "px-2 py-0.5 text-xs font-medium",
         lg: "px-3 py-1 text-sm font-medium",

@@ -14,12 +14,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/lib/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { bankingMutations } from '@/lib/queries/banking-queries';
+import { bankingApi } from '@/lib/services/banking-api';
 import { useConnectProvider, useSyncProvider } from '@/lib/queries/integrations-queries';
 import type { IntegrationProvider } from '@/lib/types/integrations';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { FluentBuildingBank28Regular, FluentBuildingBankLink28Regular } from '@/components/icons/icons';
 
 // Teller Connect Widget Interface
 declare global {
@@ -30,7 +33,39 @@ declare global {
         close: () => void;
       };
     };
+    Stripe?: (publishableKey: string) => StripeInstance;
   }
+}
+
+// Stripe.js Financial Connections Interface (from official docs)
+interface StripeFinancialConnectionsAccount {
+  id: string;
+  object: string;
+  category?: string;
+  display_name?: string;
+  institution_name?: string;
+  last4?: string;
+}
+
+interface StripeFinancialConnectionsSession {
+  id: string;
+  accounts: StripeFinancialConnectionsAccount[];
+}
+
+interface StripeCollectResult {
+  financialConnectionsSession: StripeFinancialConnectionsSession;
+  error?: {
+    message: string;
+    type: string;
+    code?: string;
+  };
+}
+
+interface StripeInstance {
+  // Official Stripe.js method for Financial Connections
+  collectFinancialConnectionsAccounts: (params: {
+    clientSecret: string;
+  }) => Promise<StripeCollectResult>;
 }
 
 // Bank Connection Steps
@@ -74,6 +109,12 @@ function ConnectionPageContent() {
   const [isLoadingBankPreview, setIsLoadingBankPreview] = useState(false);
   const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<string[]>([]);
 
+  // Stripe Financial Connections state
+  const [isStripeScriptLoaded, setIsStripeScriptLoaded] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
+  const stripeInstanceRef = useRef<any>(null);
+  const [stripeSessionId, setStripeSessionId] = useState<string | null>(null);
+
   // Service connection state (QuickBooks, etc.)
   const [authWindow, setAuthWindow] = useState<Window | null>(null);
   const [previewData, setPreviewData] = useState<any>(null);
@@ -99,6 +140,7 @@ function ConnectionPageContent() {
 
   // Mutations
   const connectBankMutation = bankingMutations.useConnectAccount();
+  const connectStripeMutation = bankingMutations.useConnectStripeAccount();
 
   const getIntegrationName = () => {
     return integrationId.charAt(0).toUpperCase() + integrationId.slice(1).replace(/[-_]/g, ' ');
@@ -165,9 +207,9 @@ function ConnectionPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once on mount
 
-  // Load Teller Connect SDK for banks
+  // Load Teller Connect SDK for Teller banks
   useEffect(() => {
-    if (integrationType === 'bank' && stepper.currentStep >= 1) {
+    if (integrationType === 'bank' && integrationId === 'teller' && stepper.currentStep >= 1) {
       const loadTellerScript = () => {
         if (typeof window !== 'undefined' && window.TellerConnect) {
           setIsTellerScriptLoaded(true);
@@ -190,11 +232,50 @@ function ConnectionPageContent() {
 
       loadTellerScript();
     }
-  }, [integrationType, stepper.currentStep]);
+  }, [integrationType, integrationId, stepper.currentStep]);
+
+  // Load Stripe SDK for Stripe banks
+  useEffect(() => {
+    if (integrationType === 'bank' && integrationId === 'stripe' && stepper.currentStep >= 1) {
+      const loadStripeScript = () => {
+        if (typeof window !== 'undefined' && window.Stripe) {
+          const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+          if (publishableKey) {
+            stripeInstanceRef.current = window.Stripe(publishableKey);
+            setIsStripeScriptLoaded(true);
+          } else {
+            setStripeError('Stripe publishable key not configured');
+          }
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://js.stripe.com/v3/';
+        script.async = true;
+        script.onload = () => {
+          const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+          if (publishableKey && window.Stripe) {
+            stripeInstanceRef.current = window.Stripe(publishableKey);
+            setIsStripeScriptLoaded(true);
+            setStripeError(null);
+          } else {
+            setStripeError('Stripe publishable key not configured');
+          }
+        };
+        script.onerror = () => {
+          setStripeError('Failed to load Stripe SDK');
+        };
+
+        document.head.appendChild(script);
+      };
+
+      loadStripeScript();
+    }
+  }, [integrationType, integrationId, stepper.currentStep]);
 
   // Initialize Teller Connect
   useEffect(() => {
-    if (!isTellerScriptLoaded || stepper.currentStep !== 1 || integrationType !== 'bank') {
+    if (!isTellerScriptLoaded || stepper.currentStep !== 1 || integrationType !== 'bank' || integrationId !== 'teller') {
       return;
     }
 
@@ -260,7 +341,7 @@ function ConnectionPageContent() {
       console.error('Failed to initialize Teller:', error);
       setTellerError('Failed to initialize Teller Connect');
     }
-  }, [isTellerScriptLoaded, stepper.currentStep, integrationType, connectBankMutation, stepper, toast]);
+  }, [isTellerScriptLoaded, stepper.currentStep, integrationType, integrationId, connectBankMutation, stepper, toast]);
 
   // Fetch preview data from QuickBooks
   const fetchPreviewData = async () => {
@@ -568,17 +649,128 @@ function ConnectionPageContent() {
     }
   };
 
-  const handleBankConnect = () => {
-    if (tellerInstanceRef.current) {
-      tellerInstanceRef.current.open();
+  // Fetch Stripe account preview
+  const fetchStripePreviewData = async (sessionId: string) => {
+    setIsLoadingBankPreview(true);
+    try {
+      const response = await bankingApi.getStripeAccountsPreview(sessionId);
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to fetch Stripe accounts');
+      }
+      console.log("FIAMANANANA A ",response.data)
+      setBankPreviewData(response.data);
+    } catch (error: any) {
+      console.error('Stripe preview error:', error);
+      toast({
+        title: 'Failed to Load Accounts',
+        description: error?.message || 'Unable to retrieve Stripe account data. Please try again.',
+        variant: 'destructive',
+      });
+      // Go back to connection step on error
+      stepper.prevStep();
+    } finally {
+      setIsLoadingBankPreview(false);
     }
   };
 
+  const handleBankConnect = async () => {
+    // Handle Teller connection
+    if (integrationId === 'teller' && tellerInstanceRef.current) {
+      tellerInstanceRef.current.open();
+      return;
+    }
+
+    // Handle Stripe connection
+    if (integrationId === 'stripe' && stripeInstanceRef.current) {
+      try {
+        setIsConnecting(true);
+
+        // Create and collect Financial Connections accounts using Stripe.js
+        // Backend creates the session and returns clientSecret
+        // Frontend uses Stripe.js collectFinancialConnectionsAccounts to open modal
+
+        // Get clientSecret from backend
+        const sessionResponse = await bankingApi.createStripeSession();
+
+        if (!sessionResponse.success) {
+          const errorMessage = sessionResponse.error?.message || 'Failed to create Stripe session';
+          throw { message: errorMessage };
+        }
+
+        const { clientSecret } = sessionResponse.data;
+
+        // Collect Financial Connections accounts using Stripe.js
+        const { financialConnectionsSession, error } = await stripeInstanceRef.current.collectFinancialConnectionsAccounts({
+          clientSecret,
+        });
+
+        if (error) {
+          throw { message: error.message || 'Failed to connect accounts' };
+        }
+
+      
+        // Store session ID for later use
+        const sessionId = financialConnectionsSession.id;
+        setStripeSessionId(sessionId);
+
+        // Move to account selection step
+        stepper.nextStep();
+
+        // Set preview data from Stripe response
+        setIsLoadingBankPreview(true);
+
+        const accounts = financialConnectionsSession?.accounts || [];
+        const institutionName = accounts[0]?.institution_name || 'Your Bank';
+
+        console.log("FIAMANANANA B ",financialConnectionsSession)
+
+        setBankPreviewData({
+          institutionName,
+          totalAccounts: accounts.length,
+          accounts: accounts,
+          sessionId
+        });
+  console.log(bankPreviewData)
+        setIsLoadingBankPreview(false);
+
+      } catch (error: any) {
+        console.error('Stripe connection error:', error);
+        toast({
+          title: 'Connection Failed',
+          description: error?.message || 'Failed to connect via Stripe. Please try again.',
+          variant: 'destructive',
+        });
+        setStripeError(error?.message || 'Connection failed');
+      } finally {
+        setIsConnecting(false);
+      }
+      return;
+    }
+
+    toast({
+      title: 'Configuration Error',
+      description: 'Bank connection not properly configured',
+      variant: 'destructive',
+    });
+  };
+
   const handleConnectSelectedBankAccounts = async () => {
-    if (!tellerEnrollment) {
+    // Validate we have necessary data based on integration type
+    if (integrationId === 'teller' && !tellerEnrollment) {
       toast({
         title: 'Connection Error',
         description: 'Missing enrollment data. Please try connecting again.',
+        variant: 'destructive',
+      });
+      stepper.goToStep(1);
+      return;
+    }
+
+    if (integrationId === 'stripe' && !stripeSessionId) {
+      toast({
+        title: 'Connection Error',
+        description: 'Missing session data. Please try connecting again.',
         variant: 'destructive',
       });
       stepper.goToStep(1);
@@ -598,10 +790,17 @@ function ConnectionPageContent() {
     stepper.nextStep(); // Move to sync step
 
     try {
-      await connectBankMutation.mutateAsync({
-        enrollment: tellerEnrollment,
-        selectedAccountIds: selectedBankAccountIds.length > 0 ? selectedBankAccountIds : undefined,
-      });
+      if (integrationId === 'teller') {
+        await connectBankMutation.mutateAsync({
+          enrollment: tellerEnrollment,
+          selectedAccountIds: selectedBankAccountIds.length > 0 ? selectedBankAccountIds : undefined,
+        });
+      } else if (integrationId === 'stripe') {
+        await connectStripeMutation.mutateAsync({
+          sessionId: stripeSessionId!,
+          selectedAccountIds: selectedBankAccountIds.length > 0 ? selectedBankAccountIds : undefined,
+        });
+      }
 
       // Simulate sync progress
       const interval = setInterval(() => {
@@ -669,7 +868,7 @@ function ConnectionPageContent() {
       <Stepper steps={steps} currentStep={stepper.currentStep} variant="indicator" />
 
       {/* Step Content */}
-      <Card className='bg-background border-border'>
+      <Card className='dark:bg-card/60 border-border/60'>
         <CardContent className="p-8">
           {/* Bank Flow */}
           {integrationType === 'bank' && (
@@ -678,12 +877,14 @@ function ConnectionPageContent() {
               {stepper.currentStep === 0 && (
                 <div className="space-y-6">
                   <div className="text-center">
-                    <div className="mx-auto h-20 w-20 bg-gradient-to-br from-blue-500/70 to-green-600/70 rounded-xl flex items-center justify-center mb-4">
-                      <CreditCard className="h-10 w-10 text-white" />
+                    <div className="mx-auto h-20 w-20 bg-muted rounded-2xl flex items-center justify-center mb-4">
+                      <FluentBuildingBankLink28Regular className="h-12 w-12 text-foreground" />
                     </div>
                     <h2 className="text-xl font-semibold mb-2">Connect Your Bank Securely</h2>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                      We use Teller to securely connect to over 10,000+ banks. Your credentials are never stored on our servers.
+                      {integrationId === 'stripe'
+                        ? 'We use Stripe Financial Connections to securely connect to your bank. Your credentials are never stored on our servers.'
+                        : 'We use Teller to securely connect to over 10,000+ banks. Your credentials are never stored on our servers.'}
                     </p>
                   </div>
 
@@ -709,7 +910,7 @@ function ConnectionPageContent() {
                     </div>
 
                     <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                      <Building2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <FluentBuildingBank28Regular className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <h3 className="font-medium text-sm">10,000+ Banks Supported</h3>
                         <p className="text-xs text-muted-foreground">
@@ -720,10 +921,10 @@ function ConnectionPageContent() {
                   </div>
 
                   <div className="flex justify-center gap-3 mt-8">
-                    <Button variant="outline" onClick={() => router.back()}>
+                    <Button variant="outline" onClick={() => router.back()} >
                       Cancel
                     </Button>
-                    <Button onClick={() => stepper.nextStep()}>
+                    <Button onClick={() => stepper.nextStep()} >
                       Get Started
                     </Button>
                   </div>
@@ -736,21 +937,30 @@ function ConnectionPageContent() {
                   <div className="text-center">
                     <h2 className="text-xl font-semibold mb-2">Select Your Bank</h2>
                     <p className="text-sm text-muted-foreground">
-                      Click the button below to open the secure Teller Connect window
+                      {integrationId === 'stripe'
+                        ? 'Click the button below to open Stripe Financial Connections'
+                        : 'Click the button below to open the secure Teller Connect window'}
                     </p>
                   </div>
 
-                  {tellerError && (
+                  {(tellerError || stripeError) && (
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{tellerError}</AlertDescription>
+                      <AlertDescription>{tellerError || stripeError}</AlertDescription>
                     </Alert>
                   )}
 
-                  {!isTellerScriptLoaded && !tellerError && (
+                  {integrationId === 'teller' && !isTellerScriptLoaded && !tellerError && (
                     <Alert>
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <AlertDescription>Loading secure connection...</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {integrationId === 'stripe' && !isStripeScriptLoaded && !stripeError && (
+                    <Alert>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <AlertDescription>Loading Stripe SDK...</AlertDescription>
                     </Alert>
                   )}
 
@@ -760,10 +970,23 @@ function ConnectionPageContent() {
                     </Button>
                     <Button
                       onClick={handleBankConnect}
-                      disabled={!isTellerScriptLoaded || !!tellerError}
+                      disabled={
+                        (integrationId === 'teller' && (!isTellerScriptLoaded || !!tellerError)) ||
+                        (integrationId === 'stripe' && (!isStripeScriptLoaded || !!stripeError)) ||
+                        isConnecting
+                      }
                     >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Open Bank Selector
+                      {isConnecting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <FluentBuildingBankLink28Regular className="h-5 w-5 mr-1" />
+                          Connect Bank
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -807,8 +1030,8 @@ function ConnectionPageContent() {
                         value="accounts"
                         title="Bank Accounts"
                         description={`Found ${bankPreviewData.totalAccounts} accounts from ${bankPreviewData.institutionName}`}
-                        icon={Building2}
-                        color="blue"
+                        icon={FluentBuildingBank28Regular}
+                        color="amber"
                         totalCount={bankPreviewData.totalAccounts}
                         previewItems={bankPreviewData.accounts || []}
                         isEnabled={true}
@@ -826,32 +1049,52 @@ function ConnectionPageContent() {
                             selectedBankAccountIds.length === allIds.length ? [] : allIds
                           );
                         }}
-                        renderItemContent={(item) => (
-                          <div className="flex justify-between items-center gap-4 w-full">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold">{item.name}</span>
-                                {item.status === 'closed' && (
-                                  <Badge variant="muted" size="sm">Closed</Badge>
+                        renderItemContent={(item) => {
+                          // Support both Teller and Stripe account structures
+                          const isStripeAccount = item.object === 'financial_connections.account';
+
+                          const accountName = isStripeAccount ? item.display_name : item.name;
+                          const accountType = isStripeAccount ? item.subcategory : item.subtype;
+                          const accountLast4 = isStripeAccount ? item.last4 : item.lastFour;
+
+                          // Handle Stripe balance structure
+                          let accountBalance = 0;
+                          if (isStripeAccount) {
+                            // Stripe: balance.current.usd (in cents) or balance.cash.available.usd (in cents)
+                            const balanceInCents = item.balance?.current?.usd || item.balance?.cash?.available?.usd || 0;
+                            accountBalance = balanceInCents / 100; // Convert cents to dollars
+                          } else {
+                            // Teller: balance.available (already in dollars)
+                            accountBalance = item.balance?.available || 0;
+                          }
+
+                          return (
+                            <div className="flex justify-between items-center gap-4 w-full">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-semibold">{accountName}</span>
+                                  {item.status === 'closed' && (
+                                    <Badge variant="muted" size="sm">Closed</Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span className="capitalize">{accountType?.replace('_', ' ')}</span>
+                                  <span>****{accountLast4}</span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold">
+                                  ${accountBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                </p>
+                                {item.type === 'credit' && item.balance?.ledger < 0 && (
+                                  <p className="text-xs text-red-600 dark:text-red-400">
+                                    Owe: ${Math.abs(item.balance.ledger).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                  </p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <span className="capitalize">{item.subtype?.replace('_', ' ')}</span>
-                                <span>****{item.lastFour}</span>
-                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-semibold">
-                                ${item.balance?.available?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
-                              </p>
-                              {item.type === 'credit' && item.balance?.ledger < 0 && (
-                                <p className="text-xs text-red-600 dark:text-red-400">
-                                  Owe: ${Math.abs(item.balance.ledger).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                          );
+                        }}
                       />
                     </Accordion>
                   ) : (

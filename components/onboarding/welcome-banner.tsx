@@ -15,6 +15,7 @@ import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { SolarPieChartBold, SolarWalletMoneyLinear } from '../icons/icons';
 
 export function WelcomeBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -40,13 +41,13 @@ export function WelcomeBanner() {
     {
       title: 'Connect Wallet',
       description: 'Add crypto wallet',
-      icon: Wallet,
+      icon: SolarWalletMoneyLinear,
       href: '/dashboard/accounts/wallet/add'
     },
     {
       title: 'View Portfolio',
       description: 'See your investments',
-      icon: PieChart,
+      icon: SolarPieChartBold,
       href: '/dashboard/portfolio'
     },
     {
@@ -60,26 +61,8 @@ export function WelcomeBanner() {
   if (!isVisible) return null;
 
   return (
-    <Card className="mb-6">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="font-semibold mb-1">
-              Welcome, {user?.name?.split(' ')[0] || 'there'}! 👋
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Your account is ready. Here's how to get started:
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDismiss}
-            className="h-8 w-8 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <div className="mb-6">
+   
 
         <div className="grid md:grid-cols-3 gap-3 mb-4">
           {quickActions.map((action) => {
@@ -87,7 +70,7 @@ export function WelcomeBanner() {
             return (
               <Link key={action.title} href={action.href}>
                 <Card className="group cursor-pointer transition-all hover:border-primary/50">
-                  <CardContent className="p-3 flex items-center gap-3">
+                  <CardContent className="px-3 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 transition-colors">
                       <Icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
@@ -118,7 +101,6 @@ export function WelcomeBanner() {
             Got it
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

@@ -70,6 +70,14 @@ const INTEGRATION_DATA = {
       status: "available",
       category: "banking",
     },
+    {
+      id: "stripe",
+      name: "Stripe",
+      description: "Financial Connections",
+      icon: <StripeLogo className="w-9 h-9" />,
+      status: "available",
+      category: "banking",
+    },
   ],
   exchanges: [
     {
@@ -201,14 +209,6 @@ const INTEGRATION_DATA = {
       icon: <XeroLogo className="w-9 h-9" />,
       status: "available",
       category: "accounting",
-    },
-    {
-      id: "stripe",
-      name: "Stripe",
-      description: "Payment processing",
-      icon: <StripeLogo className="w-9 h-9" />,
-      status: "available",
-      category: "payments",
     },
     {
       id: "paypal",

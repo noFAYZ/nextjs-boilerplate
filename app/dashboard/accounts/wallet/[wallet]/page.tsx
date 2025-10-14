@@ -13,6 +13,9 @@ import {
   RefreshCw,
   Loader2,
   AlertCircle,
+  Coins,
+  ImageIcon,
+  ArrowUpDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -388,247 +391,11 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
         </div>
       </div>
 
-      {/*    
-   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        <Card className="p-3 sm:p-4 lg:col-span-2">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
  
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center flex-shrink-0">
-                <StreamlineFlexWallet className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-              </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h1 className="text-base sm:text-lg font-semibold truncate">
-                    {wallet?.walletData?.name}
-                  </h1>
-                  <Badge
-                    variant="secondary"
-                    className="text-xs bg-primary/10 text-primary flex-shrink-0"
-                  >
-                    {wallet?.walletData?.network}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                  <span className="font-mono text-xs">
-                    {wallet?.walletData?.address?.slice(0, 6)}...
-                    {wallet?.walletData?.address?.slice(-4)}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopyAddress}
-                      className="h-5 w-5 p-0"
-                      title="Copy"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="h-5 w-5 p-0"
-                      title="Explorer"
-                    >
-                      <a
-                        href={getNetworkExplorerUrl(
-                          wallet?.walletData?.network,
-                          wallet?.walletData?.address
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-4">
-              <div className="flex gap-3 sm:gap-4">
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground">Tokens</div>
-                  <div className="text-sm font-semibold">
-                    {walletStats?.assetCount || 0}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground">NFTs</div>
-                  <div className="text-sm font-semibold">
-                    {walletStats?.nftCount || 0}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground">
-                  Total Balance
-                </div>
-                <div className="text-base sm:text-lg font-bold">
-                  ${walletStats?.totalBalance.toLocaleString() || "0"}
-                </div>
-              </div>
-            </div>
-          </div>
-
-    
-          <div className="mt-4 -mx-3 sm:-mx-4 -mb-3 sm:-mb-4">
-            <WalletChart
-              walletAddress={wallet?.walletData?.address}
-              className="w-full"
-              height={100}
-              compact={true}
-            />
-          </div>
-        </Card>
-
-
-        <Card className="p-3 sm:p-4 lg:col-span-1">
-          <div className="space-y-3 sm:space-y-4">
-          
-            <div className="space-y-1.5 sm:space-y-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-7 sm:h-8 text-xs"
-                onClick={() => setActiveTab("tokens")}
-              >
-                <Coins className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-2" />
-                View All Tokens
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-7 sm:h-8 text-xs"
-                onClick={() => setActiveTab("nfts")}
-              >
-                <ImageIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-2" />
-                Browse NFTs
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-7 sm:h-8 text-xs"
-                onClick={() => setActiveTab("transactions")}
-              >
-                <ArrowUpDown className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-2" />
-                Transaction History
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-7 sm:h-8 text-xs"
-                onClick={handleSync}
-                disabled={syncWallet.isPending}
-              >
-                {syncWallet.isPending ? (
-                  <Loader2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-2 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-2" />
-                )}
-                Sync Wallet
-              </Button>
-            </div>
-
-         
-            <div className="pt-2 border-t space-y-1.5 sm:space-y-2">
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Quick Stats
-              </div>
-
-              <div className="space-y-1 sm:space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Last Sync</span>
-                  <span className="font-medium">
-                    {walletStats?.lastSyncFormatted || "Never"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Network</span>
-                  <span className="font-medium">
-                    {wallet?.walletData?.network}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Status</span>
-                  <Badge
-                    variant={
-                      walletSyncState?.status === "completed"
-                        ? "default"
-                        : walletSyncState?.status === "failed"
-                        ? "destructive"
-                        : isSyncingSSE
-                        ? "secondary"
-                        : "outline"
-                    }
-                    className="text-[10px] py-0 px-1.5 h-4"
-                  >
-                    {walletSyncState?.status === "completed" ? "Synced" :
-                     walletSyncState?.status === "failed" ? "Failed" :
-                     isSyncingSSE ? "Syncing" : "Unknown"}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-     
-            <div className="pt-2 border-t">
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                External
-              </div>
-
-              <div className="flex gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="flex-1 h-6 sm:h-7 text-xs"
-                >
-                  <a
-                    href={getNetworkExplorerUrl(
-                      wallet?.walletData?.network,
-                      wallet?.walletData?.address
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    Explorer
-                  </a>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyAddress}
-                  className="h-6 sm:h-7 px-2"
-                  title="Copy Address"
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
- */}
-
-      {/* Main Wallet Header */}
+    {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between ">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="h-8 w-8 sm:h-20 sm:w-20 bg-muted rounded-3xl flex items-center justify-center flex-shrink-0 relative">
               <Image src={avataUrl} fill alt="ja" className="rounded-3xl" unoptimized />
@@ -783,19 +550,31 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
             </div>
           </div>
         </div>
-        {/* Fluid Chart */}
-
-        {isSyncing ? (
+        
+<div className="flex flex-col justify-between mt-4 gap-3">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">
+                  Total Balance
+                </div>
+                <div className="text-base sm:text-lg font-bold">
+                  ${walletStats?.totalBalance.toLocaleString() || "0"}
+                </div>
+              </div>
+                  {isSyncing ? (
           <WalletChartSkeleton height={100} compact={true} />
         ) : (
           <WalletChart
             walletAddress={wallet?.walletData?.address}
             className="w-fit"
-            height={100}
+            height={80}
             compact={true}
           />
         )}
+              </div>
+    
       </div>
+
+
 
       {/* Chain Filters */}
       <ChainFilters

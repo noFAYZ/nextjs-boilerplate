@@ -14,6 +14,8 @@ import { SessionTimeoutModal } from "@/components/auth/session-timeout-modal";
 import { CurrencyProvider } from "@/lib/contexts/currency-context";
 import { RealtimeSyncProvider } from "./realtime-sync-provider";
 import { GlobalErrorHandler } from "./global-error-handler";
+import { PortfolioSyncProvider } from "./portfolio-sync-provider";
+import { BankingSyncProvider } from "./banking-sync-provider";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (<GlobalErrorHandler>
@@ -26,27 +28,31 @@ export default function Providers({ children }: { children: ReactNode }) {
               defaultTheme="light"
               themes={["light", "dark", "light-pro", "dark-pro"]}
               disableTransitionOnChange
-            > 
+            >
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
-                  <RealtimeSyncProvider>
-                    <SubscriptionProvider>
-                      <ViewModeProvider>
-                        <AccountProvider>
-                          <DockProvider>
-                           
-                              <OnboardingGuard>
-                                {children}
-                                <SessionTimeoutModal />
-                              </OnboardingGuard>
-                           
-                          </DockProvider>
-                        </AccountProvider>
-                      </ViewModeProvider>
-                    </SubscriptionProvider>
-                  </RealtimeSyncProvider>
+                  <PortfolioSyncProvider>
+                    <BankingSyncProvider>
+                      <RealtimeSyncProvider>
+                      <SubscriptionProvider>
+                        <ViewModeProvider>
+                          <AccountProvider>
+                            <DockProvider>
+
+                                <OnboardingGuard>
+                                  {children}
+                                  <SessionTimeoutModal />
+                                </OnboardingGuard>
+
+                            </DockProvider>
+                          </AccountProvider>
+                        </ViewModeProvider>
+                      </SubscriptionProvider>
+                      </RealtimeSyncProvider>
+                    </BankingSyncProvider>
+                  </PortfolioSyncProvider>
                 </StoreProvider>
-              </CurrencyProvider> 
+              </CurrencyProvider>
             </ThemeProvider>
           </QueryProvider>
         </LoadingProvider>

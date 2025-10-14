@@ -217,7 +217,7 @@ class IntegrationsApiService {
   }
 
   // ========================================
-  // Stripe Integration (Future)
+  // Stripe Integration
   // ========================================
 
   async connectStripe(): Promise<ApiResponse<ConnectIntegrationResponse>> {
@@ -230,6 +230,14 @@ class IntegrationsApiService {
 
   async disconnectStripe(): Promise<ApiResponse<{ message: string }>> {
     return apiClient.delete(`${this.basePath}/stripe/disconnect`);
+  }
+
+  async syncStripe(syncData: SyncIntegrationRequest = {}): Promise<ApiResponse<SyncIntegrationResponse>> {
+    return apiClient.post(`${this.basePath}/stripe/sync`, syncData);
+  }
+
+  async getStripeSyncStatus(): Promise<ApiResponse<IntegrationSyncStatusResponse>> {
+    return apiClient.get(`${this.basePath}/stripe/sync/status`);
   }
 
   // ========================================

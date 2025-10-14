@@ -25,7 +25,17 @@ export interface PaginationInfo {
   hasNext?: boolean;
   hasPrev?: boolean;
 }
-
+export interface CryptoAsset {
+  symbol: string;
+  name: string;
+  balance: string;
+  balanceUsd: number;
+  price: number;
+  change24h: number;
+  logoUrl?: string | null;
+  contractAddress?: string | null;
+  network: NetworkType;
+}
 // Crypto Wallet Types
 export type WalletType = 'HOT_WALLET' | 'COLD_WALLET' | 'EXCHANGE' | 'MULTI_SIG' | 'SMART_CONTRACT';
 export type NetworkType = 'ETHEREUM' | 'POLYGON' | 'BSC' | 'ARBITRUM' | 'OPTIMISM' | 'AVALANCHE' | 'SOLANA' | 'BITCOIN';

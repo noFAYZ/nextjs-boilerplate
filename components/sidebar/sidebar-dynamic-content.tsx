@@ -3,11 +3,13 @@
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { SidebarMenuContent } from './sidebar-menu-content';
+import { SidebarMenuContentEnhanced } from './sidebar-menu-content-enhanced';
 import { SidebarQuickActions } from './sidebar-quick-actions';
 import { MenuItem, QuickAction } from './types';
 import { SidebarWalletsList } from './sidebar-wallets-list';
 import { SidebarBankAccountsList } from './sidebar-bank-accounts-list';
 import { SidebarIntegrationsList } from './sidebar-integrations-list';
+import { SidebarPortfolioOverview } from './sidebar-portfolio-overview';
 
 interface SidebarDynamicContentProps {
   selectedMenuItem: string | null;
@@ -32,6 +34,21 @@ export function SidebarDynamicContent({
     // Dashboard shows quick actions
     if (selectedMenuItem === 'dashboard') {
       return <SidebarQuickActions actions={actions} onActionClick={onActionClick} />;
+    }
+
+    // Portfolio section - show portfolio overview
+    if (selectedMenuItem === 'portfolio') {
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Portfolio
+            </span>
+          </div>
+          <SidebarPortfolioOverview onMobileClose={onMobileClose} />
+        </div>
+      );
     }
 
     // Integrations section - always show list of connected integrations
@@ -80,7 +97,7 @@ export function SidebarDynamicContent({
         );
       }
 
-      // Default: show submenu navigation
+      // Default: show enhanced submenu navigation
       if (selectedMenuData?.submenu) {
         return (
           <div>
@@ -90,13 +107,17 @@ export function SidebarDynamicContent({
                 {selectedMenuData.label}
               </span>
             </div>
-            <SidebarMenuContent submenu={selectedMenuData.submenu} onMobileClose={onMobileClose} />
+            <SidebarMenuContentEnhanced
+              submenu={selectedMenuData.submenu}
+              onMobileClose={onMobileClose}
+              enableKeyboardNav={true}
+            />
           </div>
         );
       }
     }
 
-    // Other menu items - show submenu if available
+    // Other menu items - show enhanced submenu if available
     if (selectedMenuData?.submenu) {
       return (
         <div>
@@ -106,7 +127,11 @@ export function SidebarDynamicContent({
               {selectedMenuData.label}
             </span>
           </div>
-          <SidebarMenuContent submenu={selectedMenuData.submenu} onMobileClose={onMobileClose} />
+          <SidebarMenuContentEnhanced
+            submenu={selectedMenuData.submenu}
+            onMobileClose={onMobileClose}
+            enableKeyboardNav={true}
+          />
         </div>
       );
     }

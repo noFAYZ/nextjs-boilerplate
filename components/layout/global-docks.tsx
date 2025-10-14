@@ -2,39 +2,18 @@
 
 import * as React from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { 
-  Bell, 
-  Wallet, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  RefreshCw,
-  AlertTriangle,
-  Wifi,
-  WifiOff,
-  Home,
-  BarChart3,
-  Settings,
-  User,
-  CreditCard,
-  PlusCircle,
-  ImageIcon
+import {
+  Settings
 } from "lucide-react"
 import { ExpandableDock, ExpandableItem, Dock, useDock } from "@/components/ui/dock"
 import { useDockContext } from "@/components/providers/dock-provider"
-import { useWallets } from "@/lib/hooks/use-crypto"
 import { useRealtimeNotifications } from "@/lib/hooks/use-realtime-notifications"
 import { cn } from "@/lib/utils"
-import { WALLET_ICON_CONFIGS, createWalletDockItem } from "@/lib/utils/dock-integration"
-import {  CircumBank, CuidaPieChartOutline, HugeiconsPieChart01, PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
+import {   HugeiconsPieChart01, PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
-import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
-import { useAutoWalletSync } from "@/lib/hooks/use-auto-wallet-sync"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
+import { SyncIndicator } from "./sync-indicator"
 
 // Mobile breakpoint hook
 function useIsMobile() {
@@ -541,7 +520,7 @@ export function GlobalDocks() {
   return (
     <>
       <NotificationDock />
-      {!isBeginnerMode && <WalletsDock />}
+      <SyncIndicator />
       <BottomMenuDock />
 
       {/* Mobile spacing for bottom navigation */}

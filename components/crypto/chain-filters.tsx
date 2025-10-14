@@ -114,7 +114,7 @@ export function ChainFilters({
       <div className="flex flex-wrap gap-2">
         {/* All Chains Button */}
         <Button
-           variant={selectedChain === null ? "ghost" : "outline"}
+           variant={selectedChain === null ? "secondary" : "outline"}
           size="xs"
           onClick={() => {
             console.log('🔵 All chains selected');
@@ -122,7 +122,7 @@ export function ChainFilters({
           }}
           className={cn(
             "px-2 h-8 flex items-center gap-2 duration-0 ",
-            selectedChain === null && "bg-muted"
+      
           )}
         >
           <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export function ChainFilters({
         {chainData.map((chain) => (
           <Button
             key={chain.key}
-            variant={selectedChain === chain.key ? "ghost" : "outline"}
+            variant={selectedChain === chain.key ? "secondary" : "outline"}
             size="xs"
             onClick={() => {
               console.log('🔵 Chain selected:', chain.key, chain.name);
@@ -154,11 +154,11 @@ export function ChainFilters({
             }}
             className={cn(
               "px-2 h-8 flex items-center gap-2 duration-0",
-              selectedChain === chain.key && "bg-muted"
+           
             )}
           >
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center">
                 {chain.icon ? (
                   <Image
                     src={chain.icon}

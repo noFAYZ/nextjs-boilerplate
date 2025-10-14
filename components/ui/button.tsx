@@ -12,10 +12,11 @@ const buttonVariants = cva(
       variant: {
  /*        default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity", */
+          default: "bg-orange-500  text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         outline:
-          "border-2 border-border bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:text-accent-foreground  active:scale-[0.98] shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75  dark:shadow-[0_3px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_1px_0_0_rgb(47,47,41)]",
+          "border-2 border-border bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
         secondary:  "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border-2 border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)] hover:shadow-[0_2px_0_0_rgb(254,215,170)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75 dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
         ghost:
           "hover:bg-accent/60 hover:text-accent-foreground active:scale-[0.98] backdrop-blur-sm",
@@ -55,7 +56,7 @@ const buttonVariants = cva(
           "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg hover:shadow-2xl active:scale-[0.98] focus-visible:ring-purple-500/70 before:absolute before:inset-0 before:bg-gradient-to-tl before:from-blue-400 before:via-cyan-400 before:to-teal-400 before:opacity-0 hover:before:opacity-50 before:transition-opacity before:duration-300 before:mix-blend-overlay",
         liquid:
           "bg-gradient-to-r from-blue-500 to-teal-500 text-white shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-teal-600 active:scale-[0.98] focus-visible:ring-blue-500/70 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/30 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-500 before:blur-xl",
-          default: "bg-orange-500 text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]",
+         
         cosmic:
           "bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 text-white border border-purple-500/30 shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.5)] active:scale-[0.98] focus-visible:ring-purple-500/70 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.2),transparent_50%)] before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         sunset:
@@ -68,8 +69,8 @@ const buttonVariants = cva(
           "bg-gradient-to-b from-slate-400 to-slate-600 text-white border border-slate-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] hover:from-slate-500 hover:to-slate-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
       },
       size: {
-        xs: "h-7 px-2.5 text-xs rounded-md gap-1.5",
-        sm: "h-8 px-3 text-sm rounded-md gap-2",
+        xs: "h-7 px-2 text-xs rounded-md gap-1",
+        sm: "h-8 px-3 text-sm rounded-md gap-1",
         default: "h-9 px-4 gap-2",
         lg: "h-10 px-6 text-base gap-2.5",
         xl: "h-12 px-8 text-lg gap-3",

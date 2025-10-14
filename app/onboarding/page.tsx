@@ -35,14 +35,17 @@ import {
   Heart,
   BookOpen,
   Check,
-  Circle
+  Circle,
+  Wallet,
+  Building2,
+  Banknote
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
 import { LogoMappr } from '@/components/icons';
-import { HugeiconsBriefcase02 } from '@/components/icons/icons';
+import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
 
 interface OnboardingStep {
   id: string;
@@ -68,77 +71,75 @@ interface UserPreferences {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome',
-    description: "Let's get started",
+    title: 'Welcome to MoneyMappr',
+    description: "Let's get you set up",
     icon: Sparkles
   },
   {
     id: 'profile',
-    title: 'Profile',
-    description: 'Tell us about yourself',
+    title: 'Your Profile',
+    description: 'Basic information',
     icon: User
   },
   {
     id: 'experience',
-    title: 'Experience',
-    description: 'Your skill level',
+    title: 'Experience Level',
+    description: 'Choose your interface',
     icon: GraduationCap
   },
   {
     id: 'goals',
-    title: 'Goals',
-    description: 'What you want to achieve',
+    title: 'Financial Goals',
+    description: 'Set your objectives',
     icon: Target
   },
   {
     id: 'investments',
-    title: 'Preferences',
-    description: 'Investment types',
+    title: 'Account Types',
+    description: 'What you want to track',
     icon: PieChart
   }
 ];
 
 const FINANCIAL_GOALS = [
+  { id: 'track-spending', label: 'Track Spending', icon: PieChart },
+  { id: 'build-wealth', label: 'Build Wealth', icon: TrendingUp },
   { id: 'emergency-fund', label: 'Emergency Fund', icon: Shield },
-  { id: 'retirement', label: 'Retirement', icon: Crown },
-  { id: 'house', label: 'Buy a Home', icon: Home },
-  { id: 'car', label: 'Buy a Car', icon: Car },
-  { id: 'travel', label: 'Travel', icon: Plane },
-  { id: 'education', label: 'Education', icon: BookOpen },
-  { id: 'health', label: 'Health', icon: Heart },
-  { id: 'wealth', label: 'Build Wealth', icon: TrendingUp }
+  { id: 'retirement', label: 'Save for Retirement', icon: Crown },
+  { id: 'debt-free', label: 'Become Debt Free', icon: Target },
+  { id: 'invest', label: 'Grow Investments', icon: TrendingUp },
+  { id: 'buy-home', label: 'Buy a Home', icon: Home },
+  { id: 'financial-freedom', label: 'Financial Freedom', icon: Sparkles }
 ];
 
-const INVESTMENT_TYPES = [
-  { id: 'crypto', label: 'Cryptocurrency', description: 'Digital assets & DeFi' },
-  { id: 'stocks', label: 'Stocks & ETFs', description: 'Traditional equities' },
-  { id: 'bonds', label: 'Bonds', description: 'Fixed income securities' },
-  { id: 'real-estate', label: 'Real Estate', description: 'Property & REITs' },
-  { id: 'commodities', label: 'Commodities', description: 'Precious metals & resources' },
-  { id: 'cash', label: 'Cash & Savings', description: 'High-yield accounts' }
+const ACCOUNT_TYPES = [
+  { id: 'bank', label: 'Bank Accounts', description: 'Connect checking & savings accounts', icon: GuidanceBank },
+  { id: 'crypto-wallet', label: 'Crypto Wallets', description: 'Track blockchain wallets', icon: SolarWalletBoldDuotone },
+  { id: 'exchange', label: 'Crypto Exchanges', description: 'Binance, Coinbase, etc.', icon: HugeiconsMoneyExchange02 },
+  { id: 'cash', label: 'Manual Cash Tracking', description: 'Track cash manually', icon: Banknote }
 ];
 
 const EXPERIENCE_LEVELS = [
   {
     id: 'beginner',
     title: 'Beginner',
-    description: 'New to investing',
+    description: 'New to financial tracking',
     icon: GraduationCap,
-    features: ['Simplified interface', 'Guided tutorials', 'Basic tracking']
+    features: ['Simplified cards', 'Easy navigation', 'Guided setup']
   },
   {
     id: 'intermediate',
     title: 'Intermediate',
-    description: 'Some experience',
+    description: 'Some financial experience',
     icon: HugeiconsBriefcase02,
-    features: ['Advanced charts', 'Portfolio analysis', 'Goal tracking']
+    features: ['Balance mix', 'Charts & widgets', 'Quick insights']
   },
   {
     id: 'advanced',
-    title: 'Advanced',
-    description: 'Experienced investor',
+    title: 'Pro',
+    description: 'Power user & data enthusiast',
     icon: Crown,
-    features: ['Pro data tables', 'Advanced analytics', 'Custom indicators']
+    features: ['Data tables', 'Advanced analytics', 'Full customization']
   }
 ];
 
@@ -223,39 +224,42 @@ export default function OnboardingPage() {
     switch (step.id) {
       case 'welcome':
         return (
-          <div className="max-w-2xl mx-auto text-center space-y-8">
-            <div className="space-y-4">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center">
+          <div className="w-full max-w-2xl space-y-6 sm:space-y-8">
+            <div className="space-y-4 text-center lg:text-left">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto lg:mx-0">
                 <LogoMappr className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight mb-2">
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">
                   Welcome to MoneyMappr
-                </h1>
-                <p className="text-muted-foreground">
+                </h2>
+                <p className="text-muted-foreground text-base sm:text-lg">
                   Let's personalize your financial management experience
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-4">
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-foreground" />
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-4">
+              <div className="space-y-2 text-center lg:text-left">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
+                  <GuidanceBank className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">Secure</p>
+                <p className="text-xs sm:text-sm font-medium">Banking</p>
+                <p className="text-xs text-muted-foreground hidden sm:block">Connect bank accounts</p>
               </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-foreground" />
+              <div className="space-y-2 text-center lg:text-left">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
+                  <SolarWalletBoldDuotone className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">Insightful</p>
+                <p className="text-xs sm:text-sm font-medium">Crypto</p>
+                <p className="text-xs text-muted-foreground hidden sm:block">Track wallets & DeFi</p>
               </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
-                  <Sparkles className="h-6 w-6 text-foreground" />
+              <div className="space-y-2 text-center lg:text-left">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
+                  <PieChart className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">Simple</p>
+                <p className="text-xs sm:text-sm font-medium">Analytics</p>
+                <p className="text-xs text-muted-foreground hidden sm:block">Smart insights</p>
               </div>
             </div>
           </div>
@@ -263,14 +267,13 @@ export default function OnboardingPage() {
 
       case 'profile':
         return (
-          <div className="max-w-xl mx-auto space-y-6">
+          <div className="w-full max-w-2xl space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">Tell us about yourself</h2>
-              <p className="text-sm text-muted-foreground">This helps us personalize your experience</p>
+              <p className="text-sm text-muted-foreground text-center lg:text-left">This helps us personalize your experience</p>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="firstName" className="text-sm">First Name</Label>
                   <Input
@@ -350,10 +353,9 @@ export default function OnboardingPage() {
 
       case 'experience':
         return (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="w-full max-w-2xl space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">What's your experience level?</h2>
-              <p className="text-sm text-muted-foreground">We'll customize the interface accordingly</p>
+              <p className="text-sm text-muted-foreground text-center lg:text-left">We'll customize the interface accordingly</p>
             </div>
 
             <div className="space-y-3">
@@ -366,24 +368,24 @@ export default function OnboardingPage() {
                     key={level.id}
                     className={cn(
                       "cursor-pointer transition-all border-border shadow-none dark:bg-muted/40",
-                      isSelected ? "border-primary/10 shadow-xs" : "hover:border-border/80"
+                      isSelected ? "  shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
                     onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as any }))}
                   >
-                    <CardContent className="px-4">
-                      <div className="flex items-start gap-4">
+                    <CardContent className="px-4 sm:px-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                          "w-12 h-12 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
                           isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
                         )}>
-                          <Icon className="h-5 w-5" />
+                          <Icon className="h-6 w-6 sm:h-5 sm:w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium">{level.title}</h3>
-                            {isSelected && <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />}
+                            <h3 className="font-medium text-base sm:text-sm">{level.title}</h3>
+                           
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">{level.description}</p>
+                          <p className="text-xs text-muted-foreground mb-2 sm:mb-2">{level.description}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {level.features.map((feature) => (
                               <Badge key={feature} variant="outline" className="text-xs font-normal">
@@ -392,8 +394,18 @@ export default function OnboardingPage() {
                             ))}
                           </div>
                         </div>
+                        {isSelected && (
+                          <div className="flex-shrink-0">
+                            <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full  flex items-center justify-center shadow-sm">
+                            <SolarCheckCircleBoldDuotone className="h-6 w-6  text-primary flex-shrink-0 " />
+                            </div>
+                          </div>
+                        )}
                       </div>
+                      
+                      
                     </CardContent>
+                    
                   </Card>
                 );
               })}
@@ -403,13 +415,12 @@ export default function OnboardingPage() {
 
       case 'goals':
         return (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="w-full max-w-2xl space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">What are your financial goals?</h2>
-              <p className="text-sm text-muted-foreground">Select all that apply</p>
+              <p className="text-sm text-muted-foreground text-center lg:text-left">Select all that apply</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {FINANCIAL_GOALS.map((goal) => {
                 const Icon = goal.icon;
                 const isSelected = preferences.primaryGoals.includes(goal.id);
@@ -418,26 +429,21 @@ export default function OnboardingPage() {
                   <Card
                     key={goal.id}
                     className={cn(
-                      "cursor-pointer transition-all relative",
-                      isSelected ? "border-primary" : "hover:border-border/80"
+                      "cursor-pointer transition-all border-border relative",
+                      isSelected ? " shadow-sm" : "hover:border-border active:scale-98"
                     )}
                     onClick={() => toggleGoal(goal.id)}
                   >
-                    <CardContent className="p-3 text-center">
+                    <CardContent className="px-4 sm:px-3 text-center">
                       <div className={cn(
-                        "w-10 h-10 mx-auto mb-2 rounded-lg flex items-center justify-center",
+                        "w-12 h-12 sm:w-10 sm:h-10 mx-auto mb-3 sm:mb-2 rounded-lg flex items-center justify-center transition-colors",
                         isSelected ? "bg-primary/10" : "bg-muted"
                       )}>
-                        <Icon className={cn("h-5 w-5", isSelected ? "text-primary" : "text-muted-foreground")} />
+                        <Icon className={cn("h-6 w-6 sm:h-5 sm:w-5", isSelected ? "text-primary" : "text-muted-foreground")} />
                       </div>
-                      <p className="text-sm font-medium">{goal.label}</p>
-                      {isSelected && (
-                        <div className="absolute top-2 right-2">
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="h-3 w-3 text-primary-foreground" />
-                          </div>
-                        </div>
-                      )}
+                      <p className="text-sm font-medium leading-tight">{goal.label}</p>
+                
+                        {isSelected && <SolarCheckCircleBoldDuotone className="h-6 w-6  text-primary flex-shrink-0 absolute top-2 right-2" />}
                     </CardContent>
                   </Card>
                 );
@@ -445,7 +451,7 @@ export default function OnboardingPage() {
             </div>
 
             {preferences.primaryGoals.length > 0 && (
-              <div className="text-center">
+              <div className="text-center lg:text-left">
                 <p className="text-sm text-muted-foreground">
                   {preferences.primaryGoals.length} goal{preferences.primaryGoals.length !== 1 ? 's' : ''} selected
                 </p>
@@ -456,38 +462,46 @@ export default function OnboardingPage() {
 
       case 'investments':
         return (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="w-full max-w-2xl space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">Investment preferences</h2>
-              <p className="text-sm text-muted-foreground">What assets interest you?</p>
+              <p className="text-sm text-muted-foreground text-center lg:text-left">Select the account types you want to track</p>
             </div>
 
-            <div className="space-y-2">
-              {INVESTMENT_TYPES.map((type) => {
+            <div className="space-y-3">
+              {ACCOUNT_TYPES.map((type) => {
                 const isSelected = preferences.investmentTypes.includes(type.id);
+                const Icon = type.icon;
 
                 return (
                   <Card
                     key={type.id}
                     className={cn(
-                      "cursor-pointer transition-all",
-                      isSelected ? "border-primary" : "hover:border-border/80"
+                      "cursor-pointer transition-all border-border shadow-none dark:bg-muted/40",
+                      isSelected ? " shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
                     onClick={() => toggleInvestmentType(type.id)}
                   >
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
+                    <CardContent className="px-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                          "w-14 h-14 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
                           isSelected ? "bg-primary/10" : "bg-muted"
                         )}>
-                          <Circle className={cn("h-4 w-4", isSelected ? "text-primary fill-primary" : "text-muted-foreground")} />
+                          <Icon className={cn("h-7 w-7 sm:h-6 sm:w-6", isSelected ? "text-primary" : "text-muted-foreground")} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium">{type.label}</h3>
-                          <p className="text-xs text-muted-foreground">{type.description}</p>
+                          <h3 className="text-base sm:text-sm font-medium mb-1 sm:mb-0.5">{type.label}</h3>
+                          <p className="text-sm sm:text-xs text-muted-foreground">{type.description}</p>
                         </div>
-                        {isSelected && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+                        {isSelected && (
+                          <div className="flex-shrink-0">
+                            <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full  flex items-center justify-center shadow-sm">
+                            <SolarCheckCircleBoldDuotone className="h-6 w-6  text-primary flex-shrink-0 " />
+                            </div>
+                          </div>
+                        )}
+
+
                       </div>
                     </CardContent>
                   </Card>
@@ -495,30 +509,13 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            <div className="space-y-3 pt-2">
-              <Label className="text-sm font-medium">Risk Tolerance</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 'conservative', label: 'Conservative', desc: 'Lower risk' },
-                  { id: 'moderate', label: 'Moderate', desc: 'Balanced' },
-                  { id: 'aggressive', label: 'Aggressive', desc: 'Higher risk' }
-                ].map((risk) => (
-                  <Card
-                    key={risk.id}
-                    className={cn(
-                      "cursor-pointer transition-all",
-                      preferences.riskTolerance === risk.id ? "border-primary" : "hover:border-border/80"
-                    )}
-                    onClick={() => setPreferences(prev => ({ ...prev, riskTolerance: risk.id as any }))}
-                  >
-                    <CardContent className="p-3 text-center">
-                      <p className="text-sm font-medium mb-0.5">{risk.label}</p>
-                      <p className="text-xs text-muted-foreground">{risk.desc}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+            {preferences.investmentTypes.length > 0 && (
+              <div className="pt-2 text-center lg:text-left">
+                <p className="text-sm text-muted-foreground">
+                  {preferences.investmentTypes.length} account type{preferences.investmentTypes.length !== 1 ? 's' : ''} selected
+                </p>
               </div>
-            </div>
+            )}
           </div>
         );
 
@@ -528,73 +525,143 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen ">
+      <div className="flex flex-col lg:flex-row max-w-7xl mx-auto min-h-screen">
+        {/* Mobile Header - Top Progress Bar */}
+        <div className="lg:hidden border-b border-border p-4 bg-background sticky top-0 z-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <LogoMappr className="h-6 w-6" />
+              <span className="font-semibold text-sm">MoneyMappr</span>
+            </div>
+            <SkipOnboardingButton />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">
+                Step {currentStep + 1} of {ONBOARDING_STEPS.length}
+              </span>
+              <span className="font-medium">
+                {Math.round(((currentStep + 1) / ONBOARDING_STEPS.length) * 100)}%
+              </span>
+            </div>
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${((currentStep + 1) / ONBOARDING_STEPS.length) * 100}%` }}
+              />
+            </div>
+            <p className="text-sm font-medium pt-1">
+              {ONBOARDING_STEPS[currentStep].title}
+            </p>
+          </div>
+        </div>
 
+        {/* Vertical Step Indicators - Left Side (Desktop) */}
+        <div className="hidden lg:flex  p-8 flex-col min-h-screen sticky top-0">
+          <div className="mb-8">
+            <div className="text-xs text-muted-foreground mb-1">
+              STEP {currentStep + 1} OF {ONBOARDING_STEPS.length}
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {ONBOARDING_STEPS[currentStep].title}
+            </h1>
+          </div>
 
-      {/* Step Indicators */}
-      <div className="">
-        <div className=" max-w-5xl mx-auto px-12 py-4">
-          <div className="flex items-center justify-between overflow-x-auto">
+          <div className="flex-1 relative">
             {ONBOARDING_STEPS.map((step, index) => {
               const Icon = step.icon;
               const isActive = index === currentStep;
               const isCompleted = index < currentStep;
 
               return (
-                <div key={step.id} className="flex items-center flex-shrink-0">
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-colors",
-                      isCompleted
-                        ? "bg-primary text-primary-foreground"
-                        : isActive
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {isCompleted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                <div key={step.id} className="relative">
+                  <div className="flex items-start gap-4 pb-8">
+                    <div className="relative z-10">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors border-2",
+                        isCompleted
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : isActive
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-background border-border text-muted-foreground"
+                      )}>
+                        {isCompleted ? (
+                          <Check className="h-5 w-5" />
+                        ) : (
+                          <Icon className="h-5 w-5" />
+                        )}
+                      </div>
                     </div>
-                    <div className="hidden sm:block">
+                    <div className="flex-1 pt-1.5">
                       <p className={cn(
-                        "text-sm font-medium",
+                        "text-sm font-medium mb-0.5",
                         isActive ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {step.title}
                       </p>
+                      <p className={cn(
+                        "text-xs",
+                        isActive ? "text-muted-foreground" : "text-muted-foreground/60"
+                      )}>
+                        {step.description}
+                      </p>
                     </div>
                   </div>
+                  {/* Connecting line */}
                   {index < ONBOARDING_STEPS.length - 1 && (
-                    <div className="w-8 sm:w-12 h-px bg-border mx-2 sm:mx-3" />
+                    <div className={cn(
+                      "absolute left-5 top-10 w-px h-8 -translate-x-px",
+                      isCompleted ? "bg-primary" : "bg-border"
+                    )} />
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className=" max-w-3xl mx-auto px-4 py-8 sm:py-12">
-        <div className="flex flex-col min-h-[70vh] items-center justify-center">
-          {renderStepContent()}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex items-center justify-between pt-8 max-w-2xl mx-auto">
-          <div className='flex gap-2'>
-                     <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            size={'sm'}
-            className={cn(currentStep === 0 && "invisible")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <SkipOnboardingButton />
+          {/* Navigation Buttons - Bottom of Sidebar (Desktop) */}
+          <div className="pt-4 border-t border-border space-y-2">
+            <Button
+              onClick={handleNext}
+              disabled={
+                (currentStep === 1 && !preferences.profileInfo.firstName) ||
+                (currentStep === 3 && preferences.primaryGoals.length === 0) ||
+                (currentStep === 4 && preferences.investmentTypes.length === 0)
+              }
+              className="w-full"
+            >
+              {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Save and continue'}
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className={cn("flex-1", currentStep === 0 && "invisible")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <SkipOnboardingButton className="flex-1" />
+            </div>
           </div>
- 
+        </div>
 
+        {/* Content - Right Side */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 ">
+          <div className="max-w-3xl mx-auto">
+          
+              <div className="flex-1 flex items-center justify-center py-6 lg:py-12">
+                {renderStepContent()}
+              </div>
+            
+          </div>
+        </div>
+
+        {/* Mobile Navigation - Bottom (Fixed) */}
+        <div className="lg:hidden border-t border-border p-4 bg-background sticky bottom-0 space-y-2">
           <Button
             onClick={handleNext}
             disabled={
@@ -602,11 +669,22 @@ export default function OnboardingPage() {
               (currentStep === 3 && preferences.primaryGoals.length === 0) ||
               (currentStep === 4 && preferences.investmentTypes.length === 0)
             }
-            size={'sm'}
+            className="w-full"
+            size="lg"
           >
-            {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
-            <ArrowRight className="h-4 w-4 " />
+            {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete Setup' : 'Continue'}
+            <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
+          {currentStep > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handlePrevious}
+              className="w-full"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          )}
         </div>
       </div>
     </div>

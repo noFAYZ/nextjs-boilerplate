@@ -20,7 +20,7 @@ interface ViewModeProviderProps {
 }
 
 export function ViewModeProvider({ children }: ViewModeProviderProps) {
-  const [viewMode, setViewModeState] = useState<ViewMode>('beginner');
+  const [viewMode, setViewModeState] = useState<ViewMode>('pro');
   const [isHydrated, setIsHydrated] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -102,9 +102,9 @@ export function useViewModeClasses() {
   const { viewMode, isProMode, isBeginnerMode } = useViewMode();
   
   return {
-    containerClass: isProMode ? 'max-w-7xl' : 'max-w-3xl mx-auto',
-    pageClass: isProMode ? 'max-w-7xl mx-auto' : 'max-w-3xl mx-auto',
-    cardSpacing: isProMode ? 'space-y-4' : 'space-y-6',
+    containerClass: isProMode ? 'max-w-3xl' : 'max-w-7xl mx-auto',
+    pageClass: isProMode ? 'max-w-3xl mx-auto' : 'max-w-7xl mx-auto',
+    cardSpacing: isProMode ? 'space-y-4' : 'space-y-4',
     padding: isProMode ? 'p-4 lg:p-6' : 'p-6',
     viewMode,
     isProMode,

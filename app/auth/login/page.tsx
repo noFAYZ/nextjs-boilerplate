@@ -4,6 +4,7 @@ import { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AuthForm from '@/components/auth/auth-form';
+import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignInFormData } from '@/lib/types';
 import { PageLoader } from '@/components/ui/page-loader';
 import { useAuthStore, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
@@ -46,31 +47,27 @@ function LoginForm() {
   };
 
   return (
-
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm">
-          <AuthForm
-            type="signin"
-            title="Welcome back"
-            description="Sign in to your MoneyMappr account"
-            onSubmit={handleFormSubmit}
-            error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
-            links={[
-              {
-                href: '/auth/forgot-password',
-                text: 'Forgot your password?',
-                linkText: 'Reset it here',
-              },
-              {
-                href: '/auth/signup',
-                text: "Don't have an account?",
-                linkText: 'Sign up',
-              },
-            ]}
-          />
-        </div>
-      </div>
- 
+    <AuthLayout>
+      <AuthForm
+        type="signin"
+        title="Welcome back"
+        description="Sign in to your MoneyMappr account"
+        onSubmit={handleFormSubmit}
+        error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
+        links={[
+          {
+            href: '/auth/forgot-password',
+            text: 'Forgot your password?',
+            linkText: 'Reset it here',
+          },
+          {
+            href: '/auth/signup',
+            text: "Don't have an account?",
+            linkText: 'Sign up',
+          },
+        ]}
+      />
+    </AuthLayout>
   );
 }
 

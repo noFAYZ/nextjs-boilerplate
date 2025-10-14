@@ -35,6 +35,7 @@ import { SidebarMainColumn } from './sidebar-main-column';
 import { SidebarSecondaryColumn } from './sidebar-secondary-column';
 import { MenuItem, QuickAction } from './types';
 import { 
+  FluentBuildingBank28Regular,
   GuidanceBank, 
   HugeiconsAnalytics02, 
   HugeiconsAnalyticsUp,  
@@ -56,9 +57,40 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsHome04,
     href: '/dashboard',
     submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard', description: 'Main dashboard view', icon: TablerEyeDollar},
-      { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics', description: 'Detailed analytics', icon: HugeiconsAnalyticsUp },
-      { id: 'reports', label: 'Reports', href: '/dashboard/reports', description: 'Financial reports', icon: StreamlinePlumpFileReport }
+      {
+        id: 'overview',
+        label: 'Overview',
+        href: '/dashboard',
+        description: 'Main dashboard view with key metrics',
+        icon: TablerEyeDollar,
+        tooltip: 'View your complete financial overview'
+      },
+      {
+        id: 'analytics',
+        label: 'Analytics',
+        href: '/dashboard/analytics',
+        description: 'Deep dive into your financial data',
+        icon: HugeiconsAnalyticsUp,
+        status: 'new',
+        tooltip: 'Advanced analytics and insights'
+      },
+      {
+        id: 'reports',
+        label: 'Reports',
+        href: '/dashboard/reports',
+        description: 'Generate and view financial reports',
+        icon: StreamlinePlumpFileReport,
+        tooltip: 'Custom reports and exports'
+      },
+      {
+        id: 'widgets',
+        label: 'Widgets',
+        href: '/dashboard/widgets',
+        description: 'Customize your dashboard',
+        icon: Settings,
+        status: 'updated',
+        tooltip: 'Manage dashboard widgets'
+      }
     ],
     quickActions: [
       { id: 'refresh-data', label: 'Refresh Data', icon: RefreshCw, action: () => window.location.reload(), shortcut: '⌘R' },
@@ -75,10 +107,51 @@ const MENU_ITEMS: MenuItem[] = [
     icon: SolarWalletMoneyLinear,
     href: '/dashboard/accounts',
     submenu: [
-      { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
-      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
-      { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
-      { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
+      {
+        id: 'crypto-wallets',
+        label: 'Crypto Wallets',
+        href: '/dashboard/accounts/wallet',
+        icon: SolarWalletMoneyLinear,
+        description: 'Track your cryptocurrency wallets',
+        tooltip: 'Connect and manage crypto wallets across all chains',
+        shortcut: '⌘W'
+      },
+      {
+        id: 'bank-accounts',
+        label: 'Bank Accounts',
+        href: '/dashboard/accounts/bank',
+        icon: FluentBuildingBank28Regular,
+        description: 'Monitor traditional bank accounts',
+        tooltip: 'Link and track your bank accounts securely',
+        shortcut: '⌘B'
+      },
+      {
+        id: 'exchanges',
+        label: 'Exchanges',
+        href: '/dashboard/accounts/exchange',
+        icon: Building,
+        description: 'Connect crypto exchange accounts',
+        tooltip: 'Sync your exchange portfolios',
+        status: 'beta'
+      },
+      {
+        id: 'integrations',
+        label: 'Integrations',
+        href: '/dashboard/accounts/integrations',
+        icon: Plug,
+        description: 'Manage third-party connections',
+        tooltip: 'Connected apps and services',
+        status: 'new'
+      },
+      {
+        id: 'connection',
+        label: 'Connect Account',
+        href: '/dashboard/accounts/connection',
+        icon: Plus,
+        description: 'Add a new financial account',
+        tooltip: 'Connect new wallets, banks, or exchanges',
+        iconColor: '#10b981'
+      }
     ],
     quickActions: [
       { id: 'add-account', label: 'Add Account', icon: Plus, action: () => {}, shortcut: '⌘A' },
@@ -105,10 +178,39 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsPieChart09,
     href: '/dashboard/portfolio',
     submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard/portfolio' },
-      { id: 'holdings', label: 'Holdings', href: '/dashboard/portfolio/holdings' },
-      { id: 'performance', label: 'Performance', href: '/dashboard/portfolio/performance' },
-      { id: 'allocation', label: 'Asset Allocation', href: '/dashboard/portfolio/allocation' }
+      {
+        id: 'overview',
+        label: 'Portfolio Overview',
+        href: '/dashboard/portfolio',
+        icon: HugeiconsPieChart09,
+        description: 'Complete portfolio snapshot',
+        tooltip: 'View your entire portfolio at a glance'
+      },
+      {
+        id: 'holdings',
+        label: 'Holdings',
+        href: '/dashboard/portfolio/holdings',
+        icon: Store,
+        description: 'Detailed asset breakdown',
+        tooltip: 'All your assets in one place'
+      },
+      {
+        id: 'performance',
+        label: 'Performance',
+        href: '/dashboard/portfolio/performance',
+        icon: TrendingUp,
+        description: 'Track portfolio performance',
+        tooltip: 'Returns, gains, and performance metrics',
+        status: 'updated'
+      },
+      {
+        id: 'allocation',
+        label: 'Asset Allocation',
+        href: '/dashboard/portfolio/allocation',
+        icon: BarChart3,
+        description: 'Analyze your asset distribution',
+        tooltip: 'Diversification and allocation analysis'
+      }
     ],
     quickActions: [
       { id: 'rebalance', label: 'Rebalance Portfolio', icon: BarChart3, action: () => {}, },
@@ -124,10 +226,40 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsTransactionHistory,
     href: '/dashboard/transactions',
     submenu: [
-      { id: 'all', label: 'All Transactions', href: '/dashboard/transactions' },
-      { id: 'income', label: 'Income', href: '/dashboard/transactions/income' },
-      { id: 'expenses', label: 'Expenses', href: '/dashboard/transactions/expenses' },
-      { id: 'transfers', label: 'Transfers', href: '/dashboard/transactions/transfers' }
+      {
+        id: 'all',
+        label: 'All Transactions',
+        href: '/dashboard/transactions',
+        icon: HugeiconsTransactionHistory,
+        description: 'Complete transaction history',
+        tooltip: 'View all your financial transactions'
+      },
+      {
+        id: 'income',
+        label: 'Income',
+        href: '/dashboard/transactions/income',
+        icon: TrendingUp,
+        description: 'Track earnings and income',
+        tooltip: 'All income sources and deposits',
+        iconColor: '#10b981'
+      },
+      {
+        id: 'expenses',
+        label: 'Expenses',
+        href: '/dashboard/transactions/expenses',
+        icon: TrendingUp,
+        description: 'Monitor spending patterns',
+        tooltip: 'Track and categorize expenses',
+        iconColor: '#ef4444'
+      },
+      {
+        id: 'transfers',
+        label: 'Transfers',
+        href: '/dashboard/transactions/transfers',
+        icon: RefreshCw,
+        description: 'Internal account transfers',
+        tooltip: 'Money moved between your accounts'
+      }
     ],
     quickActions: [
       { id: 'add-transaction', label: 'Add Transaction', icon: Plus, action: () => {}, shortcut: '⌘T' },
@@ -143,9 +275,40 @@ const MENU_ITEMS: MenuItem[] = [
     icon: MageGoals,
     href: '/dashboard/goals',
     submenu: [
-      { id: 'savings', label: 'Savings Goals', href: '/dashboard/goals/savings' },
-      { id: 'investment', label: 'Investment Goals', href: '/dashboard/goals/investment' },
-      { id: 'create', label: 'Create Goal', href: '/dashboard/goals/create', icon: Plus }
+      {
+        id: 'active',
+        label: 'Active Goals',
+        href: '/dashboard/goals',
+        icon: Target,
+        description: 'Your current financial goals',
+        tooltip: 'Track progress on active goals'
+      },
+      {
+        id: 'savings',
+        label: 'Savings Goals',
+        href: '/dashboard/goals/savings',
+        icon: SolarWallet2Outline,
+        description: 'Short and long-term savings',
+        tooltip: 'Emergency funds, vacation, etc.'
+      },
+      {
+        id: 'investment',
+        label: 'Investment Goals',
+        href: '/dashboard/goals/investment',
+        icon: TrendingUp,
+        description: 'Wealth building objectives',
+        tooltip: 'Retirement, portfolio targets, etc.',
+        requiresPro: true
+      },
+      {
+        id: 'create',
+        label: 'Create New Goal',
+        href: '/dashboard/goals/create',
+        icon: Plus,
+        description: 'Set a new financial target',
+        tooltip: 'Define and track new financial goals',
+        iconColor: '#10b981'
+      }
     ],
     quickActions: [
       { id: 'create-goal', label: 'Create Goal', icon: Plus, action: () => {}, shortcut: '⌘G' },
@@ -161,9 +324,42 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsAnalytics02,
     href: '/dashboard/insights',
     submenu: [
-      { id: 'market', label: 'Market Analysis', href: '/dashboard/insights/market' },
-      { id: 'trends', label: 'Spending Trends', href: '/dashboard/insights/trends' },
-      { id: 'recommendations', label: 'AI Recommendations', href: '/dashboard/insights/recommendations' }
+      {
+        id: 'overview',
+        label: 'Insights Overview',
+        href: '/dashboard/insights',
+        icon: Lightbulb,
+        description: 'AI-powered financial insights',
+        tooltip: 'Smart insights about your finances',
+        status: 'new'
+      },
+      {
+        id: 'market',
+        label: 'Market Analysis',
+        href: '/dashboard/insights/market',
+        icon: BarChart3,
+        description: 'Real-time market trends',
+        tooltip: 'Stay updated on market movements',
+        requiresPro: true
+      },
+      {
+        id: 'trends',
+        label: 'Spending Trends',
+        href: '/dashboard/insights/trends',
+        icon: TrendingUp,
+        description: 'Analyze spending patterns',
+        tooltip: 'Understand where your money goes'
+      },
+      {
+        id: 'recommendations',
+        label: 'AI Recommendations',
+        href: '/dashboard/insights/recommendations',
+        icon: Lightbulb,
+        description: 'Personalized financial advice',
+        tooltip: 'Get smart recommendations',
+        status: 'beta',
+        requiresPro: true
+      }
     ],
     quickActions: [
       { id: 'generate-insights', label: 'Generate Insights', icon: Lightbulb, action: () => {}, shortcut: '⌘I' },

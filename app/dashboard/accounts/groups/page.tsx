@@ -11,6 +11,7 @@ import {
 import { SolarWalletBoldDuotone } from "@/components/icons/icons";
 import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const ACCOUNT_TYPES = [
   {
@@ -252,31 +253,13 @@ export default function AccountsPage() {
         </div>*/}
 
         {/* Account Groups with Enhanced Design */}
-        <div className="space-y-6">
+       
           <AccountGroupsGrid
             onGroupSelect={handleGroupSelect}
             limit={5}
           />
-          {/*  <Tabs defaultValue="tab1" className="flex flex-col gap-2">
-            <TabsList variant="minimal" size="default">
-              <TabsTrigger variant="minimal" value="tab1">
-                <StreamlineUltimateAccountingCoins className="w-5 h-5" />
-                Assets
-              </TabsTrigger>
-              <TabsTrigger variant="minimal" value="tab2">
-                <SearchIcon className="w-5 h-5" />
-                Explore
-              </TabsTrigger>
-              <TabsTrigger variant="minimal" value="tab3">
-                <Heart className="w-5 h-5" />
-                Favorites
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="tab1" className="mt-4 p-4 bg-background rounded-lg">
-              <p className="text-muted-foreground">Floating action tabs with elevated design and shadow effects.</p>
-            </TabsContent>
-          </Tabs> */}
-        </div>
+    
+     
       </div>
    
   );

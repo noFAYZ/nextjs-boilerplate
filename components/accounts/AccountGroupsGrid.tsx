@@ -961,14 +961,14 @@ export function AccountGroupsGrid({
     >
       {/* Folder Tab */}
       <div
-        className="absolute -top-3 left-6 w-28 h-7 rounded-t-md border border-b-0 shadow-xl transition-all duration-200 px-4 dark:bg-secondary bg-amber-50
+        className="absolute -top-3 left-6 w-28 h-7 rounded-t-md border border-b-0 shadow-xl transition-all duration-100 px-4 dark:bg-amber-100 bg-amber-50
         "
 
       />
 
       {/* Folder Body */}
       <div
-        className="relative w-full h-full rounded-lg border shadow-xl dark:bg-secondary bg-amber-50
+        className="relative w-full h-full rounded-lg border shadow-xl dark:bg-amber-100 bg-amber-50
         transition-all duration-100 group-hover:shadow-xl group-hover:-translate-y-1"
        
       >

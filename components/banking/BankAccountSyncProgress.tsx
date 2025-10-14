@@ -83,10 +83,10 @@ export function BankAccountSyncProgress({ accountId, accountName, className }: B
   const isActive = ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(syncState.status);
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader className="pb-3">
+    <Card className={cn('w-full p-3', className)}>
+      
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">
+          <CardTitle className="text-xs font-medium">
             {accountName ? `${accountName} Sync` : 'Account Sync'}
           </CardTitle>
           <Badge variant="outline" className={cn('text-xs', getStatusColor(syncState.status))}>
@@ -94,8 +94,8 @@ export function BankAccountSyncProgress({ accountId, accountName, className }: B
             <span className="ml-1">{getStatusText(syncState.status)}</span>
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">
+    
+      
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Progress</span>
@@ -115,7 +115,7 @@ export function BankAccountSyncProgress({ accountId, accountName, className }: B
             </p>
           )}
 
-          {syncState.startedAt && isActive && (
+     {/*      {syncState.startedAt && isActive && (
             <p className="text-xs text-muted-foreground">
               Started: {syncState.startedAt.toLocaleTimeString()}
             </p>
@@ -132,9 +132,9 @@ export function BankAccountSyncProgress({ accountId, accountName, className }: B
                 </p>
               )}
             </div>
-          )}
+          )} */}
         </div>
-      </CardContent>
+      
     </Card>
   );
 }

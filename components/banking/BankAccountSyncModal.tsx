@@ -129,14 +129,10 @@ export function BankAccountSyncModal({
     onClose();
   }, [onClose]);
 
-  // Don't show modal if no sync state exists
-  if (!syncState && isOpen) {
-    return null;
-  }
-
+  // Show default initializing state if no sync state exists yet
   const progress = syncState?.progress || 0;
   const status = syncState?.status || 'queued';
-  const message = syncState?.message || 'Preparing to sync...';
+  const message = syncState?.message || 'Initializing sync...';
   const error = syncState?.error;
   const isActive = ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(status);
   const isCompleted = status === 'completed';

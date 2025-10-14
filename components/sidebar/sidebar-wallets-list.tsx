@@ -112,25 +112,16 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {/* Add Wallet Button */}
    
       <div className='flex gap-2 justify-end'> 
-           <Button
-           variant={'outline'}
-        size="xs"
-        onClick={handleAddWallet}
-        className=" justify-start text-xs h"
-      >
-        <RefreshCcw className="w-3.5 h-3.5 mr-1" />
-       Sync All
-      </Button>
       <Button
         size="xs"
         onClick={handleAddWallet}
         className=" justify-start text-xs "
       >
-        <Plus className="w-3.5 h-3.5 mr-2" />
+        <Plus className="w-3.5 h-3.5 mr-1" />
         Add Wallet
       </Button>
       </div>
@@ -153,13 +144,13 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
               key={wallet.id}
               onClick={() => handleWalletClick(wallet.id)}
               className={cn(
-                "group border bg-muted/60 rounded-lg hover:bg-muted transition-colors duration-75 cursor-pointer p-3"
+                "group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer p-3"
               )}
             >
               <div className="flex items-start gap-3 mb-3">
                 {/* Avatar with Sync Status */}
                 <div className="relative flex-shrink-0">
-                  <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+                  <div className="h-10 w-10 bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
                     <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
                   </div>
                   <div
@@ -217,7 +208,7 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
               {/* Balance and Sync Button */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1">
-                  <div className="font-semibold text-sm">
+                  <div className="font-semibold text-xs">
                     <CurrencyDisplay
                       amountUSD={balance}
                       variant="small"
@@ -253,7 +244,7 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
                   {walletSyncState.progress !== undefined && (
                     <div className="h-1 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary transition-all duration-300"
+                        className="h-full bg-primary transition-all duration-200"
                         style={{ width: `${walletSyncState.progress}%` }}
                       />
                     </div>

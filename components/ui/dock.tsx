@@ -56,7 +56,7 @@ interface DockProps {
 
 const sizeClasses = {
   sm: {
-    container: "h-12",
+    container: "h-14",
     item: "w-10 h-10",
     magnified: "w-12 h-12",
     icon: "w-5 h-5",
@@ -434,7 +434,7 @@ export function Dock({
   }, [])
 
   const containerClasses = cn(
-    "flex items-center justify-center p-3 rounded-2xl border shadow-xl transition-all duration-0",
+    "flex items-center justify-center p-2 rounded-full border shadow-xl transition-all duration-0",
     blur && "backdrop-blur-xl bg-background/80 supports-[backdrop-filter]:bg-background/60",
     !blur && "bg-card",
     isHorizontal ? "flex-row gap-2" : "flex-col gap-2",

@@ -660,3 +660,38 @@ export function TellerLogo(props: React.ComponentProps<typeof Image>) {
 export function StreamlineUltimatePowerPlugDisconnected(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15.356 18.758a8.06 8.06 0 0 1-8.121-1.993a8.06 8.06 0 0 1-2.038-7.972m13.118 1.978l4.153-4.153m-9.238-.932l4.153-4.154M1.631 22.369l5.604-5.603M1.318 1.318l21.363 21.364M6.329 6.266l3.74-3.74l11.405 11.405l-3.74 3.74"></path></svg>);
 }
+
+
+export function FluentBuildingBank28Regular(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={28} height={28} viewBox="0 0 28 28" {...props}><path fill="currentColor" d="M14 9a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m.89-6.705a1.5 1.5 0 0 0-1.78 0L3.61 9.3c-1.164.859-.557 2.707.89 2.707H5v7.242a3.25 3.25 0 0 0-2 3.001v1.5c0 .414.336.75.75.75h20.5a.75.75 0 0 0 .75-.75v-1.5a3.25 3.25 0 0 0-2-3v-7.243h.499c1.448 0 2.055-1.848.89-2.707zM6.5 19v-6.993H9V19zm15-6.993V19H19v-6.993zm-4 0V19h-2.75v-6.993zm-4.25 0V19H10.5v-6.993zm-8.75-1.5L14 3.502l9.499 7.005zm0 11.743c0-.966.784-1.75 1.75-1.75h15.5c.966 0 1.75.784 1.75 1.75V23h-19z" strokeWidth={0.6} stroke="currentColor"></path></svg>);
+}
+
+
+export function FluentBuildingBankLink28Regular(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={28} height={28} viewBox="0 0 28 28" {...props}><path fill="currentColor" d="M14.001 8.999a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m.89-6.706a1.5 1.5 0 0 0-1.78 0L3.613 9.298c-1.165.86-.558 2.708.89 2.708h.499v7.243a3.25 3.25 0 0 0-2 3v1.5c0 .415.336.75.75.75h9.582a4.7 4.7 0 0 1-.326-1.5H4.502v-.75c0-.966.783-1.75 1.75-1.75h7.315a4.8 4.8 0 0 1 1.268-1.5h-.084v-6.993h2.75v6q.124-.007.25-.007H19v-5.993h2.5v5.993H23v-5.993h.498c1.448 0 2.055-1.848.89-2.708zm-8.39 16.706v-6.993h2.5v6.993zm6.75-6.993v6.993h-2.75v-6.993zm-8.748-1.5L14 3.5l9.498 7.006zM17.75 20.5a2.25 2.25 0 0 0 0 4.5h.5a.75.75 0 0 1 0 1.5h-.5a3.75 3.75 0 0 1 0-7.5h.5a.75.75 0 0 1 0 1.5zM17 22.75a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75M23.25 25a2.25 2.25 0 0 0 0-4.5h-.5a.75.75 0 0 1 0-1.5h.5a3.75 3.75 0 0 1 0 7.5h-.5a.75.75 0 0 1 0-1.5z" strokeWidth={0.6} stroke="currentColor"></path></svg>);
+}
+
+
+export function EmojioneMonotoneDollarBanknote(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" {...props}><path fill="currentColor" d="M2 10v44h60V10zm22.727 29.333H9.272V17.334h15.454v21.999zm12.727 5.502H26.545V12.75h10.909zm1.818-10.797a7.17 7.17 0 0 0 4.546 1.629c4.017 0 7.271-3.284 7.271-7.334S47.834 21 43.818 21a7.17 7.17 0 0 0-4.546 1.629v-5.295h15.454v21.999H39.272zm0 8.045h18.182V14.584H39.272v-2.75h20.909v33H39.272zM3.818 11.834h20.908v2.75H6.545v27.499h18.182v2.751H3.818z" strokeWidth={1.5} stroke="currentColor"></path><path fill="currentColor" d="M17.454 32.917a1.83 1.83 0 0 1-1.818-1.834h-1.817a3.65 3.65 0 0 0 2.727 3.536v1.048h1.818v-1.048a3.655 3.655 0 0 0 2.727-3.536c0-2.021-1.631-3.666-3.636-3.666a1.83 1.83 0 0 1-1.818-1.833c0-1.013.816-1.834 1.818-1.834s1.818.821 1.818 1.834h1.817a3.65 3.65 0 0 0-2.727-3.536V21h-1.818v1.048a3.655 3.655 0 0 0-2.727 3.536c0 2.021 1.631 3.666 3.636 3.666c1.003 0 1.818.822 1.818 1.833a1.827 1.827 0 0 1-1.818 1.834" strokeWidth={1.5} stroke="currentColor"></path></svg>);
+}
+
+
+export function ArcticonsEverydollar(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={48} height={48} viewBox="0 0 48 48" {...props}><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m43.5 14.957l-14.696-4.004c-9.938.518-16.862 2.214-24.304 9.373l15.214 4.852C24 18.913 33.609 14.486 43.5 14.957" strokeWidth={2}></path><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M43.5 16.244c-10.472.283-18.558 7.662-23.362 14.868L7.185 26.355c.707-2.677 2.846-4.265 2.846-4.265" strokeWidth={2}></path><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M43.123 17.688c-6.547.283-19.688 12.624-22.42 19.36c0 0-6.223-2.88-10.645-4.334c-.016-3.251 1.41-4.786 1.41-4.786" strokeWidth={2}></path><ellipse cx={22.87} cy={14.674} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" rx={4.899} ry={1.413} strokeWidth={2}></ellipse></svg>);
+}
+
+
+export function HugeiconsMoneyExchange02(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}><path d="M14.5 10.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0"></path><path d="M22 10.5V5.427c0-.568-.324-1.082-.867-1.25C20.19 3.883 18.479 3.5 16 3.5c-4.58 0-5.803 1.677-12.122.424C2.921 3.734 2 4.445 2 5.42v10.017c0 .688.473 1.293 1.145 1.441c5.567 1.228 7.412.32 10.355-.093"></path><path d="M2 7.5c1.951 0 3.705-1.595 3.929-3.246M18.5 4c0 2.04 1.765 3.969 3.5 3.969M6 16.996a4 4 0 0 0-4-4M16 15.5a1 1 0 0 1 1-1h5l-1.5-2m1.5 5a1 1 0 0 1-1 1h-5l1.5 2"></path></g></svg>);
+}
+
+
+export function LetsIconsCreditCardDuotone(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" fillOpacity={0.25} d="M3 10c0-1.886 0-2.828.586-3.414S5.114 6 7 6h10c1.886 0 2.828 0 3.414.586S21 8.114 21 10v4c0 1.886 0 2.828-.586 3.414S18.886 18 17 18H7c-1.886 0-2.828 0-3.414-.586S3 15.886 3 14z"></path><circle cx={6} cy={15} r={1} fill="currentColor"></circle><path fill="currentColor" d="M3 9h18v2H3z"></path></svg>);
+}
+
+
+export function HugeiconsCreditCard(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth={1.8}><path strokeLinecap="round" d="M2 12c0-3.537 0-5.306 1.053-6.487q.253-.284.554-.522C4.862 4 6.741 4 10.5 4h3c3.759 0 5.638 0 6.892.99q.302.24.555.523C22 6.693 22 8.463 22 12s0 5.306-1.053 6.487a4.4 4.4 0 0 1-.555.522C19.138 20 17.26 20 13.5 20h-3c-3.759 0-5.638 0-6.893-.99a4.4 4.4 0 0 1-.554-.523C2 17.307 2 15.537 2 12"></path><path strokeLinecap="round" strokeMiterlimit={10} d="M10 16h1.5m3 0H18"></path><path d="M2 9h20"></path></g></svg>);
+}

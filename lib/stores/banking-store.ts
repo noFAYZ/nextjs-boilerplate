@@ -33,6 +33,38 @@ interface BankingState {
   enrollmentsLoading: boolean;
   enrollmentsError: string | null;
 
+  // Analytics
+  spendingCategories: Array<{
+    category: string;
+    totalSpending: number;
+    transactionCount: number;
+    avgTransaction: number;
+    percentOfTotal: number;
+  }>;
+  spendingCategoriesLoading: boolean;
+  spendingCategoriesError: string | null;
+
+  monthlyTrend: Array<{
+    month: string;
+    totalSpending: number;
+    totalIncome: number;
+    netAmount: number;
+    transactionCount: number;
+    categories: Record<string, number>;
+  }>;
+  monthlyTrendLoading: boolean;
+  monthlyTrendError: string | null;
+
+  accountComparison: Array<{
+    accountId: string;
+    totalSpending: number;
+    totalIncome: number;
+    transactionCount: number;
+    topCategory: string | null;
+  }>;
+  accountComparisonLoading: boolean;
+  accountComparisonError: string | null;
+
   // Real-time sync state
   realtimeSyncStates: Record<string, {
     progress: number;
@@ -80,6 +112,13 @@ interface BankingState {
     isLoading: boolean;
     error: string | null;
   };
+
+  // Stripe Connect state
+  stripeConnect: {
+    isOpen: boolean;
+    isLoading: boolean;
+    error: string | null;
+  };
 }
 
 interface BankingActions {
@@ -111,6 +150,17 @@ interface BankingActions {
   updateEnrollment: (id: string, updates: Partial<TellerEnrollment>) => void;
   setEnrollmentsLoading: (loading: boolean) => void;
   setEnrollmentsError: (error: string | null) => void;
+
+  // Analytics actions
+  setSpendingCategories: (categories: BankingState['spendingCategories']) => void;
+  setSpendingCategoriesLoading: (loading: boolean) => void;
+  setSpendingCategoriesError: (error: string | null) => void;
+  setMonthlyTrend: (trend: BankingState['monthlyTrend']) => void;
+  setMonthlyTrendLoading: (loading: boolean) => void;
+  setMonthlyTrendError: (error: string | null) => void;
+  setAccountComparison: (comparison: BankingState['accountComparison']) => void;
+  setAccountComparisonLoading: (loading: boolean) => void;
+  setAccountComparisonError: (error: string | null) => void;
 
   // Real-time sync actions
   setRealtimeSyncState: (accountId: string, state: BankingState['realtimeSyncStates'][string]) => void;
@@ -144,6 +194,11 @@ interface BankingActions {
   setTellerConnectLoading: (isLoading: boolean) => void;
   setTellerConnectError: (error: string | null) => void;
 
+  // Stripe Connect actions
+  setStripeConnectOpen: (isOpen: boolean) => void;
+  setStripeConnectLoading: (isLoading: boolean) => void;
+  setStripeConnectError: (error: string | null) => void;
+
   // Utility actions
   resetState: () => void;
   clearErrors: () => void;
@@ -174,6 +229,17 @@ const initialState: BankingState = {
   enrollments: [],
   enrollmentsLoading: false,
   enrollmentsError: null,
+
+  // Analytics
+  spendingCategories: [],
+  spendingCategoriesLoading: false,
+  spendingCategoriesError: null,
+  monthlyTrend: [],
+  monthlyTrendLoading: false,
+  monthlyTrendError: null,
+  accountComparison: [],
+  accountComparisonLoading: false,
+  accountComparisonError: null,
 
   // Real-time sync state
   realtimeSyncStates: {},
@@ -209,6 +275,13 @@ const initialState: BankingState = {
 
   // Teller Connect state
   tellerConnect: {
+    isOpen: false,
+    isLoading: false,
+    error: null,
+  },
+
+  // Stripe Connect state
+  stripeConnect: {
     isOpen: false,
     isLoading: false,
     error: null,
@@ -349,6 +422,52 @@ export const useBankingStore = create<BankingStore>()(
           set((state) => {
             state.enrollmentsError = error;
           }, false, 'setEnrollmentsError'),
+
+        // Analytics actions
+        setSpendingCategories: (categories) =>
+          set((state) => {
+            state.spendingCategories = categories;
+          }, false, 'setSpendingCategories'),
+
+        setSpendingCategoriesLoading: (loading) =>
+          set((state) => {
+            state.spendingCategoriesLoading = loading;
+          }, false, 'setSpendingCategoriesLoading'),
+
+        setSpendingCategoriesError: (error) =>
+          set((state) => {
+            state.spendingCategoriesError = error;
+          }, false, 'setSpendingCategoriesError'),
+
+        setMonthlyTrend: (trend) =>
+          set((state) => {
+            state.monthlyTrend = trend;
+          }, false, 'setMonthlyTrend'),
+
+        setMonthlyTrendLoading: (loading) =>
+          set((state) => {
+            state.monthlyTrendLoading = loading;
+          }, false, 'setMonthlyTrendLoading'),
+
+        setMonthlyTrendError: (error) =>
+          set((state) => {
+            state.monthlyTrendError = error;
+          }, false, 'setMonthlyTrendError'),
+
+        setAccountComparison: (comparison) =>
+          set((state) => {
+            state.accountComparison = comparison;
+          }, false, 'setAccountComparison'),
+
+        setAccountComparisonLoading: (loading) =>
+          set((state) => {
+            state.accountComparisonLoading = loading;
+          }, false, 'setAccountComparisonLoading'),
+
+        setAccountComparisonError: (error) =>
+          set((state) => {
+            state.accountComparisonError = error;
+          }, false, 'setAccountComparisonError'),
 
         // Real-time sync actions
         setRealtimeSyncState: (accountId, syncState) =>
@@ -519,6 +638,28 @@ export const useBankingStore = create<BankingStore>()(
             }
           }, false, 'setTellerConnectError'),
 
+        // Stripe Connect actions
+        setStripeConnectOpen: (isOpen) =>
+          set((state) => {
+            state.stripeConnect.isOpen = isOpen;
+            if (!isOpen) {
+              state.stripeConnect.error = null;
+            }
+          }, false, 'setStripeConnectOpen'),
+
+        setStripeConnectLoading: (isLoading) =>
+          set((state) => {
+            state.stripeConnect.isLoading = isLoading;
+          }, false, 'setStripeConnectLoading'),
+
+        setStripeConnectError: (error) =>
+          set((state) => {
+            state.stripeConnect.error = error;
+            if (error) {
+              state.stripeConnect.isLoading = false;
+            }
+          }, false, 'setStripeConnectError'),
+
         // Utility actions
         resetState: () =>
           set((state) => {
@@ -533,6 +674,7 @@ export const useBankingStore = create<BankingStore>()(
             state.enrollmentsError = null;
             state.realtimeSyncError = null;
             state.tellerConnect.error = null;
+            state.stripeConnect.error = null;
           }, false, 'clearErrors'),
 
         clearAllData: () =>

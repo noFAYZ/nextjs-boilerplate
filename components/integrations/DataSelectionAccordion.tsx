@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, LucideIcon } from 'lucide-react';
+import { Badge } from '../ui/badge';
 
 export interface DataItem {
   id: string;
@@ -67,7 +68,7 @@ const colorConfig = {
   amber: {
     gradient: 'from-amber-500 to-amber-600',
     bg: 'from-amber-50/50 dark:from-amber-950/20',
-    badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+    badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300',
     selected: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
   },
 };
@@ -94,27 +95,28 @@ export function DataSelectionAccordion({
   return (
     <AccordionItem
       value={value}
-      className={`border-2 rounded-xl mb-4 overflow-hidden bg-gradient-to-br ${colors.bg} to-transparent transition-all duration-200`}
+      className={`border border-border/70  mb-4 overflow-hidden bg-card transition-all duration-100 rounded-2xl`}
     >
-      <div className="flex items-center gap-4 px-5 py-4 bg-background/80 backdrop-blur-sm border-b">
+      <div className="flex items-center gap-4 px-5 py-4   rounded-2xl backdrop-blur-sm   w-full">
         <Checkbox
           id={`sync-${value}`}
           checked={isEnabled}
           onCheckedChange={onToggleEnabled}
-          className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          className=" "
+          size='lg'
           onClick={(e) => e.stopPropagation()}
         />
-        <AccordionTrigger className="flex-1 hover:no-underline py-0 [&[data-state=open]>div>svg]:rotate-180">
+        <AccordionTrigger className="flex-1 hover:no-underline py-0 w-full [&[data-state=open]>div>svg]:rotate-180 rounded-2xl">
           <div className="flex items-center gap-4 flex-1 w-full">
             <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${colors.gradient} flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-background`}>
-              <Icon className="h-6 w-6 text-white" />
+              <Icon className="h-7 w-7 text-white" />
             </div>
             <div className="flex-1 text-left min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-lg tracking-tight">{title}</h3>
-                <span className={`text-xs px-2.5 py-1 rounded-full ${colors.badge} font-semibold shadow-sm`}>
+              <div className="flex items-center gap-2 ">
+                <h3 className="font-bold text-base tracking-tight">{title}</h3>
+                <Badge className={`text-xs   rounded-full ${colors.badge} font-semibold `} size={'sm'}>
                   {totalCount}
-                </span>
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {description}
@@ -129,31 +131,33 @@ export function DataSelectionAccordion({
         </AccordionTrigger>
       </div>
 
-      <AccordionContent className="px-5 pb-5 pt-3">
+      <AccordionContent className="px-5 pb-5 pt-3 bg-background">
         {isEnabled && previewItems.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 px-1">
-              <p className="text-sm font-semibold text-muted-foreground">Select items to sync</p>
+              <p className="text-xs font-semibold text-muted-foreground">Select items to sync</p>
               <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 text-xs font-medium shadow-sm"
+                variant="secondary"
+                size="xs"
+                
                 onClick={() => onToggleAll(allPreviewIds)}
               >
                 {isAllSelected ? 'Deselect All' : 'Select All'}
               </Button>
             </div>
 
-            <div className="space-y-2 max-h-80 overflow-y-auto pr-2 -mr-2">
+            <div className=" max-h-80 grid grid-cols-2 gap-4 overflow-y-auto pr-2 -mr-2">
               {previewItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-card hover:bg-accent/60 transition-all duration-200 border-2 border-border/50 hover:border-border shadow-sm hover:shadow group"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-card hover:bg-accent/60 transition-all duration-100 border border-border/70 hover:border-border shadow-sm hover:shadow group "
                 >
                   <Checkbox
                     id={`${value}-${item.id}`}
                     checked={selectedIds.includes(item.id)}
                     onCheckedChange={() => onToggleItem(item.id)}
+                    variant='glow'
+                    size='md'
                     className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <Label htmlFor={`${value}-${item.id}`} className="flex-1 text-sm cursor-pointer">
@@ -163,9 +167,9 @@ export function DataSelectionAccordion({
               ))}
             </div>
 
-            <div className="mt-4 pt-4 border-t-2 flex items-center justify-between px-1">
+            <div className="mt-4 pt-2 flex items-center justify-between px-1">
               <p className="text-xs text-muted-foreground font-medium">
-                <span className="font-bold text-foreground text-sm">{selectedIds.length}</span> of {totalCount} items selected
+                <span className="font-bold text-foreground text-xs">{selectedIds.length}</span> of {totalCount} items selected
               </p>
               {selectedIds.length === 0 && isEnabled && (
                 <p className="text-xs text-amber-600 dark:text-amber-500 flex items-center gap-1.5 font-semibold">
@@ -177,7 +181,7 @@ export function DataSelectionAccordion({
           </div>
         ) : isEnabled && previewItems.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-sm text-muted-foreground">No items available</p>
+            <p className="text-xs text-muted-foreground">No items available</p>
           </div>
         ) : null}
       </AccordionContent>

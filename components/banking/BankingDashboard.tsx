@@ -56,7 +56,7 @@ import {
 } from '@/lib/queries/banking-queries';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import type { BankAccount, BankTransaction, TellerEnrollment } from '@/lib/types/banking';
-import { StreamlinePlumpBuildingOffice } from '../icons/icons';
+import { ArcticonsEverydollar, EmojioneMonotoneDollarBanknote, FluentBuildingBank28Regular, HugeiconsCreditCard, HugeiconsMoneyExchange02, LetsIconsCreditCardDuotone, StreamlinePlumpBuildingOffice } from '../icons/icons';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select';
 import { DeleteProgressDialog } from '@/components/ui/progress-dialog';
 import { createOperationItem } from '@/lib/types/progress';
@@ -98,7 +98,7 @@ export function BankingDashboard({
     return Object.values(groupedAccountsRaw).flatMap(group => group.accounts || []);
   }, [groupedAccountsRaw]);
 
-  console.log('Grouped accounts raw:', transactionsData);
+  console.log('Grouped accounts raw:', groupedAccountsRaw);
 
   // Extract transactions from the response
   const recentTransactions = Array.isArray(transactionsData)
@@ -118,6 +118,8 @@ export function BankingDashboard({
 
   // Store
   const { realtimeSyncStates } = useBankingStore();
+
+  console.log(groupedAccountsRaw)
 
   // Currency context
   const { convertFromUSD, formatAmount, selectedCurrency } = useCurrency();
@@ -280,26 +282,10 @@ export function BankingDashboard({
     [realtimeSyncStates]
   );
 
-  // Helper function to calculate correct balance for account type
-  const getAccountDisplayBalance = (account: BankAccount) => {
-    // For debt accounts, we typically want to show the absolute value or handle differently
-    // For now, keep the raw balance but ensure calculations are correct
-    return account.balance;
-  };
-
-  // Helper function to calculate enrollment ledger and available balances
-  const getEnrollmentBalances = (enrollment: any) => {
-    const ledgerBalance = parseFloat(enrollment.totalLedgerBalance || '0') / 100; // Convert cents to dollars
-    const availableBalance = parseFloat(enrollment.totalAvailableBalance || '0') / 100; // Convert cents to dollars
-
-    return {
-      ledger: ledgerBalance,
-      available: availableBalance
-    };
-  };
 
   // Helper function for individual account balances
   const getAccountBalances = (account: BankAccount) => {
+    // Parse balance values - they're stored as strings in dollars
     const balanceValue = typeof account.balance === 'number' ? account.balance : parseFloat(account.balance?.toString() || '0');
     const ledgerBalanceValue = typeof account.ledgerBalance === 'number' ? account.ledgerBalance : parseFloat(account.ledgerBalance?.toString() || balanceValue.toString());
     const availableBalanceValue = typeof account.availableBalance === 'number' ? account.availableBalance : parseFloat(account.availableBalance?.toString() || balanceValue.toString());
@@ -316,11 +302,11 @@ export function BankingDashboard({
   const getAccountIcon = useMemo(() => (account: BankAccount) => {
     switch (account.type) {
       case 'CHECKING':
-        return DollarSign;
+        return HugeiconsMoneyExchange02;
       case 'SAVINGS':
         return PieChart;
       case 'CREDIT_CARD':
-        return CreditCard;
+        return HugeiconsCreditCard;
       case 'INVESTMENT':
         return TrendingUp;
       case 'LOAN':
@@ -377,8 +363,8 @@ export function BankingDashboard({
     switch (account.syncStatus) {
       case 'connected':
         return (
-          <Badge variant="success-soft" size="sm">
-            Connected
+          <Badge className="bg-green-500 h-2 w-2" size="icon"  >
+          
           </Badge>
         );
       case 'error':
@@ -413,39 +399,13 @@ export function BankingDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Header 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Banking</h1>
-          <p className="text-muted-foreground">
-            Track your bank accounts and transactions
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleSyncAll}
-            disabled={syncAllAccounts.isPending || activeSyncCount > 0}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={cn(
-              'h-4 w-4',
-              (syncAllAccounts.isPending || activeSyncCount > 0) && 'animate-spin'
-            )} />
-            Sync All
-          </Button>
-          <Button onClick={tellerConnect.openConnect} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Connect Bank
-          </Button>
-        </div>
-      </div>*/}
+   
 
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
-                <StreamlinePlumpBuildingOffice className="h-5 w-5" />
+                <FluentBuildingBank28Regular className="h-7 w-7" />
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight">Banking</h1>
@@ -520,7 +480,10 @@ export function BankingDashboard({
             {overview?.totalBalance !== undefined
               ? formatCurrency(overview.totalBalance)
               : accounts.length > 0
-                ? formatCurrency(accounts.reduce((sum, acc) => sum + acc.balance, 0))
+                ? formatCurrency(accounts.reduce((sum, acc) => {
+                    const balance = typeof acc.balance === 'number' ? acc.balance : parseFloat(acc.balance?.toString() || '0');
+                    return sum + balance;
+                  }, 0))
                 : '...'
             }
           </div>
@@ -567,14 +530,7 @@ export function BankingDashboard({
 
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="accounts" className="space-y-4">
-        <TabsList variant={'ghost'}>
-          <TabsTrigger value="accounts" variant={'ghost'}>Accounts</TabsTrigger>
-          <TabsTrigger value="transactions" variant={'ghost'}>Recent Transactions</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="accounts" className="space-y-4">
+      <div className="space-y-4">
           {/* Banking Sync Status */}
           <BankingGlobalSyncStatus />
 
@@ -663,12 +619,12 @@ export function BankingDashboard({
                 <Accordion type="multiple" className="space-y-2">
                   {Object.entries(groupedAccounts).map(([enrollmentId, { enrollment, accounts: enrollmentAccounts }]) => (
                 <AccordionItem key={enrollmentId} value={enrollmentId} className={cn(
-                  "border rounded-none",
-                  isManageMode && selectedEnrollments.includes(enrollment.id) && "ring-2 ring-primary bg-primary/5"
+                  "border rounded-xl",
+                  isManageMode && selectedEnrollments.includes(enrollment.id) && "ring-1 ring-primary bg-primary/5"
                 )}>
 
                     <AccordionTrigger
-                      className="px-6 py-4 hover:no-underline bg-muted/50"
+                      className="px-6 py-4 hover:no-underline bg-card"
                       onClick={(e) => {
                         if (isManageMode) {
                           e.preventDefault();
@@ -680,13 +636,13 @@ export function BankingDashboard({
                         <div className="flex items-center gap-3">
                           {isManageMode && (
                             <div className={cn(
-                              "w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0",
+                              "w-5 h-5 rounded border flex items-center justify-center flex-shrink-0",
                               selectedEnrollments.includes(enrollment.id)
                                 ? "bg-primary border-primary text-white"
                                 : "border-muted-foreground"
                             )}>
                               {selectedEnrollments.includes(enrollment.id) && (
-                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                               )}
@@ -722,14 +678,20 @@ export function BankingDashboard({
                           <div className="space-y-1">
                             <div className="font-semibold text-sm">
                               {formatCurrency(
-                                enrollmentAccounts.reduce((sum, acc) => sum + (parseFloat(acc.ledgerBalance?.toString() || acc.balance.toString()) || 0), 0),
+                                enrollmentAccounts.reduce((sum, acc) => {
+                                  const ledger = parseFloat(acc.ledgerBalance?.toString() || acc.balance.toString()) || 0;
+                                  return sum + ledger;
+                                }, 0),
                                 enrollmentAccounts[0]?.currency
                               )}
                             </div>
 
                             <div className="text-xs text-green-600">
                               Available: {formatCurrency(
-                                enrollmentAccounts.reduce((sum, acc) => sum + (parseFloat(acc.availableBalance?.toString() || acc.balance.toString()) || 0), 0),
+                                enrollmentAccounts.reduce((sum, acc) => {
+                                  const available = parseFloat(acc.availableBalance?.toString() || acc.balance.toString()) || 0;
+                                  return sum + available;
+                                }, 0),
                                 enrollmentAccounts[0]?.currency
                               )}
                             </div>
@@ -740,7 +702,7 @@ export function BankingDashboard({
                     <AccordionContent>
                       <div className="p-4">
                         <div className={viewMode === 'grid'
-                          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+                          ? 'grid grid-cols-1 md:grid-cols-2  gap-4'
                           : 'space-y-3'
                         }>
                           {enrollmentAccounts.map((account) => {
@@ -749,15 +711,15 @@ export function BankingDashboard({
                             return viewMode === 'grid' ? (
                               <Card
                                 key={account.id}
-                                className="cursor-pointer hover:shadow-md transition-all duration-200"
+                                className="cursor-pointer hover:shadow-md transition-all duration-100 border-border/80"
                                 onClick={() => handleAccountClick(account)}
                               >
-                                <CardContent className="p-4">
+                                <CardContent className="px-4">
                                   <div className="space-y-3">
                                     <div className="flex items-start justify-between">
                                       <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                          <IconComponent className="h-4 w-4 text-blue-600" />
+                                        <div className="h-11 w-11 bg-muted rounded-xl flex items-center justify-center">
+                                          <IconComponent className="h-8 w-8 text-foreground/90 dark:text-orange-50" />
                                         </div>
                                         <div>
                                           <h4 className="font-medium text-sm">{account.name}</h4>
@@ -766,7 +728,7 @@ export function BankingDashboard({
                                           </p>
                                         </div>
                                       </div>
-                                      {getSyncStatusBadge(account)}
+                                     
                                     </div>
 
                                     <div className="space-y-2">
@@ -788,11 +750,21 @@ export function BankingDashboard({
                                       </div>
                                     </div>
 
-                                    <div className="flex gap-2 pt-2">
+                                    <div className="flex gap-2 justify-end items-center pt-2">        
+                                      <Button
+                                        variant="ghost"
+                                        size="xs"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleAccountClick(account);
+                                        }}
+                                      >
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
                                       <Button
                                         variant="outline"
-                                        size="sm"
-                                        className="flex-1"
+                                        size="xs"
+                                        className=""
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleAccountSync(account);
@@ -811,16 +783,7 @@ export function BankingDashboard({
                                         )} />
                                         Sync
                                       </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleAccountClick(account);
-                                        }}
-                                      >
-                                        <Eye className="h-3 w-3" />
-                                      </Button>
+                              
                                     </div>
                                   </div>
                                 </CardContent>
@@ -905,190 +868,10 @@ export function BankingDashboard({
                 </Accordion>
               )}
 
-              {/* Accounts without Enrollments (fallback)
-              {filteredAccounts.filter(account => !account.tellerEnrollment).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5" />
-                      Accounts without Enrollment Data
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className={viewMode === 'grid'
-                      ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-                      : 'space-y-3'
-                    }>
-                      {filteredAccounts
-                        .filter(account => !account.tellerEnrollment)
-                        .map((account) => {
-                          const IconComponent = getAccountIcon(account);
-
-                          return viewMode === 'grid' ? (
-                            <Card
-                              key={account.id}
-                              className="cursor-pointer hover:shadow-md transition-all duration-200"
-                              onClick={() => handleAccountClick(account)}
-                            >
-                              <CardContent className="p-4">
-                                <div className="space-y-3">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex items-center gap-3">
-                                      <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <IconComponent className="h-4 w-4 text-blue-600" />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-medium text-sm">{account.name}</h4>
-                                        <p className="text-xs text-muted-foreground">
-                                          ****{account.accountNumber.slice(-4)}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    {getSyncStatusBadge(account)}
-                                  </div>
-
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-muted-foreground">Ledger</span>
-                                      <span className={cn('font-semibold', getBalanceColor(account))}>
-                                        {formatCurrency(getAccountBalances(account).ledger, account.currency)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-muted-foreground">Available</span>
-                                      <span className="text-sm font-medium text-green-600">
-                                        {formatCurrency(getAccountBalances(account).available, account.currency)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-muted-foreground">Transactions</span>
-                                      <span className="text-sm font-medium">{account._count?.bankTransactions || 0}</span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex gap-2 pt-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="flex-1"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAccountSync(account);
-                                      }}
-                                      disabled={realtimeSyncStates[account.id]?.status === 'syncing'}
-                                    >
-                                      <RefreshCw className={cn(
-                                        'h-3 w-3 mr-1',
-                                        realtimeSyncStates[account.id]?.status === 'syncing' && 'animate-spin'
-                                      )} />
-                                      Sync
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAccountClick(account);
-                                      }}
-                                    >
-                                      <Eye className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ) : (
-                            <Card
-                              key={account.id}
-                              className="cursor-pointer hover:shadow-sm transition-all duration-200"
-                              onClick={() => handleAccountClick(account)}
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-center gap-4">
-                                  <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <IconComponent className="h-5 w-5 text-blue-600" />
-                                  </div>
-
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h4 className="font-medium truncate">{account.name}</h4>
-                                      {getSyncStatusBadge(account)}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                      {account.type.replace('_', ' ')} • ****{account.accountNumber.slice(-4)}
-                                    </p>
-                                  </div>
-
-                                  <div className="text-right">
-                                    <div className={cn('font-semibold text-sm', getBalanceColor(account))}>
-                                      {formatCurrency(getAccountBalances(account).ledger, account.currency)}
-                                    </div>
-                                    <div className="text-xs text-green-600">
-                                      Available: {formatCurrency(getAccountBalances(account).available, account.currency)}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      {account._count?.bankTransactions || 0} transactions
-                                    </div>
-                                  </div>
-
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAccountSync(account);
-                                      }}
-                                      disabled={realtimeSyncStates[account.id]?.status === 'syncing'}
-                                    >
-                                      <RefreshCw className={cn(
-                                        'h-4 w-4',
-                                        realtimeSyncStates[account.id]?.status === 'syncing' && 'animate-spin'
-                                      )} />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAccountClick(account);
-                                      }}
-                                    >
-                                      <Eye className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                    </div>
-                  </CardContent>
-                </Card>
-              )} */}
+         
             </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="transactions" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Recent Transactions</h2>
-            <Button variant="outline" size="sm">
-              View All
-            </Button>
-          </div>
-          <BankTransactionList
-            transactions={recentTransactions}
-            onView={onTransactionView}
-            onCategorize={onTransactionCategorize}
-            loading={transactionsLoading}
-            emptyMessage="No recent transactions found"
-            compact={true}
-            groupByDate={false}
-          />
-        </TabsContent>
-
-      </Tabs>
+        </div>
 
       {/* Teller Connect Modal */}
       <tellerConnect.TellerConnectComponent onSuccess={handleConnectSuccess} />

@@ -134,10 +134,10 @@ export const usePortfolio = (params?: PortfolioParams) => {
   } = useCryptoStore();
 
   const query = useQuery(cryptoQueries.portfolio(params));
-
   // Handle success/error manually since onSuccess/onError are deprecated
   useEffect(() => {
     if (query.data) {
+    
       setPortfolio(query.data);
       setPortfolioError(null);
     }

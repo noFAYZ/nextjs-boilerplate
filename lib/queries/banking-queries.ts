@@ -14,7 +14,9 @@ import type {
   UpdateBankAccountRequest,
   BankTransactionParams,
   BankSyncRequest,
-  BankingExportRequest
+  BankingExportRequest,
+  TellerEnrollment,
+  BankSyncJob
 } from '@/lib/types/banking';
 import type { ApiResponse, PaginationInfo } from '@/lib/types/crypto';
 
@@ -349,7 +351,108 @@ export const bankingQueries = {
     select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
-  // Analytics
+  // Analytics - New high-performance endpoints
+  topSpendingCategories: (params?: {
+    period?: string;
+    fromDate?: string;
+    toDate?: string;
+    fromMonth?: string;
+    toMonth?: string;
+    limit?: number;
+  }) => ({
+    queryKey: [...bankingKeys.all, 'analytics', 'top-categories', params] as const,
+    queryFn: async () => {
+      try {
+        return await bankingApi.getTopSpendingCategories(params);
+      } catch (error: unknown) {
+        return handleApiError(error, []);
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
+  }),
+
+  monthlySpendingTrend: (params?: {
+    period?: string;
+    fromDate?: string;
+    toDate?: string;
+    months?: number;
+    accountId?: string;
+  }) => ({
+    queryKey: [...bankingKeys.all, 'analytics', 'monthly-trend', params] as const,
+    queryFn: async () => {
+      try {
+        return await bankingApi.getMonthlyTrend(params);
+      } catch (error: unknown) {
+        return handleApiError(error, []);
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
+  }),
+
+  accountSpendingComparison: (params?: {
+    period?: string;
+    fromDate?: string;
+    toDate?: string;
+    month?: string;
+  }) => ({
+    queryKey: [...bankingKeys.all, 'analytics', 'account-comparison', params] as const,
+    queryFn: async () => {
+      try {
+        return await bankingApi.getAccountSpendingComparison(params);
+      } catch (error: unknown) {
+        return handleApiError(error, []);
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
+  }),
+  spendingByCategory: (params?: {
+    accountId?: string;
+    category?: string;
+    accountType?: string;
+    fromMonth?: string;
+    toMonth?: string;
+    limit?: number;
+  }) => ({
+    queryKey: [...bankingKeys.all, 'analytics', 'spending-by-category', params] as const,
+    queryFn: async () => {
+      try {
+        return await bankingApi.getSpendingByCategory(params);
+      } catch (error: unknown) {
+        return handleApiError(error, []);
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<unknown[]>) => {
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    },
+  }),
+
+  // Analytics - Legacy (for backward compatibility)
   spendingCategories: (timeRange = 'month', accountIds?: string[]) => ({
     queryKey: bankingKeys.spendingCategories(timeRange, accountIds),
     queryFn: async () => {
@@ -420,6 +523,37 @@ export const bankingMutations = {
       },
       onError: (error) => {
         console.error('Failed to connect bank account:', error);
+      },
+    });
+  },
+
+  useConnectStripeAccount: () => {
+    const queryClient = useQueryClient();
+    const { addAccount } = useBankingStore();
+
+    return useMutation({
+      mutationFn: async (data: { sessionId: string; selectedAccountIds?: string[] }) => {
+        const response = await bankingApi.connectStripeAccounts(data);
+
+        if (!response.success) {
+          throw response;
+        }
+
+        return response;
+      },
+      onSuccess: (response) => {
+        if (response.success) {
+          // Add all connected accounts to store
+          response.data.forEach(account => addAccount(account));
+
+          // Comprehensive cache invalidation for account connection
+          queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to connect Stripe bank account:', error);
       },
     });
   },
@@ -643,6 +777,28 @@ export const bankingMutations = {
       },
     });
   },
+
+  // Refresh analytics materialized view
+  useRefreshAnalytics: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: () => bankingApi.refreshAnalytics(),
+      onSuccess: (response) => {
+        if (response.success) {
+          // Invalidate all analytics queries to refetch with new data
+          queryClient.invalidateQueries({ queryKey: [...bankingKeys.all, 'analytics'] });
+
+          // Invalidate legacy analytics queries
+          queryClient.invalidateQueries({ queryKey: bankingKeys.spendingCategories() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.monthlyTrend() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to refresh analytics:', error);
+      },
+    });
+  },
 };
 
 // Custom hook to invalidate all banking queries
@@ -792,4 +948,54 @@ export const useMonthlySpendingTrend = (months = 12, accountIds?: string[]) => {
   const { user, isInitialized } = useAuthStore();
   const isAuthReady = !!user && isInitialized;
   return useQuery({ ...bankingQueries.monthlyTrend(months, accountIds), enabled: isAuthReady });
+};
+
+// New Analytics Hooks
+export const useTopSpendingCategories = (params?: {
+  period?: string;
+  fromDate?: string;
+  toDate?: string;
+  fromMonth?: string;
+  toMonth?: string;
+  limit?: number;
+}) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.topSpendingCategories(params), enabled: isAuthReady });
+};
+
+export const useMonthlySpendingTrendNew = (params?: {
+  period?: string;
+  fromDate?: string;
+  toDate?: string;
+  months?: number;
+  accountId?: string;
+}) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.monthlySpendingTrend(params), enabled: isAuthReady });
+};
+
+export const useAccountSpendingComparison = (params?: {
+  period?: string;
+  fromDate?: string;
+  toDate?: string;
+  month?: string;
+}) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.accountSpendingComparison(params), enabled: isAuthReady });
+};
+
+export const useSpendingByCategory = (params?: {
+  accountId?: string;
+  category?: string;
+  accountType?: string;
+  fromMonth?: string;
+  toMonth?: string;
+  limit?: number;
+}) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.spendingByCategory(params), enabled: isAuthReady });
 };

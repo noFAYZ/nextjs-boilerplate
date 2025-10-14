@@ -341,6 +341,7 @@ export default function AuthForm({
                         placeholder="John" 
                         autoComplete="given-name"
                         {...field} 
+                        variant={'filled'}
                       />
                     </FormControl>
                     <FormMessage />
@@ -362,6 +363,7 @@ export default function AuthForm({
                         placeholder="Doe" 
                         autoComplete="family-name"
                         {...field} 
+                        variant={'filled'}
                       />
                     </FormControl>
                     <FormMessage />
@@ -384,6 +386,7 @@ export default function AuthForm({
                         placeholder="john@example.com"
                         autoComplete="email"
                         {...field} 
+                        variant={'filled'}
                       />
                     </FormControl>
                     <FormMessage />
@@ -401,22 +404,17 @@ export default function AuthForm({
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <div className="relative">
+                      <div className="relative overflow-hidden">
                         <Input
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Enter your password"
                           autoComplete={type === 'signin' ? 'current-password' : 'new-password'}
+                          variant={'filled'}
+                          className='overflow-hidden'
+                      
                           {...field}
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </Button>
+                
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -440,16 +438,9 @@ export default function AuthForm({
                           placeholder="Confirm your password"
                           autoComplete="new-password"
                           {...field}
+                          variant={'filled'}
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </Button>
+                  
                       </div>
                     </FormControl>
                     <FormMessage />

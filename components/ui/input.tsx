@@ -10,7 +10,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "border-input rounded-lg shadow-sm hover:shadow-md focus-visible:ring-0 focus-visible:ring-primary/60 focus-visible:ring-offset-0 focus-visible:border-primary/60",
-        filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80    ",
         underlined: "border-0 border-b-2 border-input rounded-none bg-transparent hover:border-border focus-visible:border-primary shadow-none",
         premium: "border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:border-purple-500",
         enterprise: "border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-900/50 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-slate-500 focus-visible:border-slate-500 backdrop-blur-sm",
@@ -77,7 +77,7 @@ function Input({
         {leftIcon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             {loading ? (
-              <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              <div className="size-4 animate-spin rounded-full border-1 border-current border-t-transparent" />
             ) : (
               leftIcon
             )}

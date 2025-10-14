@@ -5,6 +5,9 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useBankingGroupedAccountsRaw } from '@/lib/queries/banking-queries';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import type { BankAccount } from '@/lib/types/banking';
+import { Separator } from '../ui/separator';
+import { CurrencyDisplay } from '../ui/currency-display';
+import { cn } from '@/lib/utils';
 
 interface AccountBalanceItem {
   id: string;
@@ -32,10 +35,12 @@ export function NetWorthWidget() {
   // Fetch crypto data from store
   const cryptoWallets = useCryptoStore((state) => state.wallets);
 
-  // Calculate net worth and account balances
-  const { netWorth, accountGroups } = useMemo(() => {
+  // Calculate net worth, account balances, and category totals
+  const { netWorth, accountGroups, categoryTotals } = useMemo(() => {
     let totalNetWorth = 0;
     const groups: { [key: string]: AccountBalanceItem[] } = {};
+    let bankTotal = 0;
+    let cryptoTotal = 0;
 
     // Process banking accounts
     if (bankingData && typeof bankingData === 'object') {
@@ -49,6 +54,7 @@ export function NetWorthWidget() {
             if (account.isActive) {
               const balance = Number(account.balance) || 0;
               totalNetWorth += balance;
+              bankTotal += balance;
 
               if (!groups[institutionName]) {
                 groups[institutionName] = [];
@@ -74,6 +80,7 @@ export function NetWorthWidget() {
         if (wallet.isActive) {
           const balance = Number(wallet.totalBalanceUsd) || 0;
           totalNetWorth += balance;
+          cryptoTotal += balance;
 
           const groupName = 'Crypto';
           if (!groups[groupName]) {
@@ -91,7 +98,11 @@ export function NetWorthWidget() {
       });
     }
 
-    return { netWorth: totalNetWorth, accountGroups: groups };
+    return {
+      netWorth: totalNetWorth,
+      accountGroups: groups,
+      categoryTotals: { bankTotal, cryptoTotal }
+    };
   }, [bankingData, cryptoWallets]);
 
   const [expandedGroups, setExpandedGroups] = useState<{ [key: string]: boolean }>({});
@@ -103,18 +114,57 @@ export function NetWorthWidget() {
     }));
   };
 
-  const formatCurrency = (amount: number, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
+  // Calculate percentage shares based on actual data
+  const balanceData = useMemo(() => {
+    const { bankTotal, cryptoTotal } = categoryTotals;
 
+    if (netWorth <= 0) {
+      return { currencies: [] };
+    }
+
+    // Calculate raw percentages
+    let bankPercent = (bankTotal / netWorth) * 100;
+    let cryptoPercent = (cryptoTotal / netWorth) * 100;
+    
+    // Ensure categories with balance show at least 1%
+    if (bankTotal > 0 && bankPercent < 1) bankPercent = 1;
+    if (cryptoTotal > 0 && cryptoPercent < 1) cryptoPercent = 1;
+
+    // Round and adjust to ensure total is 100%
+    bankPercent = Math.round(bankPercent);
+    cryptoPercent = Math.round(cryptoPercent);
+
+    // Adjust largest category if total exceeds 100%
+    const total = bankPercent + cryptoPercent;
+    if (total > 100) {
+      if (bankTotal > cryptoTotal) {
+        bankPercent -= (total - 100);
+      } else {
+        cryptoPercent -= (total - 100);
+      }
+    } else if (total < 100) {
+      // Add remainder to largest category
+      if (bankTotal > cryptoTotal) {
+        bankPercent += (100 - total);
+      } else {
+        cryptoPercent += (100 - total);
+      }
+    }
+
+    const currencies = [];
+    if (bankTotal > 0) {
+      currencies.push({ code: 'Banks', percent: bankPercent, color: 'bg-lime-600' });
+    }
+    if (cryptoTotal > 0) {
+      currencies.push({ code: 'Crypto', percent: cryptoPercent, color: 'bg-primary' });
+    }
+
+    return { currencies };
+  }, [categoryTotals, netWorth]);
   if (isBankingLoading) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-lg border border-border bg-background dark:bg-card p-3 ">
+         <h3 className="text-xs font-medium text-muted-foreground mb-1">Net worth</h3>
         <div className="animate-pulse space-y-4">
           <div className="h-4 w-24 bg-muted rounded" />
           <div className="h-8 w-40 bg-muted rounded" />
@@ -128,15 +178,41 @@ export function NetWorthWidget() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">Net worth</h3>
-        <p className="text-3xl font-semibold text-foreground">
-          {formatCurrency(netWorth)}
-        </p>
-      </div>
+      <div className="mb-2">
+        <h3 className="text-xs font-medium text-muted-foreground mb-1">Net worth</h3>
+        <CurrencyDisplay
+          amountUSD={netWorth}
+          variant="large"
+          className="text-xl font-bold text-foreground"
+        />
 
+
+  {/* Segmented Progress Bar */}
+        <div className="w-full my-3 space-y-2">
+          <div className="flex items-center gap-1.5 w-full">
+            {balanceData.currencies.map((cur) => (
+              <div
+                key={`bar-${cur.code}`}
+                className={cn(cur.color, 'h-4 overflow-hidden rounded-sm transition-all')}
+                style={{
+                  width: `${cur.percent}%`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-3 w-full">
+            {balanceData.currencies.map((cur) => (
+              <div key={`label-${cur.code}`} className="flex gap-1 items-center">
+                <span className="text-[10px] text-muted-foreground font-medium">{cur.code}</span>
+                <span className="text-[9px] font-semibold text-foreground">{cur.percent}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+<Separator  className="mb-2" />
       {/* Account Groups */}
       <div className="space-y-1">
         {Object.entries(accountGroups).map(([groupName, accounts]) => {
@@ -148,7 +224,7 @@ export function NetWorthWidget() {
               {/* Group Header */}
               <button
                 onClick={() => toggleGroup(groupName)}
-                className="w-full flex items-center justify-between py-2.5 px-3 rounded-md hover:bg-muted/50 transition-colors text-left group"
+                className="w-full flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/50 transition-colors text-left group cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   {isExpanded ? (
@@ -156,11 +232,13 @@ export function NetWorthWidget() {
                   ) : (
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
-                  <span className="text-sm font-medium text-foreground">{groupName}</span>
+                  <span className="text-xs font-medium text-foreground">{groupName}</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">
-                  {formatCurrency(groupTotal)}
-                </span>
+                <CurrencyDisplay
+                  amountUSD={groupTotal}
+                  variant="small"
+                  className="text-sm font-semibold text-foreground"
+                />
               </button>
 
               {/* Expanded Accounts */}
@@ -171,12 +249,14 @@ export function NetWorthWidget() {
                       key={account.id}
                       className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/30 transition-colors"
                     >
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {account.name}
                       </span>
-                      <span className="text-sm font-medium text-foreground">
-                        {formatCurrency(account.balance, account.currency)}
-                      </span>
+                      <CurrencyDisplay
+                        amountUSD={account.balance}
+                        variant="compact"
+                        className="text-xs font-medium text-foreground/80"
+                      />
                     </div>
                   ))}
                 </div>

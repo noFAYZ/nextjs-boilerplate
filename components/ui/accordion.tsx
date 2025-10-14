@@ -31,17 +31,17 @@ function AccordionTrigger({
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
   return (
-    <AccordionPrimitive.Header className="flex">
+    <AccordionPrimitive.Header className="flex w-full items-center">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          " flex flex-1 items-start justify-between gap-4 rounded-2xl py-2 text-left text-sm font-medium transition-all  disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 cursor-pointer",
+          " flex flex-1 items-center justify-between gap-4 rounded-xl py-2 text-left text-sm font-medium transition-all  disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 cursor-pointer",
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-75" />
+        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-75" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )

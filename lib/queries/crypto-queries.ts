@@ -17,7 +17,11 @@ import type {
   NFTParams,
   SyncRequest,
   AnalyticsParams,
-  ExportRequest
+  ExportRequest,
+  ApiResponse,
+  CryptoTransaction,
+  CryptoNFT,
+  SyncJobStatus
 } from '@/lib/types/crypto';
 
 // Query Keys Factory

@@ -505,15 +505,15 @@ export default function WalletsPage() {
 
         {/* Controls Section */}
       
-            <div className="flex flex-col lg:flex-row justify-end gap-3 my-8">
+            <div className="flex flex-col lg:flex-row justify-end gap-3 mt-20">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                 <Input
                   placeholder="Search wallets by name or address..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 border-border"
                 />
               </div>
 
@@ -522,7 +522,7 @@ export default function WalletsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'balance' | 'lastSync')}
-                  className="px-3 py-2 border rounded-lg text-sm bg-background min-w-[140px]"
+                  className="px-3 py-2 border rounded-lg text-xs bg-background min-w-[140px]"
                 >
                   <option value="balance">Sort by Balance</option>
                   <option value="name">Sort by Name</option>
@@ -542,29 +542,29 @@ export default function WalletsPage() {
             </div>
 
             {/* Network Filters 
-            <div className="flex flex-wrap gap-2  mb-7 justify-end">
-              <span className="text-sm font-medium text-muted-foreground mr-2">Quick Filters:</span>
+            <div className="flex flex-wrap gap-2  mb-7 justify-end items-center">
+              <span className="text-xs font-medium text-muted-foreground mr-2">Quick Filters:</span>
               <Button
                 variant="outline"
-                size="sm"
+                size="xs"
                 onClick={() => setNetworkFilter(['ETHEREUM'])}
-                className="h-7"
+              
               >
                 Ethereum
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="xs"
                 onClick={() => setNetworkFilter(['POLYGON'])}
-                className="h-7"
+           
               >
                 Polygon
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="xs"
                 onClick={() => setNetworkFilter(['BSC'])}
-                className="h-7"
+            
               >
                 BSC
               </Button>
@@ -581,12 +581,9 @@ export default function WalletsPage() {
             </div>*/}
       
 
-        {/* Sync Status Indicator 
-        <Card className='p-4'>
-</Card>*/}
 
             <SyncStatusIndicator
-              variant="detailed"
+              variant="compact"
               showProgress={true}
               showLastSync={true}
               showTrigger={true}

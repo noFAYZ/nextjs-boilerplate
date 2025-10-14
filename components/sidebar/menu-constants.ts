@@ -1,6 +1,7 @@
 import { Plus, Search, Bell, Calculator, Download, Upload, Building, Store, Plug } from 'lucide-react';
 import { MenuItem, QuickAction } from './types';
 import {
+  FluentBuildingBank28Regular,
   GuidanceBank,
   HugeiconsAnalytics02,
   HugeiconsAnalyticsUp,
@@ -27,7 +28,7 @@ export const MENU_ITEMS: MenuItem[] = [
     href: '/dashboard/accounts',
     submenu: [
       { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
-      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
+      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: FluentBuildingBank28Regular, description: 'Traditional banking accounts' },
       { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
       { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
     ]
@@ -44,10 +45,9 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: HugeiconsPieChart09,
     href: '/dashboard/portfolio',
     submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard/portfolio' },
-      { id: 'holdings', label: 'Holdings', href: '/dashboard/portfolio/holdings' },
-      { id: 'performance', label: 'Performance', href: '/dashboard/portfolio/performance' },
-      { id: 'allocation', label: 'Asset Allocation', href: '/dashboard/portfolio/allocation' }
+      { id: 'overview', label: 'Overview', href: '/dashboard/portfolio', icon: HugeiconsPieChart09, description: 'Complete portfolio overview' },
+      { id: 'crypto', label: 'Crypto Portfolio', href: '/dashboard/portfolio/crypto', icon: SolarWallet2Outline, description: 'View all cryptocurrency holdings' },
+      { id: 'banking', label: 'Banking Portfolio', href: '/dashboard/portfolio/banking', icon: FluentBuildingBank28Regular, description: 'View all bank accounts' }
     ]
   },
   {

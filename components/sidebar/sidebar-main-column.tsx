@@ -51,12 +51,12 @@ export function SidebarMainColumn({
   return (
     <div className="flex h-full w-16 flex-col bg-[#1a1a1a] border-r border-white/5">
       {/* Logo Section */}
-      <div className="flex h-16 items-center justify-center border-b border-white/5">
+      <div className="flex h-16 items-center justify-center">
         <Link
           href="/dashboard"
-          className="group relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/5 transition-colors"
+          className="group relative flex items-center justify-center w-10 h-10 "
         >
-          <MapprLogoMT className=" w-8 h-8 text-white"  />
+          <LogoMappr className=" w-10 h-10 text-white"  />
 
           {/* Tooltip */}
           <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
