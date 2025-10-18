@@ -40,7 +40,21 @@ export {
   useBankingStore,
 } from './banking-store';
 
+export {
+  useGoalsStore,
+  selectFilteredGoals,
+  selectGoalsByPriority,
+  selectActiveGoals,
+  selectCompletedGoals,
+  selectOffTrackGoals,
+  selectGoalById,
+  selectTotalProgress,
+  selectTotalTargetAmount,
+  selectTotalCurrentAmount,
+} from './goals-store';
+
 // Re-export types for convenience
 export type { CryptoWallet, PortfolioData, CryptoTransaction, CryptoNFT, DeFiPosition, SyncJobStatus, NetworkType, WalletType } from '../types/crypto';
 export type { AccountGroup, AccountGroupHierarchy, CreateAccountGroupRequest, UpdateAccountGroupRequest, MoveAccountRequest, AccountGroupsQueryOptions, FinancialAccount } from '../types/account-groups';
 export type { Integration, IntegrationProvider, ProviderConfig, IntegrationStatus, SyncStatus, SyncFrequency } from '../types/integrations';
+export type { Goal, GoalType, GoalCategory, GoalPriority, GoalSourceType, GoalMilestone, GoalSnapshot, GoalAnalytics, CreateGoalRequest, UpdateGoalRequest, AddContributionRequest } from '../types/goals';

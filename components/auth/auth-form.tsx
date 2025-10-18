@@ -276,7 +276,7 @@ export default function AuthForm({
   }
 
   return (
-    <Card className="w-full max-w-sm mx-auto px-2">
+    <Card className="w-full max-w-sm mx-auto px-2 border-border ">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

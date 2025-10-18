@@ -16,25 +16,67 @@ import {
 interface DatePickerProps {
   date?: Date
   onSelect?: (date: Date | undefined) => void
+  onDateChange?: (date: Date | undefined) => void // Support both prop names
   placeholder?: string
   disabled?: boolean
   className?: string
+  disablePastDates?: boolean // New prop to disable past dates
+  minDate?: Date // Minimum selectable date
+  maxDate?: Date // Maximum selectable date
 }
 
 export function DatePicker({
   date,
   onSelect,
+  onDateChange,
   placeholder = "Pick a date",
   disabled,
   className,
+  disablePastDates = false,
+  minDate,
+  maxDate,
 }: DatePickerProps) {
+  // Use onDateChange if provided, otherwise fall back to onSelect
+  const handleDateChange = onDateChange || onSelect;
+
+  // Calculate disabled dates
+  const getDisabledDates = React.useCallback((dateToCheck: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if past dates should be disabled
+    if (disablePastDates && dateToCheck < today) {
+      return true;
+    }
+
+    // Check against minDate
+    if (minDate) {
+      const min = new Date(minDate);
+      min.setHours(0, 0, 0, 0);
+      if (dateToCheck < min) {
+        return true;
+      }
+    }
+
+    // Check against maxDate
+    if (maxDate) {
+      const max = new Date(maxDate);
+      max.setHours(23, 59, 59, 999);
+      if (dateToCheck > max) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [disablePastDates, minDate, maxDate]);
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal",
             !date && "text-muted-foreground",
             className
           )}
@@ -44,12 +86,13 @@ export function DatePicker({
           {date ? format(date, "PPP") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
           selected={date}
-          onSelect={onSelect}
+          onSelect={handleDateChange}
           initialFocus
+          disabled={disabled ? true : getDisabledDates}
         />
       </PopoverContent>
     </Popover>

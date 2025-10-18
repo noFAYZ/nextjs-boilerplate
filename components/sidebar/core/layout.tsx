@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Sidebar } from './sidebar-refactored';
+import { Sidebar } from './sidebar';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;

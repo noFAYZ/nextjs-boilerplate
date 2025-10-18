@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Header } from './header';
-import { SidebarLayout } from '@/components/sidebar/sidebar-layout';
+import { SidebarLayout } from '@/components/sidebar';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 
 interface MainLayoutProps {

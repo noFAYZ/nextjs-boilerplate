@@ -41,7 +41,7 @@ const buttonVariants = cva(
         gradient:
           "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white shadow-lg hover:shadow-2xl hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 active:scale-[0.98] focus-visible:ring-purple-500/70 animate-gradient bg-[length:200%_200%]",
         shimmer:
-          "bg-slate-900 text-white border border-slate-700 shadow-lg hover:shadow-xl active:scale-[0.98] after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent after:translate-x-[-100%] hover:after:translate-x-[100%] after:transition-transform after:duration-1000",
+          "bg-slate-900 text-white border border-slate-700 shadow-lg hover:shadow-xl active:scale-[0.98] after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent after:translate-x-[-100%] hover:after:translate-x-[100%] after:transition-transform after:duration-400",
         aurora:
           "bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 text-white shadow-lg hover:shadow-2xl active:scale-[0.98] focus-visible:ring-purple-500/70 before:absolute before:inset-0 before:bg-gradient-to-r before:from-blue-400 before:via-purple-400 before:to-pink-400 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500",
         cyberpunk:

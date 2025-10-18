@@ -38,21 +38,21 @@ import { LogoMappr } from '@/components/icons';
 import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
-import { useCommandPalette } from '../command/command-palette';
-import { 
-  GuidanceBank, 
-  HugeiconsAnalytics02, 
-  HugeiconsAnalyticsUp,  
-  HugeiconsHome04, 
-  HugeiconsPieChart09, 
-  HugeiconsTransactionHistory, 
-  MageGoals, 
-  SolarCard2Outline, 
-  SolarWallet2Outline, 
-  StreamlinePlumpFileReport, 
-  StreamlineUltimateTradingPatternUp, 
-  TablerEyeDollar 
-} from '../icons/icons';
+import { useCommandPalette } from '@/components/command/command-palette';
+import {
+  GuidanceBank,
+  HugeiconsAnalytics02,
+  HugeiconsAnalyticsUp,
+  HugeiconsHome04,
+  HugeiconsPieChart09,
+  HugeiconsTransactionHistory,
+  MageGoals,
+  SolarCard2Outline,
+  SolarWallet2Outline,
+  StreamlinePlumpFileReport,
+  StreamlineUltimateTradingPatternUp,
+  TablerEyeDollar
+} from '@/components/icons/icons';
 
 export interface MenuItem {
   id: string;
@@ -221,7 +221,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
         {/* Backdrop */}
         {isOpen && (
           <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-300"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
             onClick={() => setIsOpen(false)}
           />
         )}
@@ -231,7 +231,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
           <Button
             onClick={toggleMenu}
             className={cn(
-              "h-14 w-14 rounded-full shadow-2xl transition-all duration-300 border-0",
+              "h-14 w-14 rounded-full shadow-2xl  border-0",
               isOpen 
                 ? "bg-destructive/90 hover:bg-destructive scale-110 rotate-45" 
                 : "bg-primary hover:bg-primary/90 scale-100 rotate-0 hover:scale-110"
@@ -249,7 +249,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
         {/* Drawer Menu */}
         {isOpen && (
           <div className="fixed bottom-24 right-6 z-50 w-80 max-h-[70vh] overflow-hidden">
-            <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300">
+            <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 slide-in-from-right-4">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border/30">
                 <Link 
@@ -286,7 +286,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
                           <Button
                             variant="ghost"
                             className={cn(
-                              "w-full justify-between h-auto p-4 rounded-xl mb-2 transition-all duration-200",
+                              "w-full justify-between h-auto p-4 rounded-xl mb-2 ",
                               isActive && "bg-primary/10 text-primary border border-primary/20"
                             )}
                             onClick={() => {
@@ -354,7 +354,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
                           key={subItem.id}
                           variant="ghost"
                           className={cn(
-                            "w-full justify-start h-auto p-4 rounded-xl mb-2 transition-all duration-200",
+                            "w-full justify-start h-auto p-4 rounded-xl mb-2 ",
                             isActive && "bg-primary/10 text-primary border border-primary/20"
                           )}
                           onClick={() => handleNavigation(subItem.href)}

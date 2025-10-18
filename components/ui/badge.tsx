@@ -23,6 +23,9 @@ const badgeVariants = cva(
         // Status variants
         success:
           "border-transparent bg-emerald-500 text-white shadow-sm [a&]:hover:bg-emerald-600 dark:bg-emerald-600 dark:[a&]:hover:bg-emerald-700",
+
+        'success-icon':
+          "border-transparent bg-lime-700 text-white/70 shadow-sm [a&]:hover:bg-lime-600 dark:bg-lime-800 dark:[a&]:hover:bg-lime-700",
         warning:
           "border-transparent bg-amber-500 text-white shadow-sm [a&]:hover:bg-amber-600 dark:bg-amber-600 dark:[a&]:hover:bg-amber-700",
         error:

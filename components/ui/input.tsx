@@ -75,7 +75,7 @@ function Input({
     return (
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
             {loading ? (
               <div className="size-4 animate-spin rounded-full border-1 border-current border-t-transparent" />
             ) : (

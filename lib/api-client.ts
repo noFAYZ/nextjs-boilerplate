@@ -161,6 +161,19 @@ class ApiClient {
 
       return data as ApiResponse<T>;
     } catch (error) {
+      // Check if error has a code property (thrown by us in the try block)
+      if (error && typeof error === 'object' && 'code' in error) {
+        return {
+          success: false,
+          error: {
+            code: (error as any).code,
+            message: (error as any).message || 'Request failed',
+            details: (error as any).details,
+          },
+        };
+      }
+
+      // Otherwise use the centralized error handler
       const authError = this.handleError(error);
 
       return {

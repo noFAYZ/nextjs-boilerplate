@@ -31,7 +31,8 @@
       "Bash(yarn add:*)",
       "Bash(cmd //c taskkill:*)",
       "Bash(mkdir:*)",
-      "WebFetch(domain:docs.stripe.com)"
+      "WebFetch(domain:docs.stripe.com)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

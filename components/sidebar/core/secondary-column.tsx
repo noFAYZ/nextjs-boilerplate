@@ -6,13 +6,11 @@ import { Search, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { FluentPanelLeftExpand28Filled, GameIconsUpgrade } from '@/components/icons';
-import { SidebarMenuContent } from './sidebar-menu-content';
-import { SidebarQuickActions } from './sidebar-quick-actions';
-import { SidebarCollapsedContent } from './sidebar-collapsed-content';
-import { SidebarDynamicContent } from './sidebar-dynamic-content';
-import { MenuItem, QuickAction } from './types';
-import { GlobalViewSwitcher } from '../ui/global-view-switcher';
-import { ThemeSwitcher } from '../ui/theme-switcher';
+import { SidebarDynamicContent } from '../content/dynamic-content';
+import { SidebarCollapsedContent } from '../content/collapsed-content';
+import { MenuItem, QuickAction } from '../types';
+import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 
 interface SidebarSecondaryColumnProps {
   isExpanded: boolean;
@@ -39,7 +37,7 @@ export function SidebarSecondaryColumn({
 
   return (
     <div className={cn(
-      "flex h-full flex-col transition-[width] duration-75 bg-background dark:bg-sidebar-accent border-r border-border/60 shadow-xl",
+      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar-accent border-r border-border/60 shadow-xl",
       isExpanded ? "w-80" : "w-16"
     )}>
       {/* Header */}

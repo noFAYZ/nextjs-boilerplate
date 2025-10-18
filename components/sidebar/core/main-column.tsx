@@ -17,9 +17,9 @@ import {
 import { LogoMappr } from '@/components/icons';
 import { useUserProfile } from '@/lib/hooks/use-user-profile';
 import { authClient } from '@/lib/auth-client';
-import { MenuItem } from './types';
-import { ThemeSwitcher } from '../ui/theme-switcher';
-import { MapprLogoM, MapprLogoMT } from '../icons/icons';
+import { MenuItem } from '../types';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
+import { MapprLogoM, MapprLogoMT } from '@/components/icons/icons';
 
 
 interface SidebarMainColumnProps {
@@ -86,9 +86,9 @@ export function SidebarMainColumn({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "relative h-11 w-11 group rounded-xl transition-all",
+                  "relative h-11 w-11 group rounded-lg  transition-all",
                   isActive || isSelected
-                    ? "bg-white/15  hover:bg-white/20 text-white hover:text-white"
+                    ? "bg-white/15  hover:bg-white/20 text-white border border-white/15 hover:text-white"
                     : "text-white/60 hover:text-white hover:bg-white/15"
                 )}
                 title={item.label}

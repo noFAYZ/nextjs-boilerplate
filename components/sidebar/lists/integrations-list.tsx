@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserIntegrations } from '@/lib/queries/integrations-queries';
-import { IntuitLogo, PayPalLogo, StripeLogo, XeroLogo } from '../icons/icons';
+import { IntuitLogo, PayPalLogo, StripeLogo, XeroLogo } from '../../icons/icons';
 import type { IntegrationStatus } from '@/lib/types/integrations';
 
 interface SidebarIntegrationsListProps {

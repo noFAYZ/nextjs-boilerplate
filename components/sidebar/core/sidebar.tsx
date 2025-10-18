@@ -27,13 +27,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { MobileFloatingMenu } from './mobile-floating-menu';
+import { MobileFloatingMenu } from '../mobile/floating-menu';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { useAccount } from '@/lib/contexts/account-context';
-import { useCommandPalette } from '../command/command-palette';
-import { SidebarMainColumn } from './sidebar-main-column';
-import { SidebarSecondaryColumn } from './sidebar-secondary-column';
-import { MenuItem, QuickAction } from './types';
+import { useCommandPalette } from '@/components/command/command-palette';
+import { SidebarMainColumn } from './main-column';
+import { SidebarSecondaryColumn } from './secondary-column';
+import { MenuItem, QuickAction } from '../types';
 import { 
   FluentBuildingBank28Regular,
   GuidanceBank, 
@@ -48,7 +48,7 @@ import {
   SolarWalletMoneyLinear, 
   StreamlinePlumpFileReport, 
   TablerEyeDollar 
-} from '../icons/icons';
+} from '@/components/icons/icons';
 
 const MENU_ITEMS: MenuItem[] = [
   {

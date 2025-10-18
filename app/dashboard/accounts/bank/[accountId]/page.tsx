@@ -53,6 +53,9 @@ import { useRealtimeSync } from '@/components/providers/realtime-sync-provider';
 import { useCurrencyFormat, useCurrency } from '@/lib/contexts/currency-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { BankAccount } from '@/lib/types/banking';
+import { HugeiconsAnalyticsUp, HugeiconsCreditCard, MynauiActivitySquare, SolarPieChartBold } from '@/components/icons/icons';
+import { IconParkOutlineSettingTwo } from '@/components/icons';
+import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -68,7 +71,7 @@ const ACCOUNT_TYPE_CONFIG = {
     textColor: 'text-green-600 dark:text-green-400',
   },
   CREDIT_CARD: {
-    icon: CreditCard,
+    icon: HugeiconsCreditCard,
     label: 'Credit Card',
     color: 'from-purple-500 to-purple-600',
     textColor: 'text-purple-600 dark:text-purple-400',
@@ -104,7 +107,7 @@ export default function BankAccountDetailsPage() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
+  const { pageClass } = useViewModeClasses();
   // Currency context
   useCurrency();
   useCurrencyFormat();
@@ -367,12 +370,12 @@ export default function BankAccountDetailsPage() {
   const syncState = realtimeSyncStates[account.id];
 
   return (
-    <div className=" max-w-3xl mx-auto p-4 md:p-6 space-y-4">
+    <div className={`${pageClass} p-4 lg:p-6 space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          size="xs"
+          size="sm"
           onClick={() => router.push('/dashboard/accounts/bank')}
           className="gap-2 h-8"
         >
@@ -388,7 +391,7 @@ export default function BankAccountDetailsPage() {
                   syncState?.status === 'processing' ||
                   syncState?.status === 'syncing_transactions'
                 }
-                size="xs"
+                size="sm"
                 className="gap-1 "
               >
                 {(syncAccount.isPending || syncState?.status === 'syncing' || syncState?.status === 'syncing_transactions') ? (
@@ -402,16 +405,16 @@ export default function BankAccountDetailsPage() {
       </div>
 
       {/* Account Header */}
-      <Card className="rounded-xl border border-border bg-background dark:bg-card shadow-xs dark:shadow-none">
-        <CardContent className="px-4">
+    
+        <div className="">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Account Info */}
             <div className="flex items-start gap-3">
               <div className={cn(
-                'h-11 w-11 rounded-lg flex items-center justify-center bg-gradient-to-br flex-shrink-0',
+                'h-16 w-16 rounded-3xl flex items-center justify-center bg-gradient-to-br flex-shrink-0',
                 accountConfig.color
               )}>
-                <IconComponent className="h-5 w-5 text-white" />
+                <IconComponent className="h-9 w-9 text-white" />
               </div>
 
               <div className="space-y-1.5 min-w-0">
@@ -438,10 +441,10 @@ export default function BankAccountDetailsPage() {
             {/* Balance & Actions */}
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-[10px] text-muted-foreground mb-0.5">Available Balance</p>
+                <p className="text-[10px] text-muted-foreground  uppercase">Available Balance</p>
                 <CurrencyDisplay
                   amountUSD={parseFloat(account.availableBalance?.toString() || account.balance.toString())}
-                  className={cn('text-xl font-bold', getBalanceColor(account))}
+                  className={cn('text-3xl font-bold')}
                 />
               </div>
 
@@ -453,7 +456,7 @@ export default function BankAccountDetailsPage() {
 <div className='flex justify-between items-center'>
           {/* Pending Alert */}
           {account.availableBalance !== account.ledgerBalance && (
-            <div className="mt-3 flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+            <div className="mt-3 flex items-center gap-2 p-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
               <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
               <div className="text-xs">
                 <span className="font-medium">Pending: </span>
@@ -467,7 +470,7 @@ export default function BankAccountDetailsPage() {
           )}
                
                <div className='flex gap-2 '>
-               <Card className="rounded-xl border border-border bg-background dark:bg-card dark:shadow-none py-2 px-3">
+               <Card className="rounded-xl border border-border bg-background dark:bg-card dark:shadow-none py-1.5 px-3">
     
             <div className="flex items-start justify-between gap-2">
               <div className="h-8 w-8 rounded-md flex items-center justify-center bg-green-500/10">
@@ -486,7 +489,7 @@ export default function BankAccountDetailsPage() {
    
         </Card>
 
-        <Card className="rounded-xl border border-border bg-background dark:bg-card  dark:shadow-none py-2 px-3">
+        <Card className="rounded-xl border border-border bg-background dark:bg-card  dark:shadow-none py-1.5 px-3">
        
             <div className="flex items-start justify-between gap-2 ">
               <div className="h-8 w-8 rounded-md flex items-center justify-center bg-red-500/10">
@@ -507,8 +510,8 @@ export default function BankAccountDetailsPage() {
         </Card></div>
 
 </div>
-        </CardContent>
-      </Card>
+        </div>
+      
 
       {/* Sync Progress */}
       <BankAccountSyncProgress accountId={accountId} accountName={account.name} />
@@ -516,29 +519,32 @@ export default function BankAccountDetailsPage() {
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <Card className="rounded-xl border border-border bg-background dark:bg-card shadow-xs dark:shadow-none">
-          <CardHeader className="pb-2">
-            <TabsList className="w-fit h-9">
-              <TabsTrigger value="overview" className="gap-1.5 text-xs h-7">
-                <PieChart className="h-3.5 w-3.5" />
+        
+            <TabsList className="mt-2 "   
+            variant="card">
+              <TabsTrigger value="overview" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
+            variant="card">
+                <SolarPieChartBold className="h-5 w-5" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="transactions" className="gap-1.5 text-xs h-7">
-                <ArrowUpDown className="h-3.5 w-3.5" />
+              <TabsTrigger value="transactions" className="flex px-2 items-center gap-1.5 cursor-pointer"  size={'sm'}
+            variant="card">
+                 <MynauiActivitySquare className="w-5.5 h-5.5" />
                 Transactions
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="gap-1.5 text-xs h-7">
-                <BarChart3 className="h-3.5 w-3.5" />
+              <TabsTrigger value="analytics" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
+            variant="card">
+                <HugeiconsAnalyticsUp className="h-5 w-5" />
                 Analytics
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-1.5 text-xs h-7">
-                <Building2 className="h-3.5 w-3.5" />
+              <TabsTrigger value="settings" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
+            variant="card">
+                <IconParkOutlineSettingTwo className="h-5 w-5" />
                 Settings
               </TabsTrigger>
             </TabsList>
-          </CardHeader>
+         
 
-          <CardContent className="p-4">
             {/* Overview */}
             <TabsContent value="overview" className="mt-0 space-y-4">
               {/* Categories */}
@@ -897,8 +903,7 @@ export default function BankAccountDetailsPage() {
                 </div>
               </div>
             </TabsContent>
-          </CardContent>
-        </Card>
+         
       </Tabs>
 
       {/* Sync Modal */}

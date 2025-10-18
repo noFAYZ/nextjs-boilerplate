@@ -17,9 +17,9 @@ const tabsListVariants = cva(
         steps: "bg-transparent",
         accent: " rounded-xl p-1 shadow-sm",
         sidebar: "bg-transparent flex-col w-fit",
-        card: "bg-muted rounded-xl p-2 shadow-sm",
+        card: "bg-muted rounded-xl p-0.5 shadow-sm border",
         minimal: "bg-transparent border-b border-border",
-        ghost: "bg-card rounded-2xl p-1",
+        ghost: "bg-muted/70 rounded-2xl p-1",
         pill: "bg-transparent rounded-full p-1",
         badge: "bg-transparent rounded-lg p-1",
         progress: "bg-muted rounded-lg p-1",
@@ -47,7 +47,7 @@ const tabsListVariants = cva(
 )
 
 const tabsTriggerVariants = cva(
-  "inline-flex items-center  gap-2 font-medium whitespace-nowrap transition-all duration-75 ease-out relative cursor-pointer select-none",
+  "inline-flex items-center  gap-2 font-medium whitespace-nowrap transition-all duration-100 ease-out relative cursor-pointer select-none",
   {
     variants: {
       variant: {
@@ -57,7 +57,7 @@ const tabsTriggerVariants = cva(
         segmented: "rounded-md px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-background/50 data-[state=active]:bg-foreground data-[state=active]:shadow-sm data-[state=active]:text-background",
         steps: "flex items-center gap-2 text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:font-semibold",
         sidebar: "flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary w-full justify-start",
-        card: "rounded-lg px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-md border border-transparent data-[state=active]:border-border",
+        card: "rounded-xl px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-foreground border border-transparent data-[state=active]:border-border",
         minimal: "rounded-none border-b-2 border-transparent px-0 py-3 text-muted-foreground hover:text-foreground hover:border-border data-[state=active]:border-primary/80 data-[state=active]:text-foreground",
         ghost: "py-3 px-2 hover:bg-muted rounded-lg data-[state=active]:bg-muted data-[state=active]:hover:bg-muted/70",
         outline: "py-0 px-2 border border-transparent data-[state=active]:border-border hover:bg-muted rounded-lg data-[state=active]:bg-muted data-[state=active]:hover:bg-muted/70",

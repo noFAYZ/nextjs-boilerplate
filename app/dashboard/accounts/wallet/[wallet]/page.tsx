@@ -587,11 +587,12 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       {/* Wallet Details Tabs */}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="  mt-2 " variant="ghost">
+        <TabsList className="  mt-2 " variant="card" size={'sm'}>
           <TabsTrigger
             value="tokens"
             className="flex px-2 items-center gap-1.5 cursor-pointer  "
-            variant="ghost"
+                size={'sm'}
+            variant="card"
           >
            
              <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
@@ -600,7 +601,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="defi"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-            variant="ghost"
+             size={'sm'}
+            variant="card"
           >
             <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
             
@@ -609,7 +611,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="nfts"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-            variant="ghost"
+             size={'sm'}
+            variant="card"
           >
              <SolarGalleryWideOutline className="w-5 h-5" />
             <span className="inline">NFTs</span>
@@ -617,7 +620,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="transactions"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-            variant="ghost"
+            size={'sm'}
+            variant="card"
           >
             <MynauiActivitySquare className="w-5.5 h-5.5" />
             

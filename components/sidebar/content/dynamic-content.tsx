@@ -2,14 +2,13 @@
 
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { SidebarMenuContent } from './sidebar-menu-content';
-import { SidebarMenuContentEnhanced } from './sidebar-menu-content-enhanced';
-import { SidebarQuickActions } from './sidebar-quick-actions';
-import { MenuItem, QuickAction } from './types';
-import { SidebarWalletsList } from './sidebar-wallets-list';
-import { SidebarBankAccountsList } from './sidebar-bank-accounts-list';
-import { SidebarIntegrationsList } from './sidebar-integrations-list';
-import { SidebarPortfolioOverview } from './sidebar-portfolio-overview';
+import { SidebarMenuContentEnhanced } from './menu-content';
+import { SidebarQuickActions } from './quick-actions';
+import { MenuItem, QuickAction } from '../types';
+import { SidebarWalletsList } from '../lists/wallets-list';
+import { SidebarBankAccountsList } from '../lists/bank-accounts-list';
+import { SidebarIntegrationsList } from '../lists/integrations-list';
+import { SidebarPortfolioOverview } from '../widgets/portfolio-overview';
 
 interface SidebarDynamicContentProps {
   selectedMenuItem: string | null;
