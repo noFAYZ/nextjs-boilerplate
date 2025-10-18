@@ -46,7 +46,7 @@ const defaultItems: CommandItem[] = [
     category: "Navigation", 
     keywords: ["crypto", "bitcoin", "ethereum", "wallet"],
     shortcut: ["⌘", "2"],
-    href: "/dashboard/accounts/wallet",
+    href: "/accounts/wallet",
   },
   {
     id: "groups",
@@ -56,7 +56,7 @@ const defaultItems: CommandItem[] = [
     category: "Navigation",
     keywords: ["groups", "organize", "accounts"],
     shortcut: ["⌘", "3"],
-    href: "/dashboard/accounts/groups",
+    href: "/accounts/groups",
   },
   {
     id: "portfolios",
@@ -66,7 +66,7 @@ const defaultItems: CommandItem[] = [
     category: "Navigation",
     keywords: ["portfolio", "analytics", "charts", "performance"],
     shortcut: ["⌘", "4"],
-    href: "/dashboard/portfolios",
+    href: "/portfolios",
   },
   {
     id: "subscription",
@@ -76,7 +76,7 @@ const defaultItems: CommandItem[] = [
     category: "Navigation",
     keywords: ["subscription", "plan", "billing", "upgrade"],
     shortcut: ["⌘", "5"],
-    href: "/dashboard/subscription",
+    href: "/subscription",
   },
   {
     id: "add-wallet",
@@ -86,7 +86,7 @@ const defaultItems: CommandItem[] = [
     category: "Actions",
     keywords: ["add", "new", "wallet", "connect"],
     shortcut: ["⌘", "N"],
-    href: "/dashboard/accounts/wallet/add",
+    href: "/accounts/wallet/add",
   },
   {
     id: "settings",
@@ -96,7 +96,7 @@ const defaultItems: CommandItem[] = [
     category: "Preferences",
     keywords: ["config", "preferences", "profile"],
     shortcut: ["⌘", ","],
-    href: "/dashboard/settings",
+    href: "/settings",
   },
   {
     id: "profile",
@@ -105,7 +105,7 @@ const defaultItems: CommandItem[] = [
     icon: <Users className="size-4" />,
     category: "Preferences",
     keywords: ["profile", "account", "personal"],
-    href: "/dashboard/profile",
+    href: "/profile",
   },
   {
     id: "theme",

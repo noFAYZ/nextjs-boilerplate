@@ -27,12 +27,12 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   const { syncWallet, hasActiveSyncs } = useSyncManager();
 
   const handleWalletClick = (walletId: string) => {
-    router.push(`/dashboard/accounts/wallet/${walletId}`);
+    router.push(`/accounts/wallet/${walletId}`);
     onMobileClose();
   };
 
   const handleAddWallet = () => {
-    router.push('/dashboard/accounts/wallet/add');
+    router.push('/accounts/wallet/add');
     onMobileClose();
   };
 

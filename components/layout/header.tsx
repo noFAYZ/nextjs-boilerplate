@@ -290,19 +290,19 @@ export function Header({
                   <div className="text-xs text-muted-foreground truncate">{profile?.email}</div>
                 </div>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile" className="flex items-center gap-2">
+                  <Link href="/profile" className="flex items-center gap-2">
                     <User className="h-4 w-4" />
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/subscription" className="flex items-center gap-2">
+                  <Link href="/subscription" className="flex items-center gap-2">
                     <Crown className="h-4 w-4" />
                     Subscription
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings" className="flex items-center gap-2">
+                  <Link href="/settings" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
                     Settings
                   </Link>

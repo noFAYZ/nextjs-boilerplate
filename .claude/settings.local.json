@@ -32,7 +32,9 @@
       "Bash(cmd //c taskkill:*)",
       "Bash(mkdir:*)",
       "WebFetch(domain:docs.stripe.com)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

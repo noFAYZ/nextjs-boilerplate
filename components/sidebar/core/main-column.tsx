@@ -139,7 +139,7 @@ export function SidebarMainColumn({
           variant="ghost"
           size="icon"
           className="h-11 w-11 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-all group relative"
-          onClick={() => router.push('/dashboard/settings')}
+          onClick={() => router.push('/settings')}
         >
           <Settings className="h-5 w-5" />
 
@@ -176,13 +176,13 @@ export function SidebarMainColumn({
               <p className="text-xs text-white/60 truncate">{profile?.email}</p>
             </div>
             <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
-              <Link href="/dashboard/profile" className="flex items-center gap-3 cursor-pointer">
+              <Link href="/profile" className="flex items-center gap-3 cursor-pointer">
                 <User className="h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
-              <Link href="/dashboard/subscription" className="flex items-center gap-3 cursor-pointer">
+              <Link href="/subscription" className="flex items-center gap-3 cursor-pointer">
                 <Crown className="h-4 w-4" />
                 <span>Subscription</span>
               </Link>

@@ -113,7 +113,7 @@ export function SidebarSecondaryColumn({
                 <Button
                   size="sm"
                   className="h-7 text-[11px] px-3 font-medium"
-                  onClick={() => router.push('/dashboard/subscription')}
+                  onClick={() => router.push('/subscription')}
                 >
                   Upgrade
                 </Button>
@@ -125,7 +125,7 @@ export function SidebarSecondaryColumn({
             variant="ghost"
             size="icon"
             className="h-10 w-10 mx-auto rounded-lg bg-primary/5 hover:bg-primary/10 border border-primary/20 group relative"
-            onClick={() => router.push('/dashboard/subscription')}
+            onClick={() => router.push('/subscription')}
           >
             <Crown className="h-4.5 w-4.5 text-primary" />
 

@@ -336,7 +336,7 @@ class ErrorHandler {
         actions.push({
           label: 'View Plans',
           action: () => {
-            window.location.href = '/dashboard/subscription';
+            window.location.href = '/subscription';
           },
           primary: true
         });

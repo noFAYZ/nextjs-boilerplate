@@ -46,7 +46,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Connect Bitcoin, Ethereum, and other cryptocurrency wallets",
     icon: <Coins className="w-5 h-5" />,
     category: "crypto",
-    href: "/dashboard/crypto/wallets/add",
+    href: "/crypto/wallets/add",
     popular: true
   },
   {
@@ -55,7 +55,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Connect Binance, Coinbase, Kraken, and other exchanges",
     icon: <ArrowRightLeft className="w-5 h-5" />,
     category: "crypto",
-    href: "/dashboard/crypto/exchanges/add"
+    href: "/crypto/exchanges/add"
   },
   
   // Banking Options
@@ -65,7 +65,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Connect your checking and savings accounts",
     icon: <Landmark className="w-5 h-5" />,
     category: "banking",
-    href: "/dashboard/accounts/bank/add",
+    href: "/accounts/bank/add",
     popular: true
   },
   {
@@ -74,7 +74,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Add credit cards to track spending and payments",
     icon: <CreditCard className="w-5 h-5" />,
     category: "banking",
-    href: "/dashboard/accounts/cards/add"
+    href: "/accounts/cards/add"
   },
   {
     id: "digital-wallet",
@@ -82,7 +82,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Connect PayPal, Apple Pay, Google Pay, and more",
     icon: <Wallet className="w-5 h-5" />,
     category: "banking",
-    href: "/dashboard/accounts/digital/add"
+    href: "/accounts/digital/add"
   },
   
   // Investment Options
@@ -92,7 +92,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Connect brokerages like Robinhood, E*TRADE, TD Ameritrade",
     icon: <TrendingUp className="w-5 h-5" />,
     category: "investment",
-    href: "/dashboard/accounts/investments/add"
+    href: "/accounts/investments/add"
   },
   {
     id: "retirement-account",
@@ -100,7 +100,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Add 401(k), IRA, Roth IRA, and other retirement accounts",
     icon: <PiggyBank className="w-5 h-5" />,
     category: "investment",
-    href: "/dashboard/accounts/retirement/add"
+    href: "/accounts/retirement/add"
   },
   
   // Goal Options
@@ -110,7 +110,7 @@ const ADD_OPTIONS: AddOption[] = [
     description: "Set and track financial goals like emergency fund, vacation",
     icon: <Target className="w-5 h-5" />,
     category: "goal",
-    href: "/dashboard/goals/add"
+    href: "/goals/add"
   },
   {
     id: "budget-category",

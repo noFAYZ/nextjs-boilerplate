@@ -236,7 +236,7 @@ export function WalletsDock() {
             // Trigger manual sync retry - we could add this functionality
             console.log('Retrying sync for wallet:', wallet.id)
           } else {
-            router.push(`/dashboard/crypto/wallets/${wallet.id}`)
+            router.push(`/crypto/wallets/${wallet.id}`)
           }
         }
       }
@@ -407,14 +407,14 @@ export function BottomMenuDock() {
       id: 'wallets',
       label: 'Wallets',
       icon: <StreamlineFlexWallet className="w-5 h-5 text-accent-foreground/80" />,
-      href: '/dashboard/accounts/wallet',
+      href: '/accounts/wallet',
       hotkey: '⌘+1'
     },
     {
       id: 'banks',
       label: 'Banks',
       icon: <StreamlinePlumpBuildingOffice className="w-5 h-5 text-accent-foreground/80"/>,
-      href: '/dashboard/accounts/bank',
+      href: '/accounts/bank',
       hotkey: '⌘+2'
     },
    
@@ -429,14 +429,14 @@ export function BottomMenuDock() {
       id: 'portfolios',
       label: 'Portfolios',
       icon: <HugeiconsPieChart01 className="w-5.5 h-5.5 text-accent-foreground/80" />,
-      href: '/dashboard/portfolios',
+      href: '/portfolios',
       hotkey: '⌘+1'
     },
     {
       id: 'groups',
       label: 'Groups',
       icon: <StreamlineFlexLabelFolderTag className="w-5 h-5 text-accent-foreground/80" />,
-      href: '/dashboard/accounts/groups',
+      href: '/accounts/groups',
       hotkey: '⌘+1'
     },
     {

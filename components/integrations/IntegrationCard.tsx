@@ -125,9 +125,9 @@ export function IntegrationCard({
 
   const handleCardClick = () => {
     if (isConnected) {
-      router.push(`/dashboard/integrations/${provider.provider.toLowerCase()}`);
+      router.push(`/integrations/${provider.provider.toLowerCase()}`);
     } else {
-      router.push(`/dashboard/accounts/connection?integration=${provider.provider.toLowerCase()}&type=service`);
+      router.push(`/accounts/connection?integration=${provider.provider.toLowerCase()}&type=service`);
     }
   };
 

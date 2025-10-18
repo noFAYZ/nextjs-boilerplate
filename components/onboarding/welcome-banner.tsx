@@ -42,19 +42,19 @@ export function WelcomeBanner() {
       title: 'Connect Wallet',
       description: 'Add crypto wallet',
       icon: SolarWalletMoneyLinear,
-      href: '/dashboard/accounts/wallet/add'
+      href: '/accounts/wallet/add'
     },
     {
       title: 'View Portfolio',
       description: 'See your investments',
       icon: SolarPieChartBold,
-      href: '/dashboard/portfolio'
+      href: '/portfolio'
     },
     {
       title: 'Set Goals',
       description: 'Create financial goal',
       icon: Target,
-      href: '/dashboard/goals/create'
+      href: '/goals/create'
     }
   ];
 

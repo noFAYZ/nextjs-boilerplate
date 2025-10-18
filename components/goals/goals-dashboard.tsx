@@ -243,7 +243,7 @@ export function GoalsDashboard() {
     // Navigate to goal details page or open a modal
     toast.info('View Details', { description: 'Details view coming soon' });
     // TODO: Implement navigation to goal details page
-    // router.push(`/dashboard/goals/${goal.id}`);
+    // router.push(`/goals/${goal.id}`);
   }, []);
 
   // Load data on mount once
@@ -290,7 +290,7 @@ export function GoalsDashboard() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/goals/analytics">
+          <Link href="/goals/analytics">
             <Button variant="outline" size={'sm'}>
               <BarChart3 className="mr-1 h-4 w-4" />
               Analytics

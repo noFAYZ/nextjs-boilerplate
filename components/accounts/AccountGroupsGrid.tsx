@@ -148,7 +148,7 @@ function GroupDetailsView({
       toggleWalletSelection(wallet.id);
     } else {
       // Navigate to wallet page
-      router.push(`/dashboard/accounts/wallet/${wallet.id}`);
+      router.push(`/accounts/wallet/${wallet.id}`);
     }
   };
 
@@ -1059,7 +1059,7 @@ export function AccountGroupsGrid({
       {hasMore && (
         <div className="flex items-center justify-center pt-4">
           <Button variant="outline" size="sm" asChild className="group">
-            <Link href="/dashboard/accounts/groups" className="inline-flex items-center gap-2">
+            <Link href="/accounts/groups" className="inline-flex items-center gap-2">
               <Eye className="size-4" />
               <span>View all {groups.length} groups</span>
               <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />

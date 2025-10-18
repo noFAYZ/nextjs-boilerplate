@@ -39,10 +39,10 @@ export default function DashboardPage() {
   const brandColor = '#FF6900';
 
   const quickActions = [
-    { icon: Send, label: 'Send', href: '/dashboard/send', color: brandColor },
-    { icon: Download, label: 'Request', href: '/dashboard/request', color: '#3b82f6' },
-    { icon: Repeat, label: 'Exchange', href: '/dashboard/exchange', color: '#8b5cf6' },
-    { icon: Receipt, label: 'Bills', href: '/dashboard/bills', color: '#10b981' }
+    { icon: Send, label: 'Send', href: '/send', color: brandColor },
+    { icon: Download, label: 'Request', href: '/request', color: '#3b82f6' },
+    { icon: Repeat, label: 'Exchange', href: '/exchange', color: '#8b5cf6' },
+    { icon: Receipt, label: 'Bills', href: '/bills', color: '#10b981' }
   ];
 
   return (
@@ -104,7 +104,7 @@ export default function DashboardPage() {
   {/* Quick Links Section */}
   <div className="flex items-center justify-between pt-4">
           <h2 className="text-lg font-semibold">Quick Access</h2>
-          <Link href="/dashboard/accounts">
+          <Link href="/accounts">
             <Button variant="ghost" size="sm" className="gap-2">
               View All
               <ArrowRight className="h-4 w-4" />
@@ -113,7 +113,7 @@ export default function DashboardPage() {
         </div>
             {/* Additional Links Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/dashboard/accounts/bank">
+          <Link href="/accounts/bank">
             <div className="group p-3 rounded-xl  bg-card hover:bg-muted/50 transition-all cursor-pointer shadow">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center  transition-transform">
@@ -127,7 +127,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/accounts/wallet">
+          <Link href="/accounts/wallet">
             <div className="group p-3 rounded-xl  hover:bg-muted/50 transition-all cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center  transition-transform">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/accounts/integrations">
+          <Link href="/accounts/integrations">
             <div className="group p-3 rounded-xl  hover:bg-muted/50 transition-all cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950/40 flex items-center justify-center transition-transform">
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/settings">
+          <Link href="/settings">
             <div className="group p-3 rounded-xl  hover:bg-muted/50 transition-all cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center  transition-transform">

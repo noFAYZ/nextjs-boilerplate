@@ -22,12 +22,12 @@ export function SidebarBankAccountsList({ onMobileClose }: SidebarBankAccountsLi
   const { realtimeSyncStates } = useBankingStore();
 
   const handleAccountClick = (accountId: string) => {
-    router.push(`/dashboard/accounts/bank/${accountId}`);
+    router.push(`/accounts/bank/${accountId}`);
     onMobileClose();
   };
 
   const handleAddAccount = () => {
-    router.push('/dashboard/accounts/bank');
+    router.push('/accounts/bank');
     onMobileClose();
   };
 

@@ -23,11 +23,11 @@ interface UseSidebarReturn {
 const STORAGE_KEY = 'sidebar-state';
 // Order matters: more specific routes first
 const MENU_ROUTES: Record<string, string> = {
-  integrations: '/dashboard/accounts/integrations',
-  accounts: '/dashboard/accounts',
-  portfolio: '/dashboard/portfolio',
+  integrations: '/accounts/integrations',
+  accounts: '/accounts',
+  portfolio: '/portfolio',
   transactions: '/dashboard/transactions',
-  goals: '/dashboard/goals',
+  goals: '/goals',
   insights: '/dashboard/insights',
   dashboard: '/dashboard'
 };

@@ -314,7 +314,7 @@ export function WalletsDock() {
               } : undefined}
               onClick={() => {
                 // Navigate to wallet details
-                window.location.href = `/dashboard/crypto/wallets/${wallet.id}`;
+                window.location.href = `/crypto/wallets/${wallet.id}`;
               }}
             />
           );

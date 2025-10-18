@@ -1851,7 +1851,7 @@ const DockDemo = () => {
       id: 'wallets',
       label: 'Wallets',
       icon: <StreamlineFlexWallet className="w-6 h-6 text-accent-foreground/80" />,
-      href: '/dashboard/accounts/wallet',
+      href: '/accounts/wallet',
       hotkey: '⌘+1'
     },
     

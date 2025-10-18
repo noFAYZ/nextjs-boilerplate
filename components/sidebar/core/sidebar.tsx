@@ -68,7 +68,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'analytics',
         label: 'Analytics',
-        href: '/dashboard/analytics',
+        href: '/analytics',
         description: 'Deep dive into your financial data',
         icon: HugeiconsAnalyticsUp,
         status: 'new',
@@ -77,7 +77,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'reports',
         label: 'Reports',
-        href: '/dashboard/reports',
+        href: '/reports',
         description: 'Generate and view financial reports',
         icon: StreamlinePlumpFileReport,
         tooltip: 'Custom reports and exports'
@@ -85,7 +85,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'widgets',
         label: 'Widgets',
-        href: '/dashboard/widgets',
+        href: '/widgets',
         description: 'Customize your dashboard',
         icon: Settings,
         status: 'updated',
@@ -105,12 +105,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'accounts',
     label: 'Accounts',
     icon: SolarWalletMoneyLinear,
-    href: '/dashboard/accounts',
+    href: '/accounts',
     submenu: [
       {
         id: 'crypto-wallets',
         label: 'Crypto Wallets',
-        href: '/dashboard/accounts/wallet',
+        href: '/accounts/wallet',
         icon: SolarWalletMoneyLinear,
         description: 'Track your cryptocurrency wallets',
         tooltip: 'Connect and manage crypto wallets across all chains',
@@ -119,7 +119,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'bank-accounts',
         label: 'Bank Accounts',
-        href: '/dashboard/accounts/bank',
+        href: '/accounts/bank',
         icon: FluentBuildingBank28Regular,
         description: 'Monitor traditional bank accounts',
         tooltip: 'Link and track your bank accounts securely',
@@ -128,7 +128,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'exchanges',
         label: 'Exchanges',
-        href: '/dashboard/accounts/exchange',
+        href: '/accounts/exchange',
         icon: Building,
         description: 'Connect crypto exchange accounts',
         tooltip: 'Sync your exchange portfolios',
@@ -137,7 +137,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'integrations',
         label: 'Integrations',
-        href: '/dashboard/accounts/integrations',
+        href: '/accounts/integrations',
         icon: Plug,
         description: 'Manage third-party connections',
         tooltip: 'Connected apps and services',
@@ -146,7 +146,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'connection',
         label: 'Connect Account',
-        href: '/dashboard/accounts/connection',
+        href: '/accounts/connection',
         icon: Plus,
         description: 'Add a new financial account',
         tooltip: 'Connect new wallets, banks, or exchanges',
@@ -165,7 +165,7 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'integrations',
     label: 'Integrations',
     icon: HugeiconsPuzzle,
-    href: '/dashboard/accounts/integrations',
+    href: '/accounts/integrations',
     quickActions: [
       { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
@@ -176,12 +176,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'portfolio',
     label: 'Portfolio',
     icon: HugeiconsPieChart09,
-    href: '/dashboard/portfolio',
+    href: '/portfolio',
     submenu: [
       {
         id: 'overview',
         label: 'Portfolio Overview',
-        href: '/dashboard/portfolio',
+        href: '/portfolio',
         icon: HugeiconsPieChart09,
         description: 'Complete portfolio snapshot',
         tooltip: 'View your entire portfolio at a glance'
@@ -189,7 +189,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'holdings',
         label: 'Holdings',
-        href: '/dashboard/portfolio/holdings',
+        href: '/portfolio/holdings',
         icon: Store,
         description: 'Detailed asset breakdown',
         tooltip: 'All your assets in one place'
@@ -197,7 +197,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'performance',
         label: 'Performance',
-        href: '/dashboard/portfolio/performance',
+        href: '/portfolio/performance',
         icon: TrendingUp,
         description: 'Track portfolio performance',
         tooltip: 'Returns, gains, and performance metrics',
@@ -206,7 +206,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'allocation',
         label: 'Asset Allocation',
-        href: '/dashboard/portfolio/allocation',
+        href: '/portfolio/allocation',
         icon: BarChart3,
         description: 'Analyze your asset distribution',
         tooltip: 'Diversification and allocation analysis'
@@ -224,12 +224,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'transactions',
     label: 'Transactions',
     icon: HugeiconsTransactionHistory,
-    href: '/dashboard/transactions',
+    href: '/transactions',
     submenu: [
       {
         id: 'all',
         label: 'All Transactions',
-        href: '/dashboard/transactions',
+        href: '/transactions',
         icon: HugeiconsTransactionHistory,
         description: 'Complete transaction history',
         tooltip: 'View all your financial transactions'
@@ -273,12 +273,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'goals',
     label: 'Goals',
     icon: MageGoals,
-    href: '/dashboard/goals',
+    href: '/goals',
     submenu: [
       {
         id: 'active',
         label: 'Active Goals',
-        href: '/dashboard/goals',
+        href: '/goals',
         icon: Target,
         description: 'Your current financial goals',
         tooltip: 'Track progress on active goals'
@@ -286,7 +286,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'savings',
         label: 'Savings Goals',
-        href: '/dashboard/goals/savings',
+        href: '/goals/savings',
         icon: SolarWallet2Outline,
         description: 'Short and long-term savings',
         tooltip: 'Emergency funds, vacation, etc.'
@@ -294,7 +294,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'investment',
         label: 'Investment Goals',
-        href: '/dashboard/goals/investment',
+        href: '/goals/investment',
         icon: TrendingUp,
         description: 'Wealth building objectives',
         tooltip: 'Retirement, portfolio targets, etc.',
@@ -303,7 +303,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'create',
         label: 'Create New Goal',
-        href: '/dashboard/goals/create',
+        href: '/goals/create',
         icon: Plus,
         description: 'Set a new financial target',
         tooltip: 'Define and track new financial goals',
@@ -322,12 +322,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'insights',
     label: 'Insights',
     icon: HugeiconsAnalytics02,
-    href: '/dashboard/insights',
+    href: '/insights',
     submenu: [
       {
         id: 'overview',
         label: 'Insights Overview',
-        href: '/dashboard/insights',
+        href: '/insights',
         icon: Lightbulb,
         description: 'AI-powered financial insights',
         tooltip: 'Smart insights about your finances',

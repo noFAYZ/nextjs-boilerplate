@@ -23,7 +23,7 @@ export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOver
           </div>
         </div>
 
-        <Link href="/dashboard/portfolio" onClick={onMobileClose}>
+        <Link href="/portfolio" onClick={onMobileClose}>
           <Button variant="outline" size="sm" className="w-full gap-2">
             View Portfolio
             <ArrowRight className="h-3 w-3" />

@@ -111,13 +111,13 @@ const defaultNavigation: NavItem[] = [
   },
   {
     title: "Crypto Wallets",
-    href: "/dashboard/crypto/wallets",
+    href: "/crypto/wallets",
     icon: Wallet,
     description: "Manage cryptocurrency portfolios",
   },
   {
     title: "Accounts",
-    href: "/dashboard/accounts",
+    href: "/accounts",
     icon: CreditCard,
     description: "Bank accounts and traditional assets",
   },

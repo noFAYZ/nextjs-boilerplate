@@ -45,7 +45,7 @@ export function useWalletDock() {
       icon: status.icon,
       onClick: () => {
         // Navigate to wallet details
-        window.location.href = `/dashboard/crypto/wallets/${walletId}`
+        window.location.href = `/crypto/wallets/${walletId}`
       }
     }
 

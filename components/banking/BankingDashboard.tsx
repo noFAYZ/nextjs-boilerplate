@@ -263,7 +263,7 @@ export function BankingDashboard({
 
   const handleAccountClick = (account: BankAccount) => {
     // Navigate to the individual account details page
-    router.push(`/dashboard/accounts/bank/${account.id}`);
+    router.push(`/accounts/bank/${account.id}`);
   };
 
   // Use the raw grouped data directly - it's already in the correct format

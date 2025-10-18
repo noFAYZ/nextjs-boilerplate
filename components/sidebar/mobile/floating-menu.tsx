@@ -88,25 +88,25 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'accounts',
     label: 'Accounts',
     icon: SolarWallet2Outline,
-    href: '/dashboard/accounts',
+    href: '/accounts',
     submenu: [
-      { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/dashboard/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
-      { id: 'bank-accounts', label: 'Bank Accounts', href: '/dashboard/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
-      { id: 'exchanges', label: 'Exchanges', href: '/dashboard/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
-      { id: 'services', label: 'Business Services', href: '/dashboard/accounts/service', icon: Store, description: 'Shopify, QuickBooks, etc.' },
-      { id: 'add-wallet', label: 'Add New Wallet', href: '/dashboard/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
+      { id: 'crypto-wallets', label: 'Crypto Wallets', href: '/accounts/wallet', icon: SolarWallet2Outline, description: 'Manage cryptocurrency wallets' },
+      { id: 'bank-accounts', label: 'Bank Accounts', href: '/accounts/bank', icon: GuidanceBank, description: 'Traditional banking accounts' },
+      { id: 'exchanges', label: 'Exchanges', href: '/accounts/exchange', icon: Building, description: 'Cryptocurrency exchanges' },
+      { id: 'services', label: 'Business Services', href: '/accounts/service', icon: Store, description: 'Shopify, QuickBooks, etc.' },
+      { id: 'add-wallet', label: 'Add New Wallet', href: '/accounts/wallet/add', icon: Plus, description: 'Connect a new crypto wallet' }
     ]
   },
   {
     id: 'portfolio',
     label: 'Portfolio',
     icon: HugeiconsPieChart09,
-    href: '/dashboard/portfolio',
+    href: '/portfolio',
     submenu: [
-      { id: 'overview', label: 'Overview', href: '/dashboard/portfolio' },
-      { id: 'holdings', label: 'Holdings', href: '/dashboard/portfolio/holdings' },
-      { id: 'performance', label: 'Performance', href: '/dashboard/portfolio/performance' },
-      { id: 'allocation', label: 'Asset Allocation', href: '/dashboard/portfolio/allocation' }
+      { id: 'overview', label: 'Overview', href: '/portfolio' },
+      { id: 'holdings', label: 'Holdings', href: '/portfolio/holdings' },
+      { id: 'performance', label: 'Performance', href: '/portfolio/performance' },
+      { id: 'allocation', label: 'Asset Allocation', href: '/portfolio/allocation' }
     ]
   },
   {
@@ -125,11 +125,11 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'goals',
     label: 'Goals',
     icon: MageGoals,
-    href: '/dashboard/goals',
+    href: '/goals',
     submenu: [
-      { id: 'savings', label: 'Savings Goals', href: '/dashboard/goals/savings' },
-      { id: 'investment', label: 'Investment Goals', href: '/dashboard/goals/investment' },
-      { id: 'create', label: 'Create Goal', href: '/dashboard/goals/create', icon: Plus }
+      { id: 'savings', label: 'Savings Goals', href: '/goals/savings' },
+      { id: 'investment', label: 'Investment Goals', href: '/goals/investment' },
+      { id: 'create', label: 'Create Goal', href: '/goals/create', icon: Plus }
     ]
   },
   {
@@ -414,19 +414,19 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" side="top" className="w-56">
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer">
+                        <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
                           <User className="h-4 w-4" />
                           Profile
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/subscription" className="flex items-center gap-2 cursor-pointer">
+                        <Link href="/subscription" className="flex items-center gap-2 cursor-pointer">
                           <Crown className="h-4 w-4" />
                           Subscription
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
+                        <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
                           <Settings className="h-4 w-4" />
                           Settings
                         </Link>
@@ -458,7 +458,7 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
                       variant="ghost"
                       size="icon"
                       className="h-10 w-10 rounded-lg"
-                      onClick={() => handleNavigation('/dashboard/accounts/wallet/add')}
+                      onClick={() => handleNavigation('/accounts/wallet/add')}
                       title="Add Account"
                     >
                       <Plus className="h-5 w-5" />

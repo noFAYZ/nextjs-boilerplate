@@ -589,7 +589,7 @@ export function AddAccountToGroupDialog({
                           </div>
                         </div>
                         <Button asChild size="sm">
-                          <Link href="/dashboard/accounts/wallet/add" target="_blank" className="inline-flex items-center">
+                          <Link href="/accounts/wallet/add" target="_blank" className="inline-flex items-center">
                             Connect Wallet
                             <ExternalLink className="ml-2 h-3 w-3" />
                           </Link>

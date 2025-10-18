@@ -90,7 +90,7 @@ export function createWalletDockItem(
     timestamp: getTimestamp(lastSync, status),
     icon,
     onClick: () => {
-      window.location.href = `/dashboard/crypto/wallets/${id}`
+      window.location.href = `/crypto/wallets/${id}`
     }
   }
 }

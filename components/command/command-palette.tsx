@@ -71,7 +71,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Go to Wallets',
       description: 'Manage crypto wallets',
       icon: SolarWallet2Outline,
-      action: () => router.push('/dashboard/accounts/wallet'),
+      action: () => router.push('/accounts/wallet'),
       shortcut: '⌘ W',
       group: 'Navigation',
       keywords: ['crypto', 'wallet', 'accounts']
@@ -81,7 +81,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Go to Portfolio',
       description: 'View portfolio overview',
       icon: HugeiconsPieChart09,
-      action: () => router.push('/dashboard/portfolio'),
+      action: () => router.push('/portfolio'),
       shortcut: '⌘ P',
       group: 'Navigation',
       keywords: ['holdings', 'assets', 'performance']
@@ -91,7 +91,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Go to Transactions',
       description: 'View transaction history',
       icon: HugeiconsTransactionHistory,
-      action: () => router.push('/dashboard/transactions'),
+      action: () => router.push('/transactions'),
       shortcut: '⌘ T',
       group: 'Navigation',
       keywords: ['history', 'transfers', 'payments']
@@ -101,7 +101,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Go to Goals',
       description: 'Manage financial goals',
       icon: MageGoals,
-      action: () => router.push('/dashboard/goals'),
+      action: () => router.push('/goals'),
       shortcut: '⌘ G',
       group: 'Navigation',
       keywords: ['savings', 'targets', 'objectives']
@@ -111,7 +111,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Go to Insights',
       description: 'View analytics and insights',
       icon: HugeiconsAnalytics02,
-      action: () => router.push('/dashboard/insights'),
+      action: () => router.push('/insights'),
       shortcut: '⌘ I',
       group: 'Navigation',
       keywords: ['analytics', 'reports', 'trends']
@@ -122,7 +122,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Add New Wallet',
       description: 'Connect a cryptocurrency wallet',
       icon: Plus,
-      action: () => router.push('/dashboard/accounts/wallet/add'),
+      action: () => router.push('/accounts/wallet/add'),
       group: 'Quick Actions',
       keywords: ['connect', 'new', 'crypto']
     },
@@ -175,7 +175,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Profile Settings',
       description: 'Manage your profile',
       icon: User,
-      action: () => router.push('/dashboard/profile'),
+      action: () => router.push('/profile'),
       group: 'Account',
       keywords: ['account', 'personal', 'info']
     },
@@ -184,7 +184,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Settings',
       description: 'App preferences and settings',
       icon: Settings,
-      action: () => router.push('/dashboard/settings'),
+      action: () => router.push('/settings'),
       shortcut: '⌘ ,',
       group: 'Account',
       keywords: ['preferences', 'config']

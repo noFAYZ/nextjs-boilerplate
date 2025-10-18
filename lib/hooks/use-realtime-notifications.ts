@@ -29,7 +29,7 @@ export function useRealtimeNotifications() {
         notifications.addSuccess(
           'New Wallet Added',
           `${currentWallet.label || currentWallet.type} wallet connected successfully`,
-          () => window.location.href = `/dashboard/crypto/wallets/${currentWallet.id}`
+          () => window.location.href = `/crypto/wallets/${currentWallet.id}`
         )
         return
       }
@@ -44,7 +44,7 @@ export function useRealtimeNotifications() {
         notifications.addSuccess(
           isIncrease ? 'Balance Increased' : 'Balance Decreased',
           `${currentWallet.label || currentWallet.type}: ${isIncrease ? '+' : ''}${balanceChange.toFixed(6)} ${currentWallet.type?.toUpperCase()}`,
-          () => window.location.href = `/dashboard/crypto/wallets/${currentWallet.id}`
+          () => window.location.href = `/crypto/wallets/${currentWallet.id}`
         )
       }
 
@@ -67,7 +67,7 @@ export function useRealtimeNotifications() {
         notifications.addError(
           'Wallet Error',
           `${currentWallet.label || currentWallet.type}: ${currentWallet.error}`,
-          () => window.location.href = `/dashboard/crypto/wallets/${currentWallet.id}`
+          () => window.location.href = `/crypto/wallets/${currentWallet.id}`
         )
       }
 
@@ -105,13 +105,13 @@ export function useRealtimeNotifications() {
               notifications.addError(
                 'Wallet Sync Critical',
                 `${wallet.label || wallet.type} hasn't synced in ${Math.floor(hoursSinceSync)}h`,
-                () => window.location.href = `/dashboard/crypto/wallets/${wallet.id}`
+                () => window.location.href = `/crypto/wallets/${wallet.id}`
               )
             } else {
               notifications.addWarning(
                 'Wallet Sync Needed',
                 `${wallet.label || wallet.type} needs sync (${Math.floor(hoursSinceSync)}h ago)`,
-                () => window.location.href = `/dashboard/crypto/wallets/${wallet.id}`
+                () => window.location.href = `/crypto/wallets/${wallet.id}`
               )
             }
           }
@@ -139,7 +139,7 @@ export function useRealtimeNotifications() {
             notifications.addWarning(
               'System Performance',
               'Some services may be slower than usual',
-              () => window.location.href = '/dashboard/settings'
+              () => window.location.href = '/settings'
             )
           }
         } catch (error) {

@@ -35,12 +35,12 @@ export function SidebarIntegrationsList({ onMobileClose }: SidebarIntegrationsLi
   const { data: integrations, isLoading } = useUserIntegrations();
 
   const handleIntegrationClick = (provider: string) => {
-    router.push(`/dashboard/integrations/${provider.toLowerCase()}`);
+    router.push(`/integrations/${provider.toLowerCase()}`);
     onMobileClose();
   };
 
   const handleAddClick = () => {
-    router.push('/dashboard/accounts/integrations');
+    router.push('/accounts/integrations');
     onMobileClose();
   };
 
