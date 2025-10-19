@@ -32,13 +32,14 @@ import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 
-// Import custom hooks and components
+// Import TanStack Query hooks and UI store
 import {
-  useWallets,
-  useSyncManager,
-  useFilterManager,
-  useDeleteWallet
-} from '@/lib/hooks/use-crypto';
+  useCryptoWallets,
+  useDeleteCryptoWallet,
+  useSyncCryptoWallet,
+  useSyncAllCryptoWallets
+} from '@/lib/queries';
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
@@ -243,31 +244,47 @@ export default function WalletsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
 
-  // Use custom hooks
-  const { wallets, isLoading, error } = useWallets();
-  const { syncAllWallets, hasActiveSyncs, isSyncing, getActiveSyncs } = useSyncManager();
-  const { setNetworkFilter, clearFilters, hasActiveFilters } = useFilterManager();
-  const deleteWallet = useDeleteWallet();
+  // ✅ NEW: Data from TanStack Query
+  const { data: wallets = [], isLoading, error } = useCryptoWallets();
+  const { mutate: deleteWallet, isPending: isDeleting } = useDeleteCryptoWallet();
+  const { mutate: syncWallet } = useSyncCryptoWallet();
+  const { mutate: syncAllWallets, isPending: isSyncingAll } = useSyncAllCryptoWallets();
 
-  // Get data from store with memoized selectors
-  const { filters: storeFilters } = useCryptoStore();
+  // ✅ NEW: UI state from UI store
+  const { filters, setNetworkFilter, clearFilters, hasActiveFilters } = useCryptoUIStore();
+
+  // Get SSE sync states from crypto store (only for real-time sync progress)
+  const { realtimeSyncStates } = useCryptoStore();
+
+  // Check if any wallets are actively syncing via SSE
+  const hasActiveSyncs = () => {
+    return Object.values(realtimeSyncStates).some(state =>
+      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+    );
+  };
+
+  const getActiveSyncs = () => {
+    return Object.keys(realtimeSyncStates).filter(walletId =>
+      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(realtimeSyncStates[walletId].status)
+    );
+  };
 
   // Memoize expensive calculations
   const filteredWallets = useMemo(() => {
     return wallets.filter((wallet) => {
       // Filter by networks
-      if (storeFilters.networks.length > 0 && !storeFilters.networks.includes(wallet.network)) {
+      if (filters.networks.length > 0 && !filters.networks.includes(wallet.network)) {
         return false;
       }
 
       // Filter by wallet types
-      if (storeFilters.walletTypes.length > 0 && !storeFilters.walletTypes.includes(wallet.type)) {
+      if (filters.walletTypes.length > 0 && !filters.walletTypes.includes(wallet.type)) {
         return false;
       }
 
       return true;
     });
-  }, [wallets, storeFilters.networks, storeFilters.walletTypes]);
+  }, [wallets, filters.networks, filters.walletTypes]);
 
   const portfolioStats = useMemo(() => {
     const totalValue = filteredWallets.reduce((sum, wallet) => sum + parseFloat(wallet.totalBalanceUsd), 0);
@@ -335,12 +352,15 @@ export default function WalletsPage() {
     if (!confirmed) return;
 
     try {
-      // Delete all selected wallets
-      const deletePromises = Array.from(selectedWallets).map(walletId =>
-        deleteWallet.mutateAsync(walletId)
-      );
-
-      await Promise.all(deletePromises);
+      // ✅ Delete all selected wallets using mutation
+      for (const walletId of Array.from(selectedWallets)) {
+        await new Promise((resolve, reject) => {
+          deleteWallet(walletId, {
+            onSuccess: resolve,
+            onError: reject
+          });
+        });
+      }
 
       // Clear selections and exit manage mode
       setSelectedWallets(new Set());
@@ -432,11 +452,11 @@ export default function WalletsPage() {
             {isManageMode && selectedWallets.size > 0 && (
               <Button
                 onClick={handleDeleteSelected}
-                disabled={deleteWallet.isPending}
+                disabled={isDeleting}
                 variant="destructive"
                 size="xs"
               >
-                {deleteWallet.isPending ? (
+                {isDeleting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     Deleting...
@@ -452,11 +472,11 @@ export default function WalletsPage() {
 
             <Button
               onClick={handleSyncAll}
-              disabled={isSyncing || hasActiveSyncs() || isManageMode}
+              disabled={isSyncingAll || hasActiveSyncs() || isManageMode}
               variant="outline"
               size="xs"
             >
-              {isSyncing || hasActiveSyncs() ? (
+              {isSyncingAll || hasActiveSyncs() ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   Syncing ({getActiveSyncs().length})
@@ -473,7 +493,7 @@ export default function WalletsPage() {
               onClick={handleManageMode}
               variant={isManageMode ? "default" : "outline"}
               size="xs"
-              disabled={isSyncing || hasActiveSyncs()}
+              disabled={isSyncingAll || hasActiveSyncs()}
             >
               {isManageMode ? (
                 <>

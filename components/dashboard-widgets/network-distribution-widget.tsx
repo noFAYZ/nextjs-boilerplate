@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
 import { Network } from 'lucide-react';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoPortfolio } from '@/lib/queries';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { CurrencyDisplay } from '../ui/currency-display';
 
@@ -40,8 +40,7 @@ const getChainIcon = (network: string): string | null => {
 };
 
 export function NetworkDistributionWidget() {
-  const portfolio = useCryptoStore((state) => state.portfolio);
-  const portfolioLoading = useCryptoStore((state) => state.portfolioLoading);
+  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
 
   const networkData = useMemo(() => {
     if (!portfolio?.networkDistribution || portfolio.networkDistribution.length === 0) {

@@ -46,7 +46,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAccountGroupMutations } from '@/lib/hooks/use-account-groups';
-import { useWallets } from '@/lib/hooks/use-crypto';
+import { useCryptoWallets } from '@/lib/queries';
 import type { AccountGroup } from '@/lib/types/account-groups';
 import type { CryptoWallet } from '@/lib/types/crypto';
 import { Input } from '@/components/ui/input';
@@ -103,7 +103,7 @@ export function AddAccountToGroupDialog({
   const { moveAccount, isMoving } = useAccountGroupMutations();
   
   // Get crypto wallets
-  const { wallets, isLoading: isLoadingWallets } = useWallets();
+  const { data: wallets = [], isLoading: isLoadingWallets } = useCryptoWallets();
   
   // Filter out wallets that are already in groups
   const availableWallets = useMemo(() => {

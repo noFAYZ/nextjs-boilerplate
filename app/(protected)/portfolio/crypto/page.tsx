@@ -17,7 +17,7 @@ import {
   SortAsc,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoWallets, useCryptoPortfolio } from '@/lib/queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -50,11 +50,9 @@ export default function CryptoPortfolioPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { pageClass } = useViewModeClasses();
 
-  // Get data from crypto store
-  const wallets = useCryptoStore((state) => state.wallets);
-  const portfolio = useCryptoStore((state) => state.portfolio);
-  const walletsLoading = useCryptoStore((state) => state.walletsLoading);
-  const portfolioLoading = useCryptoStore((state) => state.portfolioLoading);
+  // ✅ NEW: Data from TanStack Query
+  const { data: wallets = [], isLoading: walletsLoading } = useCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
 
   const isLoading = walletsLoading || portfolioLoading;
 

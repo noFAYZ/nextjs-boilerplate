@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import React from 'react';
 
-import { useCreateWallet } from '@/lib/hooks/use-crypto';
+import { useCreateCryptoWallet } from '@/lib/queries';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
 import { NetworkSelector } from '@/components/crypto/ui/network-selector';
 import { cn } from '@/lib/utils';
@@ -72,7 +72,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
   const [isValidating, setIsValidating] = useState(false);
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
-  const createWallet = useCreateWallet();
+  const { mutate: createWallet, isPending } = useCreateCryptoWallet();
   const { plans, upgradeSubscription } = useSubscription();
   const planLimitDialog = usePlanLimitDialog();
 
@@ -137,29 +137,27 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
   }, [watchedAddress, watchedNetwork]);
 
   const onSubmit = async (data: WalletFormData) => {
-    try {
-      const formattedData = {
-        ...data,
-        tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
-      };
+    const formattedData = {
+      ...data,
+      tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
+    };
 
-      await createWallet.mutateAsync(formattedData);
+    createWallet(formattedData, {
+      onSuccess: () => {
+        toast.success('Wallet added successfully!');
+        reset(); // Reset form
+        onOpenChange(false); // Close modal
+      },
+      onError: (error: any) => {
+        // Handle plan limit errors
+        const planLimitError = handlePlanLimitError(error, 'wallet-creation', planLimitDialog.showDialog);
 
-      toast.success('Wallet added successfully!');
-      reset(); // Reset form
-      onOpenChange(false); // Close modal
-    } catch (error: any) {
-      console.error('Create wallet error:', error);
-
-      // Handle plan limit errors
-      const planLimitError = handlePlanLimitError(error, 'wallet-creation', planLimitDialog.showDialog);
-
-      if (!planLimitError) {
-        // Only show toast for non-plan-limit errors
-        const errorMessage = error.message || 'Failed to add wallet';
-        toast.error(errorMessage);
+        if (!planLimitError) {
+          const errorMessage = error.message || 'Failed to add wallet';
+          toast.error(errorMessage);
+        }
       }
-    }
+    });
   };
 
   const handleUpgrade = async (planType: any) => {
@@ -354,16 +352,16 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={isSubmitting}
+                disabled={isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || isValidating || (watchedAddress && addressStatus === 'invalid')}
+                disabled={isPending || isValidating || (watchedAddress && addressStatus === 'invalid')}
                 className="flex items-center gap-2"
               >
-                {isSubmitting ? (
+                {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Adding...

@@ -95,13 +95,11 @@ class SSEManager {
   public connect(): void {
     // Prevent multiple simultaneous connection attempts
     if (this.isConnecting || this.isClosing) {
-      console.log('[SSEManager] Connection attempt blocked: isConnecting=' + this.isConnecting + ', isClosing=' + this.isClosing);
       return;
     }
 
     // Already connected
     if (this.eventSource?.readyState === EventSource.OPEN) {
-      console.log('[SSEManager] Already connected');
       return;
     }
 
@@ -109,7 +107,6 @@ class SSEManager {
     const now = Date.now();
     const timeSinceLastAttempt = now - this.lastConnectionAttempt;
     if (timeSinceLastAttempt < this.connectionBackoffTime) {
-      console.log('[SSEManager] Rate limited, waiting ' + (this.connectionBackoffTime - timeSinceLastAttempt) + 'ms');
       return;
     }
 
@@ -136,11 +133,9 @@ class SSEManager {
     }
 
     this.subscribers.get(channel)!.add(callback);
-    console.log(`[SSEManager] Subscribed to ${channel}, total subscribers: ${this.subscribers.get(channel)!.size}`);
 
     // Auto-connect when first subscriber is added
     if (this.getTotalSubscriberCount() === 1) {
-      console.log('[SSEManager] First subscriber, initiating connection');
       this.connect();
     }
 
@@ -149,7 +144,6 @@ class SSEManager {
       const channelSubs = this.subscribers.get(channel);
       if (channelSubs) {
         channelSubs.delete(callback);
-        console.log(`[SSEManager] Unsubscribed from ${channel}, remaining: ${channelSubs.size}`);
 
         // Clean up empty channel
         if (channelSubs.size === 0) {
@@ -159,7 +153,6 @@ class SSEManager {
 
       // Auto-disconnect when last subscriber is removed
       if (this.getTotalSubscriberCount() === 0) {
-        console.log('[SSEManager] No subscribers left, disconnecting');
         this.disconnect();
       }
     };
@@ -169,7 +162,6 @@ class SSEManager {
    * Disconnect and cleanup
    */
   public disconnect(): void {
-    console.log('[SSEManager] Disconnecting...');
     this.isClosing = true;
     this.cleanup(true);
     this.isClosing = false;
@@ -179,7 +171,6 @@ class SSEManager {
    * Reset connection (useful for manual reconnect)
    */
   public resetConnection(): void {
-    console.log('[SSEManager] Resetting connection...');
     this.reconnectAttempts = 0;
     this.connectionBackoffTime = 1000;
     this.isClosing = false;
@@ -199,14 +190,12 @@ class SSEManager {
   private startSSE(): void {
     try {
       const url = `${this.API_BASE}${this.SSE_ENDPOINT}`;
-      console.log('[SSEManager] Starting SSE connection to:', url);
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
       });
 
       this.eventSource.onopen = () => {
-        console.log('[SSEManager] ✅ Connection established');
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.connectionBackoffTime = 1000;
@@ -218,12 +207,11 @@ class SSEManager {
           const data: SSEMessage = JSON.parse(event.data);
           this.handleMessage(data);
         } catch (error) {
-          console.error('[SSEManager] Failed to parse message:', error);
+          // Silently handle parse errors
         }
       };
 
       this.eventSource.onerror = () => {
-        console.log('[SSEManager] ❌ Connection error');
         this.isConnecting = false;
         this.notifySubscribers('error', { type: 'connection_error' });
 
@@ -232,7 +220,7 @@ class SSEManager {
           try {
             this.eventSource.close();
           } catch (closeError) {
-            console.warn('[SSEManager] Error closing connection:', closeError);
+            // Silently handle close errors
           }
           this.eventSource = null;
         }
@@ -241,7 +229,6 @@ class SSEManager {
         if (!this.isClosing && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect();
         } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          console.log('[SSEManager] Max reconnection attempts reached');
           this.notifySubscribers('error', {
             type: 'connection_failed',
             error: 'Connection failed after multiple attempts. Please refresh the page.'
@@ -251,7 +238,6 @@ class SSEManager {
 
     } catch (error) {
       this.isConnecting = false;
-      console.error('[SSEManager] SSE connection failed:', error);
       this.notifySubscribers('error', {
         type: 'connection_failed',
         error: error instanceof Error ? error.message : 'SSE connection failed'
@@ -298,20 +284,20 @@ class SSEManager {
           break;
 
         default:
-          console.warn('[SSEManager] Unknown message type:', data.type);
+          // Unknown message type
           // Still forward to all channels in case someone wants to handle it
           this.subscribers.forEach((callbacks, channel) => {
             callbacks.forEach(callback => {
               try {
                 callback(data);
               } catch (error) {
-                console.error(`[SSEManager] Error in ${channel} subscriber callback:`, error);
+                // Silently handle callback errors
               }
             });
           });
       }
     } catch (error) {
-      console.error('[SSEManager] Error processing message:', error, 'Message:', data);
+      // Silently handle message processing errors
     }
   }
 
@@ -326,7 +312,7 @@ class SSEManager {
 
     // Set timeout to detect missed heartbeats (45 seconds - 1.5x server interval)
     this.heartbeatTimeout = setTimeout(() => {
-      console.warn('[SSEManager] Heartbeat timeout - connection may be stale');
+      // Heartbeat timeout detected
       this.notifySubscribers('error', {
         type: 'heartbeat_timeout',
         error: 'Connection heartbeat timeout'
@@ -368,7 +354,7 @@ class SSEManager {
     const jitter = Math.random() * 1000;
     const delay = baseDelay + jitter;
 
-    console.log(`[SSEManager] Scheduling reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${Math.round(delay)}ms`);
+    // Scheduling reconnect
 
     this.reconnectTimeout = setTimeout(() => {
       if (!this.isClosing) {
@@ -403,7 +389,7 @@ class SSEManager {
           this.eventSource.close();
         }
       } catch (error) {
-        console.warn('[SSEManager] Error closing connection:', error);
+        // Error closing connection
       }
       this.eventSource = null;
     }

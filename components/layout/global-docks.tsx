@@ -3,7 +3,12 @@
 import * as React from "react"
 import { useRouter, usePathname } from "next/navigation"
 import {
-  Settings
+  Settings,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+  WifiOff,
+  Wallet
 } from "lucide-react"
 import { ExpandableDock, ExpandableItem, Dock, useDock } from "@/components/ui/dock"
 import { useDockContext } from "@/components/providers/dock-provider"
@@ -14,6 +19,17 @@ import { AddOptionsModal } from "./AddOptionsModal"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
 import { SyncIndicator } from "./sync-indicator"
+import { useCryptoWallets } from "@/lib/queries"
+import { useCryptoStore } from "@/lib/stores/crypto-store"
+
+// Wallet icon configurations
+const WALLET_ICON_CONFIGS = {
+  ethereum: { symbol: 'ETH', bgColor: 'bg-purple-500' },
+  polygon: { symbol: 'MATIC', bgColor: 'bg-purple-600' },
+  bsc: { symbol: 'BNB', bgColor: 'bg-yellow-500' },
+  bitcoin: { symbol: 'BTC', bgColor: 'bg-orange-500' },
+  solana: { symbol: 'SOL', bgColor: 'bg-gradient-to-r from-purple-400 to-pink-600' },
+} as const;
 
 // Mobile breakpoint hook
 function useIsMobile() {
@@ -87,15 +103,15 @@ export function NotificationDock() {
 // Wallets Dock Component
 export function WalletsDock() {
   const { wallets: dockWallets } = useDockContext()
-  const { wallets, isLoading, error } = useWallets()
+  const { data: wallets = [], isLoading, error } = useCryptoWallets()
   const { realtimeSyncStates } = useCryptoStore()
   const router = useRouter()
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const { user } = useAuth()
 
-  // Initialize auto-sync functionality
-  const { hasActiveSyncs, isFirstLoginToday } = useAutoWalletSync()
+  // Sync status checks
+  const isFirstLoginToday = false // TODO: implement if needed
 
   // Memoize sync stats calculations to prevent unnecessary re-renders
   const syncStats = React.useMemo(() => {

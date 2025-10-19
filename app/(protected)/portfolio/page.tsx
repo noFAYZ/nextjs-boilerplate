@@ -8,7 +8,7 @@ import {
   Loader2,
   ChevronRight,
 } from 'lucide-react';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoWallets, useCryptoPortfolio } from '@/lib/queries';
 import { useBankingAccounts } from '@/lib/queries/banking-queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,14 +28,10 @@ export default function PortfolioPage() {
   const router = useRouter();
   const { pageClass } = useViewModeClasses();
 
-  // Get data from crypto store
-  const wallets = useCryptoStore((state) => state.wallets);
-  const portfolio = useCryptoStore((state) => state.portfolio);
-  const walletsLoading = useCryptoStore((state) => state.walletsLoading);
-  const portfolioLoading = useCryptoStore((state) => state.portfolioLoading);
-
-  // Fetch banking data
-  const { data: bankAccounts, isLoading: bankLoading, refetch: refetchBanking } = useBankingAccounts();
+  // ✅ NEW: Data from TanStack Query
+  const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useCryptoPortfolio();
+  const { data: bankAccounts = [], isLoading: bankLoading, refetch: refetchBanking } = useBankingAccounts();
 
   const isLoading = walletsLoading || portfolioLoading || bankLoading;
 
@@ -68,7 +64,9 @@ export default function PortfolioPage() {
   }, [wallets, portfolio, bankAccounts]);
 
   const handleRefreshAll = () => {
-    // Trigger refetch through store or hooks
+    // ✅ Refetch all data sources
+    refetchWallets();
+    refetchPortfolio();
     refetchBanking();
     toast.success('Refreshing portfolio data...');
   };

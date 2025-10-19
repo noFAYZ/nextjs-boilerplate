@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useSyncManager } from '@/lib/hooks/use-crypto';
+import { useSyncCryptoWallet, useCryptoWallets } from '@/lib/queries';
 import { Wallet2, Plus, Copy, ExternalLink, RefreshCw, Activity, AlertCircle, Loader2, ChevronRight, RefreshCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -21,10 +21,9 @@ interface SidebarWalletsListProps {
 
 export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   const router = useRouter();
-  const wallets = useCryptoStore(state => state.wallets);
-  const loading = useCryptoStore(state => state.walletsLoading);
+  const { data: wallets = [], isLoading: walletsLoading } = useCryptoWallets();
   const { realtimeSyncStates } = useCryptoStore();
-  const { syncWallet, hasActiveSyncs } = useSyncManager();
+  const { mutate: syncWallet } = useSyncCryptoWallet();
 
   const handleWalletClick = (walletId: string) => {
     router.push(`/accounts/wallet/${walletId}`);
@@ -41,9 +40,9 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
     navigator.clipboard.writeText(address);
   };
 
-  const handleSync = async (walletId: string, e: React.MouseEvent) => {
+  const handleSync = (walletId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    await syncWallet(walletId);
+    syncWallet(walletId);
   };
 
   const getNetworkExplorerUrl = (network: string, address: string) => {
@@ -82,7 +81,7 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
     }
   };
 
-  if (loading) {
+  if (walletsLoading) {
     return (
       <div className="space-y-2">
         {Array.from({ length: 3 }).map((_, i) => (

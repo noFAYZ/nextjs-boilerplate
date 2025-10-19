@@ -2,11 +2,11 @@
 
 import * as React from "react"
 import { useNotifications } from "./use-notifications"
-import { useWallets } from "./use-crypto"
+import { useCryptoWallets } from "@/lib/queries"
 
 export function useRealtimeNotifications() {
   const notifications = useNotifications()
-  const { wallets, refetch: refetchWallets } = useWallets()
+  const { data: wallets = [], refetch: refetchWallets } = useCryptoWallets()
   
   // Track previous wallet states to detect changes
   const prevWalletsRef = React.useRef<typeof wallets>()

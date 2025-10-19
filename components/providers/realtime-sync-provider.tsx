@@ -1,12 +1,15 @@
 'use client'
 
 import React, { createContext, useContext, ReactNode, useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { toast } from 'sonner';
 import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
+import { cryptoKeys } from '@/lib/queries/crypto-queries';
+import { bankingKeys } from '@/lib/queries/banking-queries';
 
 interface BankingSyncState {
   progress: number;
@@ -57,6 +60,7 @@ interface RealtimeSyncProviderProps {
 }
 
 export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
+  const queryClient = useQueryClient();
   const bankingStore = useBankingStore();
   const cryptoStore = useCryptoStore();
   const { isAuthenticated } = useAuthStore();
@@ -96,6 +100,16 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
         case 'wallet_sync_completed':
           if (data.walletId) {
             cryptoStore.completeRealtimeSync(data.walletId, data.syncedData);
+
+            // Invalidate and refetch crypto queries
+            queryClient.invalidateQueries({
+              queryKey: ['crypto']
+            });
+
+            queryClient.refetchQueries({
+              queryKey: ['crypto'],
+              type: 'active'
+            });
           }
           break;
 
@@ -109,7 +123,7 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
     } catch (error) {
       console.error('[RealtimeSync] Error handling crypto message:', error);
     }
-  }, [cryptoStore]);
+  }, [cryptoStore, queryClient]);
 
   // Handle banking sync messages
   const handleBankingMessage = useCallback((data: SSEMessage) => {
@@ -129,6 +143,17 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
 
             if (data.status === 'completed_bank') {
               bankingStore.completeRealtimeSync(data.accountId, data.syncedData);
+
+              // Invalidate and refetch banking queries
+              queryClient.invalidateQueries({
+                queryKey: ['banking']
+              });
+
+              queryClient.refetchQueries({
+                queryKey: ['banking'],
+                type: 'active'
+              });
+
               toast.success('Bank account sync completed successfully');
             } else if (data.status === 'failed_bank') {
               bankingStore.failRealtimeSync(data.accountId, data.message || 'Bank sync failed');
@@ -160,6 +185,17 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
         case 'completed_bank':
           if (data.accountId) {
             bankingStore.completeRealtimeSync(data.accountId, data.syncedData);
+
+            // Invalidate and refetch banking queries
+            queryClient.invalidateQueries({
+              queryKey: ['banking']
+            });
+
+            queryClient.refetchQueries({
+              queryKey: ['banking'],
+              type: 'active'
+            });
+
             toast.success('Bank account sync completed successfully');
           }
           break;
@@ -175,7 +211,7 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
     } catch (error) {
       console.error('[RealtimeSync] Error handling banking message:', error);
     }
-  }, [bankingStore]);
+  }, [bankingStore, queryClient]);
 
   // Handle connection status messages
   const handleConnectionMessage = useCallback((data: SSEMessage) => {
@@ -185,14 +221,12 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
         setError(null);
         cryptoStore.setRealtimeSyncConnected(true);
         bankingStore.setRealtimeSyncConnected(true);
-        console.log('[RealtimeSync] ✅ Connected');
         break;
 
       case 'connection_closed':
         setIsConnected(false);
         cryptoStore.setRealtimeSyncConnected(false);
         bankingStore.setRealtimeSyncConnected(false);
-        console.log('[RealtimeSync] Disconnected');
         break;
     }
   }, [cryptoStore, bankingStore]);
@@ -214,8 +248,6 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
       return;
     }
 
-    console.log('[RealtimeSync] Setting up SSE subscriptions');
-
     // Subscribe to all relevant channels
     const unsubCrypto = sseManager.subscribe('crypto_sync', handleCryptoMessage);
     const unsubBanking = sseManager.subscribe('banking_sync', handleBankingMessage);
@@ -224,7 +256,6 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
 
     // Cleanup on unmount
     return () => {
-      console.log('[RealtimeSync] Cleaning up SSE subscriptions');
       unsubCrypto();
       unsubBanking();
       unsubConnection();

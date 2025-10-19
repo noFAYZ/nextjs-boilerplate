@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useBankingGroupedAccountsRaw } from '@/lib/queries/banking-queries';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoWallets } from '@/lib/queries';
 import type { BankAccount } from '@/lib/types/banking';
 import { Separator } from '../ui/separator';
 import { CurrencyDisplay } from '../ui/currency-display';
@@ -32,8 +32,8 @@ export function NetWorthWidget() {
   // Fetch banking data
   const { data: bankingData, isLoading: isBankingLoading } = useBankingGroupedAccountsRaw();
 
-  // Fetch crypto data from store
-  const cryptoWallets = useCryptoStore((state) => state.wallets);
+  // Fetch crypto data
+  const { data: cryptoWallets = [] } = useCryptoWallets();
 
   // Calculate net worth, account balances, and category totals
   const { netWorth, accountGroups, categoryTotals } = useMemo(() => {

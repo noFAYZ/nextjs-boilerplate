@@ -30,7 +30,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import { useCreateWallet } from '@/lib/hooks/use-crypto';
+import { useCreateCryptoWallet } from '@/lib/queries';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
 import React from 'react';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
@@ -82,7 +82,7 @@ export default function AddWalletPage() {
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [searchTerm, setSearchTerm] = useState("");
 
-  const createWallet = useCreateWallet();
+  const { mutate: createWallet, isPending } = useCreateCryptoWallet();
   const { plans, upgradeSubscription } = useSubscription();
   const planLimitDialog = usePlanLimitDialog();
 
@@ -153,25 +153,26 @@ export default function AddWalletPage() {
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
       };
 
-      await createWallet.mutateAsync(formattedData);
+      // ✅ Use TanStack Query mutation
+      createWallet(formattedData, {
+        onSuccess: () => {
+          toast.success('Wallet added successfully!');
+          router.push('/accounts/wallet');
+        },
+        onError: (err: any) => {
+          // Handle plan limit errors
+          const planLimitError = handlePlanLimitError(err, 'wallet-creation', planLimitDialog.showDialog);
 
-      toast.success('Wallet added successfully!');
-      router.push('/accounts/wallet');
+          if (planLimitError) {
+            return; // Plan limit dialog is shown
+          }
+
+          toast.error(err?.message || 'Failed to add wallet. Please try again.');
+        }
+      });
     } catch (error: any) {
-      console.error('Create wallet error:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error structure:', JSON.stringify(error, null, 2));
-
-      // Handle plan limit errors
-      const planLimitError = handlePlanLimitError(error, 'wallet-creation', planLimitDialog.showDialog);
-
-      console.log('Plan limit error extracted:', planLimitError);
-
-      if (!planLimitError) {
-        // Only show toast for non-plan-limit errors
-        const errorMessage = error.message || 'Failed to add wallet';
-        toast.error(errorMessage);
-      }
+      // This should not be reached since errors are handled in onError callback
+      console.error('Unexpected create wallet error:', error);
     }
   };
 
@@ -377,17 +378,17 @@ export default function AddWalletPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                disabled={isSubmitting}
+                disabled={isPending}
                 className=""
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || isValidating || (watchedAddress && addressStatus === 'invalid')}
+                disabled={isPending || isValidating || (watchedAddress && addressStatus === 'invalid')}
                 className="flex items-center gap-2"
               >
-                {isSubmitting ? (
+                {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Adding...
@@ -415,7 +416,7 @@ export default function AddWalletPage() {
           error={planLimitDialog.error}
           availablePlans={plans}
           onUpgrade={handleUpgrade}
-          isUpgrading={createWallet.isPending}
+          isUpgrading={isPending}
         />
       )}
     </div>

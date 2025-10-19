@@ -30,21 +30,227 @@ npm run lint
 - **Tailwind CSS 4** for styling
 - **React 19** with latest features
 
-### State Management
-- **Zustand** with persistence and immer middleware for client state
-- **@tanstack/react-query** (React Query) for server state and caching
-- **Context providers** for authentication, currency, loading, and UI state
+### State Management - **PRODUCTION ARCHITECTURE** ⭐
+
+**CRITICAL: Clear State Boundaries**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        COMPONENTS                            │
+│         (NO direct API calls, NO useEffect for data)        │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+        ┌────────┴────────┐
+        │                 │
+        ▼                 ▼
+┌──────────────┐  ┌──────────────────┐
+│   UI STATE   │  │   SERVER STATE   │
+│   (Zustand)  │  │ (TanStack Query) │
+└──────────────┘  └──────────────────┘
+```
+
+#### **TanStack Query** - SERVER STATE (Single Source of Truth)
+- **Purpose**: ALL server data (wallets, accounts, transactions, portfolios, analytics)
+- **Location**: `lib/queries/use-*-data.ts`
+- **Features**:
+  - Automatic caching with configurable stale times
+  - Optimistic updates built-in
+  - Automatic cache invalidation
+  - Polling and real-time sync
+  - Loading/error states
+- **Never**: Store server data in Zustand, use useEffect for data fetching
+
+#### **Zustand** - UI STATE ONLY (Client State)
+- **Purpose**: UI preferences, filters, view modes, modal states, selections
+- **Location**: `lib/stores/*-ui-store.ts`
+- **Examples**:
+  - ✅ Filters (date ranges, categories, search queries)
+  - ✅ View preferences (grid/list, chart types, time ranges)
+  - ✅ Modal states (open/closed)
+  - ✅ Selected items (selected wallet ID, selected account ID)
+  - ❌ Wallets, accounts, transactions (use TanStack Query)
+  - ❌ Portfolio data, analytics (use TanStack Query)
+
+### Data Fetching Pattern - **REQUIRED APPROACH**
+
+#### ✅ **CORRECT Pattern**
+```typescript
+// Component: WalletList.tsx
+import { useCryptoWallets, useCreateCryptoWallet } from '@/lib/queries';
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
+
+function WalletList() {
+  // ✅ Server data from TanStack Query
+  const { data: wallets, isLoading, error } = useCryptoWallets();
+
+  // ✅ UI state from Zustand
+  const { filters, viewPreferences } = useCryptoUIStore();
+
+  // ✅ Mutations with automatic cache updates
+  const { mutate: createWallet } = useCreateCryptoWallet();
+
+  // ✅ NO useEffect for data fetching
+  // ✅ NO manual API calls
+
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <div>{/* render wallets */}</div>;
+}
+```
+
+#### ❌ **WRONG Patterns**
+```typescript
+// ❌ NEVER DO THIS - Direct API call in component
+import { cryptoApi } from '@/lib/services/crypto-api';
+
+function WalletList() {
+  const [wallets, setWallets] = useState([]);
+
+  useEffect(() => {
+    // ❌ WRONG: Manual data fetching
+    cryptoApi.getWallets().then(data => setWallets(data));
+  }, []);
+
+  // ❌ WRONG: No caching, no optimistic updates, no error handling
+}
+
+// ❌ NEVER DO THIS - Storing server data in Zustand
+const cryptoStore = create((set) => ({
+  wallets: [],
+  fetchWallets: async () => {
+    // ❌ WRONG: Server data in Zustand
+    const wallets = await cryptoApi.getWallets();
+    set({ wallets });
+  }
+}));
+```
+
+### Available Data Hooks
+
+#### Crypto Data (`lib/queries/use-crypto-data.ts`)
+```typescript
+// Wallet Queries
+useCryptoWallets()                    // All wallets
+useCryptoWallet(id)                   // Single wallet
+useSelectedCryptoWallet()             // Currently selected wallet
+
+// Portfolio Queries
+useCryptoPortfolio(params)            // Portfolio overview
+
+// Transaction Queries
+useCryptoTransactions(params)         // All transactions
+useWalletTransactions(id, params)     // Wallet transactions
+
+// NFT & DeFi Queries
+useCryptoNFTs(params)                 // All NFTs
+useWalletNFTs(id, params)             // Wallet NFTs
+useCryptoDeFi()                       // All DeFi positions
+useWalletDeFi(id)                     // Wallet DeFi
+
+// Mutations (with optimistic updates)
+useCreateCryptoWallet()               // Create wallet
+useUpdateCryptoWallet()               // Update wallet
+useDeleteCryptoWallet()               // Delete wallet
+useSyncCryptoWallet()                 // Sync wallet
+```
+
+#### Banking Data (`lib/queries/use-banking-data.ts`)
+```typescript
+// Account Queries
+useBankingAccounts()                  // All accounts
+useBankingAccount(id)                 // Single account
+useSelectedBankAccount()              // Currently selected
+
+// Dashboard Queries
+useBankingOverview()                  // Overview metrics
+useBankingDashboard()                 // Dashboard data
+
+// Transaction Queries
+useBankingTransactions(params)        // All transactions
+useAccountTransactions(id, params)    // Account transactions
+
+// Analytics Queries
+useTopSpendingCategories(params)      // Top categories
+useMonthlySpendingTrend(params)       // Monthly trend
+
+// Mutations (with optimistic updates)
+useConnectBankAccount()               // Connect account
+useUpdateBankAccount()                // Update account
+useDisconnectBankAccount()            // Disconnect account
+useSyncBankAccount()                  // Sync account
+```
+
+#### Auth Data (`lib/queries/use-auth-data.ts`)
+```typescript
+useCurrentUser()                      // Current user
+useCurrentSession()                   // Current session
+useUserProfile()                      // Extended profile
+useUpdateUserProfile()                // Update profile
+```
+
+### UI Stores
+
+#### Crypto UI Store (`lib/stores/crypto-ui-store.ts`)
+```typescript
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
+
+// Selection
+selectWallet(id)
+selectedWalletId
+
+// Filters
+filters: { networks, walletTypes, transactionTypes, dateRange, searchQuery }
+setNetworkFilter(networks)
+setDateRangeFilter(from, to)
+clearFilters()
+
+// View Preferences (persisted)
+viewPreferences: { walletsView, portfolioChartType, portfolioTimeRange, ... }
+setWalletsView('grid' | 'list')
+setPortfolioTimeRange('24h' | '7d' | '30d')
+
+// Modals
+isCreateWalletModalOpen
+openCreateWalletModal()
+closeCreateWalletModal()
+```
+
+#### Banking UI Store (`lib/stores/banking-ui-store.ts`)
+```typescript
+import { useBankingUIStore } from '@/lib/stores/ui-stores';
+
+// Selection
+selectAccount(id)
+selectedAccountId
+
+// Filters
+filters: { accountTypes, institutions, categories, dateRange, amountRange }
+setAccountTypeFilter(types)
+setDateRangeFilter(from, to)
+
+// View Preferences (persisted)
+viewPreferences: { accountsView, transactionsView, chartType, timeRange }
+setAccountsView('grid' | 'list' | 'grouped')
+setTimeRange('week' | 'month' | 'quarter')
+
+// Modals & Bulk Operations
+isConnectAccountModalOpen
+toggleBulkSelectMode()
+selectedTransactionIds
+```
 
 ### Authentication
 - **Better Auth** for authentication management
-- Custom Zustand store for auth state (`lib/stores/auth-store.ts`)
+- **auth-store.ts** for session management (Zustand)
+- **use-auth-data.ts** for user profile queries (TanStack Query)
 - Session management with automatic timeout and refresh
 
 ### Data & API
 - **Custom API client** (`lib/api-client.ts`) with error handling
 - **Zerion SDK** for cryptocurrency data integration
 - **Server-Sent Events (SSE)** for real-time updates
-- Persistent caching system for offline functionality
+- Persistent caching via TanStack Query
 
 ### UI Components
 - **Radix UI** components for accessible primitives
@@ -71,18 +277,40 @@ npm run lint
 - `components/auth/` - Authentication-related components
 
 ### Libraries & Utilities
-- `lib/stores/` - Zustand stores (auth, crypto, account groups)
+- `lib/stores/` - Zustand UI stores (crypto-ui, banking-ui, auth)
+- `lib/queries/` - TanStack Query hooks (use-crypto-data, use-banking-data, use-auth-data)
+- `lib/services/` - API services (crypto-api, banking-api, currency-api)
+- `lib/hooks/` - Custom React hooks (non-data hooks only)
 - `lib/contexts/` - React contexts (currency, view mode, loading)
-- `lib/hooks/` - Custom React hooks (crypto, auth, caching)
-- `lib/services/` - API services (crypto, currency, zerion)
-- `lib/queries/` - React Query hooks for data fetching
 - `lib/types/` - TypeScript type definitions
 
-### Data Flow Architecture
-1. **Authentication**: `AuthContext` + `auth-store.ts` → Better Auth client
-2. **State Management**: Zustand stores → React hooks → Components
-3. **Data Fetching**: React Query → API client → Backend services
-4. **Real-time Updates**: SSE → Store updates → UI reactivity
+### Data Flow Architecture ⭐
+
+```
+COMPONENT
+   ↓ (1) Use query hook
+lib/queries/use-crypto-data.ts
+   ↓ (2) TanStack Query calls
+lib/queries/crypto-queries.ts (query factory)
+   ↓ (3) Calls API service
+lib/services/crypto-api.ts
+   ↓ (4) Uses centralized client
+lib/api-client.ts
+   ↓ (5) HTTP request
+BACKEND API
+   ↓ (6) Response
+TanStack Query Cache
+   ↓ (7) Automatic re-render
+COMPONENT (updated data)
+```
+
+**Key Principles:**
+1. Components ONLY use hooks from `lib/queries/`
+2. NO direct API calls in components
+3. NO useEffect for data fetching
+4. TanStack Query handles caching, loading, errors automatically
+5. Mutations include optimistic updates
+6. Cache invalidation happens automatically
 
 ## Key Features
 
@@ -114,17 +342,69 @@ npm run lint
 
 ## Development Guidelines
 
-### Component Patterns
-- Use functional components with TypeScript
-- Implement proper error boundaries
-- Follow the established naming conventions
-- Use the custom UI components library in `components/ui/`
+### Component Patterns ⭐
+```typescript
+// ✅ CORRECT: Production-grade component pattern
+import { useCryptoWallets } from '@/lib/queries';
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 
-### State Management
-- Use Zustand for client state with proper persistence
-- Use React Query for server state and caching
-- Keep API calls in `lib/services/` and use custom hooks
-- Implement proper loading states and error handling
+export function WalletList() {
+  // 1. Server data from TanStack Query
+  const { data: wallets, isLoading, error } = useCryptoWallets();
+
+  // 2. UI state from Zustand
+  const { filters, viewPreferences, selectWallet } = useCryptoUIStore();
+
+  // 3. Mutations (if needed)
+  const { mutate: deleteWallet } = useDeleteCryptoWallet();
+
+  // 4. Derived/computed state (useMemo if expensive)
+  const filteredWallets = wallets?.filter(w =>
+    !filters.networks.length || filters.networks.includes(w.network)
+  );
+
+  // 5. Event handlers (useCallback if passed to children)
+  const handleWalletClick = (id: string) => {
+    selectWallet(id);
+  };
+
+  // 6. Conditional rendering
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  if (!wallets?.length) return <EmptyState />;
+
+  // 7. Main render
+  return (
+    <div>
+      {filteredWallets.map(wallet => (
+        <WalletCard
+          key={wallet.id}
+          wallet={wallet}
+          onClick={() => handleWalletClick(wallet.id)}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### State Management Rules ⭐
+
+1. **Server Data (TanStack Query)**
+   - ✅ Use: `lib/queries/use-*-data.ts` hooks
+   - ✅ Automatic: caching, loading, error, refetching
+   - ✅ Optimistic updates built-in
+   - ❌ Never: store in Zustand, use useEffect
+
+2. **UI State (Zustand)**
+   - ✅ Use: `lib/stores/*-ui-store.ts`
+   - ✅ Examples: filters, preferences, modals, selections
+   - ❌ Never: server data, API responses
+
+3. **NO useEffect for Data Fetching**
+   - ✅ TanStack Query handles fetching automatically
+   - ✅ Use `enabled` flag to control when queries run
+   - ❌ Never: `useEffect(() => { fetchData(); }, [])`
 
 ### Styling
 - Use Tailwind CSS classes
@@ -132,11 +412,43 @@ npm run lint
 - Use the custom theme provider for consistent theming
 - Implement responsive design patterns
 
-### API Integration
-- Use the centralized API client in `lib/api-client.ts`
-- Implement proper error handling with the error boundary system
-- Use React Query for data fetching and caching
-- Implement real-time updates with SSE where appropriate
+### API Integration ⭐
+
+**NEVER call API services directly from components**
+
+```typescript
+// ❌ WRONG
+import { cryptoApi } from '@/lib/services/crypto-api';
+
+function Component() {
+  useEffect(() => {
+    cryptoApi.getWallets().then(setWallets); // ❌ NEVER DO THIS
+  }, []);
+}
+
+// ✅ CORRECT
+import { useCryptoWallets } from '@/lib/queries';
+
+function Component() {
+  const { data: wallets } = useCryptoWallets(); // ✅ Always use query hooks
+}
+```
+
+## Performance Optimizations
+
+### Built-in with TanStack Query
+- **Automatic caching**: Data cached with configurable `staleTime`
+- **Request deduplication**: Same queries merge into single request
+- **Background refetching**: Updates data without blocking UI
+- **Optimistic updates**: Instant UI feedback on mutations
+- **Prefetching**: Preload data before navigation
+
+### Best Practices
+1. Use appropriate `staleTime` (already configured in query factories)
+2. Use `enabled` flag to prevent unnecessary requests
+3. Leverage optimistic updates for instant feedback
+4. Use query prefetching for predictable navigation
+5. Avoid unnecessary re-renders with proper selectors
 
 ## Environment Configuration
 
@@ -152,3 +464,6 @@ The application requires proper environment setup:
 - Cryptocurrency data is fetched via Zerion SDK with custom caching
 - The UI uses a combination of Radix UI primitives and custom components
 - Real-time features are implemented using Server-Sent Events
+- **ALL components must follow the TanStack Query + Zustand UI pattern**
+- **NEVER use useEffect for data fetching**
+- **NEVER store server data in Zustand**

@@ -1,29 +1,14 @@
 'use client';
 
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
-import { useBankingStore } from '@/lib/stores/banking-store';
 import { useMonthlySpendingTrendNew } from '@/lib/queries/banking-queries';
 import { CurrencyDisplay } from '../ui/currency-display';
 import SpendingIncomeChart from './SpendingIncomeChart';
 
 export function MonthlySpendingTrendWidget() {
   // Fetch monthly trend data (last 6 months)
-  const { data: monthlyTrendData, isLoading } = useMonthlySpendingTrendNew({ months: 6 });
-  const { setMonthlyTrend, setMonthlyTrendLoading } = useBankingStore();
-  const monthlyTrend = useBankingStore((state) => state.monthlyTrend);
-  const monthlyTrendLoading = useBankingStore((state) => state.monthlyTrendLoading);
-
-  // Sync data to store
-  useEffect(() => {
-    if (monthlyTrendData) {
-      setMonthlyTrend(monthlyTrendData as any);
-    }
-  }, [monthlyTrendData, setMonthlyTrend]);
-
-  useEffect(() => {
-    setMonthlyTrendLoading(isLoading);
-  }, [isLoading, setMonthlyTrendLoading]);
+  const { data: monthlyTrend = [], isLoading: monthlyTrendLoading } = useMonthlySpendingTrendNew({ months: 6 });
 
   const trendSummary = useMemo(() => {
     if (!monthlyTrend || monthlyTrend.length === 0) return null;

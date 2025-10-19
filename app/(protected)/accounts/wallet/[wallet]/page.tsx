@@ -23,11 +23,14 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-// Import custom hooks
+// ✅ Import TanStack Query hooks
 import {
-  useWalletFullData,
-  useSyncWallet,
-} from "@/lib/hooks/use-crypto";
+  useCryptoWallet,
+  useWalletTransactions,
+  useWalletNFTs,
+  useWalletDeFi,
+  useSyncCryptoWallet
+} from '@/lib/queries';
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 
 // Import new components
@@ -185,11 +188,26 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       radius: 20,
     }).toDataUri();
 
-  // Use the optimized hook that fetches all data efficiently
-  const { wallet, transactions, nfts, isLoading, error, refetch } =
-    useWalletFullData(walletIdentifier);
+  // ✅ NEW: Use TanStack Query hooks for parallel data fetching
+  const walletQuery = useCryptoWallet(walletIdentifier);
+  const transactionsQuery = useWalletTransactions(walletIdentifier, { limit: 10 });
+  const nftsQuery = useWalletNFTs(walletIdentifier);
+  const defiQuery = useWalletDeFi(walletIdentifier);
 
-  const syncWallet = useSyncWallet();
+  // Combine data and states
+  const wallet = walletQuery.data;
+  const transactions = transactionsQuery.data;
+  const nfts = nftsQuery.data;
+  const isLoading = walletQuery.isLoading || transactionsQuery.isLoading || nftsQuery.isLoading || defiQuery.isLoading;
+  const error = walletQuery.error || transactionsQuery.error || nftsQuery.error || defiQuery.error;
+  const refetch = () => {
+    walletQuery.refetch();
+    transactionsQuery.refetch();
+    nftsQuery.refetch();
+    defiQuery.refetch();
+  };
+
+  const { mutate: syncWallet } = useSyncCryptoWallet();
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 

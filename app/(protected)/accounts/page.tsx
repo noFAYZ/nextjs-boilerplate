@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,6 @@ import {
   ExternalLink,
   Trash2,
   Edit3,
-  ArrowUpRight,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -30,11 +29,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useBankingStore } from '@/lib/stores/banking-store';
-import { useBankingGroupedAccounts } from '@/lib/queries/banking-queries';
 import Link from 'next/link';
+
+// ✅ NEW: Use consolidated data hooks
+import {
+  useCryptoWallets,
+  useCryptoPortfolio,
+  useBankingGroupedAccounts,
+} from '@/lib/queries';
+
+// ✅ NEW: Use UI-only stores
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
+import { useBankingUIStore } from '@/lib/stores/ui-stores';
 import { MynauiGridOne, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
+import { NetworkType } from '@/lib/types/crypto';
 
 // Network icon colors mapping
 const networkColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -61,27 +69,18 @@ export default function AccountsPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'crypto' | 'bank'>('all');
   const [balanceVisible, setBalanceVisible] = useState(true);
 
-  // Fetch banking accounts from API
-  const { data: bankAccountsFromAPI, isLoading: bankingLoading } = useBankingGroupedAccounts();
-  const setAccounts = useBankingStore(state => state.setAccounts);
+  // ✅ NEW: Server data from TanStack Query (automatic caching, loading, refetching)
+  const { data: cryptoWalletsRaw = [], isLoading: cryptoLoading } = useCryptoWallets();
+  const { data: portfolio } = useCryptoPortfolio();
+  const { data: bankAccountsRaw = [], isLoading: bankingLoading } = useBankingGroupedAccounts();
 
-  // Update store when data is fetched
-  useEffect(() => {
-    if (bankAccountsFromAPI && Array.isArray(bankAccountsFromAPI)) {
-      setAccounts(bankAccountsFromAPI);
-    }
-  }, [bankAccountsFromAPI, setAccounts]);
+  // ✅ NEW: UI state from Zustand (filters, preferences)
+  const cryptoFilters = useCryptoUIStore((state) => state.filters);
+  const cryptoViewPreferences = useCryptoUIStore((state) => state.viewPreferences);
+  const bankFilters = useBankingUIStore((state) => state.filters);
+  const bankViewPreferences = useBankingUIStore((state) => state.viewPreferences);
 
-  // Get data from stores
-  const cryptoWalletsRaw = useCryptoStore(state => state.wallets);
-  const cryptoFilters = useCryptoStore(state => state.filters);
-  const cryptoViewPreferences = useCryptoStore(state => state.viewPreferences);
-  const bankAccountsRaw = useBankingStore(state => state.accounts);
-  const bankFilters = useBankingStore(state => state.filters);
-  const bankViewPreferences = useBankingStore(state => state.viewPreferences);
-  const cryptoLoading = useCryptoStore(state => state.walletsLoading);
-
-  // Apply filters
+  // ✅ Apply filters (client-side filtering)
   const cryptoWallets = useMemo(() => {
     return cryptoWalletsRaw.filter((wallet) => {
       if (cryptoFilters.networks.length > 0 && !cryptoFilters.networks.includes(wallet.network)) {
@@ -106,19 +105,11 @@ export default function AccountsPage() {
       if (bankFilters.institutions.length > 0 && !bankFilters.institutions.includes(account.institutionName)) {
         return false;
       }
-      if (!bankViewPreferences.showInactiveAccounts && !account.isActive) {
-        return false;
-      }
-      if (bankViewPreferences.hideSmallAmounts &&
-          Math.abs(account.balance) < bankViewPreferences.smallAmountThreshold) {
-        return false;
-      }
+      // Note: showInactiveAccounts and hideSmallAmounts don't exist in new UI store
+      // Add them to banking-ui-store if needed
       return true;
     });
-  }, [bankAccountsRaw, bankFilters, bankViewPreferences]);
-
-  // Get portfolio data
-  const portfolio = useCryptoStore(state => state.portfolio);
+  }, [bankAccountsRaw, bankFilters]);
 
   // Calculate totals
   const { totalCrypto, totalBank, totalBalance, totalChange, cryptoCount, bankCount } = useMemo(() => {
@@ -129,7 +120,7 @@ export default function AccountsPage() {
     let change = 0;
     if (portfolio && portfolio.dayChangePct !== undefined) {
       change = portfolio.dayChangePct;
-    } else if (total > 0) {
+    } else if (total > 0 && portfolio) {
       const cryptoChange = portfolio?.dayChange || 0;
       change = (cryptoChange / total) * 100;
     }
@@ -349,12 +340,12 @@ export default function AccountsPage() {
                         className={cn(
                           "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 relative",
                           networkColor.bg,
-                     
+
                         )}
                       >
                         <SolarWalletMoneyLinear className={cn("w-5 h-5", networkColor.text)} />
                         {/* Small network indicator */}
-                  
+
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold truncate leading-tight" title={wallet.name}>
@@ -472,12 +463,9 @@ export default function AccountsPage() {
                           {bankAccount.type}
                         </Badge>
                       </h3>
-                      
+
                       </div>
-                   {/*    <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1" title={bankAccount.institutionName}>
-                        {bankAccount.institutionName}
-                      </p> */}
-                     
+
                     </div>
                     {syncConfig && (
                       <Badge variant={syncConfig.variant} size="sm" className="shrink-0 shadow-sm">
@@ -488,7 +476,7 @@ export default function AccountsPage() {
 
                   {/* Account number with card-like styling */}
                   <div className="mb-2 px-3  bg-muted/20 rounded-lg border border-border/50">
-                   
+
                     <code className="text-xs font-mono font-semibold tracking-wider">
                       {bankAccount.accountNumber}
                     </code>

@@ -9,16 +9,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Plus, RefreshCw, TrendingUp, Wallet } from 'lucide-react';
 
-// Import our custom hooks
+// Import TanStack Query hooks
 import {
-  useWallets,
-  usePortfolio,
-  useTransactions,
-  useCreateWallet,
-  useSyncManager,
-  usePortfolioManager,
-  useFilterManager,
-} from '@/lib/hooks/use-crypto';
+  useCryptoWallets,
+  useCryptoPortfolio,
+  useCryptoTransactions,
+  useCreateCryptoWallet,
+  useSyncAllCryptoWallets,
+} from '@/lib/queries';
+import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 
 // Import types
 import type { NetworkType, WalletType } from '@/lib/types/crypto';
@@ -31,36 +30,52 @@ export function CryptoDashboardDemo() {
     type: 'HOT_WALLET' as WalletType,
   });
 
-  // Use our custom hooks
-  const { wallets, isLoading: walletsLoading, error: walletsError } = useWallets();
-  const { portfolio, isLoading: portfolioLoading } = usePortfolio();
-  const { transactions, pagination, isLoading: transactionsLoading } = useTransactions({ limit: 10 });
-  const { syncAllWallets, hasActiveSyncs, isSyncing } = useSyncManager();
-  const { timeRange, changeTimeRange } = usePortfolioManager();
-  const { filters, setNetworkFilter, hasActiveFilters, clearFilters } = useFilterManager();
+  // Server data from TanStack Query
+  const { data: wallets = [], isLoading: walletsLoading, error: walletsError } = useCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
+  const { data: transactionsData } = useCryptoTransactions({ limit: 10 });
+  const transactions = transactionsData?.items ?? [];
+  const pagination = transactionsData?.pagination;
+
+  // UI state from Zustand
+  const {
+    filters,
+    setNetworkFilter,
+    viewPreferences,
+    setPortfolioTimeRange
+  } = useCryptoUIStore();
 
   // Mutations
-  const createWalletMutation = useCreateWallet();
+  const { mutate: createWallet, isPending: isCreating } = useCreateCryptoWallet();
+  const { mutate: syncAllWallets, isPending: isSyncing } = useSyncAllCryptoWallets();
 
-  const handleAddWallet = async (e: React.FormEvent) => {
+  // Derived state
+  const hasActiveFilters = () => filters.networks.length > 0 || filters.walletTypes.length > 0;
+  const clearFilters = () => {
+    setNetworkFilter([]);
+  };
+
+  const handleAddWallet = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await createWalletMutation.mutateAsync({
-        name: newWalletForm.name,
-        address: newWalletForm.address,
-        network: newWalletForm.network,
-        type: newWalletForm.type,
-        label: `${newWalletForm.network} Wallet`,
-      });
-      setNewWalletForm({
-        name: '',
-        address: '',
-        network: 'ETHEREUM',
-        type: 'HOT_WALLET',
-      });
-    } catch (error) {
-      console.error('Failed to add wallet:', error);
-    }
+    createWallet({
+      name: newWalletForm.name,
+      address: newWalletForm.address,
+      network: newWalletForm.network,
+      type: newWalletForm.type,
+      label: `${newWalletForm.network} Wallet`,
+    }, {
+      onSuccess: () => {
+        setNewWalletForm({
+          name: '',
+          address: '',
+          network: 'ETHEREUM',
+          type: 'HOT_WALLET',
+        });
+      },
+      onError: (error) => {
+        console.error('Failed to add wallet:', error);
+      }
+    });
   };
 
   const handleSyncAll = () => {
@@ -88,7 +103,7 @@ export function CryptoDashboardDemo() {
         <div className="flex gap-2">
           <Button
             onClick={handleSyncAll}
-            disabled={isSyncing || hasActiveSyncs()}
+            disabled={isSyncing}
             variant="outline"
             size="sm"
           >
@@ -118,9 +133,9 @@ export function CryptoDashboardDemo() {
             {(['24h', '7d', '30d', '1y'] as const).map((range) => (
               <Button
                 key={range}
-                variant={timeRange === range ? 'default' : 'outline'}
+                variant={viewPreferences.portfolioTimeRange === range ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => changeTimeRange(range)}
+                onClick={() => setPortfolioTimeRange(range)}
               >
                 {range}
               </Button>
@@ -401,22 +416,16 @@ export function CryptoDashboardDemo() {
 
                 <Button
                   type="submit"
-                  disabled={createWalletMutation.isPending}
+                  disabled={isCreating}
                   className="w-full"
                 >
-                  {createWalletMutation.isPending ? (
+                  {isCreating ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
                     <Plus className="h-4 w-4 mr-2" />
                   )}
                   Add Wallet
                 </Button>
-
-                {createWalletMutation.error && (
-                  <div className="text-red-600 text-sm p-3 bg-red-50 rounded">
-                    Error: {createWalletMutation.error.message}
-                  </div>
-                )}
               </form>
             </CardContent>
           </Card>

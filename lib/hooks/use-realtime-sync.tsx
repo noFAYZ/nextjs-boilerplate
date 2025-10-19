@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useAuthStore, selectSession } from '@/lib/stores/auth-store';
 
@@ -708,15 +707,16 @@ async function refreshWalletData(walletId: string) {
   try {
     // Use the same API base as the main app
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
-    const response = await axios.get(`${API_BASE}/crypto/wallets/${walletId}`, {
-      withCredentials: true,
+    const response = await fetch(`${API_BASE}/crypto/wallets/${walletId}`, {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    if (response.status === 200) {
-      const walletData = response.data;
+    if (response.ok) {
+      const walletData = await response.json();
 
       // Here you could trigger a React Query refetch or update Zustand state
     }
