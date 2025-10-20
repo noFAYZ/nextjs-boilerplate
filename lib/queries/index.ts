@@ -57,6 +57,7 @@ export {
   useCryptoWallets,
   useCryptoWallet,
   useSelectedCryptoWallet,
+  useAggregatedCryptoWallet,
 
   // Portfolio Queries
   useCryptoPortfolio,
@@ -196,3 +197,33 @@ export {
   integrationsQueries,
   integrationsMutations,
 } from './integrations-queries';
+
+// ============================================================================
+// SETTINGS DATA HOOKS
+// ============================================================================
+
+export {
+  // Settings Queries
+  useUserSettings,
+  useTrustedDevices,
+
+  // Settings Mutations
+  useUpdateSettings,
+  useResetSettings,
+  useExportData,
+  useDeleteAccount,
+  useEnable2FA,
+  useVerify2FA,
+  useDisable2FA,
+  useRemoveTrustedDevice,
+  useTestNotification,
+  useClearCache,
+  useDownloadAllData,
+} from './use-settings-data';
+
+export {
+  settingsKeys,
+  settingsQueries,
+  settingsMutations,
+  useInvalidateSettingsQueries,
+} from './settings-queries';

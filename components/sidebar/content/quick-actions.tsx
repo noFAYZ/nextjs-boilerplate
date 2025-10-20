@@ -1,14 +1,13 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { QuickAction } from '../types';
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
+import { QuickAction } from '../types'
 
 interface SidebarQuickActionsProps {
-  actions: QuickAction[];
-  onActionClick: (actionId: string) => void;
+  actions: QuickAction[]
+  onActionClick: (actionId: string) => void
 }
 
 export function SidebarQuickActions({
@@ -16,51 +15,55 @@ export function SidebarQuickActions({
   onActionClick,
 }: SidebarQuickActionsProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-1 h-4 bg-gradient-to-b from-primary to-primary/40 rounded-full" />
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+    <div className="space-y-4 ">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-1 h-4 rounded-full bg-gradient-to-b from-primary to-primary/50" />
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           Quick Actions
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      {/* Action Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-visible">
         {actions.map((action) => {
-          const Icon = action.icon;
+          const Icon = action.icon
           return (
-            <Button
+            <button
               key={action.id}
-              variant="outline"
-              className="h-auto flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-muted/50 hover:border-primary/30 transition-all group relative"
               onClick={() => onActionClick(action.id)}
+              className={cn(
+                'relative group flex flex-col items-center justify-center gap-2 rounded-xl border border-transparent bg-muted/30 p-3 text-center backdrop-blur-sm  hover:border-primary/30 hover:bg-muted/50 hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] cursor-pointer overflow-visible'
+              )}
             >
-              <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                <Icon className="h-4 w-4 text-primary" />
+              {/* Icon Wrapper */}
+              <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 group-hover:from-primary/20 group-hover:to-primary/30 transition-all duration-300">
+                <Icon className="h-5 w-5 text-primary" />
               </div>
 
-              <div className="text-center">
-                <span className="text-xs font-medium line-clamp-2">
+              {/* Label + Shortcut */}
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-[12px] font-medium leading-tight text-foreground">
                   {action.label}
                 </span>
-                {action.shortcut && (
-                  <kbd className="text-[10px] text-muted-foreground mt-1">
-                    {action.shortcut}
-                  </kbd>
-                )}
+          
               </div>
 
+              {/* Badge */}
               {action.badge && (
                 <Badge
                   variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+                  className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px] z-10"
                 >
                   {action.badge}
                 </Badge>
               )}
-            </Button>
-          );
+
+          
+            </button>
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

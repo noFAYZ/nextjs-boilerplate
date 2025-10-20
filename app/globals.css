@@ -74,7 +74,7 @@
   --sidebar-foreground: oklch(0.8074 0.0142 93.0137);
   --sidebar-primary: oklch(0.3250 0 0);
   --sidebar-primary-foreground: oklch(0.9881 0 0);
-  --sidebar-accent: oklch(0.2174 0.0019 106.5582);
+  --sidebar-accent: hsl(0,0%,10.59%);
   --sidebar-accent-foreground: oklch(0.8074 0.0142 93.0137);
   --sidebar-border: oklch(0.9401 0 0);
   --sidebar-ring: oklch(0.7731 0 0);
@@ -92,21 +92,21 @@
 }
 
 .light-pro {
-  --background: oklch(1.0000 0 0);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.3471 0.0299 97.0894);
-  --card: oklch(0.9818 0.0054 95.0986);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
   --popover: oklch(1.0000 0 0);
   --popover-foreground: oklch(0.2699 0.0211 103.7300);
   --primary: oklch(0.6571 0.1369 40.4555);
   --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.9189 0.0104 67.6966);
+  --secondary: oklch(0.98 0.01 30);
   --secondary-foreground: oklch(0.4358 0.0191 103.2508);
-  --muted: oklch(0.9366 0.0178 92.6877);
+  --muted: oklch(0.9566 0.0068 92.6877);
   --muted-foreground: oklch(0.6059 0.0075 97.4233);
   --accent: oklch(0.9248 0.0125 91.5235);
   --accent-foreground: oklch(0.2699 0.0211 103.7300);
-  --destructive: #d10a3c;
+  --destructive: #d60000;
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.8118 0.0152 102.5130);
@@ -125,8 +125,7 @@
   --sidebar-border: oklch(0.9401 0 0);
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
   --radius: 0.6rem;
 
   --tracking-normal: -0.025em;

@@ -30,7 +30,8 @@ import {
   Eye,
   MoreHorizontal,
   BadgeDollarSign,
-  MoreVertical
+  MoreVertical,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TokensDataTable } from './tokens-data-table';
@@ -52,18 +53,24 @@ interface TokenPosition {
     network: string;
   };
   balance: string;
-  balanceUsd: number;
-  dayChangePct?: number;
+  balanceUsd: number | string;
+  dayChangePct?: number | null;
   assets?: Array<{
     symbol: string;
     amount: string;
   }>;
+  walletCount?: number;
+  wallet?: {
+    name: string;
+    address: string;
+  };
 }
 
 interface WalletTokensProps {
   tokens: TokenPosition[];
   isLoading?: boolean;
   selectedChain?: string | null;
+  isAggregated?: boolean;
 }
 
 const ITEMS_PER_PAGE = 15;
@@ -78,7 +85,8 @@ const getPerformanceTier = (changePct?: number, value?: number) => {
 };
 
 const PerformanceBadge = ({ token }: { token: TokenPosition }) => {
-  const tier = getPerformanceTier(token.dayChangePct, token.balanceUsd);
+  const balance = typeof token.balanceUsd === 'string' ? parseFloat(token.balanceUsd) : token.balanceUsd;
+  const tier = getPerformanceTier(token.dayChangePct, balance);
   
   const tierConfig = {
     superstar: { icon: Crown, label: 'Top', className: 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' },
@@ -130,27 +138,33 @@ const TokenIcon = ({ token, isLoading }: { token: TokenPosition; isLoading?: boo
   );
 };
 
-export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensProps) {
+export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = false }: WalletTokensProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'value' | 'change' | 'name'>('value');
   const [filterBy, setFilterBy] = useState<'all' | 'profitable' | 'losing' | 'major'>('all');
   const { isBeginnerMode, isProMode } = useViewMode();
 
-  // Calculate portfolio metrics
-  const totalValue = tokens.reduce((sum, token) => sum + token.balanceUsd, 0);
-  const profitableCount = tokens.filter(token => (token.dayChangePct || 0) > 0).length;
-  const majorHoldings = tokens.filter(t => t.balanceUsd >= 100).length;
-  const topPerformers = tokens.filter(token => token.dayChangePct && token.dayChangePct >= 5).length;
 
+  // Calculate portfolio metrics
+  const totalValue = tokens?.reduce((sum, token) => {
+    const balance = typeof token.balanceUsd === 'string' ? parseFloat(token.balanceUsd) : token.balanceUsd;
+    return sum + (isNaN(balance) ? 0 : balance);
+  }, 0);
+  const profitableCount = tokens?.filter(token => (token.dayChangePct || 0) > 0).length;
+  const majorHoldings = tokens?.filter(t => {
+    const balance = typeof t.balanceUsd === 'string' ? parseFloat(t.balanceUsd) : t.balanceUsd;
+    return balance >= 100;
+  }).length;
+  const topPerformers = tokens?.filter(token => token.dayChangePct && token.dayChangePct >= 5).length;
   // Filter and search tokens
   const filteredTokens = useMemo(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('WalletTokens filtering with selectedChain:', selectedChain, 'tokens count:', tokens.length);
-      console.log('Available networks in tokens:', [...new Set(tokens.map(t => t.asset.network))]);
+      console.log('WalletTokens filtering with selectedChain:', selectedChain, 'tokens count:', tokens?.length);
+      console.log('Available networks in tokens:', [...new Set(tokens?.map(t => t.asset.network))]);
     }
 
-    const filtered = tokens.filter(token => {
+    const filtered = tokens?.filter(token => {
       const matchesSearch = token.asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            token.asset.symbol.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -195,15 +209,18 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
 
       if (filterBy === 'profitable') return (token.dayChangePct || 0) > 0;
       if (filterBy === 'losing') return (token.dayChangePct || 0) < 0;
-      if (filterBy === 'major') return token.balanceUsd >= 100;
+      if (filterBy === 'major') {
+        const balance = typeof token.balanceUsd === 'string' ? parseFloat(token.balanceUsd) : token.balanceUsd;
+        return balance >= 100;
+      }
       return true;
     });
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('WalletTokens filtered result:', filtered.length, 'tokens');
+      console.log('WalletTokens filtered result:', filtered?.length, 'tokens');
     }
 
-    return filtered;
+    return filtered ||[];
   }, [tokens, searchTerm, selectedChain, filterBy]);
 
   // Sort tokens
@@ -276,7 +293,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
       {!isBeginnerMode ? (
         /* Beginner View - Cards */
         <div className="space-y-3 ">
-          {paginatedTokens.map((token) => (
+          {paginatedTokens?.map((token) => (
           <Card key={token.id} className={cn(
             "group transition-all duration-100 hover:shadow-md relative py-2",
             token.dayChangePct && token.dayChangePct > 0 ? "bg-green-50/50 dark:bg-green-950/20" :
@@ -322,6 +339,19 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
                       `${Number(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} ${token.asset.symbol}`
                     )}
                   </p>
+                  {isAggregated && Array.isArray(token?.walletAddresses) && token.walletAddresses.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                      <Wallet className="h-3 w-3 shrink-0" />
+                      {token.walletAddresses.map((addr: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="font-mono bg-muted/50 px-1.5 py-0.5 rounded-md"
+                        >
+                          {addr.slice(0, 6)}...{addr.slice(-4)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="text-right">
@@ -399,6 +429,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain }: WalletTokensP
             tokens={sortedTokens}
             totalValue={totalValue}
             isLoading={isLoading}
+            isAggregated={isAggregated}
           />
         
       )}

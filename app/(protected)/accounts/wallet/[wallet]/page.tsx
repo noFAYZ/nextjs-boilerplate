@@ -190,21 +190,15 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   // ✅ NEW: Use TanStack Query hooks for parallel data fetching
   const walletQuery = useCryptoWallet(walletIdentifier);
-  const transactionsQuery = useWalletTransactions(walletIdentifier, { limit: 10 });
-  const nftsQuery = useWalletNFTs(walletIdentifier);
-  const defiQuery = useWalletDeFi(walletIdentifier);
 
   // Combine data and states
   const wallet = walletQuery.data;
-  const transactions = transactionsQuery.data;
-  const nfts = nftsQuery.data;
-  const isLoading = walletQuery.isLoading || transactionsQuery.isLoading || nftsQuery.isLoading || defiQuery.isLoading;
-  const error = walletQuery.error || transactionsQuery.error || nftsQuery.error || defiQuery.error;
+
+  const isLoading = walletQuery.isLoading;
+  const error = walletQuery.error ;
   const refetch = () => {
     walletQuery.refetch();
-    transactionsQuery.refetch();
-    nftsQuery.refetch();
-    defiQuery.refetch();
+
   };
 
   const { mutate: syncWallet } = useSyncCryptoWallet();
@@ -212,7 +206,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const prevSyncStatusRef = useRef<string>();
 
   console.log('Wallet data:', wallet);
-  console.log('Selected chain:', selectedChain);
+ 
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
@@ -665,7 +659,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
         <TabsContent value="nfts" className=" " key={`nfts-${selectedChain || 'all'}`}>
           <WalletNFTs
-            nfts={nfts || []}
+            nfts={wallet?.nfts || []}
             isLoading={isLoading || isSyncing}
             selectedChain={selectedChain}
           />
@@ -673,7 +667,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
         <TabsContent value="transactions" className=" " key={`transactions-${selectedChain || 'all'}`}>
           <WalletTransactions
-            transactions={transactions || []}
+            transactions={wallet?.transactions || []}
             isLoading={isLoading || isSyncing}
             walletAddress={wallet?.walletData?.address}
             selectedChain={selectedChain}

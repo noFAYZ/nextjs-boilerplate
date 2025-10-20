@@ -14,6 +14,7 @@
 
 export { useCryptoUIStore, cryptoUISelectors } from './crypto-ui-store';
 export { useBankingUIStore, bankingUISelectors } from './banking-ui-store';
+export { useSubscriptionUIStore, subscriptionUISelectors } from './subscription-ui-store';
 
 // Re-export auth store (unchanged - it manages session, not UI)
 export { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from './auth-store';

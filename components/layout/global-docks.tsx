@@ -12,15 +12,15 @@ import {
 } from "lucide-react"
 import { ExpandableDock, ExpandableItem, Dock, useDock } from "@/components/ui/dock"
 import { useDockContext } from "@/components/providers/dock-provider"
-import { useRealtimeNotifications } from "@/lib/hooks/use-realtime-notifications"
 import { cn } from "@/lib/utils"
-import {   HugeiconsPieChart01, PhBrainDuotone, StreamlineFlexBellNotification, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
+import {   DuoIconsBank, HugeiconsPieChart01, PhBrainDuotone, SolarFolderBoldDuotone, SolarHomeSmileBoldDuotone, SolarPieChart2BoldDuotone, SolarWalletMoneyBoldDuotone, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
 import { SyncIndicator } from "./sync-indicator"
 import { useCryptoWallets } from "@/lib/queries"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
+import { LetsIconsSettingLineDuotone } from "../icons"
 
 // Wallet icon configurations
 const WALLET_ICON_CONFIGS = {
@@ -60,45 +60,6 @@ function formatTimeAgo(date: Date): string {
   return `${Math.floor(diffMinutes / 1440)}d ago`
 }
 
-// Notification Dock Component
-export function NotificationDock() {
-  const { notifications } = useDockContext()
-  const router = useRouter()
-  const isMobile = useIsMobile()
-  const { user } = useAuth()
-  
-  // Only show to authenticated users
-  if (!user) {
-    return null
-  }
-  
-  // Initialize realtime notifications
-  useRealtimeNotifications()
-
-  // Realtime notifications are now handled by useRealtimeNotifications hook
-
-  const criticalCount = notifications.items.filter(item => 
-    item.status === 'error' || item.status === 'warning'
-  ).length
-
-  return (
-    <ExpandableDock
-      trigger={{
-        icon: <StreamlineFlexBellNotification className="w-5 h-5" />,
-        label: 'Notifications',
-        badge: criticalCount || undefined
-      }}
-      items={notifications.items}
-      isExpanded={notifications.isExpanded}
-      onToggle={notifications.toggle}
-      panelTitle="Notifications"
-      position={isMobile ? "bottom-left" : "bottom-right"}
-      maxHeight={isMobile ? 300 : 400}
-      emptyMessage="No new notifications"
-      className={cn(isMobile && "bottom-20")} // Account for mobile nav
-    />
-  )
-}
 
 // Wallets Dock Component
 export function WalletsDock() {
@@ -415,21 +376,21 @@ export function BottomMenuDock() {
     {
       id: 'home',
       label: 'Dashboard',
-      icon: <StreamlineFlexHome2 className="w-5 h-5 text-accent-foreground/80"/>,
+      icon: <SolarHomeSmileBoldDuotone className="w-6 h-6 text-accent-foreground/80"/>,
       href: '/dashboard',
       hotkey: '⌘+1'
     },
     {
       id: 'wallets',
       label: 'Wallets',
-      icon: <StreamlineFlexWallet className="w-5 h-5 text-accent-foreground/80" />,
+      icon: <SolarWalletMoneyBoldDuotone className="w-6 h-6 text-accent-foreground/80" />,
       href: '/accounts/wallet',
       hotkey: '⌘+1'
     },
     {
       id: 'banks',
       label: 'Banks',
-      icon: <StreamlinePlumpBuildingOffice className="w-5 h-5 text-accent-foreground/80"/>,
+      icon: <DuoIconsBank className="w-6 h-6 text-accent-foreground/80"/>,
       href: '/accounts/bank',
       hotkey: '⌘+2'
     },
@@ -444,21 +405,21 @@ export function BottomMenuDock() {
     {
       id: 'portfolios',
       label: 'Portfolios',
-      icon: <HugeiconsPieChart01 className="w-5.5 h-5.5 text-accent-foreground/80" />,
+      icon: <SolarPieChart2BoldDuotone className="w-6 h-6 " />,
       href: '/portfolios',
       hotkey: '⌘+1'
     },
     {
       id: 'groups',
       label: 'Groups',
-      icon: <StreamlineFlexLabelFolderTag className="w-5 h-5 text-accent-foreground/80" />,
+      icon: <SolarFolderBoldDuotone className="w-6 h-6" />,
       href: '/accounts/groups',
       hotkey: '⌘+1'
     },
     {
       id: 'settings',
       label: 'Settings',
-      icon: <Settings className="w-5 h-5 text-accent-foreground/80"/>,
+      icon: <LetsIconsSettingLineDuotone className="w-6 h-6 text-accent-foreground/80"/>,
       href: '/settings',
       badge: 2
     }
@@ -494,7 +455,7 @@ export function BottomMenuDock() {
             magnification={false}
             indicatorStyle="windows11"
             blur={false}
-            className="relative "
+            className="relative bg-card"
             showActiveIndicator={true}
             autoDetectActive={true}
           />
@@ -535,12 +496,11 @@ export function GlobalDocks() {
 
   return (
     <>
-      <NotificationDock />
       <SyncIndicator />
-      <BottomMenuDock />
+      {!isBeginnerMode && <BottomMenuDock />}
 
       {/* Mobile spacing for bottom navigation */}
-      {isMobile && <div className="h-16" />}
+      {isMobile && !isBeginnerMode && <div className="h-16" />}
     </>
   )
 }

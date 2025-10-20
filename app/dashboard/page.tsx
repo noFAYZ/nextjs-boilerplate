@@ -26,8 +26,8 @@ import {
   SpendingCategoriesWidget,
   MonthlySpendingTrendWidget,
 } from '@/components/dashboard-widgets';
-import { FluentBuildingBank28Regular, HugeiconsPuzzle, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
-import { IconParkTwotoneSettingTwo } from '@/components/icons';
+import { DuoIconsBank, FluentBuildingBank28Regular, HugeiconsPuzzle, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
+import { IconParkTwotoneSettingTwo, LetsIconsSettingLineDuotone } from '@/components/icons';
 
 export default function DashboardPage() {
   const user = useAuthStore(selectUser);
@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6">
+      <div className=" space-y-6 p-4 md:p-6">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -75,10 +75,10 @@ export default function DashboardPage() {
             {/* Additional Links Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/accounts/bank">
-            <div className="group p-2 rounded-lg border bg-muted/50  cursor-pointer shadow">
+            <div className="group p-2 rounded-xl border bg-muted/50  cursor-pointer shadow">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center  transition-transform">
-                  <FluentBuildingBank28Regular className='w-6 h-6 text-foreground/70'/>
+                <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center  transition-transform">
+                  <DuoIconsBank className='w-6 h-6 text-foreground/70'/>
                 </div>
                 <div>
                   <h3 className="font-semibold text-xs">Bank Accounts</h3>
@@ -89,10 +89,10 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/accounts/wallet">
-            <div className="group p-2 rounded-lg border bg-muted/50 cursor-pointer">
+            <div className="group p-2 rounded-xl border bg-muted/50 cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center  transition-transform">
-                  <SolarWalletMoneyLinear stroke='2' className='w-6 h-6 text-foreground/70'  />
+                <div className="w-10 h-10 rounded-lg bg-accent  flex items-center justify-center  transition-transform">
+                  <SolarWalletMoneyBoldDuotone stroke='2' className='w-6 h-6 text-foreground/70'  />
                 </div>
                 <div>
                   <h3 className="font-semibold text-xs">Crypto Wallets</h3>
@@ -103,9 +103,9 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/accounts/integrations">
-            <div className="group p-2 rounded-lg border bg-muted/50 cursor-pointer">
+            <div className="group p-2 rounded-xl border bg-muted/50 cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950/40 flex items-center justify-center transition-transform">
+                <div className="w-10 h-10 rounded-lg bg-accent  flex items-center justify-center transition-transform">
                   <HugeiconsPuzzle stroke='2' className='w-6 h-6 text-foreground/70'/>
                 </div>
                 <div>
@@ -117,10 +117,10 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/settings">
-            <div className="group p-2 rounded-lg border bg-muted/50 cursor-pointer">
+            <div className="group p-2 rounded-xl border bg-muted/50 cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center  transition-transform">
-                  <IconParkTwotoneSettingTwo stroke='2' className='w-6 h-6 text-foreground/70'/>
+                <div className="w-10 h-10 rounded-lg bg-accent  flex items-center justify-center  transition-transform">
+                  <LetsIconsSettingLineDuotone stroke='2' className='w-6 h-6 '/>
                 </div>
                 <div>
                   <h3 className="font-semibold text-xs">Settings</h3>

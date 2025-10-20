@@ -192,10 +192,10 @@ const DockItemComponent = React.memo<{
       <motion.button
         className={cn(
           "relative flex items-center justify-center rounded-xl transition-colors duration-0 outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer",
-          "hover:bg-accent/70 active:bg-accent/70",
+          "hover:bg-background ",
           sizeConfig.item,
           item.disabled && "opacity-50 cursor-not-allowed",
-          isActive && "bg-accent "
+          isActive && "bg-background "
         )}
         animate={{
           scale: getItemScale(),
@@ -436,7 +436,7 @@ export function Dock({
   const containerClasses = cn(
     "flex items-center justify-center p-2 rounded-full border shadow-xl transition-all duration-0",
     blur && "backdrop-blur-xl bg-background/80 supports-[backdrop-filter]:bg-background/60",
-    !blur && "bg-card",
+  
     isHorizontal ? "flex-row gap-2" : "flex-col gap-2",
     isHorizontal ? sizeConfig.container : `w-16 min-h-[220px]`,
     className
@@ -985,7 +985,7 @@ export function ExpandableDock({
               className="overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
               style={{ 
                 maxHeight: typeof window !== 'undefined' && window.innerWidth < 768 
-                  ? Math.min(maxHeight, window.innerHeight * 0.5) // Max 50% of viewport height on mobile
+                  ? Math.min(maxHeight, window.innerHeight) // Max 50% of viewport height on mobile
                   : maxHeight 
               }}
             >

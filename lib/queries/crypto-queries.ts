@@ -34,6 +34,7 @@ export const cryptoKeys = {
     [...cryptoKeys.wallets(), id, { timeRange }] as const,
   walletSummary: (id: string) => 
     [...cryptoKeys.wallets(), id, 'summary'] as const,
+  aggregatedWallet: () => [...cryptoKeys.all, 'aggregated-wallet'] as const,
   
   // Portfolio
   portfolio: (params?: PortfolioParams) => 
@@ -81,10 +82,9 @@ export const cryptoQueries = {
     enabled: !!id,
     staleTime: 1000 * 60 * 2, // 2 minutes
     gcTime: 1000 * 60 * 5, // 5 minutes - keep in cache longer
-    refetchOnMount: false, // Only refetch if stale
-    refetchOnReconnect: false, // Don't refetch on reconnect
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    notifyOnChangeProps: ['data', 'error', 'isLoading'], // Only notify on these prop changes
+    refetchOnMount: true, // Refetch if stale when component mounts
+    refetchOnReconnect: true, // Refetch on reconnect
+    refetchOnWindowFocus: false, // Don't refetch on window focus (keep this off for performance)
     select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
@@ -94,6 +94,16 @@ export const cryptoQueries = {
     enabled: !!id,
     staleTime: 1000 * 60 * 3, // 3 minutes
     select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
+  }),
+  aggregatedWallet: () => ({
+    queryKey: cryptoKeys.aggregatedWallet(),
+    queryFn: () => cryptoApi.getAggregatedWallet(),
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: false,
+    select: (data: ApiResponse<any>) => data.success ? data.data : null,
   }),
 
   // Portfolio
@@ -354,7 +364,7 @@ export const cryptoMutations = {
       onSuccess: (response) => {
         if (response.success) {
           // Comprehensive cache invalidation for all wallet sync
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.all });
+          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
         }
       },
       onError: (error) => {

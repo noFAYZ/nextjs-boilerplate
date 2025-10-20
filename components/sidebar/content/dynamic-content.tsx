@@ -32,7 +32,12 @@ export function SidebarDynamicContent({
   const getContent = () => {
     // Dashboard shows quick actions
     if (selectedMenuItem === 'dashboard') {
-      return <SidebarQuickActions actions={actions} onActionClick={onActionClick} />;
+      return (<div className='space-y-6'>
+      <SidebarPortfolioOverview />
+       <SidebarQuickActions actions={actions} onActionClick={onActionClick} />
+      </div>
+      
+     );
     }
 
     // Portfolio section - show portfolio overview

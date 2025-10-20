@@ -1,714 +1,460 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Plus,
-  Search,
+  ArrowLeft,
   RefreshCw,
-  Wallet,
-  Copy,
-  ExternalLink,
   Loader2,
-  SortAsc,
-  ChevronRight,
-  Activity,
-  Star,
-  Layers,
-  DollarSign,
-  Clock,
   AlertCircle,
-  CheckCircle,
-  Settings,
-  Trash2,
-  X
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
-import { createAvatar } from '@dicebear/core';
-import { botttsNeutral } from '@dicebear/collection';
+  Coins,
+  ImageIcon,
+  ArrowUpDown,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createAvatar } from "@dicebear/core";
+import { botttsNeutral } from "@dicebear/collection";
 
-// Import TanStack Query hooks and UI store
+// ✅ Import TanStack Query hook for aggregated wallet
+import { useAggregatedCryptoWallet, useSyncAllCryptoWallets } from "@/lib/queries";
+import { useCryptoStore } from "@/lib/stores/crypto-store";
+
+// Import components
+import { WalletTokens } from "@/components/crypto/wallet-tokens";
+import { WalletNFTs } from "@/components/crypto/wallet-nfts";
+import { WalletTransactions } from "@/components/crypto/wallet-transactions";
+import { WalletChart } from "@/components/crypto/wallet-chart";
+import { WalletDeFi } from "@/components/crypto/wallet-defi";
+import { CurrencyDisplay } from "@/components/ui/currency-display";
 import {
-  useCryptoWallets,
-  useDeleteCryptoWallet,
-  useSyncCryptoWallet,
-  useSyncAllCryptoWallets
-} from '@/lib/queries';
-import { useCryptoUIStore } from '@/lib/stores/ui-stores';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { CurrencyDisplay } from '@/components/ui/currency-display';
-import type { CryptoWallet } from '@/lib/types/crypto';
-import {  SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
-import { AddWalletModal } from '@/components/crypto/AddWalletModal';
-import { SyncStatusIndicator } from '@/components/crypto/SyncStatusIndicator';
-import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
-import { LogoLoader } from '@/components/icons';
+  StreamlineFlexWallet,
+  MageCaretUpFill,
+  MageCaretDownFill,
+  SolarWalletBoldDuotone,
+  SolarWalletMoneyBoldDuotone,
+  MynauiActivitySquare,
+  SolarGalleryWideOutline,
+  StreamlineFreehandCryptoCurrencyUsdCoin,
+  StreamlineUltimateCryptoCurrencyBitcoinDollarExchange,
+  SolarWalletMoneyLinear,
+} from "@/components/icons/icons";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { LetsIconsSettingLineDuotone, LogoLoader } from "@/components/icons";
 
-interface WalletCardProps {
-  wallet: CryptoWallet;
-  onWalletClick: (wallet: CryptoWallet) => void;
-  onCopyAddress: (address: string, e: React.MouseEvent) => void;
-  getNetworkExplorerUrl: (network: string, address: string) => string;
-  isManageMode?: boolean;
-  isSelected?: boolean;
-  onSelect?: (walletId: string, selected: boolean) => void;
-  onSyncStatusClick?: (walletId: string) => void;
-}
-
-function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUrl, isManageMode = false, isSelected = false, onSelect, onSyncStatusClick }: WalletCardProps) {
-  const { realtimeSyncStates } = useCryptoStore();
-  const avataUrl = createAvatar(botttsNeutral, {
-    size: 128,
-    seed: wallet.address,
-    radius: 20,
-  }).toDataUri();
-
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 8)}...${address.slice(-6)}`;
-  };
-
-  const getNetworkColor = () => {
-    // Use theme-compliant colors only
-    return 'bg-secondary text-secondary-foreground';
-  };
-
-  // Get SSE-based sync status for this wallet
-  const walletSyncState = realtimeSyncStates[wallet.id];
-  const isSyncing = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
-
-  const getSyncStatusIcon = () => {
-    if (isSyncing) {
-      return <Activity className="h-3 w-3 text-primary animate-pulse" />;
-    }
-
-    switch (walletSyncState?.status) {
-      case 'completed':
-        return <SolarCheckCircleBoldDuotone className="h-5 w-5 text-lime-700 dark:text-green-400" />;
-      case 'failed':
-        return <AlertCircle className="h-5 w-5 text-destructive" />;
-      default:
-        return <SolarClockCircleBoldDuotone className="h-5 w-5 text-yellow-700" />;
-    }
-  };
-
-  
-
-  const handleCardClick = () => {
-    if (isManageMode && onSelect) {
-      onSelect(wallet.id, !isSelected);
-    } else {
-      onWalletClick(wallet);
-    }
-  };
-
+function WalletLoadingState() {
   return (
-    <div
-      className={cn(
-        "group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer",
-        isSelected && " border-primary/55 "
-      )}
-      onClick={handleCardClick}
-    >
-      <div className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          {/* Selection Checkbox in Manage Mode */}
-          {isManageMode && (
-            <div className="flex-shrink-0">
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  onSelect?.(wallet.id, e.target.checked);
-                }}
-                className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
-              />
-            </div>
-          )}
-
-          {/* Compact Avatar */}
-          <div className="relative flex-shrink-0">
-            <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-              <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
-            </div>
-            <button
-              className="absolute -top-1 -right-1 h-5 w-5 bg-background rounded-full flex items-center justify-center border border-border hover:bg-muted transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSyncStatusClick?.(wallet.id);
-              }}
-              title="View sync status"
-            >
-              {getSyncStatusIcon()}
-            </button>
-          </div>
-
-          {/* Wallet Name & Network */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-medium truncate">{wallet.name}</h3>
-              <Badge className={cn("text-xs px-2 py-0.5", getNetworkColor())}>
-                {wallet.network}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-mono">
-                {formatAddress(wallet.address)}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => onCopyAddress(wallet.address, e)}
-                className="h-5 w-5 p-0 hover:bg-muted"
-                title="Copy Address"
-              >
-                <Copy className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="h-5 w-5 p-0 hover:bg-muted"
-                title="View on Explorer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <a
-                  href={getNetworkExplorerUrl(wallet.network, wallet.address)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </Button>
-            </div>
-          </div>
-
-          {/* Compact Stats */}
-          <div className="hidden md:flex items-center gap-6 text-right">
-            <div>
-              <div className="font-semibold text-sm">
-                <CurrencyDisplay
-                  amountUSD={parseFloat(wallet.totalBalanceUsd)}
-                  variant="small"
-                />
-              </div>
-              <div className="text-xs text-muted-foreground">Portfolio</div>
-            </div>
-
-         {/*    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Layers className="h-3 w-3" />
-                {wallet.assetCount || 0}
-              </span>
-              <span className="flex items-center gap-1">
-                <Star className="h-3 w-3" />
-                {wallet.nftCount || 0}
-              </span>
-            </div> */}
-          </div>
-
-          {/* Mobile Portfolio Value */}
-          <div className="md:hidden text-right">
-            <div className="font-semibold text-sm">
-              <CurrencyDisplay
-                amountUSD={parseFloat(wallet.totalBalanceUsd)}
-                variant="small"
-              />
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {wallet.assetCount || 0} assets
-            </div>
-          </div>
-
-          {/* Subtle Arrow */}
-          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+    <div className="relative h-screen bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+      <Card className="px-5 border-border shadow-none">
+        <div className="flex items-center space-x-3">
+          <LogoLoader className="w-8 h-8" />
+          <span className="text-sm font-medium">Loading your portfolio...</span>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
 
-export default function WalletsPage() {
+function WalletErrorState({ error }: { error: any }) {
+  return (
+    <div className="max-w-7xl mx-auto p-4 lg:p-6">
+      <Card>
+        <CardContent className="p-8 text-center">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">
+            {error?.message || "Failed to load aggregated wallet data"}
+          </p>
+          <div className="flex gap-2 justify-center">
+            <Link href="/accounts/wallet/manage">
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Manage Wallets
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function AggregatedWalletPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'balance' | 'lastSync'>('balance');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [isManageMode, setIsManageMode] = useState(false);
-  const [selectedWallets, setSelectedWallets] = useState<Set<string>>(new Set());
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("tokens");
 
-  // ✅ NEW: Data from TanStack Query
-  const { data: wallets = [], isLoading, error } = useCryptoWallets();
-  const { mutate: deleteWallet, isPending: isDeleting } = useDeleteCryptoWallet();
-  const { mutate: syncWallet } = useSyncCryptoWallet();
-  const { mutate: syncAllWallets, isPending: isSyncingAll } = useSyncAllCryptoWallets();
+  // ✅ Use TanStack Query hook for aggregated wallet data
+  const { data: aggregatedData, isLoading, error, refetch } = useAggregatedCryptoWallet();
+  const { mutate: syncAllWallets, isPending: isSyncing } = useSyncAllCryptoWallets();
 
-  // ✅ NEW: UI state from UI store
-  const { filters, setNetworkFilter, clearFilters, hasActiveFilters } = useCryptoUIStore();
-
-  // Get SSE sync states from crypto store (only for real-time sync progress)
-  const { realtimeSyncStates } = useCryptoStore();
-
-  // Check if any wallets are actively syncing via SSE
-  const hasActiveSyncs = () => {
-    return Object.values(realtimeSyncStates).some(state =>
-      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
-    );
-  };
-
-  const getActiveSyncs = () => {
-    return Object.keys(realtimeSyncStates).filter(walletId =>
-      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(realtimeSyncStates[walletId].status)
-    );
-  };
-
-  // Memoize expensive calculations
-  const filteredWallets = useMemo(() => {
-    return wallets.filter((wallet) => {
-      // Filter by networks
-      if (filters.networks.length > 0 && !filters.networks.includes(wallet.network)) {
-        return false;
-      }
-
-      // Filter by wallet types
-      if (filters.walletTypes.length > 0 && !filters.walletTypes.includes(wallet.type)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [wallets, filters.networks, filters.walletTypes]);
-
+  // Memoize stats
   const portfolioStats = useMemo(() => {
-    const totalValue = filteredWallets.reduce((sum, wallet) => sum + parseFloat(wallet.totalBalanceUsd), 0);
-    const totalAssets = filteredWallets.reduce((sum, wallet) => sum + (wallet.assetCount || 0), 0);
-    const totalNFTs = filteredWallets.reduce((sum, wallet) => sum + (wallet.nftCount || 0), 0);
-    const activeWallets = filteredWallets.filter(w => parseFloat(w.totalBalanceUsd) > 0).length;
+    if (!aggregatedData) return null;
+
+    const summary = aggregatedData.summary;
+    const portfolio = aggregatedData.portfolio;
 
     return {
-      totalValue,
-      totalAssets,
-      totalNFTs,
-      activeWallets,
-      totalWallets: filteredWallets.length
+      totalValue: portfolio?.walletValue || 0,
+      totalAssets: summary?.totalAssets || 0,
+      totalNFTs: summary?.totalNfts || 0,
+      totalWallets: summary?.totalWallets || 0,
+      dayChange: portfolio?.absolute24hChange || 0,
+      dayChangePct: portfolio?.percent24hChange || 0,
+      totalDeFiValue: summary?.totalDeFiValue || 0,
     };
-  }, [filteredWallets]);
+  }, [aggregatedData]);
 
-  const handleWalletClick = (wallet: CryptoWallet) => {
-    router.push(`/accounts/wallet/${wallet.id}`);
-  };
+  console.log(aggregatedData)
 
-  const handleCopyAddress = async (address: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(address);
-      // You could add a toast notification here
-    } catch (error) {
-      console.error('Failed to copy address:', error);
-    }
-  };
-
-  const handleSyncAll = () => {
-    syncAllWallets();
-  };
-
-  const handleSyncComplete = () => {
-    setSyncingWalletId(null);
-  };
-
-  const handleSyncStatusClick = (walletId: string) => {
-    setSyncingWalletId(walletId);
-  };
-
-  const handleManageMode = () => {
-    setIsManageMode(!isManageMode);
-    setSelectedWallets(new Set()); // Clear selections when toggling mode
-  };
-
-  const handleWalletSelect = (walletId: string, selected: boolean) => {
-    const newSelected = new Set(selectedWallets);
-    if (selected) {
-      newSelected.add(walletId);
-    } else {
-      newSelected.delete(walletId);
-    }
-    setSelectedWallets(newSelected);
-  };
-
-  const handleDeleteSelected = async () => {
-    if (selectedWallets.size === 0) return;
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${selectedWallets.size} wallet${selectedWallets.size > 1 ? 's' : ''}? This action cannot be undone.`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      // ✅ Delete all selected wallets using mutation
-      for (const walletId of Array.from(selectedWallets)) {
-        await new Promise((resolve, reject) => {
-          deleteWallet(walletId, {
-            onSuccess: resolve,
-            onError: reject
-          });
-        });
-      }
-
-      // Clear selections and exit manage mode
-      setSelectedWallets(new Set());
-      setIsManageMode(false);
-    } catch (error) {
-      console.error('Failed to delete wallets:', error);
-    }
-  };
-
-  const getNetworkExplorerUrl = (network: string, address: string) => {
-    const explorers = {
-      ETHEREUM: `https://etherscan.io/address/${address}`,
-      POLYGON: `https://polygonscan.com/address/${address}`,
-      BSC: `https://bscscan.com/address/${address}`,
-      ARBITRUM: `https://arbiscan.io/address/${address}`,
-      OPTIMISM: `https://optimistic.etherscan.io/address/${address}`,
-      AVALANCHE: `https://snowtrace.io/address/${address}`,
-    };
-    return explorers[network as keyof typeof explorers] || '#';
-  };
-
-  // Filter and sort wallets
-  const processedWallets = filteredWallets
-    .filter(wallet =>
-      wallet?.name?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
-      wallet?.address?.toLowerCase()?.includes(searchQuery?.toLowerCase())
-    )
-    .sort((a, b) => {
-      let aValue: string | number, bValue: string | number;
-
-      switch (sortBy) {
-        case 'balance':
-          aValue = parseFloat(a.totalBalanceUsd);
-          bValue = parseFloat(b.totalBalanceUsd);
-          break;
-        case 'lastSync':
-          aValue = a.lastSyncAt ? new Date(a.lastSyncAt).getTime() : 0;
-          bValue = b.lastSyncAt ? new Date(b.lastSyncAt).getTime() : 0;
-          break;
-        default:
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-      }
-
-      if (sortOrder === 'desc') {
-        return aValue < bValue ? 1 : -1;
-      }
-      return aValue > bValue ? 1 : -1;
+  const handleSync = () => {
+    syncAllWallets(undefined, {
+      onSuccess: () => {
+        setTimeout(() => {
+          refetch();
+        }, 2000);
+      },
     });
+  };
 
   if (isLoading) {
+    return <WalletLoadingState />;
+  }
+
+  if (error) {
+    return <WalletErrorState error={error} />;
+  }
+
+  if (!aggregatedData) {
     return (
-
-
-<div className=" relative h-screen  bg-background/50 backdrop-blur-sm  z-10 flex items-center justify-center">
-<Card className="px-5 border-border shadow-none " >
-  <div className="flex items-center space-x-3">
-    <LogoLoader className="w-8 h-8" />
-    <span className="text-sm font-medium">Loading your wallets....</span>
-  </div>
-</Card>
-</div>
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <StreamlineFlexWallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">No wallet data available</h2>
+            <p className="text-muted-foreground mb-4">
+              Connect your first wallet to start tracking your portfolio
+            </p>
+            <Link href="/accounts/wallet/manage">
+              <Button>Manage Wallets</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className=" mx-auto p-4 lg:p-6 space-y-6">
 
 
+      {/* Portfolio Header */}
+<div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 pb-6 border-b border-border/40">
+  {/* Left Section 
+  <div className="flex items-center gap-4">
+    <div className="relative h-12 w-12 rounded-2xl bg-gradient-to-br from-muted/70 to-muted flex items-center justify-center ring-1 ring-border/50 shadow-sm">
+      <SolarWalletMoneyBoldDuotone className="h-6 w-6 text-foreground/80" />
 
-      <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-4">
-        {/* Modern Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
-                <StreamlineFlexWallet className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight">Crypto Wallets</h1>
-                <p className="text-xs text-muted-foreground">
-                  Monitor and manage your cryptocurrency portfolio
-                </p>
-              </div>
-            </div>
-          </div>
+    </div>
 
-          <div className="flex items-center gap-3">
-            {isManageMode && selectedWallets.size > 0 && (
-              <Button
-                onClick={handleDeleteSelected}
-                disabled={isDeleting}
-                variant="destructive"
-                size="xs"
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete ({selectedWallets.size})
-                  </>
-                )}
-              </Button>
-            )}
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold tracking-tight flex items-center gap-2">
+        Portfolio Overview
+        {portfolioStats?.lastUpdated && (
+          <span className="text-xs font-normal text-muted-foreground">
+            (Updated {new Date(portfolioStats.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+          </span>
+        )}
+      </h1>
+      <p className="text-sm text-muted-foreground">
+        Unified view of all your crypto holdings across wallets
+      </p>
+    </div>
+  </div>*/}
 
-            <Button
-              onClick={handleSyncAll}
-              disabled={isSyncingAll || hasActiveSyncs() || isManageMode}
-              variant="outline"
-              size="xs"
-            >
-              {isSyncingAll || hasActiveSyncs() ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Syncing ({getActiveSyncs().length})
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-1" />
-                  Sync All
-                </>
-              )}
-            </Button>
+  {/* Right Section */}
+  <div className="flex items-center gap-2">
+    <Link href="/accounts/wallet/manage">
+      <Button
+        variant="outline"
+        size="sm"
+        className="rounded-lg font-medium "
+      >
+        <LetsIconsSettingLineDuotone className="h-4 w-4 mr-1" />
+        Manage
+      </Button>
+    </Link>
 
-            <Button
-              onClick={handleManageMode}
-              variant={isManageMode ? "default" : "outline"}
-              size="xs"
-              disabled={isSyncingAll || hasActiveSyncs()}
-            >
-              {isManageMode ? (
-                <>
-                  <X className="h-4 w-4 mr-1" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Settings className="h-4 w-4 mr-1" />
-                  Manage
-                </>
-              )}
-            </Button>
+    <Button
+      onClick={handleSync}
+      disabled={isSyncing}
+      size="sm"
+      className="rounded-lg font-medium"
+    >
+      {isSyncing ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+          Syncing...
+        </>
+      ) : (
+        <>
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Sync All
+        </>
+      )}
+    </Button>
+  </div>
+</div>
+{/* Portfolio Metrics */}
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+  {/* Hero Metric: Total Portfolio Value */}
+  <div className="relative col-span-1 lg:col-span-2 rounded-2xl border bg-gradient-to-r from-muted/70 to-muted/40 p-4 shadow hover:shadow-md transition-all">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground ">
+          Total Portfolio Value
+        </h3>
+        <div className="flex items-baseline gap-3">
+          <span className="">
+            <CurrencyDisplay
+              amountUSD={portfolioStats?.totalValue || 0}
+              variant="large"
+          className="text-4xl"
+            />
+          </span>
+ 
 
-            {!isManageMode && (
-              <Button
-                onClick={() => setIsAddModalOpen(true)}
-                size="xs"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Wallet
-              </Button>
-            )}
+{portfolioStats && portfolioStats.dayChangePct !== undefined ? (
+                      <Badge
+                        className={cn(
+                          "flex items-center justify-end gap-1 rounded-xs",
+                          portfolioStats.dayChangePct >= 0
+                            ? "bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30"
+                            : "bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700"
+                        )}
+                      >
+                        {portfolioStats.dayChangePct >= 0 ? (
+                          <MageCaretUpFill className="h-4 w-4" />
+                        ) : (
+                          <MageCaretDownFill className="h-4 w-4" />
+                        )}
+                        <span className="font-medium">
+                          {Math.abs(portfolioStats.dayChangePct).toFixed(2)}%
+                        </span>
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          <span className={cn(
+                          portfolioStats && portfolioStats.dayChangePct >= 0
+                            ? "bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30"
+                            : "bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700"
+                        )}>+${Math.abs(portfolioStats?.dayChange || 0).toLocaleString()}</span> in the last 24h
+        </p>
+      </div> 
+
+      {/* Optional mini trend line (placeholder for chart) */}
+      <div className="hidden md:block">
+        <div className="h-14 w-36 flex items-end justify-end">
+          <div className="h-full w-full opacity-60">
+            {/* Placeholder for micro chart */}
+            <svg viewBox="0 0 100 40" className="h-full w-full text-primary/60">
+              <path
+                d="M0 25 Q25 10, 50 25 T100 15"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+            </svg>
           </div>
         </div>
-
-        {/* Portfolio Overview Dashboard */}
-    
-
-        {/* Controls Section */}
-      
-            <div className="flex flex-col lg:flex-row justify-end gap-3 mt-20">
-              {/* Search */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                <Input
-                  placeholder="Search wallets by name or address..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-border"
-                />
-              </div>
-
-              {/* Sort Controls */}
-              <div className="flex items-center gap-2">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'name' | 'balance' | 'lastSync')}
-                  className="px-3 py-2 border rounded-lg text-xs bg-background min-w-[140px]"
-                >
-                  <option value="balance">Sort by Balance</option>
-                  <option value="name">Sort by Name</option>
-                  <option value="lastSync">Sort by Last Sync</option>
-                </select>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  title={sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
-                >
-                  <SortAsc className={cn("h-4 w-4 transition-transform", sortOrder === 'desc' && 'rotate-180')} />
-                </Button>
-              </div>
-
-            </div>
-
-            {/* Network Filters 
-            <div className="flex flex-wrap gap-2  mb-7 justify-end items-center">
-              <span className="text-xs font-medium text-muted-foreground mr-2">Quick Filters:</span>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => setNetworkFilter(['ETHEREUM'])}
-              
-              >
-                Ethereum
-              </Button>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => setNetworkFilter(['POLYGON'])}
-           
-              >
-                Polygon
-              </Button>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => setNetworkFilter(['BSC'])}
-            
-              >
-                BSC
-              </Button>
-              {hasActiveFilters() && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="text-muted-foreground h-7"
-                >
-                  Clear Filters
-                </Button>
-              )}
-            </div>*/}
-      
-
-
-            <SyncStatusIndicator
-              variant="compact"
-              showProgress={true}
-              showLastSync={true}
-              showTrigger={true}
-            />
-    
-
-        {/* Wallets Display */}
-   
-            {error && (
-              <Card variant="outlined" className="mb-6 border-destructive/20 bg-destructive/5">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-destructive" />
-                    <div>
-                      <p className="font-medium">Failed to load wallets</p>
-                      <p className="text-sm text-muted-foreground">{error}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {processedWallets.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="h-18 w-18 bg-muted/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <StreamlineFlexWallet className="h-10 w-10 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  {wallets.length === 0 ? 'No wallets connected' : 'No wallets match your filters'}
-                </h3>
-                <p className="text-muted-foreground mb-6 max-w-sm mx-auto text-sm">
-                  {wallets.length === 0
-                    ? 'Connect your first crypto wallet to start tracking your portfolio and managing your digital assets'
-                    : 'Try adjusting your search terms or filters to find the wallets you\'re looking for'
-                  }
-                </p>
-                {wallets.length === 0 && (
-                  <Button
-                    onClick={() => setIsAddModalOpen(true)}
-                    size="xs"
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Connect Your First Wallet
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-1  gap-4">
-                {processedWallets.map((wallet) => (
-                  <WalletCard
-                    key={wallet.id}
-                    wallet={wallet}
-                    onWalletClick={handleWalletClick}
-                    onCopyAddress={handleCopyAddress}
-                    getNetworkExplorerUrl={getNetworkExplorerUrl}
-                    isManageMode={isManageMode}
-                    isSelected={selectedWallets.has(wallet.id)}
-                    onSelect={handleWalletSelect}
-                    onSyncStatusClick={handleSyncStatusClick}
-                  />
-                ))}
-              </div>
-            )}
-
       </div>
+    </div>
 
-      {/* Add Wallet Modal */}
-      <AddWalletModal
-        open={isAddModalOpen}
-        onOpenChange={setIsAddModalOpen}
-      />
+    {/* Insight Footer */}
+    <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-blue-500/70" />
+        {portfolioStats?.totalWallets || 0} Wallets Linked
+      </div>
+    
+    </div>
+  </div>
 
-      {/* Sync Progress Modal */}
-      {syncingWalletId && (
-        <WalletSyncModal
-          isOpen={true}
-          onClose={() => setSyncingWalletId(null)}
-          walletId={syncingWalletId}
-          walletName={wallets.find(w => w.id === syncingWalletId)?.name}
-          onSyncComplete={handleSyncComplete}
-        />
+  {/* Secondary Stats */}
+  <div className="grid grid-cols-2 gap-3">
+    <div className="rounded-xl border bg-muted/40 p-4">
+      <p className="text-xs text-muted-foreground mb-1">Best Performing Asset</p>
+      <p className="font-medium text-sm">
+        {portfolioStats?.topAsset?.name || "—"}
+      </p>
+      {portfolioStats?.topAsset?.changePct && (
+        <p
+          className={cn(
+            "text-xs font-semibold mt-1",
+            portfolioStats.topAsset.changePct > 0
+              ? "text-green-500"
+              : "text-red-500"
+          )}
+        >
+          {portfolioStats.topAsset.changePct > 0 ? "+" : ""}
+          {portfolioStats.topAsset.changePct.toFixed(2)}%
+        </p>
       )}
+    </div>
 
-{/*
-<Image  src="/coin2.png"
-        alt="Background"
-        width={200}
-        height={200}
-        className="absolute bottom-0 right-25  "
-        unoptimized
+    <div className="rounded-xl border  bg-muted/40 p-4">
+      <p className="text-xs text-muted-foreground mb-1">Top Network</p>
+      <div className="flex items-center gap-2">
+        <img
+          src={portfolioStats?.topNetwork?.logoUrl || "/networks/eth.svg"}
+          alt="network"
+          className="h-4 w-4 rounded-full"
         />
-        <Image  src="/coin2.png"
-        alt="Background"
-        width={200}
-        height={200}
-        className="absolute bottom-20 right-80  "
-        unoptimized
-        />
-     <Image  src="/coin2.png"
-        alt="Background"
-        width={200}
-        height={200}
-        className="absolute bottom-40 right-50  "
-        unoptimized
-        />*/}
-    </> 
+        <p className="font-medium text-sm">
+          {portfolioStats?.topNetwork?.name || "Ethereum"}
+        </p>
+      </div>
+      <p className="text-xs text-muted-foreground mt-1">
+        {portfolioStats?.topNetwork?.sharePct || 0}% of portfolio
+      </p>
+    </div>
+  </div>
+</div>
+
+
+      {/* Main Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+     
+
+        <TabsList className="  mt-2 " variant="card" size={'sm'}>
+          <TabsTrigger
+            value="tokens"
+            className="flex px-2 items-center gap-1.5 cursor-pointer  "
+                size={'sm'}
+            variant="card"
+          >
+           
+             <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
+            <span className="inline">Tokens</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="defi"
+            className="flex px-2 items-center gap-1.5 cursor-pointer"
+             size={'sm'}
+            variant="card"
+          >
+            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
+            
+            <span className="inline">Defi</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="nfts"
+            className="flex px-2 items-center gap-1.5 cursor-pointer"
+             size={'sm'}
+            variant="card"
+          >
+             <SolarGalleryWideOutline className="w-5 h-5" />
+            <span className="inline">NFTs</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="transactions"
+            className="flex px-2 items-center gap-1.5 cursor-pointer"
+            size={'sm'}
+            variant="card"
+          >
+            <MynauiActivitySquare className="w-5.5 h-5.5" />
+            
+            <span className="inline">Transactions</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="wallets"
+            className="flex px-2 items-center gap-1.5 cursor-pointer"
+            size={'sm'}
+            variant="card"
+          >
+            <SolarWalletMoneyLinear className="w-5.5 h-5.5" stroke="1.7" />
+            
+            <span className="inline">Wallets</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tokens" className="mt-6">
+        
+              {aggregatedData.assets && aggregatedData.assets.length > 0 ? (
+                <WalletTokens
+                  tokens={aggregatedData.assets}
+                  isAggregated={true}
+                
+                />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No assets found
+                </div>
+              )}
+           
+        </TabsContent>
+
+        <TabsContent value="nfts" className="mt-6">
+      
+              {aggregatedData.nfts && aggregatedData.nfts.length > 0 ? (
+                <WalletNFTs nfts={aggregatedData.nfts} />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No NFTs found
+                </div>
+              )}
+      
+        </TabsContent>
+
+        <TabsContent value="defi" className="mt-6">
+      
+              {aggregatedData.defiApps && aggregatedData.defiApps.length > 0 ? (
+                <WalletDeFi defiApps={aggregatedData.defiApps} />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No DeFi positions found
+                </div>
+              )}
+         
+        </TabsContent>
+
+        <TabsContent value="transactions" className="mt-6">
+     
+              {aggregatedData.transactions && aggregatedData.transactions.length > 0 ? (
+                <WalletTransactions transactions={aggregatedData.transactions} />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No transactions found
+                </div>
+              )}
+           
+        </TabsContent>
+        <TabsContent value="wallets" className="mt-6">
+     
+     {aggregatedData.wallets && aggregatedData.wallets.length > 0 ? (
+           <>SD</>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              No transactions found
+            </div>
+          )}
+        
+      </TabsContent>
+
+
+      </Tabs>
+
+
+    </div>
   );
 }

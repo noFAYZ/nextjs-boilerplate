@@ -4,12 +4,62 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, ArrowRight } from 'lucide-react';
+import { useCryptoWallets, useCryptoPortfolio, useBankingOverview } from '@/lib/queries';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface SidebarPortfolioOverviewProps {
   onMobileClose?: () => void;
 }
 
 export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOverviewProps) {
+
+  
+  // ✅ NEW: Data from TanStack Query
+  const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useCryptoPortfolio();
+  const { data: bankingOverview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
+
+  const isLoading = walletsLoading || portfolioLoading || overviewLoading ;
+
+  console.log(portfolio)
+
+  // Calculate stats
+  const stats = React.useMemo(() => {
+    const cryptoTotalValue = portfolio?.totalValueUsd || 0;
+    const cryptoChange24h = portfolio?.dayChangePct || 0;
+    const cryptoAbsoluteChange = portfolio?.dayChange || 0;
+
+    const bankingTotalValue =  parseFloat(bankingOverview?.totalBalance);
+
+    const totalValue = cryptoTotalValue + bankingTotalValue;
+    const cryptoPercentage = totalValue > 0 ? (cryptoTotalValue / totalValue) * 100 : 0;
+    const bankingPercentage = totalValue > 0 ? (bankingTotalValue / totalValue) * 100 : 0;
+
+    return {
+      totalValue,
+      cryptoTotalValue,
+      bankingTotalValue,
+      cryptoPercentage,
+      bankingPercentage,
+      cryptoChange24h,
+      cryptoAbsoluteChange,
+      cryptoCount: wallets?.length || 0,
+      bankCount: bankingOverview?.totalAccounts || 0,
+      totalAccounts: (wallets?.length || 0) + (bankingOverview?.totalAccounts|| 0),
+    };
+  }, [wallets, portfolio,bankingOverview]);
+
+  const handleRefreshAll = () => {
+    // ✅ Refetch all data sources
+    refetchWallets();
+    refetchPortfolio();
+    refetchOverview()
+   
+  };
+
+
+
+
   return (
     <div className="space-y-4">
       <div className="p-4 rounded-lg bg-muted/50 border border-border">
@@ -19,7 +69,8 @@ export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOver
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Total Value</p>
-            <p className="text-lg font-bold">$0.00</p>
+          
+            <CurrencyDisplay amountUSD={stats?.totalValue} className='text-xl font-semibold' />
           </div>
         </div>
 

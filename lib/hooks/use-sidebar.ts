@@ -26,9 +26,10 @@ const MENU_ROUTES: Record<string, string> = {
   integrations: '/accounts/integrations',
   accounts: '/accounts',
   portfolio: '/portfolio',
-  transactions: '/dashboard/transactions',
+  transactions: '/transactions',
+  subscriptions: '/subscriptions',
   goals: '/goals',
-  insights: '/dashboard/insights',
+  insights: '/insights',
   dashboard: '/dashboard'
 };
 
@@ -71,19 +72,16 @@ export function useSidebar(options: UseSidebarOptions = {}): UseSidebarReturn {
   // Determine active menu item based on current pathname
   // Match the most specific (longest) route first
   const activeMenuItem = React.useMemo(() => {
-    // Check for exact match first
-    for (const [key, route] of Object.entries(MENU_ROUTES)) {
-      if (pathname === route) {
-        return key;
-      }
-    }
-
-    // Then check for partial matches, preferring the longest match
     let bestMatch = null;
     let longestMatchLength = 0;
 
     for (const [key, route] of Object.entries(MENU_ROUTES)) {
-      if (pathname.startsWith(route + '/')) {
+      // Check for exact match or if pathname starts with the route
+      const isExactMatch = pathname === route;
+      const isSubRoute = pathname.startsWith(route + '/') || pathname.startsWith(route + '?');
+
+      if (isExactMatch || isSubRoute) {
+        // Prefer the longest matching route (most specific)
         if (route.length > longestMatchLength) {
           longestMatchLength = route.length;
           bestMatch = key;
@@ -111,15 +109,16 @@ export function useSidebar(options: UseSidebarOptions = {}): UseSidebarReturn {
     }
   }, [isExpanded, selectedMenuItem, persistState, storageKey]);
 
-  // Only auto-select menu item on initial load or when no item is selected
+  // Sync selectedMenuItem with activeMenuItem when route changes
   useEffect(() => {
-    if (activeMenuItem && !selectedMenuItem) {
+    if (activeMenuItem) {
+      // Always update selectedMenuItem to match the current route
       setSelectedMenuItemState(activeMenuItem);
       if (!isExpanded) {
         setIsExpandedState(true);
       }
     }
-  }, [activeMenuItem, selectedMenuItem, isExpanded]);
+  }, [activeMenuItem, isExpanded]);
 
   const toggleExpanded = useCallback(() => {
     setIsExpandedState((prev: boolean) => !prev);

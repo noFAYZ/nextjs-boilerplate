@@ -8,7 +8,7 @@ import {
   Loader2,
   ChevronRight,
 } from 'lucide-react';
-import { useCryptoWallets, useCryptoPortfolio } from '@/lib/queries';
+import { useCryptoWallets, useCryptoPortfolio, useBankingOverview } from '@/lib/queries';
 import { useBankingAccounts } from '@/lib/queries/banking-queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,9 +31,11 @@ export default function PortfolioPage() {
   // ✅ NEW: Data from TanStack Query
   const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useCryptoWallets();
   const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useCryptoPortfolio();
-  const { data: bankAccounts = [], isLoading: bankLoading, refetch: refetchBanking } = useBankingAccounts();
+  const { data: bankingOverview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
 
-  const isLoading = walletsLoading || portfolioLoading || bankLoading;
+  const isLoading = walletsLoading || portfolioLoading || overviewLoading ;
+
+  console.log(portfolio)
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -41,9 +43,7 @@ export default function PortfolioPage() {
     const cryptoChange24h = portfolio?.dayChangePct || 0;
     const cryptoAbsoluteChange = portfolio?.dayChange || 0;
 
-    const bankingTotalValue = bankAccounts?.reduce((sum, account) => {
-      return sum + parseFloat(account.availableBalance?.toString() || account.balance.toString() || '0');
-    }, 0) || 0;
+    const bankingTotalValue =  parseFloat(bankingOverview?.totalBalance);
 
     const totalValue = cryptoTotalValue + bankingTotalValue;
     const cryptoPercentage = totalValue > 0 ? (cryptoTotalValue / totalValue) * 100 : 0;
@@ -58,16 +58,16 @@ export default function PortfolioPage() {
       cryptoChange24h,
       cryptoAbsoluteChange,
       cryptoCount: wallets?.length || 0,
-      bankCount: bankAccounts?.length || 0,
-      totalAccounts: (wallets?.length || 0) + (bankAccounts?.length || 0),
+      bankCount: bankingOverview?.totalAccounts || 0,
+      totalAccounts: (wallets?.length || 0) + (bankingOverview?.totalAccounts|| 0),
     };
-  }, [wallets, portfolio, bankAccounts]);
+  }, [wallets, portfolio,bankingOverview]);
 
   const handleRefreshAll = () => {
     // ✅ Refetch all data sources
     refetchWallets();
     refetchPortfolio();
-    refetchBanking();
+    refetchOverview()
     toast.success('Refreshing portfolio data...');
   };
 

@@ -93,6 +93,19 @@ export function useSelectedCryptoWallet() {
   return useCryptoWallet(selectedWalletId);
 }
 
+/**
+ * Get aggregated wallet data across all user wallets
+ * @returns Aggregated wallet data with loading/error states
+ */
+export function useAggregatedCryptoWallet() {
+  const { isAuthReady } = useAuthReady();
+
+  return useQuery({
+    ...cryptoQueries.aggregatedWallet(),
+    enabled: isAuthReady,
+  });
+}
+
 // ============================================================================
 // PORTFOLIO QUERIES
 // ============================================================================

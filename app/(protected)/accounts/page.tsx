@@ -41,7 +41,7 @@ import {
 // ✅ NEW: Use UI-only stores
 import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 import { useBankingUIStore } from '@/lib/stores/ui-stores';
-import { MynauiGridOne, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
+import { CircumBank, FluentBuildingBank28Regular, MynauiGridOne, SolarWalletMoneyLinear, StreamlineFlexWallet, StreamlineFlexWalletAdd } from '@/components/icons/icons';
 import { NetworkType } from '@/lib/types/crypto';
 
 // Network icon colors mapping
@@ -112,24 +112,18 @@ export default function AccountsPage() {
   }, [bankAccountsRaw, bankFilters]);
 
   // Calculate totals
-  const { totalCrypto, totalBank, totalBalance, totalChange, cryptoCount, bankCount } = useMemo(() => {
+  const { totalCrypto, totalBank, totalBalance,  cryptoCount, bankCount } = useMemo(() => {
     const totalCrypto = cryptoWallets.reduce((sum, w) => sum + parseFloat(w.totalBalanceUsd || '0'), 0);
-    const totalBank = bankAccounts.reduce((sum, a) => sum + a.balance, 0);
+    const totalBank = bankAccounts.reduce((sum, a) => sum + parseFloat(a.balance), 0);
     const total = totalCrypto + totalBank;
 
-    let change = 0;
-    if (portfolio && portfolio.dayChangePct !== undefined) {
-      change = portfolio.dayChangePct;
-    } else if (total > 0 && portfolio) {
-      const cryptoChange = portfolio?.dayChange || 0;
-      change = (cryptoChange / total) * 100;
-    }
+
 
     return {
       totalCrypto,
       totalBank,
       totalBalance: total,
-      totalChange: change,
+
       cryptoCount: cryptoWallets.length,
       bankCount: bankAccounts.length,
     };
@@ -184,77 +178,97 @@ export default function AccountsPage() {
         </div>
       </div>
 
+
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* Total Balance */}
-        <Card className="border-2">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground font-medium">Total Balance</p>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setBalanceVisible(!balanceVisible)}
-                className="h-6 w-6 p-0"
-              >
-                {balanceVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-              </Button>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">
-              {balanceVisible ? `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '••••••••'}
-            </h2>
-            <div className="flex items-center gap-1.5">
-              <Badge
-                variant={totalChange >= 0 ? 'success' : 'destructive'}
-                size="sm"
-                className="font-semibold"
-              >
-                {totalChange >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                {totalChange >= 0 ? '+' : ''}{totalChange.toFixed(2)}%
-              </Badge>
-              <span className="text-xs text-muted-foreground">24h</span>
-            </div>
-          </CardContent>
-        </Card>
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+  {/* Total Balance */}
+  <div className="col-span-2 border p-4 rounded-2xl bg-card/70 backdrop-blur-sm flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+    <div className="flex items-center justify-between mb-3">
+      <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+        Total Balance
+      </p>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setBalanceVisible(!balanceVisible)}
+        className="h-6 w-6 p-0"
+      >
+        {balanceVisible ? (
+          <Eye className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <EyeOff className="w-4 h-4 text-muted-foreground" />
+        )}
+      </Button>
+    </div>
 
-        {/* Crypto */}
-        <Card className="border-2 hover:border-purple-500/50 transition-colors cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Wallet2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              <p className="text-xs text-muted-foreground font-medium">Crypto Wallets</p>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <h3 className="text-2xl font-bold">{cryptoCount}</h3>
-              <span className="text-xs text-muted-foreground">wallets</span>
-            </div>
-            <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mt-1">
-              ${totalCrypto.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-            </p>
-          </CardContent>
-        </Card>
+    <div className="flex items-baseline justify-between">
+      <h2 className="text-2xl font-bold tabular-nums">
+        {balanceVisible
+          ? `$${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+          : "••••••••"}
+      </h2>
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+        USD
+      </span>
+    </div>
 
-        {/* Bank */}
-        <Card className="border-2 hover:border-green-500/50 transition-colors cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-              </div>
-              <p className="text-xs text-muted-foreground font-medium">Bank Accounts</p>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <h3 className="text-2xl font-bold">{bankCount}</h3>
-              <span className="text-xs text-muted-foreground">accounts</span>
-            </div>
-            <p className="text-sm font-semibold text-green-600 dark:text-green-400 mt-1">
-              ${totalBank.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-            </p>
-          </CardContent>
-        </Card>
+  
+  </div>
+
+  {/* Crypto Wallets */}
+  <div className="border p-4 rounded-2xl bg-card/70 backdrop-blur-sm flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-xl bg-muted flex items-center justify-center">
+          <StreamlineFlexWallet className="w-4 h-4 text-foreground/80" />
+        </div>
+        <p className="text-[10px] uppercase text-muted-foreground tracking-wide font-medium">
+          Crypto 
+        </p>
       </div>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase">
+        {cryptoCount} wallets
+      </span>
+    </div>
+
+    <div className="flex items-baseline justify-between">
+      <h3 className="text-xl font-bold tabular-nums">{cryptoCount}</h3>
+      <p className="text-sm font-semibold text-foreground/80">
+        ${totalCrypto.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+      </p>
+    </div>
+
+   
+  </div>
+
+  {/* Bank Accounts */}
+  <div className="border p-4 rounded-2xl bg-card/70 backdrop-blur-sm flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-xl bg-muted flex items-center justify-center">
+          <FluentBuildingBank28Regular className="w-4 h-4 text-foreground/80" />
+        </div>
+        <p className="text-[10px] uppercase text-muted-foreground tracking-wide font-medium">
+          Bank
+        </p>
+      </div>
+      <span className="text-[10px] font-medium text-muted-foreground uppercase">
+        {bankCount} accounts
+      </span>
+    </div>
+
+    <div className="flex items-baseline justify-between">
+      <h3 className="text-xl font-bold tabular-nums">{bankCount}</h3>
+      <p className="text-sm font-semibold text-foreground/80">
+        ${totalBank.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+      </p>
+    </div>
+
+ 
+  </div>
+</div>
+
 
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
@@ -323,7 +337,7 @@ export default function AccountsPage() {
               <Card
                 key={wallet.id}
                 className={cn(
-                  "group relative overflow-hidden hover:bg-muted/20 transition-colors ",
+                  "group relative overflow-hidden hover:bg-muted/20 transition-colors p-3",
                   "border-border bg-background ",
                   "shadow-xs ",
                   "cursor-pointer"
@@ -332,18 +346,18 @@ export default function AccountsPage() {
                 {/* Decorative corner accent */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-[100px] pointer-events-none" />
 
-                <CardContent className="px-5 relative">
+                <div className="relative">
                   {/* Header with icon and status */}
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
-                          "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 relative",
-                          networkColor.bg,
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 relative bg-orange-800/70",
+                          
 
                         )}
                       >
-                        <SolarWalletMoneyLinear className={cn("w-5 h-5", networkColor.text)} />
+                        <StreamlineFlexWallet className={cn("w-4.5 h-4.5 text-white")} />
                         {/* Small network indicator */}
 
                       </div>
@@ -425,7 +439,7 @@ export default function AccountsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             );
           } else {
@@ -438,7 +452,7 @@ export default function AccountsPage() {
                 className={cn(
                   "group relative overflow-hidden ",
                   "border-border bg-background",
-                  "shadow-xs ",
+                  "shadow-xs p-3",
                   "cursor-pointer"
                 )}
               >
@@ -450,13 +464,13 @@ export default function AccountsPage() {
                   }} />
                 </div>
 
-                <CardContent className="px-5 relative">
+                <div className=" relative">
                   {/* Institution badge */}
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 ring-1 ring-green-500/20">
-                          <Building2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center  bg-lime-800/70">
+                          <FluentBuildingBank28Regular className="w-6 h-6 text-white/90 " />
                         </div>
                         <h3 className="text-sm flex flex-col font-semibold truncate" title={bankAccount.name}>
                         {bankAccount.name}  <Badge variant="outline" size="sm" className="font-medium ">
@@ -520,7 +534,7 @@ export default function AccountsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             );
           }
@@ -553,6 +567,8 @@ export default function AccountsPage() {
           </Card>
         )}
       </div>
+
+      
     </div>
   );
 }

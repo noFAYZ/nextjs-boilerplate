@@ -183,20 +183,21 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto ">
+          <DialogHeader className='pb-4'>
             <div className="flex gap-3 items-start">
-              <div className="h-12 w-12 bg-gradient-to-br from-orange-500/70 to-pink-600/70 rounded-xl flex items-center justify-center">
+              <div className="h-10 w-10 bg-gradient-to-br from-orange-500/70 to-pink-600/70 rounded-xl flex items-center justify-center">
                 <SolarWalletBoldDuotone className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <DialogTitle className="text-lg">Add New Wallet</DialogTitle>
+                <DialogTitle className="text-sm">Add New Wallet</DialogTitle>
                 <p className="text-xs text-muted-foreground mt-1">
                   Connect a crypto wallet to track your portfolio
                 </p>
               </div>
               <NetworkSelector
                 defaultNetworkId="ethereum"
+              
                 onChange={(id) => setValue("network", id?.toUpperCase() as NetworkType)}
               />
             </div>
@@ -271,17 +272,17 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="h-16">
+                      <SelectTrigger size='sm' >
                         <SelectValue placeholder="Select wallet type">
                           {field.value && (
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                            <div className="flex items-center gap-3 cursor-pointer">
+                              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-muted-foreground">
                                 {(() => {
                                   const walletType = WALLET_TYPES.find(type => type.value === field.value);
                                   return walletType ? <walletType.icon className="h-4 w-4" /> : null;
                                 })()}
                               </div>
-                              <span className="font-medium">
+                              <span className="font-semibold text-xs">
                                 {WALLET_TYPES.find(type => type.value === field.value)?.label}
                               </span>
                             </div>
@@ -290,13 +291,13 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                       </SelectTrigger>
                       <SelectContent>
                         {WALLET_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
+                          <SelectItem key={type.value} value={type.value} className='cursor-pointer'>
                             <div className="flex items-center gap-3">
                               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
                                 <type.icon className="h-5 w-5" />
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-medium text-sm">{type.label}</span>
+                                <span className="font-medium text-xs">{type.label}</span>
                                 <p className="text-[11px] text-muted-foreground">
                                   {type.description}
                                 </p>
@@ -327,9 +328,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                   placeholder="defi, trading, personal (comma separated)"
                   {...register('tags')}
                 />
-                <p className="text-sm text-muted-foreground">
-                  Add tags to help organize your wallets
-                </p>
+           
               </div>
 
               <div className="space-y-2">
@@ -353,6 +352,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={isPending}
+                size={'sm'}
               >
                 Cancel
               </Button>
@@ -360,6 +360,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
                 type="submit"
                 disabled={isPending || isValidating || (watchedAddress && addressStatus === 'invalid')}
                 className="flex items-center gap-2"
+                size={'sm'}
               >
                 {isPending ? (
                   <>

@@ -50,7 +50,7 @@ export function CurrencyDisplay({
   if (error) {
     return (
       <span className={cn('text-muted-foreground', className)}>
-        ${amountUSD.toLocaleString()}
+        ${amountUSD?.toLocaleString()}
       </span>
     );
   }
@@ -85,7 +85,7 @@ export function CurrencyDisplay({
   );
 
   return (
-    <span className={baseClass} title={`${amountUSD.toLocaleString()} USD`}>
+    <span className={baseClass} title={`${amountUSD?.toLocaleString()} USD`}>
       {formattedAmount}
     </span>
   );

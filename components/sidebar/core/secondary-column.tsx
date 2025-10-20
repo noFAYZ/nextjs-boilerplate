@@ -37,7 +37,7 @@ export function SidebarSecondaryColumn({
 
   return (
     <div className={cn(
-      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar-accent border-r border-border/60 shadow-xl",
+      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar-accent border-r border-border shadow-xl ",
       isExpanded ? "w-80" : "w-16"
     )}>
       {/* Header */}
@@ -57,7 +57,7 @@ export function SidebarSecondaryColumn({
 
               <button
                 onClick={onOpenCommandPalette}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 border border-border hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring transition-colors text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md bg-muted dark:bg-muted/70 border border-border hover:border-foreground/10 hover:bg-muted/60 focus:outline-none focus:ring-0  transition-colors text-left"
               >
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground text-xs flex-1">Search...</span>
@@ -69,9 +69,9 @@ export function SidebarSecondaryColumn({
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 py-4 overflow-hidden">
+      <div className="flex-1 py-4 ">
         {isExpanded ? (
-          <div className="px-4 space-y-6 h-full flex flex-col">
+          <div className="px-4 space-y-6 h-full flex flex-col ">
             {/* Main Navigation - Dynamic Content */}
             <SidebarDynamicContent
               selectedMenuItem={selectedMenuItem}

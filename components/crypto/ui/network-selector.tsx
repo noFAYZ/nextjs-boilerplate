@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ZERION_CHAINS } from "@/lib/constants/chains";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface NetworkSelectorProps {
 
@@ -45,32 +46,34 @@ export function NetworkSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            size={'lg'}
-            
-            className=" justify-between rounded-lg hover:shadow-sm"
-          >
-            {selectedNetwork ? (
+            size={'sm'}
+            icon= {selectedNetwork ? (
               <div className="flex items-center gap-2">
                 <img
                   src={selectedNetwork.attributes.icon.url}
                   alt={selectedNetwork.attributes.name}
-                  className="w-7 h-7 rounded-full"
+                  className="w-5 h-5 rounded-full"
                 />
                 {selectedNetwork.attributes.name}
               </div>
             ) : (
               "Select network..."
             )}
-            <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
+            
+            className=" justify-between rounded-lg hover:shadow-sm"
+          >
+           
+            <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent className="w-[250px] p-0">
           <Command>
             <CommandInput placeholder="Search network..." />
             <CommandList>
               <CommandEmpty>No network found.</CommandEmpty>
               <CommandGroup>
+                <ScrollArea>
                 {ZERION_CHAINS.map((network) => (
                   <CommandItem
                     key={network.id}
@@ -82,11 +85,11 @@ export function NetworkSelector({
                     }}
                     className="cursor-pointer"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 font-medim">
                       <img
                         src={network.attributes.icon.url}
                         alt={network.attributes.name}
-                        className="w-7 h-7 rounded-full"
+                        className="w-6 h-6 rounded-full"
                       />
                       {network.attributes.name}
                     </div>
@@ -98,6 +101,7 @@ export function NetworkSelector({
                     />
                   </CommandItem>
                 ))}
+                </ScrollArea>
               </CommandGroup>
             </CommandList>
           </Command>

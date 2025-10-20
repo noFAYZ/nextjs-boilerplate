@@ -34,7 +34,13 @@
       "WebFetch(domain:docs.stripe.com)",
       "Bash(tree:*)",
       "Bash(ls:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cp \"F:/moneymappr/frontend/app/(protected)/accounts/wallet/page.tsx\" \"F:/moneymappr/frontend/app/(protected)/accounts/wallet/manage/page.tsx\")",
+      "Bash(git checkout components/crypto/wallet-tokens.tsx)",
+      "Bash(cmd /c taskkill /F /PID 14604 /T)",
+      "Bash(cmd /c \"taskkill /F /IM node.exe /T 2>&1\")",
+      "Bash(cp \"settings_part1.txt\" \"app/(protected)/settings/page.tsx\")",
+      "Bash(tail -20 \"app/(protected)/settings/page.tsx\")"
     ],
     "deny": [],
     "ask": []

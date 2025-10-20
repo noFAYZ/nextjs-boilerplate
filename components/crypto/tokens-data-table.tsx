@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import {
   MageCaretDownFill,
   MageCaretUpFill,
+  SolarWalletMoneyBoldDuotone,
   StreamlineFlexFilter2,
 } from "../icons/icons";
 import { ZERION_CHAINS } from "@/lib/constants/chains";
@@ -57,11 +58,17 @@ interface TokenPosition {
     symbol: string;
     amount: string;
   }>;
+  walletCount?: number;
+  wallet?: {
+    name: string;
+    address: string;
+  };
 }
 
 interface TokensDataTableProps {
   tokens: TokenPosition[];
   totalValue: number;
+  isAggregated?: boolean;
   isLoading?: boolean;
 }
 
@@ -71,6 +78,7 @@ export function TokensDataTable({
   tokens,
   totalValue,
   isLoading,
+  isAggregated = false,
 }: TokensDataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -223,8 +231,9 @@ export function TokensDataTable({
                 Value (USD)
               </TableHead>
               <TableHead className="text-right font-bold">24h Change</TableHead>
+              {isAggregated && <TableHead className="text-center font-bold">Wallet</TableHead>}
 
-              <TableHead className="text-right font-bold">Actions</TableHead>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -275,7 +284,7 @@ export function TokensDataTable({
                         <p className="font-semibold text-sm truncate">
                           {token.asset.symbol}
                         </p>
-                        <Badge variant="outline" className="text-xs rounded-sm">
+                        <Badge variant="outline" className="text-xs rounded-sm text-muted-foreground">
                           {token.asset.name}
                         </Badge>
                       </div>
@@ -367,15 +376,33 @@ export function TokensDataTable({
                   </div>
                 </TableCell>
 
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+
+    
+
+{isAggregated && Array.isArray(token?.walletAddresses) && token.walletAddresses.length > 0 && (
+    <TableCell className="text-right">
+  <div className="text-xs text-muted-foreground flex flex-col gap-1">
+ 
+
+    <div className="flex flex-col gap-1 pl-4">
+      {token.walletAddresses.slice(0, 2).map((addr: string, idx: number) => (
+           <div className="flex items-center gap-1" key={idx}>
+           <SolarWalletMoneyBoldDuotone className="h-3 w-3 shrink-0" />
+           <span key={idx} className="font-mono truncate">
+               {addr.slice(0, 6)}...{addr.slice(-4)}
+             </span>
+         </div>
+      ))}
+
+      {token.walletAddresses.length > 2 && (
+        <span className="text-muted-foreground/70">
+          (+{token.walletAddresses.length - 2} more)
+        </span>
+      )}
+    </div>
+  </div></TableCell>
+)}
+            
               </TableRow>
             ))}
           </TableBody>

@@ -31,6 +31,10 @@ class CryptoApiService {
     return apiClient.get(`${this.basePath}/wallets/${walletId}?timeRange=${timeRange}`);
   }
 
+  async getAggregatedWallet(): Promise<ApiResponse<any>> {
+    return apiClient.get(`${this.basePath}/wallets/all/aggregated`);
+  }
+
   async createWallet(walletData: CreateWalletRequest): Promise<ApiResponse<CryptoWallet>> {
     return apiClient.post(`${this.basePath}/wallets`, walletData);
   }

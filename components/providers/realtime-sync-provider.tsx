@@ -101,14 +101,26 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
           if (data.walletId) {
             cryptoStore.completeRealtimeSync(data.walletId, data.syncedData);
 
-            // Invalidate and refetch crypto queries
+            // Invalidate all crypto queries to mark them as stale
             queryClient.invalidateQueries({
-              queryKey: ['crypto']
+              queryKey: cryptoKeys.all
             });
 
+            // Force refetch of active queries
             queryClient.refetchQueries({
-              queryKey: ['crypto'],
-              type: 'active'
+              queryKey: cryptoKeys.all,
+              type: 'active',
+              exact: false
+            });
+
+            // Specifically refetch wallet queries for immediate update
+            queryClient.refetchQueries({
+              queryKey: cryptoKeys.wallets()
+            });
+
+            // Refetch portfolio as wallet data affects it
+            queryClient.refetchQueries({
+              queryKey: cryptoKeys.portfolio()
             });
           }
           break;
@@ -144,14 +156,26 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
             if (data.status === 'completed_bank') {
               bankingStore.completeRealtimeSync(data.accountId, data.syncedData);
 
-              // Invalidate and refetch banking queries
+              // Invalidate all banking queries to mark them as stale
               queryClient.invalidateQueries({
-                queryKey: ['banking']
+                queryKey: bankingKeys.all
               });
 
+              // Force refetch of active queries
               queryClient.refetchQueries({
-                queryKey: ['banking'],
-                type: 'active'
+                queryKey: bankingKeys.all,
+                type: 'active',
+                exact: false
+              });
+
+              // Specifically refetch account queries for immediate update
+              queryClient.refetchQueries({
+                queryKey: bankingKeys.accounts()
+              });
+
+              // Refetch dashboard data
+              queryClient.refetchQueries({
+                queryKey: bankingKeys.overview()
               });
 
               toast.success('Bank account sync completed successfully');
@@ -186,14 +210,26 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
           if (data.accountId) {
             bankingStore.completeRealtimeSync(data.accountId, data.syncedData);
 
-            // Invalidate and refetch banking queries
+            // Invalidate all banking queries to mark them as stale
             queryClient.invalidateQueries({
-              queryKey: ['banking']
+              queryKey: bankingKeys.all
             });
 
+            // Force refetch of active queries
             queryClient.refetchQueries({
-              queryKey: ['banking'],
-              type: 'active'
+              queryKey: bankingKeys.all,
+              type: 'active',
+              exact: false
+            });
+
+            // Specifically refetch account queries for immediate update
+            queryClient.refetchQueries({
+              queryKey: bankingKeys.accounts()
+            });
+
+            // Refetch dashboard data
+            queryClient.refetchQueries({
+              queryKey: bankingKeys.overview()
             });
 
             toast.success('Bank account sync completed successfully');

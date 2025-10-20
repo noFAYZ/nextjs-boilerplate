@@ -23,7 +23,12 @@ import {
   Calendar,
   Share,
   Settings,
-  Plug
+  Plug,
+  Wallet,
+  LineChart,
+  CreditCard,
+  ShieldCheck,
+  Banknote
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,24 +42,39 @@ import { MenuItem, QuickAction } from '../types';
 import { 
   FluentBuildingBank28Regular,
   GuidanceBank, 
+  HeroiconsWallet, 
+  HeroiconsWallet16Solid, 
   HugeiconsAnalytics02, 
   HugeiconsAnalyticsUp,  
   HugeiconsHome04, 
   HugeiconsPieChart09, 
   HugeiconsPuzzle, 
   HugeiconsTransactionHistory, 
+
   MageGoals, 
+  SolarAddSquareBoldDuotone, 
+  SolarCalculatorBoldDuotone, 
+  SolarChartSquareBoldDuotone, 
+  SolarClipboardListBoldDuotone, 
+  SolarDownloadBoldDuotone, 
+  SolarHomeSmileBoldDuotone, 
+  SolarInboxInBoldDuotone, 
+  SolarPieChart2BoldDuotone, 
   SolarWallet2Outline, 
+  SolarWalletMoneyBoldDuotone, 
   SolarWalletMoneyLinear, 
+  SolarWidgetAddBoldDuotone, 
+  StreamlineFlexWallet, 
   StreamlinePlumpFileReport, 
   TablerEyeDollar 
 } from '@/components/icons/icons';
+import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
 const MENU_ITEMS: MenuItem[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: HugeiconsHome04,
+    icon: SolarHomeSmileBoldDuotone,
     href: '/dashboard',
     submenu: [
       {
@@ -68,7 +88,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'analytics',
         label: 'Analytics',
-        href: '/analytics',
+        href: '/dashboard/analytics',
         description: 'Deep dive into your financial data',
         icon: HugeiconsAnalyticsUp,
         status: 'new',
@@ -77,7 +97,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'reports',
         label: 'Reports',
-        href: '/reports',
+        href: '/dashboard/reports',
         description: 'Generate and view financial reports',
         icon: StreamlinePlumpFileReport,
         tooltip: 'Custom reports and exports'
@@ -104,14 +124,14 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'accounts',
     label: 'Accounts',
-    icon: SolarWalletMoneyLinear,
+    icon: SolarWalletMoneyBoldDuotone,
     href: '/accounts',
     submenu: [
       {
         id: 'crypto-wallets',
         label: 'Crypto Wallets',
         href: '/accounts/wallet',
-        icon: SolarWalletMoneyLinear,
+        icon: HeroiconsWallet,
         description: 'Track your cryptocurrency wallets',
         tooltip: 'Connect and manage crypto wallets across all chains',
         shortcut: '⌘W'
@@ -125,15 +145,7 @@ const MENU_ITEMS: MenuItem[] = [
         tooltip: 'Link and track your bank accounts securely',
         shortcut: '⌘B'
       },
-      {
-        id: 'exchanges',
-        label: 'Exchanges',
-        href: '/accounts/exchange',
-        icon: Building,
-        description: 'Connect crypto exchange accounts',
-        tooltip: 'Sync your exchange portfolios',
-        status: 'beta'
-      },
+ 
       {
         id: 'integrations',
         label: 'Integrations',
@@ -142,16 +154,8 @@ const MENU_ITEMS: MenuItem[] = [
         description: 'Manage third-party connections',
         tooltip: 'Connected apps and services',
         status: 'new'
-      },
-      {
-        id: 'connection',
-        label: 'Connect Account',
-        href: '/accounts/connection',
-        icon: Plus,
-        description: 'Add a new financial account',
-        tooltip: 'Connect new wallets, banks, or exchanges',
-        iconColor: '#10b981'
       }
+    
     ],
     quickActions: [
       { id: 'add-account', label: 'Add Account', icon: Plus, action: () => {}, shortcut: '⌘A' },
@@ -164,7 +168,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'integrations',
     label: 'Integrations',
-    icon: HugeiconsPuzzle,
+    icon: SolarWidgetAddBoldDuotone,
     href: '/accounts/integrations',
     quickActions: [
       { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
@@ -175,7 +179,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'portfolio',
     label: 'Portfolio',
-    icon: HugeiconsPieChart09,
+    icon: SolarPieChart2BoldDuotone,
     href: '/portfolio',
     submenu: [
       {
@@ -223,7 +227,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'transactions',
     label: 'Transactions',
-    icon: HugeiconsTransactionHistory,
+    icon: SolarClipboardListBoldDuotone,
     href: '/transactions',
     submenu: [
       {
@@ -237,7 +241,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'income',
         label: 'Income',
-        href: '/dashboard/transactions/income',
+        href: '/transactions/income',
         icon: TrendingUp,
         description: 'Track earnings and income',
         tooltip: 'All income sources and deposits',
@@ -246,7 +250,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'expenses',
         label: 'Expenses',
-        href: '/dashboard/transactions/expenses',
+        href: '/transactions/expenses',
         icon: TrendingUp,
         description: 'Monitor spending patterns',
         tooltip: 'Track and categorize expenses',
@@ -255,7 +259,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'transfers',
         label: 'Transfers',
-        href: '/dashboard/transactions/transfers',
+        href: '/transactions/transfers',
         icon: RefreshCw,
         description: 'Internal account transfers',
         tooltip: 'Money moved between your accounts'
@@ -319,9 +323,16 @@ const MENU_ITEMS: MenuItem[] = [
     ]
   },
   {
+    id: 'subscriptions',
+    label: 'Subscriptions',
+    icon: SolarInboxInBoldDuotone,
+    href: '/subscriptions',
+
+  },
+  {
     id: 'insights',
     label: 'Insights',
-    icon: HugeiconsAnalytics02,
+    icon: SolarChartSquareBoldDuotone,
     href: '/insights',
     submenu: [
       {
@@ -336,7 +347,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'market',
         label: 'Market Analysis',
-        href: '/dashboard/insights/market',
+        href: '/insights/market',
         icon: BarChart3,
         description: 'Real-time market trends',
         tooltip: 'Stay updated on market movements',
@@ -345,7 +356,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'trends',
         label: 'Spending Trends',
-        href: '/dashboard/insights/trends',
+        href: '/insights/trends',
         icon: TrendingUp,
         description: 'Analyze spending patterns',
         tooltip: 'Understand where your money goes'
@@ -353,7 +364,7 @@ const MENU_ITEMS: MenuItem[] = [
       {
         id: 'recommendations',
         label: 'AI Recommendations',
-        href: '/dashboard/insights/recommendations',
+        href: '/insights/recommendations',
         icon: Lightbulb,
         description: 'Personalized financial advice',
         tooltip: 'Get smart recommendations',
@@ -371,42 +382,45 @@ const MENU_ITEMS: MenuItem[] = [
   }
 ];
 
-const QUICK_ACTIONS: QuickAction[] = [
-  { 
-    id: 'search', 
-    label: 'Search', 
-    icon: Search, 
-    action: () => {}, // Will be handled by command palette
-    shortcut: '⌘K'
+export const QUICK_ACTIONS: QuickAction[] = [
+
+  {
+    id: "add-wallet",
+    label: "Add",
+    icon: SolarAddSquareBoldDuotone,
+    action: () => {}, // handled by command palette
+    shortcut: "⌘W",
   },
-  { 
-    id: 'add-transaction', 
-    label: 'Add Transaction', 
-    icon: Plus, 
-    shortcut: '⌘T'
+ 
+
+  {
+    id: "calculator",
+    label: "Calculators",
+    action: () => {}, // handled by command palette
+    icon: SolarCalculatorBoldDuotone,
   },
-  { 
-    id: 'notifications', 
-    label: 'Notifications', 
-    icon: Bell, 
-    badge: 3
+
+  {
+    id: "export-data",
+    label: "Export",
+    action: () => {}, // handled by command palette
+    icon: SolarDownloadBoldDuotone,
   },
-  { 
-    id: 'calculator', 
-    label: 'Calculator', 
-    icon: Calculator, 
+
+  {
+    id: "subscriptions",
+    label: "Subscription",
+    icon: SolarInboxInBoldDuotone,
+    action: () => {}, // handled by command palette
   },
-  { 
-    id: 'export', 
-    label: 'Export Data', 
-    icon: Download, 
+
+  {
+    id: "settings",
+    label: "Settings",
+    action: () => {}, // handled by command palette
+    icon: LetsIconsSettingLineDuotone,
   },
-  { 
-    id: 'import', 
-    label: 'Import Data', 
-    icon: Upload, 
-  }
-];
+]
 
 export interface SidebarProps {
   className?: string;
@@ -443,12 +457,9 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
   }, [toggleExpanded]);
 
   const handleMenuItemClick = useCallback((itemId: string) => {
-    if (selectedMenuItem === itemId && isSecondaryExpanded) {
-      selectMenuItem(null);
-    } else {
-      selectMenuItem(itemId);
-    }
-  }, [selectedMenuItem, isSecondaryExpanded, selectMenuItem]);
+    // Always keep the menu item selected, don't toggle it off
+    selectMenuItem(itemId);
+  }, [selectMenuItem]);
 
   const handleActionClick = useCallback((actionId: string) => {
     const action = QUICK_ACTIONS.find(a => a.id === actionId);

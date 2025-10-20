@@ -2,6 +2,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useAuthStore, selectSession } from '@/lib/stores/auth-store';
+import { useInvalidateCryptoCache } from '../queries';
 
 export interface WalletSyncProgress {
   walletId: string;
@@ -508,7 +509,8 @@ export function useWalletSyncProgress() {
   const handleComplete = useCallback((walletId: string, result: { syncedData?: string[] }) => {
     try {
       cryptoStore.completeRealtimeSync(walletId, result.syncedData);
-      refreshWalletData(walletId);
+      useInvalidateCryptoCache()
+      
     } catch (error) {
       console.error('Error in handleComplete:', error);
     }
@@ -594,6 +596,7 @@ export function useUnifiedSyncProgress(
 ) {
   const cryptoStore = useCryptoStore();
   const { isAuthenticated } = useAuthStore();
+  const{invalidateAll} = useInvalidateCryptoCache()
 
   const handleProgress = useCallback((walletId: string, progress: WalletSyncProgress) => {
     try {
@@ -612,10 +615,11 @@ export function useUnifiedSyncProgress(
     }
   }, [cryptoStore]);
 
-  const handleComplete = useCallback((walletId: string, result: { syncedData?: string[] }) => {
+  const handleComplete = useCallback(async (walletId: string, result: { syncedData?: string[] }) => {
     try {
+      console.log('uifid')
       cryptoStore.completeRealtimeSync(walletId, result.syncedData);
-      refreshWalletData(walletId);
+      await invalidateAll()
     } catch (error) {
       console.error('Error in handleComplete:', error);
     }
