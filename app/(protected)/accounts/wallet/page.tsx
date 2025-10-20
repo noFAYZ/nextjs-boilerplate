@@ -21,9 +21,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral } from "@dicebear/collection";
+import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts";
 
 // ✅ Import TanStack Query hook for aggregated wallet
-import { useAggregatedCryptoWallet, useSyncAllCryptoWallets } from "@/lib/queries";
+import { useAggregatedCryptoWallet, useCryptoPortfolio, useSyncAllCryptoWallets } from "@/lib/queries";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 
 // Import components
@@ -94,25 +95,54 @@ export default function AggregatedWalletPage() {
   const { data: aggregatedData, isLoading, error, refetch } = useAggregatedCryptoWallet();
   const { mutate: syncAllWallets, isPending: isSyncing } = useSyncAllCryptoWallets();
 
+  const {data:portfolioData, isLoading:portfolioLoading,error:portfolioError} = useCryptoPortfolio({includeChart:true,chartTimeRange:'7d'})
+
   // Memoize stats
   const portfolioStats = useMemo(() => {
     if (!aggregatedData) return null;
 
     const summary = aggregatedData.summary;
-    const portfolio = aggregatedData.portfolio;
+
+    // Find best performing asset (highest positive change24h)
+    const bestPerformingAsset = portfolioData?.topAssets?.length
+      ? [...portfolioData.topAssets].sort((a, b) => (b.change24h || 0) - (a.change24h || 0))[0]
+      : null;
+
+    // Get top network (first in networkDistribution, already sorted by value)
+    const topNetwork = portfolioData?.networkDistribution?.[0];
 
     return {
-      totalValue: portfolio?.walletValue || 0,
+      totalValue: portfolioData?.totalValueUsd || 0,
       totalAssets: summary?.totalAssets || 0,
       totalNFTs: summary?.totalNfts || 0,
+      totalNFTValue: portfolioData?.totalNftValue || 0,
       totalWallets: summary?.totalWallets || 0,
-      dayChange: portfolio?.absolute24hChange || 0,
-      dayChangePct: portfolio?.percent24hChange || 0,
-      totalDeFiValue: summary?.totalDeFiValue || 0,
+      dayChange: portfolioData?.dayChange || 0,
+      dayChangePct: portfolioData?.dayChangePct || 0,
+      totalDeFiValue: portfolioData?.totalDeFiValue || 0,
+      bestPerformingAsset: bestPerformingAsset
+        ? {
+            symbol: bestPerformingAsset.symbol,
+            name: bestPerformingAsset.name,
+            change24h: bestPerformingAsset.change24h,
+            balanceUsd: bestPerformingAsset.balanceUsd,
+            logoUrl: bestPerformingAsset.logoUrl,
+          }
+        : null,
+      topNetwork: topNetwork
+        ? {
+            network: topNetwork.network,
+            valueUsd: topNetwork.valueUsd,
+            percentage: topNetwork.percentage,
+            assetCount: topNetwork.assetCount,
+          }
+        : null,
     };
-  }, [aggregatedData]);
+  }, [aggregatedData, portfolioData]);
 
-  console.log(aggregatedData)
+  console.log(aggregatedData,portfolioData)
+
+
 
   const handleSync = () => {
     syncAllWallets(undefined, {
@@ -262,21 +292,49 @@ export default function AggregatedWalletPage() {
         </p>
       </div> 
 
-      {/* Optional mini trend line (placeholder for chart) */}
+      {/* Portfolio Trend Chart */}
       <div className="hidden md:block">
-        <div className="h-14 w-36 flex items-end justify-end">
-          <div className="h-full w-full opacity-60">
-            {/* Placeholder for micro chart */}
-            <svg viewBox="0 0 100 40" className="h-full w-full text-primary/60">
-              <path
-                d="M0 25 Q25 10, 50 25 T100 15"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-            </svg>
+        {portfolioData?.chart?.dataPoints && portfolioData.chart.dataPoints.length > 1 ? (
+          <div className="h-20 w-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={portfolioData.chart.dataPoints.map(point => ({
+                  timestamp: new Date(point.timestamp).getTime(),
+                  value: point.value,
+                }))}
+                margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+              >
+                <defs>
+                  <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <YAxis domain={['dataMin', 'dataMax']} hide />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                  strokeWidth={2}
+                  fill="url(#portfolioGradient)"
+                  isAnimationActive={true}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-        </div>
+        ) : (
+          <div className="hidden md:flex h-20 w-48 items-center justify-center">
+            <p className="text-xs text-muted-foreground">No chart data</p>
+          </div>
+        )}
       </div>
     </div>
 
@@ -294,39 +352,59 @@ export default function AggregatedWalletPage() {
   <div className="grid grid-cols-2 gap-3">
     <div className="rounded-xl border bg-muted/40 p-4">
       <p className="text-xs text-muted-foreground mb-1">Best Performing Asset</p>
-      <p className="font-medium text-sm">
-        {portfolioStats?.topAsset?.name || "—"}
-      </p>
-      {portfolioStats?.topAsset?.changePct && (
-        <p
-          className={cn(
-            "text-xs font-semibold mt-1",
-            portfolioStats.topAsset.changePct > 0
-              ? "text-green-500"
-              : "text-red-500"
-          )}
-        >
-          {portfolioStats.topAsset.changePct > 0 ? "+" : ""}
-          {portfolioStats.topAsset.changePct.toFixed(2)}%
-        </p>
+      {portfolioStats?.bestPerformingAsset ? (
+        <>
+          <div className="flex items-center gap-2 mb-1">
+            {portfolioStats.bestPerformingAsset.logoUrl && (
+              <img
+                src={portfolioStats.bestPerformingAsset.logoUrl}
+                alt={portfolioStats.bestPerformingAsset.symbol}
+                className="h-4 w-4 rounded-full"
+              />
+            )}
+            <p className="font-medium text-sm">
+              {portfolioStats.bestPerformingAsset.symbol}
+            </p>
+          </div>
+          <p
+            className={cn(
+              "text-xs font-semibold",
+              portfolioStats.bestPerformingAsset.change24h > 0
+                ? "text-green-500"
+                : "text-red-500"
+            )}
+          >
+            {portfolioStats.bestPerformingAsset.change24h > 0 ? "+" : ""}
+            {portfolioStats.bestPerformingAsset.change24h.toFixed(2)}%
+          </p>
+        </>
+      ) : (
+        <p className="font-medium text-sm text-muted-foreground">—</p>
       )}
     </div>
 
     <div className="rounded-xl border  bg-muted/40 p-4">
       <p className="text-xs text-muted-foreground mb-1">Top Network</p>
-      <div className="flex items-center gap-2">
-        <img
-          src={portfolioStats?.topNetwork?.logoUrl || "/networks/eth.svg"}
-          alt="network"
-          className="h-4 w-4 rounded-full"
-        />
-        <p className="font-medium text-sm">
-          {portfolioStats?.topNetwork?.name || "Ethereum"}
-        </p>
-      </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        {portfolioStats?.topNetwork?.sharePct || 0}% of portfolio
-      </p>
+      {portfolioStats?.topNetwork ? (
+        <>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-4 w-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-[8px] font-bold text-white">
+              {portfolioStats.topNetwork.network.charAt(0)}
+            </div>
+            <p className="font-medium text-sm">
+              {portfolioStats.topNetwork.network.charAt(0) + portfolioStats.topNetwork.network.slice(1).toLowerCase()}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {portfolioStats.topNetwork.percentage.toFixed(1)}% of portfolio
+          </p>
+          <p className="text-xs font-medium text-foreground/80 mt-0.5">
+            <CurrencyDisplay amountUSD={portfolioStats.topNetwork.valueUsd} variant="compact" />
+          </p>
+        </>
+      ) : (
+        <p className="font-medium text-sm text-muted-foreground">—</p>
+      )}
     </div>
   </div>
 </div>

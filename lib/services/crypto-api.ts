@@ -48,16 +48,23 @@ class CryptoApiService {
   }
 
   // Portfolio Data
-  async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioData>> {
-    const searchParams = new URLSearchParams();
-    
-    if (params.timeRange) searchParams.set('timeRange', params.timeRange);
-    if (params.includeNFTs !== undefined) searchParams.set('includeNFTs', params.includeNFTs.toString());
-    if (params.includeDeFi !== undefined) searchParams.set('includeDeFi', params.includeDeFi.toString());
+// Portfolio Data
+async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioData>> {
+  const searchParams = new URLSearchParams();
+  
+  // Existing filters
+  if (params.timeRange) searchParams.set('timeRange', params.timeRange);
+  if (params.includeNFTs !== undefined) searchParams.set('includeNFTs', params.includeNFTs.toString());
+  if (params.includeDeFi !== undefined) searchParams.set('includeDeFi', params.includeDeFi.toString());
 
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/portfolio${query ? `?${query}` : ''}`);
-  }
+  // New chart options
+  if (params.includeChart !== undefined) searchParams.set('includeChart', params.includeChart.toString());
+  if (params.chartTimeRange) searchParams.set('chartTimeRange', params.chartTimeRange);
+
+  const query = searchParams.toString();
+  return apiClient.get(`${this.basePath}/portfolio${query ? `?${query}` : ''}`);
+}
+
 
   // Transaction Management
   async getTransactions(params: TransactionParams = {}): Promise<ApiResponse<CryptoTransaction[]>> {
