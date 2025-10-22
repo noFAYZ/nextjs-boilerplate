@@ -43,13 +43,13 @@ export default function LandingPage() {
        <PortfolioShowcase />
        <CryptoShowcase />
        <SubscriptionsShowcase />
-      <RealtimeTracking />
-{/*       <IntegrationShowcase /> 
+   {/*     <RealtimeTracking />
+     <IntegrationShowcase /> 
       <HowItWorks />
       <AutomationShowcase />*/}
-      
+    {/*   
       <TestimonialsSection />
-  {/*     <ComparisonSection />
+      <ComparisonSection />
       <SecuritySection /> */}
       <PricingSection />
       <FAQSection />

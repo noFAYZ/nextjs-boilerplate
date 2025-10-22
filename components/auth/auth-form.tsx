@@ -256,7 +256,7 @@ export default function AuthForm({
       <Card className="w-full max-w-sm mx-auto">
         <CardHeader className="text-center justify-center w-full">
           <div className="flex mb-4 justify-center">
-            <span className='w-40 h-40'><SuccessLoader /></span>
+            <span className='w-14 h-14'><SuccessLoader /></span>
           </div>
           <CardTitle className="text-2xl">Success!</CardTitle>
           <CardDescription>{successMessage || 'Operation completed successfully!'}</CardDescription>
