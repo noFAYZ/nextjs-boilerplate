@@ -4,6 +4,7 @@ import { CreditCard, Calendar, TrendingDown, AlertCircle, Check } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScrollReveal } from './scroll-reveal';
+import { SolarInboxInBoldDuotone } from '../icons/icons';
 
 export function SubscriptionsShowcase() {
   return (
@@ -91,7 +92,7 @@ export function SubscriptionsShowcase() {
 
                 {/* Top Badge */}
                 <div className="absolute -top-4 -left-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg px-4 py-2 shadow-lg flex items-center gap-2 hidden sm:flex z-10">
-                  <CreditCard className="h-4 w-4" />
+                  <SolarInboxInBoldDuotone className="h-4 w-4" />
                   <span className="text-xs font-semibold">Smart Tracking</span>
                 </div>
               </div>

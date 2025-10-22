@@ -174,23 +174,31 @@ export default function DashboardPage() {
             <NetWorthWidget />
           </div>
 
-          <div className="lg:col-span-2 grid gap-6 sm:grid-cols-2">
+          <div className="lg:col-span-2 grid gap-6 sm:grid-cols-3">
             <MonthlySpendingTrendWidget />
             <SpendingCategoriesWidget />
+            <div className=''> <CryptoAllocationWidget  />
+            
+             </div>
+              
+
           </div>
         </div>
 
         {/* Crypto Portfolio Section */}
         <div className="grid gap-6 lg:grid-cols-4">
-          <CryptoAllocationWidget />
-          <NetworkDistributionWidget />
-          <GoalsOverviewWidget />
-          <SubscriptionsOverviewWidget />
+      <NetworkDistributionWidget />
+        
+         
+               <div className='col-span-2'>  <MoneyFlowWidget /> </div>
+       
         </div>
 
-        <MoneyFlowWidget />
+      
         {/* Bills & Activity Section */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-4">
+            <GoalsOverviewWidget />
+          <SubscriptionsOverviewWidget />
           <UpcomingBillsWidget />
           <RecentActivityWidget />
         </div>

@@ -44,16 +44,16 @@ export default function LandingPage() {
        <CryptoShowcase />
        <SubscriptionsShowcase />
       <RealtimeTracking />
-      <IntegrationShowcase />
+{/*       <IntegrationShowcase /> 
       <HowItWorks />
-      <AutomationShowcase />
+      <AutomationShowcase />*/}
       
       <TestimonialsSection />
-      <ComparisonSection />
-      <SecuritySection />
+  {/*     <ComparisonSection />
+      <SecuritySection /> */}
       <PricingSection />
       <FAQSection />
-      <FinalCTASection />
+      {/* <FinalCTASection /> */}
       <LandingFooter />
      {/*  <StickyCTA /> */}
     </div>

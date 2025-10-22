@@ -208,7 +208,7 @@ export function PricingSection() {
           ))}
         </div>
 
-        {/* FAQ / Additional Info */}
+        {/* FAQ / Additional Info
         <div className="max-w-4xl mx-auto">
           <div className="rounded-2xl border bg-card p-8 md:p-12">
             <h3 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h3>
@@ -238,9 +238,9 @@ export function PricingSection() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
-        {/* Enterprise CTA */}
+        {/* Enterprise CTA 
         <div className="mt-16 text-center">
           <p className="text-muted-foreground mb-4">
             Need a custom solution for your organization?
@@ -250,7 +250,7 @@ export function PricingSection() {
               Contact Sales for Enterprise
             </Button>
           </Link>
-        </div>
+        </div>*/}
       </div>
     </section>
   );

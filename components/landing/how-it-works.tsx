@@ -144,7 +144,7 @@ export function HowItWorks() {
           </div>
         </div>
 
-        {/* Trust Section */}
+        {/* Trust Section
         <div className="mt-16 text-center">
           <p className="text-sm text-muted-foreground mb-4">Trusted by thousands of users worldwide</p>
           <div className="flex items-center justify-center gap-8 flex-wrap">
@@ -164,7 +164,7 @@ export function HowItWorks() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

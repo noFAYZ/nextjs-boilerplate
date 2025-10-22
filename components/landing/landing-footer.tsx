@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Wallet, Twitter, Github, Linkedin, Mail } from 'lucide-react';
+import Image from 'next/image';
 
 export function LandingFooter() {
   const footerSections = [
@@ -62,12 +63,28 @@ export function LandingFooter() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 group-hover:bg-orange-600 transition-colors shadow-sm">
-                <Wallet className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">MoneyMappr</span>
-            </Link>
+          <Link
+                href="/"
+                className="flex items-center gap-2 group relative z-10 -ml-1"
+                
+              >
+                <Image
+                  src={'/logo/19.svg'}
+                  alt={'MoneyMappr logo'}
+                  width={56}
+                  height={56}
+                  className="object-contain w-12 h-12 sm:w-14 sm:h-14"
+                  priority
+                />
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-lg font-bold tracking-tight">
+                    MoneyMappr
+                  </span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground -mt-0.5 hidden sm:block">
+                    Financial Intelligence
+                  </span>
+                </div>
+              </Link>
             <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
               Your complete financial management platform for traditional banking, cryptocurrency,
               and investment portfolios. Take control of your wealth.
@@ -108,7 +125,7 @@ export function LandingFooter() {
           ))}
         </div>
 
-        {/* Newsletter Section */}
+        {/* Newsletter Section 
         <div className="mb-12 rounded-2xl border bg-card p-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex-1">
@@ -136,7 +153,7 @@ export function LandingFooter() {
               </p>
             </div>
           </div>
-        </div>
+        </div>*/}
 
         {/* Bottom Section */}
         <div className="pt-8 border-t">
