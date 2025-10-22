@@ -3,9 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Shield } from "lucide-react";
+import type { UserPreferences } from "@/lib/types/settings";
 
-export function SecuritySettings(props: any) {
-  const { preferences, updatePreference } = props;
+interface SecuritySettingsProps {
+  preferences: UserPreferences;
+  updatePreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
+}
+
+export function SecuritySettings({ preferences, updatePreference }: SecuritySettingsProps) {
   return (
     <Card>
       <CardHeader>

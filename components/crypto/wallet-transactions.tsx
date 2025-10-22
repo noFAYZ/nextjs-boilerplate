@@ -205,7 +205,7 @@ export function WalletTransactions({ transactions, isLoading, walletAddress, sel
             className="pl-10 h-9"
           />
         </div>
-        <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+        <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'value' | 'gas')}>
           <SelectTrigger className="w-full sm:w-[120px] h-9">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
@@ -215,7 +215,7 @@ export function WalletTransactions({ transactions, isLoading, walletAddress, sel
             <SelectItem value="gas">Gas</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+        <Select value={filterBy} onValueChange={(value) => setFilterBy(value as 'all' | 'send' | 'receive' | 'swap')}>
           <SelectTrigger className="w-full sm:w-[120px] h-9">
             <Filter className="h-4 w-4" />
             <SelectValue placeholder="Type" />
@@ -227,7 +227,7 @@ export function WalletTransactions({ transactions, isLoading, walletAddress, sel
             <SelectItem value="swap">Swap</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'confirmed' | 'pending' | 'failed')}>
           <SelectTrigger className="w-full sm:w-[120px] h-9">
             <SelectValue placeholder="Status" />
           </SelectTrigger>

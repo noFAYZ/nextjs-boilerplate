@@ -7,7 +7,7 @@ import type { PrivacySettings as PrivacySettingsType } from "@/lib/types/setting
 
 interface PrivacySettingsProps {
   privacy: PrivacySettingsType;
-  updatePrivacy: (key: keyof PrivacySettingsType, value: any) => void;
+  updatePrivacy: <K extends keyof PrivacySettingsType>(key: K, value: PrivacySettingsType[K]) => void;
 }
 
 export function PrivacySettings({ privacy, updatePrivacy }: PrivacySettingsProps) {

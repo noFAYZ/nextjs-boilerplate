@@ -64,7 +64,12 @@ export function ribbonPath(x0: number, x1: number, y0: number, y1: number, thick
 }
 
 // computeMoneyFlow: takes raw data arrays and returns nodes+links (pure)
-export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWallets = [], subscriptions = [] } : any) {
+export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWallets = [], subscriptions = [] }: {
+  transactions?: Array<Record<string, unknown>>;
+  accounts?: Array<Record<string, unknown>>;
+  cryptoWallets?: Array<Record<string, unknown>>;
+  subscriptions?: Array<Record<string, unknown>>;
+}) {
   let totalBankMoney = 0;
   let totalCryptoMoney = 0;
   let totalExpenses = 0;
@@ -72,29 +77,34 @@ export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWalle
   const accountFlows: Record<string, { expenses: number; accountType?: string; accountNumber?: string; name?: string }> = {};
   const expensesByCategory: Record<string, { amount: number; fromAccounts: Record<string, number> }> = {};
 
-  accounts.forEach((a: any) => {
+  accounts.forEach((a: Record<string, unknown>) => {
     const balance = Number(a.currentBalance ?? a.balance ?? a.availableBalance ?? 0) || 0;
     totalBankMoney += balance;
   });
 
-  cryptoWallets.forEach((w: any) => {
+  cryptoWallets.forEach((w: Record<string, unknown>) => {
     const walletBalance = Number(w?.totalBalanceUsd ?? w?.totalBalance ?? 0) || 0;
     totalCryptoMoney += walletBalance;
   });
 
-  transactions.forEach((t: any) => {
+  transactions.forEach((t: Record<string, unknown>) => {
     const isDebit = t.type === 'DEBIT' || Number(t.amount) < 0;
     if (!isDebit) return;
     const amount = Math.abs(Number(t.amount) || 0);
-    const accountId = t.accountId ?? 'unknown';
+    const accountId = (t.accountId as string) ?? 'unknown';
     if (!accountFlows[accountId]) {
-      const acc = accounts.find((x: any) => x.id === accountId) || {};
-      accountFlows[accountId] = { expenses: 0, accountType: acc.accountType, accountNumber: acc.accountNumber, name: acc.name };
+      const acc = accounts.find((x: Record<string, unknown>) => x.id === accountId) || {};
+      accountFlows[accountId] = {
+        expenses: 0,
+        accountType: acc.accountType as string,
+        accountNumber: acc.accountNumber as string,
+        name: acc.name as string
+      };
     }
     accountFlows[accountId].expenses += amount;
     totalExpenses += amount;
 
-    const category = t.category ?? 'Other';
+    const category = (t.category as string) ?? 'Other';
     if (!expensesByCategory[category]) expensesByCategory[category] = { amount: 0, fromAccounts: {} };
     expensesByCategory[category].amount += amount;
     expensesByCategory[category].fromAccounts[accountId] = (expensesByCategory[category].fromAccounts[accountId] || 0) + amount;
@@ -102,9 +112,9 @@ export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWalle
 
   // subscriptions
   let totalSubscriptionCost = 0;
-  subscriptions.forEach((s: any) => {
+  subscriptions.forEach((s: Record<string, unknown>) => {
     if (s.status === 'ACTIVE' && s.amount) {
-      const monthly = s.billingCycle === 'YEARLY' ? s.amount / 12 : s.amount;
+      const monthly = s.billingCycle === 'YEARLY' ? (s.amount as number) / 12 : (s.amount as number);
       totalSubscriptionCost += monthly;
     }
   });
@@ -137,9 +147,9 @@ export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWalle
   const topAccounts = Object.entries(accountFlows).sort(([, a], [, b]) => b.expenses - a.expenses).slice(0, 3);
   const paymentColors = ['#fb923c', '#f59e0b', '#f97316'];
   topAccounts.forEach(([accountId, flow], i) => {
-    const acc = accounts.find((a: any) => a.id === accountId) || {};
+    const acc = accounts.find((a: Record<string, unknown>) => a.id === accountId) || {};
     const isCard = acc.accountType === 'CREDIT';
-    const label = isCard ? `Card •${String(acc.accountNumber ?? '').slice(-4)}` : acc.name ?? `Acct •${String(acc.accountNumber ?? '').slice(-4)}`;
+    const label = isCard ? `Card •${String(acc.accountNumber ?? '').slice(-4)}` : (acc.name as string) ?? `Acct •${String(acc.accountNumber ?? '').slice(-4)}`;
     basicNodes.push({ id: `payment-${accountId}`, label, value: flow.expenses, percentage: (flow.expenses / Math.max(totalExpenses, 1)) * 100, color: paymentColors[i % paymentColors.length], level: 'payment', icon: isCard ? 'card' : 'wallet' });
 
     // connect sources -> payments proportionally
@@ -160,11 +170,11 @@ export function computeMoneyFlow({ transactions = [], accounts = [], cryptoWalle
 }
 
 // layoutFlowNodes: positions nodes and produces FlowNode + FlowLink arrays
-export function layoutFlowNodes(basicNodes: any[], rawLinks: any[], opts = { svgW: 980, svgH: 420, nodeW: 64, nodePad: 18 }) {
+export function layoutFlowNodes(basicNodes: Array<Omit<FlowNode, 'x' | 'y' | 'height' | 'width'>>, rawLinks: Array<{ source: string; target: string; value: number }>, opts = { svgW: 980, svgH: 420, nodeW: 64, nodePad: 18 }) {
   const { svgW, svgH, nodeW, nodePad } = opts;
   const colX = { source: 24, payment: svgW / 2 - nodeW / 2, expense: svgW - 24 - nodeW };
 
-  const createPositioned = (arr: any[], x: number) => {
+  const createPositioned = (arr: Array<Omit<FlowNode, 'x' | 'y' | 'height' | 'width'>>, x: number) => {
     if (!arr || arr.length === 0) return [] as FlowNode[];
     const values = arr.map(a => a.value);
     const totalVal = Math.max(values.reduce((s, v) => s + v, 0), 1);

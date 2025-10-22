@@ -13,7 +13,7 @@ export function GlobalErrorHandler({ children }: GlobalErrorHandlerProps) {
 
   useEffect(() => {
     // Set up global error handler
-    const handleBackendError = (error: any) => {
+    const handleBackendError = (error: unknown) => {
       const appError = errorHandler.handleError(error, 'global', {
         showToast: false,
         logError: true,
@@ -30,13 +30,13 @@ console.log('Global error handler caught an error:', appError);
 
     // Attach to window for API client to trigger
     if (typeof window !== 'undefined') {
-      (window as any).showBackendError = handleBackendError;
+      (window as Window & { showBackendError?: (error: unknown) => void }).showBackendError = handleBackendError;
     }
 
     return () => {
       // Cleanup
       if (typeof window !== 'undefined') {
-        delete (window as any).showBackendError;
+        delete (window as Window & { showBackendError?: (error: unknown) => void }).showBackendError;
       }
     };
   }, []);

@@ -25,13 +25,23 @@ import { Badge } from '@/components/ui/badge';
 import { FluentBuildingBank28Regular, FluentBuildingBankLink28Regular } from '@/components/icons/icons';
 
 // Teller Connect Widget Interface
+interface TellerConnectInstance {
+  open: () => void;
+  close: () => void;
+}
+
+interface TellerConnectConfig {
+  applicationId: string;
+  environment: 'sandbox' | 'production';
+  onSuccess: (enrollment: unknown) => void;
+  onExit: () => void;
+  onEvent: (event: unknown) => void;
+}
+
 declare global {
   interface Window {
     TellerConnect: {
-      setup: (config: any) => {
-        open: () => void;
-        close: () => void;
-      };
+      setup: (config: TellerConnectConfig) => TellerConnectInstance;
     };
     Stripe?: (publishableKey: string) => StripeInstance;
   }
@@ -103,21 +113,21 @@ function ConnectionPageContent() {
   const [tellerError, setTellerError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
-  const tellerInstanceRef = useRef<any>(null);
-  const [tellerEnrollment, setTellerEnrollment] = useState<any>(null);
-  const [bankPreviewData, setBankPreviewData] = useState<any>(null);
+  const tellerInstanceRef = useRef<TellerConnectInstance | null>(null);
+  const [tellerEnrollment, setTellerEnrollment] = useState<Record<string, unknown> | null>(null);
+  const [bankPreviewData, setBankPreviewData] = useState<Record<string, unknown> | null>(null);
   const [isLoadingBankPreview, setIsLoadingBankPreview] = useState(false);
   const [selectedBankAccountIds, setSelectedBankAccountIds] = useState<string[]>([]);
 
   // Stripe Financial Connections state
   const [isStripeScriptLoaded, setIsStripeScriptLoaded] = useState(false);
   const [stripeError, setStripeError] = useState<string | null>(null);
-  const stripeInstanceRef = useRef<any>(null);
+  const stripeInstanceRef = useRef<StripeInstance | null>(null);
   const [stripeSessionId, setStripeSessionId] = useState<string | null>(null);
 
   // Service connection state (QuickBooks, etc.)
   const [authWindow, setAuthWindow] = useState<Window | null>(null);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isWaitingForAuth, setIsWaitingForAuth] = useState(false);
   const [isAlreadyConnected, setIsAlreadyConnected] = useState(false);
@@ -291,37 +301,42 @@ function ConnectionPageContent() {
       const tellerConfig = {
         applicationId,
         environment,
-        onSuccess: async (enrollment: any) => {
+        onSuccess: async (enrollment: unknown) => {
           try {
             // Validate enrollment data
-            if (!enrollment || !enrollment.accessToken || !enrollment.enrollment) {
+            const enrollmentData = enrollment as Record<string, unknown>;
+            const accessToken = enrollmentData?.accessToken;
+            const enrollmentInfo = enrollmentData?.enrollment as Record<string, unknown>;
+
+            if (!enrollmentData || !accessToken || !enrollmentInfo) {
               throw new Error('Invalid enrollment data received from Teller');
             }
 
             // Store enrollment data
-            const enrollmentData = {
-              accessToken: enrollment.accessToken,
+            const processedEnrollment = {
+              accessToken: accessToken as string,
               enrollment: {
-                id: enrollment.enrollment.id,
+                id: (enrollmentInfo.id as string) || '',
                 institution: {
-                  id: enrollment.enrollment.institution.id,
-                  name: enrollment.enrollment.institution.name
+                  id: ((enrollmentInfo.institution as Record<string, unknown>)?.id as string) || '',
+                  name: ((enrollmentInfo.institution as Record<string, unknown>)?.name as string) || ''
                 }
               }
             };
 
-            setTellerEnrollment(enrollmentData);
+            setTellerEnrollment(processedEnrollment);
 
             // Move to account selection step (step 2 for banks)
             stepper.nextStep();
 
             // Fetch preview of available accounts
-            await fetchBankPreviewData(enrollmentData);
-          } catch (error: any) {
+            await fetchBankPreviewData(processedEnrollment);
+          } catch (error: unknown) {
+            const err = error as Error;
             console.error('Teller enrollment error:', error);
             toast({
               title: 'Authorization Failed',
-              description: error?.message || 'Failed to process bank authorization. Please try again.',
+              description: err?.message || 'Failed to process bank authorization. Please try again.',
               variant: 'destructive',
             });
             // Stay on connection step
@@ -331,7 +346,7 @@ function ConnectionPageContent() {
         onExit: () => {
           console.log('User exited Teller Connect');
         },
-        onEvent: (event: any) => {
+        onEvent: (event: unknown) => {
           console.log('Teller event:', event);
         }
       };
@@ -363,11 +378,12 @@ function ConnectionPageContent() {
       }
 
       setPreviewData(data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error('QuickBooks preview error:', error);
       toast({
         title: 'Failed to Load Data',
-        description: error?.message || 'Unable to retrieve QuickBooks data. Please try again.',
+        description: err?.message || 'Unable to retrieve QuickBooks data. Please try again.',
         variant: 'destructive',
       });
 
@@ -379,7 +395,7 @@ function ConnectionPageContent() {
   };
 
   // Fetch bank accounts preview from Teller
-  const fetchBankPreviewData = async (enrollment: any) => {
+  const fetchBankPreviewData = async (enrollment: Record<string, unknown>) => {
     setIsLoadingBankPreview(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/banking/preview`, {
@@ -403,11 +419,12 @@ function ConnectionPageContent() {
       }
 
       setBankPreviewData(data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error('Bank preview error:', error);
       toast({
         title: 'Failed to Load Accounts',
-        description: error?.message || 'Unable to retrieve bank accounts. Please try again.',
+        description: err?.message || 'Unable to retrieve bank accounts. Please try again.',
         variant: 'destructive',
       });
 
@@ -478,11 +495,12 @@ function ConnectionPageContent() {
       }
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error('Save preferences error:', error);
       toast({
         title: 'Failed to Save Preferences',
-        description: error?.message || 'Unable to save sync preferences. Please try again.',
+        description: err?.message || 'Unable to save sync preferences. Please try again.',
         variant: 'destructive',
       });
       return false;
@@ -593,11 +611,12 @@ function ConnectionPageContent() {
           }
         }, 60000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       setIsWaitingForAuth(false);
       toast({
         title: 'Authorization Failed',
-        description: error?.message || 'Failed to start authorization',
+        description: err?.message || 'Failed to start authorization',
         variant: 'destructive',
       });
     }
@@ -640,10 +659,11 @@ function ConnectionPageContent() {
           return prev + 10;
         });
       }, 500);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       toast({
         title: 'Sync Failed',
-        description: error?.message || 'Failed to sync data',
+        description: err?.message || 'Failed to sync data',
         variant: 'destructive',
       });
     }
@@ -660,11 +680,12 @@ function ConnectionPageContent() {
       }
       console.log("FIAMANANANA A ",response.data)
       setBankPreviewData(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error('Stripe preview error:', error);
       toast({
         title: 'Failed to Load Accounts',
-        description: error?.message || 'Unable to retrieve Stripe account data. Please try again.',
+        description: err?.message || 'Unable to retrieve Stripe account data. Please try again.',
         variant: 'destructive',
       });
       // Go back to connection step on error
@@ -734,14 +755,15 @@ function ConnectionPageContent() {
   console.log(bankPreviewData)
         setIsLoadingBankPreview(false);
 
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as Error & { message?: string };
         console.error('Stripe connection error:', error);
         toast({
           title: 'Connection Failed',
-          description: error?.message || 'Failed to connect via Stripe. Please try again.',
+          description: err?.message || 'Failed to connect via Stripe. Please try again.',
           variant: 'destructive',
         });
-        setStripeError(error?.message || 'Connection failed');
+        setStripeError(err?.message || 'Connection failed');
       } finally {
         setIsConnecting(false);
       }
@@ -814,10 +836,11 @@ function ConnectionPageContent() {
         });
       }, 300);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error & { response?: { data?: { message?: string } } };
       console.error('Bank connection error:', error);
 
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to connect bank accounts';
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to connect bank accounts';
 
       toast({
         title: 'Connection Failed',
@@ -1049,23 +1072,26 @@ function ConnectionPageContent() {
                             selectedBankAccountIds.length === allIds.length ? [] : allIds
                           );
                         }}
-                        renderItemContent={(item) => {
+                        renderItemContent={(item: Record<string, unknown>) => {
                           // Support both Teller and Stripe account structures
                           const isStripeAccount = item.object === 'financial_connections.account';
 
-                          const accountName = isStripeAccount ? item.display_name : item.name;
-                          const accountType = isStripeAccount ? item.subcategory : item.subtype;
-                          const accountLast4 = isStripeAccount ? item.last4 : item.lastFour;
+                          const accountName = isStripeAccount ? (item.display_name as string) : (item.name as string);
+                          const accountType = isStripeAccount ? (item.subcategory as string) : (item.subtype as string);
+                          const accountLast4 = isStripeAccount ? (item.last4 as string) : (item.lastFour as string);
 
                           // Handle Stripe balance structure
                           let accountBalance = 0;
                           if (isStripeAccount) {
+                            const balance = item.balance as Record<string, unknown>;
                             // Stripe: balance.current.usd (in cents) or balance.cash.available.usd (in cents)
-                            const balanceInCents = item.balance?.current?.usd || item.balance?.cash?.available?.usd || 0;
+                            const balanceInCents = (balance?.current as Record<string, unknown>)?.usd as number ||
+                                                  ((balance?.cash as Record<string, unknown>)?.available as Record<string, unknown>)?.usd as number || 0;
                             accountBalance = balanceInCents / 100; // Convert cents to dollars
                           } else {
                             // Teller: balance.available (already in dollars)
-                            accountBalance = item.balance?.available || 0;
+                            const balance = item.balance as Record<string, unknown>;
+                            accountBalance = (balance?.available as number) || 0;
                           }
 
                           return (
@@ -1086,9 +1112,9 @@ function ConnectionPageContent() {
                                 <p className="font-semibold">
                                   ${accountBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </p>
-                                {item.type === 'credit' && item.balance?.ledger < 0 && (
+                                {item.type === 'credit' && ((item.balance as Record<string, unknown>)?.ledger as number) < 0 && (
                                   <p className="text-xs text-red-600 dark:text-red-400">
-                                    Owe: ${Math.abs(item.balance.ledger).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    Owe: ${Math.abs(((item.balance as Record<string, unknown>)?.ledger as number) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                   </p>
                                 )}
                               </div>
@@ -1312,11 +1338,11 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('accounts', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('accounts', allIds)}
-                            renderItemContent={(item) => (
+                            renderItemContent={(item: Record<string, unknown>) => (
                               <div className="flex justify-between items-center gap-4 w-full">
-                                <span className="font-semibold truncate">{item.name}</span>
+                                <span className="font-semibold truncate">{item.name as string}</span>
                                 <span className="text-xs text-muted-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap font-medium">
-                                  {item.type}
+                                  {item.type as string}
                                 </span>
                               </div>
                             )}
@@ -1340,11 +1366,11 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('transactions', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('transactions', allIds)}
-                            renderItemContent={(item) => (
+                            renderItemContent={(item: Record<string, unknown>) => (
                               <div className="flex justify-between items-center gap-4 w-full">
-                                <span className="font-semibold truncate">{item.description || item.number || item.id}</span>
+                                <span className="font-semibold truncate">{(item.description || item.number || item.id) as string}</span>
                                 <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
-                                  ${item.amount}
+                                  ${item.amount as number}
                                 </span>
                               </div>
                             )}
@@ -1368,11 +1394,11 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('invoices', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('invoices', allIds)}
-                            renderItemContent={(item) => (
+                            renderItemContent={(item: Record<string, unknown>) => (
                               <div className="flex justify-between items-center gap-4 w-full">
-                                <span className="font-semibold truncate">{item.number || item.id}</span>
+                                <span className="font-semibold truncate">{(item.number || item.id) as string}</span>
                                 <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
-                                  ${item.amount}
+                                  ${item.amount as number}
                                 </span>
                               </div>
                             )}
@@ -1396,11 +1422,11 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('bills', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('bills', allIds)}
-                            renderItemContent={(item) => (
+                            renderItemContent={(item: Record<string, unknown>) => (
                               <div className="flex justify-between items-center gap-4 w-full">
-                                <span className="font-semibold truncate">{item.number || item.id}</span>
+                                <span className="font-semibold truncate">{(item.number || item.id) as string}</span>
                                 <span className="text-xs font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-lg whitespace-nowrap">
-                                  ${item.amount}
+                                  ${item.amount as number}
                                 </span>
                               </div>
                             )}
@@ -1424,8 +1450,8 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('customers', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('customers', allIds)}
-                            renderItemContent={(item) => (
-                              <span className="font-semibold truncate">{item.name || item.displayName}</span>
+                            renderItemContent={(item: Record<string, unknown>) => (
+                              <span className="font-semibold truncate">{(item.name || item.displayName) as string}</span>
                             )}
                           />
                         )}
@@ -1447,8 +1473,8 @@ function ConnectionPageContent() {
                             }
                             onToggleItem={(itemId) => toggleItemSelection('vendors', itemId)}
                             onToggleAll={(allIds) => toggleSelectAll('vendors', allIds)}
-                            renderItemContent={(item) => (
-                              <span className="font-semibold truncate">{item.name || item.displayName}</span>
+                            renderItemContent={(item: Record<string, unknown>) => (
+                              <span className="font-semibold truncate">{(item.name || item.displayName) as string}</span>
                             )}
                           />
                         )}

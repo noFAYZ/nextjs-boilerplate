@@ -91,7 +91,7 @@ export function GoalsDashboard() {
         setGoals(goalsArray);
         setGoalsError(null);
       } else if (!response.success) {
-        const error = (response as any).error;
+        const error = response.error;
         const isExpectedError =
           error?.code === 'NOT_IMPLEMENTED' ||
           error?.code === 'CALCULATION_ERROR';
@@ -168,7 +168,7 @@ export function GoalsDashboard() {
         toast.success('Goal deleted successfully');
         await loadGoals();
       } else {
-        const error = (response as any).error;
+        const error = response.error;
         toast.error('Failed to delete goal', {
           description: error?.message || 'An error occurred',
         });
@@ -192,7 +192,7 @@ export function GoalsDashboard() {
         toast.success('Progress updated successfully');
         await loadGoals();
       } else {
-        const error = (response as any).error;
+        const error = response.error;
         toast.error('Failed to calculate progress', {
           description: error?.message || 'An error occurred',
         });
@@ -223,7 +223,7 @@ export function GoalsDashboard() {
         toast.success('Contribution added successfully');
         await loadGoals();
       } else {
-        const error = (response as any).error;
+        const error = response.error;
         toast.error('Failed to add contribution', {
           description: error?.message || 'An error occurred',
         });

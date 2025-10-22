@@ -100,9 +100,15 @@ export function PlanLimitDialog({
   }
 
   const getPlanFeatureValue = (plan: SubscriptionPlan, feature: string) => {
-    const features = plan.features as any
+    const features = plan.features as Record<string, unknown>
     const value = features[feature]
-    return value === -1 ? "Unlimited" : value?.toString() || "N/A"
+    if (typeof value === 'number' && value === -1) {
+      return "Unlimited"
+    }
+    if (typeof value === 'number' || typeof value === 'string') {
+      return value.toString()
+    }
+    return "N/A"
   }
 
   return (

@@ -80,7 +80,7 @@ export class PersistentCache {
       const cached = localStorage.getItem(key);
       if (!cached) return null;
 
-      const item: CacheItem<any> = JSON.parse(cached);
+      const item: CacheItem<unknown> = JSON.parse(cached);
       const expiresAt = new Date(item.timestamp + item.expiresIn);
 
       return {

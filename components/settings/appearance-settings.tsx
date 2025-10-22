@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface AppearanceSettingsProps {
   preferences: UserPreferences;
-  updatePreference: (key: keyof UserPreferences, value: any) => void;
+  updatePreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
 }
 
 export function AppearanceSettings({ preferences, updatePreference }: AppearanceSettingsProps) {
@@ -220,7 +220,7 @@ export function AppearanceSettings({ preferences, updatePreference }: Appearance
         <CardContent>
           <Select
             value={preferences.fontSize}
-            onValueChange={(value: any) => updatePreference("fontSize", value)}
+            onValueChange={(value) => updatePreference("fontSize", value as UserPreferences["fontSize"])}
           >
             <SelectTrigger>
               <SelectValue />

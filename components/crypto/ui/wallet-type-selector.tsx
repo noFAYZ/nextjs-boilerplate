@@ -18,6 +18,13 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
+interface WalletType {
+  value: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+}
+
 export function WalletTypeDropdown({
     WALLET_TYPES,
   selectedType,
@@ -25,11 +32,11 @@ export function WalletTypeDropdown({
   setValue,
   errors,
 }: {
-    WALLET_TYPES: any,
+    WALLET_TYPES: readonly WalletType[],
   selectedType: string;
   setSelectedType: (val: string) => void;
   setValue: (field: string, val: string) => void;
-  errors: any;
+  errors: Record<string, { message?: string }>;
 }) {
   const [open, setOpen] = React.useState(false);
 

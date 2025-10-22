@@ -276,7 +276,7 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
         <div className="flex gap-2">
           {!isSelectionMode ? (
             <>
-              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'value' | 'gas')}>
                 <SelectTrigger className="w-[120px] h-9">
                   <SelectValue />
                 </SelectTrigger>
@@ -346,7 +346,7 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
               </Button>
             </div>
           )}
-          <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+          <Select value={filterBy} onValueChange={(value) => setFilterBy(value as 'all' | 'send' | 'receive' | 'swap')}>
             <SelectTrigger className="w-[120px] h-9">
               <Filter className="h-4 w-4" />
               <SelectValue />
@@ -358,7 +358,7 @@ export function TransactionsDataTable({ transactions, isLoading, walletAddress }
               <SelectItem value="swap">Swap</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'confirmed' | 'pending' | 'failed')}>
             <SelectTrigger className="w-[120px] h-9">
               <SelectValue />
             </SelectTrigger>

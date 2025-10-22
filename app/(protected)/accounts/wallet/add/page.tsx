@@ -159,7 +159,7 @@ export default function AddWalletPage() {
           toast.success('Wallet added successfully!');
           router.push('/accounts/wallet');
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
           // Handle plan limit errors
           const planLimitError = handlePlanLimitError(err, 'wallet-creation', planLimitDialog.showDialog);
 
@@ -167,16 +167,16 @@ export default function AddWalletPage() {
             return; // Plan limit dialog is shown
           }
 
-          toast.error(err?.message || 'Failed to add wallet. Please try again.');
+          toast.error((err as { message?: string })?.message || 'Failed to add wallet. Please try again.');
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // This should not be reached since errors are handled in onError callback
       console.error('Unexpected create wallet error:', error);
     }
   };
 
-  const handleUpgrade = async (planType: any) => {
+  const handleUpgrade = async (planType: string) => {
     try {
       await upgradeSubscription({
         planType,

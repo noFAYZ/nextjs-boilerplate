@@ -3,8 +3,16 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+interface WalletItem {
+  id: string;
+  [key: string]: unknown;
+}
 
-export default function AvatarGroup( wallets:any) {
+interface AvatarGroupProps {
+  wallets?: WalletItem[];
+}
+
+export default function AvatarGroup({ wallets }: AvatarGroupProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
 if(!wallets || wallets.length === 0) {

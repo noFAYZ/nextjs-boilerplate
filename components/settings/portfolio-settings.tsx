@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity } from "lucide-react";
 
-export function PortfolioSettings(props: any) {
+export function PortfolioSettings() {
   return (
     <Card>
       <CardHeader>

@@ -290,7 +290,7 @@ export function DataTable<TData, TValue>({
   )
 }
 
-export const sortableHeader = (title: string) => ({ column }: any) => {
+export const sortableHeader = (title: string) => ({ column }: { column: { toggleSorting: (ascending: boolean) => void; getIsSorted: () => string | false } }) => {
   return (
     <Button
       variant="ghost"
@@ -303,8 +303,8 @@ export const sortableHeader = (title: string) => ({ column }: any) => {
   )
 }
 
-export const actionsCell = (onEdit?: (id: string) => void, onDelete?: (id: string) => void) => 
-  ({ row }: any) => {
+export const actionsCell = (onEdit?: (id: string) => void, onDelete?: (id: string) => void) =>
+  ({ row }: { row: { original: { id: string } } }) => {
     const id = row.original.id
 
     return (

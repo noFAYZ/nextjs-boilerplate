@@ -146,7 +146,7 @@ export default function IntegrationsPage() {
   }, [integrations]);
 
   // Handlers
-  const handleConnect = async (providerConfig: any) => {
+  const handleConnect = async (providerConfig: { provider: IntegrationProvider; name: string }) => {
     setConnectingProvider({
       provider: providerConfig.provider,
       name: providerConfig.name,

@@ -269,7 +269,7 @@ export const toastPresets = {
     options: {
       loading: string
       success: string | ((data: T) => string)
-      error: string | ((error: any) => string)
+      error: string | ((error: unknown) => string)
     }
   ) => {
     // Implementation for promise-based toasts

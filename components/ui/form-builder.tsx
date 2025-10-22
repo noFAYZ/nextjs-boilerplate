@@ -39,7 +39,7 @@ export interface FormFieldConfig {
   required?: boolean
   options?: Array<{ value: string; label: string }>
   validation?: z.ZodSchema
-  defaultValue?: any
+  defaultValue?: unknown
   disabled?: boolean
   hidden?: boolean
   cols?: 1 | 2 | 3 | 4

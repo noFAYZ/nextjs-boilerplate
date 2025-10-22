@@ -17,11 +17,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface WalletSyncStatus {
+  walletId: string;
+  progress: number;
+  status: string;
+  message?: string;
+  startedAt?: string;
+}
+
 interface SyncProgressIndicatorProps {
   syncStats: {
-    syncingWallets: any[];
-    completedWallets: any[];
-    failedWallets: any[];
+    syncingWallets: WalletSyncStatus[];
+    completedWallets: WalletSyncStatus[];
+    failedWallets: WalletSyncStatus[];
     totalWallets: number;
     hasActiveSyncs: boolean;
     syncConnected: boolean;
@@ -99,7 +107,7 @@ export function SyncProgressIndicator({
           {getStatusIcon()}
           <span className="text-sm font-medium">{getStatusText()}</span>
         </div>
-        <Badge variant={getStatusVariant() as any} className="text-xs">
+        <Badge variant={getStatusVariant() as "default" | "secondary" | "destructive"} className="text-xs">
           {progressPercentage.toFixed(0)}%
         </Badge>
       </div>
@@ -167,13 +175,7 @@ export function SyncProgressIndicator({
 }
 
 export interface WalletSyncProgressProps {
-  wallet: {
-    walletId: string;
-    progress: number;
-    status: string;
-    message?: string;
-    startedAt?: string;
-  };
+  wallet: WalletSyncStatus;
 }
 
 export function WalletSyncProgress({ wallet }: WalletSyncProgressProps) {

@@ -31,13 +31,13 @@ interface RequestMetrics {
   endpoint: string;
   method: string;
   statusCode?: number;
-  error?: any;
+  error?: unknown;
 }
 
 class SecureApiClient {
   private baseURL: string;
   private token: string | null = null;
-  private requestQueue: Map<string, Promise<any>> = new Map();
+  private requestQueue: Map<string, Promise<unknown>> = new Map();
   private rateLimitCache: Map<string, { count: number; resetTime: number }> = new Map();
   private requestMetrics: RequestMetrics[] = [];
   private maxMetricsHistory = 100;
@@ -65,7 +65,7 @@ class SecureApiClient {
   /**
    * Sanitize sensitive data from request/response
    */
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }
@@ -80,10 +80,10 @@ class SecureApiClient {
       return data.map(item => this.sanitizeData(item));
     }
 
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const lowerKey = key.toLowerCase();
-      const isSensitive = sensitiveFields.some(field => 
+      const isSensitive = sensitiveFields.some(field =>
         lowerKey.includes(field.toLowerCase())
       );
 
@@ -215,7 +215,7 @@ class SecureApiClient {
    */
   private handleError(error: unknown, endpoint: string, method: string): AuthError {
     if (typeof error === 'object' && error !== null) {
-      const err = error as any;
+      const err = error as Record<string, unknown>;
       
       // Network errors
       if (err.name === 'NetworkError' || err.name === 'TypeError' || !err.response) {
@@ -228,8 +228,9 @@ class SecureApiClient {
 
       // HTTP status errors
       if (err.response) {
-        const status = err.response.status;
-        const statusText = err.response.statusText;
+        const response = err.response as { status: number; statusText: string };
+        const status = response.status;
+        const statusText = response.statusText;
 
         logger.error('HTTP error occurred', {
           endpoint,
@@ -263,7 +264,7 @@ class SecureApiClient {
           case 422:
             return {
               code: 'VALIDATION_ERROR',
-              message: err.details?.message || 'Validation failed.',
+              message: (err.details as { message?: string })?.message || 'Validation failed.',
             };
           case 429:
             return {
@@ -290,7 +291,7 @@ class SecureApiClient {
 
       return {
         code: AUTH_ERROR_CODES.UNKNOWN_ERROR,
-        message: err.message || 'An unexpected error occurred.',
+        message: (err.message as string) || 'An unexpected error occurred.',
         details: this.sanitizeData(error),
       };
     }
@@ -388,7 +389,7 @@ class SecureApiClient {
     const requestKey = `${method}:${endpoint}:${JSON.stringify(fetchOptions.body || {})}`;
     if (this.requestQueue.has(requestKey)) {
       logger.debug('Returning cached request promise', { endpoint, method });
-      return this.requestQueue.get(requestKey);
+      return this.requestQueue.get(requestKey) as Promise<ApiResponse<T>>;
     }
 
     const requestPromise = this.executeRequest<T>(
@@ -460,10 +461,10 @@ class SecureApiClient {
         }
 
         const responseText = await response.text();
-        let data: any;
+        let data: Record<string, unknown>;
 
         try {
-          data = responseText ? JSON.parse(responseText) : {};
+          data = responseText ? JSON.parse(responseText) as Record<string, unknown> : {};
         } catch {
           data = { message: responseText };
         }
@@ -489,7 +490,7 @@ class SecureApiClient {
 
           throw {
             response,
-            message: data.error?.message || data.message || 'Request failed',
+            message: (data.error as { message?: string })?.message || (data.message as string) || 'Request failed',
             details: data,
           };
         }
@@ -501,7 +502,7 @@ class SecureApiClient {
           duration: metrics.endTime - metrics.startTime,
         });
 
-        return data as ApiResponse<T>;
+        return data as unknown as ApiResponse<T>;
 
       } catch (error) {
         metrics.error = error;

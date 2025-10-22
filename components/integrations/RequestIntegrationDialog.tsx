@@ -123,10 +123,11 @@ export function RequestIntegrationDialog({
       setTimeout(() => {
         handleClose();
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit request. Please try again.';
       toast({
         title: 'Submission Failed',
-        description: error?.message || 'Failed to submit request. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

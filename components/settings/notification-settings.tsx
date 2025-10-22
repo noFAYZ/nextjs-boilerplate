@@ -7,7 +7,7 @@ import type { NotificationSettings as NotificationSettingsType } from "@/lib/typ
 
 interface NotificationSettingsProps {
   notifications: NotificationSettingsType;
-  updateNotification: (key: any, value: any) => void;
+  updateNotification: (key: string, value: Record<string, unknown>) => void;
 }
 
 export function NotificationSettings({ notifications, updateNotification }: NotificationSettingsProps) {

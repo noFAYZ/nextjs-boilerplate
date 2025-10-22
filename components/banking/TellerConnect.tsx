@@ -53,7 +53,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
-  const tellerInstanceRef = useRef<any>(null);
+  const tellerInstanceRef = useRef<{ open: () => void; close: () => void } | null>(null);
 
   const { setTellerConnectOpen, setTellerConnectLoading, setTellerConnectError } = useBankingStore();
   const connectAccount = bankingMutations.useConnectAccount();
@@ -131,7 +131,8 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
             toast.success('Bank accounts connected successfully!');
             onSuccess?.([]); // Will be populated with actual account data
             onOpenChange(false);
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const err = error as { error?: { message?: string }; message?: string };
             console.error('Connect account error:', error);
 
             // Handle plan limit errors
@@ -139,7 +140,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
 
             if (!planLimitError) {
               // Only show toast for non-plan-limit errors
-              const errorMessage = error?.error?.message || error?.message || 'Failed to connect bank account';
+              const errorMessage = err?.error?.message || err?.message || 'Failed to connect bank account';
               toast.error(errorMessage);
               setTellerConnectError(errorMessage);
             }
@@ -153,12 +154,13 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
           setIsConnecting(false);
           setTellerConnectLoading(false);
         },
-        onEvent: (event: any) => {
+        onEvent: (event: unknown) => {
+          const evt = event as { type?: string; message?: string };
           console.log('Teller Connect event:', event);
 
           // Handle specific events
-          if (event.type === 'error') {
-            setTellerConnectError(event.message || 'An error occurred during connection');
+          if (evt.type === 'error') {
+            setTellerConnectError(evt.message || 'An error occurred during connection');
             toast.error('Connection error occurred');
           }
         }
@@ -195,11 +197,11 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
     onOpenChange(false);
   };
 
-  const handleUpgrade = async (planType: any) => {
+  const handleUpgrade = async (planType: string) => {
     try {
       await upgradeSubscription({
         planType,
-        billingPeriod: 'MONTHLY'
+        billingPeriod: 'MONTHLY' as const
       });
 
       toast.success(`Successfully upgraded to ${planType} plan!`);

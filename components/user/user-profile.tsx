@@ -375,10 +375,10 @@ function ProfileSettings({ user, onUpdate }: {
 }) {
   const [settings, setSettings] = React.useState(user.settings)
 
-  const updateSetting = (path: string, value: any) => {
+  const updateSetting = (path: string, value: boolean | string) => {
     const keys = path.split(".")
     const newSettings = { ...settings }
-    let current: any = newSettings
+    let current: Record<string, unknown> = newSettings as Record<string, unknown>
     
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]]

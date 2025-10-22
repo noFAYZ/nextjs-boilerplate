@@ -148,19 +148,20 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
         reset(); // Reset form
         onOpenChange(false); // Close modal
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         // Handle plan limit errors
         const planLimitError = handlePlanLimitError(error, 'wallet-creation', planLimitDialog.showDialog);
 
         if (!planLimitError) {
-          const errorMessage = error.message || 'Failed to add wallet';
+          const err = error as { message?: string };
+          const errorMessage = err.message || 'Failed to add wallet';
           toast.error(errorMessage);
         }
       }
     });
   };
 
-  const handleUpgrade = async (planType: any) => {
+  const handleUpgrade = async (planType: string) => {
     try {
       await upgradeSubscription({
         planType,

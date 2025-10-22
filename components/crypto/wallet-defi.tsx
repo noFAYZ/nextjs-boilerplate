@@ -98,24 +98,27 @@ const PositionBadge = ({ position }: { position: DeFiPosition }) => {
   );
 };
 
-const AppIcon = ({ app, isLoading }: { app: any; isLoading?: boolean }) => {
+const AppIcon = ({ app, isLoading }: { app: Record<string, unknown>; isLoading?: boolean }) => {
   if (isLoading) {
     return <TokenIconSkeleton />;
   }
 
+  const imgUrl = app?.imgUrl as string | undefined;
+  const displayName = app?.displayName as string | undefined;
+
   return (
     <div className="relative h-10 w-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-      {app?.imgUrl ? (
+      {imgUrl ? (
         <Image
-          src={app.imgUrl}
-          alt={app.displayName}
+          src={imgUrl}
+          alt={displayName || 'DeFi App'}
           fill
           className="object-cover"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground">
           <span className="font-bold text-xs">
-            {app?.displayName?.charAt(0) || 'D'}
+            {displayName?.charAt(0) || 'D'}
           </span>
         </div>
       )}
@@ -165,7 +168,7 @@ export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiPro
 
   // Flatten all positions from all apps
   const allPositions = defiApps?.flatMap(app =>
-    app.positions.map(position => ({ ...position, app }))
+    app.positions.map(position => ({ ...position, app: app.app }))
   ) || [];
 
   // Calculate metrics
@@ -180,16 +183,19 @@ export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiPro
   // Filter and search positions
   const filteredPositions = useMemo(() => {
     return allPositions.filter(position => {
+      const app = position.app as Record<string, unknown> | undefined;
+      const displayProps = position.displayProps as Record<string, unknown> | undefined;
+
       const matchesSearch =
-        position.app?.displayName?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-        position.displayProps?.label?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-        position.groupLabel?.toLowerCase()?.includes(searchTerm?.toLowerCase());
+        (app?.displayName as string)?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        (displayProps?.label as string)?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        (position.groupLabel as string)?.toLowerCase()?.includes(searchTerm?.toLowerCase());
 
       if (!matchesSearch) return false;
 
       // Filter by selected chain
       if (selectedChain) {
-        const positionNetwork = position.network?.toLowerCase();
+        const positionNetwork = (position.network as string)?.toLowerCase();
         // Map some network names to match chain keys
         const networkMapping: Record<string, string> = {
           'binance-smart-chain': 'bsc',
@@ -211,7 +217,7 @@ export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiPro
       if (filterBy === 'pools') return position.groupId === 'pool' || position.positionType === 'LIQUIDITY_POOL';
       if (filterBy === 'lending') return position.metaType === 'SUPPLIED' || position.metaType === 'BORROWED';
       if (filterBy === 'staking') return position.metaType === 'STAKED' || position.metaType === 'LOCKED';
-      if (filterBy === 'high-yield') return (position.apy || 0) >= 10;
+      if (filterBy === 'high-yield') return ((position.apy as number) || 0) >= 10;
       return true;
     });
   }, [allPositions, searchTerm, selectedChain, filterBy]);
@@ -220,11 +226,13 @@ export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiPro
   const sortedPositions = [...filteredPositions].sort((a, b) => {
     switch (sortBy) {
       case 'value':
-        return (b.balanceUSD || 0) - (a.balanceUSD || 0);
+        return ((b.balanceUSD as number) || 0) - ((a.balanceUSD as number) || 0);
       case 'apy':
-        return (b.apy || 0) - (a.apy || 0);
+        return ((b.apy as number) || 0) - ((a.apy as number) || 0);
       case 'name':
-        return (a.app?.displayName || '').localeCompare(b.app?.displayName || '');
+        const aAppName = ((a.app as Record<string, unknown>)?.displayName as string) || '';
+        const bAppName = ((b.app as Record<string, unknown>)?.displayName as string) || '';
+        return aAppName.localeCompare(bAppName);
       default:
         return 0;
     }
@@ -245,7 +253,7 @@ export function WalletDeFi({ defiApps, isLoading, selectedChain }: WalletDeFiPro
       acc[appId].totalValue += position.balanceUSD || 0;
     }
     return acc;
-  }, {} as Record<string, { app: any; positions: any[]; totalValue: number }>);
+  }, {} as Record<string, { app: Record<string, unknown>; positions: DeFiPosition[]; totalValue: number }>);
 
   // Paginate
   const groupedArray = Object.values(groupedPositions);
@@ -334,7 +342,7 @@ console.log(defiApps );
             />
           </div>
           <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
               <SelectTrigger className="w-[100px] h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -344,7 +352,7 @@ console.log(defiApps );
                 <SelectItem value="name">Name</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+            <Select value={filterBy} onValueChange={(value) => setFilterBy(value as typeof filterBy)}>
               <SelectTrigger className="w-[100px] h-8 text-xs">
                 <Filter className="h-3 w-3" />
                 <SelectValue />

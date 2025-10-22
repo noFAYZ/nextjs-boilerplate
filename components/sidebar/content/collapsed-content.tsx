@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { QuickAction } from '../types';
 
 interface SidebarCollapsedContentProps {
-  submenu?: any[];
+  submenu?: Array<Record<string, unknown>>;
   actions: QuickAction[];
   onMobileClose?: () => void;
   onActionClick: (actionId: string) => void;

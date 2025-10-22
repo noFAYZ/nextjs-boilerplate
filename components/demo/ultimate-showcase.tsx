@@ -150,15 +150,24 @@ const Toast = ({
 export function UltimateShowcase() {
   const animation = useAnimation()
   const commandPalette = useCommandPalette()
-  const [toasts, setToasts] = React.useState<any[]>([])
+  const [toasts, setToasts] = React.useState<Array<{
+    id: string;
+    title?: string;
+    description?: string;
+    variant?: "default" | "success" | "error" | "warning" | "info";
+  }>>([])
   const [activeTab, setActiveTab] = React.useState("overview")
-  
+
   const pagination = usePagination({
     totalItems: 1000,
     itemsPerPage: 50,
   })
 
-  const addToast = (toast: any) => {
+  const addToast = (toast: {
+    title?: string;
+    description?: string;
+    variant?: "default" | "success" | "error" | "warning" | "info";
+  }) => {
     const id = Math.random().toString(36).substring(2, 9)
     const newToast = { ...toast, id }
     setToasts(prev => [...prev, newToast])

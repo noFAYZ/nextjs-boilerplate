@@ -8,6 +8,8 @@ import type {
   UpdateAccountGroupRequest,
   MoveAccountRequest,
   AccountGroupsQueryOptions,
+  CryptoWallet,
+  FinancialAccount,
 } from '@/lib/types/account-groups';
 
 // Helper function to create stable options key
@@ -311,13 +313,13 @@ export function useGroupedAccounts() {
   const groupedAccounts = useMemo(() => {
     const grouped: Record<string, {
       group: AccountGroup;
-      financialAccounts: any[];
-      cryptoWallets: any[];
+      financialAccounts: FinancialAccount[];
+      cryptoWallets: CryptoWallet[];
     }> = {};
 
     const ungrouped = {
-      financialAccounts: [] as any[],
-      cryptoWallets: [] as any[],
+      financialAccounts: [] as FinancialAccount[],
+      cryptoWallets: [] as CryptoWallet[],
     };
 
     groups.forEach(group => {
@@ -344,14 +346,14 @@ export function useGroupedAccounts() {
     groups.forEach(group => {
       totalAccounts += group._count?.financialAccounts || 0;
       totalWallets += group._count?.cryptoWallets || 0;
-      
+
       // Calculate total value from accounts and wallets
       (group.financialAccounts || []).forEach(account => {
         totalValue += account.balance || 0;
       });
-      
+
       (group.cryptoWallets || []).forEach(wallet => {
-        totalValue += parseFloat(wallet.totalBalanceUsd) || 0;
+        totalValue += wallet.totalBalanceUsd || 0;
       });
     });
 

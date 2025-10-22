@@ -15,7 +15,7 @@ export interface DataItem {
   amount?: number;
   number?: string;
   description?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DataSelectionAccordionProps {

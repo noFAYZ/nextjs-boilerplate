@@ -41,17 +41,18 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (userProfile && isInitialized) {
+      const profile = userProfile as Record<string, unknown>;
       setPreferences((prev) => ({
         ...prev,
-        theme: (userProfile as any).theme || prev.theme,
-        currency: (userProfile as any).currency || prev.currency,
-        language: (userProfile as any).language || prev.language,
-        timezone: (userProfile as any).timezone || prev.timezone,
+        theme: (profile.theme as UserPreferences['theme']) || prev.theme,
+        currency: (profile.currency as UserPreferences['currency']) || prev.currency,
+        language: (profile.language as UserPreferences['language']) || prev.language,
+        timezone: (profile.timezone as UserPreferences['timezone']) || prev.timezone,
       }));
     }
   }, [userProfile, isInitialized]);
 
-  const updatePreference = (key: keyof UserPreferences, value: any) => {
+  const updatePreference = <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
     setPreferences((prev) => ({ ...prev, [key]: value }));
     setHasUnsavedChanges(true);
   };
@@ -184,7 +185,7 @@ export default function SettingsPage() {
                       <Label className="text-sm font-medium">Time Format</Label>
                       <p className="text-xs text-muted-foreground mt-1">12-hour or 24-hour clock</p>
                     </div>
-                    <Select value={preferences.timeFormat} onValueChange={(v: any) => updatePreference('timeFormat', v)}>
+                    <Select value={preferences.timeFormat} onValueChange={(v) => updatePreference('timeFormat', v as UserPreferences['timeFormat'])}>
                       <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="12h">12 Hour</SelectItem>
@@ -210,7 +211,7 @@ export default function SettingsPage() {
                     {(['light', 'dark', 'system'] as const).map((theme) => (
                       <button
                         key={theme}
-                        onClick={() => updatePreference('theme', theme)}
+                        onClick={() => updatePreference('theme', theme as UserPreferences['theme'])}
                         className={cn(
                           "p-4 rounded-lg border-2 transition-all",
                           preferences.theme === theme
@@ -241,7 +242,7 @@ export default function SettingsPage() {
                       <Label className="text-sm font-medium">Font Size</Label>
                       <p className="text-xs text-muted-foreground mt-1">Adjust text size</p>
                     </div>
-                    <Select value={preferences.fontSize} onValueChange={(v: any) => updatePreference('fontSize', v)}>
+                    <Select value={preferences.fontSize} onValueChange={(v) => updatePreference('fontSize', v as UserPreferences['fontSize'])}>
                       <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="small">Small</SelectItem>

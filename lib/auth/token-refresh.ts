@@ -19,8 +19,8 @@ interface TokenRefreshOptions {
   refreshThreshold?: number; // Time before expiry to refresh (ms)
   maxRetries?: number;
   retryDelay?: number;
-  onRefreshSuccess?: (token: any) => void;
-  onRefreshFailure?: (error: any) => void;
+  onRefreshSuccess?: (token: unknown) => void;
+  onRefreshFailure?: (error: unknown) => void;
   onSessionExpired?: () => void;
 }
 

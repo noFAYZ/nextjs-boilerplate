@@ -1,3 +1,14 @@
+export interface ChainLinks {
+  related?: string;
+  self?: string;
+  [key: string]: unknown;
+}
+
+export interface ChainData {
+  type: string;
+  id: string;
+}
+
 export interface Chain {
   type: "chains";
   id: string;
@@ -24,18 +35,15 @@ export interface Chain {
   };
   relationships: {
     native_fungible: {
-      links: any;
-      data: any;
+      links: ChainLinks;
+      data: ChainData;
     };
     wrapped_native_fungible?: {
-        links: any;
-      data: {
-        type: string;
-        id: string;
-      };
+      links: ChainLinks;
+      data: ChainData;
     };
   };
-  links:any;
+  links: ChainLinks;
 }
 export const ZERION_CHAINS: Chain[] = [
   {

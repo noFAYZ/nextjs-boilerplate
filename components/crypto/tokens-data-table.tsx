@@ -189,7 +189,7 @@ export function TokensDataTable({
           toggleFilters ? "flex" : "hidden"
         } `}
       >
-        <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+        <Select value={sortBy} onValueChange={(value) => setSortBy(value as "value" | "change" | "name")}>
           <SelectTrigger className="w-[140px] h-9">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -202,7 +202,7 @@ export function TokensDataTable({
 
         <Select
           value={filterBy}
-          onValueChange={(value: any) => setFilterBy(value)}
+          onValueChange={(value) => setFilterBy(value as "all" | "profitable" | "losing" | "major")}
         >
           <SelectTrigger className="w-[140px] h-9">
             <Filter className="h-4 w-4 mr-2" />

@@ -184,12 +184,15 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
 
       // Check for critical errors (plans and current subscription are most important)
       const criticalErrors: string[] = [];
-      
+
       // Helper function to check if error is due to unimplemented endpoint
-      const isNotImplementedError = (response: any) => {
-        return response.status === 'rejected' && 
-               (response.reason?.code === 'NOT_IMPLEMENTED' || 
-                response.reason?.message?.includes('API endpoint not found'));
+      const isNotImplementedError = (response: PromiseSettledResult<unknown>) => {
+        if (response.status !== 'rejected') return false;
+        const reason = response.reason as Record<string, unknown> | undefined;
+        return (
+          reason?.code === 'NOT_IMPLEMENTED' ||
+          (typeof reason?.message === 'string' && reason.message.includes('API endpoint not found'))
+        );
       };
       
       if (plansResponse.status === 'rejected' || (plansResponse.status === 'fulfilled' && !plansResponse.value.success)) {

@@ -73,8 +73,8 @@ const columns = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }: any) => {
-      const status = row.getValue("status")
+    cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+      const status = row.getValue("status") as string
       return (
         <Badge variant={status === "active" ? "default" : "secondary"}>
           {status}
@@ -85,8 +85,8 @@ const columns = [
   {
     accessorKey: "role",
     header: sortableHeader("Role"),
-    cell: ({ row }: any) => {
-      const role = row.getValue("role")
+    cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+      const role = row.getValue("role") as string
       return (
         <Badge variant={role === "admin" ? "premium" : "outline"}>
           {role}
@@ -97,7 +97,7 @@ const columns = [
   {
     accessorKey: "revenue",
     header: sortableHeader("Revenue"),
-    cell: ({ row }: any) => {
+    cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
       const amount = parseFloat(row.getValue("revenue"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",

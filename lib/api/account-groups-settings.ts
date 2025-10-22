@@ -17,6 +17,16 @@ export interface GroupSettings {
 }
 
 /**
+ * Metadata for settings export
+ */
+export interface SettingsMetadata {
+  exportedAt: string;
+  version: string;
+  userId?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Account Group Settings API functions
  *
  * These functions integrate with the MoneyMappr backend API for managing
@@ -58,8 +68,8 @@ export class AccountGroupSettingsAPI {
    */
   static async exportGroupSettings(
     groupId: string
-  ): Promise<ApiResponse<{ settings: GroupSettings; metadata: any }>> {
-    return apiClient.get<{ settings: GroupSettings; metadata: any }>(`${this.BASE_PATH}/${groupId}/settings/export`);
+  ): Promise<ApiResponse<{ settings: GroupSettings; metadata: SettingsMetadata }>> {
+    return apiClient.get<{ settings: GroupSettings; metadata: SettingsMetadata }>(`${this.BASE_PATH}/${groupId}/settings/export`);
   }
 
   /**
@@ -67,7 +77,7 @@ export class AccountGroupSettingsAPI {
    */
   static async importGroupSettings(
     groupId: string,
-    settingsData: { settings: GroupSettings; metadata?: any }
+    settingsData: { settings: GroupSettings; metadata?: SettingsMetadata }
   ): Promise<ApiResponse<GroupSettings>> {
     return apiClient.post<GroupSettings>(`${this.BASE_PATH}/${groupId}/settings/import`, settingsData);
   }
@@ -93,8 +103,8 @@ export class AccountGroupSettingsAPI {
   /**
    * Get all archived groups
    */
-  static async getArchivedGroups(): Promise<ApiResponse<any[]>> {
-    return apiClient.get<any[]>(`${this.BASE_PATH}/archived`);
+  static async getArchivedGroups(): Promise<ApiResponse<GroupSettings[]>> {
+    return apiClient.get<GroupSettings[]>(`${this.BASE_PATH}/archived`);
   }
 }
 

@@ -103,7 +103,7 @@ export const cryptoQueries = {
     refetchOnMount: true,
     refetchOnReconnect: true,
     refetchOnWindowFocus: false,
-    select: (data: ApiResponse<any>) => data.success ? data.data : null,
+    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
   // Portfolio

@@ -40,14 +40,17 @@ export function BankingSyncProvider({ children }: { children: React.ReactNode })
   // Sync transactions error state to store
   useEffect(() => {
     if (transactionsError) {
-      setTransactionsError((transactionsError as any).message || 'Failed to fetch transactions');
+      const errorMessage = transactionsError instanceof Error
+        ? transactionsError.message
+        : 'Failed to fetch transactions';
+      setTransactionsError(errorMessage);
     }
   }, [transactionsError, setTransactionsError]);
 
   // Sync spending categories data to store
   useEffect(() => {
     if (spendingCategories) {
-      setSpendingCategories(spendingCategories as any);
+      setSpendingCategories(spendingCategories);
       setSpendingCategoriesError(null);
     }
   }, [spendingCategories, setSpendingCategories, setSpendingCategoriesError]);
@@ -60,7 +63,10 @@ export function BankingSyncProvider({ children }: { children: React.ReactNode })
   // Sync spending categories error state to store
   useEffect(() => {
     if (categoriesError) {
-      setSpendingCategoriesError((categoriesError as any).message || 'Failed to fetch spending categories');
+      const errorMessage = categoriesError instanceof Error
+        ? categoriesError.message
+        : 'Failed to fetch spending categories';
+      setSpendingCategoriesError(errorMessage);
     }
   }, [categoriesError, setSpendingCategoriesError]);
 

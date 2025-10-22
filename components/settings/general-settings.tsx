@@ -14,7 +14,7 @@ import type { UserPreferences } from "@/lib/types/settings";
 
 interface GeneralSettingsProps {
   preferences: UserPreferences;
-  updatePreference: (key: keyof UserPreferences, value: any) => void;
+  updatePreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
 }
 
 export function GeneralSettings({ preferences, updatePreference }: GeneralSettingsProps) {
@@ -99,7 +99,7 @@ export function GeneralSettings({ preferences, updatePreference }: GeneralSettin
               <Label htmlFor="dateFormat">Date Format</Label>
               <Select
                 value={preferences.dateFormat}
-                onValueChange={(value: any) => updatePreference("dateFormat", value)}
+                onValueChange={(value) => updatePreference("dateFormat", value as UserPreferences["dateFormat"])}
               >
                 <SelectTrigger id="dateFormat">
                   <SelectValue />
@@ -116,7 +116,7 @@ export function GeneralSettings({ preferences, updatePreference }: GeneralSettin
               <Label htmlFor="timeFormat">Time Format</Label>
               <Select
                 value={preferences.timeFormat}
-                onValueChange={(value: any) => updatePreference("timeFormat", value)}
+                onValueChange={(value) => updatePreference("timeFormat", value as UserPreferences["timeFormat"])}
               >
                 <SelectTrigger id="timeFormat">
                   <SelectValue />
@@ -143,7 +143,7 @@ export function GeneralSettings({ preferences, updatePreference }: GeneralSettin
             <Label htmlFor="defaultDashboard">Starting Page</Label>
             <Select
               value={preferences.defaultDashboard}
-              onValueChange={(value: any) => updatePreference("defaultDashboard", value)}
+              onValueChange={(value) => updatePreference("defaultDashboard", value as UserPreferences["defaultDashboard"])}
             >
               <SelectTrigger id="defaultDashboard">
                 <SelectValue />

@@ -7,6 +7,8 @@ import type {
   UpdateAccountGroupRequest,
   MoveAccountRequest,
   AccountGroupsQueryOptions,
+  FinancialAccount,
+  CryptoWallet,
 } from '@/lib/types/account-groups';
 
 /**
@@ -148,12 +150,12 @@ export class AccountGroupsAPI {
    * Get all ungrouped accounts (both financial and crypto)
    */
   static async getUngroupedAccounts(): Promise<ApiResponse<{
-    financialAccounts: any[];
-    cryptoWallets: any[];
+    financialAccounts: FinancialAccount[];
+    cryptoWallets: CryptoWallet[];
   }>> {
     return apiClient.get<{
-      financialAccounts: any[];
-      cryptoWallets: any[];
+      financialAccounts: FinancialAccount[];
+      cryptoWallets: CryptoWallet[];
     }>(`${this.BASE_PATH}/ungrouped`);
   }
 
@@ -187,26 +189,6 @@ export class AccountGroupsAPI {
           details: error,
         },
       } as ApiResponse<void>;
-    }
-  }
-
-  /**
-   * Clear all cached requests
-   */
-  static clearCache(): void {
-    requestCache.clear();
-    cacheTimestamps.clear();
-  }
-
-  /**
-   * Clear cache for specific endpoint pattern
-   */
-  static clearCachePattern(pattern: string): void {
-    for (const key of requestCache.keys()) {
-      if (key.includes(pattern)) {
-        requestCache.delete(key);
-        cacheTimestamps.delete(key);
-      }
     }
   }
 }

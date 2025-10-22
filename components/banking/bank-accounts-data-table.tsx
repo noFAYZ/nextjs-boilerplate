@@ -164,7 +164,9 @@ export function BankAccountsDataTable({
   };
 
   const getSyncStatusBadge = (syncStatus: string) => {
-    const statusConfig: Record<string, { label: string; variant: any }> = {
+    type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted";
+
+    const statusConfig: Record<string, { label: string; variant: BadgeVariant }> = {
       connected: { label: "Connected", variant: "success" },
       syncing: { label: "Syncing", variant: "warning" },
       error: { label: "Error", variant: "destructive" },
@@ -172,7 +174,7 @@ export function BankAccountsDataTable({
     };
 
     const config = statusConfig[syncStatus] || statusConfig.disconnected;
-    return <Badge variant={config.variant as any}>{config.label}</Badge>;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   if (isLoading) {
@@ -240,7 +242,7 @@ export function BankAccountsDataTable({
           toggleFilters ? "flex" : "hidden"
         }`}
       >
-        <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+        <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
           <SelectTrigger className="w-[140px] h-9">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -253,7 +255,7 @@ export function BankAccountsDataTable({
 
         <Select
           value={filterBy}
-          onValueChange={(value: any) => setFilterBy(value)}
+          onValueChange={(value) => setFilterBy(value as typeof filterBy)}
         >
           <SelectTrigger className="w-[140px] h-9">
             <Filter className="h-4 w-4 mr-2" />
@@ -471,14 +473,14 @@ export function BankAccountsDataTable({
                           }}>
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSync(account.id, e as any)}>
+                          <DropdownMenuItem onClick={(e) => handleSync(account.id, e as React.MouseEvent<HTMLDivElement>)}>
                             <RefreshCw className="h-3.5 w-3.5 mr-2" />
                             Sync Account
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
-                            onClick={(e) => handleDisconnect(account.id, e as any)}
+                            onClick={(e) => handleDisconnect(account.id, e as React.MouseEvent<HTMLDivElement>)}
                           >
                             Disconnect
                           </DropdownMenuItem>

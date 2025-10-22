@@ -130,7 +130,7 @@ export function SyncIndicator() {
       useBankingStore.getState().updateRealtimeSyncProgress(
         accountId,
         progress.progress,
-        progress.status as any,
+        progress.status as string,
         progress.message
       )
     },
@@ -188,21 +188,21 @@ export function SyncIndicator() {
   React.useEffect(() => {
     const items: React.ReactNode[] = []
 
-    Object.entries(cryptoSyncStates).forEach(([id, state]: [string, any], index) => {
+    Object.entries(cryptoSyncStates).forEach(([id, state]: [string, unknown], index) => {
       items.push(
         <SyncItemRow
           key={`crypto-${id}-${index}`}
           id={id}
           state={state as ExtendedSyncState}
           type="crypto"
-          
+
           onRetry={() => console.log(`Retrying sync for crypto ${id}`)}
           isExpanded={false}
         />
       )
     })
 
-    Object.entries(bankingSyncStates).forEach(([id, state]: [string, any], index) => {
+    Object.entries(bankingSyncStates).forEach(([id, state]: [string, unknown], index) => {
       items.push(
         <SyncItemRow
           key={`banking-${id}-${index}`}

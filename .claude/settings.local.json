@@ -40,7 +40,9 @@
       "Bash(cmd /c taskkill /F /PID 14604 /T)",
       "Bash(cmd /c \"taskkill /F /IM node.exe /T 2>&1\")",
       "Bash(cp \"settings_part1.txt\" \"app/(protected)/settings/page.tsx\")",
-      "Bash(tail -20 \"app/(protected)/settings/page.tsx\")"
+      "Bash(tail -20 \"app/(protected)/settings/page.tsx\")",
+      "Bash(awk:*)",
+      "Read(//f/**)"
     ],
     "deny": [],
     "ask": []

@@ -85,14 +85,14 @@ export function DataTableAdvanced<TData, TValue>({
       return [
         {
           id: "select",
-          header: ({ table }: any) => (
+          header: ({ table }: { table: ReturnType<typeof useReactTable<TData>> }) => (
             <Checkbox
               checked={table.getIsAllPageRowsSelected()}
               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
               aria-label="Select all"
             />
           ),
-          cell: ({ row }: any) => (
+          cell: ({ row }: { row: { getIsSelected: () => boolean; toggleSelected: (value: boolean) => void } }) => (
             <Checkbox
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -326,7 +326,7 @@ export function DataTableAdvanced<TData, TValue>({
 
 // Helper to create sortable header
 export function createSortableHeader(title: string) {
-  return ({ column }: any) => {
+  return ({ column }: { column: { toggleSorting: (ascending: boolean) => void; getIsSorted: () => false | "asc" | "desc" } }) => {
     return (
       <Button
         variant="ghost"

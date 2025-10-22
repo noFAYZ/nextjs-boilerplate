@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { LucideIcon } from 'lucide-react';
 
 // Skeleton for individual data elements
 export function BalanceSkeleton({ className }: { className?: string }) {
@@ -291,7 +292,7 @@ export function WalletEmptyState({
   title,
   description
 }: {
-  icon: any;
+  icon: LucideIcon;
   title: string;
   description: string;
 }) {

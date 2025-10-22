@@ -55,6 +55,8 @@ export interface FilterOption {
   count?: number
 }
 
+export type FilterValue = string | string[] | boolean | { from: Date; to: Date } | { min: number; max: number } | null
+
 export interface FilterConfig {
   id: string
   label: string
@@ -62,20 +64,20 @@ export interface FilterConfig {
   options?: FilterOption[]
   placeholder?: string
   icon?: React.ReactNode
-  defaultValue?: any
+  defaultValue?: FilterValue
 }
 
 export interface ActiveFilter {
   id: string
   label: string
-  value: any
+  value: FilterValue
   displayValue: string
 }
 
 interface FilterBarProps extends VariantProps<typeof filterBarVariants> {
   filters: FilterConfig[]
-  activeFilters: Record<string, any>
-  onFilterChange: (filterId: string, value: any) => void
+  activeFilters: Record<string, FilterValue>
+  onFilterChange: (filterId: string, value: FilterValue) => void
   onClearAll?: () => void
   showActiveFilters?: boolean
   showClearAll?: boolean

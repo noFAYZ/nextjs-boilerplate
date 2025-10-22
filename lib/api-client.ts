@@ -11,10 +11,13 @@ class ApiClient {
     this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
   }
 
-  private notifyErrorHandler(error: any) {
+  private notifyErrorHandler(error: { code: string; message: string }) {
     // Notify the global error handler if available
-    if (typeof window !== 'undefined' && (window as any).showBackendError) {
-      (window as any).showBackendError(error);
+    if (typeof window !== 'undefined') {
+      const globalWindow = window as unknown as Record<string, unknown>;
+      if (globalWindow.showBackendError) {
+        (globalWindow.showBackendError as (error: { code: string; message: string }) => void)(error);
+      }
     }
   }
 
@@ -163,12 +166,13 @@ class ApiClient {
     } catch (error) {
       // Check if error has a code property (thrown by us in the try block)
       if (error && typeof error === 'object' && 'code' in error) {
+        const err = error as { code: string; message?: string; details?: unknown };
         return {
           success: false,
           error: {
-            code: (error as any).code,
-            message: (error as any).message || 'Request failed',
-            details: (error as any).details,
+            code: err.code,
+            message: err.message || 'Request failed',
+            details: err.details,
           },
         };
       }
@@ -238,7 +242,7 @@ class ApiClient {
   }
 
   // Health check method
-  async checkHealth(): Promise<any> {
+  async checkHealth(): Promise<{ status: string; timestamp: string }> {
     try {
       const response = await fetch(`${this.baseURL.replace('/api/v1', '')}/health`, {
         method: 'GET',
@@ -250,7 +254,7 @@ class ApiClient {
         throw new Error(`Health check failed with status: ${response.status}`);
       }
 
-      const healthData = await response.json();
+      const healthData = await response.json() as { status: string; timestamp: string };
 
       // Reset consecutive failures on successful health check
       this.consecutiveFailures = 0;
@@ -334,7 +338,7 @@ class ApiClient {
   }
 
   async getWalletSyncStatus(): Promise<ApiResponse<{
-    wallets: Record<string, any>;
+    wallets: Record<string, unknown>;
     totalWallets: number;
     syncingCount: number;
   }>> {

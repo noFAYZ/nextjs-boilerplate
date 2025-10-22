@@ -418,7 +418,7 @@ const AccountsBento = ({
   totalBankBalance,
   isLoading,
 }: {
-  displayAccounts: any[];
+  displayAccounts: Array<Record<string, unknown> & { _type?: 'crypto' | 'bank' }>;
   balanceVisible: boolean;
   viewMode: 'grid' | 'list' | 'grouped';
   totalBankBalance: number;

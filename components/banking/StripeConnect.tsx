@@ -69,14 +69,14 @@ declare global {
 interface StripeConnectProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: (accounts: any[]) => void;
+  onSuccess?: (accounts: StripeFinancialConnectionsAccount[]) => void;
 }
 
 export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectProps) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
-  const stripeRef = useRef<any>(null);
+  const stripeRef = useRef<StripeInstance | null>(null);
 
   const { setStripeConnectOpen, setStripeConnectLoading, setStripeConnectError } = useBankingStore();
   const connectStripeAccount = bankingMutations.useConnectStripeAccount();
@@ -189,7 +189,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
     onOpenChange(false);
   };
 
-  const handleUpgrade = async (planType: any) => {
+  const handleUpgrade = async (planType: string) => {
     try {
       await upgradeSubscription({
         planType,

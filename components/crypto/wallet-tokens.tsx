@@ -262,7 +262,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
               />
             </div>
             <div className="flex gap-2">
-              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'value' | 'change' | 'name')}>
                 <SelectTrigger className="w-[100px] h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
@@ -272,7 +272,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                   <SelectItem value="name">Name</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+              <Select value={filterBy} onValueChange={(value) => setFilterBy(value as 'all' | 'profitable' | 'losing' | 'major')}>
                 <SelectTrigger className="w-[90px] h-8 text-xs">
                   <Filter className="h-3 w-3" />
                   <SelectValue />

@@ -373,7 +373,7 @@ export function WalletNFTs({ nfts, isLoading, selectedChain }: WalletNFTsProps) 
     </div>
 
     {/* Sort */}
-    <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+    <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'value' | 'rarity' | 'name' | 'collection' | 'network')}>
       <SelectTrigger className="w-full sm:w-[150px] h-9">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
@@ -449,7 +449,7 @@ onClick={()=>setToggleFilters(!toggleFilters)} >
     {/* Rarity */}
     <Select
       value={filters.rarity}
-      onValueChange={(value: any) => setFilters((prev) => ({ ...prev, rarity: value }))}
+      onValueChange={(value) => setFilters((prev) => ({ ...prev, rarity: value as 'all' | 'rare' | 'epic' | 'legendary' }))}
     >
       <SelectTrigger className="w-[120px] h-8">
         <Trophy className="h-3 w-3 mr-1" />
@@ -466,7 +466,7 @@ onClick={()=>setToggleFilters(!toggleFilters)} >
     {/* Price */}
     <Select
       value={filters.priceRange}
-      onValueChange={(value: any) => setFilters((prev) => ({ ...prev, priceRange: value }))}
+      onValueChange={(value) => setFilters((prev) => ({ ...prev, priceRange: value as 'all' | 'free' | 'low' | 'mid' | 'high' }))}
     >
       <SelectTrigger className="w-[120px] h-8">
         <TrendingUp className="h-3 w-3 mr-1" />
