@@ -89,7 +89,7 @@ export function LandingHero() {
         
         {/* Dashboard image */}
         <Image
-          src="/landing/dash.png"
+          src="/landing/dash.PNG"
           alt="MoneyMappr Dashboard Preview"
           fill
           className="object-cover rounded-3xl"

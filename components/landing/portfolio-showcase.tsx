@@ -17,7 +17,7 @@ export function PortfolioShowcase() {
         <ScrollReveal>
           <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-orange-600/80 h-[600px] w-[900px] pl-20 pt-20 shadow">
             <Image
-              src="/landing/portfolio.png"
+              src="/landing/portfolio.PNG"
               alt="Dashboard Preview"
               width={1700}
               height={1200}

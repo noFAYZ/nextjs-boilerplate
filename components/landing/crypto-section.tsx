@@ -70,7 +70,7 @@ export function CryptoShowcase() {
         <ScrollReveal>
           <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-bl from-orange-100 via-orange-500/80 to-orange-600/80 h-[600px] w-[900px] pl-20 pt-20 shadow-xl">
             <Image
-              src="/landing/crypto1.png"
+              src="/landing/crypto1.PNG"
               alt="Dashboard Preview"
               width={1700}
               height={1200}
