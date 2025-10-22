@@ -16,12 +16,8 @@
 
 import {
   useQuery,
-  useMutation,
   useQueryClient,
-  type UseQueryResult,
-  type UseMutationResult,
 } from '@tanstack/react-query';
-import { subscriptionsApi } from '@/lib/services/subscriptions-api';
 import {
   subscriptionKeys,
   subscriptionQueries,
@@ -30,16 +26,10 @@ import {
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSubscriptionUIStore } from '@/lib/stores/subscription-ui-store';
 import type {
-  UserSubscription,
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
-  AddChargeRequest,
   SubscriptionFilters,
-  SubscriptionListResponse,
-  SubscriptionAnalytics,
-  AutoDetectResponse,
 } from '@/lib/types/subscription';
-import type { ApiResponse } from '@/lib/types';
 
 // ============================================================================
 // AUTH-READY WRAPPER
@@ -142,10 +132,10 @@ export function useCreateSubscription() {
 
   return {
     ...createMutation,
-    mutate: (data: CreateSubscriptionRequest, options?: any) => {
+    mutate: (data: CreateSubscriptionRequest, options?: { onSuccess?: (response: ApiResponse<UserSubscription>, variables: CreateSubscriptionRequest, context: unknown) => void }) => {
       createMutation.mutate(data, {
         ...options,
-        onSuccess: (response: any, variables: any, context: any) => {
+        onSuccess: (response: ApiResponse<UserSubscription>, variables: CreateSubscriptionRequest, context: unknown) => {
           if (response.success) {
             closeCreateModal();
           }
@@ -166,10 +156,10 @@ export function useUpdateSubscription() {
 
   return {
     ...updateMutation,
-    mutate: (data: { id: string; updates: any }, options?: any) => {
+    mutate: (data: { id: string; updates: UpdateSubscriptionRequest }, options?: { onSuccess?: (response: ApiResponse<UserSubscription>, variables: { id: string; updates: UpdateSubscriptionRequest }, context: unknown) => void }) => {
       updateMutation.mutate(data, {
         ...options,
-        onSuccess: (response: any, variables: any, context: any) => {
+        onSuccess: (response: ApiResponse<UserSubscription>, variables: { id: string; updates: UpdateSubscriptionRequest }, context: unknown) => {
           if (response.success) {
             closeEditModal();
           }
@@ -190,10 +180,10 @@ export function useDeleteSubscription() {
 
   return {
     ...deleteMutation,
-    mutate: (subscriptionId: string, options?: any) => {
+    mutate: (subscriptionId: string, options?: { onSuccess?: (response: ApiResponse<void>, variables: string, context: unknown) => void }) => {
       deleteMutation.mutate(subscriptionId, {
         ...options,
-        onSuccess: (response: any, variables: any, context: any) => {
+        onSuccess: (response: ApiResponse<void>, variables: string, context: unknown) => {
           if (response.success) {
             closeDeleteModal();
             selectSubscription(null);

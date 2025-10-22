@@ -139,6 +139,7 @@ export const useSettingsUIStore = create<SettingsUIState>()(
         })),
       clearValidationError: (field) =>
         set((state) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [field]: _, ...rest } = state.validationErrors;
           return { validationErrors: rest };
         }),

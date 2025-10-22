@@ -34,7 +34,7 @@ export const settingsQueries = {
     queryKey: settingsKeys.devices(),
     queryFn: () => settingsApi.getTrustedDevices(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: ApiResponse<any>) => (data.success ? data.data : []),
+    select: (data: ApiResponse<unknown>) => (data.success ? data.data : []),
   }),
 };
 
@@ -53,8 +53,8 @@ export const settingsMutations = {
         const previousSettings = queryClient.getQueryData(settingsKeys.user());
 
         // Optimistically update settings
-        queryClient.setQueryData(settingsKeys.user(), (old: any) => {
-          if (!old?.data) return old;
+        queryClient.setQueryData(settingsKeys.user(), (old: unknown) => {
+          if (!old || typeof old !== 'object' || !('data' in old)) return old;
           return {
             ...old,
             data: {

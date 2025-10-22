@@ -48,7 +48,6 @@ class ErrorHandler {
       showToast = true,
       logError = true,
       throwError = false,
-      retryable = false,
       userMessage
     } = options;
 

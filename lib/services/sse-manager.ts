@@ -206,7 +206,7 @@ class SSEManager {
         try {
           const data: SSEMessage = JSON.parse(event.data);
           this.handleMessage(data);
-        } catch (error) {
+        } catch {
           // Silently handle parse errors
         }
       };
@@ -219,7 +219,7 @@ class SSEManager {
         if (this.eventSource) {
           try {
             this.eventSource.close();
-          } catch (closeError) {
+          } catch {
             // Silently handle close errors
           }
           this.eventSource = null;
@@ -286,17 +286,17 @@ class SSEManager {
         default:
           // Unknown message type
           // Still forward to all channels in case someone wants to handle it
-          this.subscribers.forEach((callbacks, channel) => {
+          this.subscribers.forEach((callbacks) => {
             callbacks.forEach(callback => {
               try {
                 callback(data);
-              } catch (error) {
+              } catch {
                 // Silently handle callback errors
               }
             });
           });
       }
-    } catch (error) {
+    } catch {
       // Silently handle message processing errors
     }
   }
@@ -388,7 +388,7 @@ class SSEManager {
         if (this.eventSource.readyState !== EventSource.CLOSED) {
           this.eventSource.close();
         }
-      } catch (error) {
+      } catch {
         // Error closing connection
       }
       this.eventSource = null;

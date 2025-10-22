@@ -13,7 +13,7 @@
  * ```
  */
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { settingsQueries, settingsMutations } from './settings-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
 

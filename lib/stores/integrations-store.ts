@@ -5,7 +5,6 @@ import type {
   Integration,
   IntegrationProvider,
   IntegrationStatus,
-  SyncStatus,
   ProviderConfig,
   IntegrationSyncLog,
   QuickBooksCompanyInfo,

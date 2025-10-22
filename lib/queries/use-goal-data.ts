@@ -18,26 +18,14 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  type UseQueryResult,
-  type UseMutationResult,
 } from '@tanstack/react-query';
 import { goalsApi } from '@/lib/services/goals-api';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import type {
-  Goal,
   CreateGoalRequest,
   UpdateGoalRequest,
   AddContributionRequest,
   GetGoalsParams,
-  GetGoalsResponse,
-  GetGoalResponse,
-  CreateGoalResponse,
-  UpdateGoalResponse,
-  DeleteGoalResponse,
-  CalculateGoalProgressResponse,
-  AddContributionResponse,
-  GetAnalyticsResponse,
-  GoalAnalytics,
 } from '@/lib/types/goals';
 
 // ============================================================================

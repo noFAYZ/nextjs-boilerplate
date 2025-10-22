@@ -86,7 +86,7 @@ export interface SubscriptionCharge {
   providerTransactionId?: string;
   description?: string;
   failureReason?: string | null;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -136,7 +136,7 @@ export interface UserSubscription {
   merchantName?: string;
   lastDetectedDate?: string | null;
   detectionConfidence?: number | null;
-  detectionMetadata?: Record<string, any> | null;
+  detectionMetadata?: Record<string, unknown> | null;
   accountId?: string;
   categoryId?: string;
   notifyBeforeBilling: boolean;
@@ -228,7 +228,7 @@ export interface AddChargeRequest {
   providerTransactionId?: string;
   description?: string;
   failureReason?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SubscriptionFilters {
@@ -284,7 +284,11 @@ export interface SubscriptionAnalytics {
     previous30Days: number;
     percentageChange: number;
   };
-  recommendations: any[];
+  recommendations: Array<{
+    type: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high';
+  }>;
 }
 
 export interface DetectionResult {

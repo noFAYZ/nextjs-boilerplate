@@ -130,7 +130,7 @@ class BankingApiService {
 
   async getStripeAccountsPreview(sessionId: string): Promise<ApiResponse<{
     sessionId: string;
-    accounts: any[];
+    accounts: Array<Record<string, unknown>>;
     totalAccounts: number;
   }>> {
     return apiClient.post(`${this.basePath}/stripe/preview`, { sessionId });
@@ -509,7 +509,7 @@ class BankingApiService {
 
   async getMonthlySpendingTrend(
     months: number = 12,
-    accountIds?: string[]
+    _accountIds?: string[]
   ): Promise<ApiResponse<Array<{ month: string; spending: number; income: number; net: number }>>> {
     const endDate = new Date();
     const startDate = new Date();
@@ -561,7 +561,7 @@ class BankingApiService {
 
   // Real-time sync connection helper
   // Banking sync now uses the unified crypto SSE stream
-  async createSyncEventSource(onMessage?: (event: MessageEvent) => void): Promise<EventSource> {
+  async createSyncEventSource(_onMessage?: (event: MessageEvent) => void): Promise<EventSource> {
     console.log('Banking sync: Using unified crypto SSE stream instead of separate banking stream');
     // Banking events are now handled by the unified crypto SSE connection
     // This method is kept for compatibility but doesn't create actual connections

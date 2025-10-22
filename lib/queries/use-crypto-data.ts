@@ -18,22 +18,15 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  type UseQueryResult,
-  type UseMutationResult,
 } from '@tanstack/react-query';
-import { cryptoApi } from '@/lib/services/crypto-api';
 import { cryptoKeys, cryptoQueries, cryptoMutations } from './crypto-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useCryptoUIStore } from '@/lib/stores/crypto-ui-store';
 import type {
   CryptoWallet,
-  CreateWalletRequest,
-  UpdateWalletRequest,
   PortfolioParams,
   TransactionParams,
   NFTParams,
-  SyncRequest,
-  ApiResponse,
 } from '@/lib/types/crypto';
 
 // ============================================================================
@@ -265,7 +258,7 @@ export function useWalletSyncStatus(walletId: string | null, jobId?: string) {
  * @param params - Analytics parameters
  * @returns Analytics data
  */
-export function useCryptoAnalytics(params?: any) {
+export function useCryptoAnalytics(params?: Record<string, unknown>) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -294,15 +287,15 @@ export function useCreateCryptoWallet() {
         closeCreateWalletModal();
 
         // Optimistic UI update
-        queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => {
-          if (!old?.data) return old;
+        queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+          if (!old || typeof old !== 'object' || !('data' in old)) return old;
           return {
             ...old,
-            data: [...old.data, response.data],
+            data: [...(old.data as CryptoWallet[]), response.data],
           };
         });
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, {} as CreateWalletRequest, undefined);
     },
   });
 }
@@ -328,20 +321,20 @@ export function useUpdateCryptoWallet() {
       const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
 
       // Optimistically update wallet
-      queryClient.setQueryData(cryptoKeys.wallet(id), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(cryptoKeys.wallet(id), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: { ...old.data, ...updates },
+          data: { ...(old.data as CryptoWallet), ...updates },
         };
       });
 
       // Optimistically update wallet list
-      queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.map((w: CryptoWallet) =>
+          data: (old.data as CryptoWallet[]).map((w: CryptoWallet) =>
             w.id === id ? { ...w, ...updates } : w
           ),
         };
@@ -362,7 +355,7 @@ export function useUpdateCryptoWallet() {
       if (response.success) {
         closeEditWalletModal();
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, { id: '', updates: {} as UpdateWalletRequest }, undefined);
     },
   });
 }
@@ -386,11 +379,11 @@ export function useDeleteCryptoWallet() {
       const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
 
       // Optimistically remove wallet
-      queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.filter((w: CryptoWallet) => w.id !== walletId),
+          data: (old.data as CryptoWallet[]).filter((w: CryptoWallet) => w.id !== walletId),
         };
       });
 
@@ -407,7 +400,7 @@ export function useDeleteCryptoWallet() {
         closeDeleteWalletModal();
         selectWallet(null); // Deselect if deleted
       }
-      mutation.onSuccess?.(response, walletId, undefined as any);
+      mutation.onSuccess?.(response, walletId, undefined);
     },
   });
 }
@@ -430,7 +423,7 @@ export function useSyncCryptoWallet() {
       if (response.success) {
         closeSyncModal();
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, {} as SyncRequest, undefined);
     },
   });
 }

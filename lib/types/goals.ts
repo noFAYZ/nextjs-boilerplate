@@ -1,4 +1,6 @@
-import type { ApiResponse, PaginationInfo } from './crypto';
+import type { PaginationInfo } from './crypto';
+
+export type { ApiResponse } from './crypto';
 
 // Enums
 export type GoalType =

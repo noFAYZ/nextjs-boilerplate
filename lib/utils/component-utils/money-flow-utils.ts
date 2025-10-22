@@ -14,17 +14,16 @@ export interface SankeyNode {
   }
 
 interface FlowDataInputs {
-  transactionsResponse?: any;
-  accountsResponse?: any;
-  cryptoWalletsResponse?: any;
-  subscriptionsResponse?: any;
+  transactionsResponse?: { data: unknown[] } | unknown[];
+  accountsResponse?: { data: unknown[] } | unknown[];
+  cryptoWalletsResponse?: unknown[];
+  subscriptionsResponse?: { data: unknown[] };
 }
 
 export function calculateMoneyFlow({
   transactionsResponse,
   accountsResponse,
   cryptoWalletsResponse,
-  subscriptionsResponse,
 }: FlowDataInputs) {
   if (!transactionsResponse || !accountsResponse) {
     return { nodes: [], links: [], totalBankMoney: 0, totalCryptoMoney: 0, totalExpenses: 0 };
@@ -37,7 +36,6 @@ export function calculateMoneyFlow({
     ? accountsResponse
     : accountsResponse?.data || [];
   const cryptoWallets = cryptoWalletsResponse || [];
-  const subscriptions = subscriptionsResponse?.data || [];
 
   let totalBankMoney = 0;
   let totalCryptoMoney = 0;
@@ -80,11 +78,7 @@ export function calculateMoneyFlow({
     }
   });
 
-  const svgWidth = 1000;
-  const svgHeight = 400;
   const nodeWidth = 40;
-  const columnSpacing = 310;
-  const nodePadding = 25;
 
   const nodes: SankeyNode[] = [];
   const links: SankeyLink[] = [];

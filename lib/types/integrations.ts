@@ -68,7 +68,7 @@ export interface Integration {
   provider: IntegrationProvider;
   status: IntegrationStatus;
   providerAccountId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   lastSyncAt?: string;
   lastSyncStatus?: SyncStatus;
   syncFrequency?: SyncFrequency;
@@ -88,8 +88,8 @@ export interface IntegrationSyncLog {
   itemsFailed: number;
   progress: number;
   currentStep?: string;
-  errors?: any[];
-  metadata?: Record<string, any>;
+  errors?: Array<{ code: string; message: string; details?: string }>;
+  metadata?: Record<string, unknown>;
   startedAt: string;
   completedAt?: string;
   duration?: number;
@@ -114,7 +114,7 @@ export interface ProviderHealth {
 export interface QuickBooksCompanyInfo {
   CompanyName: string;
   LegalName?: string;
-  CompanyAddr?: Record<string, any>;
+  CompanyAddr?: Record<string, string | number>;
   Country?: string;
   FiscalYearStartMonth?: string;
   Email?: string;
@@ -177,7 +177,7 @@ export interface QuickBooksInvoice {
     Id: string;
     Amount: number;
     Description?: string;
-    SalesItemLineDetail?: any;
+    SalesItemLineDetail?: Record<string, unknown>;
   }>;
   EmailStatus?: string;
   BillEmail?: { Address: string };
@@ -186,7 +186,7 @@ export interface QuickBooksInvoice {
 // API Request/Response Types
 export interface ConnectIntegrationRequest {
   provider: IntegrationProvider;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ConnectIntegrationResponse {
@@ -204,7 +204,7 @@ export interface IntegrationConnectionStatus {
   syncFrequency?: SyncFrequency;
   autoSync: boolean;
   connectedAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SyncIntegrationRequest {
@@ -338,7 +338,7 @@ export interface IntegrationError {
   provider?: IntegrationProvider;
   statusCode?: number;
   retryable?: boolean;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Circuit Breaker State
@@ -365,7 +365,7 @@ export interface WebhookEvent {
   id: string;
   provider: IntegrationProvider;
   eventType: string;
-  payload: any;
+  payload: Record<string, unknown>;
   signature: string;
   timestamp: string;
   processed: boolean;

@@ -296,11 +296,11 @@ class GoalsApiService {
       ]);
 
       if (!allGoals.success) {
-        return allGoals as ApiResponse<any>;
+        return allGoals as unknown as GetGoalsResponse;
       }
 
       if (!analytics.success) {
-        return analytics as ApiResponse<any>;
+        return analytics as unknown as GetGoalsResponse;
       }
 
       const goals = allGoals.data;

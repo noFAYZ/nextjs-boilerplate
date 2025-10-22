@@ -769,7 +769,7 @@ const timestampzToReadable = (
             "timestampzToReadable: Converted to timezone:",
             targetTimezone,
           );
-      } catch (e) {
+      } catch {
         if (debug)
           console.warn(
             "timestampzToReadable: Timezone conversion failed, using original",
@@ -782,7 +782,6 @@ const timestampzToReadable = (
     const diffMs = now.getTime() - displayDate.getTime();
     const diffHours = Math.abs(diffMs) / (1000 * 60 * 60);
     const isRecent = diffHours <= relativeThreshold;
-    const isFuture = diffMs < 0;
 
     if (debug) {
       console.log("timestampzToReadable: Parsed date:", displayDate);
@@ -1002,7 +1001,6 @@ const parseMatchedTimestamp = (
   }
 
   // Create date object - handle both space and T separators
-  const dateSeparator = match[0].includes("T") ? "T" : " ";
   const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${fractional || ".000"}${tzSign}${tzHours}:${tzMinutes}`;
   const date = new Date(isoString);
 
@@ -1094,7 +1092,7 @@ const formatRelativeTime = (
         return rtf.format(value, unit.name as Intl.RelativeTimeFormatUnit);
       }
     }
-  } catch (e) {
+  } catch {
     if (debug)
       console.warn(
         "formatRelativeTime: Intl.RelativeTimeFormat failed, using fallback",
@@ -1182,7 +1180,7 @@ const formatBusinessReadable = (
     debug?: boolean;
   },
 ): string => {
-  const { showTimezone = false, targetTimezone, debug = false } = options;
+  const { showTimezone = false, targetTimezone } = options;
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1441,7 +1439,7 @@ export const timestampzToChart = (
           ? formatDistanceToNow(date, { addSuffix: true })
           : format(date, "MMM d, h:mm a");
     }
-  } catch (error) {
+  } catch {
     return "Invalid date";
   }
 };

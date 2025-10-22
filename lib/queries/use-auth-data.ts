@@ -116,7 +116,7 @@ export function useUpdateUserProfile() {
   const updateUser = useAuthStore((state) => state.updateUser);
 
   return useMutation({
-    mutationFn: (updates: any) => apiClient.updateUserProfile(updates),
+    mutationFn: (updates: Partial<User>) => apiClient.updateUserProfile(updates),
     onMutate: async (updates) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: authKeys.profile() });
@@ -125,8 +125,8 @@ export function useUpdateUserProfile() {
       const previousProfile = queryClient.getQueryData(authKeys.profile());
 
       // Optimistically update profile
-      queryClient.setQueryData(authKeys.profile(), (old: any) => {
-        if (!old) return old;
+      queryClient.setQueryData(authKeys.profile(), (old: unknown) => {
+        if (!old || typeof old !== 'object') return old;
         return { ...old, ...updates };
       });
 
@@ -144,7 +144,7 @@ export function useUpdateUserProfile() {
     onSuccess: (response) => {
       if (response.success) {
         // Update Zustand store with server response
-        updateUser(response.data as any);
+        updateUser(response.data as Partial<User>);
 
         // Invalidate related queries
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });

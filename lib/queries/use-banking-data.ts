@@ -18,10 +18,7 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  type UseQueryResult,
-  type UseMutationResult,
 } from '@tanstack/react-query';
-import { bankingApi } from '@/lib/services/banking-api';
 import {
   bankingKeys,
   bankingQueries,
@@ -34,10 +31,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBankingUIStore } from '@/lib/stores/banking-ui-store';
 import type {
   BankAccount,
-  CreateBankAccountRequest,
-  UpdateBankAccountRequest,
   BankTransactionParams,
-  BankSyncRequest,
 } from '@/lib/types/banking';
 
 // ============================================================================
@@ -237,7 +231,7 @@ export function useAccountSyncStatus(accountId: string | null, jobId?: string) {
  * @param params - Analytics parameters
  * @returns Top spending categories
  */
-export function useTopSpendingCategories(params?: any) {
+export function useTopSpendingCategories(params?: Record<string, unknown>) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -251,7 +245,7 @@ export function useTopSpendingCategories(params?: any) {
  * @param params - Analytics parameters
  * @returns Monthly spending trend data
  */
-export function useMonthlySpendingTrend(params?: any) {
+export function useMonthlySpendingTrend(params?: Record<string, unknown>) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -265,7 +259,7 @@ export function useMonthlySpendingTrend(params?: any) {
  * @param params - Analytics parameters
  * @returns Account comparison data
  */
-export function useAccountSpendingComparison(params?: any) {
+export function useAccountSpendingComparison(params?: Record<string, unknown>) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -279,7 +273,7 @@ export function useAccountSpendingComparison(params?: any) {
  * @param params - Analytics parameters
  * @returns Category spending data
  */
-export function useSpendingByCategory(params?: any) {
+export function useSpendingByCategory(params?: Record<string, unknown>) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -308,15 +302,15 @@ export function useConnectBankAccount() {
         closeConnectAccountModal();
 
         // Optimistic UI update
-        queryClient.setQueryData(bankingKeys.accounts(), (old: any) => {
-          if (!old?.data) return old;
+        queryClient.setQueryData(bankingKeys.accounts(), (old: unknown) => {
+          if (!old || typeof old !== 'object' || !('data' in old)) return old;
           return {
             ...old,
-            data: [...old.data, ...response.data],
+            data: [...(old.data as BankAccount[]), ...response.data],
           };
         });
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, {} as CreateBankAccountRequest, undefined);
     },
   });
 }
@@ -342,20 +336,20 @@ export function useUpdateBankAccount() {
       const previousAccounts = queryClient.getQueryData(bankingKeys.accounts());
 
       // Optimistically update account
-      queryClient.setQueryData(bankingKeys.account(id), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(bankingKeys.account(id), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: { ...old.data, ...updates },
+          data: { ...(old.data as BankAccount), ...updates },
         };
       });
 
       // Optimistically update account list
-      queryClient.setQueryData(bankingKeys.accounts(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(bankingKeys.accounts(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.map((acc: BankAccount) =>
+          data: (old.data as BankAccount[]).map((acc: BankAccount) =>
             acc.id === id ? { ...acc, ...updates } : acc
           ),
         };
@@ -376,7 +370,7 @@ export function useUpdateBankAccount() {
       if (response.success) {
         closeEditAccountModal();
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, { id: '', updates: {} as UpdateBankAccountRequest }, undefined);
     },
   });
 }
@@ -400,11 +394,11 @@ export function useDisconnectBankAccount() {
       const previousAccounts = queryClient.getQueryData(bankingKeys.accounts());
 
       // Optimistically remove account
-      queryClient.setQueryData(bankingKeys.accounts(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(bankingKeys.accounts(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.filter((acc: BankAccount) => acc.id !== accountId),
+          data: (old.data as BankAccount[]).filter((acc: BankAccount) => acc.id !== accountId),
         };
       });
 
@@ -421,7 +415,7 @@ export function useDisconnectBankAccount() {
         closeDisconnectAccountModal();
         selectAccount(null); // Deselect if disconnected
       }
-      mutation.onSuccess?.(response, accountId, undefined as any);
+      mutation.onSuccess?.(response, accountId, undefined);
     },
   });
 }
@@ -444,7 +438,7 @@ export function useSyncBankAccount() {
       if (response.success) {
         closeSyncModal();
       }
-      mutation.onSuccess?.(response, {} as any, undefined as any);
+      mutation.onSuccess?.(response, {} as BankSyncRequest, undefined);
     },
   });
 }
@@ -490,20 +484,20 @@ export function useDeleteBankEnrollment() {
       const previousAccounts = queryClient.getQueryData(bankingKeys.accounts());
 
       // Optimistically remove enrollment
-      queryClient.setQueryData(bankingKeys.enrollments(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(bankingKeys.enrollments(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.filter((enr: any) => enr.id !== enrollmentId),
+          data: (old.data as Array<{ id: string }>).filter((enr) => enr.id !== enrollmentId),
         };
       });
 
       // Optimistically remove associated accounts
-      queryClient.setQueryData(bankingKeys.accounts(), (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(bankingKeys.accounts(), (old: unknown) => {
+        if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
-          data: old.data.filter((acc: BankAccount) => acc.tellerEnrollmentId !== enrollmentId),
+          data: (old.data as BankAccount[]).filter((acc: BankAccount) => acc.tellerEnrollmentId !== enrollmentId),
         };
       });
 
@@ -522,7 +516,7 @@ export function useDeleteBankEnrollment() {
       if (response.success) {
         selectEnrollment(null); // Deselect if deleted
       }
-      mutation.onSuccess?.(response, enrollmentId, undefined as any);
+      mutation.onSuccess?.(response, enrollmentId, undefined);
     },
   });
 }

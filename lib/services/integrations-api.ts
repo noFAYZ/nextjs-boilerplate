@@ -184,7 +184,7 @@ class IntegrationsApiService {
   /**
    * Get QuickBooks bills
    */
-  async getQuickBooksBills(params?: TransactionQueryParams): Promise<ApiResponse<{ bills: any[]; count: number }>> {
+  async getQuickBooksBills(params?: TransactionQueryParams): Promise<ApiResponse<{ bills: QuickBooksTransaction[]; count: number }>> {
     const searchParams = new URLSearchParams();
 
     if (params?.page) searchParams.set('page', params.page.toString());
@@ -402,7 +402,13 @@ class IntegrationsApiService {
     const integrationsResponse = await this.getUserIntegrations();
 
     if (!integrationsResponse.success) {
-      return integrationsResponse as any;
+      return integrationsResponse as ApiResponse<{
+        totalIntegrations: number;
+        connectedIntegrations: number;
+        pendingIntegrations: number;
+        errorIntegrations: number;
+        providers: Record<IntegrationProvider, Integration | null>;
+      }>;
     }
 
     const integrations = integrationsResponse.data.integrations;
