@@ -18,7 +18,7 @@ import { PortfolioSyncProvider } from "./portfolio-sync-provider";
 import { BankingSyncProvider } from "./banking-sync-provider";
 
 export default function Providers({ children }: { children: ReactNode }) {
-  return (<GlobalErrorHandler>
+  return (
     <ErrorBoundary>
       <AuthProvider>
         <LoadingProvider>
@@ -57,6 +57,6 @@ export default function Providers({ children }: { children: ReactNode }) {
           </QueryProvider>
         </LoadingProvider>
       </AuthProvider>
-    </ErrorBoundary></GlobalErrorHandler>
+    </ErrorBoundary>
   )
 }
