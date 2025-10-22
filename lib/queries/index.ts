@@ -227,3 +227,59 @@ export {
   settingsMutations,
   useInvalidateSettingsQueries,
 } from './settings-queries';
+
+// ============================================================================
+// GOAL DATA HOOKS
+// ============================================================================
+
+export {
+  // Goal Queries
+  useGoals,
+  useGoal,
+  useGoalAnalytics,
+  useActiveGoals,
+  useOnTrackGoals,
+  useUrgentGoals,
+
+  // Goal Mutations
+  useCreateGoal,
+  useUpdateGoal,
+  useDeleteGoal,
+  useCalculateGoalProgress,
+  useAddContribution,
+
+  // Utilities
+  useInvalidateGoalCache,
+  useGoalSummary,
+  goalKeys,
+} from './use-goal-data';
+
+// ============================================================================
+// SUBSCRIPTION DATA HOOKS
+// ============================================================================
+
+export {
+  // Subscription Queries
+  useSubscriptions,
+  useSubscription,
+  useSelectedSubscription,
+  useSubscriptionAnalytics,
+
+  // Subscription Mutations
+  useCreateSubscription,
+  useUpdateSubscription,
+  useDeleteSubscription,
+  useAddCharge,
+  useDetectSubscriptions,
+
+  // Utilities
+  useInvalidateSubscriptionCache,
+  usePrefetchSubscriptionData,
+  useSubscriptionSummary,
+} from './use-subscription-data';
+
+export {
+  subscriptionKeys,
+  subscriptionQueries,
+  subscriptionMutations,
+} from './subscription-queries';

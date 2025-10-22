@@ -25,9 +25,15 @@ import {
   NetworkDistributionWidget,
   SpendingCategoriesWidget,
   MonthlySpendingTrendWidget,
+  GoalsOverviewWidget,
+  SubscriptionsOverviewWidget,
+  UpcomingBillsWidget,
+  RecentActivityWidget,
+
 } from '@/components/dashboard-widgets';
 import { DuoIconsBank, FluentBuildingBank28Regular, HugeiconsPuzzle, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
 import { IconParkTwotoneSettingTwo, LetsIconsSettingLineDuotone } from '@/components/icons';
+import MoneyFlowWidget from '@/components/dashboard-widgets/money-flow-widget';
 
 export default function DashboardPage() {
   const user = useAuthStore(selectUser);
@@ -175,14 +181,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Crypto Portfolio Section */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-4">
           <CryptoAllocationWidget />
           <NetworkDistributionWidget />
+          <GoalsOverviewWidget />
+          <SubscriptionsOverviewWidget />
         </div>
 
-      
+        <MoneyFlowWidget />
+        {/* Bills & Activity Section */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <UpcomingBillsWidget />
+          <RecentActivityWidget />
+        </div>
 
-    
       </div>
     </div>
   );

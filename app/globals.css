@@ -43,6 +43,16 @@
   --tracking-normal: -0.025em;
   --spacing: 0.25rem;
 
+  --shadow-x: 0px;
+  --shadow-y: 3px;
+  --shadow-blur: 4.5px;
+  --shadow-spread: -1.5px;
+  --shadow-opacity: 0.86;
+  --shadow-color: #c7c7c7;
+  --shadow-2xs: 0px 3px 4.5px -1.5px hsl(0 0% 78.0392% / 0.43);
+  --shadow-xs: 0px 3px 4.5px -1.5px hsl(0 0% 78.0392% / 0.43);
+
+
 }
 
 .dark {
@@ -86,6 +96,8 @@
 
   --tracking-normal: -0.025em;
   --spacing: 0.25rem;
+
+
 
   
 
@@ -333,6 +345,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased ;
+    scroll-behavior: smooth;
   }
 }
 
@@ -1102,4 +1115,14 @@
 .clss-1 {
   fill: #0c64c4;
   stroke-width: 0px;
+}
+/* Landing Page Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
 }

@@ -48,6 +48,8 @@ import { AddWalletModal } from '@/components/crypto/AddWalletModal';
 import { SyncStatusIndicator } from '@/components/crypto/SyncStatusIndicator';
 import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
 import { LogoLoader } from '@/components/icons';
+import { ZERION_CHAINS } from '@/lib/constants/chains';
+import { ChainBadge } from '@/components/crypto/ui/ChainBadge';
 
 interface WalletCardProps {
   wallet: CryptoWallet;
@@ -133,7 +135,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
 
           {/* Compact Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+            <div className="h-10 w-10 bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
               <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
             </div>
             <button
@@ -152,9 +154,9 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium truncate">{wallet.name}</h3>
-              <Badge className={cn("text-xs px-2 py-0.5", getNetworkColor())}>
-                {wallet.network}
-              </Badge>
+            
+      <ChainBadge network={wallet.network} size={16}  />
+      
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="font-mono">

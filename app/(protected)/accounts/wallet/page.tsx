@@ -45,10 +45,12 @@ import {
   StreamlineFreehandCryptoCurrencyUsdCoin,
   StreamlineUltimateCryptoCurrencyBitcoinDollarExchange,
   SolarWalletMoneyLinear,
+  SolarGalleryOutline,
 } from "@/components/icons/icons";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { LetsIconsSettingLineDuotone, LogoLoader } from "@/components/icons";
+import { CryptoAllocationWidget, NetworkDistributionWidget } from "@/components/dashboard-widgets";
 
 function WalletLoadingState() {
   return (
@@ -103,13 +105,27 @@ export default function AggregatedWalletPage() {
 
     const summary = aggregatedData.summary;
 
-    // Find best performing asset (highest positive change24h)
-    const bestPerformingAsset = portfolioData?.topAssets?.length
-      ? [...portfolioData.topAssets].sort((a, b) => (b.change24h || 0) - (a.change24h || 0))[0]
-      : null;
+    // Find top 5 best performing assets (highest positive change24h)
+    const topPerformingAssets = portfolioData?.topAssets?.length
+      ? [...portfolioData.topAssets]
+          .sort((a, b) => (b.change24h || 0) - (a.change24h || 0))
+          .slice(0, 3)
+          .map(asset => ({
+            symbol: asset.symbol,
+            name: asset.name,
+            change24h: asset.change24h,
+            balanceUsd: asset.balanceUsd,
+            logoUrl: asset.logoUrl,
+          }))
+      : [];
 
-    // Get top network (first in networkDistribution, already sorted by value)
-    const topNetwork = portfolioData?.networkDistribution?.[0];
+    // Get top 5 networks (already sorted by value)
+    const topNetworks = portfolioData?.networkDistribution?.slice(0, 3).map(network => ({
+      network: network.network,
+      valueUsd: network.valueUsd,
+      percentage: network.percentage,
+      assetCount: network.assetCount,
+    })) || [];
 
     return {
       totalValue: portfolioData?.totalValueUsd || 0,
@@ -120,23 +136,9 @@ export default function AggregatedWalletPage() {
       dayChange: portfolioData?.dayChange || 0,
       dayChangePct: portfolioData?.dayChangePct || 0,
       totalDeFiValue: portfolioData?.totalDeFiValue || 0,
-      bestPerformingAsset: bestPerformingAsset
-        ? {
-            symbol: bestPerformingAsset.symbol,
-            name: bestPerformingAsset.name,
-            change24h: bestPerformingAsset.change24h,
-            balanceUsd: bestPerformingAsset.balanceUsd,
-            logoUrl: bestPerformingAsset.logoUrl,
-          }
-        : null,
-      topNetwork: topNetwork
-        ? {
-            network: topNetwork.network,
-            valueUsd: topNetwork.valueUsd,
-            percentage: topNetwork.percentage,
-            assetCount: topNetwork.assetCount,
-          }
-        : null,
+      totalAssetsValue: portfolioData?.totalAssetsValue || 0,
+      topPerformingAssets,
+      topNetworks,
     };
   }, [aggregatedData, portfolioData]);
 
@@ -183,231 +185,324 @@ export default function AggregatedWalletPage() {
 
   return (
     <div className=" mx-auto p-4 lg:p-6 space-y-6">
+   {/* Header Row */}
+        <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6 p-4">
+          {/* Left: Title & Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/15 flex items-center justify-center  shadow-sm flex-shrink-0">
+              <SolarWalletMoneyBoldDuotone className="h-6 w-6 text-primary" />
+            </div>
 
+            <div className="flex flex-col">
+              <h1 className="text-md font-bold tracking-tight text-foreground">
+                Portfolio Overview
+              </h1>
+              <p className="text-xs text-muted-foreground ">
+                Track your crypto holdings across all wallets
+              </p>
+            </div>
+          </div>
 
-      {/* Portfolio Header */}
-<div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 pb-6 border-b border-border/40">
-  {/* Left Section 
-  <div className="flex items-center gap-4">
-    <div className="relative h-12 w-12 rounded-2xl bg-gradient-to-br from-muted/70 to-muted flex items-center justify-center ring-1 ring-border/50 shadow-sm">
-      <SolarWalletMoneyBoldDuotone className="h-6 w-6 text-foreground/80" />
+          {/* Right: Action Buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Link href="/accounts/wallet/manage">
+              <Button
+                variant="outline"
+                size="sm"
+                className=" font-medium border-border/60 hover:border-border"
+              >
+                <LetsIconsSettingLineDuotone className="h-4 w-4 mr-1" />
+                Manage
+              </Button>
+            </Link>
 
-    </div>
+            <Button
+              onClick={handleSync}
+              disabled={isSyncing}
+              size="sm"
+              className=" font-medium"
+            >
+              {isSyncing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                  Syncing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                  Sync All
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
 
-    <div className="flex flex-col">
-      <h1 className="text-xl font-semibold tracking-tight flex items-center gap-2">
-        Portfolio Overview
-        {portfolioStats?.lastUpdated && (
-          <span className="text-xs font-normal text-muted-foreground">
-            (Updated {new Date(portfolioStats.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-          </span>
-        )}
-      </h1>
-      <p className="text-sm text-muted-foreground">
-        Unified view of all your crypto holdings across wallets
-      </p>
-    </div>
-  </div>*/}
+      {/* Integrated Portfolio Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-background via-muted/30 to-background p-4 shadow-lg">
+  
 
-  {/* Right Section */}
-  <div className="flex items-center gap-2">
-    <Link href="/accounts/wallet/manage">
-      <Button
-        variant="outline"
-        size="sm"
-        className="rounded-lg font-medium "
-      >
-        <LetsIconsSettingLineDuotone className="h-4 w-4 mr-1" />
-        Manage
-      </Button>
-    </Link>
+     
 
-    <Button
-      onClick={handleSync}
-      disabled={isSyncing}
-      size="sm"
-      className="rounded-lg font-medium"
-    >
-      {isSyncing ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin mr-1" />
-          Syncing...
-        </>
-      ) : (
-        <>
-          <RefreshCw className="h-4 w-4 mr-1" />
-          Sync All
-        </>
-      )}
-    </Button>
-  </div>
-</div>
-{/* Portfolio Metrics */}
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
-  {/* Hero Metric: Total Portfolio Value */}
-  <div className="relative col-span-1 lg:col-span-2 rounded-2xl border bg-gradient-to-r from-muted/70 to-muted/40 p-4 shadow hover:shadow-md transition-all">
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground ">
-          Total Portfolio Value
-        </h3>
-        <div className="flex items-baseline gap-3">
-          <span className="">
-            <CurrencyDisplay
-              amountUSD={portfolioStats?.totalValue || 0}
-              variant="large"
-          className="text-4xl"
-            />
-          </span>
- 
-
-{portfolioStats && portfolioStats.dayChangePct !== undefined ? (
+        {/* Main Metrics Grid */}
+        <div className="relative w-full flex justify-between gap-2">
+          {/* Total Value - Spans 8 columns on large screens */}
+          <div className="w-full">
+            <div className="flex flex-col h-full">
+              {/* Value Display */}
+              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                      Total Portfolio Value
+                    </p>
+                    {portfolioStats && portfolioStats.dayChangePct !== undefined && (
                       <Badge
+                        variant="soft"
                         className={cn(
-                          "flex items-center justify-end gap-1 rounded-xs",
+                          "flex items-center gap-1",
                           portfolioStats.dayChangePct >= 0
-                            ? "bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30"
-                            : "bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700"
+                            ? "bg-green-500/10 text-green-600 border-green-500/20"
+                            : "bg-red-500/10 text-red-600 border-red-500/20"
                         )}
                       >
                         {portfolioStats.dayChangePct >= 0 ? (
-                          <MageCaretUpFill className="h-4 w-4" />
+                          <MageCaretUpFill className="h-3 w-3" />
                         ) : (
-                          <MageCaretDownFill className="h-4 w-4" />
+                          <MageCaretDownFill className="h-3 w-3" />
                         )}
-                        <span className="font-medium">
+                        <span className="font-semibold text-xs">
                           {Math.abs(portfolioStats.dayChangePct).toFixed(2)}%
                         </span>
                       </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
                     )}
-        </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          <span className={cn(
-                          portfolioStats && portfolioStats.dayChangePct >= 0
-                            ? "bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30"
-                            : "bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700"
-                        )}>+${Math.abs(portfolioStats?.dayChange || 0).toLocaleString()}</span> in the last 24h
-        </p>
-      </div> 
+                  </div>
 
-      {/* Portfolio Trend Chart */}
-      <div className="hidden md:block">
-        {portfolioData?.chart?.dataPoints && portfolioData.chart.dataPoints.length > 1 ? (
-          <div className="h-20 w-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={portfolioData.chart.dataPoints.map(point => ({
-                  timestamp: new Date(point.timestamp).getTime(),
-                  value: point.value,
-                }))}
-                margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
-              >
-                <defs>
-                  <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
-                      stopOpacity={0.3}
+                  <div className="flex items-baseline gap-3 mb-1">
+                    <CurrencyDisplay
+                      amountUSD={portfolioStats?.totalValue || 0}
+                      variant="large"
+                      className="text-5xl font-bold"
                     />
-                    <stop
-                      offset="95%"
-                      stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <YAxis domain={['dataMin', 'dataMax']} hide />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
-                  strokeWidth={2}
-                  fill="url(#portfolioGradient)"
-                  isAnimationActive={true}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div className="hidden md:flex h-20 w-48 items-center justify-center">
-            <p className="text-xs text-muted-foreground">No chart data</p>
-          </div>
-        )}
-      </div>
-    </div>
+                  </div>
 
-    {/* Insight Footer */}
-    <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
-      <div className="flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-blue-500/70" />
-        {portfolioStats?.totalWallets || 0} Wallets Linked
-      </div>
-    
-    </div>
-  </div>
+                  {portfolioStats && (
+                    <p className="text-sm text-muted-foreground">
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          portfolioStats.dayChangePct >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        )}
+                      >
+                        {portfolioStats.dayChangePct >= 0 ? "+" : ""}
+                        ${Math.abs(portfolioStats.dayChange || 0).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </span>{" "}
+                      in the last 24 hours
+                    </p>
+                  )}
+                </div>
 
-  {/* Secondary Stats */}
-  <div className="grid grid-cols-2 gap-3">
-    <div className="rounded-xl border bg-muted/40 p-4">
-      <p className="text-xs text-muted-foreground mb-1">Best Performing Asset</p>
-      {portfolioStats?.bestPerformingAsset ? (
-        <>
-          <div className="flex items-center gap-2 mb-1">
-            {portfolioStats.bestPerformingAsset.logoUrl && (
-              <img
-                src={portfolioStats.bestPerformingAsset.logoUrl}
-                alt={portfolioStats.bestPerformingAsset.symbol}
-                className="h-4 w-4 rounded-full"
-              />
-            )}
-            <p className="font-medium text-sm">
-              {portfolioStats.bestPerformingAsset.symbol}
-            </p>
-          </div>
-          <p
-            className={cn(
-              "text-xs font-semibold",
-              portfolioStats.bestPerformingAsset.change24h > 0
-                ? "text-green-500"
-                : "text-red-500"
-            )}
-          >
-            {portfolioStats.bestPerformingAsset.change24h > 0 ? "+" : ""}
-            {portfolioStats.bestPerformingAsset.change24h.toFixed(2)}%
-          </p>
-        </>
-      ) : (
-        <p className="font-medium text-sm text-muted-foreground">—</p>
-      )}
-    </div>
+                {/* Mini Chart */}
+                <div className="hidden lg:block">
+                  {portfolioData?.chart?.dataPoints && portfolioData.chart.dataPoints.length > 1 ? (
+                    <div className="h-24 w-56">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={portfolioData.chart.dataPoints.map(point => ({
+                            timestamp: new Date(point.timestamp).getTime(),
+                            value: point.value,
+                          }))}
+                          margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+                        >
+                          <defs>
+                            <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop
+                                offset="5%"
+                                stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                                stopOpacity={0.4}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                                stopOpacity={0}
+                              />
+                            </linearGradient>
+                          </defs>
+                          <YAxis domain={['dataMin', 'dataMax']} hide />
+                          <Area
+                            type="monotone"
+                            dataKey="value"
+                            stroke={portfolioStats?.dayChangePct >= 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)"}
+                            strokeWidth={2.5}
+                            fill="url(#portfolioGradient)"
+                            isAnimationActive={true}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
 
-    <div className="rounded-xl border  bg-muted/40 p-4">
-      <p className="text-xs text-muted-foreground mb-1">Top Network</p>
-      {portfolioStats?.topNetwork ? (
-        <>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-4 w-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-[8px] font-bold text-white">
-              {portfolioStats.topNetwork.network.charAt(0)}
+              {/* Portfolio Breakdown Stats */}
+              <div className="flex flex-wrap gap-6  mt-4 ">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Wallet className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold text-foreground">
+                      {portfolioStats?.totalWallets || 0}
+                    </span>
+                    <span className="text-xs text-muted-foreground">Wallets</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center">
+                    <Coins className="h-4 w-4 " />
+                  </div>
+                  <div className="flex flex-col ">
+                    <span className=" text-foreground">
+                      
+                      <CurrencyDisplay amountUSD={portfolioStats?.totalAssetsValue || 0}  className="text-m font-bold" />
+                    </span>
+                    <span className="text-xs text-muted-foreground">{portfolioStats?.totalAssets || 0} Assets</span>
+                  </div>
+                </div>
+
+                {portfolioStats && portfolioStats.totalNFTs > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center">
+                      <SolarGalleryOutline className="h-4 w-4 " />
+                    </div>
+                    <div className="flex flex-col ">
+                      <span className=" text-foreground">
+                         <CurrencyDisplay amountUSD={portfolioStats.totalNFTValue}  className="text-sm font-bold" />
+                      </span>
+                      <span className="text-xs text-muted-foreground">{portfolioStats.totalNFTs} NFTs</span>
+                    </div>
+                  </div>
+                )}
+
+                {portfolioStats && portfolioStats.totalDeFiValue > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-lg font-semibold text-foreground">
+                        <CurrencyDisplay amountUSD={portfolioStats.totalDeFiValue} variant="compact" />
+                      </span>
+                      <span className="text-xs text-muted-foreground">DeFi Value</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="font-medium text-sm">
-              {portfolioStats.topNetwork.network.charAt(0) + portfolioStats.topNetwork.network.slice(1).toLowerCase()}
-            </p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {portfolioStats.topNetwork.percentage.toFixed(1)}% of portfolio
-          </p>
-          <p className="text-xs font-medium text-foreground/80 mt-0.5">
-            <CurrencyDisplay amountUSD={portfolioStats.topNetwork.valueUsd} variant="compact" />
-          </p>
-        </>
+
+          {/* Quick Stats Sidebar - Spans 4 columns on large screens */}
+          <div className="w-full flex gap-2 justify-end">
+              {/* Crypto Portfolio Section */}
+      
+        
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+    {/* Top 5 Performing Assets 
+    <div className="rounded-xl border bg-muted/40 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-muted-foreground">Top Assets</p>
+        <Badge variant="soft" className="text-xs">24h</Badge>
+      </div>
+      {portfolioStats?.topPerformingAssets && portfolioStats.topPerformingAssets.length > 0 ? (
+        <div className="space-y-1">
+          {portfolioStats.topPerformingAssets.map((asset, index) => (
+            <div key={asset.symbol + index} className="flex items-center justify-between group hover:bg-muted/60 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-xs text-muted-foreground font-medium w-4">{index + 1}</span>
+                {asset.logoUrl && (
+                  <img
+                    src={asset.logoUrl}
+                    alt={asset.symbol}
+                    className="h-5 w-5 rounded-full flex-shrink-0"
+                  />
+                )}
+                <div className="flex flex-col min-w-0">
+                  <p className="font-medium text-xs truncate">{asset.symbol}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{asset.name}</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-2">
+                <p
+                  className={cn(
+                    "text-xs font-semibold",
+                    asset.change24h > 0 ? "text-green-500" : "text-red-500"
+                  )}
+                >
+                  {asset.change24h > 0 ? "+" : ""}
+                  {asset.change24h.toFixed(2)}%
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  <CurrencyDisplay amountUSD={asset.balanceUsd} variant="compact" />
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <p className="font-medium text-sm text-muted-foreground">—</p>
+        <p className="text-xs text-muted-foreground text-center py-4">No assets data</p>
       )}
-    </div>
-  </div>
-</div>
+    </div>*/}
+
+    {/* Top 5 Networks
+    <div className="rounded-xl border bg-muted/40 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-muted-foreground">Top Networks</p>
+        <Badge variant="soft" className="text-xs">By Value</Badge>
+      </div>
+      {portfolioStats?.topNetworks && portfolioStats.topNetworks.length > 0 ? (
+        <div className="space-y-1">
+          {portfolioStats.topNetworks.map((network, index) => (
+            <div key={network.network + index} className="flex items-center justify-between group hover:bg-muted/60 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-xs text-muted-foreground font-medium w-4">{index + 1}</span>
+                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
+                  {network.network.charAt(0)}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <p className="font-medium text-xs">
+                    {network.network.charAt(0) + network.network.slice(1).toLowerCase()}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {network.assetCount} asset{network.assetCount !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-2">
+                <p className="text-xs font-semibold text-foreground">
+                  {network.percentage.toFixed(1)}%
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  <CurrencyDisplay amountUSD={network.valueUsd} variant="compact" />
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground text-center py-4">No network data</p>
+      )}
+    </div> */}
+      </div>
 
 
       {/* Main Content Tabs */}

@@ -64,8 +64,12 @@ export const subscriptionQueries = {
     queryFn: () => subscriptionsApi.getSubscriptions(filters),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2, // 2 minutes
-    select: (data: ApiResponse<SubscriptionListResponse>) =>
-      data.success ? data.data : { data: [], pagination: null },
+    select: (data: ApiResponse<SubscriptionListResponse>) => {
+      if (data.success && data.data) {
+        return data.data; // Returns SubscriptionListResponse { data: [], pagination: {} }
+      }
+      return { data: [], pagination: null };
+    },
   }),
 
   /**
@@ -79,8 +83,12 @@ export const subscriptionQueries = {
     queryFn: () => subscriptionsApi.getSubscription(id, options),
     enabled: !!id,
     staleTime: 1000 * 60 * 2, // 2 minutes
-    select: (data: ApiResponse<UserSubscription>) =>
-      data.success ? data.data : null,
+    select: (data: ApiResponse<UserSubscription>) => {
+      if (data.success && data.data) {
+        return data.data; // Returns UserSubscription object
+      }
+      return null;
+    },
   }),
 
   /**
@@ -91,8 +99,12 @@ export const subscriptionQueries = {
     queryFn: () => subscriptionsApi.getAnalytics(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchInterval: 1000 * 60 * 10, // Auto-refresh every 10 minutes
-    select: (data: ApiResponse<SubscriptionAnalytics>) =>
-      data.success ? data.data : null,
+    select: (data: ApiResponse<SubscriptionAnalytics>) => {
+      if (data.success && data.data) {
+        return data.data; // Returns SubscriptionAnalytics object
+      }
+      return null;
+    },
   }),
 };
 
@@ -119,14 +131,11 @@ export const subscriptionMutations = {
           // Optimistically add to cache
           queryClient.setQueryData(
             subscriptionKeys.list({}),
-            (old: ApiResponse<SubscriptionListResponse> | undefined) => {
+            (old: SubscriptionListResponse | undefined) => {
               if (!old?.data) return old;
               return {
                 ...old,
-                data: {
-                  ...old.data,
-                  data: [response.data, ...old.data.data],
-                },
+                data: [response.data, ...old.data],
               };
             }
           );
@@ -166,28 +175,22 @@ export const subscriptionMutations = {
         // Optimistically update detail
         queryClient.setQueryData(
           subscriptionKeys.detail(id),
-          (old: ApiResponse<UserSubscription> | undefined) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: { ...old.data, ...updates },
-            };
+          (old: UserSubscription | null | undefined) => {
+            if (!old) return old;
+            return { ...old, ...updates };
           }
         );
 
         // Optimistically update list
         queryClient.setQueryData(
           subscriptionKeys.list({}),
-          (old: ApiResponse<SubscriptionListResponse> | undefined) => {
+          (old: SubscriptionListResponse | undefined) => {
             if (!old?.data) return old;
             return {
               ...old,
-              data: {
-                ...old.data,
-                data: old.data.data.map((sub: UserSubscription) =>
-                  sub.id === id ? { ...sub, ...updates } : sub
-                ),
-              },
+              data: old.data.map((sub: UserSubscription) =>
+                sub.id === id ? { ...sub, ...updates } : sub
+              ),
             };
           }
         );
@@ -236,16 +239,13 @@ export const subscriptionMutations = {
         // Optimistically remove from list
         queryClient.setQueryData(
           subscriptionKeys.list({}),
-          (old: ApiResponse<SubscriptionListResponse> | undefined) => {
+          (old: SubscriptionListResponse | undefined) => {
             if (!old?.data) return old;
             return {
               ...old,
-              data: {
-                ...old.data,
-                data: old.data.data.filter(
-                  (sub: UserSubscription) => sub.id !== subscriptionId
-                ),
-              },
+              data: old.data.filter(
+                (sub: UserSubscription) => sub.id !== subscriptionId
+              ),
             };
           }
         );

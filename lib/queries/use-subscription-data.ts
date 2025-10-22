@@ -294,7 +294,7 @@ export function useSubscriptionSummary() {
     };
   }
 
-  const subs = subscriptions.data || [];
+  const subs = subscriptions || [];
 
   return {
     total: subs.length,

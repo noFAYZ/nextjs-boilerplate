@@ -35,7 +35,7 @@ export function CryptoAllocationWidget() {
     }
 
     return portfolio.topAssets
-      .slice(0, 6) // Get top 6 tokens
+      .slice(0, 5) // Get top 6 tokens
       .map((asset, index) => ({
         symbol: asset.symbol,
         name: asset.name,

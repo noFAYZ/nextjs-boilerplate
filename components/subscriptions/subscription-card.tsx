@@ -27,6 +27,7 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import type { UserSubscription } from "@/lib/types/subscription"
 import { subscriptionsApi } from "@/lib/services/subscriptions-api"
+import { SolarCheckCircleBoldDuotone } from "../icons/icons"
 
 interface SubscriptionCardProps {
   subscription: UserSubscription
@@ -61,7 +62,7 @@ export function SubscriptionCard({
   const getStatusIcon = () => {
     switch (subscription.status) {
       case "ACTIVE":
-        return <CheckCircle2 className="w-3.5 h-3.5" />
+        return <SolarCheckCircleBoldDuotone className="w-3.5 h-3.5" />
       case "TRIAL":
         return <Clock className="w-3.5 h-3.5" />
       case "CANCELLED":
@@ -162,7 +163,7 @@ export function SubscriptionCard({
       <div className="mt-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-muted-foreground" />
+           
             <span className="font-bold text-lg">
               {subscriptionsApi.formatCurrency(subscription.amount, subscription.currency)}
             </span>

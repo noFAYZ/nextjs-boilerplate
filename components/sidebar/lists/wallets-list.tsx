@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-import { SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
+import { SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
+import { ChainBadge } from '@/components/crypto/ui/ChainBadge';
 
 interface SidebarWalletsListProps {
   onMobileClose: () => void;
@@ -98,12 +99,12 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   if (wallets.length === 0) {
     return (
       <div className="text-center py-8 px-4">
-        <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3">
-          <StreamlineFlexWallet className="h-5 w-5 text-muted-foreground" />
+        <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center mx-auto mb-3">
+          <SolarWalletMoneyLinear className="h-6 w-6 text-muted-foreground" stroke='2' />
         </div>
         <p className="text-xs text-muted-foreground mb-4">No wallets connected</p>
         <Button size="xs" onClick={handleAddWallet} className="w-fit">
-          <Plus className="w-3.5 h-3.5 mr-1.5" />
+          <Plus className="w-3.5 h-3.5 mr-1" />
           Add Wallet
         </Button>
       </div>
@@ -143,7 +144,7 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
               key={wallet.id}
               onClick={() => handleWalletClick(wallet.id)}
               className={cn(
-                "group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer p-3"
+                "group border bg-muted/50 rounded-xl hover:bg-muted/70 transition-colors duration-75 cursor-pointer p-3"
               )}
             >
               <div className="flex items-start gap-3 mb-3">
@@ -164,9 +165,8 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium text-sm truncate">{wallet.name}</h3>
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                      {wallet.network}
-                    </Badge>
+                  
+                    <ChainBadge network={wallet.network}   />
                   </div>
 
                   {/* Address with Actions */}
