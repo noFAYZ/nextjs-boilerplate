@@ -5,11 +5,9 @@
  * - All API calls go through this service
  * - Never called directly from components (use TanStack Query hooks)
  * - Provides type-safe API methods
- * - Automatically enriches subscriptions with logos from logo.dev
  */
 
 import { apiClient } from '@/lib/api-client';
-import { logoService } from '@/lib/services/logo-service';
 import type { ApiResponse } from '@/lib/types';
 import type {
   UserSubscription,
@@ -68,14 +66,7 @@ class SubscriptionsApi {
       ? `${this.BASE_PATH}?${queryString}`
       : this.BASE_PATH;
 
-    const response = await apiClient.get<SubscriptionListResponse>(endpoint);
-
-    // Enrich subscriptions with logo URLs from logo.dev
-    if (response.success && response.data?.data) {
-      response.data.data = logoService.batchEnrichSubscriptions(response.data.data);
-    }
-
-    return response;
+    return apiClient.get<SubscriptionListResponse>(endpoint);
   }
 
   /**
@@ -97,14 +88,7 @@ class SubscriptionsApi {
       ? `${this.BASE_PATH}/${id}?${queryString}`
       : `${this.BASE_PATH}/${id}`;
 
-    const response = await apiClient.get<UserSubscription>(endpoint);
-
-    // Enrich subscription with logo URL from logo.dev
-    if (response.success && response.data) {
-      response.data = logoService.enrichSubscriptionWithLogo(response.data);
-    }
-
-    return response;
+    return apiClient.get<UserSubscription>(endpoint);
   }
 
   /**
@@ -113,26 +97,7 @@ class SubscriptionsApi {
   async createSubscription(
     data: CreateSubscriptionRequest
   ): Promise<ApiResponse<UserSubscription>> {
-    // Auto-generate logoUrl from websiteUrl if not provided
-    const enrichedData: CreateSubscriptionRequest = {
-      ...data,
-    };
-
-    if (data.websiteUrl && !data.logoUrl) {
-      const generatedLogoUrl = logoService.getDefaultLogoUrl(data.websiteUrl);
-      if (generatedLogoUrl) {
-        enrichedData.logoUrl = generatedLogoUrl;
-      }
-    }
-
-    const response = await apiClient.post<UserSubscription>(this.BASE_PATH, enrichedData);
-
-    // Enrich response with logo URL from logo.dev
-    if (response.success && response.data) {
-      response.data = logoService.enrichSubscriptionWithLogo(response.data);
-    }
-
-    return response;
+    return apiClient.post<UserSubscription>(this.BASE_PATH, data);
   }
 
   /**
@@ -142,29 +107,7 @@ class SubscriptionsApi {
     id: string,
     updates: UpdateSubscriptionRequest
   ): Promise<ApiResponse<UserSubscription>> {
-    // Auto-generate logoUrl from websiteUrl if websiteUrl is being updated
-    const enrichedUpdates: UpdateSubscriptionRequest = {
-      ...updates,
-    };
-
-    if (updates.websiteUrl && !updates.logoUrl) {
-      const generatedLogoUrl = logoService.getDefaultLogoUrl(updates.websiteUrl);
-      if (generatedLogoUrl) {
-        enrichedUpdates.logoUrl = generatedLogoUrl;
-      }
-    }
-
-    const response = await apiClient.put<UserSubscription>(
-      `${this.BASE_PATH}/${id}`,
-      enrichedUpdates
-    );
-
-    // Enrich response with logo URL from logo.dev
-    if (response.success && response.data) {
-      response.data = logoService.enrichSubscriptionWithLogo(response.data);
-    }
-
-    return response;
+    return apiClient.put<UserSubscription>(`${this.BASE_PATH}/${id}`, updates);
   }
 
   /**
@@ -191,16 +134,7 @@ class SubscriptionsApi {
    * Get subscription analytics
    */
   async getAnalytics(): Promise<ApiResponse<SubscriptionAnalytics>> {
-    const response = await apiClient.get<SubscriptionAnalytics>(`${this.BASE_PATH}/analytics`);
-
-    // Enrich top expensive subscriptions with logo URLs
-    if (response.success && response.data?.topExpensiveSubscriptions) {
-      response.data.topExpensiveSubscriptions = logoService.batchEnrichSubscriptions(
-        response.data.topExpensiveSubscriptions as unknown as Array<{ websiteUrl?: string; logoUrl?: string }>
-      ) as unknown as typeof response.data.topExpensiveSubscriptions;
-    }
-
-    return response;
+    return apiClient.get<SubscriptionAnalytics>(`${this.BASE_PATH}/analytics`);
   }
 
   /**

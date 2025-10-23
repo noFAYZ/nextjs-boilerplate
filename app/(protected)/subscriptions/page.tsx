@@ -94,7 +94,7 @@ export default function SubscriptionsPage() {
 
 
   return (
-    <div className=" mx-auto flex-1 space-y-6 p-6">
+    <div className="max-5xl mx-auto flex-1 space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

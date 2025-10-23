@@ -236,13 +236,24 @@ export const subscriptionMutations = {
         // Snapshot previous list
         const previousList = queryClient.getQueryData(subscriptionKeys.list({}));
 
-        // DON'T remove from list yet - let the UI store handle the deleting state
-        // The subscription will show a skeleton while deleting
+        // Optimistically remove from list
+        queryClient.setQueryData(
+          subscriptionKeys.list({}),
+          (old: SubscriptionListResponse | undefined) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.filter(
+                (sub: UserSubscription) => sub.id !== subscriptionId
+              ),
+            };
+          }
+        );
 
         return { previousList };
       },
       onError: (_error, _subscriptionId, context) => {
-        // Rollback on error (though we didn't change anything in onMutate)
+        // Rollback on error
         if (context?.previousList) {
           queryClient.setQueryData(subscriptionKeys.list({}), context.previousList);
         }
@@ -253,20 +264,6 @@ export const subscriptionMutations = {
           queryClient.removeQueries({
             queryKey: subscriptionKeys.detail(subscriptionId),
           });
-
-          // NOW remove from list after successful deletion
-          queryClient.setQueryData(
-            subscriptionKeys.list({}),
-            (old: SubscriptionListResponse | undefined) => {
-              if (!old?.data) return old;
-              return {
-                ...old,
-                data: old.data.filter(
-                  (sub: UserSubscription) => sub.id !== subscriptionId
-                ),
-              };
-            }
-          );
 
           // Invalidate all subscription queries
           queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });

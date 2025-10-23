@@ -28,9 +28,6 @@ interface SubscriptionUIState {
   // Selection State
   selectedSubscriptionId: string | null;
 
-  // Deletion State
-  deletingSubscriptionIds: string[];
-
   // Filter State
   filters: {
     categories: SubscriptionCategory[];
@@ -74,10 +71,6 @@ interface SubscriptionUIState {
 interface SubscriptionUIActions {
   // Selection Actions
   selectSubscription: (subscriptionId: string | null) => void;
-
-  // Deletion Actions
-  setDeletingSubscription: (subscriptionId: string) => void;
-  clearDeletingSubscription: (subscriptionId: string) => void;
 
   // Filter Actions
   setCategoryFilter: (categories: SubscriptionCategory[]) => void;
@@ -128,9 +121,6 @@ type SubscriptionUIStore = SubscriptionUIState & SubscriptionUIActions;
 const initialState: SubscriptionUIState = {
   // Selection
   selectedSubscriptionId: null,
-
-  // Deletion
-  deletingSubscriptionIds: [],
 
   // Filters
   filters: {
@@ -187,31 +177,6 @@ export const useSubscriptionUIStore = create<SubscriptionUIStore>()(
             },
             false,
             'subscription-ui/selectSubscription'
-          ),
-
-        // ================================================================
-        // DELETION ACTIONS
-        // ================================================================
-        setDeletingSubscription: (subscriptionId) =>
-          set(
-            (state) => {
-              if (!state.deletingSubscriptionIds.includes(subscriptionId)) {
-                state.deletingSubscriptionIds.push(subscriptionId);
-              }
-            },
-            false,
-            'subscription-ui/setDeletingSubscription'
-          ),
-
-        clearDeletingSubscription: (subscriptionId) =>
-          set(
-            (state) => {
-              state.deletingSubscriptionIds = state.deletingSubscriptionIds.filter(
-                (id) => id !== subscriptionId
-              );
-            },
-            false,
-            'subscription-ui/clearDeletingSubscription'
           ),
 
         // ================================================================

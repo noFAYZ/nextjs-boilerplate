@@ -51,6 +51,8 @@ const badgeVariants = cva(
           "border-transparent bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-yellow-900 shadow-lg [a&]:hover:shadow-xl [a&]:hover:from-yellow-500 [a&]:hover:to-yellow-700",
         pro:
           "border-transparent bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600 text-white shadow-lg [a&]:hover:shadow-xl",
+          max:
+          "border-transparent bg-gradient-to-r from-orange-500/70 via-amber-600/70 to-pink-600/70 text-white shadow-lg [a&]:hover:shadow-xl",
         new:
           "border-transparent bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-sm animate-pulse [a&]:hover:animate-none [a&]:hover:from-pink-600 [a&]:hover:to-rose-600",
 

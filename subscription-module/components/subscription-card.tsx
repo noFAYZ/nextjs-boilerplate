@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import {
   Calendar,
   Clock,
@@ -16,8 +15,7 @@ import type { UserSubscription } from "@/lib/types/subscription"
 import { subscriptionsApi } from "@/lib/services/subscriptions-api"
 import { SolarCheckCircleBoldDuotone } from "../icons/icons"
 import { getLogoUrl } from "@/lib/services/logo-service"
-import { SubscriptionCardSkeleton } from "./subscription-card-skeleton"
-import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store"
+import { SubscriptionDetailsModal } from "./subscription-details-modal"
 
 interface SubscriptionCardProps {
   subscription: UserSubscription
@@ -32,16 +30,9 @@ export function SubscriptionCard({
   onDelete,
   onClick,
 }: SubscriptionCardProps) {
-  const router = useRouter()
-  const deletingSubscriptionIds = useSubscriptionUIStore((state) => state.deletingSubscriptionIds)
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
 
-  // Check if this subscription is being deleted
-  const isDeleting = deletingSubscriptionIds.includes(subscription.id)
-
-  // Show skeleton if deleting
-  if (isDeleting) {
-    return <SubscriptionCardSkeleton />
-  }
+  console.log(subscription)
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "—"
@@ -77,8 +68,8 @@ export function SubscriptionCard({
   }
 
   const handleCardClick = () => {
+    setIsModalOpen(true)
     onClick?.(subscription)
-    router.push(`/subscriptions/${subscription.id}`)
   }
 
   return (
@@ -160,6 +151,15 @@ export function SubscriptionCard({
           </div>
         </div>
       </Card>
+
+      {/* Details Modal */}
+      <SubscriptionDetailsModal
+        subscription={subscription}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
     </>
   )
 }

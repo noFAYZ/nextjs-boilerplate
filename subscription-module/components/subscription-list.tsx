@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Loader2, Inbox } from "lucide-react";
 import { SubscriptionCard } from "./subscription-card";
-import { SubscriptionsDataTable } from "./subscriptions-data-table";
 import { useSubscriptions } from "@/lib/queries/use-subscription-data";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import type { UserSubscription } from "@/lib/types/subscription";
@@ -44,11 +43,6 @@ export function SubscriptionList({
     return allSubscriptions;
   }, [allSubscriptions, activeTab]);
 
-  // Calculate total monthly spend
-  const totalMonthlySpend = React.useMemo(() => {
-    return subscriptions.reduce((total, sub) => total + (sub.monthlyEquivalent || 0), 0);
-  }, [subscriptions]);
-
   // NOW WE CAN DO CONDITIONAL RETURNS
   if (isLoading) {
     return (
@@ -85,23 +79,11 @@ export function SubscriptionList({
     );
   }
 
-  // Use datatable for list view, cards for grid and compact views
-  if (viewPreferences.subscriptionsView === "list") {
-    return (
-      <SubscriptionsDataTable
-        subscriptions={subscriptions}
-        totalMonthlySpend={totalMonthlySpend}
-        isLoading={isLoading}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
-    );
-  }
-
   const gridClass = {
     grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4",
+    list: "flex flex-col gap-3",
     compact: "flex flex-col gap-2",
-  }[viewPreferences.subscriptionsView] || "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+  }[viewPreferences.subscriptionsView];
 
   return (
     <div className={cn(gridClass, className)}>
@@ -109,6 +91,8 @@ export function SubscriptionList({
         <SubscriptionCard
           key={subscription.id}
           subscription={subscription}
+     
+         
           onEdit={onEdit}
           onDelete={onDelete}
           onClick={onSelect}

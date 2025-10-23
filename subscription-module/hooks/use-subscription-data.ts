@@ -175,31 +175,20 @@ export function useUpdateSubscription() {
  * @returns Mutation hook with optimistic updates
  */
 export function useDeleteSubscription() {
-  const { closeDeleteModal, selectSubscription, setDeletingSubscription, clearDeletingSubscription } = useSubscriptionUIStore();
+  const { closeDeleteModal, selectSubscription } = useSubscriptionUIStore();
   const deleteMutation = subscriptionMutations.useDelete();
 
   return {
     ...deleteMutation,
-    mutate: (subscriptionId: string, options?: { onSuccess?: (response: ApiResponse<void>, variables: string, context: unknown) => void; onError?: (error: unknown, variables: string, context: unknown) => void }) => {
-      // Set deleting state before mutation
-      setDeletingSubscription(subscriptionId);
-
+    mutate: (subscriptionId: string, options?: { onSuccess?: (response: ApiResponse<void>, variables: string, context: unknown) => void }) => {
       deleteMutation.mutate(subscriptionId, {
         ...options,
         onSuccess: (response: ApiResponse<void>, variables: string, context: unknown) => {
-          // Clear deleting state
-          clearDeletingSubscription(subscriptionId);
-
           if (response.success) {
             closeDeleteModal();
             selectSubscription(null);
           }
           options?.onSuccess?.(response, variables, context);
-        },
-        onError: (error, variables, context) => {
-          // Clear deleting state on error
-          clearDeletingSubscription(subscriptionId);
-          options?.onError?.(error, variables, context);
         },
       });
     },

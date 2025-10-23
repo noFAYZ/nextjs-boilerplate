@@ -31,7 +31,7 @@ import {
   RecentActivityWidget,
 
 } from '@/components/dashboard-widgets';
-import { DuoIconsBank, FluentBuildingBank28Regular, HugeiconsPuzzle, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
+import { DuoIconsBank, FluentBuildingBank28Regular, HugeiconsPuzzle, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
 import { IconParkTwotoneSettingTwo, LetsIconsSettingLineDuotone } from '@/components/icons';
 import MoneyFlowWidget from '@/components/dashboard-widgets/money-flow-widget';
 
@@ -81,7 +81,7 @@ export default function DashboardPage() {
             {/* Additional Links Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/accounts/bank">
-            <div className="group p-2 rounded-xl border bg-muted/50  cursor-pointer shadow">
+            <div className="group p-2 relative rounded-xl border bg-muted/50  cursor-pointer shadow">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center  transition-transform">
                   <DuoIconsBank className='w-6 h-6 text-foreground/70'/>
@@ -91,11 +91,18 @@ export default function DashboardPage() {
                   <p className="text-[11px] text-muted-foreground">Manage your banks</p>
                 </div>
               </div>
+              
+                      <div className="absolute inset-0 bg-background/25 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
+                       <Badge variant="max" className="text-[10px] px-2 py-[1px] rounded-full ">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                  
             </div>
           </Link>
 
           <Link href="/accounts/wallet">
-            <div className="group p-2 rounded-xl border bg-muted/50 cursor-pointer">
+            <div className="relative group p-2 rounded-xl border bg-muted/50 cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-accent  flex items-center justify-center  transition-transform">
                   <SolarWalletMoneyBoldDuotone stroke='2' className='w-6 h-6 text-foreground/70'  />
@@ -105,18 +112,23 @@ export default function DashboardPage() {
                   <p className="text-[11px] text-muted-foreground">Track your crypto</p>
                 </div>
               </div>
+              <div className="absolute inset-0 bg-background/25 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
+                       <Badge variant="max" className="text-[10px] px-2 py-[1px] rounded-full ">
+                          Coming Soon
+                        </Badge>
+                      </div>
             </div>
           </Link>
 
-          <Link href="/accounts/integrations">
+          <Link href="/subscriptions">
             <div className="group p-2 rounded-xl border bg-muted/50 cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-accent  flex items-center justify-center transition-transform">
-                  <HugeiconsPuzzle stroke='2' className='w-6 h-6 text-foreground/70'/>
+                  <SolarInboxInBoldDuotone stroke='2' className='w-6 h-6 text-foreground/70'/>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-xs">Integrations</h3>
-                  <p className="text-[11px] text-muted-foreground">Connect services</p>
+                  <h3 className="font-semibold text-xs">Subscriptions</h3>
+                  <p className="text-[11px] text-muted-foreground">Manage Subscriptions</p>
                 </div>
               </div>
             </div>
@@ -168,7 +180,7 @@ export default function DashboardPage() {
 
           
 
-        {/* Hero Section - Net Worth & Financial Overview */}
+        {/* Hero Section - Net Worth & Financial Overview 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-1">
             <NetWorthWidget />
@@ -183,24 +195,23 @@ export default function DashboardPage() {
               
 
           </div>
-        </div>
+        </div>*/}
 
-        {/* Crypto Portfolio Section */}
+        {/* Crypto Portfolio Section
         <div className="grid gap-6 lg:grid-cols-4">
       <NetworkDistributionWidget />
         
-         
                <div className='col-span-2'>  <MoneyFlowWidget /> </div>
        
-        </div>
+        </div> */}
 
       
         {/* Bills & Activity Section */}
         <div className="grid gap-6 lg:grid-cols-4">
-            <GoalsOverviewWidget />
+         {/*    <GoalsOverviewWidget /> */}
           <SubscriptionsOverviewWidget />
-          <UpcomingBillsWidget />
-          <RecentActivityWidget />
+      {/*     <UpcomingBillsWidget />
+          <RecentActivityWidget /> */}
         </div>
 
       </div>

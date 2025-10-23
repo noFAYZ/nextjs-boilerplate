@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Eye, EyeOff, Search, X } from "lucide-react"
+import { Eye, EyeOff, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -10,7 +10,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "border-input rounded-lg shadow-sm hover:shadow-md focus-visible:ring-0 focus-visible:ring-primary/60 focus-visible:ring-offset-0 focus-visible:border-primary/60",
-        filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80    ",
+        filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80",
         underlined: "border-0 border-b-2 border-input rounded-none bg-transparent hover:border-border focus-visible:border-primary shadow-none",
         premium: "border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:border-purple-500",
         enterprise: "border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-900/50 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-slate-500 focus-visible:border-slate-500 backdrop-blur-sm",
@@ -42,6 +42,8 @@ interface InputProps extends React.ComponentProps<"input">, VariantProps<typeof 
   clearable?: boolean
   onClear?: () => void
   loading?: boolean
+  label?: string
+  labelClassName?: string
 }
 
 function Input({ 
@@ -56,13 +58,16 @@ function Input({
   onClear, 
   loading,
   value,
+  label,
+  labelClassName,
+  id,
   ...props 
 }: InputProps) {
   const [showPassword, setShowPassword] = React.useState(false)
   const isPassword = type === "password"
-  const isSearch = type === "search"
   const hasValue = value !== undefined && value !== ""
-  
+  const inputId = id || React.useId()
+
   const inputType = isPassword ? (showPassword ? "text" : "password") : type
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
@@ -71,8 +76,26 @@ function Input({
     onClear?.()
   }
 
-  if (leftIcon || rightIcon || isPassword || isSearch || clearable || loading) {
-    return (
+  const inputElement = (
+    <input
+      id={inputId}
+      type={inputType}
+      data-slot="input"
+      className={cn(
+        inputVariants({ variant, size, state }),
+        leftIcon && "pl-10",
+        (rightIcon || isPassword || (clearable && hasValue)) && "pr-10",
+        className
+      )}
+      value={value}
+      aria-label={!label ? props.placeholder || "input" : undefined}
+      {...props}
+    />
+  )
+
+  // Render with icons, password toggle, or clear button
+  if (leftIcon || rightIcon || isPassword || clearable || loading) {
+    const wrappedInput = (
       <div className="relative">
         {leftIcon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
@@ -84,18 +107,7 @@ function Input({
           </div>
         )}
         
-        <input
-          type={inputType}
-          data-slot="input"
-          className={cn(
-            inputVariants({ variant, size, state }),
-            leftIcon && "pl-10",
-            (rightIcon || isPassword || (clearable && hasValue)) && "pr-10",
-            className
-          )}
-          value={value}
-          {...props}
-        />
+        {inputElement}
         
         {(rightIcon || isPassword || (clearable && hasValue)) && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -105,6 +117,7 @@ function Input({
                 onClick={handleClear}
                 className="text-muted-foreground hover:text-foreground transition-colors p-0.5"
                 tabIndex={-1}
+                aria-label="Clear input"
               >
                 <X className="size-3" />
               </button>
@@ -116,6 +129,7 @@ function Input({
                 onClick={togglePasswordVisibility}
                 className="text-muted-foreground hover:text-foreground transition-colors p-0.5"
                 tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -126,17 +140,34 @@ function Input({
         )}
       </div>
     )
+
+    if (label) {
+      return (
+        <label htmlFor={inputId} className="block">
+          <span className={cn("block text-sm font-medium text-foreground mb-1.5", labelClassName)}>
+            {label}
+          </span>
+          {wrappedInput}
+        </label>
+      )
+    }
+
+    return wrappedInput
   }
 
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(inputVariants({ variant, size, state, className }))}
-      value={value}
-      {...props}
-    />
-  )
+  // Simple input without wrapper
+  if (label) {
+    return (
+      <label htmlFor={inputId} className="block">
+        <span className={cn("block text-sm font-medium text-foreground mb-1.5", labelClassName)}>
+          {label}
+        </span>
+        {inputElement}
+      </label>
+    )
+  }
+
+  return inputElement
 }
 
-export { Input, inputVariants }
+export { Input, inputVariants, type InputProps }

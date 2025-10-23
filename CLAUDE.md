@@ -467,3 +467,4 @@ The application requires proper environment setup:
 - **ALL components must follow the TanStack Query + Zustand UI pattern**
 - **NEVER use useEffect for data fetching**
 - **NEVER store server data in Zustand**
+- **This is in windows so when Updating and writing files use actual windows file paths to avoid errors**

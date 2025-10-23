@@ -4,6 +4,7 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SolarCloseCircleBoldDuotone } from "../icons/icons";
 
 // Root Dialog Component
 const Dialog = React.memo(
@@ -70,12 +71,12 @@ const DialogContent = React.memo(
         {showCloseButton && (
           <DialogClose
             className={cn(
-              "absolute top-0 right-0 rounded-sm opacity-90 bg-background transition-opacity",
-              "hover:opacity-100",
+              "absolute top-2 right-2 rounded-sm opacity-90 bg-background transition-opacity",
+              "hover:opacity-100   rounded-full",
               "disabled:pointer-events-none cursor-pointer"
             )}
           >
-            <XIcon className="size-5" />
+            <SolarCloseCircleBoldDuotone className="size-6 hover:text-red-600/70 text-red-600/50" />
             <span className="sr-only">Close</span>
           </DialogClose>
         )}
@@ -89,7 +90,7 @@ DialogContent.displayName = "DialogContent";
 const DialogHeader = React.memo(
   ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
     <div
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn("flex flex-col gap-1 text-center sm:text-left mb-4", className)}
       {...props}
     />
   )
@@ -133,7 +134,7 @@ const DialogDescription = React.memo(
   >(({ className, ...props }, ref) => (
     <DialogPrimitive.Description
       ref={ref}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-xs text-muted-foreground", className)}
       {...props}
     />
   ))

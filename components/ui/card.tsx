@@ -22,11 +22,11 @@ const cardVariants = cva(
         enterprise: "rounded-xl bg-gradient-to-br from-slate-50/80 to-slate-100/80 dark:from-slate-900/50 dark:to-slate-800/50 border-slate-200/80 dark:border-slate-700/80 shadow-lg hover:shadow-xl backdrop-blur-sm",
       },
       size: {
-        xs: "p-2 gap-3",
-        sm: "p-2 gap-4",
-        default: "p-2 gap-5",
-        lg: "p-4 gap-6",
-        xl: "p-6 gap-8",
+        xs: "p-2 ",
+        sm: "p-2 ",
+        default: "p-2 ",
+        lg: "p-4 gap-2",
+        xl: "p-6 gap-3",
       },
       interactive: {
         true: "cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none",
@@ -79,7 +79,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>
       ref={ref}
       data-slot="card-header"
       className={cn(
-        "grid grid-cols-[1fr_auto] items-start gap-2 px-6 pt-6 pb-2",
+        "grid grid-cols-[1fr_auto] items-start gap-2 px-3 pt-3 ",
         className
       )}
       {...props}
@@ -141,7 +141,7 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>
     <div
       ref={ref}
       data-slot="card-footer"
-      className={cn("flex items-center justify-between gap-3 px-6 pb-6 pt-2 border-t border-border/30", className)}
+      className={cn("flex items-center justify-between gap-2 px-3 pb-3  border-t border-border/30", className)}
       {...props}
     />
   )

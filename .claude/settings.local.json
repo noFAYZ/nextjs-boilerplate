@@ -42,7 +42,8 @@
       "Bash(cp \"settings_part1.txt\" \"app/(protected)/settings/page.tsx\")",
       "Bash(tail -20 \"app/(protected)/settings/page.tsx\")",
       "Bash(awk:*)",
-      "Read(//f/**)"
+      "Read(//f/**)",
+      "WebFetch(domain:logo.dev)"
     ],
     "deny": [],
     "ask": []
