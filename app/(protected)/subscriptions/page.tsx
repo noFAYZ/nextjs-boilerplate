@@ -112,8 +112,18 @@ export default function SubscriptionsPage() {
       {/* Analytics */}
       <SubscriptionAnalytics />
 
-      {/* Filters and View Controls */}
-      <div className="flex items-center justify-between gap-4">
+
+      {/* Tabs */}
+      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+        <div className="flex items-center justify-between">
+        <TabsList variant={'card'} >
+          <TabsTrigger value="all" variant={'card'}  >All</TabsTrigger>
+          <TabsTrigger value="active" variant={'card'} >Active</TabsTrigger>
+          <TabsTrigger value="trial" variant={'card'} >Trial</TabsTrigger>
+          <TabsTrigger value="cancelled" variant={'card'} >Cancelled</TabsTrigger>
+        </TabsList>
+              {/* Filters and View Controls */}
+      <div className="flex items-center justify-between min-w-sm gap-4">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
@@ -161,15 +171,7 @@ export default function SubscriptionsPage() {
           </Button>
         </div>
       </div>
-
-      {/* Tabs */}
-      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-        <TabsList variant={'card'} >
-          <TabsTrigger value="all" variant={'card'}  >All</TabsTrigger>
-          <TabsTrigger value="active" variant={'card'} >Active</TabsTrigger>
-          <TabsTrigger value="trial" variant={'card'} >Trial</TabsTrigger>
-          <TabsTrigger value="cancelled" variant={'card'} >Cancelled</TabsTrigger>
-        </TabsList>
+</div>
 
         <TabsContent value="all" className="mt-6">
           <SubscriptionList

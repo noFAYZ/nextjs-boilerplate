@@ -207,7 +207,7 @@ export default function DashboardPage() {
 
       
         {/* Bills & Activity Section */}
-        <div className="grid gap-6 lg:grid-cols-4">
+        <div className="grid gap-6 lg:grid-cols-3">
          {/*    <GoalsOverviewWidget /> */}
           <SubscriptionsOverviewWidget />
       {/*     <UpcomingBillsWidget />

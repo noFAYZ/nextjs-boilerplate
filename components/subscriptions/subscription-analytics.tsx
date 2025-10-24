@@ -7,6 +7,8 @@ import {
   DollarSign,
   Calendar,
   AlertCircle,
+  CalendarClock,
+  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +16,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useSubscriptionAnalytics } from "@/lib/queries/use-subscription-data";
 import { subscriptionsApi } from "@/lib/services/subscriptions-api";
-import { FluentMoneyHand20Regular, PhPiggyBankDuotone, SolarChatRoundMoneyBoldDuotone, SolarFireBoldDuotone, SolarInboxInBoldDuotone } from "../icons/icons";
+import { DuoIconsAlertOctagon, FluentMoneyHand20Regular, PhPiggyBankDuotone, SolarChatRoundMoneyBoldDuotone, SolarFireBoldDuotone, SolarInboxInBoldDuotone } from "../icons/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getLogoUrl } from "@/lib/services/logo-service";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import { cn } from "@/lib/utils";
 
 export function SubscriptionAnalytics() {
   const { data: analytics, isLoading } = useSubscriptionAnalytics();
@@ -84,6 +90,7 @@ export function SubscriptionAnalytics() {
     },
   ];
 
+
   return (
     <motion.div
       className="space-y-6"
@@ -128,50 +135,96 @@ export function SubscriptionAnalytics() {
         })}
       </div>
 
-      {/* Upcoming Charges Section */}
+
+
+{/* Upcoming Charges Section */}
+<Accordion type="single" collapsible className="w-full mt-4">
+  <AccordionItem
+    value="upcoming-charges"
+    className="border border-border/70 bg-gradient-to-b from-background/90 to-muted/30 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+  >
+    <AccordionTrigger className="px-4 py-3 flex items-center justify-between hover:no-underline">
+      <div className="flex items-center gap-2">
+        <DuoIconsAlertOctagon className="h-5 w-5 text-primary" />
+        <span className="font-semibold text-base">
+          Upcoming Charges
+        </span>
       {analytics.upcomingCharges.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+        <Badge
+          variant="new"
+          className="text-[10px] font-medium rounded-full "
+          size="sm"
         >
-          <Card className="border-muted/40 bg-gradient-to-b from-background to-muted/30">
-            <CardHeader className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2 font-semibold">
-                <AlertCircle className="h-4 w-4 text-primary" />
-                Upcoming Charges (Next 30 Days)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {analytics.upcomingCharges.slice(0, 5).map((charge, i) => (
-                <motion.div
-                  key={charge.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.05 }}
-                  className="flex items-center justify-between p-3 rounded-xl border border-muted/30 hover:border-muted/50 hover:bg-muted/30 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-sm leading-tight">
-                      {charge.subscriptionName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      in {charge.daysUntil}{" "}
-                      {charge.daysUntil === 1 ? "day" : "days"}
-                    </p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="text-sm font-semibold bg-background/80 backdrop-blur-sm"
-                  >
-                    {subscriptionsApi.formatCurrency(charge.amount)}
-                  </Badge>
-                </motion.div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
+          {analytics.upcomingCharges.length}
+        </Badge>
       )}
+        <span className="text-xs text-muted-foreground ml-1">(Next 30 Days)</span>
+    
+      </div>
+
+    </AccordionTrigger>
+
+    <AccordionContent className="px-5 pb-4 pt-1">
+      {analytics.upcomingCharges.length > 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-2"
+        >
+          {analytics.upcomingCharges.slice(0, 5).map((charge, i) => (
+            <motion.div
+              key={charge.id}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/20 hover:bg-muted/30 transition-all duration-300"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 ring-1 ring-border bg-background">
+                  {charge?.website ? (
+                    <AvatarImage
+                      src={getLogoUrl(charge?.website) || ""}
+                      alt={charge.subscriptionName}
+                    />
+                  ) : (
+                    <AvatarFallback className="bg-muted text-xs font-bold uppercase">
+                      {charge.subscriptionName.slice(0, 2)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+
+                <div>
+                  <p className="font-medium text-sm leading-tight">
+                    {charge.subscriptionName}
+                  </p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <CalendarClock className="h-3 w-3" />
+                    in {charge.daysUntil}{" "}
+                    {charge.daysUntil === 1 ? "day" : "days"}
+                  </p>
+                </div>
+              </div>
+
+              <Badge
+                variant="outline"
+                className="text-sm font-semibold bg-background/80 backdrop-blur-sm flex items-center gap-1"
+              >
+                {subscriptionsApi.formatCurrency(charge.amount)}
+              </Badge>
+            </motion.div>
+          ))}
+        </motion.div>
+      ) : (
+        <p className="text-sm text-muted-foreground text-center py-4">
+          No upcoming charges found.
+        </p>
+      )}
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+
     </motion.div>
   );
 }

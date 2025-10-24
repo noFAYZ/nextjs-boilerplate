@@ -18,7 +18,7 @@ import { CommandPalette, useCommandPalette } from '@/components/ui/command-palet
 import { CurrencySelector } from '@/components/ui/currency-selector';
 import { GlobalViewSwitcher } from '../ui/global-view-switcher';
 import { ProductPopover } from './ProductPopover';
-
+import Image from 'next/image';
 
 interface HeaderProps {
   className?: string;
@@ -100,18 +100,21 @@ export function Header({
           {/* Left Section - Logo & Search */}
             <div className='flex items-center gap-6'>
           <div className="flex items-center">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 group"
-              aria-label="MoneyMappr Dashboard"
-            >
-              <div className="w-8 h-8 transition-transform group-hover:scale-105">
-                <LogoMappr />
-              </div>
-              <span className="hidden sm:block text-lg font-semibold text-foreground">
-                MoneyMappr
-              </span>
-            </Link>
+          <Link
+                href="/"
+                className="flex items-center gap-2 group relative   "
+               
+              >
+              <LogoMappr className='w-10 h-10 antialiased'/>
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-base font-bold tracking-tight">
+                    MoneyMappr
+                  </span>
+                  <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
+                    Financial Intelligence
+                  </span>
+                </div>
+              </Link>
           </div>
 
 

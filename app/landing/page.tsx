@@ -1,7 +1,7 @@
 'use client'
 import {
   LandingNav,
-  LandingHero,
+
   SocialProof,
   FeatureGrid,
   IntegrationShowcase,
@@ -16,12 +16,14 @@ import {
   LandingFooter,
   ScrollProgress,
   StickyCTA,
-  PortfolioShowcase,
+
   RealtimeTracking,
   AutomationShowcase,
   SubscriptionsShowcase,
 } from '@/components/landing';
 import { CryptoShowcase } from '@/components/landing/crypto-section';
+import { LandingHero } from '@/components/landing/subscription-management/landing-hero';
+import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
 import { ReactLenis, useLenis } from 'lenis/react'
 
 

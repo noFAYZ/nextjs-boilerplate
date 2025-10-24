@@ -17,7 +17,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { BasilAppsSolid, DuoIconsBank, FluentBuildingBank28Regular, MageGoals, PhBrainDuotone, SolarInboxInBoldDuotone, SolarPieChart2BoldDuotone, SolarPieChartBold, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear } from "../icons/icons";
+import {
+  BasilAppsSolid,
+  DuoIconsBank,
+  MageGoals,
+  PhBrainDuotone,
+  SolarInboxInBoldDuotone,
+  SolarPieChart2BoldDuotone,
+  SolarWalletMoneyBoldDuotone,
+} from "../icons/icons";
 import { Badge } from "../ui/badge";
 
 export function ProductPopover() {
@@ -102,119 +110,124 @@ export function ProductPopover() {
       </PopoverTrigger>
 
       <PopoverContent
-        className={cn(
-          "min-w-3xl p-4 rounded-2xl border border-border bg-card", 
-        )}
+        className={cn("min-w-3xl p-4 rounded-2xl border border-border bg-card")}
         align="start"
-      
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
         <div className="grid grid-cols-2 gap-6">
           {/* Left: Products */}
-       
-         
-            <div className="space-y-3">
-              {products.map(
-                (
-                  { title, description, icon: Icon, color, gradient, link, disabled },
-                  i
-                ) => (
-                  <motion.div
-                    key={title}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className={cn(
-                      "relative flex items-center gap-3 p-2 rounded-xl border drop-shadow-sm transition-all group overflow-hidden ",
-                      disabled
-                        ? "opacity-70"
-                        : "bg-muted/50 hover:bg-muted/70 hover:shadow-sm cursor-pointer"
-                    )}
-                  >
-                    {disabled && (
-                      <div className="absolute inset-0 bg-background/25 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
-                        <Badge variant="new" className="text-[10px] px-2 py-[2px] rounded-full ">
-                          Coming Soon
-                        </Badge>
-                      </div>
-                    )}
+          <div className="space-y-3">
+            {products.map(
+              (
+                { title, description, icon: Icon, color, gradient, link, disabled },
+                i
+              ) => {
+                const Wrapper = disabled ? "div" : Link;
+                const wrapperProps = disabled
+                  ? {}
+                  : { href: link ?? "#", className: "no-underline" };
 
-                    <div
+                return (
+                  <Wrapper key={title} {...(wrapperProps as any)}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
                       className={cn(
-                        "relative flex items-center justify-center w-11 h-11 rounded-lg bg-accent shrink-0",
-                        gradient
+                        "relative flex items-center gap-3 p-2 rounded-xl border drop-shadow-sm transition-all group overflow-hidden",
+                        disabled
+                          ? "opacity-70"
+                          : "bg-muted/50 hover:bg-muted/70 hover:shadow-sm cursor-pointer"
                       )}
                     >
-                      <Icon className={cn("w-7 h-7", color)} />
-                    </div>
-
-                    <div className="flex-1 text-sm leading-snug">
-                      {disabled ? (
-                        <span className="font-semibold">{title}</span>
-                      ) : (
-                        <Link
-                          href={link!}
-                          className="font-semibold text-sm "
-                        >
-                          {title}
-                        </Link>
+                      {disabled && (
+                        <div className="absolute inset-0 bg-background/65 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
+                          <Badge
+                            variant="max"
+                            className="text-[10px] px-2 py-[2px] rounded-full "
+                          >
+                            Coming Soon
+                          </Badge>
+                        </div>
                       )}
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {description}
-                      </p>
-                    </div>
-                  </motion.div>
-                )
-              )}
-            </div>
-       
+
+                      <div
+                        className={cn(
+                          "relative flex items-center justify-center w-11 h-11 rounded-lg bg-accent shrink-0",
+                          gradient
+                        )}
+                      >
+                        <Icon className={cn("w-7 h-7", color)} />
+                      </div>
+
+                      <div className="flex-1 text-sm leading-snug">
+                        <span className="font-semibold text-sm">{title}</span>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </Wrapper>
+                );
+              }
+            )}
+          </div>
 
           {/* Right: Smart Tools */}
-       
-            <div className="space-y-3">
-              {tools.map(
-                ({ title, description, icon: Icon, color, gradient, disabled }, i) => (
-                  <motion.div
-                    key={title}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + i * 0.05 }}
-                    className={cn(
-                      "relative flex items-center gap-3 p-2 rounded-xl border border-border transition-all drop-shadow-sm group overflow-hidden shadow ",
-                      disabled
-                        ? "opacity-70"
-                        : "bg-muted/50 hover:bg-muted/70 hover:shadow-sm cursor-pointer"
-                    )}
-                  >
-                    {disabled && (
-                      <div className="absolute inset-0 bg-background/25 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
-                       <Badge variant="new" className="text-[10px] px-2 py-[2px] rounded-full ">
-                          Coming Soon
-                        </Badge>
-                      </div>
-                    )}
+          <div className="space-y-3">
+            {tools.map(
+              ({ title, description, icon: Icon, color, gradient, disabled }, i) => {
+                const Wrapper = disabled ? "div" : Link;
+                const wrapperProps = disabled
+                  ? {}
+                  : { href: "#", className: "no-underline" };
 
-<div
+                return (
+                  <Wrapper key={title} {...(wrapperProps as any)}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + i * 0.05 }}
                       className={cn(
-                        "relative flex items-center justify-center w-11 h-11 rounded-lg bg-accent shrink-0",
-                        gradient
+                        "relative flex items-center gap-3 p-2 rounded-xl border border-border transition-all drop-shadow-sm group overflow-hidden shadow",
+                        disabled
+                          ? "opacity-70"
+                          : "bg-muted/50 hover:bg-muted/70 hover:shadow-sm cursor-pointer"
                       )}
                     >
-                      <Icon className={cn("w-7 h-7", color)} />
-                    </div>
+                      {disabled && (
+                        <div className="absolute inset-0 bg-background/65 backdrop-blur-[1px] flex items-center justify-center rounded-xl z-10">
+                          <Badge
+                            variant="max"
+                            className="text-[10px] px-2 py-[2px] rounded-full "
+                          >
+                            Coming Soon
+                          </Badge>
+                        </div>
+                      )}
 
-                    <div className="flex-1 text-xs leading-snug">
-                      <span className="font-semibold text-sm">{title}</span>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {description}
-                      </p>
-                    </div>
-                  </motion.div>
-                )
-              )}
-            </div>
-         
+                      <div
+                        className={cn(
+                          "relative flex items-center justify-center w-11 h-11 rounded-lg bg-accent shrink-0",
+                          gradient
+                        )}
+                      >
+                        <Icon className={cn("w-7 h-7", color)} />
+                      </div>
+
+                      <div className="flex-1 text-xs leading-snug">
+                        <span className="font-semibold text-sm">{title}</span>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </Wrapper>
+                );
+              }
+            )}
+          </div>
         </div>
       </PopoverContent>
     </Popover>
