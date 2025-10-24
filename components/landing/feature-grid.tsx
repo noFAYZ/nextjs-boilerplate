@@ -74,7 +74,7 @@ export function FeatureGrid() {
       id="features"
       className="relative py-20 flex items-center justify-center bg-gradient-to-b from-background via-muted/30 to-background"
     >
-      <div className="container mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-10 px-6 lg:px-12">
+      <div className="relative container mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-10 px-6 lg:px-12 ">
         
         {/* Text Section */}
         <div className="w-full lg:w-1/2 text-center lg:text-left space-y-6 max-w-lg">
@@ -116,8 +116,8 @@ export function FeatureGrid() {
 
 
 {/* Feature Cards (Right) */}
-<div className="relative w-full  flex items-center justify-center h-[250px] sm:h-[2700px] lg:h-[300px]">
-  <CardSwap cardDistance={60} verticalDistance={40} delay={4500} pauseOnHover>
+<div className="relative w-full  flex items-center justify-center h-[300px] sm:h-[300px] lg:h-[500px]">
+  <CardSwap cardDistance={60} verticalDistance={40} delay={4500} >
     {subscriptionFeatures.map((feature) => (
       <Card
         key={feature.title}

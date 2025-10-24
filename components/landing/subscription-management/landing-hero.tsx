@@ -57,7 +57,7 @@ export function LandingHero() {
           </h1>
 
           {/* Subtitle */}
-          <p className="mx-auto mb-10 max-w-2xl text-base md:text-lg text-white ">
+          <p className="mx-auto mb-10 max-w-2xl text-base md:text-lg font-medium text-white ">
             Track all your subscriptions, analyze spending, and take proactive control with smart alerts and predictive analytics.
           </p>
 
