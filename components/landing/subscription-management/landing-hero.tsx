@@ -23,7 +23,7 @@ export function LandingHero() {
   return (
     <section className="relative pt-44 pb-28 overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('/patterns/2.jpg')",
+        backgroundImage: "url('/patterns/5.webp')",
       }}
     >
       {/* === Gradient Overlay === */}

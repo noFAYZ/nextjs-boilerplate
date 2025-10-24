@@ -49,15 +49,15 @@ export function LandingNav() {
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-          isScrolled ? 'py-2' : 'py-3'
+          isScrolled ? 'py-2' : 'py-4'
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className={` mx-auto px-4 sm:px-6 ${isScrolled ? 'max-w-6xl' : 'max-w-7xl'} transition-all duration-150`}>
           {/* Floating Nav Container */}
           <div
-            className={`relative rounded-xl transition-all duration-300 ${
+            className={`relative rounded-xl transition-all duration-200 ${
               isScrolled
-                ? 'bg-background/85 backdrop-blur-xl border shadow-lg'
+                ? 'bg-background/85 backdrop-blur-xl border border-border/70 shadow-lg'
                 : 'bg-transparent backdrop-blur-md border border-transparent'
             }`}
           >
