@@ -9,6 +9,7 @@ import { ThemeSwitcher } from '../ui/theme-switcher';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { DuoIconsBank, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '../icons/icons';
 
 export function LandingNav() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -133,20 +134,32 @@ export function LandingNav() {
                           <div className="grid grid-cols-2 gap-4">
                             {[
                               {
-                                title: 'AI Budget Planner',
-                                desc: 'Smartly manage your income and spending.',
+                                title: "Bank Portfolio",
+                                desc:
+                                  "Track all your bank accounts, balances, and transactions in one place.",
+                                icon: DuoIconsBank,
+                                color: "text-blue-600 dark:text-blue-400",
+                                gradient: "from-blue-500/10 to-blue-600/0",
+                                disabled: true,
                               },
                               {
-                                title: 'Investment Insights',
-                                desc: 'Track portfolios and discover trends.',
+                                title: "Crypto Portfolio",
+                                desc:
+                                  "Manage your crypto assets and monitor performance across wallets.",
+                                icon: SolarWalletMoneyBoldDuotone,
+                                color: "text-orange-800 dark:text-orange-600",
+                                gradient: "from-orange-500/10 to-orange-600/0",
+                                disabled: true,
                               },
                               {
-                                title: 'Smart Savings',
-                                desc: 'Automated goals and savings strategies.',
-                              },
-                              {
-                                title: 'Expense Tracking',
-                                desc: 'Visualize and categorize your spend.',
+                                title: "Subscription Management",
+                                desc:
+                                  "Keep track of all your recurring payments and cancel unwanted ones.",
+                                icon: SolarInboxInBoldDuotone,
+                                color: "text-purple-600 dark:text-purple-400",
+                                gradient: "from-purple-500/10 to-purple-600/0",
+                                link: "/subscriptions",
+                                disabled: false,
                               },
                             ].map((item, i) => (
                               <motion.div

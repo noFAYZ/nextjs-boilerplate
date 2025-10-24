@@ -341,7 +341,7 @@ export default function AuthForm({
                         placeholder="John" 
                         autoComplete="given-name"
                         {...field} 
-                        variant={'filled'}
+                       
                       />
                     </FormControl>
                     <FormMessage />
@@ -363,7 +363,7 @@ export default function AuthForm({
                         placeholder="Doe" 
                         autoComplete="family-name"
                         {...field} 
-                        variant={'filled'}
+                      
                       />
                     </FormControl>
                     <FormMessage />
@@ -386,7 +386,7 @@ export default function AuthForm({
                         placeholder="john@example.com"
                         autoComplete="email"
                         {...field} 
-                        variant={'filled'}
+                        
                       />
                     </FormControl>
                     <FormMessage />
@@ -409,7 +409,7 @@ export default function AuthForm({
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Enter your password"
                           autoComplete={type === 'signin' ? 'current-password' : 'new-password'}
-                          variant={'filled'}
+                     
                           className='overflow-hidden'
                       
                           {...field}
@@ -438,7 +438,7 @@ export default function AuthForm({
                           placeholder="Confirm your password"
                           autoComplete="new-password"
                           {...field}
-                          variant={'filled'}
+                      
                         />
                   
                       </div>
