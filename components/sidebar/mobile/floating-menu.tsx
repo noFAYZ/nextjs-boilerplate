@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { LogoMappr } from '@/components/icons';
-import { useUserProfile } from '@/lib/hooks/use-user-profile';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { useCommandPalette } from '@/components/command/command-palette';
@@ -154,7 +154,10 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const { profile } = useUserProfile();
+
+  // PRODUCTION-GRADE: Use AuthStore instead of fetching profile
+  const user = useAuthStore((state) => state.user);
+
   const { openCommandPalette, CommandPalette } = useCommandPalette();
 
   const handleSignOut = useCallback(async () => {
@@ -401,13 +404,13 @@ export function MobileFloatingMenu({ className }: MobileFloatingMenuProps) {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={profile?.profilePicture} />
+                          <AvatarImage src={user?.image} />
                           <AvatarFallback className="text-xs">
-                            {profile?.firstName?.charAt(0) || 'U'}
+                            {user?.name?.charAt(0) || 'U'}
                           </AvatarFallback>
                         </Avatar>
                         <div className="text-left">
-                          <div className="text-sm font-medium">{profile?.firstName || 'User'}</div>
+                          <div className="text-sm font-medium">{user?.name || 'User'}</div>
                           <div className="text-xs text-muted-foreground">View Profile</div>
                         </div>
                       </Button>

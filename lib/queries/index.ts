@@ -160,6 +160,7 @@ export {
 
   // Auth Mutations
   useUpdateUserProfile,
+  useUploadProfilePicture,
   useDeleteUserAccount,
 
   // Session Utilities

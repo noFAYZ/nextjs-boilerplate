@@ -491,7 +491,6 @@ export function GlobalDocks() {
     return (
       pathname.startsWith('/accounts/wallet') ||
       pathname.startsWith('/accounts/bank') ||
-      pathname.startsWith('/dashboard') ||
       pathname === '/portfolio/crypto' ||
       pathname === '/portfolio/banking'
     )

@@ -16,6 +16,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { userService } from '@/lib/services/user-service';
 
 // ============================================================================
 // QUERY KEYS
@@ -71,16 +72,21 @@ export function useCurrentSession() {
 
 /**
  * Get user profile (extended data)
+ * @param options - Query options including enabled flag
  * @returns Extended user profile data from server
+ *
+ * IMPORTANT: This hook does NOT automatically fetch on mount.
+ * You must explicitly enable it where needed (settings, profile pages).
+ * For basic user data, use useAuthStore instead.
  */
-export function useUserProfile() {
+export function useUserProfile(options: { enabled?: boolean } = {}) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
   return useQuery({
     queryKey: authKeys.profile(),
     queryFn: () => apiClient.getUserProfile(),
-    enabled: !!user && isInitialized,
+    enabled: options.enabled === true && !!user && isInitialized,
     staleTime: 1000 * 60 * 10, // 10 minutes
     select: (data) => (data.success ? data.data : null),
   });
@@ -88,16 +94,21 @@ export function useUserProfile() {
 
 /**
  * Get user stats (dashboard metrics)
+ * @param options - Query options including enabled flag
  * @returns User statistics
+ *
+ * IMPORTANT: This hook does NOT automatically fetch on mount.
+ * You must explicitly enable it where needed (dashboard, stats pages).
+ * This prevents unnecessary API calls on every page load.
  */
-export function useUserStats() {
+export function useUserStats(options: { enabled?: boolean } = {}) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
   return useQuery({
     queryKey: authKeys.stats(),
     queryFn: () => apiClient.getUserStats(),
-    enabled: !!user && isInitialized,
+    enabled: options.enabled === true && !!user && isInitialized,
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data) => (data.success ? data.data : null),
   });
@@ -145,6 +156,29 @@ export function useUpdateUserProfile() {
       if (response.success) {
         // Update Zustand store with server response
         updateUser(response.data as Partial<User>);
+
+        // Invalidate related queries
+        queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+        queryClient.invalidateQueries({ queryKey: authKeys.user() });
+      }
+    },
+  });
+}
+
+/**
+ * Upload profile picture
+ * @returns Mutation hook with optimistic updates
+ */
+export function useUploadProfilePicture() {
+  const queryClient = useQueryClient();
+  const updateUser = useAuthStore((state) => state.updateUser);
+
+  return useMutation({
+    mutationFn: (file: File) => userService.uploadProfilePicture(file),
+    onSuccess: (response) => {
+      if (response.success) {
+        // Update Zustand store with new picture URL
+        updateUser({ image: response.data.profilePicture });
 
         // Invalidate related queries
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });

@@ -21,7 +21,7 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip';
 import { LogoMappr } from '@/components/icons';
-import { useUserProfile } from '@/lib/hooks/use-user-profile';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { MenuItem } from '../types';
 import Image from 'next/image';
@@ -41,7 +41,9 @@ export function SidebarMainColumn({
 }: SidebarMainColumnProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { profile } = useUserProfile();
+
+  // PRODUCTION-GRADE: Use AuthStore instead of fetching profile
+  const user = useAuthStore((state) => state.user);
 
   const handleSignOut = React.useCallback(async () => {
     try {
@@ -188,9 +190,9 @@ export function SidebarMainColumn({
                   className="h-11 w-11 rounded-lg hover:bg-white/5 transition-all p-0"
                 >
                   <Avatar className="h-8 w-8 ring-1 ring-white/10">
-                    <AvatarImage src={profile?.profilePicture} />
+                    <AvatarImage src={user?.image} />
                     <AvatarFallback className="text-xs font-semibold bg-white/10 text-white">
-                      {profile?.firstName?.charAt(0) || 'U'}
+                      {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -201,12 +203,12 @@ export function SidebarMainColumn({
               sideOffset={12}
               className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
             >
-              {profile?.firstName || 'Profile'}
+              {user?.name || 'Profile'}
             </TooltipContent>
             <DropdownMenuContent align="end" side="right" className="w-56 bg-[#2a2a2a] border-white/10 text-white">
               <div className="px-3 py-2 border-b border-white/10">
-                <p className="text-sm font-medium text-white">{profile?.firstName} {profile?.lastName}</p>
-                <p className="text-xs text-white/60 truncate">{profile?.email}</p>
+                <p className="text-sm font-medium text-white">{user?.name}</p>
+                <p className="text-xs text-white/60 truncate">{user?.email}</p>
               </div>
               <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
                 <Link href="/profile" className="flex items-center gap-3 cursor-pointer">

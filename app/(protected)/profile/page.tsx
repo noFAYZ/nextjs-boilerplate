@@ -11,7 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { PageLoader, PageLoaderWrapper } from '@/components/ui/page-loader';
-import { useUserProfile } from '@/lib/hooks/use-user-profile';
+import {
+  useUserProfile,
+  useUserStats,
+  useUpdateUserProfile,
+  useUploadProfilePicture,
+  useDeleteUserAccount
+} from '@/lib/queries/use-auth-data';
 import { useToast } from '@/lib/hooks/use-toast';
 import { useLoading } from '@/lib/contexts/loading-context';
 import { User, Mail, Phone, Calendar, DollarSign, Globe, Camera, Trash2 } from 'lucide-react';
@@ -19,9 +25,18 @@ import type { UserProfileUpdateData } from '@/lib/types';
 import { FailLoader, LogoLoader } from '@/components/icons';
 
 export default function ProfilePage() {
-  const { profile, stats, isLoading, error, updateProfile, uploadProfilePicture, deleteAccount } = useUserProfile();
+  // PRODUCTION-GRADE: Use TanStack Query hooks with explicit enabled flag
+  const { data: profile, isLoading: profileLoading, error: profileError } = useUserProfile({ enabled: true });
+  const { data: stats, isLoading: statsLoading } = useUserStats({ enabled: true });
+  const { mutateAsync: updateProfile } = useUpdateUserProfile();
+  const { mutateAsync: uploadProfilePicture } = useUploadProfilePicture();
+  const { mutateAsync: deleteAccount } = useDeleteUserAccount();
+
   const { toast } = useToast();
   const { withLoading, showLoading, hideLoading } = useLoading();
+
+  const isLoading = profileLoading || statsLoading;
+  const error = profileError ? (profileError instanceof Error ? profileError.message : 'Failed to load profile') : null;
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -52,11 +67,10 @@ export default function ProfilePage() {
 
     try {
       setIsSaving(true);
-      const response = await withLoading(
-        updateProfile(formData),
-        'Updating your profile...'
-      );
-      
+      showLoading('Updating your profile...');
+
+      const response = await updateProfile(formData as Partial<{ name?: string; image?: string; email?: string }>);
+
       if (response.success) {
         toast({
           title: 'Profile updated',
@@ -78,6 +92,7 @@ export default function ProfilePage() {
       });
     } finally {
       setIsSaving(false);
+      hideLoading();
     }
   };
 
@@ -107,11 +122,10 @@ export default function ProfilePage() {
 
     try {
       setIsUploading(true);
-      const response = await withLoading(
-        uploadProfilePicture(file),
-        'Uploading profile picture...'
-      );
-      
+      showLoading('Uploading profile picture...');
+
+      const response = await uploadProfilePicture(file);
+
       if (response.success) {
         toast({
           title: 'Profile picture updated',
@@ -132,6 +146,7 @@ export default function ProfilePage() {
       });
     } finally {
       setIsUploading(false);
+      hideLoading();
     }
   };
 
@@ -142,11 +157,10 @@ export default function ProfilePage() {
 
     try {
       setIsDeleting(true);
-      const response = await withLoading(
-        deleteAccount(),
-        'Deleting your account...'
-      );
-      
+      showLoading('Deleting your account...');
+
+      const response = await deleteAccount();
+
       if (response.success) {
         toast({
           title: 'Account deleted',
@@ -168,6 +182,7 @@ export default function ProfilePage() {
       });
     } finally {
       setIsDeleting(false);
+      hideLoading();
     }
   };
 

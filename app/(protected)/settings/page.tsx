@@ -19,7 +19,7 @@ import { LetsIconsSettingLineDuotone } from '@/components/icons';
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
 export default function SettingsPage() {
-  const { data: userProfile, isLoading } = useUserProfile();
+  const { data: userProfile, isLoading } = useUserProfile({ enabled: true });
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateUserProfile();
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
