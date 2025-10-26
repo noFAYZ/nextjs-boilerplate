@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
+import { getSessionCookie } from "better-auth/cookies";
 // Define protected and public routes
 const protectedRoutes = ['/dashboard', '/profile', '/settings', '/subscription'];
 const authRoutes = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password'];
@@ -23,10 +23,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const sessionCookie = getSessionCookie(request);
   // Check if user has a session cookie
   // ✅ CRITICAL: In production (secure: true), cookies have __Secure- prefix
   // In development (secure: false), cookies don't have the prefix
-  const sessionCookie =
+/*   const sessionCookie =
     // Production cookies (with __Secure- prefix)
     request.cookies.get('__Secure-better-auth.session_data')?.value || request.cookies.get('__Secure-better-auth.session_token')?.value ||
     request.cookies.get('__Host-better-auth.session_token')?.value ||
@@ -35,7 +36,7 @@ export function middleware(request: NextRequest) {
     // Fallback to other possible cookie names
     request.cookies.get('authjs.session-token')?.value ||
     request.cookies.get('session')?.value ||
-    request.cookies.get('auth.session-token')?.value;
+    request.cookies.get('auth.session-token')?.value; */
   const isAuthenticated = !!sessionCookie;
 
   // Handle onboarding route - allow access for authenticated users only
