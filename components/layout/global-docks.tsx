@@ -484,18 +484,9 @@ export function GlobalDocks() {
     userIdRef.current = user?.id;
   }
 
-  // Define public pages where docks should be hidden
-  const isPublicPage = pathname === '/' ||
-                      pathname.startsWith('/auth') ||
-                      pathname.startsWith('/onboarding')
-
-  // Only show docks to authenticated users and not on public pages
-  if (!user || isPublicPage) {
-    return null
-  }
-
   // PRODUCTION-GRADE: Show SyncIndicator ONLY on pages that need real-time sync
   // Pages with active wallet/banking management need the sync status dock
+  // IMPORTANT: Must be called before any conditional returns (Rules of Hooks)
   const showSyncIndicator = React.useMemo(() => {
     return (
       pathname.startsWith('/accounts/wallet') ||
@@ -505,6 +496,16 @@ export function GlobalDocks() {
       pathname === '/portfolio/banking'
     )
   }, [pathname])
+
+  // Define public pages where docks should be hidden
+  const isPublicPage = pathname === '/' ||
+                      pathname.startsWith('/auth') ||
+                      pathname.startsWith('/onboarding')
+
+  // Only show docks to authenticated users and not on public pages
+  if (!user || isPublicPage) {
+    return null
+  }
 
   return (
     <>
