@@ -132,7 +132,7 @@ cookieOptions: {
   advanced: {
 crossSubDomainCookies: {
             enabled: true,
-            domain: ".example.com", // your domain
+            domain: ".moneymappr.com", // your domain
         },
     generateId: () => crypto.randomUUID(),
   },
