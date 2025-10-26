@@ -258,7 +258,7 @@ class ErrorHandler {
           action: async () => {
             // Try to check if backend is available
             try {
-              const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:3000'}/health`);
+              const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'https://api.moneymappr.com'}/health`);
               if (response.ok) {
                 window.location.reload();
               } else {

@@ -101,7 +101,7 @@ export function RealtimeSyncDebug({ className }: RealtimeSyncDebugProps) {
           <div className="space-y-1">
             <span>API Endpoint:</span>
             <p className="text-muted-foreground break-all">
-              {process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'}/crypto/user/sync/stream
+              {process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1'}/crypto/user/sync/stream
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export function RealtimeSyncDebug({ className }: RealtimeSyncDebugProps) {
                     error: realtimeSyncError,
                     activeSyncs: activeSyncCount,
                     allStates: realtimeSyncStates,
-                    apiEndpoint: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'}/crypto/user/sync/stream`
+                    apiEndpoint: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1'}/crypto/user/sync/stream`
                   });
                 }}
                 className="flex-1"
@@ -164,7 +164,7 @@ export function RealtimeSyncDebug({ className }: RealtimeSyncDebugProps) {
               variant="outline"
               size="sm"
               onClick={async () => {
-                const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+                const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1';
                 try {
                   console.log('🧪 Testing manual SSE connection...');
                   const testSource = new EventSource(`${apiBase}/crypto/user/sync/stream`, {

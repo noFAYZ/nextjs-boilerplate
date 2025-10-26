@@ -27,18 +27,28 @@ function LoginForm() {
 
   const handleSignIn = async (data: SignInFormData) => {
     clearError();
-    
+
     try {
       showLoading('Signing you in...');
       await login(data?.email, data?.password);
       showSuccess('Welcome back! Redirecting to dashboard...');
-      
+
       // Redirect to dashboard after successful login
       setTimeout(() => {
         router.push('/dashboard');
       }, 1000);
     } catch (error) {
-      showError(error instanceof Error ? error.message : 'Login failed');
+      // Check if error is EMAIL_NOT_VERIFIED
+      const errorObj = error as Error & { code?: string };
+      if (errorObj.code === 'EMAIL_NOT_VERIFIED') {
+        // Redirect to verification page with email
+        showError('Please verify your email to continue');
+        setTimeout(() => {
+          router.push(`/auth/resend-verification?email=${encodeURIComponent(data?.email)}`);
+        }, 1500);
+      } else {
+        showError(error instanceof Error ? error.message : 'Login failed');
+      }
     }
   };
 

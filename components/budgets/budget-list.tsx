@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { BudgetCard } from "./budget-card"
+import { BudgetDataTable } from "./budget-data-table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Inbox } from "lucide-react"
@@ -33,6 +34,16 @@ export function BudgetList({
   onArchiveBudget,
 }: BudgetListProps) {
   const budgetsView = useBudgetUIStore((state) => state.viewPreferences.budgetsView)
+
+  // Calculate totals for table view
+  const totalBudgeted = React.useMemo(() =>
+    budgets.reduce((sum, budget) => sum + budget.amount, 0),
+    [budgets]
+  )
+  const totalSpent = React.useMemo(() =>
+    budgets.reduce((sum, budget) => sum + budget.spent, 0),
+    [budgets]
+  )
 
   if (isLoading) {
     return <BudgetListSkeleton view={budgetsView} />
@@ -68,6 +79,24 @@ export function BudgetList({
     )
   }
 
+  // Render table view
+  if (budgetsView === 'table') {
+    return (
+      <BudgetDataTable
+        budgets={budgets}
+        totalBudgeted={totalBudgeted}
+        totalSpent={totalSpent}
+        isLoading={isLoading}
+        onEdit={onEditBudget}
+        onDelete={onDeleteBudget}
+        onPause={onPauseBudget}
+        onResume={onResumeBudget}
+        onArchive={onArchiveBudget}
+      />
+    )
+  }
+
+  // Render card views
   const gridClasses = {
     grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
     list: "flex flex-col gap-3",
@@ -75,7 +104,7 @@ export function BudgetList({
   }
 
   return (
-    <div className={gridClasses[budgetsView]}>
+    <div className={gridClasses[budgetsView as keyof typeof gridClasses]}>
       {budgets.map((budget) => (
         <BudgetCard
           key={budget.id}

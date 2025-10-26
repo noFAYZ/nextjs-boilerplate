@@ -79,7 +79,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>
       ref={ref}
       data-slot="card-header"
       className={cn(
-        "grid grid-cols-[1fr_auto] items-start gap-2 px-3 pt-3 ",
+        " gap-2 px-3 pt-3 ",
         className
       )}
       {...props}

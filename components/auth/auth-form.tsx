@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, AlertCircle, Clock } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,8 @@ import { Fa7BrandsGithub, LogosGoogleIcon, SuccessLoader } from '../icons';
 import { useRouter } from 'next/navigation';
 import { useBruteForceProtection, formatTimeRemaining } from '@/lib/security/brute-force-protection';
 import { logger } from '@/lib/utils/logger';
+import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 // Validation schemas
 export const signInSchema = z.object({
@@ -82,6 +84,7 @@ interface AuthFormProps {
   error?: AuthError | null;
   success?: boolean;
   successMessage?: string;
+  defaultEmail?: string; // Optional default email for pre-filling
   links?: Array<{
     href: string;
     text: string;
@@ -98,6 +101,7 @@ export default function AuthForm({
   error,
   success,
   successMessage,
+  defaultEmail,
   links = [],
 }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -175,12 +179,12 @@ export default function AuthForm({
   const getDefaultValues = () => {
     switch (type) {
       case 'signin':
-        return { email: '', password: '', rememberMe: false };
+        return { email: defaultEmail || '', password: '', rememberMe: false };
       case 'signup':
-        return { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
+        return { firstName: '', lastName: '', email: defaultEmail || '', password: '', confirmPassword: '' };
       case 'forgot-password':
       case 'resend-email':
-        return { email: '' };
+        return { email: defaultEmail || '' };
       case 'reset-password':
         return { password: '', confirmPassword: '', token: '' };
       default:
@@ -253,26 +257,58 @@ export default function AuthForm({
 
   if (success) {
     return (
-      <Card className="w-full max-w-sm mx-auto">
-        <CardHeader className="text-center justify-center w-full">
-          <div className="flex mb-4 justify-center">
-            <span className='w-14 h-14'><SuccessLoader /></span>
-          </div>
-          <CardTitle className="text-2xl">Success!</CardTitle>
-          <CardDescription>{successMessage || 'Operation completed successfully!'}</CardDescription>
-        </CardHeader>
-        <CardFooter className="flex flex-col space-y-4">
-          {links.map((link, index: number) => (
-            <div key={index} className="text-center text-sm">
-              <span className="text-muted-foreground">{link.text}</span>{' '}
-              <Link href={link.href} className="text-primary hover:underline font-medium">
-                {link.linkText}
-              </Link>
-            </div>
-          ))}
-        </CardFooter>
-      </Card>
-    );
+      
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className={cn('w-full flex justify-center')}
+        >
+          <Card className="w-full max-w-sm text-center border border-border/70 shadow-sm">
+            <CardHeader className="space-y-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                className="flex justify-center"
+              >
+                <div className="relative w-16 h-16 flex items-center justify-center rounded-full ">
+                  <SuccessLoader  />
+                  {/* If you have your own SuccessLoader animation, replace above line */}
+                </div>
+              </motion.div>
+    
+              <CardTitle className="text-2xl font-semibold tracking-tight text-foreground">
+                Success!
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {successMessage}
+              </CardDescription>
+            </CardHeader>
+    
+            <CardFooter className="flex flex-col gap-3">
+              {links.map((link, index) => (
+                <div key={index} className="text-sm">
+                  <span className="text-muted-foreground">{link.text}</span>{' '}
+                  <Link
+                    href={link.href}
+                    className="text-primary hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-sm"
+                  >
+                    {link.linkText}
+                  </Link>
+                </div>
+              ))}
+    
+              {/* Optional main action */}
+              {links.length === 0 && (
+                <Button variant="outline" asChild>
+                  <Link href="/">Go to Dashboard</Link>
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+        </motion.div>
+    )
   }
 
   return (

@@ -43,7 +43,7 @@ interface BudgetUIState {
 
   // View Preferences (persistent)
   viewPreferences: {
-    budgetsView: 'grid' | 'list' | 'compact';
+    budgetsView: 'grid' | 'list' | 'compact' | 'table';
     sortBy: 'name' | 'amount' | 'spent' | 'remaining' | 'percentageUsed' | 'currentPeriodEnd' | 'priority';
     sortOrder: 'asc' | 'desc';
     showArchived: boolean;
@@ -93,7 +93,7 @@ interface BudgetUIActions {
   clearFilters: () => void;
 
   // View Preference Actions
-  setBudgetsView: (view: 'grid' | 'list' | 'compact') => void;
+  setBudgetsView: (view: 'grid' | 'list' | 'compact' | 'table') => void;
   setSortBy: (sortBy: BudgetUIState['viewPreferences']['sortBy']) => void;
   setSortOrder: (order: 'asc' | 'desc') => void;
   toggleSortOrder: () => void;

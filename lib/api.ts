@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { authClient } from "./auth-client";
 import { logger } from "./utils/logger";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.moneymappr.com";
 const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || "v1";
 
 // Create axios instance for general API

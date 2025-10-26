@@ -46,7 +46,7 @@ console.log('Global error handler caught an error:', appError);
 
     try {
       // Try to check if backend is available
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:3000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'https://api.moneymappr.com';
       const response = await fetch(`${baseUrl}/health`);
 
       if (response.ok) {
@@ -66,7 +66,7 @@ console.log('Global error handler caught an error:', appError);
     if (!backendError) return;
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:3000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'https://api.moneymappr.com';
       const response = await fetch(`${baseUrl}/health`);
 
       if (response.ok) {

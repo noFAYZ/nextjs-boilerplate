@@ -26,7 +26,7 @@ export class MultiWalletSyncTracker {
   private heartbeatTimeout: NodeJS.Timeout | null = null;
   private lastConnectionAttempt: number = 0;
   private connectionBackoffTime: number = 1000;
-  private readonly API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+  private readonly API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1';
 
   constructor(
     private onProgress: (walletId: string, progress: WalletSyncProgress) => void,
@@ -710,7 +710,7 @@ export function useUnifiedSyncProgress(
 async function refreshWalletData(walletId: string) {
   try {
     // Use the same API base as the main app
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1';
     const response = await fetch(`${API_BASE}/crypto/wallets/${walletId}`, {
       method: 'GET',
       credentials: 'include',

@@ -52,7 +52,7 @@ class SSEManager {
   private isClosing = false;
   private connectionBackoffTime = 1000;
   private lastConnectionAttempt = 0;
-  private readonly API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
+  private readonly API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.moneymappr.com/api/v1';
   private readonly SSE_ENDPOINT = '/crypto/user/sync/stream';
 
   private constructor() {

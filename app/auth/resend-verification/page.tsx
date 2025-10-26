@@ -1,73 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useResendVerificationEmail } from '@/lib/queries/use-auth-data';
 import AuthForm from '@/components/auth/auth-form';
+import { PageLoader } from '@/components/ui/page-loader';
 
 interface ResendEmailFormData {
   email: string;
 }
 
-interface ErrorState {
-  code: string;
-  message: string;
-}
+function ResendVerificationForm() {
+  const searchParams = useSearchParams();
+  const emailFromUrl = searchParams.get('email');
+  const [defaultEmail, setDefaultEmail] = useState<string>('');
 
-export default function ResendVerificationPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<ErrorState | null>(null);
-  const [success, setSuccess] = useState(false);
+  // ✅ CORRECT: Use TanStack Query mutation hook
+  const { mutate: resendEmail, isPending, isSuccess, error } = useResendVerificationEmail();
 
-  const handleResendEmail = async (data: ResendEmailFormData) => {
-    setError(null);
-    setIsLoading(true);
-    
-    try {
-      // Better Auth doesn't have a specific resend verification method
-      // We'll use a custom API endpoint that triggers verification email resend
-      const response = await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: data.email }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setError({
-          code: 'RESEND_ERROR',
-          message: result.message || 'Failed to resend verification email'
-        });
-      } else {
-        setSuccess(true);
-      }
-    } catch {
-      setError({
-        code: 'UNKNOWN_ERROR',
-        message: 'An unexpected error occurred. Please try again.'
-      });
-    } finally {
-      setIsLoading(false);
+  // Pre-fill email if provided in URL
+  useEffect(() => {
+    if (emailFromUrl) {
+      setDefaultEmail(emailFromUrl);
     }
-  };
+  }, [emailFromUrl]);
 
   const handleFormSubmit = async (data: unknown) => {
-    await handleResendEmail(data as ResendEmailFormData);
+    const { email } = data as ResendEmailFormData;
+
+    // Trigger mutation with email and optional callback URL
+    resendEmail({
+      email,
+      callbackURL: 'http://localhost:3001/dashboard',
+    });
   };
+
+  // Transform TanStack Query error to AuthForm error format
+  const formError = error
+    ? {
+        code: 'RESEND_ERROR',
+        message: error instanceof Error ? error.message : 'Failed to resend verification email',
+      }
+    : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <AuthForm
           type="resend-email"
-          title="Resend verification email"
-          description="Enter your email address and we'll resend the verification email"
+          title="Verify your email"
+          description={
+            emailFromUrl
+              ? 'Your email needs to be verified before you can sign in'
+              : 'Enter your email address and we\'ll resend the verification email'
+          }
           onSubmit={handleFormSubmit}
-          isLoading={isLoading}
-          error={error}
-          success={success}
+          isLoading={isPending}
+          error={formError}
+          success={isSuccess}
           successMessage="Verification email sent! Please check your inbox and spam folder for the verification link."
+          defaultEmail={defaultEmail}
           links={[
             {
               href: '/auth/login',
@@ -83,5 +75,13 @@ export default function ResendVerificationPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function ResendVerificationPage() {
+  return (
+    <Suspense fallback={<PageLoader message="Loading..." />}>
+      <ResendVerificationForm />
+    </Suspense>
   );
 }

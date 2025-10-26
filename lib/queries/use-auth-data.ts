@@ -176,6 +176,21 @@ export function useDeleteUserAccount() {
   });
 }
 
+/**
+ * Resend verification email
+ * @returns Mutation hook
+ */
+export function useResendVerificationEmail() {
+  return useMutation({
+    mutationFn: (data: { email: string; callbackURL?: string }) =>
+      apiClient.resendVerificationEmail(data),
+    onError: (error) => {
+      // Log error for debugging
+      console.error('Failed to resend verification email:', error);
+    },
+  });
+}
+
 // ============================================================================
 // SESSION UTILITIES
 // ============================================================================

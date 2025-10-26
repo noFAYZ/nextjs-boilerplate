@@ -61,8 +61,9 @@ import { getLogoUrl } from "@/lib/services/logo-service";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/lib/hooks/use-toast";
 import { SubscriptionFormModal } from "@/components/subscriptions/subscription-form-modal";
-import type { UserSubscription } from "@/lib/types/subscription";
-import { HugeiconsCreditCard, LetsIconsCreditCardDuotone, MageCalendar2, MdiDollar } from "@/components/icons/icons";
+
+import { HugeiconsCreditCard, MageCalendar2, MdiDollar } from "@/components/icons/icons";
+
 
 export default function SubscriptionDetailPage() {
   const params = useParams();
@@ -442,6 +443,7 @@ export default function SubscriptionDetailPage() {
         </div>
       </div>
 
+     
       {/* Tabs - Content Sections */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList variant="card" className=" justify-start overflow-x-auto" size="sm">
