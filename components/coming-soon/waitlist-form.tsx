@@ -6,14 +6,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { CheckCircle, Loader2, Mail, Sparkles } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { CheckCircle, Loader2, Mail, Sparkles, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
+import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
+import { toast } from 'sonner';
 
 const waitlistSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
- 
+  firstName: z.string().min(1, 'First name is required').max(50).optional(),
+  lastName: z.string().min(1, 'Last name is required').max(50).optional(),
 });
 
 type WaitlistForm = z.infer<typeof waitlistSchema>;
@@ -24,42 +27,34 @@ interface WaitlistFormProps {
 
 export function WaitlistForm({ className }: WaitlistFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ TanStack Query mutation for server data
+  const { mutate: joinWaitlist, isPending } = useJoinWaitlist();
 
   const form = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
       email: '',
- 
+      firstName: '',
+      lastName: '',
     },
   });
 
-  const onSubmit = async (data: WaitlistForm) => {
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error?.message || 'Failed to join waitlist');
-      }
-
-      setIsSubmitted(true);
-      form.reset();
-    } catch (error) {
-      console.error('Waitlist signup failed:', error);
-      // In a real app, you'd show a toast notification here
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: WaitlistForm) => {
+    joinWaitlist(data, {
+      onSuccess: (response) => {
+        setIsSubmitted(true);
+        form.reset();
+        toast.success('Successfully joined the waitlist!', {
+          description: 'We\'ll notify you when MoneyMappr launches.',
+        });
+      },
+      onError: (error) => {
+        toast.error('Failed to join waitlist', {
+          description: error.message,
+        });
+      },
+    });
   };
 
   if (isSubmitted) {
@@ -98,46 +93,92 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-center">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name Fields Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm text-muted-foreground">First Name (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 z-10 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="John"
+                        {...field}
+                        className="h-11 pl-10 border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm"
+                        disabled={isPending}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm text-muted-foreground">Last Name (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 z-10 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Doe"
+                        {...field}
+                        className="h-11 pl-10 border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm"
+                        disabled={isPending}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Email Field */}
           <FormField
-          
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem>
+                <FormLabel className="text-sm text-muted-foreground">Email Address</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      placeholder="Enter your email address"
+                      placeholder="your.email@example.com"
                       {...field}
-                      className="h-12 pl-12 text-lg border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm hover:shadow-md"
-                      disabled={isLoading}
+                      className="h-12 pl-11 text-lg border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm hover:shadow-md"
+                      disabled={isPending}
                     />
                   </div>
                 </FormControl>
-            
+                <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <Button
             type="submit"
-            size={'sm'}
-            className="w-fit h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm transition-all duration-100 hover:shadow-lg "
-            disabled={isLoading}
+            size="lg"
+            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base transition-all duration-100 hover:shadow-lg "
+            disabled={isPending}
           >
-            {isLoading ? (
+            {isPending ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Joining...
+                Joining Waitlist...
               </>
             ) : (
               <>
-                Join
-                
+                <Sparkles className="w-5 h-5 mr-2" />
+                Join the Waitlist
               </>
             )}
           </Button>

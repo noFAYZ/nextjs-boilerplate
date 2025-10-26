@@ -7,6 +7,8 @@ import { ArrowRight, Sparkles, Shield, Clock, CreditCard, LineChart, Zap } from 
 import { Button } from '@/components/ui/button';
 import { ScrollReveal } from '../scroll-reveal';
 import { useTheme } from 'next-themes';
+import { DuoIconsCreditCard, SolarChartSquareBoldDuotone, SolarClockCircleBoldDuotone, SolarShieldBoldDuotone } from '@/components/icons/icons';
+import { WaitlistFormCompact } from '@/components/coming-soon/waitlist-form-compact';
 
 export function LandingHero() {
   const { theme } = useTheme();
@@ -25,7 +27,7 @@ export function LandingHero() {
 
 
       {/* === Main Content === */}
-      <div className="relative container mx-auto px-6">
+      <div className="relative  mx-auto px-6">
         <div className="max-w-4xl mx-auto text-center relative z-10">
 
 
@@ -62,6 +64,7 @@ export function LandingHero() {
             Get smart alerts, spending insights, and predictive analytics — before your money disappears.
           </motion.p>
 
+
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -69,7 +72,8 @@ export function LandingHero() {
             transition={{ delay: 0.8 }}
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
-            <Link href="/auth/signup">
+            <WaitlistFormCompact />
+     {/*        <Link href="/auth/signup">
               <Button size="lg" className="w-full sm:w-auto text-base">
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -79,7 +83,7 @@ export function LandingHero() {
               <Button size="lg" variant="outline" className="w-full sm:w-auto text-base">
                 Explore Features
               </Button>
-            </Link>
+            </Link> */}
           </motion.div>
 
           <p className="mt-6 text-xs text-muted-foreground uppercase tracking-wide">
@@ -95,7 +99,7 @@ export function LandingHero() {
             transition={{ delay: 1, duration: 0.8 }}
             className="relative mt-20 flex justify-center"
           >
-            <div className="relative w-full max-w-6xl rounded-2xl border border-border/60 bg-background/70 backdrop-blur-lg shadow-2xl overflow-hidden">
+            <div className="relative w-full max-w-7xl rounded-2xl border border-border/90 bg-background/70 backdrop-blur-lg shadow-2xl overflow-hidden">
               {/* Browser Frame */}
               <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 border-b border-border/50">
                 <div className="flex gap-1.5">
@@ -103,13 +107,13 @@ export function LandingHero() {
                   <span className="h-3 w-3 rounded-full bg-yellow-400" />
                   <span className="h-3 w-3 rounded-full bg-green-400" />
                 </div>
-                <div className="mx-auto text-xs text-muted-foreground bg-muted/30 rounded-md px-3 py-0.5 w-[220px] truncate">
+                <div className="mx-auto text-xs text-muted-foreground bg-muted rounded-md px-3 py-0.5 w-[220px] truncate">
                   https://app.moneymappr.com
                 </div>
               </div>
 
               {/* Dashboard Image */}
-              <div className="relative aspect-[15/9] overflow-hidden">
+              <div className="relative aspect-[15/10] overflow-hidden">
                 {theme && (
                   <Image
                     src={
@@ -131,13 +135,13 @@ export function LandingHero() {
         {/* === Feature Highlights === */}
         <div className="mt-14 flex flex-wrap justify-center gap-5 text-xs sm:text-sm text-muted-foreground">
           {[
-            { Icon: Shield, label: 'Bank-Level Encryption', color: 'text-green-500' },
-            { Icon: Clock, label: 'Instant Alerts', color: 'text-blue-500' },
-            { Icon: CreditCard, label: 'Smart Spend Insights', color: 'text-orange-500' },
-            { Icon: LineChart, label: 'Predictive Analytics', color: 'text-purple-500' },
+            { Icon: SolarShieldBoldDuotone, label: 'Bank-Level Encryption', color: 'text-green-700' },
+            { Icon: SolarClockCircleBoldDuotone, label: 'Instant Alerts', color: 'text-blue-700' },
+            { Icon: DuoIconsCreditCard, label: 'Smart Spend Insights', color: 'text-orange-700' },
+            { Icon: SolarChartSquareBoldDuotone, label: 'Predictive Analytics', color: 'text-purple-700' },
           ].map(({ Icon, label, color }, i) => (
             <div key={i} className="flex items-center gap-2">
-              <Icon className={`h-4 w-4 ${color}`} />
+              <Icon className={`h-5 w-5 ${color}`} />
               <span>{label}</span>
             </div>
           ))}

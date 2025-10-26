@@ -10,6 +10,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DuoIconsBank, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '../icons/icons';
+import { LogoMappr } from '../icons';
 
 export function LandingNav() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -82,14 +83,15 @@ export function LandingNav() {
                 className="flex items-center gap-2 -ml-1 group"
                 onClick={handleLinkClick}
               >
-                <Image
+               {/*  <Image
                   src="/logo/19.svg"
                   alt="MoneyMappr logo"
                   width={56}
                   height={56}
                   className="object-contain w-12 h-12 sm:w-14 sm:h-14 transition-transform group-hover:scale-105"
                   priority
-                />
+                /> */}
+                <LogoMappr className='w-12 h-12' />
                 <div className="flex flex-col">
                   <span className="text-base sm:text-lg font-bold tracking-tight">
                     MoneyMappr
@@ -196,9 +198,9 @@ export function LandingNav() {
               </div>
 
               {/* === Desktop CTA === */}
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-6">
                 <ThemeSwitcher />
-                <Link href="/auth/login">
+           {/*      <Link href="/auth/login">
                   <Button variant="ghost" size="sm" className="text-xs">
                     Sign In
                   </Button>
@@ -207,6 +209,15 @@ export function LandingNav() {
                   <Button size="sm" className="group text-xs font-semibold">
                     <span className="flex items-center gap-1">
                       Get Started
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </Button>
+                </Link> */}
+
+                <Link href="/auth/signup">
+                  <Button size="sm" className="group text-xs font-semibold">
+                    <span className="flex items-center gap-1">
+                     Join Waitlist
                       <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </Button>

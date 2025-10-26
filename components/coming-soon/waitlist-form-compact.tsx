@@ -10,11 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { CheckCircle, Loader2, Mail, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
-import { SolarInboxInBoldDuotone } from '../icons/icons';
+import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
+import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
+import { toast } from 'sonner';
 
 const waitlistSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
- 
 });
 
 type WaitlistForm = z.infer<typeof waitlistSchema>;
@@ -25,73 +26,63 @@ interface WaitlistFormProps {
 
 export function WaitlistFormCompact({ className }: WaitlistFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ TanStack Query mutation for server data
+  const { mutate: joinWaitlist, isPending } = useJoinWaitlist();
 
   const form = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
       email: '',
- 
     },
   });
 
-  const onSubmit = async (data: WaitlistForm) => {
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error?.message || 'Failed to join waitlist');
-      }
-
-      setIsSubmitted(true);
-      form.reset();
-    } catch (error) {
-      console.error('Waitlist signup failed:', error);
-      // In a real app, you'd show a toast notification here
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: WaitlistForm) => {
+    joinWaitlist(data, {
+      onSuccess: (response) => {
+        setIsSubmitted(true);
+        form.reset();
+        toast.success('Successfully joined the waitlist!', {
+          description: 'We\'ll notify you when MoneyMappr launches.',
+        });
+      },
+      onError: (error) => {
+        toast.error('Failed to join waitlist', {
+          description: error.message,
+        });
+      },
+    });
   };
 
   if (isSubmitted) {
     return (
       <div className={cn("flex flex-col items-center space-y-2", className)}>
         <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full">
-          <CheckCircle className="w-8 h-8 text-primary" />
+          <SolarCheckCircleBoldDuotone className="w-8 h-8 text-primary" />
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">You're on the list!</h3>
-          <p className="text-muted-foreground max-w-sm">
+          <h3 className="text-xl font-semibold text-foreground">Yay! You're on the list!</h3>
+          <p className="text-muted-foreground max-w-sm text-sm">
             Thanks for joining our waitlist. We'll notify you as soon as MoneyMappr launches.
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => setIsSubmitted(false)}
-          className="mt-4 border-primary/30 hover:bg-primary/10"
+          className="mt-4 "
         >
-          Join another email
+          Add another email
         </Button>
       </div>
     );
   }
 
   return (
-    <div className={cn("mx-auto max-w-sm ", className)}>
+    <div className={cn("mx-auto max-w-lg ", className)}>
 
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-center">
+      <Form {...form} >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full gap-2 items-center">
 
           
           <FormField
@@ -101,13 +92,14 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
             render={({ field }) => (
               <FormItem className='w-full'>
                 <FormControl>
-                  <div className="relative">
-                    <SolarInboxInBoldDuotone className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <div className="relative items-center group hover:translate-y-[2px]">
+                    <SolarInboxInBoldDuotone className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground " />
                     <Input
                       placeholder="Enter your email address"
                       {...field}
-                      className="h-10 pl-12 text-lg border-border/60 focus:ring-0 bg-background/80 backdrop-blur-sm hover:shadow-md"
-                      disabled={isLoading}
+                      className="h-10 pl-12 "
+                      variant='primary'
+                      disabled={isPending}
                     />
                   </div>
                 </FormControl>
@@ -119,10 +111,10 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
           <Button
             type="submit"
             size={'sm'}
-            className="w-fit h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm  hover:shadow-lg "
-            disabled={isLoading}
+            className="w-fit h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm   hover:shadow-lg "
+            disabled={isPending}
           >
-            {isLoading ? (
+            {isPending ? (
               <>
                 <Loader2 className="w-5 h-5 mr-1 animate-spin" />
                 Joining...
@@ -130,7 +122,7 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
             ) : (
               <>
                 Join
-                
+
               </>
             )}
           </Button>

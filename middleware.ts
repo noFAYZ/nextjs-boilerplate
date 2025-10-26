@@ -1,10 +1,58 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getSessionCookie } from "better-auth/cookies";
+
+// ============================================================================
+// WAITLIST MODE CONFIGURATION
+// ============================================================================
+// When WAITLIST_MODE is enabled, all protected routes redirect to homepage
+// This is useful for pre-launch landing pages where you want to collect emails
+// but keep the app infrastructure ready
+const isWaitlistMode = process.env.NEXT_PUBLIC_WAITLIST_MODE === 'true';
+
 // Define protected and public routes
-const protectedRoutes = ['/dashboard', '/profile', '/settings', '/subscription'];
+const protectedRoutes = [
+  '/dashboard',
+  '/profile',
+  '/settings',
+  '/subscription',
+  '/subscriptions',
+  '/accounts',
+  '/budgets',
+  '/goals',
+  '/integrations',
+  '/portfolio',
+  '/widgets',
+];
 const authRoutes = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password'];
 const onboardingRoute = '/onboarding';
+
+// ============================================================================
+// SECURITY HEADERS HELPER
+// ============================================================================
+function addSecurityHeaders(response: NextResponse): NextResponse {
+  // Add security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+  // Remove server information
+  response.headers.set('Server', '');
+  response.headers.set('X-Powered-By', '');
+
+  // CSP header for production
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+    );
+  }
+
+  return response;
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,10 +71,34 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ============================================================================
+  // WAITLIST MODE REDIRECT
+  // ============================================================================
+  // If waitlist mode is enabled, redirect all protected routes and auth routes to homepage
+  if (isWaitlistMode) {
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
+    const isOnboarding = pathname === onboardingRoute;
+
+    if (isProtectedRoute || isAuthRoute || isOnboarding) {
+      // Redirect to homepage (landing page)
+      const response = NextResponse.redirect(new URL('/', request.url));
+      return addSecurityHeaders(response);
+    }
+
+    // Allow access to other routes (landing page, etc.)
+    const response = NextResponse.next();
+    return addSecurityHeaders(response);
+  }
+
+  // ============================================================================
+  // NORMAL AUTHENTICATION FLOW (when waitlist mode is disabled)
+  // ============================================================================
+
 /*   const sessionCookie = getSessionCookie(request, {
     cookieName: "better-auth.session_token",
     cookiePrefix: "__Secure-"
-}); 
+});
 const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : '';
 const sessionCookie = getSessionCookie(request, {
   cookieName: `${cookiePrefix}better-auth.session_token`
@@ -76,28 +148,7 @@ const sessionCookie = getSessionCookie(request, {
 
   // Security headers for all responses
   const response = NextResponse.next();
-
-  // Add security headers
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  
-  // Remove server information
-  response.headers.set('Server', '');
-  response.headers.set('X-Powered-By', '');
-  
-  // CSP header for production
-  if (process.env.NODE_ENV === 'production') {
-    response.headers.set(
-      'Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
-    );
-  }
-
-  return response;
+  return addSecurityHeaders(response);
 }
 
 export const config = {

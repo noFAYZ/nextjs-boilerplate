@@ -726,6 +726,7 @@ export function LogoMappr(props: React.SVGProps<SVGSVGElement>) {
     <svg
       height="100%"
       preserveAspectRatio="xMidYMid meet"
+      
       viewBox="0 0 24 24"
       width="100%"
       xmlns="http://www.w3.org/2000/svg"
