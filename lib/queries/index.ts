@@ -283,3 +283,36 @@ export {
   subscriptionQueries,
   subscriptionMutations,
 } from './subscription-queries';
+
+// ============================================================================
+// BILLING SUBSCRIPTION DATA HOOKS (Plans, Current Billing, Usage)
+// ============================================================================
+
+export {
+  // Plan Queries
+  useSubscriptionPlans,
+  useSubscriptionPlansComparison,
+
+  // Current Subscription Queries
+  useCurrentBillingSubscription,
+
+  // History Queries
+  useSubscriptionHistory,
+  usePaymentHistory,
+
+  // Usage Queries
+  useUsageStats,
+  useFeatureLimit,
+
+  // Billing Mutations
+  useCreateBillingSubscription,
+  useUpgradeBillingSubscription,
+  useCancelBillingSubscription,
+  useRetryPayment,
+
+  // Utilities
+  useInvalidateBillingSubscriptionCache,
+  usePrefetchBillingSubscriptionData,
+  useCanAccessFeature,
+  billingSubscriptionKeys,
+} from './use-billing-subscription-data';

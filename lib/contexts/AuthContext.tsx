@@ -196,12 +196,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [storeIsAuthenticated, storeUser?.id, storeSession?.id, user?.id, session?.id]); // Stable dependencies
 
+  // Initialize session on mount - ONLY ONCE
   useEffect(() => {
-    // Initialize session on mount - only if AuthStore doesn't have a user
-    if (!storeUser && !storeIsAuthenticated) {
-      refreshSession();
+    let mounted = true;
+
+    const initializeSession = async () => {
+      // Only initialize if AuthStore doesn't have a user and we haven't initialized yet
+      if (!storeUser && !storeIsAuthenticated) {
+        await refreshSession();
+      }
+    };
+
+    if (mounted) {
+      initializeSession();
     }
-  }, [storeUser, storeIsAuthenticated]);
+
+    return () => {
+      mounted = false;
+    };
+    // CRITICAL: Empty dependency array to run ONLY ONCE on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value: AuthContextType = {
     user,

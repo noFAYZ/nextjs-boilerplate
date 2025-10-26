@@ -10,7 +10,7 @@ import { LogoMappr } from '../icons';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useUserProfile } from '@/lib/hooks/use-user-profile';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { useCallback, useEffect, useRef } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,8 +39,13 @@ export function Header({
   
   const menuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
-  
-  const { profile, isLoading: profileLoading } = useUserProfile();
+
+  // PRODUCTION-GRADE: Use AuthStore directly instead of fetching profile
+  // No API calls - just read from memory
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const profileLoading = !isInitialized;
+
   const pathname = usePathname();
   const router = useRouter();
   const commandPalette = useCommandPalette();
@@ -170,12 +175,12 @@ export function Header({
                     <Skeleton className="h-8 w-8 rounded-full" />
                   ) : (
                     <Avatar className="h-8 w-8">
-                      <AvatarImage 
-                        src={profile?.profilePicture} 
-                        alt={`${profile?.firstName || 'User'}'s avatar`}
+                      <AvatarImage
+                        src={user?.image}
+                        alt={`${user?.name || 'User'}'s avatar`}
                       />
                       <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                        {profile?.firstName?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
+                        {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -183,8 +188,8 @@ export function Header({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={8} className="w-56">
                 <div className="p-3 border-b">
-                  <div className="text-sm font-medium">{profile?.firstName || 'User'}</div>
-                  <div className="text-xs text-muted-foreground truncate">{profile?.email}</div>
+                  <div className="text-sm font-medium">{user?.name || 'User'}</div>
+                  <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
                 </div>
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center gap-2">

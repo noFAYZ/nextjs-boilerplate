@@ -97,7 +97,9 @@ class CurrencyService {
     timestamp: null,
   };
 
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  // PRODUCTION-GRADE: 24-hour cache as requested
+  // TanStack Query handles primary caching, this is just a fallback
+  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
   /**
    * Fetch fiat rates from Zapper API

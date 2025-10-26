@@ -1,11 +1,14 @@
 /**
  * Session Timeout Management Hook
  * Handles session expiration warnings, automatic logout, and token refresh
+ *
+ * PRODUCTION-GRADE: Uses AuthStore instead of making API calls
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { logger } from '@/lib/utils/logger';
 import { config } from '@/lib/config/env';
 
@@ -88,15 +91,23 @@ export function useSessionTimeout(options: SessionTimeoutOptions = {}) {
     };
   }, [updateActivity]);
 
-  // Get current session information (using useRef to avoid dependency issues)
-  const getSessionInfo = useCallback(async () => {
-    try {
-      const session = await authClient.getSession();
-      return session;
-    } catch (error) {
-      logger.error('Failed to get session info', error);
+  // Get current session information from AuthStore (NO API CALLS)
+  // PRODUCTION-GRADE: Use Zustand store instead of making API requests
+  const getSessionFromStore = useCallback(() => {
+    const session = useAuthStore.getState().session;
+    const user = useAuthStore.getState().user;
+    const isAuthenticated = useAuthStore.getState().isAuthenticated;
+
+    if (!isAuthenticated || !user || !session) {
       return null;
     }
+
+    return {
+      data: {
+        session,
+        user,
+      },
+    };
   }, []);
 
   // Refresh session token
@@ -168,12 +179,14 @@ export function useSessionTimeout(options: SessionTimeoutOptions = {}) {
     handleSessionExpiryRef.current = handleSessionExpiry;
   }, [onWarning, refreshSession, handleSessionExpiry]);
 
-  // Check session status and calculate time remaining
+  // Check session status and calculate time remaining (NO API CALLS)
+  // PRODUCTION-GRADE: Uses AuthStore state instead of fetching from API
   const checkSession = useCallback(async () => {
     try {
-      const sessionData = await getSessionInfo();
+      // Get session from store (no API call)
+      const sessionData = getSessionFromStore();
       const session = sessionData?.data;
-      
+
       if (!session?.user) {
         setState(prev => ({ ...prev, isActive: false }));
         return;
@@ -218,7 +231,7 @@ export function useSessionTimeout(options: SessionTimeoutOptions = {}) {
     } catch (error) {
       logger.error('Error checking session status', error);
     }
-  }, [getSessionInfo, warningTime, autoRefresh]);
+  }, [getSessionFromStore, warningTime, autoRefresh]);
 
   // Start session monitoring
   useEffect(() => {

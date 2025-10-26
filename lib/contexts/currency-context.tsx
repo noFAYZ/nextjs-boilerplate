@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { currencyService, type FiatRates, type CurrencyInfo } from '@/lib/services/currency-api';
+import { useFiatRates, useAvailableCurrencies } from '@/lib/queries/use-currency-data';
 
 interface CurrencyContextValue {
   // Current state
@@ -37,11 +38,24 @@ const CURRENCY_STORAGE_KEY = 'moneymappr_selected_currency';
 
 export function CurrencyProvider({ children, defaultCurrency = 'USD' }: CurrencyProviderProps) {
   const [selectedCurrency, setSelectedCurrency] = useState<string>(defaultCurrency);
-  const [exchangeRates, setExchangeRates] = useState<FiatRates | null>(null);
-  const [availableCurrencies, setAvailableCurrencies] = useState<CurrencyInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isChanging, setIsChanging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // PRODUCTION-GRADE: Use TanStack Query with 24-hour caching
+  // No useEffect, no manual fetching - React Query handles everything
+  const {
+    data: exchangeRates,
+    isLoading: ratesLoading,
+    error: ratesError,
+    refetch: refetchRates,
+  } = useFiatRates();
+
+  const {
+    data: availableCurrencies,
+    isLoading: currenciesLoading,
+  } = useAvailableCurrencies();
+
+  const isLoading = ratesLoading || currenciesLoading;
+  const error = ratesError ? (ratesError instanceof Error ? ratesError.message : 'Failed to load currency data') : null;
 
   // Initialize from localStorage
   useEffect(() => {
@@ -51,46 +65,10 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
     }
   }, []);
 
-  // Load initial data
-  useEffect(() => {
-    loadCurrencyData();
-  }, []);
-
-  const loadCurrencyData = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-
-      // Load rates and available currencies in parallel
-      const [rates, currencies] = await Promise.all([
-        currencyService.getFiatRates(),
-        currencyService.getAllCurrencies(),
-      ]);
-
-      setExchangeRates(rates);
-      setAvailableCurrencies(currencies);
-    } catch (err) {
-      console.error('Failed to load currency data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load currency data');
-
-      // Set fallback data
-      setExchangeRates({ USD: 1, EUR: 0.85, GBP: 0.73 });
-      setAvailableCurrencies([
-        { code: 'USD', symbol: '$', rate: 1, name: 'US Dollar' },
-        { code: 'EUR', symbol: '€', rate: 0.85, name: 'Euro' },
-        { code: 'GBP', symbol: '£', rate: 0.73, name: 'British Pound' },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const changeCurrency = useCallback(async (currencyCode: string) => {
     if (currencyCode === selectedCurrency) return;
 
     setIsChanging(true);
-    setError(null);
 
     try {
       // Validate currency exists
@@ -104,27 +82,21 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
 
       // Save to localStorage
       localStorage.setItem(CURRENCY_STORAGE_KEY, currencyCode.toUpperCase());
-
-      // Refresh rates to ensure we have latest data
-      await refreshRates();
     } catch (err) {
       console.error('Failed to change currency:', err);
-      setError(err instanceof Error ? err.message : 'Failed to change currency');
     } finally {
       setIsChanging(false);
     }
   }, [selectedCurrency]);
 
+  // Manual refresh function (refetches from TanStack Query)
   const refreshRates = useCallback(async () => {
     try {
-      const rates = await currencyService.getFiatRates();
-      setExchangeRates(rates);
-      setError(null);
+      await refetchRates();
     } catch (err) {
       console.error('Failed to refresh rates:', err);
-      setError(err instanceof Error ? err.message : 'Failed to refresh rates');
     }
-  }, []);
+  }, [refetchRates]);
 
   const convertFromUSD = useCallback((amountUSD: number): number => {
     if (!exchangeRates || selectedCurrency === 'USD') {
@@ -146,7 +118,7 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
 
   const getCurrencyInfo = useCallback((currencyCode?: string): CurrencyInfo | null => {
     const code = currencyCode || selectedCurrency;
-    return availableCurrencies.find(c => c.code === code.toUpperCase()) || null;
+    return availableCurrencies?.find(c => c.code === code.toUpperCase()) || null;
   }, [availableCurrencies, selectedCurrency]);
 
   const currencySymbol = currencyService.getCurrencySymbol(selectedCurrency);
@@ -155,8 +127,8 @@ export function CurrencyProvider({ children, defaultCurrency = 'USD' }: Currency
     // Current state
     selectedCurrency,
     currencySymbol,
-    exchangeRates,
-    availableCurrencies,
+    exchangeRates: exchangeRates || null,
+    availableCurrencies: availableCurrencies || [],
 
     // Loading states
     isLoading,

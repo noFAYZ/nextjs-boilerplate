@@ -494,9 +494,23 @@ export function GlobalDocks() {
     return null
   }
 
+  // PRODUCTION-GRADE: Show SyncIndicator ONLY on pages that need real-time sync
+  // Pages with active wallet/banking management need the sync status dock
+  const showSyncIndicator = React.useMemo(() => {
+    return (
+      pathname.startsWith('/accounts/wallet') ||
+      pathname.startsWith('/accounts/bank') ||
+      pathname.startsWith('/dashboard') ||
+      pathname === '/portfolio/crypto' ||
+      pathname === '/portfolio/banking'
+    )
+  }, [pathname])
+
   return (
     <>
-      <SyncIndicator />
+      {/* Only show sync indicator on relevant pages */}
+      {showSyncIndicator && <SyncIndicator />}
+
       {!isBeginnerMode && <BottomMenuDock />}
 
       {/* Mobile spacing for bottom navigation */}

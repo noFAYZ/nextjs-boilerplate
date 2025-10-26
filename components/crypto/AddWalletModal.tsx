@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 import { SolarWalletBoldDuotone } from '@/components/icons/icons';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscription } from '@/lib/hooks/use-subscription';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
 
 // Form validation schema
 const walletSchema = z.object({
@@ -73,7 +73,10 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
   const { mutate: createWallet, isPending } = useCreateCryptoWallet();
-  const { plans, upgradeSubscription } = useSubscription();
+
+  // PRODUCTION-GRADE: Only fetch specific data needed, not full subscription
+  const { data: plans = [] } = useSubscriptionPlans();
+  const { mutateAsync: upgradeSubscription } = useUpgradeBillingSubscription();
   const planLimitDialog = usePlanLimitDialog();
 
   const {

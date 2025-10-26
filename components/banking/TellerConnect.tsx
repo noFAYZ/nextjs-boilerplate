@@ -29,7 +29,7 @@ import type { TellerConnectEnrollment, TellerConnectConfig } from '@/lib/types/b
 import { cn } from '@/lib/utils';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscription } from '@/lib/hooks/use-subscription';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
 
 // Teller Connect Widget Interface
 declare global {
@@ -57,7 +57,10 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
 
   const { setTellerConnectOpen, setTellerConnectLoading, setTellerConnectError } = useBankingStore();
   const connectAccount = bankingMutations.useConnectAccount();
-  const { plans, upgradeSubscription } = useSubscription();
+
+  // PRODUCTION-GRADE: Only fetch specific data needed, not full subscription
+  const { data: plans = [] } = useSubscriptionPlans();
+  const { mutateAsync: upgradeSubscription } = useUpgradeBillingSubscription();
   const planLimitDialog = usePlanLimitDialog();
 
   // Load Teller Connect SDK

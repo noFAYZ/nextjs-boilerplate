@@ -257,38 +257,37 @@ export default function AuthForm({
 
   if (success) {
     return (
-      
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className={cn('w-full flex justify-center')}
+          className={cn('w-full flex justify-center px-4')}
         >
-          <Card className="w-full max-w-sm text-center border border-border/70 shadow-sm">
-            <CardHeader className="space-y-4">
+          <Card className="w-full max-w-sm text-center border border-border/70 shadow-lg">
+            <CardHeader className="space-y-4 px-4 sm:px-6 pt-8">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                 className="flex justify-center"
               >
-                <div className="relative w-16 h-16 flex items-center justify-center rounded-full ">
-                  <SuccessLoader  />
-                  {/* If you have your own SuccessLoader animation, replace above line */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full">
+                  <SuccessLoader />
                 </div>
               </motion.div>
-    
-              <CardTitle className="text-2xl font-semibold tracking-tight text-foreground">
+
+              <CardTitle className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
                 Success!
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardDescription className="text-sm sm:text-base text-muted-foreground px-2">
                 {successMessage}
               </CardDescription>
             </CardHeader>
-    
-            <CardFooter className="flex flex-col gap-3">
+
+            <CardFooter className="flex flex-col gap-3 px-4 sm:px-6 pb-8">
               {links.map((link, index) => (
-                <div key={index} className="text-sm">
+                <div key={index} className="text-xs sm:text-sm">
                   <span className="text-muted-foreground">{link.text}</span>{' '}
                   <Link
                     href={link.href}
@@ -298,10 +297,10 @@ export default function AuthForm({
                   </Link>
                 </div>
               ))}
-    
+
               {/* Optional main action */}
               {links.length === 0 && (
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild className="w-full">
                   <Link href="/">Go to Dashboard</Link>
                 </Button>
               )}
@@ -312,13 +311,13 @@ export default function AuthForm({
   }
 
   return (
-    <Card className="w-full max-w-sm mx-auto px-2 border-2 ">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">{title}</CardTitle>
-        
+    <Card className="w-full max-w-sm mx-auto border-2 shadow-lg">
+      <CardHeader className="text-center space-y-2 px-4 sm:px-6 pt-6">
+        <CardTitle className="text-2xl sm:text-3xl font-bold">{title}</CardTitle>
+        <p className="text-sm sm:text-base text-muted-foreground">{description}</p>
       </CardHeader>
-      
-      <CardContent>
+
+      <CardContent className="px-4 sm:px-6 pb-6">
         {error && (
           <div className="flex items-center gap-2 p-3 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/20">
             <AlertCircle className="w-4 h-4" />
@@ -345,22 +344,33 @@ export default function AuthForm({
               </div>
             )}
 
-{type === 'signin' && ( <><div className={` justify-center gap-4 mb-6 px-4 flex `}>
-                <Button variant="outline" className='w-1/2 items-center align-middle content-center' size={'lg'} >
-                  <Fa7BrandsGithub className='w-6 h-6' />
-               
-                  Github
-                </Button>
-                <Button variant="outline" className='w-1/2  items-center align-middle content-center'  size={'lg'} >
-                <LogosGoogleIcon className='w-6 h-6'/>
-                  Google
-                </Button>
-              </div>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t mb-4">
-                <span className="bg-card text-muted-foreground relative z-10 px-2">
-                  Or continue with
-                </span>
-              </div></>)}
+{type === 'signin' && (
+              <>
+                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-6">
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-1/2 items-center gap-2"
+                    size="lg"
+                  >
+                    <Fa7BrandsGithub className="w-5 h-5" />
+                    <span className="hidden sm:inline">Github</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-1/2 items-center gap-2"
+                    size="lg"
+                  >
+                    <LogosGoogleIcon className="w-5 h-5" />
+                    <span className="hidden sm:inline">Google</span>
+                  </Button>
+                </div>
+                <div className="after:border-border relative text-center text-xs sm:text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t mb-4">
+                  <span className="bg-card text-muted-foreground relative z-10 px-2">
+                    Or continue with email
+                  </span>
+                </div>
+              </>
+            )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -527,11 +537,14 @@ export default function AuthForm({
         </Form>
       </CardContent>
 
-      <CardFooter className="flex flex-col space-y-4">
+      <CardFooter className="flex flex-col space-y-3 px-4 sm:px-6 pb-6">
         {links.map((link, index: number) => (
-          <div key={index} className="text-center text-sm">
+          <div key={index} className="text-center text-xs sm:text-sm">
             <span className="text-muted-foreground">{link.text}</span>{' '}
-            <Link href={link.href} className="text-primary hover:underline font-medium">
+            <Link
+              href={link.href}
+              className="text-primary hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-sm"
+            >
               {link.linkText}
             </Link>
           </div>

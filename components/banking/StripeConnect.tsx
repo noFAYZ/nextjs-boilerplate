@@ -27,7 +27,7 @@ import { bankingMutations } from '@/lib/queries/banking-queries';
 import { bankingApi } from '@/lib/services/banking-api';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscription } from '@/lib/hooks/use-subscription';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
 
 // Stripe.js Financial Connections Interface (from official docs)
 interface StripeFinancialConnectionsAccount {
@@ -80,7 +80,10 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
 
   const { setStripeConnectOpen, setStripeConnectLoading, setStripeConnectError } = useBankingStore();
   const connectStripeAccount = bankingMutations.useConnectStripeAccount();
-  const { plans, upgradeSubscription } = useSubscription();
+
+  // PRODUCTION-GRADE: Only fetch specific data needed, not full subscription
+  const { data: plans = [] } = useSubscriptionPlans();
+  const { mutateAsync: upgradeSubscription } = useUpgradeBillingSubscription();
   const planLimitDialog = usePlanLimitDialog();
 
   // Load Stripe SDK
