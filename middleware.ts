@@ -28,7 +28,7 @@ export function middleware(request: NextRequest) {
   // In development (secure: false), cookies don't have the prefix
   const sessionCookie =
     // Production cookies (with __Secure- prefix)
-    request.cookies.get('__Secure-better-auth.session_token')?.value ||
+    request.cookies.get('__Secure-better-auth.session_data')?.value || request.cookies.get('__Secure-better-auth.session_token')?.value ||
     request.cookies.get('__Host-better-auth.session_token')?.value ||
     // Development cookies (without prefix)
     request.cookies.get('better-auth.session_token')?.value ||
