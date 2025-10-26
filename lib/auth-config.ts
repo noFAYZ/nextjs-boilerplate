@@ -111,10 +111,12 @@ export const auth = betterAuth({
   ],
   
   // Security configurations
-  cookies: {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+  cookieOptions: {
+    secure: true,
+    sameSite: "lax" as const,
     httpOnly: true,
+    path: "/",              // ✅ CRITICAL: Allows cookies on all routes
+    domain: undefined,      // ✅ CRITICAL: Works with localhost
   },
   
   csrf: {
@@ -128,9 +130,7 @@ export const auth = betterAuth({
   
   // Advanced session management
   advanced: {
-    crossSubDomainCookies: {
-      enabled: false, // Enable if you need cross-subdomain auth
-    },
+
     generateId: () => crypto.randomUUID(),
   },
 });

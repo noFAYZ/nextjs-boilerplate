@@ -24,10 +24,18 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if user has a session cookie
-  const sessionCookie = request.cookies.get('better-auth.session_token')?.value ||
-  request.cookies.get('authjs.session-token')?.value ||
-  request.cookies.get('session')?.value ||
-  request.cookies.get('auth.session-token')?.value;
+  // ✅ CRITICAL: In production (secure: true), cookies have __Secure- prefix
+  // In development (secure: false), cookies don't have the prefix
+  const sessionCookie =
+    // Production cookies (with __Secure- prefix)
+    request.cookies.get('__Secure-better-auth.session_token')?.value ||
+    request.cookies.get('__Host-better-auth.session_token')?.value ||
+    // Development cookies (without prefix)
+    request.cookies.get('better-auth.session_token')?.value ||
+    // Fallback to other possible cookie names
+    request.cookies.get('authjs.session-token')?.value ||
+    request.cookies.get('session')?.value ||
+    request.cookies.get('auth.session-token')?.value;
   const isAuthenticated = !!sessionCookie;
 
   // Handle onboarding route - allow access for authenticated users only
