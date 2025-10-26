@@ -47,7 +47,8 @@ const sessionCookie = getSessionCookie(request, {
     request.cookies.get('session')?.value ||
     request.cookies.get('auth.session-token')?.value; 
   const isAuthenticated = !!sessionCookie;
-console.log("Session cookie:",sessionCookie,isAuthenticated)
+
+console.log("Session cookie:",sessionCookie,isAuthenticated,request.cookies)
   // Handle onboarding route - allow access for authenticated users only
   if (pathname === onboardingRoute) {
     if (!isAuthenticated) {
