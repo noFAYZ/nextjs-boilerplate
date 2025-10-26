@@ -1,7 +1,27 @@
 import { createAuthClient } from "better-auth/client";
 
+// ✅ CRITICAL: Dynamic baseURL that works in both development and production
+// Production (Vercel): Uses window.location.origin (e.g., https://yourapp.vercel.app)
+// Development: Uses localhost or env variable
+const getAuthBaseURL = () => {
+  // Server-side rendering: use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL ||
+           process.env.NEXT_PUBLIC_APP_URL ||
+           'http://localhost:3000';
+  }
+
+  // Client-side in production: use current origin
+  if (process.env.NODE_ENV === 'production') {
+    return window.location.origin;
+  }
+
+  // Client-side in development: use env or localhost
+  return process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL || 'http://localhost:3000';
+};
+
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL || "http://localhost:3000",
+  baseURL: getAuthBaseURL(),
 
   fetchOptions: {
     credentials: 'include', // Important for cookie-based sessions
