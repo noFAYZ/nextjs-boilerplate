@@ -6,18 +6,17 @@ import {
   BarChart3,
   CalendarClock,
   Shield,
-  Search,
-  TrendingUp,
-  XCircle,
   ArrowRight,
+  XCircle,
 } from 'lucide-react';
 import CardSwap, { Card } from './section-widgets/CardSwap';
 import DecryptedText from '../ui/shadcn-io/decrypted-text';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 export function FeatureGrid() {
-  const [cardSwapHeight, setCardSwapHeight] = useState(300); // Default height
+  const [cardSwapHeight, setCardSwapHeight] = useState(280);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const subscriptionFeatures = [
@@ -25,7 +24,7 @@ export function FeatureGrid() {
       icon: CreditCard,
       title: 'Centralized Subscription Tracking',
       description:
-        'Connect all your recurring payments in one place — Netflix, Spotify, Adobe, AWS, and more. Instantly see how much you’re spending each month.',
+        'Connect Netflix, Spotify, Adobe, AWS, and more in one dashboard. Monitor all recurring payments instantly.',
       gradient: 'from-primary/90 to-primary/60',
       features: ['Auto Import', '500+ Services', 'Unified Dashboard'],
       large: true,
@@ -34,7 +33,7 @@ export function FeatureGrid() {
       icon: Bell,
       title: 'Smart Renewal Reminders',
       description:
-        'Never miss or forget a renewal again. Get timely notifications before charges hit your card — email or in-app.',
+        'Stay ahead with timely email or in-app notifications before subscription renewals.',
       gradient: 'from-primary/90 to-orange-400/80',
       features: ['Smart Alerts', 'Custom Reminders', 'Multi-Channel'],
       large: true,
@@ -43,7 +42,7 @@ export function FeatureGrid() {
       icon: XCircle,
       title: 'One-Click Cancellations',
       description:
-        'Cancel unwanted subscriptions directly or access easy cancellation links with one click — saving hours of hassle.',
+        'Cancel subscriptions effortlessly with direct links or one-click actions, saving time.',
       gradient: 'from-orange-500/90 to-primary/70',
       features: ['Cancel Fast', 'Smart Links', 'Refund Tracking'],
     },
@@ -51,7 +50,7 @@ export function FeatureGrid() {
       icon: BarChart3,
       title: 'Spend Analytics & Insights',
       description:
-        'Visualize your recurring expenses with advanced analytics. Detect wasteful spending and identify yearly vs. monthly trends.',
+        'Visualize expenses with analytics to spot wasteful spending and track trends.',
       gradient: 'from-primary/80 to-orange-400/80',
       features: ['Spend Breakdown', 'Yearly View', 'Auto Categorization'],
     },
@@ -59,7 +58,7 @@ export function FeatureGrid() {
       icon: CalendarClock,
       title: 'Upcoming Charge Forecast',
       description:
-        'Get a timeline of what’s due in the next 30 days. Plan ahead, adjust budgets, and avoid unexpected debits.',
+        'Plan budgets with a 30-day forecast of upcoming subscription charges.',
       gradient: 'from-primary/70 to-primary/40',
       features: ['30-Day Forecast', 'Smart Budgeting', 'Predictive Insights'],
     },
@@ -67,136 +66,138 @@ export function FeatureGrid() {
       icon: Shield,
       title: 'Bank-Level Security',
       description:
-        'Your financial data is encrypted with AES-256 and secured using the latest compliance standards. Privacy-first by design.',
+        'AES-256 encryption and compliance standards ensure your data stays private.',
       gradient: 'from-orange-500/80 to-primary/60',
       features: ['AES-256 Encryption', 'Zero Data Sharing', '2FA Protection'],
     },
   ];
 
-  // Dynamically adjust CardSwap height based on viewport
   useEffect(() => {
-    const updateHeight = () => {
+    const updateDimensions = () => {
       const vw = window.innerWidth;
-      let height = 300; // Default for mobile
-      if (vw >= 1024) {
-        height = Math.min(500, window.innerHeight * 0.6); // lg: 60vh, max 500px
+      let height = 280; // xs
+      if (vw >= 1280) {
+        height = Math.min(480, window.innerHeight * 0.5); // xl: 50vh, max 480px
+      } else if (vw >= 1024) {
+        height = 400; // lg: 400px
+      } else if (vw >= 768) {
+        height = 340; // md: 340px
       } else if (vw >= 640) {
-        height = 350; // sm: 350px
+        height = 300; // sm: 300px
       }
       setCardSwapHeight(height);
     };
 
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
+    updateDimensions();
+    let timeout: NodeJS.Timeout;
+    const debounceUpdate = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(updateDimensions, 100);
+    };
+    window.addEventListener('resize', debounceUpdate);
+    return () => window.removeEventListener('resize', debounceUpdate);
   }, []);
 
   return (
     <section
       id="features"
-      className="relative py-10 sm:py-16 lg:py-20 flex items-center justify-center bg-gradient-to-b from-background via-muted/30 to-background"
+      className="relative py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 flex items-center justify-center bg-gradient-to-b from-background via-muted/30 to-background"
     >
       <div
         ref={containerRef}
-        className="relative w-full max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-10 px-4 sm:px-6 lg:px-12"
+        className="relative w-full max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-10 lg:gap-12 px-4 sm:px-6 md:px-8 lg:px-12"
       >
         {/* Text Section */}
-        <div className="w-full lg:w-1/2 text-center lg:text-left space-y-4 sm:space-y-6 max-w-lg mx-auto lg:mx-0">
-          <DecryptedText
-            text="More Coming Soon"
-            speed={45}
-            maxIterations={12}
-            sequential
-            className={cn(
-              'text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight',
-            )}
-            encryptedClassName="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
-            animateOn="hover"
-          />
-
-          <p className="text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed">
-            Track, manage, and optimize your recurring payments — all in one dashboard.
-            Cancel unwanted plans, get smart reminders, and gain spending clarity across every
-            subscription you use.
+        <div className="w-full lg:w-1/2 text-center lg:text-left space-y-4 sm:space-y-5 md:space-y-6 max-w-md sm:max-w-lg lg:max-w-xl mx-auto lg:mx-0">
+          <h2>
+            <DecryptedText
+              text="More coming soon"
+              speed={45}
+              maxIterations={12}
+              sequential
+              className={cn(
+                'text-2xl sm:text-3xl md:text-4xl lg:text-5xl  font-bold tracking-tight text-foreground',
+              )}
+              encryptedClassName="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
+              animateOn="hover"
+            />
+          </h2>
+          <p className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed max-w-prose">
+            Take control of your subscriptions with our powerful tracker. Manage Netflix, Spotify, and more in a secure dashboard. Cancel plans, get alerts, and optimize spending effortlessly.
           </p>
-
-          <div className="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3 text-xs sm:text-sm">
+          <div className="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
             {[
-              'Automated Sync',
-              'Smart Alerts',
-              'Expense Insights',
+              'Subscription Tracker',
+              'Renewal Notifications',
+              'Spending Analytics',
               'Secure Dashboard',
             ].map((feature) => (
               <span
                 key={feature}
-                className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground/80 border border-muted/40 text-xs sm:text-sm"
+                className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground/80 border border-muted/40 text-xs sm:text-sm hover:bg-orange-100 dark:hover:bg-orange-500/20 hover:text-orange-700 dark:hover:text-orange-300 transition-colors duration-200"
               >
                 {feature}
               </span>
             ))}
           </div>
+          <Link
+            href="#waitlist"
+            className="inline-block mt-4 sm:mt-6 text-sm sm:text-base font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+          >
+            Join the Waitlist <ArrowRight className="inline h-4 sm:h-5 w-4 sm:w-5 ml-1" />
+          </Link>
         </div>
 
         {/* Feature Cards (Right) */}
-        <div
-          className="relative w-full flex items-start justify-start"
-          style={{ height: `${cardSwapHeight}px` }}
-        >
+        <div className="relative w-full lg:w-1/2 flex items-center justify-center">
           <CardSwap
-            cardDistance={Math.min(60, window.innerWidth * 0.05)} // ~5vw, max 60px
-            verticalDistance={Math.min(40, window.innerWidth * 0.03)} // ~3vw, max 40px
-            delay={4500}
+            width="min(90vw, 480px)"
+            height={cardSwapHeight}
+            cardDistance={Math.min(40, window.innerWidth * 0.035)} // ~3.5vw, max 40px
+            verticalDistance={Math.min(30, window.innerWidth * 0.22)} // ~2vw, max 25px
+            delay={4000}
+            pauseOnHover
           >
             {subscriptionFeatures.map((feature) => (
               <Card
                 key={feature.title}
                 className={cn(
                   'group rounded-2xl border border-border/80 dark:bg-background bg-white',
-                  'overflow-hidden p-0 w-full sm:w-[90%] md:w-[80%] lg:w-[400px]',
+                  'overflow-hidden p-0 w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[460px] xl:max-w-[700px]',
                 )}
               >
-                {/* Browser Header Bar */}
                 <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border/80 bg-muted/60 backdrop-blur-sm">
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <span className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-red-500/80"></span>
-                    <span className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-yellow-400/80"></span>
-                    <span className="h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-green-500/80"></span>
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    <span className="h-2 sm:h-2.5 md:h-3 w-2 sm:w-2.5 md:w-3 rounded-full bg-red-500/80"></span>
+                    <span className="h-2 sm:h-2.5 md:h-3 w-2 sm:w-2.5 md:w-3 rounded-full bg-yellow-400/80"></span>
+                    <span className="h-2 sm:h-2.5 md:h-3 w-2 sm:w-2.5 md:w-3 rounded-full bg-green-500/80"></span>
                   </div>
-                  <div className="w-2/3 h-3 sm:h-4 bg-muted-foreground/20 rounded-full"></div>
+                  <div className="w-2/3 h-3 sm:h-3.5 md:h-4 bg-muted-foreground/20 rounded-full"></div>
                   <div className="w-3 sm:w-4"></div>
                 </div>
-
-                {/* Card Content */}
-                <div className="p-4 sm:p-6 lg:p-8">
-                  {/* Icon with glow */}
-                  <div className="relative mb-4 sm:mb-6 inline-flex h-10 sm:h-12 lg:h-14 w-10 sm:w-12 lg:w-14 items-center justify-center rounded-2xl bg-accent shadow-lg">
-                    <feature.icon className="h-5 sm:h-6 lg:h-7 w-5 sm:w-6 lg:w-7" />
+                <div className="p-4 sm:p-5 md:p-6 lg:p-7">
+                  <div className="relative mb-3 sm:mb-4 md:mb-5 inline-flex h-10 sm:h-11 md:h-12 lg:h-13 w-10 sm:w-11 md:w-12 lg:w-13 items-center justify-center rounded-2xl bg-accent shadow-lg">
+                    <feature.icon className="h-5 sm:h-5.5 md:h-6 lg:h-6.5 w-5 sm:w-5.5 md:w-6 lg:w-6.5" />
                   </div>
-
-                  {/* Title & Description */}
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-3 text-foreground group-hover:text-orange-500 transition-colors">
+                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold mb-2 sm:mb-3 text-foreground group-hover:text-orange-500 transition-colors">
                     {feature.title}
                   </h3>
-                  <p className="text-xs sm:text-sm lg:text-base text-muted-foreground leading-relaxed mb-4 sm:mb-5">
+                  <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed mb-3 sm:mb-4 md:mb-5">
                     {feature.description}
                   </p>
-
-                  {/* Feature Tags */}
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 mb-3 sm:mb-4">
                     {feature.features.map((item) => (
                       <span
                         key={item}
-                        className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 border border-orange-500/20"
+                        className="px-2 sm:px-2.5 md:px-3 py-0.5 sm:py-1 text-xs sm:text-xs md:text-sm rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 border border-orange-500/20"
                       >
                         {item}
                       </span>
                     ))}
                   </div>
-
-                  {/* Bottom CTA */}
-                  <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <div className="mt-2 sm:mt-3 md:mt-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-sm font-medium text-orange-600 dark:text-orange-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <span>Explore feature</span>
-                    <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
+                    <ArrowRight className="h-3 sm:h-3.5 md:h-4 w-3 sm:w-3.5 md:w-4" />
                   </div>
                 </div>
               </Card>

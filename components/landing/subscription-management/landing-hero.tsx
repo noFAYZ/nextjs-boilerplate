@@ -135,8 +135,8 @@ export function LandingHero() {
   return (
     <section className="relative pt-40 pb-32 overflow-hidden">
       {/* === Background Overlays === */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
-      <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-[0.05] bg-[length:40px_40px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background dark:via-muted/50 via-muted to-background" />
+      <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-[0.85] bg-[length:80px_80px] " />
 
       <svg
         ref={svgRef}
