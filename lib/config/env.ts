@@ -143,8 +143,8 @@ export const getEnvConfig = () => {
     
     // Rate Limiting
     rateLimiting: {
-      api: env.NODE_ENV === 'production' ? 100 : 1000, // requests per 15 minutes
-      auth: env.NODE_ENV === 'production' ? 10 : 50,   // requests per 15 minutes
+      api: env.NODE_ENV === 'production' ? 500 : 1000, // requests per 15 minutes
+      auth: env.NODE_ENV === 'production' ? 30 : 50,   // requests per 15 minutes
       upload: env.NODE_ENV === 'production' ? 10 : 100, // requests per hour
     }
   };
