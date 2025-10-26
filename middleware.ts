@@ -26,28 +26,28 @@ export function middleware(request: NextRequest) {
 /*   const sessionCookie = getSessionCookie(request, {
     cookieName: "better-auth.session_token",
     cookiePrefix: "__Secure-"
-}); */
+}); 
 const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : '';
 const sessionCookie = getSessionCookie(request, {
   cookieName: `${cookiePrefix}better-auth.session_token`
-});
+});*/
 
-console.log("Session cookie:",sessionCookie,cookiePrefix)
+
   // Check if user has a session cookie
   // ✅ CRITICAL: In production (secure: true), cookies have __Secure- prefix
   // In development (secure: false), cookies don't have the prefix
-/*   const sessionCookie =
+/* */  const sessionCookie =
     // Production cookies (with __Secure- prefix)
-    request.cookies.get('__Secure-better-auth.session_data')?.value || request.cookies.get('__Secure-better-auth.session_token')?.value ||
+    request.cookies.get('__Secure-better-auth.session_token')?.value || request.cookies.get('__Secure-better-auth.session_data')?.value ||
     request.cookies.get('__Host-better-auth.session_token')?.value ||
     // Development cookies (without prefix)
     request.cookies.get('better-auth.session_token')?.value ||
     // Fallback to other possible cookie names
     request.cookies.get('authjs.session-token')?.value ||
     request.cookies.get('session')?.value ||
-    request.cookies.get('auth.session-token')?.value; */
+    request.cookies.get('auth.session-token')?.value; 
   const isAuthenticated = !!sessionCookie;
-
+console.log("Session cookie:",sessionCookie,isAuthenticated)
   // Handle onboarding route - allow access for authenticated users only
   if (pathname === onboardingRoute) {
     if (!isAuthenticated) {
