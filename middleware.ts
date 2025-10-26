@@ -23,7 +23,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const sessionCookie = getSessionCookie(request);
+  const sessionCookie = getSessionCookie(request, {
+    cookieName: "better-auth.session_token",
+    cookiePrefix: "__Secure-"
+});
   // Check if user has a session cookie
   // ✅ CRITICAL: In production (secure: true), cookies have __Secure- prefix
   // In development (secure: false), cookies don't have the prefix
