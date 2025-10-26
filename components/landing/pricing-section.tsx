@@ -70,7 +70,7 @@ export function PricingSection() {
 
   return (
     <section id="pricing" className="py-24 bg-background">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
@@ -86,9 +86,9 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 ${
+              className={`relative rounded-2xl border p-8 h-fit ${
                 plan.highlighted
-                  ? 'bg-gradient-to-br from-orange-500 to-amber-600 text-white border-transparent shadow-2xl scale-105'
+                  ? 'bg-gradient-to-br from-orange-500/20 to-amber-600/75 text-white  shadow-2xl scale-105'
                   : 'bg-card shadow-sm hover:shadow-xl transition-shadow'
               }`}
             >
@@ -177,7 +177,7 @@ export function PricingSection() {
                   {plan.cta}
                 </Button>
               </Link>
-
+    
               {/* Features List */}
               <div className="space-y-3">
                 <p
