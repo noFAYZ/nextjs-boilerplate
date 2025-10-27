@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { FluentBuildingBank28Regular, FluentBuildingBankLink28Regular } from '@/components/icons/icons';
+import posthog from 'posthog-js';
 
 // Teller Connect Widget Interface
 interface TellerConnectInstance {
@@ -633,6 +634,15 @@ function ConnectionPageContent() {
     // Save preferences first
     const saved = await saveSyncPreferences();
     if (saved) {
+      posthog.capture('service_sync_preferences_confirmed', {
+        integration_provider: getProviderType(),
+        sync_accounts: syncPreferences.syncAccounts,
+        sync_transactions: syncPreferences.syncTransactions,
+        sync_invoices: syncPreferences.syncInvoices,
+        sync_bills: syncPreferences.syncBills,
+        sync_customers: syncPreferences.syncCustomers,
+        sync_vendors: syncPreferences.syncVendors,
+      });
       stepper.nextStep(); // Move to sync step
       handleServiceSync();
     }
@@ -807,6 +817,11 @@ function ConnectionPageContent() {
       });
       return;
     }
+
+    posthog.capture('bank_accounts_import_confirmed', {
+      integration_provider: integrationId,
+      selected_account_count: selectedBankAccountIds.length,
+    });
 
     setIsConnecting(true);
     stepper.nextStep(); // Move to sync step

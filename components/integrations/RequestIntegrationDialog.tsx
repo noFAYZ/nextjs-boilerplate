@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import posthog from 'posthog-js';
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,13 @@ export function RequestIntegrationDialog({
   };
 
   const handleClose = () => {
+    if (!isSuccess && (formData.integrationName || formData.category || formData.description)) {
+      posthog.capture('integration-request-form-closed', {
+        integration_name_filled: !!formData.integrationName,
+        category_filled: !!formData.category,
+        description_filled: !!formData.description,
+      });
+    }
     onOpenChange(false);
     // Reset form after dialog close animation
     setTimeout(() => {
@@ -98,6 +106,14 @@ export function RequestIntegrationDialog({
       });
       return;
     }
+
+    posthog.capture('integration-request-submitted', {
+      integration_name: formData.integrationName,
+      category: formData.category,
+      priority: formData.priority,
+      has_website: !!formData.website,
+      has_use_case: !!formData.useCase,
+    });
 
     setIsSubmitting(true);
 

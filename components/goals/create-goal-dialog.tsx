@@ -4,6 +4,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import posthog from 'posthog-js'
 import {
   Target,
   DollarSign,
@@ -379,6 +380,16 @@ export function CreateGoalDialog({
         const response = await goalsApi.updateGoal(goal.id, updateData)
 
         if (response.success && response.data) {
+          posthog.capture('goal_updated', {
+            goal_id: goal.id,
+            goal_type: data.type,
+            goal_category: data.category,
+            priority: data.priority,
+            source_type: data.sourceType,
+            has_recurring_contribution: !!data.recurringAmount,
+            milestone_count: milestones.length,
+            tag_count: data.tags?.length || 0,
+          })
           updateGoal(response.data)
           toast.success("Goal updated successfully!", {
             description: `${response.data.name} has been updated.`,
@@ -405,6 +416,15 @@ export function CreateGoalDialog({
         const response = await goalsApi.createGoal(requestData)
 
         if (response.success && response.data) {
+          posthog.capture('goal_created', {
+            goal_type: data.type,
+            goal_category: data.category,
+            priority: data.priority,
+            source_type: data.sourceType,
+            has_recurring_contribution: !!data.recurringAmount,
+            milestone_count: milestones.length,
+            tag_count: data.tags?.length || 0,
+          })
           addGoal(response.data)
           toast.success("Goal created successfully!", {
             description: `${response.data.name} has been added to your goals.`,

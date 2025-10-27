@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 
 import AuthForm from '@/components/auth/auth-form';
 import { AuthLayout } from '@/components/auth/auth-layout';
@@ -31,6 +32,7 @@ function LoginForm() {
     try {
       showLoading('Signing you in...');
       await login(data?.email, data?.password);
+      posthog.capture('login_form_submitted', { success: true });
       showSuccess('Welcome back! Redirecting to dashboard...');
 
       // Redirect to dashboard after successful login
@@ -38,8 +40,13 @@ function LoginForm() {
         router.push('/dashboard');
       }, 1000);
     } catch (error) {
-      // Check if error is EMAIL_NOT_VERIFIED
       const errorObj = error as Error & { code?: string };
+      posthog.capture('login_form_submitted', {
+        success: false,
+        error_code: errorObj.code,
+        error_message: error instanceof Error ? error.message : String(error),
+      });
+      // Check if error is EMAIL_NOT_VERIFIED
       if (errorObj.code === 'EMAIL_NOT_VERIFIED') {
         // Redirect to verification page with email
         showError('Please verify your email to continue');

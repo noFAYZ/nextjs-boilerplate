@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import posthog from 'posthog-js';
 
 import { useCreateCryptoWallet } from '@/lib/queries';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
@@ -150,6 +151,13 @@ export default function AddWalletPage() {
 
 
   const onSubmit = async (data: WalletFormData) => {
+    posthog.capture('add-wallet-form-submitted', {
+        wallet_type: data.type,
+        network: data.network,
+        has_label: !!data.label,
+        has_tags: !!data.tags,
+        has_notes: !!data.notes,
+    });
     try {
       const formattedData = {
         ...data,
@@ -180,6 +188,10 @@ export default function AddWalletPage() {
   };
 
   const handleUpgrade = async (planType: string) => {
+    posthog.capture('plan-upgrade-initiated', {
+        plan_type: planType,
+        source: 'add-wallet-limit'
+    });
     try {
       await upgradeSubscription({
         planType,

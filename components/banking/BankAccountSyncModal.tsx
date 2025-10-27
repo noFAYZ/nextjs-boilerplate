@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import posthog from 'posthog-js';
 import {
   Dialog,
   DialogContent,
@@ -126,8 +127,15 @@ export function BankAccountSyncModal({
       autoCloseTimerRef.current = null;
     }
     setIsAutoClosing(false);
+    posthog.capture('bank_account_sync_modal_closed_manually', {
+      accountId: accountId,
+      accountName: accountName,
+      sync_status_on_close: syncState?.status || 'queued',
+      sync_progress_on_close: syncState?.progress || 0,
+      sync_error_on_close: syncState?.error || null,
+    });
     onClose();
-  }, [onClose]);
+  }, [onClose, accountId, accountName, syncState]);
 
   // Show default initializing state if no sync state exists yet
   const progress = syncState?.progress || 0;

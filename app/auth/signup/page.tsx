@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import AuthForm from '@/components/auth/auth-form';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignUpFormData } from '@/lib/types';
@@ -31,10 +32,13 @@ export default function SignUpPage() {
     try {
       showLoading('Creating your account...');
       await signup(data);
+      posthog.capture('signup_success', { email: data.email });
       setSuccess(true);
       showSuccess('Account created successfully! Please check your email to verify your account.');
     } catch (error) {
-      showError(error instanceof Error ? error.message : 'Signup failed');
+      const errorMessage = error instanceof Error ? error.message : 'Signup failed';
+      posthog.capture('signup_failed', { email: data.email, error: errorMessage });
+      showError(errorMessage);
     }
   };
 

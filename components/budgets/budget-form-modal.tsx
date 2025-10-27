@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useForm } from "react-hook-form"
+import posthog from 'posthog-js'
 import { Loader2, DollarSign, Bell, Settings, Target } from "lucide-react"
 import {
   Dialog,
@@ -151,6 +152,25 @@ export function BudgetFormModal({
   }, [open, budget, reset])
 
   const onSubmit = (data: CreateBudgetRequest) => {
+    if (budget) {
+      posthog.capture('budget_updated', {
+        budget_id: budget.id,
+        amount: data.amount,
+        currency: data.currency,
+        cycle: data.cycle,
+        sourceType: data.sourceType,
+        rolloverType: data.rolloverType,
+      });
+    } else {
+      posthog.capture('budget_created', {
+        amount: data.amount,
+        currency: data.currency,
+        cycle: data.cycle,
+        sourceType: data.sourceType,
+        rolloverType: data.rolloverType,
+      });
+    }
+
     const action = budget ? updateBudget : createBudget
     const payload = budget ? { id: budget.id, updates: data } : data
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -178,6 +179,32 @@ export default function OnboardingPage() {
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;
 
   const handleNext = () => {
+    const currentStepDetails = ONBOARDING_STEPS[currentStep];
+    let stepData = {};
+    switch (currentStepDetails.id) {
+      case 'profile':
+        stepData = {
+          monthly_income: preferences.monthlyIncome,
+        };
+        break;
+      case 'experience':
+        stepData = { experience_level: preferences.experienceLevel };
+        break;
+      case 'goals':
+        stepData = { primary_goals: preferences.primaryGoals, goal_count: preferences.primaryGoals.length };
+        break;
+      case 'investments':
+        stepData = { investment_types: preferences.investmentTypes, type_count: preferences.investmentTypes.length };
+        break;
+    }
+
+    posthog.capture('onboarding_step_completed', {
+      step_id: currentStepDetails.id,
+      step_title: currentStepDetails.title,
+      step_number: currentStep + 1,
+      ...stepData
+    });
+
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -192,6 +219,12 @@ export default function OnboardingPage() {
   };
 
   const completeOnboarding = async () => {
+    posthog.capture('onboarding_completed', {
+      experience_level: preferences.experienceLevel,
+      primary_goals: preferences.primaryGoals,
+      investment_types: preferences.investmentTypes,
+      monthly_income: preferences.monthlyIncome,
+    });
     const viewMode = preferences.experienceLevel === 'beginner' ? 'beginner' : 'pro';
     setViewMode(viewMode);
     localStorage.setItem('onboarding-completed', 'true');

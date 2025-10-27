@@ -200,6 +200,29 @@ export function LandingNav() {
               {/* === Desktop CTA === */}
               <div className="hidden lg:flex items-center gap-6">
                 <ThemeSwitcher />
+
+                {process.env.NEXT_PUBLIC_WAITLIST_MODE?    <Link href="/auth/signup">
+                  <Button size="sm" className="group text-xs font-semibold">
+                    <span className="flex items-center gap-1">
+                     Join Waitlist
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </Button>
+                </Link> : <><Link href="/auth/login">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/auth/signup">
+                  <Button size="sm" className="group text-xs font-semibold">
+                    <span className="flex items-center gap-1">
+                      Get Started
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </Button>
+                </Link></>}
+
+
            {/*      <Link href="/auth/login">
                   <Button variant="ghost" size="sm" className="text-xs">
                     Sign In
@@ -214,14 +237,7 @@ export function LandingNav() {
                   </Button>
                 </Link> */}
 
-                <Link href="/auth/signup">
-                  <Button size="sm" className="group text-xs font-semibold">
-                    <span className="flex items-center gap-1">
-                     Join Waitlist
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Button>
-                </Link>
+             
               </div>
 
               {/* === Mobile Menu Button === */}
