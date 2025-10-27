@@ -101,7 +101,7 @@ export function FeatureGrid() {
   return (
     <section
       id="features"
-      className="relative py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 flex items-center justify-center bg-gradient-to-b from-background via-muted/30 to-background"
+      className="relative py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 flex items-center justify-center bg-gradient-to-b from-background via-muted/30 to-background overflow-hidden"
     >
       <div
         ref={containerRef}
@@ -122,7 +122,7 @@ export function FeatureGrid() {
               animateOn="hover"
             />
           </h2>
-          <p className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed max-w-prose">
+          <p className="text-muted-foreground text-xs sm:text-sm   leading-relaxed max-w-prose">
             Take control of your subscriptions with our powerful tracker. Manage Netflix, Spotify, and more in a secure dashboard. Cancel plans, get alerts, and optimize spending effortlessly.
           </p>
           <div className="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">

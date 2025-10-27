@@ -1,6 +1,6 @@
 'use client';
 
-import { CreditCard, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, CreditCard, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -19,13 +19,14 @@ export function PortfolioShowcase() {
         
         {/* Left: Visual Preview */}
         <ScrollReveal>
-          <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 h-[500px] w-[700px] pl-10 pt-10 shadow">
+          <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 
+          h-[280px] w-[380px]  lg:h-[500px] lg:w-[700px] md:h-[400px] md:w-[600px] pr-10 pl-10 pt-10 shadow-lg drop-shadow-xl border-0">
             <Image
               src="/landing/subscription-management.PNG" // replace with your preview image
               alt="Subscription Management Dashboard"
               width={1700}
               height={1200}
-              className="absolute bottom-0 -right-8 object-contain h-[85%] w-auto rounded-tl-2xl"
+              className="absolute -bottom-2 -right-8 object-contain h-[90%] w-auto rounded-t-2xl sm:rounded-tl-2xl"
               priority
             />
           </div>
@@ -73,9 +74,9 @@ export function PortfolioShowcase() {
 
             <div className="pt-4">
               <Link href="/subscriptions">
-                <Button size="xs" className="group ">
-                  Manage Subscriptions
-                  <SolarInboxInBoldDuotone className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button size="sm" className="group rounded-xl">
+                 Get Started
+                  <ArrowUpRight className="ml-1 h-5 w-5 " />
                 </Button>
               </Link>
             </div>

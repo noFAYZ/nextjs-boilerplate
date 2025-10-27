@@ -1,6 +1,6 @@
 'use client';
 
-import { CreditCard, Calendar, TrendingDown, AlertCircle, Check } from 'lucide-react';
+import { CreditCard, Calendar, TrendingDown, AlertCircle, Check, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScrollReveal } from './scroll-reveal';
@@ -9,8 +9,8 @@ import { SolarInboxInBoldDuotone } from '../icons/icons';
 export function SubscriptionsShowcase() {
   return (
     <section className="py-20 bg-muted/30">
-      <div className="container mx-auto px-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-6">
+        
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Visual Cards */}
             <ScrollReveal>
@@ -91,7 +91,7 @@ export function SubscriptionsShowcase() {
                 </div>
 
                 {/* Top Badge */}
-                <div className="absolute -top-4 -left-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg px-4 py-2 shadow-lg flex items-center gap-2 hidden sm:flex z-10">
+                <div className="absolute -top-4 -left-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg px-2 py-1 shadow-lg flex items-center gap-2 hidden sm:flex z-10">
                   <SolarInboxInBoldDuotone className="h-4 w-4" />
                   <span className="text-xs font-semibold">Smart Tracking</span>
                 </div>
@@ -124,15 +124,15 @@ export function SubscriptionsShowcase() {
                 </div>
 
                 <Link href="/auth/signup">
-                  <Button size="lg" className="group">
-                    Start Tracking Subscriptions
-                    <CreditCard className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                  <Button size="sm" className="group rounded-xl">
+                    Start Tracking
+                    <ArrowUpRight className="ml-1 h-5 w-5 group-hover:scale-110 transition-transform" />
                   </Button>
                 </Link>
               </div>
             </ScrollReveal>
           </div>
-        </div>
+      
       </div>
     </section>
   );
