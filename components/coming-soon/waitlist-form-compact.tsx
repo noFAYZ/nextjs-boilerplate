@@ -13,6 +13,7 @@ import { GameIconsUpgrade } from '../icons';
 import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
 import { toast } from 'sonner';
+import { useGTM } from '@/lib/hooks/use-gtm';
 
 const waitlistSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -30,6 +31,9 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
   // ✅ TanStack Query mutation for server data
   const { mutate: joinWaitlist, isPending } = useJoinWaitlist();
 
+  // ✅ GTM tracking
+  const { trackWaitlistSignup } = useGTM();
+
   const form = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
@@ -42,6 +46,10 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
       onSuccess: (response) => {
         setIsSubmitted(true);
         form.reset();
+
+        // Track successful waitlist signup with GTM
+        trackWaitlistSignup({ email: data.email });
+
         toast.success('Successfully joined the waitlist!', {
           description: 'We\'ll notify you when MoneyMappr launches.',
         });

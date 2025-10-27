@@ -3,6 +3,7 @@ import {  Readex_Pro, Rubik,Sen, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
 
 // Import environment validation to ensure it runs at startup
 import "@/lib/config/env";
@@ -24,13 +25,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <GoogleTagManager />
       <body
         className={`${geistSans.className}   antialiased`}
       >
+        <GoogleTagManagerNoScript />
         <Providers>
             {children}
             <GlobalDocks />
         </Providers>
+
+
       </body>
     </html>
   );

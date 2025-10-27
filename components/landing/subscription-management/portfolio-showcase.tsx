@@ -15,17 +15,17 @@ import { ScrollReveal } from '../scroll-reveal';
 export function PortfolioShowcase() {
   return (
     <section id="subscriptions" className="pt-20 flex items-center justify-center">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
         {/* Left: Visual Preview */}
         <ScrollReveal>
-          <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 h-[600px] w-[900px] pl-20 pt-20 shadow">
+          <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 h-[500px] w-[700px] pl-10 pt-10 shadow">
             <Image
               src="/landing/subscription-management.PNG" // replace with your preview image
               alt="Subscription Management Dashboard"
               width={1700}
               height={1200}
-              className="absolute bottom-0 -right-8 object-contain h-[75%] w-auto rounded-tl-2xl"
+              className="absolute bottom-0 -right-8 object-contain h-[85%] w-auto rounded-tl-2xl"
               priority
             />
           </div>
