@@ -258,7 +258,203 @@ export function LandingNav() {
       </nav>
 
       {/* === Mobile Menu Overlay === */}
-      {/* ... keep your existing mobile menu code as is ... */}
+      <motion.div
+        initial={false}
+        animate={isMobileMenuOpen ? 'open' : 'closed'}
+        variants={{
+          open: { opacity: 1, pointerEvents: 'auto' },
+          closed: { opacity: 0, pointerEvents: 'none' },
+        }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-40 lg:hidden"
+      >
+        {/* Backdrop */}
+        <motion.div
+          variants={{
+            open: { opacity: 1 },
+            closed: { opacity: 0 },
+          }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 bg-background/80 backdrop-blur-xl"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+
+        {/* Menu Panel */}
+        <motion.div
+          variants={{
+            open: { x: 0 },
+            closed: { x: '100%' },
+          }}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          className="absolute top-0 right-0 bottom-0 w-full sm:w-[400px] bg-background border-l border-border shadow-2xl overflow-y-auto"
+        >
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border/50">
+              <div className="flex items-center gap-2">
+                <LogoMappr className="w-10 h-10" />
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold">MoneyMappr</span>
+                  <span className="text-[10px] text-muted-foreground -mt-0.5">
+                    Financial Intelligence
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-muted/70 active:bg-muted transition-colors"
+                aria-label="Close menu"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-foreground"
+                >
+                  <path
+                    d="M15 5L5 15M5 5L15 15"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              {/* Features Section */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Features
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    {
+                      title: 'Bank Portfolio',
+                      desc: 'Track all your bank accounts in one place.',
+                      icon: DuoIconsBank,
+                      color: 'text-blue-600 dark:text-blue-400',
+                      bgColor: 'bg-blue-500/10',
+                    },
+                    {
+                      title: 'Crypto Portfolio',
+                      desc: 'Manage your crypto assets and wallets.',
+                      icon: SolarWalletMoneyBoldDuotone,
+                      color: 'text-orange-800 dark:text-orange-600',
+                      bgColor: 'bg-orange-500/10',
+                    },
+                    {
+                      title: 'Subscription Management',
+                      desc: 'Track all your recurring payments.',
+                      icon: SolarInboxInBoldDuotone,
+                      color: 'text-purple-600 dark:text-purple-400',
+                      bgColor: 'bg-purple-500/10',
+                    },
+                  ].map((feature, i) => {
+                    const Icon = feature.icon;
+                    return (
+                      <motion.div
+                        key={feature.title}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="group flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all cursor-pointer"
+                      >
+                        <div className={cn('p-2 rounded-lg', feature.bgColor)}>
+                          <Icon className={cn('w-5 h-5', feature.color)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                            {feature.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {feature.desc}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Navigation
+                </h3>
+                <div className="space-y-1">
+                  {navLinks
+                    .filter((link) => link.type !== 'popover')
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.label}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + i * 0.05 }}
+                      >
+                        <Link
+                          href={link.href ?? '#'}
+                          onClick={handleLinkClick}
+                          className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-all group"
+                        >
+                          <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                            {link.label}
+                          </span>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                        </Link>
+                      </motion.div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Quick Links
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickLinks.map((link, i) => (
+                    <motion.div
+                      key={link.label}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 + i * 0.05 }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={handleLinkClick}
+                        className="flex items-center justify-center p-3 rounded-lg border border-border/50 hover:border-primary/50 hover:bg-muted/30 transition-all text-xs font-medium group"
+                      >
+                        <span className="group-hover:text-primary transition-colors">
+                          {link.label}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer CTA */}
+            <div className="p-6 border-t border-border/50 space-y-3 bg-muted/20">
+              <Link href="/auth/signup" onClick={handleLinkClick} className="block">
+                <Button size="lg" className="w-full group font-semibold">
+                  <span className="flex items-center justify-center gap-2">
+                    Join Waitlist
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Button>
+              </Link>
+              <p className="text-xs text-center text-muted-foreground">
+                Be the first to experience MoneyMappr
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
 
       {/* === Animations === */}
       <style jsx>{`

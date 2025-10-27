@@ -57,8 +57,8 @@ export function LandingFooter() {
   ];
 
   return (
-    <footer className="border-t bg-muted/30">
-      <div className="container mx-auto px-6 py-12 md:py-16">
+    <footer className=" bg-muted/30">
+      <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
         {/* Main Footer Content */}
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6 mb-12">
           {/* Brand Section */}

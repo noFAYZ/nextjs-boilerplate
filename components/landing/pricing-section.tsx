@@ -88,14 +88,14 @@ export function PricingSection() {
               key={plan.name}
               className={`relative rounded-2xl border p-8 h-fit ${
                 plan.highlighted
-                  ? 'bg-gradient-to-br from-orange-500/20 to-amber-600/75 text-white  shadow-2xl scale-105'
+                  ? 'bg-gradient-to-br from-muted/40 to-muted/95   shadow-2xl scale-105'
                   : 'bg-card shadow-sm hover:shadow-xl transition-shadow'
               }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                  <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
                     MOST POPULAR
                   </div>
                 </div>
@@ -104,14 +104,14 @@ export function PricingSection() {
               {/* Icon */}
               <div
                 className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${
-                  plan.highlighted
+                  !plan.highlighted
                     ? 'bg-white/20 backdrop-blur-sm'
                     : 'bg-orange-100 dark:bg-orange-950/50'
                 }`}
               >
                 <plan.icon
                   className={`h-6 w-6 ${
-                    plan.highlighted ? 'text-white' : 'text-orange-600 dark:text-orange-400'
+                    !plan.highlighted ? '' : 'text-orange-600 dark:text-orange-400'
                   }`}
                 />
               </div>
@@ -119,7 +119,7 @@ export function PricingSection() {
               {/* Plan Name */}
               <h3
                 className={`text-2xl font-bold mb-2 ${
-                  plan.highlighted ? 'text-white' : 'text-foreground'
+                  plan.highlighted ? '' : 'text-foreground'
                 }`}
               >
                 {plan.name}
@@ -128,7 +128,7 @@ export function PricingSection() {
               {/* Description */}
               <p
                 className={`text-sm mb-6 ${
-                  plan.highlighted ? 'text-white/90' : 'text-muted-foreground'
+                  plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                 }`}
               >
                 {plan.description}
@@ -139,7 +139,7 @@ export function PricingSection() {
                 <div className="flex items-baseline gap-2">
                   <span
                     className={`text-5xl font-bold ${
-                      plan.highlighted ? 'text-white' : 'text-foreground'
+                      plan.highlighted ? '' : 'text-foreground'
                     }`}
                   >
                     {plan.price}
@@ -147,7 +147,7 @@ export function PricingSection() {
                   {plan.price !== 'Custom' && (
                     <span
                       className={`text-sm ${
-                        plan.highlighted ? 'text-white/80' : 'text-muted-foreground'
+                        plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >
                       /{plan.period.split(' ')[0]}
@@ -156,7 +156,7 @@ export function PricingSection() {
                 </div>
                 <p
                   className={`text-xs mt-1 ${
-                    plan.highlighted ? 'text-white/70' : 'text-muted-foreground'
+                    plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   {plan.period === 'forever' ? 'No credit card required' : plan.period}
@@ -167,11 +167,11 @@ export function PricingSection() {
               <Link href={plan.name === 'Enterprise' ? '#' : '/auth/signup'}>
                 <Button
                   className={`w-full mb-8 ${
-                    plan.highlighted
-                      ? 'bg-white hover:bg-neutral-100 text-orange-600 shadow-lg'
+                    !plan.highlighted
+                      ? ' '
                       : ''
                   }`}
-                  variant={plan.highlighted ? 'secondary' : 'default'}
+                  variant={!plan.highlighted ? 'outline' : 'default'}
                   size="lg"
                 >
                   {plan.cta}
@@ -182,7 +182,7 @@ export function PricingSection() {
               <div className="space-y-3">
                 <p
                   className={`text-xs font-semibold uppercase tracking-wider mb-4 ${
-                    plan.highlighted ? 'text-white/80' : 'text-muted-foreground'
+                    plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   What's included:
@@ -191,12 +191,12 @@ export function PricingSection() {
                   <div key={feature} className="flex items-start gap-3">
                     <Check
                       className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                        plan.highlighted ? 'text-white' : 'text-orange-500'
+                        plan.highlighted ? '' : 'text-orange-500'
                       }`}
                     />
                     <span
                       className={`text-sm ${
-                        plan.highlighted ? 'text-white/95' : 'text-muted-foreground'
+                        plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >
                       {feature}
