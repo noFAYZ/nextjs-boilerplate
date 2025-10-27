@@ -25,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <GoogleTagManager />
+      <head>
+        <GoogleTagManager />
+      </head>
       <body
         className={`${geistSans.className}   antialiased`}
       >

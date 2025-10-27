@@ -23,10 +23,21 @@
  * ```
  */
 
+'use client';
+
 import Script from 'next/script';
+import { useEffect } from 'react';
 
 export function GoogleTagManager() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+
+  useEffect(() => {
+    if (gtmId) {
+      console.log('GTM initialized with ID:', gtmId);
+    } else {
+      console.warn('GTM ID not configured. Set NEXT_PUBLIC_GTM_ID in your environment.');
+    }
+  }, [gtmId]);
 
   // Don't render if GTM ID is not configured
   if (!gtmId) {
@@ -48,6 +59,12 @@ export function GoogleTagManager() {
             })(window,document,'script','dataLayer','${gtmId}');
           `,
         }}
+        onLoad={() => {
+          console.log('GTM script loaded successfully');
+        }}
+        onError={(e) => {
+          console.error('GTM script failed to load:', e);
+        }}
       />
     </>
   );
@@ -68,8 +85,15 @@ export function GoogleTagManagerNoScript() {
   }
 
   return (
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDQPR8HC"
-    height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style={{ display: 'none', visibility: 'hidden' }}
+        title="Google Tag Manager"
+      />
+    </noscript>
   );
 }
 

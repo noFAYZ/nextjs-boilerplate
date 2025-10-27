@@ -43,7 +43,8 @@
       "Bash(tail -20 \"app/(protected)/settings/page.tsx\")",
       "Bash(awk:*)",
       "Read(//f/**)",
-      "WebFetch(domain:logo.dev)"
+      "WebFetch(domain:logo.dev)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
-import { SolarInboxInBoldDuotone } from '@/components/icons/icons';
+import { MemoryArrowTopRight, SolarInboxInBoldDuotone } from '@/components/icons/icons';
 import DecryptedText from '@/components/ui/shadcn-io/decrypted-text';
 import { ScrollReveal } from '../scroll-reveal';
 
@@ -26,7 +26,7 @@ export function PortfolioShowcase() {
               alt="Subscription Management Dashboard"
               width={1700}
               height={1200}
-              className="absolute -bottom-2 -right-8 object-contain h-[90%] w-auto rounded-t-2xl sm:rounded-tl-2xl"
+              className="absolute -bottom-2 -right-8 object-contain  rounded-t-2xl sm:rounded-tl-2xl"
               priority
             />
           </div>
@@ -34,8 +34,7 @@ export function PortfolioShowcase() {
 
         {/* Right: Content */}
         <ScrollReveal delay={200}>
-          <div className="max-w-md space-y-6 text-center lg:text-left">
-            
+        <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 rounded-2xl">
             <DecryptedText 
               text="Manage All Your Subscriptions"
               speed={50}
@@ -55,28 +54,12 @@ export function PortfolioShowcase() {
               renewals, and cancel unwanted subscriptions — all from one smart dashboard.
             </p>
 
-            <div className="space-y-4">
-              {[
-                'Smart search for 500+ popular services',
-                'Instant subscription categorization',
-                'Automated renewal reminders',
-                'One-click cancellation tracking',
-                'Plan comparison & billing insights',
-              ].map((feature) => (
-                <div key={feature} className="flex items-start gap-3">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-950/50 flex-shrink-0 mt-0.5">
-                    <div className="h-2 w-2 rounded-full bg-orange-600 dark:bg-orange-400" />
-                  </div>
-                  <span className="text-sm leading-relaxed">{feature}</span>
-                </div>
-              ))}
-            </div>
-
+          
             <div className="pt-4">
               <Link href="/subscriptions">
                 <Button size="sm" className="group rounded-xl">
                  Get Started
-                  <ArrowUpRight className="ml-1 h-5 w-5 " />
+                  <MemoryArrowTopRight className="ml-1 h-5 w-5 " />
                 </Button>
               </Link>
             </div>
