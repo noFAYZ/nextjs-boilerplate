@@ -268,9 +268,9 @@ export default function BankAccountDetailsPage() {
           acc[category].value += Math.abs(parseFloat(t.amount.toString()));
           acc[category].count += 1;
           return acc;
-        }, {} as Record<string, { value: number; count: 0 }>)
+        }, {} as Record<string, { value: number; count: number }>)
     )
-      .map(([category, data]) => ({
+      .map(([category, data]: [string, { value: number; count: number }]) => ({
         name: category,
         category: category as Category,
         value: data.value,
@@ -371,348 +371,357 @@ export default function BankAccountDetailsPage() {
 
   return (
     <div className={`${pageClass} p-4 lg:p-6 space-y-6`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/accounts/bank')}
-          className="gap-2 h-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-<div className='flex items-center gap-2'>
-        <Button
-                onClick={handleSync}
-                disabled={
-                  syncAccount.isPending ||
-                  syncState?.status === 'syncing' ||
-                  syncState?.status === 'processing' ||
-                  syncState?.status === 'syncing_transactions'
-                }
-                size="sm"
-                className="gap-1 "
-              >
-                {(syncAccount.isPending || syncState?.status === 'syncing' || syncState?.status === 'syncing_transactions') ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5" />
-                )}
-                {syncState?.status === 'syncing' || syncState?.status === 'syncing_transactions' ? 'Syncing...' : 'Sync'}
-              </Button>
-      </div>
-      </div>
-
-      {/* Account Header */}
-    
-        <div className="">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Account Info */}
-            <div className="flex items-start gap-3">
-              <div className={cn(
-                'h-16 w-16 rounded-3xl flex items-center justify-center bg-gradient-to-br flex-shrink-0',
-                accountConfig.color
-              )}>
-                <IconComponent className="h-9 w-9 text-white" />
-              </div>
-
-              <div className="space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-lg font-bold truncate">{account.name}</h1>
-                  <Badge variant="outline" className={cn('text-[10px] h-5', accountConfig.textColor)}>
-                    {accountConfig.label}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                  <span className="flex items-center gap-1">
-                    <Building2 className="h-3 w-3" />
-                    {account.institutionName}
-                  </span>
-                  <Separator orientation="vertical" className="h-3" />
-                  <span className="font-mono">****{account.accountNumber.slice(-4)}</span>
-                  <Separator orientation="vertical" className="h-3" />
-                  {getSyncStatusBadge(account)}
-                </div>
-              </div>
-            </div>
-
-            {/* Balance & Actions */}
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-[10px] text-muted-foreground  uppercase">Available Balance</p>
-                <CurrencyDisplay
-                  amountUSD={parseFloat(account.availableBalance?.toString() || account.balance.toString())}
-                  className={cn('text-3xl font-bold')}
-                />
-              </div>
-
-              <Separator orientation="vertical" className="h-10" />
-
-            </div>
+      {/* Header - Wells Fargo Style */}
+      <div className="flex items-center justify-between pb-4 border-b">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'h-12 w-12 rounded-2xl flex items-center justify-center bg-gradient-to-br flex-shrink-0',
+            accountConfig.color
+          )}>
+            <IconComponent className="h-6 w-6 text-white" />
           </div>
 
-<div className='flex justify-between items-center'>
-          {/* Pending Alert */}
-          {account.availableBalance !== account.ledgerBalance && (
-            <div className="mt-3 flex items-center gap-2 p-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-              <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-              <div className="text-xs">
-                <span className="font-medium">Pending: </span>
-                <CurrencyDisplay
-                  amountUSD={Math.abs(parseFloat(account.availableBalance?.toString() || '0') - parseFloat(account.ledgerBalance?.toString() || '0'))}
-                  variant="compact"
-                  className="font-semibold"
-                />
-              </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold">{account.name}</h1>
+              <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                <ArrowUpDown className="h-3 w-3" />
+              </Button>
             </div>
-          )}
-               
-               <div className='flex gap-2 '>
-               <Card className="rounded-xl border border-border bg-background dark:bg-card dark:shadow-none py-1.5 px-3">
-    
-            <div className="flex items-start justify-between gap-2">
-              <div className="h-8 w-8 rounded-md flex items-center justify-center bg-green-500/10">
-                <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
-              </div>
-              <div className='flex flex-col'>
- <p className="text-[10px] text-muted-foreground">Total Income</p>
-               <CurrencyDisplay
-              amountUSD={analytics.monthlyIncome}
-              className="text-sm font-bold "
-              formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-            /></div>
-             
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{account.institutionName}</span>
+              <Separator orientation="vertical" className="h-3" />
+              <span className="font-mono">****{account.accountNumber.slice(-4)}</span>
             </div>
-           
-   
-        </Card>
-
-        <Card className="rounded-xl border border-border bg-background dark:bg-card  dark:shadow-none py-1.5 px-3">
-       
-            <div className="flex items-start justify-between gap-2 ">
-              <div className="h-8 w-8 rounded-md flex items-center justify-center bg-red-500/10">
-                <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
-              </div>
-              <div className='flex flex-col'>
- <p className="text-[10px] text-muted-foreground">Total Expense</p>
-                <CurrencyDisplay
-              amountUSD={analytics.monthlySpending}
-              className="text-sm font-bold "
-              formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-            /></div>
-        
-            </div>
-          
-           
-       
-        </Card></div>
-
-</div>
+          </div>
         </div>
-      
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            TRANSFER
+          </Button>
+          <Button
+            onClick={handleSync}
+            disabled={
+              syncAccount.isPending ||
+              syncState?.status === 'syncing' ||
+              syncState?.status === 'processing' ||
+              syncState?.status === 'syncing_transactions'
+            }
+            size="sm"
+            className="gap-2"
+          >
+            {(syncAccount.isPending || syncState?.status === 'syncing' || syncState?.status === 'syncing_transactions') ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            MANAGE
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/accounts/bank')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/* Sync Progress */}
       <BankAccountSyncProgress accountId={accountId} accountName={account.name} />
 
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Overview & Transactions */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Overview Section */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Overview</h2>
 
-      {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        
-            <TabsList className="mt-2 "   
-            variant="card">
-              <TabsTrigger value="overview" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
-            variant="card">
-                <SolarPieChartBold className="h-5 w-5" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="transactions" className="flex px-2 items-center gap-1.5 cursor-pointer"  size={'sm'}
-            variant="card">
-                 <MynauiActivitySquare className="w-5.5 h-5.5" />
-                Transactions
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
-            variant="card">
-                <HugeiconsAnalyticsUp className="h-5 w-5" />
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex px-2 items-center gap-1.5 cursor-pointer"   size={'sm'}
-            variant="card">
-                <IconParkOutlineSettingTwo className="h-5 w-5" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
-         
+            {/* Balance Cards - Account Type Specific */}
+            {account.type === 'CREDIT_CARD' ? (
+              /* Credit Card Overview */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Current Balance (Amount Owed) */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Current Balance</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <CurrencyDisplay
+                      amountUSD={Math.abs(parseFloat(account.balance.toString()))}
+                      className="text-3xl font-bold text-red-600 dark:text-red-400"
+                    />
+                  </CardContent>
+                </Card>
 
-            {/* Overview */}
-            <TabsContent value="overview" className="mt-0 space-y-4">
-              {/* Categories */}
-              {analytics.categoryData.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-medium text-muted-foreground">Top Categories</h3>
-                  <div className="space-y-2">
-                    {analytics.categoryData.map((cat) => {
-                      const categoryConfig = categoryIcons[cat.category] || categoryIcons.general;
-                      const Icon = categoryConfig.icon;
+                {/* Available Credit */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Available Credit</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <CurrencyDisplay
+                      amountUSD={parseFloat(account.availableBalance?.toString() || account.balance.toString())}
+                      className="text-3xl font-bold text-green-600 dark:text-green-400"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              /* Checking & Savings Overview */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Account Balance */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {account.type === 'SAVINGS' ? 'Total Balance' : 'Account Balance'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <CurrencyDisplay
+                      amountUSD={parseFloat(account.balance.toString())}
+                      className="text-3xl font-bold"
+                    />
+                  </CardContent>
+                </Card>
 
-                      return (
-                        <div key={cat.name} className="flex items-center gap-2">
-                          <div className={cn(
-                            'h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0',
-                            categoryConfig.gradient
-                          )}>
-                            <Icon className="h-4 w-4 text-white" />
-                          </div>
+                {/* Available Balance */}
+                <Card className="p-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {account.type === 'SAVINGS' ? 'Available Balance' : 'Balance with pending'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <CurrencyDisplay
+                      amountUSD={parseFloat(account.availableBalance?.toString() || account.balance.toString())}
+                      className="text-3xl font-bold"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium capitalize truncate">{cat.name}</span>
-                              <CurrencyDisplay
-                                amountUSD={cat.value}
-                                variant="compact"
-                                className="text-xs font-semibold"
-                                formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                              />
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={cn('h-full', categoryConfig.gradient)}
-                                  style={{ width: `${cat.percentage}%` }}
-                                />
-                              </div>
-                              <span className="text-[10px] text-muted-foreground w-10 text-right">
-                                {cat.percentage.toFixed(1)}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+            {/* Stats Cards - Account Type Specific */}
+            {account.type === 'CREDIT_CARD' ? (
+              /* Credit Card Stats */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-red-500/10">
+                      <ArrowDownRight className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Spending</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlySpending}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                </Card>
 
-              <Separator />
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-green-500/10">
+                      <ArrowUpRight className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Payments</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlyIncome}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            ) : account.type === 'SAVINGS' ? (
+              /* Savings Stats */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-green-500/10">
+                      <ArrowUpRight className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Deposits</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlyIncome}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
+                  </div>
+                </Card>
 
-              {/* Recent Transactions */}
-              {transactions.slice(0, 6).length > 0 && (
-                <div className="space-y-2">
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-red-500/10">
+                      <ArrowDownRight className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Withdrawals</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlySpending}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            ) : (
+              /* Checking Stats */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-green-500/10">
+                      <ArrowUpRight className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Income</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlyIncome}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-red-500/10">
+                      <ArrowDownRight className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-xs text-muted-foreground mb-1">Total Expense</p>
+                      <CurrencyDisplay
+                        amountUSD={analytics.monthlySpending}
+                        className="text-xl font-bold"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Credit Card Utilization */}
+            {account.type === 'CREDIT_CARD' && (
+              <Card className="p-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-medium text-muted-foreground">Recent Activity</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedTab('transactions')}
-                      className="h-7 text-xs"
-                    >
-                      View All
-                    </Button>
+                    <span className="text-sm font-medium">Credit Utilization</span>
+                    <span className="text-sm font-semibold">
+                      {Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100)}%
+                    </span>
                   </div>
-
-                  <div className="space-y-1.5">
-                    {transactions.slice(0, 6).map((transaction) => {
-                      const isIncome = parseFloat(transaction.amount.toString()) > 0;
-                      const categoryConfig = categoryIcons[transaction.category as Category] || categoryIcons.general;
-                      const Icon = categoryConfig.icon;
-
-                      return (
-                        <div
-                          key={transaction.id}
-                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                        >
-                          <div className={cn(
-                            'h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0',
-                            transaction.category ? categoryConfig.gradient : 'bg-muted'
-                          )}>
-                            <Icon className={cn(
-                              'h-4 w-4',
-                              transaction.category ? 'text-white' : isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                            )} />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-xs truncate">{transaction.description || 'Transaction'}</p>
-                            <p className="text-[10px] text-muted-foreground">
-                              {format(new Date(transaction.date), 'MMM d, yyyy')}
-                            </p>
-                          </div>
-
-                          <div className={cn(
-                            'font-semibold text-xs',
-                            isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          )}>
-                            {isIncome ? '+' : '-'}
-                            <CurrencyDisplay
-                              amountUSD={Math.abs(parseFloat(transaction.amount.toString()))}
-                              variant="compact"
-                              className="inline"
-                              formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all',
+                        Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 75
+                          ? 'bg-red-500'
+                          : Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 50
+                          ? 'bg-orange-500'
+                          : 'bg-green-500'
+                      )}
+                      style={{
+                        width: `${Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Credit Limit: <CurrencyDisplay
+                      amountUSD={Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0')}
+                      variant="compact"
+                      className="inline font-semibold"
+                      formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                    /></span>
+                    <span className={cn(
+                      'font-medium',
+                      Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 75
+                        ? 'text-red-600 dark:text-red-400'
+                        : Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 50
+                        ? 'text-orange-600 dark:text-orange-400'
+                        : 'text-green-600 dark:text-green-400'
+                    )}>
+                      {Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 75
+                        ? 'High Utilization'
+                        : Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 50
+                        ? 'Moderate'
+                        : 'Good'}
+                    </span>
                   </div>
                 </div>
-              )}
-            </TabsContent>
+              </Card>
+            )}
+          </div>
 
-            {/* Transactions */}
-            <TabsContent value="transactions" className="mt-0 space-y-3">
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input
-                    placeholder="Search transactions..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 h-8 text-xs"
-                  />
+
+          {/* Transaction Activity Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">
+                {account.type === 'CREDIT_CARD' ? 'Charges & Payments' : 'Transaction Activity'}
+              </h2>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-8 gap-1">
+                  <Filter className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 gap-1">
+                  <Download className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="sm" className="h-8 gap-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                  + ADD
+                </Button>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search transactions"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+
+            {/* Transaction Table */}
+            <div className="border rounded-lg overflow-hidden">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-muted/50 border-b text-xs font-medium text-muted-foreground">
+                <div className="col-span-2 flex items-center gap-1 cursor-pointer">
+                  Date
+                  <ArrowUpDown className="h-3 w-3" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} />
                 </div>
-
-                <Select value={dateRange} onValueChange={setDateRange}>
-                  <SelectTrigger className="w-full sm:w-[140px] h-8 text-xs">
-                    <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="7_days">Last 7 Days</SelectItem>
-                    <SelectItem value="30_days">Last 30 Days</SelectItem>
-                    <SelectItem value="this_month">This Month</SelectItem>
-                    <SelectItem value="last_month">Last Month</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                  <SelectTrigger className="w-full sm:w-[140px] h-8 text-xs">
-                    <Filter className="h-3.5 w-3.5 mr-1.5" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {Object.keys(categoryIcons).map(category => (
-                      <SelectItem key={category} value={category} className="capitalize">
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="col-span-3">Category</div>
+                <div className="col-span-4">Payee</div>
+                <div className="col-span-2">Tags</div>
+                <div className="col-span-1 text-right">Amount</div>
               </div>
 
-              {/* List */}
-              {transactionsLoading ? (
-                <div className="space-y-1.5">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
-              ) : filteredTransactions.length > 0 ? (
-                <div className="space-y-1.5">
-                  {filteredTransactions.map((transaction) => {
+              {/* Table Body */}
+              <div className="divide-y">
+                {transactionsLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full" />
+                  ))
+                ) : filteredTransactions.length > 0 ? (
+                  filteredTransactions.slice(0, 10).map((transaction) => {
                     const isIncome = parseFloat(transaction.amount.toString()) > 0;
                     const categoryConfig = categoryIcons[transaction.category as Category] || categoryIcons.general;
                     const Icon = categoryConfig.icon;
@@ -720,35 +729,54 @@ export default function BankAccountDetailsPage() {
                     return (
                       <div
                         key={transaction.id}
-                        className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+                        className="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-muted/50 transition-colors items-center"
                       >
-                        <div className={cn(
-                          'h-9 w-9 rounded-md flex items-center justify-center flex-shrink-0',
-                          transaction.category ? categoryConfig.gradient : 'bg-muted'
-                        )}>
-                          <Icon className={cn(
-                            'h-4 w-4',
-                            transaction.category ? 'text-white' : isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          )} />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <p className="font-medium text-xs truncate">{transaction.description || 'Transaction'}</p>
-                            {transaction.category && (
-                              <Badge variant="secondary" className="text-[9px] h-4 capitalize">
-                                {transaction.category}
-                              </Badge>
-                            )}
+                        {/* Date */}
+                        <div className="col-span-2 text-sm">
+                          <div className="font-medium">
+                            {format(new Date(transaction.date), 'MMM d')}
                           </div>
-                          <p className="text-[10px] text-muted-foreground">
-                            {format(new Date(transaction.date), 'MMM d, yyyy • h:mm a')}
-                          </p>
+                          <div className="text-xs text-muted-foreground">
+                            {format(new Date(transaction.date), 'yyyy')}
+                          </div>
                         </div>
 
-                        <div className="text-right">
+                        {/* Category */}
+                        <div className="col-span-3 flex items-center gap-2">
                           <div className={cn(
-                            'font-semibold text-xs',
+                            'h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0',
+                            transaction.category ? categoryConfig.gradient : 'bg-muted'
+                          )}>
+                            <Icon className={cn(
+                              'h-4 w-4',
+                              transaction.category ? 'text-white' : isIncome ? 'text-green-600' : 'text-red-600'
+                            )} />
+                          </div>
+                          <span className="text-sm capitalize truncate">
+                            {transaction.category || 'General'}
+                          </span>
+                        </div>
+
+                        {/* Payee */}
+                        <div className="col-span-4">
+                          <div className="text-sm font-medium truncate">
+                            {transaction.description || 'Transaction'}
+                          </div>
+                        </div>
+
+                        {/* Tags */}
+                        <div className="col-span-2">
+                          {transaction.category && (
+                            <Badge variant="secondary" className="text-xs">
+                              {transaction.category}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Amount */}
+                        <div className="col-span-1 text-right">
+                          <div className={cn(
+                            'font-semibold text-sm',
                             isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                           )}>
                             {isIncome ? '+' : '-'}
@@ -756,155 +784,253 @@ export default function BankAccountDetailsPage() {
                               amountUSD={Math.abs(parseFloat(transaction.amount.toString()))}
                               variant="compact"
                               className="inline"
-                              formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                              formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
                             />
                           </div>
-                          {transaction.runningBalance && (
-                            <p className="text-[9px] text-muted-foreground">
-                              Bal: <CurrencyDisplay
-                                amountUSD={parseFloat(transaction.runningBalance.toString())}
-                                variant="compact"
-                                className="inline"
-                                formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                              />
-                            </p>
-                          )}
                         </div>
                       </div>
                     );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-8 border rounded-lg bg-muted/20">
-                  <Search className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold text-sm mb-1">No Transactions Found</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Try adjusting your filters
-                  </p>
-                </div>
-              )}
-            </TabsContent>
+                  })
+                ) : (
+                  <div className="py-12 text-center">
+                    <Search className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="font-semibold text-sm mb-1">No Transactions Found</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Try adjusting your filters
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
-            {/* Analytics */}
-            <TabsContent value="analytics" className="mt-0 space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-xs font-medium text-muted-foreground">Monthly Trends</h3>
-                <div className="space-y-3">
-                  {analytics.monthlyTrends.map((month) => (
-                    <div key={month.month} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium">{month.month}</span>
-                        <span className="text-muted-foreground">{month.transactionCount} txns</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="p-2 rounded-lg bg-green-500/10 border border-green-200 dark:border-green-800">
-                          <p className="text-[10px] text-muted-foreground mb-0.5">Income</p>
-                          <CurrencyDisplay
-                            amountUSD={month.income}
-                            variant="compact"
-                            className="font-semibold text-xs text-green-600 dark:text-green-400"
-                            formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                          />
+        {/* Right Column - Upcoming & Quick Actions */}
+        <div className="space-y-6">
+          {/* Upcoming Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">
+                {account.type === 'CREDIT_CARD' ? 'Recent Charges' : account.type === 'SAVINGS' ? 'Recent Activity' : 'Upcoming'}
+              </h2>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Calendar className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Filter className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+                <Button variant="default" size="icon" className="h-8 w-8 bg-primary text-primary-foreground">
+                  +
+                </Button>
+              </div>
+            </div>
+
+            {/* Upcoming Transactions */}
+            <div className="space-y-3">
+              {transactions.slice(0, 4).map((transaction, index) => {
+                const isIncome = parseFloat(transaction.amount.toString()) > 0;
+                const categoryConfig = categoryIcons[transaction.category as Category] || categoryIcons.general;
+                const Icon = categoryConfig.icon;
+                const isPast = new Date(transaction.date) < new Date();
+
+                return (
+                  <div key={transaction.id} className="space-y-2">
+                    {/* Date Badge */}
+                    {(index === 0 || format(new Date(transaction.date), 'MMM d') !== format(new Date(transactions[index - 1]?.date || transaction.date), 'MMM d')) && (
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "h-8 w-8 rounded-full flex items-center justify-center",
+                          isPast ? "bg-muted" : "bg-primary/10"
+                        )}>
+                          <span className="text-xs font-medium">
+                            {format(new Date(transaction.date), 'd')}
+                          </span>
                         </div>
-                        <div className="p-2 rounded-lg bg-red-500/10 border border-red-200 dark:border-red-800">
-                          <p className="text-[10px] text-muted-foreground mb-0.5">Expenses</p>
+                        <div>
+                          <Badge variant={isPast ? "outline" : "secondary"} className="text-xs">
+                            {isPast ? "Past" : format(new Date(transaction.date), 'MMM d')}
+                          </Badge>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-5 w-5 p-0 ml-auto">
+                          •••
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Transaction Item */}
+                    <div className="flex items-start gap-3 pl-10">
+                      <div className={cn(
+                        'h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0',
+                        transaction.category ? categoryConfig.gradient : 'bg-muted'
+                      )}>
+                        <Icon className={cn(
+                          'h-5 w-5',
+                          transaction.category ? 'text-white' : isIncome ? 'text-green-600' : 'text-red-600'
+                        )} />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {transaction.description || 'Transaction'}
+                        </div>
+                        <div className={cn(
+                          'font-semibold text-sm mt-0.5',
+                          isIncome ? 'text-green-600 dark:text-green-400' : 'text-foreground'
+                        )}>
+                          {isIncome ? '+' : '-'}
                           <CurrencyDisplay
-                            amountUSD={month.expenses}
+                            amountUSD={Math.abs(parseFloat(transaction.amount.toString()))}
                             variant="compact"
-                            className="font-semibold text-xs text-red-600 dark:text-red-400"
-                            formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                            className="inline"
+                            formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
                           />
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-              <Separator />
-
-              <div className="space-y-2">
-                <h3 className="text-xs font-medium text-muted-foreground">Spending Trend</h3>
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
-                  {analytics.spendingTrend === 'up' ? (
-                    <TrendingUp className="h-6 w-6 text-red-600 dark:text-red-400" />
-                  ) : analytics.spendingTrend === 'down' ? (
-                    <TrendingDown className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  )}
-                  <div>
-                    <p className="font-semibold text-xs">
-                      {analytics.spendingTrend === 'up' ? 'Spending Increased' : analytics.spendingTrend === 'down' ? 'Spending Decreased' : 'Spending Stable'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Compared to last month
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Settings */}
-            <TabsContent value="settings" className="mt-0 space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-xs font-medium text-muted-foreground">Account Information</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Account Name</p>
-                    <p className="font-medium text-xs">{account.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Institution</p>
-                    <p className="font-medium text-xs">{account.institutionName}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Account Type</p>
-                    <p className="font-medium text-xs">{accountConfig.label}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Currency</p>
-                    <p className="font-medium text-xs">{account.currency}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Ledger Balance</p>
+          {/* Quick Stats */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold mb-3">
+              {account.type === 'CREDIT_CARD' ? 'Credit Summary' : 'Quick Stats'}
+            </h3>
+            <div className="space-y-3">
+              {account.type === 'CREDIT_CARD' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Credit Limit</span>
                     <CurrencyDisplay
-                      amountUSD={parseFloat(account.ledgerBalance?.toString() || account.balance.toString())}
+                      amountUSD={Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0')}
                       variant="compact"
-                      className="font-medium text-xs"
+                      className="text-sm font-semibold"
+                      formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
                     />
                   </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Last Synced</p>
-                    <p className="font-medium text-xs">
-                      {account.lastTellerSync
-                        ? format(new Date(account.lastTellerSync), 'MMM d, h:mm a')
-                        : 'Never'
-                      }
-                    </p>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Utilization</span>
+                    <span className={cn(
+                      "text-sm font-semibold",
+                      Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 75
+                        ? 'text-red-600 dark:text-red-400'
+                        : Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100) > 50
+                        ? 'text-orange-600 dark:text-orange-400'
+                        : 'text-green-600 dark:text-green-400'
+                    )}>
+                      {Math.round((Math.abs(parseFloat(account.balance.toString())) / (Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || '0'))) * 100)}%
+                    </span>
                   </div>
-                </div>
-              </div>
-
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Total Charges</span>
+                    <span className="text-sm font-semibold">{analytics.transactionCount}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Total Transactions</span>
+                    <span className="text-sm font-semibold">{analytics.transactionCount}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {account.type === 'SAVINGS' ? 'Net Change' : 'Net Amount'}
+                    </span>
+                    <CurrencyDisplay
+                      amountUSD={analytics.netAmount}
+                      variant="compact"
+                      className={cn(
+                        "text-sm font-semibold",
+                        analytics.netAmount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      )}
+                      formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+                    />
+                  </div>
+                </>
+              )}
               <Separator />
-
-              {/* Danger Zone */}
-              <div className="space-y-2">
-                <h3 className="text-xs font-medium text-destructive">Danger Zone</h3>
-                <div className="p-3 border border-destructive/50 rounded-lg bg-destructive/5">
-                  <h4 className="font-medium text-xs mb-1">Disconnect Account</h4>
-                  <p className="text-[10px] text-muted-foreground mb-3">
-                    Permanently remove this account and all transaction data. This cannot be undone.
-                  </p>
-                  <Button variant="destructive" onClick={handleDisconnect} size="sm" className="gap-2 h-8">
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Disconnect
-                  </Button>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Last Synced</span>
+                <span className="text-sm font-medium">
+                  {account.lastTellerSync
+                    ? format(new Date(account.lastTellerSync), 'MMM d, h:mm a')
+                    : 'Never'
+                  }
+                </span>
               </div>
-            </TabsContent>
-         
-      </Tabs>
+            </div>
+          </Card>
+
+          {/* Account Actions */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold mb-3">
+              {account.type === 'CREDIT_CARD' ? 'Card Actions' : 'Account Settings'}
+            </h3>
+            <div className="space-y-2">
+              {account.type === 'CREDIT_CARD' ? (
+                <>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Make Payment
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    View Statements
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <IconParkOutlineSettingTwo className="h-4 w-4" />
+                    Card Settings
+                  </Button>
+                </>
+              ) : account.type === 'SAVINGS' ? (
+                <>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <ArrowUpRight className="h-4 w-4" />
+                    Transfer Funds
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    View Interest
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <IconParkOutlineSettingTwo className="h-4 w-4" />
+                    Account Details
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <ArrowUpRight className="h-4 w-4" />
+                    Transfer Funds
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    View Analytics
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                    <IconParkOutlineSettingTwo className="h-4 w-4" />
+                    Account Details
+                  </Button>
+                </>
+              )}
+              <Separator />
+              <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-destructive hover:text-destructive" onClick={handleDisconnect}>
+                <Trash2 className="h-4 w-4" />
+                Disconnect
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
 
       {/* Sync Modal */}
       <BankAccountSyncModal

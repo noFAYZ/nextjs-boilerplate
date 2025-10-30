@@ -54,6 +54,7 @@ export function PortfolioShowcase() {
               renewals, and cancel unwanted subscriptions — all from one smart dashboard.
             </p>
 
+                
           
             <div className="pt-4">
               <Link href="/subscriptions">

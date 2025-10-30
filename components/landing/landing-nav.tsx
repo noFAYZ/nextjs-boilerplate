@@ -9,13 +9,15 @@ import { ThemeSwitcher } from '../ui/theme-switcher';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '../icons/icons';
+import { DuoIconsBank, SolarHomeSmileBoldDuotone, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '../icons/icons';
 import { LogoMappr } from '../icons';
+import { useAuth } from '@/lib/contexts/AuthContext';
 
 export function LandingNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
+  const {user} = useAuth()
 
   /** === Scroll handling === */
   const handleScroll = useCallback(() => {
@@ -35,6 +37,7 @@ export function LandingNav() {
       document.body.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
+
 
   /** === Nav Links with optional popover === */
   const navLinks = [
@@ -76,7 +79,7 @@ export function LandingNav() {
                 : 'bg-transparent border-transparent'
             )}
           >
-            <div className="flex h-16 sm:h-14 items-center justify-between px-4 md:px-6">
+            <div className="flex h-16 sm:h-14 items-center justify-between px-2">
               {/* === Logo === */}
               <Link
                 href="/"
@@ -91,7 +94,7 @@ export function LandingNav() {
                   className="object-contain w-12 h-12 sm:w-14 sm:h-14 transition-transform group-hover:scale-105"
                   priority
                 /> */}
-                <LogoMappr className='w-12 h-12' />
+                <LogoMappr className='w-10 h-10' />
                 <div className="flex flex-col">
                   <span className="text-base sm:text-lg font-bold tracking-tight">
                     MoneyMappr
@@ -198,17 +201,29 @@ export function LandingNav() {
               </div>
 
               {/* === Desktop CTA === */}
-              <div className="hidden lg:flex items-center gap-6">
+              <div className="hidden lg:flex items-center gap-2">
                 <ThemeSwitcher />
 
-                {process.env.NEXT_PUBLIC_WAITLIST_MODE?    <Link href="/auth/signup">
+                {!process.env.NEXT_PUBLIC_WAITLIST_MODE ?    <Link href="/auth/signup">
                   <Button size="sm" className="group text-xs font-semibold">
                     <span className="flex items-center gap-1">
                      Join Waitlist
                       <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </Button>
-                </Link> : <><Link href="/auth/login">
+                </Link> : <>
+
+                {user?    <Link href="/auth/signup">
+                  <Button size="sm" >
+                 
+                      Dashboard
+                  
+                  
+                  </Button>
+                </Link> :
+                <>
+                
+                <Link href="/auth/login">
                   <Button variant="ghost" size="sm" className="text-xs">
                     Sign In
                   </Button>
@@ -220,7 +235,9 @@ export function LandingNav() {
                       <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </Button>
-                </Link></>}
+                </Link></>
+                }
+                </>}
 
 
            {/*      <Link href="/auth/login">

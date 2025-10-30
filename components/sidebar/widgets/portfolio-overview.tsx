@@ -58,7 +58,7 @@ export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOver
   };
 
 
-
+console.log(stats)
 
   return (
     <div className="space-y-4">

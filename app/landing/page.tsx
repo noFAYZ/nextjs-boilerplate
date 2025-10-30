@@ -24,17 +24,13 @@ import {
 import { CryptoShowcase } from '@/components/landing/crypto-section';
 import { LandingHero } from '@/components/landing/subscription-management/landing-hero';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
-import { ReactLenis, useLenis } from 'lenis/react'
 
 
 export default function LandingPage() {
-  const lenis = useLenis((lenis) => {
-    // called every scroll
-    console.log(lenis)
-  })
+
   return (
     <div className="min-h-screen">
-       <ReactLenis root />
+  
       <ScrollProgress />
       <LandingNav />
       <LandingHero />

@@ -65,13 +65,8 @@ export function SidebarMainColumn({
               href="/dashboard"
               className="flex items-center justify-center w-14 h-14 hover:opacity-80 transition-opacity"
             >
-              <Image
-                src={'/logo/19.svg'}
-                alt={'logo'}
-                width={50}
-                height={50}
-                className="object-contain shadow-2xl"
-              />
+            <LogoMappr className='w-10 h-10' />
+            
             </Link>
           </TooltipTrigger>
           <TooltipContent
