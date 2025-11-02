@@ -22,12 +22,17 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+// ✅ Import types
+import type { CryptoWallet } from '@/lib/types/crypto';
+import type { BankAccount } from '@/lib/types/banking';
+
 // ✅ Use consolidated data hooks
 import {
   useCryptoWallets,
   useCryptoPortfolio,
   useBankingGroupedAccounts,
   useSyncAllCryptoWallets,
+  useSyncAllBankAccounts,
 } from '@/lib/queries';
 
 // ✅ Use UI-only stores
@@ -53,6 +58,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// ✅ Use centralized utilities
+import {
+  filterCryptoWallets,
+  filterBankAccounts,
+  filterDustAssets,
+  sortCryptoWallets,
+  sortBankAccounts,
+  calculateCombinedTotals,
+} from '@/lib/utils';
+
 export default function AccountsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'crypto' | 'bank'>('all');
@@ -64,6 +79,7 @@ export default function AccountsPage() {
   const { data: portfolio } = useCryptoPortfolio();
   const { data: bankAccountsRaw = [], isLoading: bankingLoading, refetch: refetchBank } = useBankingGroupedAccounts();
   const { mutate: syncAllCrypto, isPending: isSyncingCrypto } = useSyncAllCryptoWallets();
+  const { mutate: syncAllBank, isPending: isSyncingBank } = useSyncAllBankAccounts();
 
   // UI state from Zustand
   const cryptoFilters = useCryptoUIStore((state) => state.filters);
@@ -73,106 +89,62 @@ export default function AccountsPage() {
   const bankViewPreferences = useBankingUIStore((state) => state.viewPreferences);
   const setAccountsView = useBankingUIStore((state) => state.setAccountsView);
 
-  // Apply filters
+
+  // ✅ Apply filters using centralized utilities
   const cryptoWallets = useMemo(() => {
-    return cryptoWalletsRaw.filter((wallet) => {
-      if (cryptoFilters.networks.length > 0 && !cryptoFilters.networks.includes(wallet.network)) {
-        return false;
-      }
-      if (cryptoFilters.walletTypes.length > 0 && !cryptoFilters.walletTypes.includes(wallet.type)) {
-        return false;
-      }
-      if (cryptoViewPreferences.hideDustAssets &&
-          parseFloat(wallet.totalBalanceUsd) < cryptoViewPreferences.dustThreshold) {
-        return false;
-      }
-      return true;
+
+    let filtered = filterCryptoWallets(cryptoWalletsRaw, {
+      networks: cryptoFilters.networks,
+      walletTypes: cryptoFilters.walletTypes,
     });
+
+
+    return filtered;
   }, [cryptoWalletsRaw, cryptoFilters, cryptoViewPreferences]);
 
   const bankAccounts = useMemo(() => {
-    return bankAccountsRaw.filter((account) => {
-      if (bankFilters.accountTypes.length > 0 && !bankFilters.accountTypes.includes(account.type)) {
-        return false;
-      }
-      if (bankFilters.institutions.length > 0 && !bankFilters.institutions.includes(account.institutionName)) {
-        return false;
-      }
-      return true;
+    return filterBankAccounts(bankAccountsRaw, {
+      accountTypes: bankFilters.accountTypes,
+      institutions: bankFilters.institutions,
     });
   }, [bankAccountsRaw, bankFilters]);
 
-  // Calculate totals
+  // ✅ Calculate totals using centralized utilities
   const { totalCrypto, totalBank, totalBalance, cryptoChange, cryptoChangePct } = useMemo(() => {
-    const totalCrypto = cryptoWallets.reduce((sum, w) => sum + parseFloat(w.totalBalanceUsd || '0'), 0);
-    const totalBank = bankAccounts.reduce((sum, a) => sum + parseFloat(String(a.balance)), 0);
-    const cryptoChange = portfolio?.dayChange || 0;
-    const cryptoChangePct = portfolio?.dayChangePct || 0;
-
-    return {
-      totalCrypto,
-      totalBank,
-      totalBalance: totalCrypto + totalBank,
-      cryptoChange,
-      cryptoChangePct,
-    };
+    return calculateCombinedTotals(cryptoWallets, bankAccounts, portfolio as any);
   }, [cryptoWallets, bankAccounts, portfolio]);
 
-  // Filter accounts by search
+  // ✅ Filter accounts by search using centralized utilities
   const filteredData = useMemo(() => {
-    const filteredCrypto = cryptoWallets.filter(w =>
-      w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      w.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      w.network.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredCrypto = filterCryptoWallets(cryptoWallets, {
+      searchQuery,
+    });
 
-    const filteredBank = bankAccounts.filter(a =>
-      a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.institutionName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.accountNumber.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredBank = filterBankAccounts(bankAccounts, {
+      searchQuery,
+    });
 
     return { crypto: filteredCrypto, bank: filteredBank };
   }, [cryptoWallets, bankAccounts, searchQuery]);
 
-  // Sort accounts
+  // ✅ Sort accounts using centralized utilities
   const sortedFilteredData = useMemo(() => {
-    const sortAccounts = <T extends any>(accounts: T[], getBalance: (a: T) => number, getName: (a: T) => string, getDate: (a: T) => string) => {
-      return [...accounts].sort((a, b) => {
-        switch (sortBy) {
-          case 'balance':
-            return getBalance(b) - getBalance(a);
-          case 'name':
-            return getName(a).localeCompare(getName(b));
-          case 'recent':
-            return new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime();
-          default:
-            return 0;
-        }
-      });
-    };
-
     return {
-      crypto: sortAccounts(
-        filteredData.crypto,
-        (w) => parseFloat(w.totalBalanceUsd || '0'),
-        (w) => w.name,
-        (w) => w.lastSyncAt || w.createdAt
-      ),
-      bank: sortAccounts(
-        filteredData.bank,
-        (a) => parseFloat(String(a.balance)),
-        (a) => a.name,
-        (a) => a.lastTellerSync || a.createdAt
-      ),
+      crypto: sortCryptoWallets(filteredData.crypto, sortBy),
+      bank: sortBankAccounts(filteredData.bank, sortBy),
     };
   }, [filteredData, sortBy]);
 
-  const displayAccounts = activeTab === 'all'
-    ? [...sortedFilteredData.crypto.map(w => ({ ...w, _type: 'crypto' as const })), ...sortedFilteredData.bank.map(b => ({ ...b, _type: 'bank' as const }))]
-    : activeTab === 'crypto'
-    ? sortedFilteredData.crypto.map(w => ({ ...w, _type: 'crypto' as const }))
-    : sortedFilteredData.bank.map(b => ({ ...b, _type: 'bank' as const }));
+  // Get display data based on active tab
+  const displayData = useMemo(() => {
+    if (activeTab === 'crypto') {
+      return { crypto: sortedFilteredData.crypto, bank: [] };
+    } else if (activeTab === 'bank') {
+      return { crypto: [], bank: sortedFilteredData.bank };
+    } else {
+      return sortedFilteredData;
+    }
+  }, [activeTab, sortedFilteredData]);
 
   const isLoading = cryptoLoading || bankingLoading;
 
@@ -187,7 +159,13 @@ export default function AccountsPage() {
       });
     }
     if (activeTab === 'bank' || activeTab === 'all') {
-      refetchBank();
+      syncAllBank(undefined, {
+        onSuccess: () => {
+          setTimeout(() => {
+            refetchBank();
+          }, 2000);
+        },
+      });
     }
   };
 
@@ -226,15 +204,22 @@ export default function AccountsPage() {
                 {balanceVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSyncAll}
-                disabled={isLoading || isSyncingCrypto}
-              >
-                <RefreshCw className={cn("h-4 w-4 mr-1", (isLoading || isSyncingCrypto) && "animate-spin")} />
-                Sync All
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSyncAll}
+                  disabled={isLoading || isSyncingCrypto || isSyncingBank}
+                >
+                  <RefreshCw className={cn("h-4 w-4 mr-1", (isLoading || isSyncingCrypto || isSyncingBank) && "animate-spin")} />
+                  Sync All
+                </Button>
+                {(isSyncingCrypto || isSyncingBank) && (
+                  <Badge variant="secondary" className="text-xs">
+                    {isSyncingCrypto && isSyncingBank ? 'Syncing...' : isSyncingCrypto ? 'Syncing crypto...' : 'Syncing bank...'}
+                  </Badge>
+                )}
+              </div>
 
               <Link href="/accounts/connection">
                 <Button size="sm">
@@ -280,57 +265,7 @@ export default function AccountsPage() {
               </CardContent>
             </Card>
 
-            {/* Crypto Wallets */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Crypto Wallets</p>
-                    <div className="text-2xl font-bold">
-                      {balanceVisible ? (
-                        <CurrencyDisplay amountUSD={totalCrypto} variant="default" />
-                      ) : (
-                        "••••••••"
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {cryptoWallets.length} wallet{cryptoWallets.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <Link href="/accounts/wallet">
-                    <Button variant="ghost" size="icon" className="h-10 w-10">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bank Accounts */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Bank Accounts</p>
-                    <div className="text-2xl font-bold">
-                      {balanceVisible ? (
-                        <CurrencyDisplay amountUSD={totalBank} variant="default" />
-                      ) : (
-                        "••••••••"
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {bankAccounts.length} account{bankAccounts.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <Link href="/accounts/bank">
-                    <Button variant="ghost" size="icon" className="h-10 w-10">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+    
           </div>
 
           {/* Controls Bar */}
@@ -448,7 +383,8 @@ export default function AccountsPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         <AccountsBento
-          displayAccounts={displayAccounts}
+          cryptoWallets={displayData.crypto}
+          bankAccounts={displayData.bank}
           balanceVisible={balanceVisible}
           cryptoViewMode={cryptoViewPreferences.walletsView}
           bankViewMode={bankViewPreferences.accountsView}
@@ -460,7 +396,7 @@ export default function AccountsPage() {
         />
 
         {/* Empty State */}
-        {displayAccounts.length === 0 && !isLoading && (
+        {displayData.crypto.length === 0 && displayData.bank.length === 0 && !isLoading && (
           <Card className="border-dashed border-2">
             <CardContent className="py-16 text-center">
               <div className="flex flex-col items-center gap-4">
@@ -493,7 +429,8 @@ export default function AccountsPage() {
 }
 
 const AccountsBento = ({
-  displayAccounts,
+  cryptoWallets,
+  bankAccounts,
   balanceVisible,
   cryptoViewMode,
   bankViewMode,
@@ -503,7 +440,8 @@ const AccountsBento = ({
   searchQuery,
   activeTab,
 }: {
-  displayAccounts: Array<Record<string, unknown> & { _type?: 'crypto' | 'bank' }>;
+  cryptoWallets: CryptoWallet[];
+  bankAccounts: BankAccount[];
   balanceVisible: boolean;
   cryptoViewMode: 'grid' | 'list';
   bankViewMode: 'grid' | 'list' | 'grouped';
@@ -513,20 +451,16 @@ const AccountsBento = ({
   searchQuery: string;
   activeTab: 'all' | 'crypto' | 'bank';
 }) => {
-  // Separate accounts into crypto and bank
-  const cryptoAccounts = displayAccounts.filter(account => account._type === 'crypto');
-  const bankAccounts = displayAccounts.filter(account => account._type !== 'crypto');
-
   return (
     <div className="space-y-6">
       {/* Crypto Accounts Section */}
-      {cryptoAccounts.length > 0 && (
+      {cryptoWallets.length > 0 && (
         <section>
           {activeTab === 'all' && (
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">Crypto Wallets  <span className='text-primary'>[<CurrencyDisplay amountUSD={totalCryptoBalance} variant="default" />]</span></h2>
-              
+
               </div>
               <Link href="/accounts/wallet">
                 <Button variant="ghost" size="sm">
@@ -540,7 +474,7 @@ const AccountsBento = ({
           {/* List View - Data Table */}
           {cryptoViewMode === 'list' && (
             <CryptoWalletsDataTable
-              wallets={cryptoAccounts as any}
+              wallets={cryptoWallets}
               totalBalance={totalCryptoBalance}
               isLoading={isLoading}
               hideFilters={true}
@@ -550,7 +484,7 @@ const AccountsBento = ({
           {/* Grid View - Card Grid */}
           {cryptoViewMode === 'grid' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {cryptoAccounts.map((wallet) => {
+              {cryptoWallets.map((wallet) => {
                 return (
                   <WalletCard
                     key={wallet.id}
@@ -566,7 +500,7 @@ const AccountsBento = ({
       {/* Bank Accounts Section */}
       {bankAccounts.length > 0 && (
         <section>
-          {activeTab === 'all' && cryptoAccounts.length > 0 && <Separator className="my-8" />}
+          {activeTab === 'all' && cryptoWallets.length > 0 && <Separator className="my-8" />}
 
           {activeTab === 'all' && (
             <div className="flex items-center justify-between mb-4">
@@ -599,7 +533,7 @@ const AccountsBento = ({
               {bankAccounts.map((bankAccount) => (
                 <BankCard
                   key={bankAccount.id}
-                  account={bankAccount}
+                  account={bankAccount as any}
                 />
               ))}
             </div>
@@ -611,7 +545,7 @@ const AccountsBento = ({
               {bankAccounts.map((bankAccount) => (
                 <BankCard
                   key={bankAccount.id}
-                  account={bankAccount}
+                  account={bankAccount as any}
                 />
               ))}
             </div>

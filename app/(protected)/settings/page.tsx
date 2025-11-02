@@ -16,6 +16,15 @@ import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { UserPreferences } from '@/lib/types/settings';
 import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
+// ✅ Use centralized utilities
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+  removeLocalStorageItem,
+  saveWithTimestamp,
+  getWithTimestamp,
+} from '@/lib/utils';
+
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
 export default function SettingsPage() {
@@ -25,18 +34,13 @@ export default function SettingsPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // ✅ Load preferences using centralized utilities
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setPreferences(parsed.preferences || DEFAULT_USER_PREFERENCES);
-      }
-    } catch (error) {
-      console.error('Failed to load preferences:', error);
-    } finally {
-      setIsInitialized(true);
+    const stored = getWithTimestamp<UserPreferences>(PREFERENCES_STORAGE_KEY);
+    if (stored?.data) {
+      setPreferences(stored.data);
     }
+    setIsInitialized(true);
   }, []);
 
   useEffect(() => {
@@ -57,22 +61,39 @@ export default function SettingsPage() {
     setHasUnsavedChanges(true);
   };
 
+  // ✅ Save/Reset handlers using centralized utilities
   const handleSave = () => {
-    try {
-      localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ preferences, updatedAt: new Date().toISOString() }));
-      updateProfile({ theme: preferences.theme, currency: preferences.currency, language: preferences.language, timezone: preferences.timezone }, {
-        onSuccess: () => { toast.success('Settings saved'); setHasUnsavedChanges(false); },
-        onError: () => { toast.warning('Saved locally'); setHasUnsavedChanges(false); },
-      });
-    } catch (error) {
-      toast.error('Failed to save');
+    const saved = saveWithTimestamp(PREFERENCES_STORAGE_KEY, preferences);
+
+    if (!saved) {
+      toast.error('Failed to save settings');
+      return;
     }
+
+    updateProfile(
+      {
+        theme: preferences.theme,
+        currency: preferences.currency,
+        language: preferences.language,
+        timezone: preferences.timezone
+      },
+      {
+        onSuccess: () => {
+          toast.success('Settings saved');
+          setHasUnsavedChanges(false);
+        },
+        onError: () => {
+          toast.warning('Saved locally');
+          setHasUnsavedChanges(false);
+        },
+      }
+    );
   };
 
   const handleReset = () => {
     if (!confirm('Reset all settings?')) return;
     setPreferences(DEFAULT_USER_PREFERENCES);
-    localStorage.removeItem(PREFERENCES_STORAGE_KEY);
+    removeLocalStorageItem(PREFERENCES_STORAGE_KEY);
     toast.success('Settings reset');
     setHasUnsavedChanges(false);
   };

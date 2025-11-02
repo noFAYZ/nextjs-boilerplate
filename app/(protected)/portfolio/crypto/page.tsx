@@ -32,6 +32,14 @@ import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 import { toast } from 'sonner';
 
+// ✅ Use centralized utilities
+import {
+  filterCryptoWallets,
+  sortByField,
+  truncateAddress,
+  getAddressExplorerUrl,
+} from '@/lib/utils';
+
 type SortField = 'value' | 'name' | 'change';
 
 interface CryptoAsset {
@@ -89,42 +97,33 @@ export default function CryptoPortfolioPage() {
     };
   }, [wallets, portfolio]);
 
-  // Filter and sort
+  // ✅ Filter and sort using centralized utilities
   const displayedAssets = useMemo(() => {
-    let filtered = assets;
+    // Filter by search query
+    let filtered = filterCryptoWallets(assets, { searchQuery });
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        a =>
-          a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.network.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    const sorted = [...filtered].sort((a, b) => {
-      let comparison = 0;
+    // Sort by selected field
+    const getField = (asset: CryptoAsset) => {
       switch (sortBy) {
         case 'value':
-          comparison = b.value - a.value;
-          break;
+          return asset.value;
         case 'name':
-          comparison = a.name.localeCompare(b.name);
-          break;
+          return asset.name;
         case 'change':
-          comparison = b.change24h - a.change24h;
-          break;
+          return asset.change24h;
+        default:
+          return asset.value;
       }
-      return sortOrder === 'desc' ? comparison : -comparison;
-    });
+    };
 
-    return sorted;
+    return sortByField(filtered, getField, sortOrder);
   }, [assets, searchQuery, sortBy, sortOrder]);
 
   const handleRefreshAll = () => {
     toast.success('Refreshing crypto portfolio...');
   };
 
+  // ✅ Event handlers using centralized utilities
   const handleCopyAddress = async (address: string) => {
     try {
       await navigator.clipboard.writeText(address);
@@ -136,19 +135,6 @@ export default function CryptoPortfolioPage() {
 
   const handleAssetClick = (asset: CryptoAsset) => {
     router.push(`/accounts/wallet/${asset.id}`);
-  };
-
-  const getNetworkExplorerUrl = (network: string, address: string) => {
-    const explorers: Record<string, string> = {
-      ETHEREUM: `https://etherscan.io/address/${address}`,
-      POLYGON: `https://polygonscan.com/address/${address}`,
-      BSC: `https://bscscan.com/address/${address}`,
-      ARBITRUM: `https://arbiscan.io/address/${address}`,
-      OPTIMISM: `https://optimistic.etherscan.io/address/${address}`,
-      AVALANCHE: `https://snowtrace.io/address/${address}`,
-      SOLANA: `https://explorer.solana.com/address/${address}`,
-    };
-    return explorers[network] || '#';
   };
 
   if (isLoading) {
@@ -307,7 +293,7 @@ export default function CryptoPortfolioPage() {
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className="font-mono truncate">
-                          {asset.address.slice(0, 8)}...{asset.address.slice(-6)}
+                          {truncateAddress(asset.address)}
                         </span>
                         <Button
                           variant="ghost"
@@ -328,7 +314,7 @@ export default function CryptoPortfolioPage() {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <a
-                            href={getNetworkExplorerUrl(asset.network, asset.address)}
+                            href={getAddressExplorerUrl(asset.network, asset.address)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

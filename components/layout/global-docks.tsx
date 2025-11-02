@@ -489,6 +489,7 @@ export function GlobalDocks() {
   // IMPORTANT: Must be called before any conditional returns (Rules of Hooks)
   const showSyncIndicator = React.useMemo(() => {
     return (
+      pathname === '/accounts' ||
       pathname.startsWith('/accounts/wallet') ||
       pathname.startsWith('/accounts/bank') ||
       pathname === '/portfolio/crypto' ||

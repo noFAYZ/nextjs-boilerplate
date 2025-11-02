@@ -44,7 +44,8 @@
       "Bash(awk:*)",
       "Read(//f/**)",
       "WebFetch(domain:logo.dev)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

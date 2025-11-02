@@ -57,8 +57,10 @@ import {
   SolarChartSquareBoldDuotone, 
   SolarClipboardListBoldDuotone, 
   SolarDownloadBoldDuotone, 
+  SolarGraphUpBoldDuotone, 
   SolarHomeSmileBoldDuotone, 
   SolarInboxInBoldDuotone, 
+  SolarLibraryBoldDuotone, 
   SolarPieChart2BoldDuotone, 
   SolarWallet2Outline, 
   SolarWalletMoneyBoldDuotone, 
@@ -124,7 +126,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'accounts',
     label: 'Accounts',
-    icon: SolarWalletMoneyBoldDuotone,
+    icon: SolarLibraryBoldDuotone,
     href: '/accounts',
     submenu: [
       {
@@ -163,65 +165,6 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'export-accounts', label: 'Export Accounts', icon: Download, action: () => {}, },
       { id: 'account-settings', label: 'Account Settings', icon: Settings, action: () => {}, },
       { id: 'bulk-actions', label: 'Bulk Actions', icon: BarChart3, action: () => {}, }
-    ]
-  },
-  {
-    id: 'integrations',
-    label: 'Integrations',
-    icon: SolarWidgetAddBoldDuotone,
-    href: '/accounts/integrations',
-    quickActions: [
-      { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
-      { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
-      { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
-    ]
-  },
-  {
-    id: 'portfolio',
-    label: 'Portfolio',
-    icon: SolarPieChart2BoldDuotone,
-    href: '/portfolio',
-    submenu: [
-      {
-        id: 'overview',
-        label: 'Portfolio Overview',
-        href: '/portfolio',
-        icon: HugeiconsPieChart09,
-        description: 'Complete portfolio snapshot',
-        tooltip: 'View your entire portfolio at a glance'
-      },
-      {
-        id: 'holdings',
-        label: 'Holdings',
-        href: '/portfolio/holdings',
-        icon: Store,
-        description: 'Detailed asset breakdown',
-        tooltip: 'All your assets in one place'
-      },
-      {
-        id: 'performance',
-        label: 'Performance',
-        href: '/portfolio/performance',
-        icon: TrendingUp,
-        description: 'Track portfolio performance',
-        tooltip: 'Returns, gains, and performance metrics',
-        status: 'updated'
-      },
-      {
-        id: 'allocation',
-        label: 'Asset Allocation',
-        href: '/portfolio/allocation',
-        icon: BarChart3,
-        description: 'Analyze your asset distribution',
-        tooltip: 'Diversification and allocation analysis'
-      }
-    ],
-    quickActions: [
-      { id: 'rebalance', label: 'Rebalance Portfolio', icon: BarChart3, action: () => {}, },
-      { id: 'analyze-performance', label: 'Analyze Performance', icon: TrendingUp, action: () => {}, shortcut: '⌘P' },
-      { id: 'export-portfolio', label: 'Export Portfolio', icon: Download, action: () => {}, },
-      { id: 'portfolio-alerts', label: 'Set Alerts', icon: Bell, action: () => {}, },
-      { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
     ]
   },
   {
@@ -273,6 +216,55 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'transaction-rules', label: 'Auto-Rules', icon: Settings, action: () => {}, }
     ]
   },
+  {
+    id: 'portfolio',
+    label: 'Portfolio',
+    icon: SolarPieChart2BoldDuotone,
+    href: '/portfolio',
+    submenu: [
+      {
+        id: 'overview',
+        label: 'Portfolio Overview',
+        href: '/portfolio',
+        icon: HugeiconsPieChart09,
+        description: 'Complete portfolio snapshot',
+        tooltip: 'View your entire portfolio at a glance'
+      },
+      {
+        id: 'holdings',
+        label: 'Holdings',
+        href: '/portfolio/holdings',
+        icon: Store,
+        description: 'Detailed asset breakdown',
+        tooltip: 'All your assets in one place'
+      },
+      {
+        id: 'performance',
+        label: 'Performance',
+        href: '/portfolio/performance',
+        icon: TrendingUp,
+        description: 'Track portfolio performance',
+        tooltip: 'Returns, gains, and performance metrics',
+        status: 'updated'
+      },
+      {
+        id: 'allocation',
+        label: 'Asset Allocation',
+        href: '/portfolio/allocation',
+        icon: BarChart3,
+        description: 'Analyze your asset distribution',
+        tooltip: 'Diversification and allocation analysis'
+      }
+    ],
+    quickActions: [
+      { id: 'rebalance', label: 'Rebalance Portfolio', icon: BarChart3, action: () => {}, },
+      { id: 'analyze-performance', label: 'Analyze Performance', icon: TrendingUp, action: () => {}, shortcut: '⌘P' },
+      { id: 'export-portfolio', label: 'Export Portfolio', icon: Download, action: () => {}, },
+      { id: 'portfolio-alerts', label: 'Set Alerts', icon: Bell, action: () => {}, },
+      { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
+    ]
+  },
+
   {
     id: 'goals',
     label: 'Goals',
@@ -330,6 +322,13 @@ const MENU_ITEMS: MenuItem[] = [
 
   },
   {
+    id: 'investments',
+    label: 'Investments',
+    icon: SolarGraphUpBoldDuotone,
+    href: '/investments',
+
+  },
+  {
     id: 'insights',
     label: 'Insights',
     icon: SolarChartSquareBoldDuotone,
@@ -379,7 +378,18 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'insight-history', label: 'Insight History', icon: Calendar, action: () => {}, },
       { id: 'share-insights', label: 'Share Insights', icon: Share, action: () => {}, }
     ]
-  }
+  },
+  {
+    id: 'integrations',
+    label: 'Integrations',
+    icon: SolarWidgetAddBoldDuotone,
+    href: '/accounts/integrations',
+    quickActions: [
+      { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
+      { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
+      { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
+    ]
+  },
 ];
 
 export const QUICK_ACTIONS: QuickAction[] = [

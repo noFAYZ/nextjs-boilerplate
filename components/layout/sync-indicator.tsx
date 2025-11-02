@@ -187,7 +187,7 @@ export function SyncIndicator() {
 
   React.useEffect(() => {
     const items: React.ReactNode[] = []
-
+    
     Object.entries(cryptoSyncStates).forEach(([id, state]: [string, unknown], index) => {
       items.push(
         <SyncItemRow
@@ -197,7 +197,7 @@ export function SyncIndicator() {
           type="crypto"
 
           onRetry={() => console.log(`Retrying sync for crypto ${id}`)}
-          isExpanded={false}
+          isExpanded={true}
         />
       )
     })
@@ -210,7 +210,7 @@ export function SyncIndicator() {
           state={state as ExtendedSyncState}
           type="banking"
           onRetry={() => console.log(`Retrying sync for banking ${id}`)}
-          isExpanded={false}
+          isExpanded={true}
         />
       )
     })

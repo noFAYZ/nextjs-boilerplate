@@ -27,6 +27,12 @@ import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts";
 import { useAggregatedCryptoWallet, useCryptoPortfolio, useSyncAllCryptoWallets } from "@/lib/queries";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 
+// ✅ Use centralized utilities
+import {
+  getTopPerformingAssets,
+  getTopNetworks,
+} from "@/lib/utils";
+
 // Import components
 import { WalletTokens } from "@/components/crypto/wallet-tokens";
 import { WalletNFTs } from "@/components/crypto/wallet-nfts";
@@ -99,33 +105,20 @@ export default function AggregatedWalletPage() {
 
   const {data:portfolioData, isLoading:portfolioLoading,error:portfolioError} = useCryptoPortfolio({includeChart:true,chartTimeRange:'7d'})
 
-  // Memoize stats
+  // ✅ Memoize stats using centralized utilities
   const portfolioStats = useMemo(() => {
     if (!aggregatedData) return null;
 
     const summary = aggregatedData.summary;
 
-    // Find top 5 best performing assets (highest positive change24h)
-    const topPerformingAssets = portfolioData?.topAssets?.length
-      ? [...portfolioData.topAssets]
-          .sort((a, b) => (b.change24h || 0) - (a.change24h || 0))
-          .slice(0, 3)
-          .map(asset => ({
-            symbol: asset.symbol,
-            name: asset.name,
-            change24h: asset.change24h,
-            balanceUsd: asset.balanceUsd,
-            logoUrl: asset.logoUrl,
-          }))
+    // ✅ Use utility functions for top performers and networks
+    const topPerformingAssets = portfolioData?.topAssets
+      ? getTopPerformingAssets(portfolioData.topAssets, 3)
       : [];
 
-    // Get top 5 networks (already sorted by value)
-    const topNetworks = portfolioData?.networkDistribution?.slice(0, 3).map(network => ({
-      network: network.network,
-      valueUsd: network.valueUsd,
-      percentage: network.percentage,
-      assetCount: network.assetCount,
-    })) || [];
+    const topNetworks = portfolioData?.networkDistribution
+      ? getTopNetworks(portfolioData.networkDistribution, 3)
+      : [];
 
     return {
       totalValue: portfolioData?.totalValueUsd || 0,

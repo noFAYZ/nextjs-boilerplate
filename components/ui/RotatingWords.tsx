@@ -55,7 +55,7 @@ export function RotatingHeadline() {
             <div
               className={`
                 relative flex items-center justify-center
-                p-1.5 sm:p-2 rounded-xl sm:rounded-2xl md:rounded-[1.25rem] 
+                p-1.5 sm:p-2 rounded-xl 
                 bg-accent/90 dark:bg-amber-500/20 backdrop-blur-xl
                 border border-orange-500/15
                 shadow-lg

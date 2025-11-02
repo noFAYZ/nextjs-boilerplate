@@ -44,7 +44,7 @@ const positionClasses = {
 export function SyncPanel({
   trigger,
   items,
-  isExpanded,
+  isExpanded = false,
   onToggle,
   panelTitle,
   emptyMessage = 'All synced',
