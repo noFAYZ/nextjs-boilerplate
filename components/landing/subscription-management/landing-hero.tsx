@@ -8,12 +8,15 @@ import {
   DuoIconsCreditCard,
   SolarChartSquareBoldDuotone,
   SolarClockCircleBoldDuotone,
+  SolarPlayCircleBoldDuotone,
   SolarShieldBoldDuotone,
 } from "@/components/icons/icons";
 import { ScrollReveal } from "../scroll-reveal";
 import { RotatingHeadline } from "@/components/ui/RotatingWords";
 import { cn } from "@/lib/utils";
 import { AdvancedBackgroundGrid } from "../BackgroundGrid";
+import { Button } from "@/components/ui/button";
+import { PlayCircle, PlayIcon } from "lucide-react";
 
 // Feature highlights config
 const FEATURES = [
@@ -88,14 +91,14 @@ export function LandingHero() {
             {...fadeInUp}
             transition={{ delay: 0.3 }}
             className={cn(
-              "text-3xl sm:text-4xl md:text-5xl lg:text-6xl",
-              "font-semibold tracking-tight leading-tight",
+              "text-5xl md:text-5xl lg:text-6xl xl:text-7xl",
+              "font-[900] tracking-tight leading-tight ",
               "bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80"
             )}
           >
             Take Control of Your{" "}
             <span
-              className="relative inline-flex h-[1.2em] items-center justify-center overflow-hidden align-middle"
+              className="relative inline-flex  items-center justify-center  "
               role="status"
               aria-live="polite"
             >
@@ -118,15 +121,24 @@ export function LandingHero() {
           <motion.div
             {...fadeInUp}
             transition={{ delay: 0.7 }}
-            className="mt-8 flex flex-col justify-center sm:flex-row"
+            className="mt-8 flex flex-col justify-center sm:flex-row gap-3"
           >
-            <WaitlistFormCompact />
+            <Button >
+              Get Started
+            </Button>
+            <Button
+            variant="outline"
+            icon={<SolarPlayCircleBoldDuotone className="w-6 h-6" />}
+            >
+              See Demo
+            </Button>
+          {/*   <WaitlistFormCompact /> */}
           </motion.div>
-
-          {/* Tagline */}
+     
+          {/* Tagline
           <p className="mt-6 text-xs font-medium uppercase tracking-widest text-muted-foreground/80">
             Unified Billing • AI Insights • Smart Spend Alerts
-          </p>
+          </p> */}
         </div>
 
         {/* Dashboard Preview */}

@@ -73,9 +73,9 @@ export function LandingNav() {
         >
           <div
             className={cn(
-              'relative rounded-xl transition-all duration-300',
+              'relative rounded-xl transition-all duration-200',
               isScrolled
-                ? 'bg-background/80 backdrop-blur-xl border border-border/60 shadow-lg'
+                ? 'bg-background/80 border border-border/60 '
                 : 'bg-transparent border-transparent'
             )}
           >
@@ -86,15 +86,15 @@ export function LandingNav() {
                 className="flex items-center gap-2 -ml-1 group"
                 onClick={handleLinkClick}
               >
-               {/*  <Image
-                  src="/logo/19.svg"
+              <Image
+                  src="/logo/mappr.svg"
                   alt="MoneyMappr logo"
                   width={56}
                   height={56}
-                  className="object-contain w-12 h-12 sm:w-14 sm:h-14 transition-transform group-hover:scale-105"
+                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
                   priority
-                /> */}
-                <LogoMappr className='w-10 h-10' />
+                /> 
+                 {/*  <LogoMappr className='w-10 h-10' />*/}
                 <div className="flex flex-col">
                   <span className="text-base sm:text-lg font-bold tracking-tight">
                     MoneyMappr

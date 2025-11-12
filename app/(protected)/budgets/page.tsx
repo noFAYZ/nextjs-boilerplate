@@ -39,6 +39,15 @@ import {
 } from "@/lib/queries/use-budget-data"
 import { useToast } from "@/lib/hooks/use-toast"
 import type { Budget } from "@/lib/types/budget"
+import Link from "next/link"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 export default function BudgetsPage() {
   const { toast } = useToast()
@@ -190,8 +199,20 @@ export default function BudgetsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Budgets</h1>
-          <p className="text-muted-foreground text-xs">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Budgets</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <p className="text-muted-foreground text-xs mt-1">
             Track your spending and stay within your budget goals
           </p>
         </div>

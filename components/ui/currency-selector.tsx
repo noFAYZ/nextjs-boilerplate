@@ -118,7 +118,7 @@ export function CurrencySelector({
           onValueChange={handleCurrencyChange}
           disabled={disabled || isChanging}
         >
-          <SelectTrigger className="w-full h-5 text-xs" size='sm' >
+          <SelectTrigger className="w-full  text-xs" size='sm' >
             <SelectValue>
               {isChanging ? (
                 <Loader2 className="h-3 w-3 animate-spin" />

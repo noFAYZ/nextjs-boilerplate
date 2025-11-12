@@ -21,6 +21,15 @@ import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import { useDeleteSubscription } from "@/lib/queries/use-subscription-data";
 import { useToast } from "@/lib/hooks/use-toast";
 import type { UserSubscription } from "@/lib/types/subscription";
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -98,8 +107,20 @@ export default function SubscriptionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Subscriptions</h1>
-          <p className="text-muted-foreground text-xs">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Subscriptions</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <p className="text-muted-foreground text-xs mt-1">
             Track and manage your recurring subscriptions
           </p>
         </div>
@@ -114,13 +135,13 @@ export default function SubscriptionsPage() {
 
 
       {/* Tabs */}
-      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)} >
         <div className="flex items-center justify-between">
-        <TabsList variant={'card'} >
-          <TabsTrigger value="all" variant={'card'}  >All</TabsTrigger>
-          <TabsTrigger value="active" variant={'card'} >Active</TabsTrigger>
-          <TabsTrigger value="trial" variant={'card'} >Trial</TabsTrigger>
-          <TabsTrigger value="cancelled" variant={'card'} >Cancelled</TabsTrigger>
+        <TabsList variant={'card'} size="sm">
+          <TabsTrigger value="all" variant={'card'} size="sm" >All</TabsTrigger>
+          <TabsTrigger value="active" variant={'card'} size="sm">Active</TabsTrigger>
+          <TabsTrigger value="trial" variant={'card'} size="sm">Trial</TabsTrigger>
+          <TabsTrigger value="cancelled" variant={'card'} size="sm">Cancelled</TabsTrigger>
         </TabsList>
               {/* Filters and View Controls */}
       <div className="flex items-center justify-between min-w-sm gap-4">

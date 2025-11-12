@@ -61,6 +61,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select';
 import { DeleteProgressDialog } from '@/components/ui/progress-dialog';
 import { createOperationItem } from '@/lib/types/progress';
 import { useCurrency } from '@/lib/contexts/currency-context';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 interface BankingDashboardProps {
   onAccountView?: (account: BankAccount) => void;
@@ -403,17 +412,28 @@ export function BankingDashboard({
 
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
-                <FluentBuildingBank28Regular className="h-7 w-7" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight">Banking</h1>
-                <p className="text-xs text-muted-foreground">
-                Track your bank accounts and transactions
-                </p>
-              </div>
-            </div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/accounts">Accounts</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Bank</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <p className="text-xs text-muted-foreground mt-1">
+              Track your bank accounts and transactions
+            </p>
           </div>
 
           <div className="flex items-center gap-3">

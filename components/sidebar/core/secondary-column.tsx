@@ -37,7 +37,7 @@ export function SidebarSecondaryColumn({
 
   return (
     <div className={cn(
-      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar-accent border-r border-border shadow-xl ",
+      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar border-r border-border shadow-xl ",
       isExpanded ? "w-80" : "w-16"
     )}>
       {/* Header */}

@@ -7,14 +7,35 @@ import { SpendingCategoriesWidget } from '@/components/dashboard-widgets/spendin
 import { MonthlySpendingTrendWidget } from '@/components/dashboard-widgets/monthly-spending-trend-widget';
 import { AccountSpendingComparisonWidget } from '@/components/dashboard-widgets/account-spending-comparison-widget';
 import { RefreshAnalyticsButton } from '@/components/ui/refresh-analytics-button';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export default function WidgetsPage() {
   return (
     <div className=" mx-auto py-8 px-4">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Widgets</h1>
-          <p className="text-muted-foreground">
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Widgets</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <p className="text-muted-foreground text-sm">
             View your financial overview with customizable widgets
           </p>
         </div>

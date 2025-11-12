@@ -15,6 +15,15 @@ import { useUserProfile, useUpdateUserProfile } from '@/lib/queries';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { UserPreferences } from '@/lib/types/settings';
 import { LetsIconsSettingLineDuotone } from '@/components/icons';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 // ✅ Use centralized utilities
 import {
@@ -106,14 +115,21 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
-              <LetsIconsSettingLineDuotone className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">Settings</h1>
-              <p className="text-xs text-muted-foreground">Manage your preferences and account</p>
-            </div>
+          <div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Settings</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <p className="text-xs text-muted-foreground mt-1">Manage your preferences and account</p>
           </div>
           <div className="flex items-center gap-2">
             {hasUnsavedChanges && <Badge variant="secondary" className="gap-1 text-xs"><AlertCircle className="h-3 w-3" />Unsaved</Badge>}

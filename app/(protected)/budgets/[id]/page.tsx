@@ -23,6 +23,15 @@ import { BudgetFormModal } from "@/components/budgets/budget-form-modal"
 import { useToast } from "@/lib/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import type { Budget } from "@/lib/types/budget"
+import Link from "next/link"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -177,16 +186,29 @@ export default function BudgetDetailPage() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-3">
-            {budget.icon && (
-              <div className="text-3xl">{budget.icon}</div>
+          <div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/budgets">Budgets</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{budget.name}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            {budget.description && (
+              <p className="text-muted-foreground text-xs mt-1">{budget.description}</p>
             )}
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">{budget.name}</h1>
-              {budget.description && (
-                <p className="text-muted-foreground text-xs">{budget.description}</p>
-              )}
-            </div>
           </div>
         </div>
 

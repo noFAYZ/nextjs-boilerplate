@@ -61,6 +61,15 @@ import { getLogoUrl } from "@/lib/services/logo-service";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/lib/hooks/use-toast";
 import { SubscriptionFormModal } from "@/components/subscriptions/subscription-form-modal";
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 import { HugeiconsCreditCard, MageCalendar2, MdiDollar } from "@/components/icons/icons";
 
@@ -269,9 +278,25 @@ export default function SubscriptionDetailPage() {
 
               <div className="min-w-0 flex-1 space-y-1.5">
                 <div>
-                  <h1 className="text-lg font-bold tracking-tight sm:text-xl truncate">
-                    {subscription.name}
-                  </h1>
+                  <Breadcrumb className="mb-1">
+                    <BreadcrumbList>
+                      <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                          <Link href="/">Home</Link>
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                          <Link href="/subscriptions">Subscriptions</Link>
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage>{subscription.name}</BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </BreadcrumbList>
+                  </Breadcrumb>
                   <p className="text-xs text-muted-foreground truncate">
                     {subscription.merchantName || "Manual Entry"}
                   </p>

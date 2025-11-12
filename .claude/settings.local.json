@@ -45,7 +45,9 @@
       "Read(//f/**)",
       "WebFetch(domain:logo.dev)",
       "Bash(echo:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:www.monarchmoney.com)",
+      "WebFetch(domain:www.monarch.com)"
     ],
     "deny": [],
     "ask": []

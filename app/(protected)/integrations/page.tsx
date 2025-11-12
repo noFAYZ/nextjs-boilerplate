@@ -39,6 +39,15 @@ import {
 } from '@/lib/queries/integrations-queries';
 import { useIntegrationsStore, integrationsSelectors } from '@/lib/stores/integrations-store';
 import { IntegrationProvider, IntegrationStatus } from '@/lib/types/integrations';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export default function IntegrationsPage() {
   const { toast } = useToast();
@@ -171,12 +180,19 @@ export default function IntegrationsPage() {
           <div className="relative">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-1">
-                <div className="flex items-center gap-3">
-               
-                  <h1 className="text-md font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    Integrations
-                  </h1>
-                </div>
+                <Breadcrumb className="mb-1">
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link href="/">Home</Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Integrations</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
                 <p className="text-xs text-muted-foreground max-w-2xl">
                   Connect your favorite tools and automate your financial workflows seamlessly
                 </p>

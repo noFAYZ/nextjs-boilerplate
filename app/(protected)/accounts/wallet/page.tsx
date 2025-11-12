@@ -22,6 +22,14 @@ import { useRouter } from "next/navigation";
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral } from "@dicebear/collection";
 import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // ✅ Import TanStack Query hook for aggregated wallet
 import { useAggregatedCryptoWallet, useCryptoPortfolio, useSyncAllCryptoWallets } from "@/lib/queries";
@@ -180,20 +188,30 @@ export default function AggregatedWalletPage() {
     <div className=" mx-auto p-4 lg:p-6 space-y-6">
    {/* Header Row */}
         <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6 p-4">
-          {/* Left: Title & Actions */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/15 flex items-center justify-center  shadow-sm flex-shrink-0">
-              <SolarWalletMoneyBoldDuotone className="h-6 w-6 text-primary" />
-            </div>
-
-            <div className="flex flex-col">
-              <h1 className="text-md font-bold tracking-tight text-foreground">
-                Portfolio Overview
-              </h1>
-              <p className="text-xs text-muted-foreground ">
-                Track your crypto holdings across all wallets
-              </p>
-            </div>
+          {/* Left: Breadcrumbs & Description */}
+          <div className="flex flex-col gap-2">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/accounts">Accounts</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Wallet</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <p className="text-xs text-muted-foreground">
+              Track your crypto holdings across all wallets
+            </p>
           </div>
 
           {/* Right: Action Buttons */}

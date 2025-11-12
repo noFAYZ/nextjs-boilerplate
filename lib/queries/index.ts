@@ -317,3 +317,45 @@ export {
   useCanAccessFeature,
   billingSubscriptionKeys,
 } from './use-billing-subscription-data';
+
+// ============================================================================
+// NET WORTH DATA HOOKS
+// ============================================================================
+
+export {
+  // Net Worth Queries
+  useNetWorth,
+  useNetWorthSummary,
+  useNetWorthBreakdown,
+  useNetWorthPerformance,
+  useNetWorthHistory,
+
+  // Asset Account Queries
+  useAssetAccounts,
+  useAssetAccount,
+  useAssetValuations,
+
+  // Asset Category Queries
+  useAssetCategories,
+  useAssetCategory,
+
+  // Net Worth Goals
+  useNetWorthGoals,
+
+  // Asset Account Mutations
+  useCreateAssetAccount,
+  useUpdateAssetAccount,
+  useDeleteAssetAccount,
+  useCreateValuation,
+
+  // Asset Category Mutations
+  useCreateAssetCategory,
+  useUpdateAssetCategory,
+  useDeleteAssetCategory,
+} from './use-networth-data';
+
+export {
+  networthKeys,
+  networthQueries,
+  networthMutations,
+} from './networth-queries';

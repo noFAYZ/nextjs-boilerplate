@@ -20,6 +20,14 @@ import type { Goal } from '@/lib/types/goals';
 import { GoalCardList } from './GoalList';
 import { IcTwotoneEnergySavingsLeaf, MageGoals, NotoMoneyBag, StreamlinePlumpMoneyCashBill1 } from '../icons/icons';
 import { formatBusinessTime, timestampzToReadable } from '@/lib/utils/time';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export function GoalsDashboard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -283,8 +291,20 @@ export function GoalsDashboard() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-lg font-bold tracking-tight">Financial Goals</h1>
-          <p className="text-muted-foreground text-xs">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Goals</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <p className="text-muted-foreground text-xs mt-1">
             Track and achieve your financial objectives
           </p>
         </div>

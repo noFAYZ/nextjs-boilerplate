@@ -24,6 +24,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { FluentBuildingBank28Regular, FluentBuildingBankLink28Regular } from '@/components/icons/icons';
 import posthog from 'posthog-js';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 // Teller Connect Widget Interface
 interface TellerConnectInstance {
@@ -896,7 +904,25 @@ function ConnectionPageContent() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1">Connect {getIntegrationName()}</h1>
+        <Breadcrumb className="mb-2">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/accounts">Accounts</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Connect {getIntegrationName()}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <p className="text-sm text-muted-foreground">
           Follow the steps below to securely connect your account
         </p>

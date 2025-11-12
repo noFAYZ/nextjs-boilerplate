@@ -67,6 +67,9 @@ export function CurrencyDisplay({
         ...formatOptions,
       }).format(convertedAmount);
 
+  // Split integer and decimal parts for styling
+  const [integerPart, decimalPart] = formattedAmount.split('.');
+
   const baseClass = cn(
     'font-medium',
     {
@@ -84,9 +87,29 @@ export function CurrencyDisplay({
     className
   );
 
+  const decimalClass = cn(
+    'font-medium',
+    {
+      // Variant styles
+      'text-xl font-bold': variant === 'large',
+      'text-sm': variant === 'default',
+      'text-xs': variant === 'small',
+      'text-[11px]': variant === 'compact',
+
+      // Color coding
+      'text-green-600 dark:text-green-400': colorCoded && amountUSD > 0,
+      'text-red-600 dark:text-red-400': colorCoded && amountUSD < 0,
+      'text-muted-foreground': colorCoded && amountUSD === 0,
+    },
+    className
+  );
+
   return (
     <span className={baseClass} title={`${amountUSD?.toLocaleString()} USD`}>
-      {formattedAmount}
+      {integerPart}
+      {decimalPart && (
+        <span className={`${decimalClass} text-muted-foreground `}>.{decimalPart}</span>
+      )}
     </span>
   );
 }
@@ -99,7 +122,6 @@ interface CurrencySymbolProps {
 export function CurrencySymbol({ currency, className }: CurrencySymbolProps) {
   const { currencySymbol, selectedCurrency } = useCurrencyFormat();
 
-  // Import the service dynamically to avoid import issues
   const symbol = currency
     ? (() => {
         try {
@@ -120,11 +142,9 @@ interface CurrencyCodeProps {
 
 export function CurrencyCode({ className }: CurrencyCodeProps) {
   const { selectedCurrency } = useCurrencyFormat();
-
   return <span className={cn('font-mono text-xs', className)}>{selectedCurrency}</span>;
 }
 
-// Utility component for showing currency info
 interface CurrencyInfoProps {
   showCode?: boolean;
   showSymbol?: boolean;
@@ -136,7 +156,7 @@ export function CurrencyInfo({
   showCode = true,
   showSymbol = true,
   className,
-  separator = ' '
+  separator = ' ',
 }: CurrencyInfoProps) {
   const { currencySymbol, selectedCurrency } = useCurrencyFormat();
 

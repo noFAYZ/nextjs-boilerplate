@@ -110,7 +110,15 @@ export function Header({
                 className="flex items-center gap-2 group relative   "
                
               >
-              <LogoMappr className='w-10 h-10 antialiased'/>
+                  <Image
+                  src="/logo/mappr.svg"
+                  alt="MoneyMappr logo"
+                  width={52}
+                  height={52}
+                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
+                  priority
+                /> 
+             {/*  <LogoMappr className='w-10 h-10 antialiased'/> */}
                 <div className="flex flex-col">
                   <span className="text-base sm:text-base font-bold tracking-tight">
                     MoneyMappr

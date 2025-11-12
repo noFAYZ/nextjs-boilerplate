@@ -22,6 +22,15 @@ import {
 } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 type SortField = 'value' | 'name' | 'institution';
 
@@ -132,16 +141,29 @@ export default function BankingPortfolioPage() {
     <div className={`${pageClass} max-w-3xl mx-auto p-4 lg:p-6 space-y-4`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-            <FluentBuildingBank28Regular className="h-5 w-5 text-green-600 dark:text-green-400" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold tracking-tight">Banking Portfolio</h1>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalAccounts} accounts
-            </p>
-          </div>
+        <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/portfolio">Portfolio</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Banking</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <p className="text-xs text-muted-foreground mt-1">
+            {stats.totalAccounts} accounts
+          </p>
         </div>
 
         <Button

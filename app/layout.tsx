@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import {  Readex_Pro, Rubik,Sen, Space_Grotesk } from "next/font/google";
+import {  Readex_Pro, Georama,Andika
+  , Space_Grotesk,Hubot_Sans,Funnel_Display,Parkinsans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
@@ -11,6 +12,8 @@ import "@/lib/config/env";
 const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+
+  
 });
 
 export const metadata: Metadata = {

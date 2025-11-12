@@ -12,7 +12,15 @@ const buttonVariants = cva(
       variant: {
  /*        default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity", */
-          default: "bg-orange-500  text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]",
+/*           default: "bg-orange-500  text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]", */
+
+          default:
+            "relative bg-gradient-to-b from-[#FFB347] via-[#FF7A00] to-[#E66A00] text-white font-semibold " +
+            "shadow-[0_4px_0_0_rgb(154,52,18)] border-2 border-[#E66A00]/70 " +
+            " hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] " +
+            "active:shadow-none active:translate-y-[4px] transition-all duration-150 " +
+            "before:absolute before:inset-0 before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] before:opacity-0  before:transition-opacity before:duration-200 " +
+            " overflow-hidden dark:from-[#FF8C1A] dark:via-[#E66A00] dark:to-[#B84D00]",
           delete: 'bg-[rgb(245,126,47)] text-primary-foreground border-2 border-[rgb(245,102,9)] shadow-[0_3px_0_0_rgb(245,102,9)] hover:shadow-[0_1px_0_0_rgb(245,100,9)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-150 font-medium ',
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",

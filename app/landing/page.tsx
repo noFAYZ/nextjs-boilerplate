@@ -22,7 +22,8 @@ import {
   SubscriptionsShowcase,
 } from '@/components/landing';
 import { CryptoShowcase } from '@/components/landing/crypto-section';
-import { LandingHero } from '@/components/landing/subscription-management/landing-hero';
+import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
+import { LandingHeroAlt } from '@/components/landing/subscription-management/landing-hero-alt';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
 
 

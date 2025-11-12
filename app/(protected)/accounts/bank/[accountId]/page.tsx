@@ -88,9 +88,11 @@ import {
   HugeiconsCreditCard,
   LetsIconsTimeProgressDuotone,
   MynauiActivitySquare,
+  SolarChartSquareBoldDuotone,
+  SolarClipboardListBoldDuotone,
   SolarPieChartBold,
 } from "@/components/icons/icons";
-import { IconParkOutlineSettingTwo } from "@/components/icons";
+import { IconParkOutlineSettingTwo, LetsIconsSettingLineDuotone } from "@/components/icons";
 import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
 import {
   Table,
@@ -101,6 +103,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import CompactStatCard from "@/components/ui/StatsCard";
+import { AccountHeader } from "@/components/accounts/AccountHeader";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -387,204 +390,8 @@ export default function BankAccountDetailsPage() {
           </div>
         </div>
       </div>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {/* Account Info */}
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "h-12 w-12 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-md",
-                accountConfig.color
-              )}
-            >
-              <IconComponent className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold">{account.name}</h1>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>{account.institutionName}</span>
-                <Separator orientation="vertical" className="h-3" />
-                <span className="font-mono">
-                  ****{account.accountNumber.slice(-4)}
-                </span>
-                <Badge variant="secondary" className="text-xs">
-                  {accountConfig.label}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Balance & Actions */}
-        <div className="flex items-center gap-4">
-          {/* Balance Display */}
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground mb-0.5">
-              {account.type === "CREDIT_CARD"
-                ? "Available Credit"
-                : "Available Balance"}
-            </p>
-            <CurrencyDisplay
-              amountUSD={parseFloat(
-                account.availableBalance?.toString() ||
-                  account.balance.toString()
-              )}
-              className={cn(
-                "text-2xl font-bold",
-                account.type === "CREDIT_CARD"
-                  ? "text-foreground"
-                  : getAccountBalanceColor(account)
-              )}
-            />
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {account.type === "CREDIT_CARD" ? "Balance Owed: " : "Ledger: "}
-              <CurrencyDisplay
-                amountUSD={parseFloat(account.balance.toString())}
-                variant="compact"
-                className={cn(
-                  "inline font-medium",
-                  account.type === "CREDIT_CARD"
-                    ? "text-red-800 dark:text-red-800"
-                    : ""
-                )}
-              />
-            </p>
-          </div>
-        </div>
-      </div>
-
-  
-{/* Compact Stats + Credit Utilization */}
-{(() => {
-  // ✅ Compute utilization using centralized utility
-  const utilization =
-    account.type === 'CREDIT_CARD'
-      ? calculateCreditUtilization(
-          parseFloat(account.balance.toString()),
-          parseFloat(account.availableBalance?.toString() || '0')
-        )
-      : 0
-
-  return (
-    <div className="flex flex-col lg:flex-row gap-4 mt-4">
-      {/* LEFT — Two Stats */}
-      <div className="flex flex-col sm:flex-row gap-4 flex-1">
-        <CompactStatCard
-          title={
-            account.type === 'CREDIT_CARD'
-              ? 'Payments'
-              : account.type === 'SAVINGS'
-              ? 'Deposits'
-              : 'Income'
-          }
-          variant="success"
-          value={
-            <CurrencyDisplay
-              amountUSD={analytics.monthlyIncome}
-              className="text-base font-semibold"
-              formatOptions={{
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }}
-            />
-          }
-          icon={ArrowUpRight}
-        />
-
-        <CompactStatCard
-          title={
-            account.type === 'CREDIT_CARD'
-              ? 'Spending'
-              : account.type === 'SAVINGS'
-              ? 'Withdrawals'
-              : 'Expenses'
-          }
-          variant="destructive"
-          value={
-            <CurrencyDisplay
-              amountUSD={analytics.monthlySpending}
-              className="text-base font-semibold"
-              formatOptions={{
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }}
-            />
-          }
-          icon={ArrowDownRight}
-        />
-      </div>
-
-      {/* RIGHT — Credit Utilization (for Credit Cards only) */}
-      {account.type === 'CREDIT_CARD' && (
-        <CompactStatCard
-          title="Utilization"
-          variant="primary"
-          icon={LetsIconsTimeProgressDuotone}
-          className=""
-          value={
-            <div className="w-full min-w-sm">
-              {/* Progress Bar */}
-              <div className="h-2 bg-muted rounded-full overflow-hidden mb-1">
-                <div
-                  className={cn(
-                    'h-full rounded-full transition-all duration-500',
-                    utilization > 75
-                      ? 'bg-red-500'
-                      : utilization > 50
-                      ? 'bg-orange-500'
-                      : 'bg-green-500'
-                  )}
-                  style={{ width: `${utilization}%` }}
-                />
-              </div>
-
-              {/* Bottom Info */}
-              <div className="flex flex-wrap items-center justify-between text-xs text-muted-foreground gap-y-1">
-                <span>
-                  Limit:{' '}
-                  <CurrencyDisplay
-                    amountUSD={
-                      Math.abs(parseFloat(account.balance.toString())) +
-                      parseFloat(account.availableBalance?.toString() || '0')
-                    }
-                    variant="compact"
-                    className="inline font-medium"
-                    formatOptions={{
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }}
-                  />
-                </span>
-
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold">{utilization}%</span>
-                  <span
-                    className={cn(
-                      'font-semibold',
-                      utilization > 75
-                        ? 'text-red-600 dark:text-red-400'
-                        : utilization > 50
-                        ? 'text-orange-600 dark:text-orange-400'
-                        : 'text-lime-600 dark:text-lime-500'
-                    )}
-                  >
-                    {utilization > 75
-                      ? 'High'
-                      : utilization > 50
-                      ? 'Moderate'
-                      : 'Good'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          }
-        />
-      )}
-    </div>
-  )
-})()}
-
+   
+<AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent} />
 
 
       {/* Transactions Section with Tabs */}
@@ -596,15 +403,15 @@ export default function BankAccountDetailsPage() {
         <div className="flex items-center justify-between">
           <TabsList variant="card" size="sm">
             <TabsTrigger value="transactions" variant="card" size="sm">
-              <Activity className="h-4 w-4 mr-2" />
+              <SolarClipboardListBoldDuotone className="h-4 w-4 " />
               Transactions
             </TabsTrigger>
             <TabsTrigger value="analytics" variant="card" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
+              <SolarChartSquareBoldDuotone className="h-4 w-4 " />
               Analytics
             </TabsTrigger>
             <TabsTrigger value="settings" variant="card" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
+              <LetsIconsSettingLineDuotone className="h-4 w-4 " />
               Settings
             </TabsTrigger>
           </TabsList>
@@ -620,7 +427,7 @@ export default function BankAccountDetailsPage() {
             </div>
             {/* View Toggle - Only show on transactions tab */}
             {selectedTab === "transactions" && (
-              <div className="inline-flex items-center rounded-lg border p-1 bg-background">
+              <div className="inline-flex items-center  bg-background">
                 <Button
                   variant={transactionView === "table" ? "secondary" : "ghost"}
                   size="sm"
@@ -653,7 +460,7 @@ export default function BankAccountDetailsPage() {
           ) : filteredTransactions.length > 0 ? (
             <>
               {/* Table View */}
-              {transactionView === "table" && (
+              {transactionView === "list" && (
                 <div className="bg-card p-4 rounded-2xl">
                   <Table>
                     <TableHeader>
@@ -783,7 +590,7 @@ export default function BankAccountDetailsPage() {
               )}
 
               {/* List View */}
-              {transactionView === "list" &&
+              {transactionView === "table" &&
                 filteredTransactions.slice(0, 20).map((transaction) => {
                   const isIncome =
                     parseFloat(transaction.amount.toString()) > 0;
@@ -795,26 +602,25 @@ export default function BankAccountDetailsPage() {
                   return (
                     <Card
                       key={transaction.id}
-                      variant="outlined"
                       interactive
-                      className="hover:shadow-md transition-all"
+                      className="shadow-xs border-border/80 transition-all"
                     >
-                      <CardContent className="p-4">
+                      
                         <div className="flex items-center gap-4">
                           {/* Category Icon */}
                           <div
                             className={cn(
-                              "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                              "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
                               transaction.category
-                                ? categoryConfig.gradient
+                                ? "bg-muted"
                                 : "bg-muted"
                             )}
                           >
                             <Icon
                               className={cn(
-                                "h-6 w-6",
+                                "h-8 w-8",
                                 transaction.category
-                                  ? "text-white"
+                                  ? ""
                                   : isIncome
                                   ? "text-green-600"
                                   : "text-red-600"
@@ -864,8 +670,9 @@ export default function BankAccountDetailsPage() {
                                     amountUSD={Math.abs(
                                       parseFloat(transaction.amount.toString())
                                     )}
-                                    variant="compact"
-                                    className="inline"
+                                    
+                                   
+                                    className="inline "
                                     formatOptions={{
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
@@ -876,7 +683,7 @@ export default function BankAccountDetailsPage() {
                             </div>
                           </div>
                         </div>
-                      </CardContent>
+                 
                     </Card>
                   );
                 })}

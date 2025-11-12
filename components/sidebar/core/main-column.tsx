@@ -56,16 +56,24 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex h-full w-16 flex-col bg-[#1a1a1a] border-r border-white/10">
+      <div className="flex h-full w-16 flex-col bg-black border-r border-white/10">
       {/* Logo Section */}
       <div className="flex h-16 items-center justify-center">
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
               href="/dashboard"
-              className="flex items-center justify-center w-14 h-14 hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center w-14 h-14 hover:opacity-90 transition-opacity"
             >
-            <LogoMappr className='w-10 h-10' />
+                <Image
+                  src="/logo/mappr.svg"
+                  alt="MoneyMappr logo"
+                  width={56}
+                  height={56}
+                  className="object-contain w-10 h-10  "
+                  priority
+                /> 
+         {/*    <LogoMappr className='w-10 h-10' /> */}
             
             </Link>
           </TooltipTrigger>

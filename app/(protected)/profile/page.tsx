@@ -23,6 +23,15 @@ import { useLoading } from '@/lib/contexts/loading-context';
 import { User, Mail, Phone, Calendar, DollarSign, Globe, Camera, Trash2 } from 'lucide-react';
 import type { UserProfileUpdateData } from '@/lib/types';
 import { FailLoader, LogoLoader } from '@/components/icons';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export default function ProfilePage() {
   // PRODUCTION-GRADE: Use TanStack Query hooks with explicit enabled flag
@@ -246,8 +255,20 @@ export default function ProfilePage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Profile Settings</h1>
-              <p className="text-muted-foreground">
+              <Breadcrumb className="mb-2">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/">Home</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Profile</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <p className="text-muted-foreground text-sm">
                 Manage your account settings and preferences
               </p>
             </div>

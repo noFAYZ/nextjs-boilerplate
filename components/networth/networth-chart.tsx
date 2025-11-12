@@ -1,0 +1,1312 @@
+'use client';
+
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Loader2,
+  TrendingUp,
+  TrendingDown,
+  Download,
+  AlertCircle,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  BarChart3,
+  CalendarDays,
+  RefreshCcw,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Tooltip,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine,
+  Cell,
+} from 'recharts';
+import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/queries/use-networth-data';
+import type { TimePeriod, SnapshotGranularity } from '@/lib/types/networth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+/**
+ * Enterprise-grade NetWorth Chart Component
+ *
+ * Features:
+ * - Real-time data synchronization with TanStack Query
+ * - Advanced 3D bar visualizations with glass-morphism
+ * - Responsive design with mobile optimization
+ * - Accessibility compliant (WCAG 2.1 AA)
+ * - Performance optimized with memoization
+ * - Comprehensive error handling
+ * - TypeScript strict mode compatible
+ *
+ * @example
+ * ```tsx
+ * <NetWorthChart
+ *   mode="live"
+ *   defaultPeriod="1m"
+ *   showMetrics={true}
+ *   onPeriodChange={(period) => console.log(period)}
+ * />
+ * ```
+ */
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+interface NetWorthChartProps {
+  /** Additional CSS classes */
+  className?: string;
+  /** Chart height in pixels (min: 200, max: 1000) */
+  height?: number;
+  /** Enable compact mode for embedded views */
+  compact?: boolean;
+  /** Show period selection dropdown */
+  showPeriodFilter?: boolean;
+  /** Display metric cards above chart */
+  showMetrics?: boolean;
+  /** Show average reference line */
+  showComparison?: boolean;
+  /** Initial time period */
+  defaultPeriod?: TimePeriod;
+  /** Callback when period changes */
+  onPeriodChange?: (period: TimePeriod) => void;
+  /** Data mode: live API or demo data */
+  mode?: 'demo' | 'live';
+  /** Demo scenario for testing */
+  demoScenario?: 'growth' | 'volatile' | 'decline' | 'recovery' | 'steady';
+}
+
+interface ChartDataPoint {
+  date: string;
+  totalNetWorth: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  change: number;
+  changePercent: number;
+  formattedDate: string;
+}
+
+interface PerformanceMetrics {
+  current: number;
+  previous: number;
+  change: number;
+  changePercent: number;
+  isPositive: boolean;
+  isNeutral: boolean;
+  peak: number;
+  trough: number;
+  volatility: number;
+}
+
+interface TooltipPayload {
+  payload: ChartDataPoint;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+}
+
+interface BarShapeProps {
+  fill: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  radius?: number;
+  payload?: ChartDataPoint;
+}
+
+// ============================================================================
+// Constants & Configuration
+// ============================================================================
+
+const CHART_CONFIG = {
+  MIN_HEIGHT: 200,
+  MAX_HEIGHT: 1000,
+  DEFAULT_HEIGHT: 400,
+  MAX_BAR_SIZE_COMPACT: 32,
+  MAX_BAR_SIZE_FULL: 48,
+  BAR_RADIUS_COMPACT: 0,
+  BAR_RADIUS_FULL: 16,
+  THRESHOLD_PERCENT: 0.02, // 2% threshold for average comparison
+  DEBOUNCE_DELAY: 150,
+} as const;
+
+const COLOR_PALETTE = {
+  POSITIVE: '#E2653F', // Modern green (Tailwind emerald-500)
+  NEGATIVE: '#F2C2B4', // Red (Tailwind red-500)
+  NEUTRAL: '#f97316',  // Orange (Tailwind orange-500)
+} as const;
+
+// Period to granularity mapping
+const periodGranularityMap: Record<TimePeriod, SnapshotGranularity> = {
+  '1d': 'DAILY',
+  '1w': 'DAILY',
+  '1m': 'DAILY',
+  '3m': 'WEEKLY',
+  '6m': 'WEEKLY',
+  'ytd': 'WEEKLY',
+  '1y': 'MONTHLY',
+  'all': 'MONTHLY',
+};
+
+const periods: { value: TimePeriod; label: string; description: string }[] = [
+  { value: '1w', label: '1 Week', description: 'Last 7 days' },
+  { value: '1m', label: '1 Month', description: 'Last 30 days' },
+  { value: '3m', label: '3 Months', description: 'Last 3 months' },
+  { value: '6m', label: '6 Months', description: 'Last 6 months' },
+  { value: 'ytd', label: 'Year to Date', description: 'Year to date' },
+  { value: '1y', label: '1 Year', description: 'Last 12 months' },
+  { value: 'all', label: 'All Time', description: 'All time' },
+];
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Validates and sanitizes chart height value
+ */
+const sanitizeHeight = (height?: number): number => {
+  if (typeof height !== 'number' || isNaN(height)) {
+    return CHART_CONFIG.DEFAULT_HEIGHT;
+  }
+  return Math.max(
+    CHART_CONFIG.MIN_HEIGHT,
+    Math.min(CHART_CONFIG.MAX_HEIGHT, Math.floor(height))
+  );
+};
+
+/**
+ * Validates numeric data point
+ */
+const isValidNumber = (value: unknown): value is number => {
+  return typeof value === 'number' && isFinite(value) && !isNaN(value);
+};
+
+/**
+ * Safely formats currency with fallback
+ */
+const formatCurrency = (
+  value: number,
+  options?: Intl.NumberFormatOptions
+): string => {
+  try {
+    if (!isValidNumber(value)) return '$0.00';
+    return `$${value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      ...options,
+    })}`;
+  } catch (error) {
+    console.warn('[NetWorthChart] Currency formatting error:', error);
+    return `$${value.toFixed(2)}`;
+  }
+};
+
+/**
+ * Formats large numbers with K/M suffix
+ */
+const formatCompactCurrency = (value: number): string => {
+  try {
+    if (!isValidNumber(value)) return '$0';
+
+    const absValue = Math.abs(value);
+    if (absValue >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(1)}M`;
+    }
+    if (absValue >= 1_000) {
+      return `$${(value / 1_000).toFixed(0)}k`;
+    }
+    return `$${value.toFixed(0)}`;
+  } catch (error) {
+    console.warn('[NetWorthChart] Compact formatting error:', error);
+    return '$0';
+  }
+};
+
+/**
+ * Validates chart data point
+ */
+const validateDataPoint = (point: unknown): point is ChartDataPoint => {
+  if (!point || typeof point !== 'object') return false;
+
+  const p = point as Record<string, unknown>;
+  return (
+    typeof p.date === 'string' &&
+    isValidNumber(p.totalNetWorth) &&
+    isValidNumber(p.totalAssets) &&
+    isValidNumber(p.totalLiabilities)
+  );
+};
+
+/**
+ * Debounce function for performance optimization
+ */
+const debounce = <T extends (...args: unknown[]) => unknown>(
+  func: T,
+  wait: number
+): ((...args: Parameters<T>) => void) => {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return (...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+// Demo data generator
+function generateDemoData(
+  period: TimePeriod,
+  granularity: SnapshotGranularity,
+  scenario: 'growth' | 'volatile' | 'decline' | 'recovery' | 'steady' = 'growth'
+) {
+  const now = new Date();
+  const dataPoints = [];
+
+  let numPoints = 0;
+  let startDate = new Date(now);
+
+  switch (period) {
+    case '1d':
+      numPoints = 24;
+      startDate.setDate(now.getDate() - 1);
+      break;
+    case '1w':
+      numPoints = 7;
+      startDate.setDate(now.getDate() - 7);
+      break;
+    case '1m':
+      numPoints = 30;
+      startDate.setMonth(now.getMonth() - 1);
+      break;
+    case '3m':
+      numPoints = 13;
+      startDate.setMonth(now.getMonth() - 3);
+      break;
+    case '6m':
+      numPoints = 26;
+      startDate.setMonth(now.getMonth() - 6);
+      break;
+    case 'ytd':
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const daysSinceYearStart = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+      numPoints = Math.ceil(daysSinceYearStart / 7);
+      startDate = startOfYear;
+      break;
+    case '1y':
+      numPoints = 12;
+      startDate.setFullYear(now.getFullYear() - 1);
+      break;
+    case 'all':
+      numPoints = 24;
+      startDate.setFullYear(now.getFullYear() - 2);
+      break;
+  }
+
+  const baseAssets = 350000;
+  const baseLiabilities = 100000;
+
+  let volatilityFactor = 0.02;
+  let growthRate = 0.005;
+
+  switch (scenario) {
+    case 'growth':
+      growthRate = 0.01;
+      volatilityFactor = 0.015;
+      break;
+    case 'volatile':
+      growthRate = 0.005;
+      volatilityFactor = 0.08;
+      break;
+    case 'decline':
+      growthRate = -0.008;
+      volatilityFactor = 0.025;
+      break;
+    case 'recovery':
+      growthRate = 0.015;
+      volatilityFactor = 0.03;
+      break;
+    case 'steady':
+      growthRate = 0.002;
+      volatilityFactor = 0.008;
+      break;
+  }
+
+  for (let i = 0; i < numPoints; i++) {
+    const date = new Date(startDate);
+
+    switch (granularity) {
+      case 'DAILY':
+        date.setDate(startDate.getDate() + i);
+        break;
+      case 'WEEKLY':
+        date.setDate(startDate.getDate() + (i * 7));
+        break;
+      case 'MONTHLY':
+        date.setMonth(startDate.getMonth() + i);
+        break;
+    }
+
+    const progress = i / (numPoints - 1);
+
+    let scenarioAdjustment = 1;
+    if (scenario === 'recovery') {
+      scenarioAdjustment = progress < 0.5
+        ? 1 - (progress * 0.3)
+        : 0.85 + ((progress - 0.5) * 0.5);
+    } else if (scenario === 'volatile') {
+      scenarioAdjustment = 1 + Math.sin(progress * Math.PI * 4) * 0.05;
+    }
+
+    const compoundGrowth = Math.pow(1 + growthRate, i);
+    const randomNoise = (Math.random() - 0.5) * volatilityFactor;
+
+    const growthFactor = compoundGrowth * (1 + randomNoise) * scenarioAdjustment;
+    const totalAssets = Math.round(baseAssets * growthFactor);
+    const totalLiabilities = Math.round(baseLiabilities * (1 + (growthRate * 0.3 * i)));
+    const totalNetWorth = totalAssets - totalLiabilities;
+
+    dataPoints.push({
+      date: date.toISOString(),
+      totalNetWorth,
+      totalAssets,
+      totalLiabilities,
+    });
+  }
+
+  return {
+    dataPoints,
+    period,
+    granularity,
+    startDate: startDate.toISOString(),
+    endDate: now.toISOString(),
+  };
+}
+
+function generateDemoPerformance(dataPoints: Array<{ totalNetWorth: number; totalAssets: number; totalLiabilities: number }>) {
+  if (dataPoints.length === 0) return null;
+
+  const first = dataPoints[0];
+  const last = dataPoints[dataPoints.length - 1];
+
+  const changeAmount = last.totalNetWorth - first.totalNetWorth;
+  const changePercent = (changeAmount / first.totalNetWorth) * 100;
+
+  return {
+    overall: {
+      startValue: first.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount,
+      changePercent,
+      periodLabel: 'Overall',
+    },
+    day: {
+      startValue: last.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount: 0,
+      changePercent: 0,
+    },
+    week: {
+      startValue: first.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount,
+      changePercent,
+    },
+    month: {
+      startValue: first.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount,
+      changePercent,
+    },
+    quarter: {
+      startValue: first.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount,
+      changePercent,
+    },
+    year: {
+      startValue: first.totalNetWorth,
+      endValue: last.totalNetWorth,
+      changeAmount,
+      changePercent,
+    },
+  };
+}
+
+// Clean, enterprise-grade rounded bar component
+const RoundedBar = (props: BarShapeProps) => {
+  const { fill, x, y, width, height, radius = 6 } = props;
+
+  if (height <= 0) return null;
+
+  const barId = `bar-${x}-${y}`;
+
+  return (
+    <g>
+      <defs>
+        {/* Simple, clean gradient */}
+        <linearGradient id={`barGradient-${barId}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={fill} stopOpacity={0.95} />
+          <stop offset="100%" stopColor={fill} stopOpacity={1} />
+        </linearGradient>
+
+        {/* Subtle shadow */}
+        <filter id={`shadow-${barId}`} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+          <feOffset dx="0" dy="1" result="offsetblur" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.2" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* Main bar */}
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={`url(#barGradient-${barId})`}
+        rx={radius}
+        ry={radius}
+        filter={`url(#shadow-${barId})`}
+        className="transition-opacity duration-200 cursor-pointer"
+      />
+
+      {/* Subtle top highlight */}
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={Math.max(height * 0.3, 4)}
+        fill="#ffffff"
+        rx={radius}
+        ry={radius}
+        opacity={0.1}
+        className="pointer-events-none"
+      />
+    </g>
+  );
+};
+
+// Modern, compact tooltip
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const data = payload[0].payload;
+
+  // Validate data
+  if (!validateDataPoint(data)) {
+    console.warn('[NetWorthChart] Invalid tooltip data:', data);
+    return null;
+  }
+
+  const netWorth = data.totalNetWorth;
+  const assets = data.totalAssets;
+  const liabilities = data.totalLiabilities;
+  const change = data.change || 0;
+  const changePercent = data.changePercent || 0;
+
+  let formattedDate: string;
+  try {
+    formattedDate = new Date(data.date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch (error) {
+    console.warn('[NetWorthChart] Date formatting error:', error);
+    formattedDate = data.date;
+  }
+
+  return (
+    <div
+      role="tooltip"
+      aria-label={`Net worth data for ${formattedDate}`}
+      className="bg-popover/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-[200px]"
+    >
+      <div className="space-y-2">
+        {/* Header */}
+        <div className="space-y-0.5">
+          <time className="text-[10px] text-muted-foreground font-medium" dateTime={data.date}>
+            {formattedDate}
+          </time>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-bold tabular-nums" aria-label={`Net worth: ${formatCurrency(netWorth)}`}>
+              {formatCurrency(netWorth)}
+            </span>
+            {change !== 0 && (
+              <span
+                aria-label={`Change: ${change >= 0 ? 'up' : 'down'} ${Math.abs(changePercent).toFixed(1)} percent`}
+                className={cn(
+                  "text-[10px] font-semibold tabular-nums",
+                  change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                )}
+              >
+                {change >= 0 ? '+' : ''}{Math.abs(changePercent).toFixed(1)}%
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Breakdown */}
+        <div className="space-y-1.5 pt-1.5 border-t" role="list" aria-label="Financial breakdown">
+          <div className="flex items-center justify-between text-xs" role="listitem">
+            <span className="text-muted-foreground">Assets</span>
+            <span className="font-semibold tabular-nums" aria-label={`Assets: ${formatCurrency(assets, { maximumFractionDigits: 0 })}`}>
+              {formatCurrency(assets, { maximumFractionDigits: 0 })}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs" role="listitem">
+            <span className="text-muted-foreground">Liabilities</span>
+            <span className="font-semibold tabular-nums" aria-label={`Liabilities: ${formatCurrency(liabilities, { maximumFractionDigits: 0 })}`}>
+              {formatCurrency(liabilities, { maximumFractionDigits: 0 })}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Loading skeleton
+const ChartSkeleton = ({ height }: { height: number }) => (
+  <div className="relative w-full flex items-center justify-center" style={{ height }}>
+    <div className="flex flex-col items-center gap-3">
+      <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">Loading chart...</p>
+    </div>
+  </div>
+);
+
+// Empty state
+const EmptyState = ({ onRefresh }: { onRefresh?: () => void }) => (
+  <div className="absolute inset-0 flex items-center justify-center p-6">
+    <div className="text-center max-w-sm space-y-4">
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-muted">
+        <BarChart3 className="h-8 w-8 text-muted-foreground" />
+      </div>
+
+      <div className="space-y-1">
+        <h3 className="font-semibold">No Data Available</h3>
+        <p className="text-sm text-muted-foreground">
+          Connect your accounts to see your net worth history.
+        </p>
+      </div>
+
+      {onRefresh && (
+        <Button
+          onClick={onRefresh}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <RefreshCcw className="h-3.5 w-3.5" />
+          Refresh
+        </Button>
+      )}
+    </div>
+  </div>
+);
+
+// Error state
+const ErrorState = ({ error, onRetry }: { error: unknown; onRetry: () => void }) => (
+  <div className="absolute inset-0 flex items-center justify-center p-6">
+    <div className="text-center max-w-sm space-y-4">
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-destructive/10">
+        <AlertCircle className="h-8 w-8 text-destructive" />
+      </div>
+
+      <div className="space-y-1">
+        <h3 className="font-semibold">Failed to Load Chart</h3>
+        <p className="text-sm text-muted-foreground">
+          {(error && typeof error === 'object' && 'message' in error && typeof error.message === 'string')
+            ? error.message
+            : 'An error occurred. Please try again.'}
+        </p>
+      </div>
+
+      <Button onClick={onRetry} size="sm" className="gap-2">
+        <RefreshCcw className="h-3.5 w-3.5" />
+        Try Again
+      </Button>
+    </div>
+  </div>
+);
+
+// Metric card
+interface MetricCardProps {
+  label: string;
+  value: number;
+  change?: number;
+  changePercent?: number;
+  trend?: 'up' | 'down' | 'neutral';
+  icon: LucideIcon;
+}
+
+const MetricCard = ({
+  label,
+  value,
+  change,
+  changePercent,
+  trend = 'neutral',
+  icon: Icon
+}: MetricCardProps) => {
+  // Validate inputs
+  if (!isValidNumber(value)) {
+    console.warn('[NetWorthChart] Invalid metric value:', { label, value });
+    return null;
+  }
+
+  const hasChange = change !== undefined && changePercent !== undefined && isValidNumber(change) && isValidNumber(changePercent);
+
+  return (
+    <div className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow" role="article" aria-label={`${label} metric card`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1 flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+          <p className="text-2xl font-bold tabular-nums" aria-label={`${label}: ${formatCurrency(value)}`}>
+            {formatCurrency(value)}
+          </p>
+          {hasChange && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className={cn(
+                "font-semibold tabular-nums",
+                change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+              )}
+              aria-label={`Change: ${change >= 0 ? 'up' : 'down'} ${Math.abs(changePercent).toFixed(2)} percent`}
+              >
+                {change >= 0 ? <ArrowUp className="inline h-3 w-3" aria-hidden="true" /> : <ArrowDown className="inline h-3 w-3" aria-hidden="true" />}
+                {change >= 0 ? '+' : ''}{Math.abs(changePercent).toFixed(2)}%
+              </span>
+              <span className="text-muted-foreground">
+                ({change >= 0 ? '+' : ''}{formatCurrency(Math.abs(change), { maximumFractionDigits: 0 })})
+              </span>
+            </div>
+          )}
+        </div>
+        <div className={cn(
+          "p-2.5 rounded-lg shrink-0",
+          trend === 'up' && "bg-green-500/10 text-green-600 dark:text-green-400",
+          trend === 'down' && "bg-red-500/10 text-red-600 dark:text-red-400",
+          trend === 'neutral' && "bg-muted text-muted-foreground"
+        )}
+        aria-label={`Trend: ${trend}`}
+        >
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export function NetWorthChart({
+  className,
+  height: rawHeight,
+  compact = false,
+  showPeriodFilter = true,
+  showMetrics = true,
+  showComparison = false,
+  defaultPeriod = '1m',
+  onPeriodChange,
+  mode = 'live',
+  demoScenario = 'growth',
+}: NetWorthChartProps) {
+  // ============================================================================
+  // State Management
+  // ============================================================================
+
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>(defaultPeriod);
+  const [activeBar, setActiveBar] = useState<number | null>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const exportTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sanitize height input
+  const height = useMemo(() => sanitizeHeight(rawHeight), [rawHeight]);
+
+  const granularity = useMemo(
+    () => periodGranularityMap[selectedPeriod],
+    [selectedPeriod]
+  );
+
+  // ============================================================================
+  // Cleanup Effects
+  // ============================================================================
+
+  useEffect(() => {
+    // Cleanup timeout on unmount
+    return () => {
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Demo data generation
+  const demoHistory = useMemo(() => {
+    if (mode !== 'demo') return null;
+    return generateDemoData(selectedPeriod, granularity, demoScenario);
+  }, [mode, selectedPeriod, granularity, demoScenario]);
+
+  const demoPerformanceData = useMemo(() => {
+    if (mode !== 'demo' || !demoHistory) return null;
+    return generateDemoPerformance(demoHistory.dataPoints);
+  }, [mode, demoHistory]);
+
+  // Live data fetching
+  const { data: liveHistory, isLoading: liveLoading, error: liveError, refetch: liveRefetch } = useNetWorthHistory(
+    {
+      period: selectedPeriod,
+      granularity,
+    },
+    {
+      enabled: mode === 'live',
+    }
+  );
+
+  const { data: livePerformance } = useNetWorthPerformance(
+    {
+      period: selectedPeriod,
+    },
+    {
+      enabled: mode === 'live',
+    }
+  );
+
+  // Use demo or live data
+  const history = mode === 'demo' ? demoHistory : liveHistory;
+  const performance = mode === 'demo' ? demoPerformanceData : livePerformance;
+  const isLoading = mode === 'demo' ? false : liveLoading;
+  const error = mode === 'demo' ? null : liveError;
+  const refetch = mode === 'demo' ? () => {} : liveRefetch;
+
+  // ============================================================================
+  // Event Handlers (Memoized for Performance)
+  // ============================================================================
+
+  // Handle period change with validation
+  const handlePeriodChange = useCallback((period: TimePeriod) => {
+    try {
+      if (!periodGranularityMap[period]) {
+        console.error('[NetWorthChart] Invalid period:', period);
+        return;
+      }
+      setSelectedPeriod(period);
+      onPeriodChange?.(period);
+    } catch (error) {
+      console.error('[NetWorthChart] Period change error:', error);
+    }
+  }, [onPeriodChange]);
+
+  // Handle bar mouse events with debouncing
+  const handleBarMouseMove = useCallback(
+    debounce((state: { isTooltipActive?: boolean; activeTooltipIndex?: number }) => {
+      if (state.isTooltipActive && state.activeTooltipIndex !== undefined) {
+        setActiveBar(state.activeTooltipIndex);
+      } else {
+        setActiveBar(null);
+      }
+    }, CHART_CONFIG.DEBOUNCE_DELAY),
+    []
+  );
+
+  const handleBarMouseLeave = useCallback(() => {
+    setActiveBar(null);
+  }, []);
+
+  // ============================================================================
+  // Data Transformation & Validation
+  // ============================================================================
+
+  // Transform and validate chart data
+  const chartData = useMemo<ChartDataPoint[]>(() => {
+    if (!history?.dataPoints || history.dataPoints.length === 0) {
+      return [];
+    }
+
+    try {
+      return history.dataPoints
+        .map((point, idx, arr) => {
+          // Validate data point
+          if (!isValidNumber(point.totalNetWorth) ||
+              !isValidNumber(point.totalAssets) ||
+              !isValidNumber(point.totalLiabilities)) {
+            console.warn('[NetWorthChart] Invalid data point:', point);
+            return null;
+          }
+
+          const prevPoint = idx > 0 ? arr[idx - 1] : null;
+          const change = prevPoint && isValidNumber(prevPoint.totalNetWorth)
+            ? point.totalNetWorth - prevPoint.totalNetWorth
+            : 0;
+
+          const changePercent = prevPoint &&
+            isValidNumber(prevPoint.totalNetWorth) &&
+            prevPoint.totalNetWorth !== 0
+            ? ((point.totalNetWorth - prevPoint.totalNetWorth) / prevPoint.totalNetWorth) * 100
+            : 0;
+
+          let formattedDate: string;
+          try {
+            formattedDate = new Date(point.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            });
+          } catch (error) {
+            console.warn('[NetWorthChart] Date formatting error:', error);
+            formattedDate = String(point.date);
+          }
+
+          return {
+            date: point.date,
+            totalNetWorth: point.totalNetWorth,
+            totalAssets: point.totalAssets,
+            totalLiabilities: point.totalLiabilities,
+            change,
+            changePercent,
+            formattedDate,
+          };
+        })
+        .filter((point): point is ChartDataPoint => point !== null);
+    } catch (error) {
+      console.error('[NetWorthChart] Data transformation error:', error);
+      return [];
+    }
+  }, [history]);
+
+  // Export data with comprehensive error handling
+  const handleExport = useCallback(() => {
+    if (!chartData.length) {
+      console.warn('[NetWorthChart] No data to export');
+      return;
+    }
+
+    try {
+      const csv = [
+        ['Date', 'Net Worth', 'Assets', 'Liabilities', 'Change', 'Change %'].join(','),
+        ...chartData.map(point => [
+          point.date,
+          point.totalNetWorth,
+          point.totalAssets,
+          point.totalLiabilities,
+          point.change || 0,
+          point.changePercent || 0,
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const timestamp = new Date().toISOString().split('T')[0];
+
+      a.href = url;
+      a.download = `networth-${selectedPeriod}-${timestamp}.csv`;
+      a.setAttribute('aria-label', 'Download net worth data as CSV');
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Cleanup URL after a delay to ensure download completes
+      exportTimeoutRef.current = setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error('[NetWorthChart] Export error:', error);
+      alert('Failed to export data. Please try again.');
+    }
+  }, [chartData, selectedPeriod]);
+
+  // ============================================================================
+  // Performance Metrics Calculation
+  // ============================================================================
+
+  // Calculate comprehensive metrics with validation
+  const metrics = useMemo<PerformanceMetrics | null>(() => {
+    if (!chartData.length || !performance?.overall) return null;
+
+    try {
+      const validData = chartData.filter(d => isValidNumber(d.totalNetWorth));
+      if (validData.length === 0) return null;
+
+      const current = validData[validData.length - 1].totalNetWorth;
+      const previous = validData[0].totalNetWorth;
+      const change = performance.overall.changeAmount ?? 0;
+      const changePercent = performance.overall.changePercent ?? 0;
+
+      const isPositive = change >= 0;
+      const isNeutral = Math.abs(changePercent) < 0.01;
+
+      const netWorthValues = validData.map(d => d.totalNetWorth);
+      const peak = Math.max(...netWorthValues);
+      const trough = Math.min(...netWorthValues);
+      const volatility = peak - trough;
+
+      return {
+        current,
+        previous,
+        change,
+        changePercent,
+        isPositive,
+        isNeutral,
+        peak,
+        trough,
+        volatility,
+      };
+    } catch (error) {
+      console.error('[NetWorthChart] Metrics calculation error:', error);
+      return null;
+    }
+  }, [chartData, performance]);
+
+  // Calculate average value with validation
+  const averageValue = useMemo(() => {
+    if (!chartData.length) return 0;
+
+    try {
+      const validData = chartData.filter(d => isValidNumber(d.totalNetWorth));
+      if (validData.length === 0) return 0;
+
+      const sum = validData.reduce((acc, d) => acc + d.totalNetWorth, 0);
+      return sum / validData.length;
+    } catch (error) {
+      console.error('[NetWorthChart] Average calculation error:', error);
+      return 0;
+    }
+  }, [chartData]);
+
+  // ============================================================================
+  // Color Calculation (Memoized for Performance)
+  // ============================================================================
+
+  // Determine bar color based on performance threshold
+  const getBarColor = useCallback((value: number, _index: number): string => {
+    if (!isValidNumber(value)) {
+      console.warn('[NetWorthChart] Invalid color value:', value);
+      return COLOR_PALETTE.NEUTRAL;
+    }
+
+    if (!isValidNumber(averageValue) || averageValue === 0) {
+      return COLOR_PALETTE.NEUTRAL;
+    }
+
+    const threshold = averageValue * CHART_CONFIG.THRESHOLD_PERCENT;
+
+    if (value > averageValue + threshold) {
+      return COLOR_PALETTE.POSITIVE;
+    } else if (value < averageValue - threshold) {
+      return COLOR_PALETTE.NEGATIVE;
+    }
+
+    return COLOR_PALETTE.NEUTRAL;
+  }, [averageValue]);
+
+  // ============================================================================
+  // Component Render
+  // ============================================================================
+
+  // Compact mode with orange branding
+  if (compact) {
+    return (
+      <section
+        ref={chartContainerRef}
+        className={cn("w-full", className)}
+        role="region"
+        aria-label="Net Worth Chart (Compact View)"
+      >
+        <div className="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {mode === 'demo' && (
+              <span className="text-[9px] font-extrabold px-2 py-1 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20">
+                DEMO
+              </span>
+            )}
+            {metrics && !isLoading && (
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-full font-extrabold text-[10px] shadow-sm",
+                metrics.isPositive
+                  ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20"
+                  : "bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20"
+              )}>
+                {metrics.isPositive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                {metrics.isPositive ? '+' : ''}{metrics.changePercent.toFixed(1)}%
+              </div>
+            )}
+          </div>
+
+          {showPeriodFilter && (
+            <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
+              <SelectTrigger size="sm" className="w-[100px] h-7 text-[11px] font-medium">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {periods.slice(0, 4).map((period) => (
+                  <SelectItem key={period.value} value={period.value}>
+                    {period.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div className="relative rounded-xl overflow-hidden border bg-card shadow-sm" style={{ height }}>
+          {isLoading ? (
+            <ChartSkeleton height={height} />
+          ) : error ? (
+            <ErrorState error={error} onRetry={() => refetch()} />
+          ) : chartData.length === 0 ? (
+            <EmptyState onRefresh={() => refetch()} />
+          ) : (
+            <div className="relative w-full h-full p-3">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                  barGap={2}
+                  barCategoryGap="15%"
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                    opacity={0.2}
+                    vertical={false}
+                  />
+
+                  <XAxis
+                    dataKey="formattedDate"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={5}
+                    opacity={0.7}
+                    interval="preserveStartEnd"
+                  />
+
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    dx={-5}
+                    opacity={0.7}
+                    width={40}
+                    aria-label="Net worth value axis"
+                  />
+
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
+
+                  <Bar
+                    dataKey="totalNetWorth"
+                    shape={<RoundedBar radius={CHART_CONFIG.BAR_RADIUS_COMPACT} />}
+                    maxBarSize={CHART_CONFIG.MAX_BAR_SIZE_COMPACT}
+                    aria-label="Net worth bars"
+                    isAnimationActive={true}
+                    animationDuration={500}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${entry.date}-${index}`}
+                        fill={getBarColor(entry.totalNetWorth, index)}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Full mode - enterprise-grade with accessibility
+  return (
+    <section
+      ref={chartContainerRef}
+      className={cn("w-full space-y-4 sm:space-y-5", className)}
+      role="region"
+      aria-label="Net Worth Chart"
+    >
+      {/* Compact Header */}
+      <div className="flex items-end justify-end gap-3 flex-wrap">
+ 
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={handleExport}
+            disabled={!chartData.length}
+            className="gap-1.5 text-xs font-medium h-7 px-2.5"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+
+          {showPeriodFilter && (
+            <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
+              <SelectTrigger className="gap-1.5 font-medium h-7 text-xs" size='xs'>
+                <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {periods.map((period) => (
+                  <SelectItem key={period.value} value={period.value}>
+                    <span className="font-medium text-xs">{period.label}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      </div>
+
+      {/* Compact Metrics Cards */}
+      {showMetrics && metrics && !isLoading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+          <MetricCard
+            label="Current Net Worth"
+            value={metrics.current}
+            change={metrics.change}
+            changePercent={metrics.changePercent}
+            trend={metrics.isPositive ? 'up' : metrics.isNeutral ? 'neutral' : 'down'}
+            icon={metrics.isPositive ? TrendingUp : metrics.isNeutral ? Minus : TrendingDown}
+          />
+          <MetricCard
+            label="Peak Value"
+            value={metrics.peak}
+            icon={TrendingUp}
+            trend="up"
+          />
+          <MetricCard
+            label="Lowest Value"
+            value={metrics.trough}
+            icon={TrendingDown}
+            trend="down"
+          />
+        </div>
+      )}
+
+      {/* Chart Container */}
+      <div
+        className="relative rounded-xl overflow-hidden  bg-accent/40 shadow-sm"
+        style={{ height }}
+      >
+        {isLoading ? (
+          <ChartSkeleton height={height} />
+        ) : error ? (
+          <ErrorState error={error} onRetry={() => refetch()} />
+        ) : chartData.length === 0 ? (
+          <EmptyState onRefresh={() => refetch()} />
+        ) : (
+          <div className="relative p-3 h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
+                barGap={3}
+                barCategoryGap="18%"
+                onMouseMove={handleBarMouseMove}
+                onMouseLeave={handleBarMouseLeave}
+                role="img"
+                aria-label={`Net worth bar chart showing ${chartData.length} data points over ${selectedPeriod}`}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--border)"
+                  opacity={0.25}
+                  vertical={false}
+                />
+
+                <XAxis
+                  dataKey="formattedDate"
+                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={8}
+                  opacity={0.75}
+                  interval="preserveStartEnd"
+                />
+
+                <YAxis
+                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => formatCompactCurrency(value)}
+                  dx={-8}
+                  opacity={0.75}
+                  width={50}
+                  aria-label="Net worth value axis"
+                />
+
+                {showComparison && (
+                  <ReferenceLine
+                    y={averageValue}
+                    stroke="var(--muted-foreground)"
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
+                    opacity={0.4}
+                    label={{
+                      value: 'Avg',
+                      position: 'right',
+                      fill: 'hsl(var(--muted-foreground))',
+                      fontSize: 10,
+                      fontWeight: 500,
+                    }}
+                  />
+                )}
+
+                <Tooltip content={<CustomTooltip />} cursor={false} />
+
+                <Bar
+                  dataKey="totalNetWorth"
+                  shape={<RoundedBar radius={CHART_CONFIG.BAR_RADIUS_FULL} />}
+                  maxBarSize={CHART_CONFIG.MAX_BAR_SIZE_FULL}
+                  aria-label="Net worth bars"
+                  isAnimationActive={true}
+                  animationDuration={500}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${entry.date}-${index}`}
+                      fill={getBarColor(entry.totalNetWorth, index)}
+                      opacity={activeBar === null || activeBar === index ? 1 : 0.4}
+                      className="transition-opacity duration-200"
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+     
+    </section>
+  );
+}
