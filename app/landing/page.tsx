@@ -22,6 +22,7 @@ import {
   SubscriptionsShowcase,
 } from '@/components/landing';
 import { CryptoShowcase } from '@/components/landing/crypto-section';
+import MoneyMapprFeatureSection from '@/components/landing/subscription-management/FeatureSection';
 import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
 import { LandingHeroAlt } from '@/components/landing/subscription-management/landing-hero-alt';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
@@ -30,22 +31,22 @@ import { PortfolioShowcase } from '@/components/landing/subscription-management/
 export default function LandingPage() {
 
   return (
-    <div className="min-h-screen">
+    <div >
   
       <ScrollProgress />
       <LandingNav />
       <LandingHero />
-      {/*  <SocialProof />
-     <StatsSection /> */}
-     
-      <FeatureGrid />
-       <PortfolioShowcase />
+     {/*  <SocialProof /> */}
+   <MoneyMapprFeatureSection />
+        {/* <FeatureGrid />
+      <PortfolioShowcase />
        <CryptoShowcase />
        <SubscriptionsShowcase />
-   {/*     <RealtimeTracking />
-     <IntegrationShowcase /> 
+     <RealtimeTracking /> */}
+    
       <HowItWorks />
-      <AutomationShowcase />*/}
+     {/* <AutomationShowcase />   */}
+     
     {/*   
       <TestimonialsSection />
       <ComparisonSection />

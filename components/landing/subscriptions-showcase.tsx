@@ -124,7 +124,7 @@ export function SubscriptionsShowcase() {
                 </div>
 
                 <Link href="/auth/signup">
-                  <Button size="sm" className="group rounded-xl">
+                  <Button size="sm" variant='secondary' className="group">
                     Start Tracking
                     <ArrowUpRight className="ml-1 h-5 w-5 group-hover:scale-110 transition-transform" />
                   </Button>

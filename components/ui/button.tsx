@@ -6,13 +6,13 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-100 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary ring-offset-background relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-100 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-none  relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
  /*        default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity", */
-/*           default: "bg-orange-500  text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]", */
+/*           default1: "bg-orange-500  text-primary-foreground border-2 border-orange-800 shadow-[0_4px_0_0_rgb(154,52,18)] hover:shadow-[0_2px_0_0_rgb(154,52,18)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100 font-medium dark:bg-orange-900 dark:border-orange-600 dark:shadow-[0_4px_0_0_rgb(224,45,18)] dark:hover:shadow-[0_2px_0_0_rgb(224,45,18)]", */
 
           default:
             "relative bg-gradient-to-b from-[#FFB347] via-[#FF7A00] to-[#E66A00] text-white font-semibold " +
@@ -69,13 +69,13 @@ const buttonVariants = cva(
         cosmic:
           "bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 text-white border border-purple-500/30 shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.5)] active:scale-[0.98] focus-visible:ring-purple-500/70 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.2),transparent_50%)] before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         sunset:
-          "bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white shadow-lg hover:shadow-2xl hover:from-orange-600 hover:via-red-600 hover:to-pink-600 active:scale-[0.98] focus-visible:ring-orange-500/70",
+          "bg-gradient-to-r from-orange-500 via-orange-600 to-pink-500 text-white shadow-lg hover:shadow-2xl hover:from-orange-600 hover:via-red-600 hover:to-pink-600 active:scale-[0.98] focus-visible:ring-orange-500/70",
         matrix:
           "bg-black text-green-400 border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.3)] hover:shadow-[0_0_20px_rgba(34,197,94,0.5)] hover:text-green-300 active:scale-[0.98] focus-visible:ring-green-500/70 font-mono before:absolute before:inset-0 before:bg-[linear-gradient(0deg,transparent_0%,rgba(34,197,94,0.1)_50%,transparent_100%)] before:animate-pulse",
         candy:
           "bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 text-white shadow-lg hover:shadow-2xl hover:from-pink-500 hover:via-purple-400 hover:to-blue-400 active:scale-[0.98] focus-visible:ring-pink-500/70 border-2 border-white/50",
         steel:
-          "bg-gradient-to-b from-slate-400 to-slate-600 text-white border border-slate-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] hover:from-slate-500 hover:to-slate-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
+          "bg-gradient-to-b from-slate-500 to-slate-600 text-white border border-slate-500 shadow-[inset_0_0px_0_rgba(255,255,255,0.3)] hover:from-slate-500 hover:to-slate-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
       },
       size: {
         xs: "h-7 px-2 text-xs rounded-md gap-1",

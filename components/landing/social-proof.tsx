@@ -7,7 +7,7 @@ export function SocialProof() {
 
   return (
     <section className="py-12 bg-background border-b">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         <p className="text-center text-xs text-muted-foreground mb-6">
           Integrated with leading platforms
         </p>

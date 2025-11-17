@@ -721,7 +721,7 @@ export function FailLoader(
   );
 }
 
-export function LogoMappr(props: React.SVGProps<SVGSVGElement>) {
+export function LogoMasppr(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       height="100%"
@@ -791,6 +791,82 @@ export function LogoMappr(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function LogoMappr(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+      viewBox="0 0 24 24"
+      width="100%"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <defs>
+        <filter
+          filterUnits="userSpaceOnUse"
+          height="200%"
+          id="gooey"
+          width="200%"
+          x="-50%"
+          y="-50%"
+        >
+          <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="1.5" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            result="gooey"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+          />
+        </filter>
+
+        <filter id="shadow" width="200%" height="200%" x="-50%" y="-50%">
+          <feDropShadow
+            dx={0}
+            dy={0}
+            floodColor="#f97316"
+            floodOpacity="0.5"
+            stdDeviation="0.5"
+          />
+        </filter>
+
+        <linearGradient id="orangeGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#ff9736" />
+          <stop offset="100%" stopColor="#f05d14" />
+        </linearGradient>
+      </defs>
+
+      {/* FIX: Renamed class so no Tailwind collision */}
+      <g className="logo-goo-container" filter="url(#gooey)">
+        <path className="square" d="M7,7 h10 v10 h-10 z" />
+
+        <g id="finalShape">
+          <path className="blob" d="M8 5a3 3 0 1 0-3 3h3v-3z" id="blob1" />
+          <path className="blob" d="M16 8h3a3 3 0 1 0-3-3v3z" id="blob2" />
+          <path className="blob" d="M16 16h3a3 3 0 1 1-3 3v-3z" id="blob3" />
+          <path className="blob" d="M5 16a3 3 0 1 0 3 3v-3H5z" id="blob4" />
+        </g>
+      </g>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .square {
+              fill: url(#orangeGradient);
+              transform-origin: 12px 12px;
+            }
+            .blob {
+              fill: url(#orangeGradient);
+              transform-origin: 12px 12px;
+              filter: url(#shadow);
+            }
+          `,
+        }}
+      />
+    </svg>
+  );
+}
+
 
 
 export function GameIconsUpgrade(props: React.SVGProps<SVGSVGElement>) {

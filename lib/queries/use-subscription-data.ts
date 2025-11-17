@@ -215,6 +215,14 @@ export function useAddCharge() {
 }
 
 /**
+ * Manually renew a subscription
+ * @returns Mutation hook
+ */
+export function useRenewSubscription() {
+  return subscriptionMutations.useRenew();
+}
+
+/**
  * Detect subscriptions from transaction data
  * @returns Mutation hook
  */

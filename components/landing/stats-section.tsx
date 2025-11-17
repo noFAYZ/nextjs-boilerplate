@@ -12,7 +12,7 @@ export function StatsSection() {
 
   return (
     <section className="py-12 border-y bg-muted/30">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {stats.map((stat, index) => (
             <ScrollReveal key={stat.label} delay={index * 100}>

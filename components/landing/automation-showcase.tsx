@@ -8,7 +8,7 @@ import { ScrollReveal } from './scroll-reveal';
 export function AutomationShowcase() {
   return (
     <section className="py-20 bg-background">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Content */}

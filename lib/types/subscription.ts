@@ -70,6 +70,28 @@ export type ReminderType =
   | 'RENEWAL_SOON'
   | 'CANCELLATION_REMINDER';
 
+export type PaymentMethodType =
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'BANK_ACCOUNT'
+  | 'PAYPAL'
+  | 'VENMO'
+  | 'CASH_APP'
+  | 'APPLE_PAY'
+  | 'GOOGLE_PAY'
+  | 'OTHER';
+
+export type PaymentProvider =
+  | 'STRIPE'
+  | 'PLAID'
+  | 'PAYPAL'
+  | 'MANUAL'
+  | 'OTHER';
+
+export type RenewalType =
+  | 'AUTO'
+  | 'MANUAL';
+
 // ============================================================================
 // CORE TYPES
 // ============================================================================
@@ -115,6 +137,45 @@ export interface UserCategory {
   color: string;
 }
 
+export interface PaymentMethod {
+  id: string;
+  userId: string;
+  type: PaymentMethodType;
+  nickname?: string;
+  isDefault: boolean;
+
+  // Card details (masked)
+  cardBrand?: string;
+  cardLastFour?: string;
+  cardExpiryMonth?: number;
+  cardExpiryYear?: number;
+  cardHolderName?: string;
+
+  // Bank details (masked)
+  bankName?: string;
+  accountLastFour?: string;
+  accountType?: string;
+
+  // Provider integration
+  provider?: PaymentProvider;
+  providerPaymentMethodId?: string;
+  providerCustomerId?: string;
+
+  // Billing address
+  billingAddressLine1?: string;
+  billingAddressLine2?: string;
+  billingCity?: string;
+  billingState?: string;
+  billingPostalCode?: string;
+  billingCountry?: string;
+
+  notes?: string;
+  isActive: boolean;
+  subscriptionCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserSubscription {
   id: string;
   userId: string;
@@ -156,11 +217,22 @@ export interface UserSubscription {
   isInTrial: boolean;
   monthlyEquivalent: number;
 
+  // Auto-renewal tracking
+  lastRenewalDate?: string | null;
+  lastRenewalType?: RenewalType | null;
+  nextRenewalAttemptDate?: string | null;
+  renewalFailureCount?: number;
+  lastRenewalError?: string | null;
+
+  // Payment method
+  paymentMethodId?: string | null;
+
   // Relations (optional)
   account?: LinkedAccount;
   userCategory?: UserCategory;
   charges?: SubscriptionCharge[];
   reminders?: SubscriptionReminder[];
+  paymentMethod?: PaymentMethod;
 }
 
 // ============================================================================
@@ -190,6 +262,7 @@ export interface CreateSubscriptionRequest {
   cancellationUrl?: string;
   notifyBeforeBilling?: boolean;
   notifyDaysBefore?: number;
+  paymentMethodId?: string;
 }
 
 export interface UpdateSubscriptionRequest {
@@ -216,6 +289,7 @@ export interface UpdateSubscriptionRequest {
   cancellationUrl?: string;
   notifyBeforeBilling?: boolean;
   notifyDaysBefore?: number;
+  paymentMethodId?: string | null;
 }
 
 export interface AddChargeRequest {
@@ -332,4 +406,63 @@ export interface SubscriptionListResponse {
     total: number;
     totalPages: number;
   };
+}
+
+// ============================================================================
+// PAYMENT METHOD TYPES
+// ============================================================================
+
+export interface CreatePaymentMethodRequest {
+  type: PaymentMethodType;
+  nickname?: string;
+  isDefault?: boolean;
+
+  // Card details
+  cardBrand?: string;
+  cardLastFour?: string;
+  cardExpiryMonth?: number;
+  cardExpiryYear?: number;
+  cardHolderName?: string;
+
+  // Bank details
+  bankName?: string;
+  accountLastFour?: string;
+  accountType?: string;
+
+  // Provider integration
+  provider?: PaymentProvider;
+  providerPaymentMethodId?: string;
+  providerCustomerId?: string;
+
+  // Billing address
+  billingAddressLine1?: string;
+  billingAddressLine2?: string;
+  billingCity?: string;
+  billingState?: string;
+  billingPostalCode?: string;
+  billingCountry?: string;
+
+  notes?: string;
+  isActive?: boolean;
+}
+
+export interface UpdatePaymentMethodRequest {
+  nickname?: string;
+  isDefault?: boolean;
+  cardExpiryMonth?: number;
+  cardExpiryYear?: number;
+  cardHolderName?: string;
+  billingAddressLine1?: string;
+  billingAddressLine2?: string;
+  billingCity?: string;
+  billingState?: string;
+  billingPostalCode?: string;
+  billingCountry?: string;
+  notes?: string;
+  isActive?: boolean;
+}
+
+export interface ManualRenewalRequest {
+  amount?: number;
+  notes?: string;
 }

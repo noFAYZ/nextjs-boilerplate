@@ -23,7 +23,7 @@ export function IntegrationShowcase() {
 
   return (
     <section id="integrations" className="py-16 bg-background scroll-mt-20">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         <ScrollReveal>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-2xl font-semibold mb-2">Supported Integrations</h2>

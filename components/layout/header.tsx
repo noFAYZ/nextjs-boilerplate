@@ -19,6 +19,8 @@ import { CurrencySelector } from '@/components/ui/currency-selector';
 import { GlobalViewSwitcher } from '../ui/global-view-switcher';
 import { ProductPopover } from './ProductPopover';
 import Image from 'next/image';
+import { createAvatar } from '@dicebear/core';
+import { avataaarsNeutral } from '@dicebear/collection';
 
 interface HeaderProps {
   className?: string;
@@ -85,6 +87,12 @@ export function Header({
       console.error('Sign out failed:', error);
     }
   }, [router]);
+
+  const avatar = createAvatar(avataaarsNeutral, {
+    size: 128,
+    seed: user.name,
+    radius: 20,
+  }).toDataUri();
 
   return (
     <>
@@ -156,14 +164,14 @@ export function Header({
 
           {/* Right Section - Actions */}
           <div className="flex items-center gap-2">
-            {/* Currency Selector */}
+            {/* Currency Selector 
             <div className="hidden md:block">
               <CurrencySelector variant="compact" showRefresh />
-            </div>
+            </div>*/}
 
            <div  className='hidden sm:flex' ><ThemeSwitcher  /></div> 
-            <GlobalViewSwitcher size='sm' className='hidden sm:flex' />
-
+           <GlobalViewSwitcher size="sm" />
+      
             {/* Create Button
             <Button size="sm" className="hidden sm:flex items-center gap-1">
               <Plus className="h-4 w-4" />
@@ -178,19 +186,25 @@ export function Header({
             {/* User Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 w-9 rounded-full">
-                  {profileLoading ? (
+                <Button variant="secondary"  className="rounded-full p-1 p pr-2 border ">
+                  {profileLoading && !user ? (
                     <Skeleton className="h-8 w-8 rounded-full" />
                   ) : (
+                    <div className='flex gap-1 items-center rounded-full'>
+               
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={user?.image}
+                        src={ avatar}
                         alt={`${user?.name || 'User'}'s avatar`}
                       />
                       <AvatarFallback className="text-sm bg-muted text-muted-foreground">
                         {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
+
+                    {String(user?.name)?.split(' ')[0] || 'User'}
+                    
+                    </div>
                   )}
                 </Button>
               </DropdownMenuTrigger>
@@ -198,13 +212,18 @@ export function Header({
                 <div className="p-3 border-b">
                   <div className="text-sm font-medium">{user?.name || 'User'}</div>
                   <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+                  {/*  <GlobalViewSwitcher size='sm' className='hidden sm:flex' /> */}
                 </div>
+
+               
+
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center gap-2">
                     <User className="h-4 w-4" />
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
+               
                 <DropdownMenuItem asChild>
                   <Link href="/subscription" className="flex items-center gap-2">
                     <Crown className="h-4 w-4" />

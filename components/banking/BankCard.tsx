@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * BankCard Component - Production-Grade Error Handling
+ *
+ * This component is designed to handle data from multiple sources:
+ * - Traditional banking API (with plaid/teller fields)
+ * - Unified accounts API (with nullable/optional fields)
+ *
+ * Safety Features:
+ * ✅ Null/undefined checking for all account fields
+ * ✅ Safe numeric parsing with fallbacks
+ * ✅ Graceful handling of missing account numbers
+ * ✅ Optional field rendering (institution name, copy button)
+ * ✅ Type-safe with proper TypeScript interfaces
+ */
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,14 +53,14 @@ interface BankAccount {
   id: string;
   name: string;
   type: string;
-  institutionName: string;
-  accountNumber: string;
-  balance: string;
+  institutionName?: string | null;
+  accountNumber?: string | null;
+  balance: string | number;
   currency?: string;
   syncStatus?: string;
-  tellerLastFour?: string;
-  availableBalance?: string;
-  ledgerBalance?: string;
+  tellerLastFour?: string | null;
+  availableBalance?: string | number | null;
+  ledgerBalance?: string | number | null;
   _count?: {
     bankTransactions: number;
   };
@@ -55,33 +70,60 @@ interface BankCardProps {
   account: BankAccount;
 }
 
+/**
+ * Safely parse a numeric value that could be string, number, or null/undefined
+ */
+const safeParseFloat = (value: string | number | null | undefined, fallback: number = 0): number => {
+  if (value === null || value === undefined) return fallback;
+  const parsed = typeof value === 'string' ? parseFloat(value) : value;
+  return isNaN(parsed) ? fallback : parsed;
+};
+
+/**
+ * Safely get last 4 digits of account number
+ */
+const getLastFour = (accountNumber?: string | null, tellerLastFour?: string | null): string => {
+  if (tellerLastFour) return tellerLastFour;
+  if (accountNumber && accountNumber.length >= 4) {
+    return accountNumber.slice(-4);
+  }
+  return '••••';
+};
+
 const BankCard: React.FC<BankCardProps> = ({ account }) => {
   const router = useRouter();
   const { realtimeSyncStates } = useBankingStore();
   const { mutate: syncAccount } = useSyncBankAccount();
 
-  const balance = parseFloat(account.availableBalance || account.balance || "0");
+  // Safe parsing of balance values
+  const balance = safeParseFloat(account.availableBalance || account.balance);
   const gradient = bankTypeGradients[account.type] || bankTypeGradients.DEFAULT;
   const accountLabel = accountTypeLabels[account.type] || account.type;
-  const lastFour = account.tellerLastFour || account.accountNumber.slice(-4);
+  const lastFour = getLastFour(account.accountNumber, account.tellerLastFour);
 
-  const accountSyncState = realtimeSyncStates[account.id];
+  const accountSyncState = realtimeSyncStates?.[account.id];
   const isSyncing =
     accountSyncState && ["queued", "syncing"].includes(accountSyncState.status);
 
   const isCreditCard = account.type === "CREDIT_CARD";
-  const creditLimit = isCreditCard ? parseFloat(account.ledgerBalance || "0") : 0;
+  const creditLimit = isCreditCard ? safeParseFloat(account.ledgerBalance) : 0;
   const creditUsed = isCreditCard ? creditLimit - balance : 0;
   const creditUtilization =
     isCreditCard && creditLimit > 0
       ? Math.round((creditUsed / creditLimit) * 100)
       : 0;
 
-  const handleAccountClick = () => router.push(`/accounts/bank/${account.id}`);
+  const handleAccountClick = () => {
+    // Route to unified account page or bank-specific page
+    router.push(`/accounts/bank/${account.id}`);
+  };
 
   const handleCopyAccountNumber = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(account.accountNumber);
+    const accountNum = account.accountNumber;
+    if (accountNum) {
+      navigator.clipboard.writeText(accountNum);
+    }
   };
 
   const getSyncStatusIcon = () => {
@@ -148,19 +190,23 @@ const BankCard: React.FC<BankCardProps> = ({ account }) => {
               {account.name}
             </h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="truncate">{account.institutionName}</span>
+              {account.institutionName && (
+                <span className="truncate">{account.institutionName}</span>
+              )}
               <code className="text-xs font-mono text-muted-foreground/80">
                 •••• {lastFour}
               </code>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCopyAccountNumber}
-                className="h-4 w-4 hover:bg-accent"
-                title="Copy Account Number"
-              >
-                <Copy className="h-3 w-3" />
-              </Button>
+              {account.accountNumber && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCopyAccountNumber}
+                  className="h-4 w-4 hover:bg-accent"
+                  title="Copy Account Number"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

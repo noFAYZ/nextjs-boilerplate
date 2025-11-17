@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, RefreshCw, Bell, Check } from 'lucide-react';
+import { Zap, RefreshCw, Bell, Check, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScrollReveal } from './scroll-reveal';
@@ -8,7 +8,7 @@ import { ScrollReveal } from './scroll-reveal';
 export function RealtimeTracking() {
   return (
     <section className="py-20 bg-muted/30">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Content */}
@@ -37,9 +37,9 @@ export function RealtimeTracking() {
                 </div>
 
                 <Link href="/auth/signup">
-                  <Button size="lg" variant="outline" className="group">
+                  <Button  variant="secondary" className="group">
                     See How It Works
-                    <Zap className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                    <ArrowUpRight className="ml-1 h-5 w-5 group-hover:scale-110 transition-transform" />
                   </Button>
                 </Link>
               </div>

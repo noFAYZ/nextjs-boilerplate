@@ -41,7 +41,7 @@ export function LandingNav() {
 
   /** === Nav Links with optional popover === */
   const navLinks = [
-    { label: 'Features', type: 'popover' },
+    { label: 'Features', type: '#features' },
     { label: 'How it Works', href: '#how-it-works' },
     { label: 'Pricing', href: '#pricing' },
     { label: 'FAQ', href: '#faq' },
@@ -61,7 +61,7 @@ export function LandingNav() {
       {/* === Floating Navbar === */}
       <nav
         className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+          'fixed inset-x-0 top-0 z-50 transition-all duration-100',
           isScrolled ? 'py-2' : 'py-4'
         )}
       >
@@ -75,11 +75,11 @@ export function LandingNav() {
             className={cn(
               'relative rounded-xl transition-all duration-200',
               isScrolled
-                ? 'bg-background/80 border border-border/60 '
+                ? 'bg-gradient-to-br from-muted/95 via-background to-muted/95 border border-border/60 '
                 : 'bg-transparent border-transparent'
             )}
           >
-            <div className="flex h-16 sm:h-14 items-center justify-between px-2">
+            <div className="flex h-16 sm:h-14 items-center justify-between px-4">
               {/* === Logo === */}
               <Link
                 href="/"
@@ -106,99 +106,25 @@ export function LandingNav() {
               </Link>
 
               {/* === Desktop Nav === */}
-              <div className="hidden lg:flex items-center gap-1  p-0.5">
-                {navLinks.map((link) => {
-                  if (link.type === 'popover') {
-                    return (
-                      <Popover
-                        key={link.label}
-                        open={openPopover === link.label}
-                        onOpenChange={(isOpen) =>
-                          setOpenPopover(isOpen ? link.label : null)
-                        }
-                      >
-                        <PopoverTrigger
-                          asChild
-                          onMouseEnter={() => setOpenPopover(link.label)}
-                          onMouseLeave={() => setOpenPopover(null)}
-                        >
-                          <Button variant='link' className="text-foreground">
-                            {link.label}
-                       
-                          </Button>
-                        </PopoverTrigger>
+       {/* === Redesigned Desktop Nav === */}
+<div className="hidden lg:flex items-center justify-center gap-2">
+  {navLinks.map((link) => {
 
-                        <PopoverContent
-                          align="start"
-                          sideOffset={10}
-                          onMouseEnter={() => setOpenPopover(link.label)}
-                          onMouseLeave={() => setOpenPopover(null)}
-                          className="p-4 min-w-[500px] rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-lg"
-                        >
-                          {/* === Popover Content === */}
-                          <div className="grid grid-cols-2 gap-4">
-                            {[
-                              {
-                                title: "Bank Portfolio",
-                                desc:
-                                  "Track all your bank accounts, balances, and transactions in one place.",
-                                icon: DuoIconsBank,
-                                color: "text-blue-600 dark:text-blue-400",
-                                gradient: "from-blue-500/10 to-blue-600/0",
-                                disabled: true,
-                              },
-                              {
-                                title: "Crypto Portfolio",
-                                desc:
-                                  "Manage your crypto assets and monitor performance across wallets.",
-                                icon: SolarWalletMoneyBoldDuotone,
-                                color: "text-orange-800 dark:text-orange-600",
-                                gradient: "from-orange-500/10 to-orange-600/0",
-                                disabled: true,
-                              },
-                              {
-                                title: "Subscription Management",
-                                desc:
-                                  "Keep track of all your recurring payments and cancel unwanted ones.",
-                                icon: SolarInboxInBoldDuotone,
-                                color: "text-purple-600 dark:text-purple-400",
-                                gradient: "from-purple-500/10 to-purple-600/0",
-                                link: "/subscriptions",
-                                disabled: false,
-                              },
-                            ].map((item, i) => (
-                              <motion.div
-                                key={item.title}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="p-3 rounded-lg hover:bg-muted/60 transition-colors cursor-pointer"
-                              >
-                                <p className="text-sm font-semibold">{item.title}</p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {item.desc}
-                                </p>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    );
-                  }
 
-                  return (
-                    <Link
-                      key={link.label}
-                      href={link.href ?? '#'}
-                      className="relative  "
-                    >
-                      <Button variant='link' className="text-foreground">
-                      <span className="relative z-10">{link.label}</span>
-                      </Button>
-                    </Link>
-                  );
-                })}
-              </div>
+    return (
+      <Link key={link.label} href={link.href ?? "#"}>
+        <Button
+         variant='ghost'
+          className="relative px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors duration-200"
+        >
+          {link.label}
+     
+        </Button>
+      </Link>
+    );
+  })}
+</div>
+
 
               {/* === Desktop CTA === */}
               <div className="hidden lg:flex items-center gap-2">

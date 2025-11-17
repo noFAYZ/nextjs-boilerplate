@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { UserPlus, Link2, LineChart, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PhUser } from '../icons';
+import { BarChartIcon, HugeiconsAnalytics02, MingcutePlugin2Fill, SolarPieChartBold, TablerPlugConnected } from '../icons/icons';
 
 export function HowItWorks() {
   const steps = [
     {
       number: '01',
-      icon: UserPlus,
+      icon: PhUser,
       title: 'Create Your Account',
       description: 'Sign up for free in under 60 seconds. No credit card required to start exploring.',
       details: [
@@ -21,7 +23,7 @@ export function HowItWorks() {
     },
     {
       number: '02',
-      icon: Link2,
+      icon: TablerPlugConnected,
       title: 'Connect Your Accounts',
       description: 'Securely link bank accounts, crypto wallets, and investment platforms with read-only access.',
       details: [
@@ -34,7 +36,7 @@ export function HowItWorks() {
     },
     {
       number: '03',
-      icon: LineChart,
+      icon: SolarPieChartBold,
       title: 'Track & Optimize',
       description: 'Get instant insights into your complete financial picture and start optimizing your wealth.',
       details: [
@@ -49,7 +51,7 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="py-24 bg-muted/30">
-      <div className="container mx-auto px-6">
+      <div className=" mx-auto px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Get started in minutes</h2>
@@ -107,18 +109,18 @@ export function HowItWorks() {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-1">
                 <h3 className="text-2xl font-bold mb-4">See it in action</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-muted-foreground mb-6 text-sm">
                   Watch our 2-minute demo to see how easy it is to get started with MoneyMappr
                   and take control of your complete financial picture.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/auth/signup">
-                    <Button size="lg" className="w-full sm:w-auto">
+                    <Button  className="w-full sm:w-auto">
                       Start Free Trial
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Button  variant="outline" className="w-full sm:w-auto">
                     Watch Demo
                   </Button>
                 </div>

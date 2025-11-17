@@ -148,6 +148,32 @@ export {
 } from './use-banking-data';
 
 // ============================================================================
+// UNIFIED ACCOUNTS DATA HOOKS
+// ============================================================================
+
+export {
+  // Account Queries
+  useAllAccounts,
+  useAccountDetails,
+
+  // Category Queries
+  useAccountsByCategory,
+  useAccountsSummary,
+
+  // Account Mutations
+  useCreateManualAccount,
+  useUpdateAccount,
+  useDeleteAccount as useDeleteUnifiedAccount,
+} from './use-accounts-data';
+
+export {
+  accountsKeys,
+  accountsQueries,
+  accountsMutations,
+  useUnifiedAccounts,
+} from './accounts-queries';
+
+// ============================================================================
 // AUTH DATA HOOKS
 // ============================================================================
 

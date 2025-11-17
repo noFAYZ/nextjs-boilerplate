@@ -22,6 +22,7 @@ import type {
   SubscriptionFilters,
   SubscriptionListResponse,
   SubscriptionAnalytics,
+  ManualRenewalRequest,
 } from '@/lib/types/subscription';
 import type { ApiResponse } from '@/lib/types';
 
@@ -305,6 +306,40 @@ export const subscriptionMutations = {
       },
       onError: (error) => {
         console.error('Failed to add charge:', error);
+      },
+    });
+  },
+
+  /**
+   * Manually renew a subscription
+   */
+  useRenew: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({
+        subscriptionId,
+        renewalData,
+      }: {
+        subscriptionId: string;
+        renewalData: ManualRenewalRequest;
+      }) => subscriptionsApi.renewSubscription(subscriptionId, renewalData),
+      onSuccess: (response, { subscriptionId }) => {
+        if (response.success) {
+          // Invalidate subscription detail to refetch with updated renewal info
+          queryClient.invalidateQueries({
+            queryKey: subscriptionKeys.detail(subscriptionId),
+          });
+
+          // Invalidate lists to update subscription status
+          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
+
+          // Invalidate analytics to update spending data
+          queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to renew subscription:', error);
       },
     });
   },

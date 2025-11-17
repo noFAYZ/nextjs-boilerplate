@@ -14,12 +14,12 @@ import { ScrollReveal } from '../scroll-reveal';
 
 export function PortfolioShowcase() {
   return (
-    <section id="subscriptions" className="pt-20 flex items-center justify-center">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+    <section id="subscriptions" className="pt-10 flex items-center justify-center">
+      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
         {/* Left: Visual Preview */}
         <ScrollReveal>
-          <div className="relative flex items-start justify-start overflow-hidden rounded-3xl bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 
+          <div className="relative flex items-start justify-start overflow-hidden  bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 
           h-[280px] w-[380px]  lg:h-[500px] lg:w-[700px] md:h-[400px] md:w-[600px] pr-10 pl-10 pt-10 shadow-lg drop-shadow-xl border-0">
             <Image
               src="/landing/subscription-management.PNG" // replace with your preview image
@@ -34,20 +34,9 @@ export function PortfolioShowcase() {
 
         {/* Right: Content */}
         <ScrollReveal delay={200}>
-        <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 rounded-2xl">
-            <DecryptedText 
-              text="Manage All Your Subscriptions"
-              speed={50}
-              maxIterations={15}
-              sequential={true}
-              className={cn(
-                "text-4xl sm:text-4xl font-semibold tracking-tight drop-shadow-lg"
-              )}
-              encryptedClassName={cn(
-                "text-4xl font-semibold tracking-tight drop-shadow-lg"
-              )}
-              animateOn="hover"
-            />
+        <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 ">
+     
+            <h1 className='text-4xl sm:text-4xl font-bold tracking-tight drop-shadow-lg'>Manage Subscriptions</h1>
 
             <p className="text-muted-foreground text-sm leading-relaxed">
               Gain full control over your recurring payments. Discover hidden charges, track
@@ -58,7 +47,7 @@ export function PortfolioShowcase() {
           
             <div className="pt-4">
               <Link href="/subscriptions">
-                <Button size="sm" className="group rounded-xl">
+                <Button size="sm"  className="group ">
                  Get Started
                   <MemoryArrowTopRight className="ml-1 h-5 w-5 " />
                 </Button>

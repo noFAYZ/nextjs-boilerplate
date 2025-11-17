@@ -57,7 +57,7 @@ export function LandingFooter() {
   ];
 
   return (
-    <footer className=" bg-muted/30">
+    <footer className=" bg-muted/50">
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
         {/* Main Footer Content */}
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6 mb-12">
@@ -65,22 +65,23 @@ export function LandingFooter() {
           <div className="lg:col-span-2">
           <Link
                 href="/"
-                className="flex items-center gap-2 group relative z-10 -ml-1"
-                
+                className="flex items-center gap-2 -ml-1 group"
+             
               >
-                <Image
-                  src={'/logo/19.svg'}
-                  alt={'MoneyMappr logo'}
+              <Image
+                  src="/logo/mappr.svg"
+                  alt="MoneyMappr logo"
                   width={56}
                   height={56}
-                  className="object-contain w-12 h-12 sm:w-14 sm:h-14"
+                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
                   priority
-                />
+                /> 
+                 {/*  <LogoMappr className='w-10 h-10' />*/}
                 <div className="flex flex-col">
                   <span className="text-base sm:text-lg font-bold tracking-tight">
                     MoneyMappr
                   </span>
-                  <span className="text-[10px] sm:text-[11px] text-muted-foreground -mt-0.5 hidden sm:block">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block -mt-0.5">
                     Financial Intelligence
                   </span>
                 </div>

@@ -21,6 +21,7 @@ import type {
   AutoDetectResponse,
   SubscriptionCharge,
   SubscriptionListResponse,
+  ManualRenewalRequest,
 } from '@/lib/types/subscription';
 
 class SubscriptionsApi {
@@ -208,6 +209,32 @@ class SubscriptionsApi {
    */
   async detectSubscriptions(): Promise<ApiResponse<AutoDetectResponse>> {
     return apiClient.post<AutoDetectResponse>(`${this.BASE_PATH}/detect`);
+  }
+
+  /**
+   * Manually renew a subscription
+   */
+  async renewSubscription(
+    subscriptionId: string,
+    renewalData: ManualRenewalRequest
+  ): Promise<ApiResponse<UserSubscription>> {
+    return apiClient.post<UserSubscription>(
+      `${this.BASE_PATH}/${subscriptionId}/renew`,
+      renewalData
+    );
+  }
+
+  /**
+   * Update payment method for a subscription
+   */
+  async updateSubscriptionPaymentMethod(
+    subscriptionId: string,
+    paymentMethodId: string
+  ): Promise<ApiResponse<UserSubscription>> {
+    return apiClient.put<UserSubscription>(
+      `${this.BASE_PATH}/${subscriptionId}/payment-method`,
+      { paymentMethodId }
+    );
   }
 
   // ============================================================================

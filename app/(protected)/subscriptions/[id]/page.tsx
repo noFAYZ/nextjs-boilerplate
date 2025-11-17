@@ -29,6 +29,7 @@ import {
   ArrowDownRight,
   Repeat,
   Sparkles,
+  Plus,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,7 @@ import { getLogoUrl } from "@/lib/services/logo-service";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/lib/hooks/use-toast";
 import { SubscriptionFormModal } from "@/components/subscriptions/subscription-form-modal";
+import { AddChargeModal } from "@/components/subscriptions/add-charge-modal";
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -82,6 +84,7 @@ export default function SubscriptionDetailPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [isAddChargeModalOpen, setIsAddChargeModalOpen] = React.useState(false);
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
 
   const { data: subscription, isLoading, error } = useSubscription(subscriptionId, {
@@ -760,14 +763,24 @@ export default function SubscriptionDetailPage() {
                   </p>
                 </div>
               </div>
-              {subscription.charges && subscription.charges.length > 0 && (
-                <Badge variant="outline" className="bg-background/60">
-                  {subscriptionsApi.formatCurrency(
-                    subscription.charges.reduce((sum, c) => sum + c.amount, 0),
-                    subscription.currency
-                  )} total
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {subscription.charges && subscription.charges.length > 0 && (
+                  <Badge variant="outline" className="bg-background/60">
+                    {subscriptionsApi.formatCurrency(
+                      subscription.charges.reduce((sum, c) => sum + c.amount, 0),
+                      subscription.currency
+                    )} total
+                  </Badge>
+                )}
+                <Button
+                  size="sm"
+                  onClick={() => setIsAddChargeModalOpen(true)}
+                  className="gap-1.5"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Charge
+                </Button>
+              </div>
             </div>
             {subscription.charges && subscription.charges.length > 0 ? (
               <div className="space-y-3">
@@ -973,6 +986,15 @@ export default function SubscriptionDetailPage() {
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         subscription={subscription}
+      />
+
+      {/* Add Charge Modal */}
+      <AddChargeModal
+        open={isAddChargeModalOpen}
+        onClose={() => setIsAddChargeModalOpen(false)}
+        subscriptionId={subscriptionId}
+        subscriptionName={subscription.name}
+        defaultCurrency={subscription.currency}
       />
 
       {/* Delete Confirmation Dialog */}
