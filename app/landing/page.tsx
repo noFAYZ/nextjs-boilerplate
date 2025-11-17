@@ -41,9 +41,9 @@ export default function LandingPage() {
         {/* <FeatureGrid />
       <PortfolioShowcase />
        <CryptoShowcase />
-       <SubscriptionsShowcase />
+      
      <RealtimeTracking /> */}
-    
+     <SubscriptionsShowcase />
       <HowItWorks />
      {/* <AutomationShowcase />   */}
      
