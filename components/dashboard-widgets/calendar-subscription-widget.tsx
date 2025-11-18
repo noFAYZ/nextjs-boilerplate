@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeftIcon, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useSubscriptions } from '@/lib/queries';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -62,11 +62,11 @@ function StackedSubscriptionAvatars({
   const remaining = subscriptions.length - maxVisible;
 
   return (
-    <div className="flex items-center justify-center -space-x-2.5">
+    <div className=":data-[slot=avatar]:ring-background flex -space-x-5 *:data-[slot=avatar]:ring-2 ">
       {visibleSubs.map((sub, index) => (
         <Avatar
           key={sub.id}
-          className="h-10 w-10 rounded-full shadow-sm ring-1 ring-black/5 dark:ring-white/10 transition-transform group-hover:scale-102"
+          className="h-9 w-9 rounded-full shadow-sm ring-1 ring-muted dark:ring-white/10 transition-transform group-hover:scale-102"
           style={{ zIndex: maxVisible - index }}
         >
           {sub.websiteUrl ? (
@@ -76,15 +76,15 @@ function StackedSubscriptionAvatars({
               className="object-contain bg-background rounded-full"
             />
           ) : (
-            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-[8px] font-bold text-primary">
+            <AvatarFallback className="bg-gradient-to-br from-muted to-primary/5 text-[8px] font-bold text-primary">
               {sub.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           )}
         </Avatar>
       ))}
       {remaining > 0 && (
-        <div className="h-7 w-7 rounded-full border-[2.5px] border-background bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center shadow-sm ring-1 ring-black/5 dark:ring-white/10 transition-transform group-hover:scale-110">
-          <span className="text-[9px] font-bold text-foreground/70">
+        <div className="h-9 w-9 rounded-full border-[2px] border-border bg-gradient-to-br from-muted to-accent flex items-center justify-center shadow-sm  transition-transform group-hover:scale-102">
+          <span className="text-[10px] font-bold text-foreground/70">
             +{remaining}
           </span>
         </div>
@@ -343,28 +343,30 @@ export function CalendarSubscriptionWidget() {
           <div className="flex items-center ">
             <Button
               onClick={goToPreviousMonth}
-              className="h-8 w-8 rounded-r-none border-r-0"
+              className=" rounded-r-none border-r-0"
               aria-label="Previous month"
               variant='outline'
+           
+              size='icon-sm'
             >
-              <ChevronLeft className="h-4 w-4 " />
+             <ChevronLeft className="h-4 w-4 " />
             </Button>
             <Button
               onClick={goToToday}
-              className=" h-8 rounded-none text-xs"
+              className=" h-8  rounded-none text-xs"
               variant='outline'
-              size='sm'
+           size="sm"
             >
               Today
             </Button>
             <Button
               onClick={goToNextMonth}
-              className="h-8 w-8 rounded-l-none border-l-0"
+              className=" rounded-l-none border-l-0"
               variant='outline'
-              icon={<ChevronRight className="h-4 w-4 text-red z-20" />}
+              size='icon-sm'
         
             >
-              
+              <ChevronRight className="h-4 w-4 " />
             </Button>
           </div>
         </div>
@@ -408,8 +410,8 @@ export function CalendarSubscriptionWidget() {
                   onClick={() => handleDateClick(date, subscriptions)}
                   disabled={!hasSubscriptions}
                   className={cn(
-                    'group relative aspect-square rounded-3xl transition-all duration-75',
-                    'flex flex-col items-center justify-center gap-0.5 p-2',
+                    'group relative aspect-square rounded-xl md:rounded-3xl transition-all duration-75',
+                    'flex flex-col items-center justify-center ',
                     'border-1',
                     isCurrent
                       ? 'border-0 dark:bg-muted bg-accent/70 backdrop-blur-sm'
@@ -433,7 +435,7 @@ export function CalendarSubscriptionWidget() {
                   {/* Date Number */}
                   <span
                     className={cn(
-                      'text-md font-semibold mb-0.5 relative z-10 transition-all',
+                      'text-sm font-semibold mb-0.5 relative z-10 transition-all',
                       isCurrent ? 'text-foreground' : 'text-transparent',
                       isTodayDate && 'text-primary font-bold text-sm',
                       hasSubscriptions && 'group-hover:text-primary'
@@ -447,7 +449,7 @@ export function CalendarSubscriptionWidget() {
                     <div className="relative z-10">
                       <StackedSubscriptionAvatars
                         subscriptions={subscriptions}
-                        maxVisible={3}
+                        maxVisible={2}
                       />
                     </div>
                   )}
@@ -461,7 +463,7 @@ export function CalendarSubscriptionWidget() {
 
                   {/* Subscription Count Badge */}
                   {hasSubscriptions && isCurrent && subscriptions.length > 0 && (
-                    <div className="absolute top-1 right-1 h-4 min-w-[16px] px-1 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="absolute top-0 right-0 h-4 min-w-[16px] px-1 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <span className="text-[10px] font-bold text-primary-foreground">
                         {subscriptions.length}
                       </span>

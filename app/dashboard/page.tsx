@@ -186,10 +186,10 @@ export default function DashboardPage() {
         {/* Calendar Section - Full Width */}
        
     {/* Bills & Activity Section */}
-        <div className="grid gap-6 lg:grid-cols-5">
+        <div className="grid gap-6 lg:grid-cols-4">
  <SubscriptionsOverviewWidget />
 
-           <div className="w-full col-span-3">
+           <div className="w-full col-span-2">
           <CalendarSubscriptionWidget />
 
         </div>

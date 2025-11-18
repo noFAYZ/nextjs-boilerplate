@@ -376,19 +376,7 @@ export function SubscriptionsOverviewWidget() {
             ))}
           </div>
 
-          {/* View All Footer */}
-          {subscriptionsResponse && subscriptionsResponse.length > 6 && (
-            <Link href="/subscriptions">
-              <div className="mt-2 p-2 rounded-lg border border-border bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer group">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                    View all {subscriptionsResponse.length} subscriptions
-                  </span>
-                  <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </div>
-            </Link>
-          )}
+    
         </div>
       ) : (
         <div className="p-4 rounded-lg bg-muted/30 border border-border text-center">
