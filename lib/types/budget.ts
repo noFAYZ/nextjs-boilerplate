@@ -118,7 +118,7 @@ export interface BudgetAlert {
   status: AlertStatus;
   sentAt?: string;
   dismissedAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -136,7 +136,7 @@ export interface BudgetTransaction {
   merchantName?: string;
   notes?: string;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -250,7 +250,7 @@ export interface CreateBudgetRequest {
   priority?: number;
 }
 
-export interface UpdateBudgetRequest extends Partial<CreateBudgetRequest> {}
+export type UpdateBudgetRequest = Partial<CreateBudgetRequest>;
 
 export interface GetBudgetsParams {
   page?: number;
@@ -290,7 +290,7 @@ export interface AddBudgetTransactionRequest {
   merchantName?: string;
   notes?: string;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface BudgetRefreshResponse {
@@ -363,7 +363,7 @@ export interface BudgetAnalytics {
   recentAlerts: BudgetAlert[];
   periodsEndingSoon: BudgetPeriodEndingSoon[];
   spendingTrend: BudgetSpendingTrend;
-  recommendations: any[];
+  recommendations: unknown[];
 }
 
 export interface BudgetSummary {

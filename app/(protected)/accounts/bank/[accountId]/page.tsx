@@ -13,52 +13,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Building2,
-  CreditCard,
   TrendingUp,
-  TrendingDown,
   ArrowLeft,
   RefreshCw,
   Trash2,
   DollarSign,
   Search,
-  BarChart3,
   ArrowUpRight,
-  ArrowDownRight,
-  Clock,
   Loader2,
-  ArrowUpDown,
-  Calendar,
-  Filter,
   Download,
-  PieChart,
-  Activity,
-  MoreVertical,
-  Eye,
   Settings,
   LayoutGrid,
   List,
-  DropletsIcon,
-  MenuIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, subDays, startOfMonth, subMonths } from "date-fns";
+import { format } from "date-fns";
 
 // ✅ Use centralized utilities
 import {
   filterTransactions,
   sortTransactions,
   calculateTransactionAnalytics,
-  calculateCreditUtilization,
   getBalanceColor,
-  getAddressExplorerUrl,
 } from "@/lib/utils";
 
 import {
@@ -69,7 +46,6 @@ import {
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BankAccountSyncProgress } from "@/components/banking/BankAccountSyncProgress";
 import { BankAccountSyncModal } from "@/components/banking/BankAccountSyncModal";
 import {
   categoryIcons,
@@ -83,16 +59,11 @@ import {
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { BankAccount } from "@/lib/types/banking";
 import {
-  EntypoProgressTwo,
-  HugeiconsAnalyticsUp,
   HugeiconsCreditCard,
-  LetsIconsTimeProgressDuotone,
-  MynauiActivitySquare,
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
-  SolarPieChartBold,
 } from "@/components/icons/icons";
-import { IconParkOutlineSettingTwo, LetsIconsSettingLineDuotone } from "@/components/icons";
+import { LetsIconsSettingLineDuotone } from "@/components/icons";
 import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
 import {
   Table,
@@ -102,7 +73,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import CompactStatCard from "@/components/ui/StatsCard";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
 
 const ACCOUNT_TYPE_CONFIG = {
@@ -283,7 +253,7 @@ export default function BankAccountDetailsPage() {
 
   // ✅ Filtered transactions using centralized utilities
   const filteredTransactions = useMemo(() => {
-    let filtered = filterTransactions(transactions, {
+    const filtered = filterTransactions(transactions, {
       searchQuery,
       category: selectedFilter,
       dateRange: dateRange as any,

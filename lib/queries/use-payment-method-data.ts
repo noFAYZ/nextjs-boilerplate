@@ -21,10 +21,6 @@ import {
   paymentMethodMutations,
 } from './payment-method-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import type {
-  CreatePaymentMethodRequest,
-  UpdatePaymentMethodRequest,
-} from '@/lib/types/subscription';
 
 // ============================================================================
 // AUTH-READY WRAPPER

@@ -75,7 +75,7 @@ const buttonVariants = cva(
         candy:
           "bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 text-white shadow-lg hover:shadow-2xl hover:from-pink-500 hover:via-purple-400 hover:to-blue-400 active:scale-[0.98] focus-visible:ring-pink-500/70 border-2 border-white/50",
         steel:
-          "bg-gradient-to-b from-slate-500 to-slate-600 text-white border border-slate-500 shadow-[inset_0_0px_0_rgba(255,255,255,0.3)] hover:from-slate-500 hover:to-slate-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
+          "bg-gradient-to-b from-[#EB8229] to-[#D46922] text-white border border-[#D46922] shadow-[inset_0_0px_0_rgb(226,131,63)] hover:from-[#D46922] hover:to-[#C85E20] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
       },
       size: {
         xs: "h-7 px-2 text-xs rounded-md gap-1",

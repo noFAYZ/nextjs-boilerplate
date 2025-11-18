@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getSessionCookie } from "better-auth/cookies";
 
 // ============================================================================
 // WAITLIST MODE CONFIGURATION

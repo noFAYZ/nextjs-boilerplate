@@ -124,7 +124,7 @@ export interface TransactionStats {
 export interface UnifiedAccountDetails extends UnifiedAccount {
   performance?: AccountPerformance;
   transactionStats?: TransactionStats;
-  valuationHistory?: any[];
+  valuationHistory?: unknown[];
 }
 
 // Request Types

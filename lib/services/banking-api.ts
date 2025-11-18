@@ -561,7 +561,7 @@ class BankingApiService {
 
   // Real-time sync connection helper
   // Banking sync now uses the unified crypto SSE stream
-  async createSyncEventSource(_onMessage?: (event: MessageEvent) => void): Promise<EventSource> {
+  async createSyncEventSource(): Promise<EventSource> {
     console.log('Banking sync: Using unified crypto SSE stream instead of separate banking stream');
     // Banking events are now handled by the unified crypto SSE connection
     // This method is kept for compatibility but doesn't create actual connections

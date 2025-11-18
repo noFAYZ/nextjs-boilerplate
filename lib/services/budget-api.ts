@@ -1,10 +1,5 @@
 import { apiClient } from '@/lib/api-client';
 import type {
-  Budget,
-  BudgetAnalytics,
-  BudgetSummary,
-  BudgetTransaction,
-  BudgetRefreshResponse,
   CreateBudgetRequest,
   UpdateBudgetRequest,
   GetBudgetsParams,
@@ -17,7 +12,6 @@ import type {
   BudgetTransactionResponse,
   BudgetRefreshApiResponse,
   DeleteBudgetResponse,
-  ApiResponse
 } from '@/lib/types';
 
 class BudgetApiService {

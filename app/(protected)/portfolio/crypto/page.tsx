@@ -109,7 +109,7 @@ export default function CryptoPortfolioPage() {
   // ✅ Filter and sort using centralized utilities
   const displayedAssets = useMemo(() => {
     // Filter by search query
-    let filtered = filterCryptoWallets(assets, { searchQuery });
+    const filtered = filterCryptoWallets(assets, { searchQuery });
 
     // Sort by selected field
     const getField = (asset: CryptoAsset) => {

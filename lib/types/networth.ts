@@ -69,9 +69,9 @@ export interface AccountBreakdown {
   accountCount?: number;
   walletCount?: number;
   assetCount?: number;
-  accounts?: any[];
-  wallets?: any[];
-  assets?: any[];
+  accounts?: unknown[];
+  wallets?: unknown[];
+  assets?: unknown[];
 }
 
 export interface NetWorthBreakdown {
@@ -186,7 +186,7 @@ export interface AssetAccount {
   postalCode?: string;
 
   // Metadata
-  assetMetadata?: Record<string, any>;
+  assetMetadata?: Record<string, unknown>;
   imageUrls?: string[];
   documentUrls?: string[];
   tags?: string[];
@@ -232,7 +232,7 @@ export interface AccountValuation {
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -301,7 +301,7 @@ export interface CreateAssetAccountRequest {
   linkedLiabilityId?: string;
   imageUrls?: string[];
   documentUrls?: string[];
-  assetMetadata?: Record<string, any>;
+  assetMetadata?: Record<string, unknown>;
   groupId?: string;
   depreciationMethod?: DepreciationMethod;
   depreciationRate?: number;
@@ -319,7 +319,7 @@ export interface CreateValuationRequest {
   valuationType?: ValuationType;
   source?: string;
   notes?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreateAssetCategoryRequest {

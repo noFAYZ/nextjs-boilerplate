@@ -262,10 +262,10 @@ function FeatureButton({
           <p className="text-sm text-muted-foreground leading-relaxed mb-3">
             {feature.description}
           </p>
-          <div className="inline-flex items-center gap-2 text-xs font-medium text-primary">
+          <Button className="inline-flex items-center   text-[11px] h-7" size="sm" variant="steel">
             Learn more
             <LucideArrowRight className="h-3.5 w-3.5" />
-          </div>
+          </Button>
         </div>
       </div>
     </div>
@@ -464,7 +464,7 @@ export default function MoneyMapprFeatureSection() {
   const rightFeatures = FEATURES.filter((f) => f.position === "right");
 
   return (
-    <section className="relative w-full py-16 md:py-24">
+    <section className="relative w-full py-16 md:py-24 bg-muted/60">
       <div className="container  mx-auto px-6 ">
         {/* Header */}
         <div className="text-center mb-12 max-w-3xl mx-auto">

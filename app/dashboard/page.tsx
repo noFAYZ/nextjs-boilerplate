@@ -6,34 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { useAuthStore, selectUser } from '@/lib/stores';
 import { WelcomeBanner } from '@/components/onboarding/welcome-banner';
 import {
-  Settings,
-  Bell,
   Calendar,
-  Send,
-  Download,
-  Repeat,
-  Receipt,
   ArrowRight,
-  Plug2,
-  Wallet
 } from 'lucide-react';
 
 // Import dashboard widgets
 import {
-  NetWorthWidget,
-  CryptoAllocationWidget,
-  NetworkDistributionWidget,
-  SpendingCategoriesWidget,
-  MonthlySpendingTrendWidget,
-  GoalsOverviewWidget,
   SubscriptionsOverviewWidget,
-  UpcomingBillsWidget,
-  RecentActivityWidget,
-
+  CalendarSubscriptionWidget,
 } from '@/components/dashboard-widgets';
-import { DuoIconsBank, FluentBuildingBank28Regular, HugeiconsPuzzle, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone, SolarWalletMoneyLinear, StreamlineFlexWallet } from '@/components/icons/icons';
-import { IconParkTwotoneSettingTwo, LetsIconsSettingLineDuotone } from '@/components/icons';
-import MoneyFlowWidget from '@/components/dashboard-widgets/money-flow-widget';
+import { DuoIconsBank, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '@/components/icons/icons';
+import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
 export default function DashboardPage() {
   const user = useAuthStore(selectUser);
@@ -42,14 +25,6 @@ export default function DashboardPage() {
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
 
-  const brandColor = '#FF6900';
-
-  const quickActions = [
-    { icon: Send, label: 'Send', href: '/send', color: brandColor },
-    { icon: Download, label: 'Request', href: '/request', color: '#3b82f6' },
-    { icon: Repeat, label: 'Exchange', href: '/exchange', color: '#8b5cf6' },
-    { icon: Receipt, label: 'Bills', href: '/bills', color: '#10b981' }
-  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -205,15 +180,24 @@ export default function DashboardPage() {
        
         </div> */}
 
-      
-        {/* Bills & Activity Section */}
-        <div className="grid gap-6 lg:grid-cols-4">
+
+    
+
+        {/* Calendar Section - Full Width */}
+       
+    {/* Bills & Activity Section */}
+        <div className="grid gap-6 lg:grid-cols-5">
+ <SubscriptionsOverviewWidget />
+
+           <div className="w-full col-span-3">
+          <CalendarSubscriptionWidget />
+
+        </div>
          {/*    <GoalsOverviewWidget /> */}
-          <SubscriptionsOverviewWidget />
+         
       {/*     <UpcomingBillsWidget />
           <RecentActivityWidget /> */}
         </div>
-
       </div>
     </div>
   );

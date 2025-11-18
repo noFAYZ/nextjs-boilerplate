@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import {
   CreditCard,
-  TrendingUp,
   Calendar,
   ArrowRight,
   Clock,
@@ -16,12 +15,13 @@ import { useSubscriptions, useSubscriptionSummary } from '@/lib/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getLogoUrl } from '@/lib/services/logo-service';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
 import { DuoIconsAlertOctagon, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
+import { Button } from '../ui/button';
 
 // Compact Subscription List Item
 function SubscriptionItem({ subscription }: { subscription: UserSubscription }) {
@@ -220,8 +220,6 @@ export function SubscriptionsOverviewWidget() {
     return { upcoming: upcomingCount, active: activeCount, trial: trialCount };
   }, [subscriptionsResponse]);
 
-  const hasUpcomingInNext7Days = tabCounts.upcoming > 0;
-
   // Loading State
   if (subscriptionsLoading) {
     return (
@@ -267,7 +265,7 @@ export function SubscriptionsOverviewWidget() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none lg:col-span-2">
+    <div className="rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none lg:col-span-2 h-fit">
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
@@ -280,10 +278,10 @@ export function SubscriptionsOverviewWidget() {
          
         </div>
         <Link href="/subscriptions">
-          <Badge variant="outline" className="text-[10px] cursor-pointer hover:bg-muted transition-colors h-6">
+          <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors  h-7" size='sm'>
             View All
-            <ArrowRight className="h-2.5 w-2.5 ml-1" />
-          </Badge>
+            <ArrowRight className="h-3 w-3 " />
+          </Button>
         </Link>
       </div>
 
@@ -298,7 +296,7 @@ export function SubscriptionsOverviewWidget() {
                     <CurrencyDisplay
                           amountUSD={summary.totalMonthlySpend}
                           variant="large"
-                          className="text-3xl font-semibold text-foreground"
+                          className="text-4xl font-semibold "
 
                         />
                       <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
