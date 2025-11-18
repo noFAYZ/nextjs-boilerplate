@@ -47,7 +47,8 @@
       "Bash(echo:*)",
       "Bash(grep:*)",
       "WebFetch(domain:www.monarchmoney.com)",
-      "WebFetch(domain:www.monarch.com)"
+      "WebFetch(domain:www.monarch.com)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

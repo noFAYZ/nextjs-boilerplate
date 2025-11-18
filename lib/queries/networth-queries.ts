@@ -348,7 +348,7 @@ export const networthMutations = {
   // Asset Account Mutations
   createAssetAccount: () => ({
     mutationFn: (data: CreateAssetAccountRequest) => networthApi.createAssetAccount(data),
-    onSuccess: (data: ApiResponse<AssetAccount>, variables: CreateAssetAccountRequest, context: any) => {
+    onSuccess: (data: ApiResponse<AssetAccount>, variables: CreateAssetAccountRequest, context: unknown) => {
       const queryClient = context.queryClient;
       // Invalidate all related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccounts() });
@@ -360,8 +360,8 @@ export const networthMutations = {
 
   updateAssetAccount: (id: string) => ({
     mutationFn: (data: UpdateAssetAccountRequest) => networthApi.updateAssetAccount(id, data),
-    onSuccess: (data: ApiResponse<AssetAccount>, variables: UpdateAssetAccountRequest, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: ApiResponse<AssetAccount>, variables: UpdateAssetAccountRequest, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccount(id) });
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccounts() });
@@ -373,8 +373,8 @@ export const networthMutations = {
 
   deleteAssetAccount: (id: string) => ({
     mutationFn: () => networthApi.deleteAssetAccount(id),
-    onSuccess: (data: any, variables: any, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: unknown, variables: unknown, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccounts() });
       queryClient.invalidateQueries({ queryKey: networthKeys.networth() });
@@ -385,8 +385,8 @@ export const networthMutations = {
 
   createValuation: (accountId: string) => ({
     mutationFn: (data: CreateValuationRequest) => networthApi.createValuation(accountId, data),
-    onSuccess: (data: ApiResponse<AccountValuation>, variables: CreateValuationRequest, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: ApiResponse<AccountValuation>, variables: CreateValuationRequest, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.valuations(accountId) });
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccount(accountId) });
@@ -398,16 +398,16 @@ export const networthMutations = {
   // Asset Category Mutations
   createAssetCategory: () => ({
     mutationFn: (data: CreateAssetCategoryRequest) => networthApi.createAssetCategory(data),
-    onSuccess: (data: ApiResponse<AssetCategory>, variables: CreateAssetCategoryRequest, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: ApiResponse<AssetCategory>, variables: CreateAssetCategoryRequest, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
   }),
 
   updateAssetCategory: (id: string) => ({
     mutationFn: (data: UpdateAssetCategoryRequest) => networthApi.updateAssetCategory(id, data),
-    onSuccess: (data: ApiResponse<AssetCategory>, variables: UpdateAssetCategoryRequest, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: ApiResponse<AssetCategory>, variables: UpdateAssetCategoryRequest, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.category(id) });
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
@@ -415,8 +415,8 @@ export const networthMutations = {
 
   deleteAssetCategory: (id: string) => ({
     mutationFn: () => networthApi.deleteAssetCategory(id),
-    onSuccess: (data: any, variables: any, context: any) => {
-      const queryClient = context.queryClient;
+    onSuccess: (data: unknown, variables: unknown, context: unknown) => {
+      const queryClient = (context as any).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
   }),

@@ -20,6 +20,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import type {
   GetBudgetsParams,
   GetBudgetParams,
+  BudgetSourceType,
 } from '@/lib/types/budget';
 
 // ============================================================================
@@ -99,7 +100,7 @@ export function useBudgetsByCycle(cycle: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'Y
  * @returns Budgets filtered by source type
  */
 export function useBudgetsBySource(sourceType: string) {
-  return useBudgets({ sourceType: sourceType as any, isActive: true });
+  return useBudgets({ sourceType: sourceType as BudgetSourceType, isActive: true });
 }
 
 /**
