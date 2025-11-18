@@ -23,53 +23,51 @@ class CryptoApiService {
   private readonly basePath = '/crypto';
 
   // Wallet Management
-  async getWallets(): Promise<ApiResponse<CryptoWallet[]>> {
-    return apiClient.get(`${this.basePath}/wallets`);
+  async getWallets(organizationId?: string): Promise<ApiResponse<CryptoWallet[]>> {
+    return apiClient.get(`${this.basePath}/wallets`, organizationId);
   }
 
-  async getWallet(walletId: string, timeRange: string = '24h'): Promise<ApiResponse<CryptoWallet>> {
-    return apiClient.get(`${this.basePath}/wallets/${walletId}?timeRange=${timeRange}`);
+  async getWallet(walletId: string, timeRange: string = '24h', organizationId?: string): Promise<ApiResponse<CryptoWallet>> {
+    return apiClient.get(`${this.basePath}/wallets/${walletId}?timeRange=${timeRange}`, organizationId);
   }
 
-  async getAggregatedWallet(): Promise<ApiResponse<CryptoWallet>> {
-    return apiClient.get(`${this.basePath}/wallets/all/aggregated`);
+  async getAggregatedWallet(organizationId?: string): Promise<ApiResponse<CryptoWallet>> {
+    return apiClient.get(`${this.basePath}/wallets/all/aggregated`, organizationId);
   }
 
-  async createWallet(walletData: CreateWalletRequest): Promise<ApiResponse<CryptoWallet>> {
-    return apiClient.post(`${this.basePath}/wallets`, walletData);
+  async createWallet(walletData: CreateWalletRequest, organizationId?: string): Promise<ApiResponse<CryptoWallet>> {
+    return apiClient.post(`${this.basePath}/wallets`, walletData, organizationId);
   }
 
-  async updateWallet(walletId: string, updates: UpdateWalletRequest): Promise<ApiResponse<CryptoWallet>> {
-    return apiClient.put(`${this.basePath}/wallets/${walletId}`, updates);
+  async updateWallet(walletId: string, updates: UpdateWalletRequest, organizationId?: string): Promise<ApiResponse<CryptoWallet>> {
+    return apiClient.put(`${this.basePath}/wallets/${walletId}`, updates, organizationId);
   }
 
-  async deleteWallet(walletId: string): Promise<ApiResponse<void>> {
-    return apiClient.delete(`${this.basePath}/wallets/${walletId}`);
+  async deleteWallet(walletId: string, organizationId?: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`${this.basePath}/wallets/${walletId}`, organizationId);
   }
 
   // Portfolio Data
-// Portfolio Data
-async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioData>> {
-  const searchParams = new URLSearchParams();
-  
-  // Existing filters
-  if (params.timeRange) searchParams.set('timeRange', params.timeRange);
-  if (params.includeNFTs !== undefined) searchParams.set('includeNFTs', params.includeNFTs.toString());
-  if (params.includeDeFi !== undefined) searchParams.set('includeDeFi', params.includeDeFi.toString());
+  async getPortfolio(params: PortfolioParams = {}, organizationId?: string): Promise<ApiResponse<PortfolioData>> {
+    const searchParams = new URLSearchParams();
 
-  // New chart options
-  if (params.includeChart !== undefined) searchParams.set('includeChart', params.includeChart.toString());
-  if (params.chartTimeRange) searchParams.set('chartTimeRange', params.chartTimeRange);
+    // Existing filters
+    if (params.timeRange) searchParams.set('timeRange', params.timeRange);
+    if (params.includeNFTs !== undefined) searchParams.set('includeNFTs', params.includeNFTs.toString());
+    if (params.includeDeFi !== undefined) searchParams.set('includeDeFi', params.includeDeFi.toString());
 
-  const query = searchParams.toString();
-  return apiClient.get(`${this.basePath}/portfolio${query ? `?${query}` : ''}`);
-}
+    // New chart options
+    if (params.includeChart !== undefined) searchParams.set('includeChart', params.includeChart.toString());
+    if (params.chartTimeRange) searchParams.set('chartTimeRange', params.chartTimeRange);
 
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/portfolio${query ? `?${query}` : ''}`, organizationId);
+  }
 
   // Transaction Management
-  async getTransactions(params: TransactionParams = {}): Promise<ApiResponse<CryptoTransaction[]>> {
+  async getTransactions(params: TransactionParams = {}, organizationId?: string): Promise<ApiResponse<CryptoTransaction[]>> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
     if (params.type?.length) searchParams.set('type', params.type.join(','));
@@ -78,15 +76,16 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     if (params.toDate) searchParams.set('toDate', params.toDate);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`, organizationId);
   }
 
   async getWalletTransactions(
-    walletId: string, 
-    params: TransactionParams = {}
+    walletId: string,
+    params: TransactionParams = {},
+    organizationId?: string
   ): Promise<ApiResponse<CryptoTransaction[]>> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
     if (params.type?.length) searchParams.set('type', params.type.join(','));
@@ -95,13 +94,13 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     if (params.toDate) searchParams.set('toDate', params.toDate);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/wallets/${walletId}/transactions${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/wallets/${walletId}/transactions${query ? `?${query}` : ''}`, organizationId);
   }
 
   // NFT Management
-  async getNFTs(params: NFTParams = {}): Promise<ApiResponse<CryptoNFT[]>> {
+  async getNFTs(params: NFTParams = {}, organizationId?: string): Promise<ApiResponse<CryptoNFT[]>> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
     if (params.collections?.length) searchParams.set('collections', params.collections.join(','));
@@ -109,12 +108,12 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     if (params.maxPrice) searchParams.set('maxPrice', params.maxPrice.toString());
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/nfts${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/nfts${query ? `?${query}` : ''}`, organizationId);
   }
 
-  async getWalletNFTs(walletId: string, params: NFTParams = {}): Promise<ApiResponse<CryptoNFT[]>> {
+  async getWalletNFTs(walletId: string, params: NFTParams = {}, organizationId?: string): Promise<ApiResponse<CryptoNFT[]>> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
     if (params.collections?.length) searchParams.set('collections', params.collections.join(','));
@@ -122,58 +121,55 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     if (params.maxPrice) searchParams.set('maxPrice', params.maxPrice.toString());
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/wallets/${walletId}/nfts${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/wallets/${walletId}/nfts${query ? `?${query}` : ''}`, organizationId);
   }
 
   // DeFi Positions
-  async getDeFiPositions(): Promise<ApiResponse<DeFiPosition[]>> {
-    return apiClient.get(`${this.basePath}/defi`);
+  async getDeFiPositions(organizationId?: string): Promise<ApiResponse<DeFiPosition[]>> {
+    return apiClient.get(`${this.basePath}/defi`, organizationId);
   }
 
-  async getWalletDeFiPositions(walletId: string): Promise<ApiResponse<DeFiPosition[]>> {
-    return apiClient.get(`${this.basePath}/wallets/${walletId}/defi`);
+  async getWalletDeFiPositions(walletId: string, organizationId?: string): Promise<ApiResponse<DeFiPosition[]>> {
+    return apiClient.get(`${this.basePath}/wallets/${walletId}/defi`, organizationId);
   }
 
   // Sync Operations
-  async syncWallet(walletId: string, syncData: SyncRequest = {}): Promise<ApiResponse<{ jobId: string }>> {
-    
-    const response = await apiClient.post(`${this.basePath}/wallets/${walletId}/sync`, syncData);
-    
-    return response;
+  async syncWallet(walletId: string, syncData: SyncRequest = {}, organizationId?: string): Promise<ApiResponse<{ jobId: string }>> {
+    return apiClient.post(`${this.basePath}/wallets/${walletId}/sync`, syncData, organizationId);
   }
 
-  async getSyncStatus(walletId: string, jobId?: string): Promise<ApiResponse<SyncJobStatus>> {
+  async getSyncStatus(walletId: string, jobId?: string, organizationId?: string): Promise<ApiResponse<SyncJobStatus>> {
     const query = jobId ? `?jobId=${jobId}` : '';
-    return apiClient.get(`${this.basePath}/wallets/${walletId}/sync/status${query}`);
+    return apiClient.get(`${this.basePath}/wallets/${walletId}/sync/status${query}`, organizationId);
   }
 
   // Analytics
-  async getAnalytics(params: AnalyticsParams = {}): Promise<ApiResponse<AnalyticsData>> {
+  async getAnalytics(params: AnalyticsParams = {}, organizationId?: string): Promise<ApiResponse<AnalyticsData>> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.timeRange) searchParams.set('timeRange', params.timeRange);
     if (params.metrics?.length) searchParams.set('metrics', params.metrics.join(','));
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/analytics${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/analytics${query ? `?${query}` : ''}`, organizationId);
   }
 
   // Data Export
-  async exportPortfolioData(exportData: ExportRequest): Promise<ApiResponse<ExportResponse>> {
-    return apiClient.post(`${this.basePath}/export`, exportData);
+  async exportPortfolioData(exportData: ExportRequest, organizationId?: string): Promise<ApiResponse<ExportResponse>> {
+    return apiClient.post(`${this.basePath}/export`, exportData, organizationId);
   }
 
   // Utility methods for common operations
-  async refreshAllWallets(): Promise<ApiResponse<{ syncJobs: { walletId: string; jobId: string }[] }>> {
-    const walletsResponse = await this.getWallets();
-    
+  async refreshAllWallets(organizationId?: string): Promise<ApiResponse<{ syncJobs: { walletId: string; jobId: string }[] }>> {
+    const walletsResponse = await this.getWallets(organizationId);
+
     if (!walletsResponse.success) {
       return walletsResponse as ApiResponse<{ syncJobs: { walletId: string; jobId: string }[] }>;
     }
 
     const syncJobs = await Promise.allSettled(
       walletsResponse.data.map(async (wallet) => {
-        const syncResponse = await this.syncWallet(wallet.id, { fullSync: false });
+        const syncResponse = await this.syncWallet(wallet.id, { fullSync: false }, organizationId);
         if (syncResponse.success) {
           return { walletId: wallet.id, jobId: syncResponse.data.jobId };
         }
@@ -182,7 +178,7 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     );
 
     const successfulSyncs = syncJobs
-      .filter((result): result is PromiseFulfilledResult<{ walletId: string; jobId: string }> => 
+      .filter((result): result is PromiseFulfilledResult<{ walletId: string; jobId: string }> =>
         result.status === 'fulfilled'
       )
       .map(result => result.value);
@@ -193,7 +189,7 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
     };
   }
 
-  async getWalletSummary(walletId: string): Promise<ApiResponse<{
+  async getWalletSummary(walletId: string, organizationId?: string): Promise<ApiResponse<{
     wallet: CryptoWallet;
     transactions: CryptoTransaction[];
     nfts: CryptoNFT[];
@@ -201,14 +197,14 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
   }>> {
     try {
       const [walletResponse, transactionsResponse, nftsResponse, defiResponse] = await Promise.all([
-        this.getWallet(walletId),
-        this.getWalletTransactions(walletId, { limit: 20 }),
-        this.getWalletNFTs(walletId, { limit: 20 }),
-        this.getWalletDeFiPositions(walletId)
+        this.getWallet(walletId, '24h', organizationId),
+        this.getWalletTransactions(walletId, { limit: 20 }, organizationId),
+        this.getWalletNFTs(walletId, { limit: 20 }, organizationId),
+        this.getWalletDeFiPositions(walletId, organizationId)
       ]);
 
       if (!walletResponse.success) {
-        return walletResponse as ApiResponse<CryptoWalletDetails>;
+        return walletResponse as any;
       }
 
       return {
@@ -234,23 +230,24 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
 
   // Polling helper for sync status
   async pollSyncStatus(
-    walletId: string, 
-    jobId: string, 
+    walletId: string,
+    jobId: string,
     onProgress?: (status: SyncJobStatus) => void,
     maxAttempts: number = 30,
-    interval: number = 2000
+    interval: number = 2000,
+    organizationId?: string
   ): Promise<SyncJobStatus> {
     let attempts = 0;
-    
+
     while (attempts < maxAttempts) {
-      const response = await this.getSyncStatus(walletId, jobId);
-      
+      const response = await this.getSyncStatus(walletId, jobId, organizationId);
+
       if (!response.success) {
         throw new Error(response.error.message);
       }
 
       const status = response.data;
-      
+
       if (onProgress) {
         onProgress(status);
       }
@@ -268,23 +265,24 @@ async getPortfolio(params: PortfolioParams = {}): Promise<ApiResponse<PortfolioD
 
   // Batch operations
   async bulkUpdateWallets(
-    updates: { walletId: string; updates: UpdateWalletRequest }[]
+    updates: { walletId: string; updates: UpdateWalletRequest }[],
+    organizationId?: string
   ): Promise<ApiResponse<CryptoWallet[]>> {
     try {
       const results = await Promise.allSettled(
-        updates.map(({ walletId, updates }) => 
-          this.updateWallet(walletId, updates)
+        updates.map(({ walletId, updates }) =>
+          this.updateWallet(walletId, updates, organizationId)
         )
       );
 
       const successful = results
-        .filter((result): result is PromiseFulfilledResult<ApiResponse<CryptoWallet>> => 
+        .filter((result): result is PromiseFulfilledResult<ApiResponse<CryptoWallet>> =>
           result.status === 'fulfilled' && result.value.success
         )
-        .map(result => (result.value as ApiSuccessResponse<CryptoWallet>).data);
+        .map(result => (result.value as any).data);
 
-      const failed = results.filter(result => 
-        result.status === 'rejected' || 
+      const failed = results.filter(result =>
+        result.status === 'rejected' ||
         (result.status === 'fulfilled' && !result.value.success)
       );
 

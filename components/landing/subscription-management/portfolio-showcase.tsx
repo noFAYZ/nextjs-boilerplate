@@ -14,8 +14,8 @@ import { ScrollReveal } from '../scroll-reveal';
 
 export function PortfolioShowcase() {
   return (
-    <section id="subscriptions" className="pt-10 flex items-center justify-center">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+    <section id="subscriptions" className="pt-10 flex items-center justify-center container mx-auto">
+      <div className=" mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
         {/* Left: Visual Preview */}
         <ScrollReveal>

@@ -48,13 +48,14 @@ function useAuthReady() {
 
 /**
  * Get all crypto wallets for the authenticated user
+ * @param organizationId - Optional organization ID to scope data
  * @returns All wallets with loading/error states
  */
-export function useCryptoWallets() {
+export function useCryptoWallets(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.wallets(),
+    ...cryptoQueries.wallets(organizationId),
     enabled: isAuthReady,
   });
 }
@@ -63,38 +64,41 @@ export function useCryptoWallets() {
  * Get a single crypto wallet by ID
  * @param walletId - Wallet ID to fetch
  * @param timeRange - Time range for charts (default: '24h')
+ * @param organizationId - Optional organization ID to scope data
  * @returns Wallet data with loading/error states
  */
-export function useCryptoWallet(walletId: string | null, timeRange?: string) {
+export function useCryptoWallet(walletId: string | null, timeRange?: string, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const portfolioTimeRange = useCryptoUIStore((state) => state.viewPreferences.portfolioTimeRange);
 
   const effectiveTimeRange = timeRange || portfolioTimeRange;
 
   return useQuery({
-    ...cryptoQueries.wallet(walletId!, effectiveTimeRange),
+    ...cryptoQueries.wallet(walletId!, effectiveTimeRange, organizationId),
     enabled: isAuthReady && !!walletId,
   });
 }
 
 /**
  * Get the currently selected wallet based on UI store
+ * @param organizationId - Optional organization ID to scope data
  * @returns Selected wallet data or null
  */
-export function useSelectedCryptoWallet() {
+export function useSelectedCryptoWallet(organizationId?: string) {
   const selectedWalletId = useCryptoUIStore((state) => state.selectedWalletId);
-  return useCryptoWallet(selectedWalletId);
+  return useCryptoWallet(selectedWalletId, undefined, organizationId);
 }
 
 /**
  * Get aggregated wallet data across all user wallets
+ * @param organizationId - Optional organization ID to scope data
  * @returns Aggregated wallet data with loading/error states
  */
-export function useAggregatedCryptoWallet() {
+export function useAggregatedCryptoWallet(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.aggregatedWallet(),
+    ...cryptoQueries.aggregatedWallet(organizationId),
     enabled: isAuthReady,
   });
 }
@@ -106,9 +110,10 @@ export function useAggregatedCryptoWallet() {
 /**
  * Get portfolio overview with aggregated data
  * @param params - Portfolio parameters (optional)
+ * @param organizationId - Optional organization ID to scope data
  * @returns Portfolio data with loading/error states
  */
-export function useCryptoPortfolio(params?: PortfolioParams) {
+export function useCryptoPortfolio(params?: PortfolioParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const timeRange = useCryptoUIStore((state) => state.viewPreferences.portfolioTimeRange);
 
@@ -118,7 +123,7 @@ export function useCryptoPortfolio(params?: PortfolioParams) {
   };
 
   return useQuery({
-    ...cryptoQueries.portfolio(effectiveParams),
+    ...cryptoQueries.portfolio(effectiveParams, organizationId),
     enabled: isAuthReady,
   });
 }
@@ -130,13 +135,14 @@ export function useCryptoPortfolio(params?: PortfolioParams) {
 /**
  * Get all transactions with optional filtering
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns Transactions with pagination
  */
-export function useCryptoTransactions(params?: TransactionParams) {
+export function useCryptoTransactions(params?: TransactionParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.transactions(params),
+    ...cryptoQueries.transactions(params, organizationId),
     enabled: isAuthReady,
   });
 }
@@ -145,13 +151,14 @@ export function useCryptoTransactions(params?: TransactionParams) {
  * Get transactions for a specific wallet
  * @param walletId - Wallet ID
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns Wallet transactions with pagination
  */
-export function useWalletTransactions(walletId: string | null, params?: TransactionParams) {
+export function useWalletTransactions(walletId: string | null, params?: TransactionParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.walletTransactions(walletId!, params),
+    ...cryptoQueries.walletTransactions(walletId!, params, organizationId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -159,11 +166,12 @@ export function useWalletTransactions(walletId: string | null, params?: Transact
 /**
  * Get transactions for the currently selected wallet
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns Selected wallet transactions
  */
-export function useSelectedWalletTransactions(params?: TransactionParams) {
+export function useSelectedWalletTransactions(params?: TransactionParams, organizationId?: string) {
   const selectedWalletId = useCryptoUIStore((state) => state.selectedWalletId);
-  return useWalletTransactions(selectedWalletId, params);
+  return useWalletTransactions(selectedWalletId, params, organizationId);
 }
 
 // ============================================================================
@@ -173,13 +181,14 @@ export function useSelectedWalletTransactions(params?: TransactionParams) {
 /**
  * Get all NFTs across all wallets
  * @param params - NFT filter parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns NFTs with pagination
  */
-export function useCryptoNFTs(params?: NFTParams) {
+export function useCryptoNFTs(params?: NFTParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.nfts(params),
+    ...cryptoQueries.nfts(params, organizationId),
     enabled: isAuthReady,
   });
 }
@@ -188,13 +197,14 @@ export function useCryptoNFTs(params?: NFTParams) {
  * Get NFTs for a specific wallet
  * @param walletId - Wallet ID
  * @param params - NFT filter parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns Wallet NFTs with pagination
  */
-export function useWalletNFTs(walletId: string | null, params?: NFTParams) {
+export function useWalletNFTs(walletId: string | null, params?: NFTParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.walletNfts(walletId!, params),
+    ...cryptoQueries.walletNfts(walletId!, params, organizationId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -205,13 +215,14 @@ export function useWalletNFTs(walletId: string | null, params?: NFTParams) {
 
 /**
  * Get all DeFi positions across all wallets
+ * @param organizationId - Optional organization ID to scope data
  * @returns DeFi positions
  */
-export function useCryptoDeFi() {
+export function useCryptoDeFi(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.defi(),
+    ...cryptoQueries.defi(organizationId),
     enabled: isAuthReady,
   });
 }
@@ -219,13 +230,14 @@ export function useCryptoDeFi() {
 /**
  * Get DeFi positions for a specific wallet
  * @param walletId - Wallet ID
+ * @param organizationId - Optional organization ID to scope data
  * @returns Wallet DeFi positions
  */
-export function useWalletDeFi(walletId: string | null) {
+export function useWalletDeFi(walletId: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.walletDefi(walletId!),
+    ...cryptoQueries.walletDefi(walletId!, organizationId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -238,13 +250,14 @@ export function useWalletDeFi(walletId: string | null) {
  * Get sync status for a wallet
  * @param walletId - Wallet ID
  * @param jobId - Optional sync job ID
+ * @param organizationId - Optional organization ID to scope data
  * @returns Sync status (polls automatically while syncing)
  */
-export function useWalletSyncStatus(walletId: string | null, jobId?: string) {
+export function useWalletSyncStatus(walletId: string | null, jobId?: string, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.syncStatus(walletId!, jobId),
+    ...cryptoQueries.syncStatus(walletId!, jobId, organizationId),
     enabled: isAuthReady && !!walletId && !!jobId,
   });
 }
@@ -256,13 +269,14 @@ export function useWalletSyncStatus(walletId: string | null, jobId?: string) {
 /**
  * Get crypto analytics data
  * @param params - Analytics parameters
+ * @param organizationId - Optional organization ID to scope data
  * @returns Analytics data
  */
-export function useCryptoAnalytics(params?: Record<string, unknown>) {
+export function useCryptoAnalytics(params?: Record<string, unknown>, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
-    ...cryptoQueries.analytics(params),
+    ...cryptoQueries.analytics(params, organizationId),
     enabled: isAuthReady,
   });
 }

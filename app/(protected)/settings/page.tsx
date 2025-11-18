@@ -33,6 +33,7 @@ import {
   saveWithTimestamp,
   getWithTimestamp,
 } from '@/lib/utils';
+import { CreateOrganizationModal, OrganizationSettings } from '@/components/organization';
 
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
@@ -540,6 +541,9 @@ export default function SettingsPage() {
               </div>
             </div>
           </CardContent>
+        </Card>
+        <Card>
+  
         </Card>
         </TabsContent>
 

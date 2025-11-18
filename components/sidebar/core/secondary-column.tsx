@@ -11,6 +11,7 @@ import { SidebarCollapsedContent } from '../content/collapsed-content';
 import { MenuItem, QuickAction } from '../types';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
+import { OrganizationSwitcher } from '@/components/organization';
 
 interface SidebarSecondaryColumnProps {
   isExpanded: boolean;
@@ -55,7 +56,7 @@ export function SidebarSecondaryColumn({
         )}
                     <div className="w-full ">
 
-              <button
+           {/*    <button
                 onClick={onOpenCommandPalette}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md bg-muted dark:bg-muted/70 border border-border hover:border-foreground/10 hover:bg-muted/60 focus:outline-none focus:ring-0  transition-colors text-left"
               >
@@ -64,7 +65,8 @@ export function SidebarSecondaryColumn({
                 <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                   ⌘K
                 </kbd>
-              </button>
+              </button> */}
+              <OrganizationSwitcher />
 </div>
       </div>
 

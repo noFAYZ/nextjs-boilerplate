@@ -11,14 +11,14 @@ import { MemoryArrowTopRight } from '../icons/icons';
 
 export function CryptoShowcase() {
   return (
-    <section id="features" className="flex items-center justify-center p-12">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+    <section id="features" className="flex items-center justify-center p-12 container mx-auto ">
+      <div className=" mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
        
 
         {/* Right: Content */}
         <ScrollReveal delay={200}>
-          <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 ">
+          <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 rounded-3xl ">
       
      
                     <h1 className='text-4xl sm:text-4xl font-bold tracking-tight drop-shadow-lg'>Track Crypto Wallets</h1>
@@ -30,7 +30,7 @@ export function CryptoShowcase() {
 
             <div className="pt-4">
               <Link href="/auth/signup">
-                <Button size="sm" className="group ">
+                <Button size="sm" className="group " variant='steel'>
                   Start Free
                   <MemoryArrowTopRight className="ml-1 h-5 w-5 " />
                 </Button>
@@ -41,14 +41,14 @@ export function CryptoShowcase() {
  {/* Left: Visual Card */}
         <ScrollReveal>
         <div className="relative flex items-start justify-start overflow-hidden bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 
-          h-[280px] w-[380px]  lg:h-[500px] lg:w-[700px] md:h-[400px] md:w-[600px] pr-10 pl-10 pt-5 shadow-lg drop-shadow-xl border-0">
+          h-[280px] w-[380px]  lg:h-[500px] lg:w-[700px] md:h-[400px] md:w-[600px]  pt-5 shadow-lg drop-shadow-xl border-0 rounded-3xl pr-10 ">
         
             <Image
               src="/landing/crypto1.PNG" // replace with your preview image
               alt="Subscription Management Dashboard"
               width={1700}
               height={1200}
-              className="absolute -bottom-2 -right-8 object-contain  rounded-t-2xl sm:rounded-tl-3xl"
+              className="absolute -bottom-2 -left-0object-contain  rounded-r-2xl sm:rounded-tr-3xl"
               priority
             />
           </div>

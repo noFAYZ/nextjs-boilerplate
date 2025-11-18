@@ -1,9 +1,9 @@
 // Export all Zustand stores from a central location
-export { 
+export {
   useCryptoStore,
   selectFilteredWallets,
   selectTotalPortfolioValue,
-  selectActiveSyncCount,
+  selectActiveRealtimeSyncCount,
 } from './crypto-store';
 
 export {
@@ -52,6 +52,11 @@ export {
   selectTotalTargetAmount,
   selectTotalCurrentAmount,
 } from './goals-store';
+
+export {
+  useDashboardLayoutStore,
+  dashboardLayoutSelectors,
+} from './dashboard-layout-ui-store';
 
 // Re-export types for convenience
 export type { CryptoWallet, PortfolioData, CryptoTransaction, CryptoNFT, DeFiPosition, SyncJobStatus, NetworkType, WalletType } from '../types/crypto';

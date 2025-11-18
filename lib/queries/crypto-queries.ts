@@ -27,58 +27,58 @@ import type {
 // Query Keys Factory
 export const cryptoKeys = {
   all: ['crypto'] as const,
-  
+
   // Wallets
-  wallets: () => [...cryptoKeys.all, 'wallets'] as const,
-  wallet: (id: string, timeRange?: string) => 
-    [...cryptoKeys.wallets(), id, { timeRange }] as const,
-  walletSummary: (id: string) => 
-    [...cryptoKeys.wallets(), id, 'summary'] as const,
-  aggregatedWallet: () => [...cryptoKeys.all, 'aggregated-wallet'] as const,
-  
+  wallets: (orgId?: string) => [...cryptoKeys.all, 'wallets', orgId] as const,
+  wallet: (id: string, timeRange?: string, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), id, { timeRange }] as const,
+  walletSummary: (id: string, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), id, 'summary'] as const,
+  aggregatedWallet: (orgId?: string) => [...cryptoKeys.all, 'aggregated-wallet', orgId] as const,
+
   // Portfolio
-  portfolio: (params?: PortfolioParams) => 
-    [...cryptoKeys.all, 'portfolio', params] as const,
-  
+  portfolio: (params?: PortfolioParams, orgId?: string) =>
+    [...cryptoKeys.all, 'portfolio', params, orgId] as const,
+
   // Transactions
-  transactions: (params?: TransactionParams) => 
-    [...cryptoKeys.all, 'transactions', params] as const,
-  walletTransactions: (walletId: string, params?: TransactionParams) => 
-    [...cryptoKeys.wallets(), walletId, 'transactions', params] as const,
-  
+  transactions: (params?: TransactionParams, orgId?: string) =>
+    [...cryptoKeys.all, 'transactions', params, orgId] as const,
+  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), walletId, 'transactions', params] as const,
+
   // NFTs
-  nfts: (params?: NFTParams) => 
-    [...cryptoKeys.all, 'nfts', params] as const,
-  walletNfts: (walletId: string, params?: NFTParams) => 
-    [...cryptoKeys.wallets(), walletId, 'nfts', params] as const,
-  
+  nfts: (params?: NFTParams, orgId?: string) =>
+    [...cryptoKeys.all, 'nfts', params, orgId] as const,
+  walletNfts: (walletId: string, params?: NFTParams, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), walletId, 'nfts', params] as const,
+
   // DeFi
-  defi: () => [...cryptoKeys.all, 'defi'] as const,
-  walletDefi: (walletId: string) => 
-    [...cryptoKeys.wallets(), walletId, 'defi'] as const,
-  
+  defi: (orgId?: string) => [...cryptoKeys.all, 'defi', orgId] as const,
+  walletDefi: (walletId: string, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), walletId, 'defi'] as const,
+
   // Sync
-  syncStatus: (walletId: string, jobId?: string) => 
-    [...cryptoKeys.wallets(), walletId, 'sync', { jobId }] as const,
-  
+  syncStatus: (walletId: string, jobId?: string, orgId?: string) =>
+    [...cryptoKeys.wallets(orgId), walletId, 'sync', { jobId }] as const,
+
   // Analytics
-  analytics: (params?: AnalyticsParams) => 
-    [...cryptoKeys.all, 'analytics', params] as const,
+  analytics: (params?: AnalyticsParams, orgId?: string) =>
+    [...cryptoKeys.all, 'analytics', params, orgId] as const,
 };
 
 // Query Options Factory
 export const cryptoQueries = {
   // Wallets
-  wallets: () => ({
-    queryKey: cryptoKeys.wallets(),
-    queryFn: () => cryptoApi.getWallets(),
+  wallets: (orgId?: string) => ({
+    queryKey: cryptoKeys.wallets(orgId),
+    queryFn: () => cryptoApi.getWallets(orgId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data: ApiResponse<CryptoWallet[]>) => data.success ? data.data : [],
   }),
 
-  wallet: (id: string, timeRange = '24h') => ({
-    queryKey: cryptoKeys.wallet(id, timeRange),
-    queryFn: () => cryptoApi.getWallet(id, timeRange),
+  wallet: (id: string, timeRange = '24h', orgId?: string) => ({
+    queryKey: cryptoKeys.wallet(id, timeRange, orgId),
+    queryFn: () => cryptoApi.getWallet(id, timeRange, orgId),
     enabled: !!id,
     staleTime: 1000 * 60 * 2, // 2 minutes
     gcTime: 1000 * 60 * 5, // 5 minutes - keep in cache longer
@@ -88,16 +88,16 @@ export const cryptoQueries = {
     select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
 
-  walletSummary: (id: string) => ({
-    queryKey: cryptoKeys.walletSummary(id),
-    queryFn: () => cryptoApi.getWalletSummary(id),
+  walletSummary: (id: string, orgId?: string) => ({
+    queryKey: cryptoKeys.walletSummary(id, orgId),
+    queryFn: () => cryptoApi.getWalletSummary(id, orgId),
     enabled: !!id,
     staleTime: 1000 * 60 * 3, // 3 minutes
     select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
   }),
-  aggregatedWallet: () => ({
-    queryKey: cryptoKeys.aggregatedWallet(),
-    queryFn: () => cryptoApi.getAggregatedWallet(),
+  aggregatedWallet: (orgId?: string) => ({
+    queryKey: cryptoKeys.aggregatedWallet(orgId),
+    queryFn: () => cryptoApi.getAggregatedWallet(orgId),
     staleTime: 1000 * 60 * 2, // 2 minutes
     gcTime: 1000 * 60 * 5, // 5 minutes
     refetchOnMount: true,
@@ -107,41 +107,41 @@ export const cryptoQueries = {
   }),
 
   // Portfolio
-  portfolio: (params?: PortfolioParams) => ({
-    queryKey: cryptoKeys.portfolio(params),
-    queryFn: () => cryptoApi.getPortfolio(params),
+  portfolio: (params?: PortfolioParams, orgId?: string) => ({
+    queryKey: cryptoKeys.portfolio(params, orgId),
+    queryFn: () => cryptoApi.getPortfolio(params, orgId),
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchInterval: 1000 * 60 * 5, // Auto-refresh every 5 minutes
-    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
+    select: (data: ApiResponse<PortfolioData>) => data.success ? data.data : null,
   }),
 
   // Transactions
-  transactions: (params?: TransactionParams) => ({
-    queryKey: cryptoKeys.transactions(params),
-    queryFn: () => cryptoApi.getTransactions(params),
+  transactions: (params?: TransactionParams, orgId?: string) => ({
+    queryKey: cryptoKeys.transactions(params, orgId),
+    queryFn: () => cryptoApi.getTransactions(params, orgId),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
   }),
 
-  walletTransactions: (walletId: string, params?: TransactionParams) => ({
-    queryKey: cryptoKeys.walletTransactions(walletId, params),
-    queryFn: () => cryptoApi.getWalletTransactions(walletId, params),
+  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string) => ({
+    queryKey: cryptoKeys.walletTransactions(walletId, params, orgId),
+    queryFn: () => cryptoApi.getWalletTransactions(walletId, params, orgId),
     enabled: !!walletId,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
   }),
 
   // Infinite query for transactions
-  infiniteTransactions: (params?: Omit<TransactionParams, 'page'>) => ({
-    queryKey: [...cryptoKeys.transactions(params), 'infinite'],
-    queryFn: ({ pageParam = 1 }) => 
-      cryptoApi.getTransactions({ ...params, page: pageParam }),
+  infiniteTransactions: (params?: Omit<TransactionParams, 'page'>, orgId?: string) => ({
+    queryKey: [...cryptoKeys.transactions(params, orgId), 'infinite'],
+    queryFn: ({ pageParam = 1 }) =>
+      cryptoApi.getTransactions({ ...params, page: pageParam }, orgId),
     initialPageParam: 1,
     getNextPageParam: (lastPage: ApiResponse<CryptoTransaction[]>) => {
-      if (lastPage.success && lastPage.pagination?.hasNext) {
-        return lastPage.pagination.page + 1;
+      if (lastPage.success && (lastPage as any).pagination?.hasNext) {
+        return (lastPage as any).pagination.page + 1;
       }
       return undefined;
     },
@@ -156,80 +156,80 @@ export const cryptoQueries = {
   }),
 
   // NFTs
-  nfts: (params?: NFTParams) => ({
-    queryKey: cryptoKeys.nfts(params),
-    queryFn: () => cryptoApi.getNFTs(params),
+  nfts: (params?: NFTParams, orgId?: string) => ({
+    queryKey: cryptoKeys.nfts(params, orgId),
+    queryFn: () => cryptoApi.getNFTs(params, orgId),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 10, // 10 minutes (NFTs change less frequently)
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
   }),
 
-  walletNfts: (walletId: string, params?: NFTParams) => ({
-    queryKey: cryptoKeys.walletNfts(walletId, params),
-    queryFn: () => cryptoApi.getWalletNFTs(walletId, params),
+  walletNfts: (walletId: string, params?: NFTParams, orgId?: string) => ({
+    queryKey: cryptoKeys.walletNfts(walletId, params, orgId),
+    queryFn: () => cryptoApi.getWalletNFTs(walletId, params, orgId),
     enabled: !!walletId,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 10,
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [], pagination: null },
+    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
   }),
 
   // DeFi
-  defi: () => ({
-    queryKey: cryptoKeys.defi(),
-    queryFn: () => cryptoApi.getDeFiPositions(),
+  defi: (orgId?: string) => ({
+    queryKey: cryptoKeys.defi(orgId),
+    queryFn: () => cryptoApi.getDeFiPositions(orgId),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
+    select: (data: ApiResponse<DeFiPosition[]>) => data.success ? data.data : [],
   }),
 
-  walletDefi: (walletId: string) => ({
-    queryKey: cryptoKeys.walletDefi(walletId),
-    queryFn: () => cryptoApi.getWalletDeFiPositions(walletId),
+  walletDefi: (walletId: string, orgId?: string) => ({
+    queryKey: cryptoKeys.walletDefi(walletId, orgId),
+    queryFn: () => cryptoApi.getWalletDeFiPositions(walletId, orgId),
     enabled: !!walletId,
     staleTime: 1000 * 60 * 5,
     select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
   }),
 
   // Sync Status
-  syncStatus: (walletId: string, jobId?: string) => ({
-    queryKey: cryptoKeys.syncStatus(walletId, jobId),
-    queryFn: () => cryptoApi.getSyncStatus(walletId, jobId),
+  syncStatus: (walletId: string, jobId?: string, orgId?: string) => ({
+    queryKey: cryptoKeys.syncStatus(walletId, jobId, orgId),
+    queryFn: () => cryptoApi.getSyncStatus(walletId, jobId, orgId),
     enabled: false, // Will be overridden by the hook with proper shouldQuery logic
     refetchInterval: (data: ApiResponse<SyncJobStatus>) => {
       // If the API returned an error (like 404 for no sync job), stop polling
       if (!data || !data.success) {
         return false;
       }
-      
+
       // If we have sync data, check the status
       if (data.data) {
         const syncData = data.data;
         // Stop polling when sync is completed, failed, or doesn't exist
-        if (syncData.status === 'completed' || 
-            syncData.status === 'failed' || 
+        if (syncData.status === 'completed' ||
+            syncData.status === 'failed' ||
             syncData.status === 'cancelled') {
           return false;
         }
-        
+
         // Only continue polling if sync is actively processing or queued
         if (syncData.status === 'processing' || syncData.status === 'queued') {
           return 2000; // Poll every 2 seconds
         }
       }
-      
+
       // Default: don't poll if we don't know the status
       return false;
     },
     retry: 1, // Only retry once for 404s
     staleTime: 1000, // Consider data stale after 1 second during active sync
-    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
+    select: (data: ApiResponse<SyncJobStatus>) => data.success ? data.data : null,
   }),
 
   // Analytics
-  analytics: (params?: AnalyticsParams) => ({
-    queryKey: cryptoKeys.analytics(params),
-    queryFn: () => cryptoApi.getAnalytics(params),
+  analytics: (params?: AnalyticsParams, orgId?: string) => ({
+    queryKey: cryptoKeys.analytics(params, orgId),
+    queryFn: () => cryptoApi.getAnalytics(params, orgId),
     staleTime: 1000 * 60 * 10, // 10 minutes
-    select: (data: ApiResponse<CryptoWallet>) => data.success ? data.data : null,
+    select: (data: ApiResponse<AnalyticsData>) => data.success ? data.data : null,
   }),
 };
 

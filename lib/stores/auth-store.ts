@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { signIn, signUp, signOut, getSession } from '@/lib/auth-client';
+import { signIn, signUp, signOut, getSession, oauth2 } from '@/lib/auth-client';
 import { errorHandler } from '@/lib/utils/error-handler';
 
 interface User {
@@ -96,6 +96,7 @@ interface AuthActions {
   // Auth actions
   login: (email: string, password: string) => Promise<void>;
   signup: (userData: SignupData) => Promise<void>;
+  loginWithOAuth: (provider: 'google' | 'apple' | 'github') => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   initializeAuth: () => Promise<void>;
@@ -171,7 +172,7 @@ const initialState: AuthState = {
   // Session management
   lastActivity: null,
   lastLoginDate: null,
-  sessionTimeout: 60, // 60 minutes
+  sessionTimeout: 30, // 30 minutes of inactivity before auto-logout (separate from backend 7-day session)
   autoLogoutTimer: null,
 };
 
@@ -211,24 +212,27 @@ export const useAuthStore = create<AuthStore>()(
             state.loginError = null;
             state.error = null;
           }, false, 'login/loading');
-          
+
           try {
             const result = await signIn.email({
               email,
               password,
             });
-            
+
             if (result.error) {
               throw new Error(handleBetterAuthError(result));
             }
-            
+
             if (result.data?.user && result.data?.token) {
+              // Get actual session expiry from backend (7 days from login config)
+              const sessionDurationMs = 7 * 24 * 60 * 60 * 1000;
+
               set((state) => {
                 state.user = result.data!.user;
                 state.session = {
                   id: 'temp',
                   userId: result.data!.user.id,
-                  expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  expiresAt: new Date(Date.now() + sessionDurationMs),
                   token: result.data!.token,
                 };
                 state.isAuthenticated = true;
@@ -273,7 +277,7 @@ export const useAuthStore = create<AuthStore>()(
             state.signupError = null;
             state.error = null;
           }, false, 'signup/loading');
-          
+
           try {
             const result = await signUp.email({
               email: userData.email,
@@ -282,18 +286,21 @@ export const useAuthStore = create<AuthStore>()(
               lastName: userData.lastName,
               name: `${userData.firstName} ${userData.lastName}`,
             });
-            
+
             if (result.error) {
               throw new Error(handleBetterAuthError(result));
             }
-            
+
             if (result.data?.user) {
+              // Get actual session expiry from backend (7 days from signup config)
+              const sessionDurationMs = 7 * 24 * 60 * 60 * 1000;
+
               set((state) => {
                 state.user = result.data!.user;
                 state.session = {
                   id: 'temp-signup',
                   userId: result.data!.user.id,
-                  expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  expiresAt: new Date(Date.now() + sessionDurationMs),
                   token: result.data!.token || 'temp-token',
                 };
                 state.isAuthenticated = true;
@@ -331,7 +338,69 @@ export const useAuthStore = create<AuthStore>()(
             throw error;
           }
         },
-        
+
+        loginWithOAuth: async (provider) => {
+          set((state) => {
+            state.loginLoading = true;
+            state.loginError = null;
+            state.error = null;
+          }, false, 'loginWithOAuth/loading');
+
+          try {
+            console.log(`[Auth] Starting OAuth flow for provider: ${provider}`);
+
+            const callbackURL = `${window.location.origin}/dashboard`;
+            console.log(`[Auth] OAuth callback URL: ${callbackURL}`);
+
+            // Initiate OAuth flow - this will redirect to provider
+            const result = await oauth2.signIn({
+              provider,
+              callbackURL,
+            });
+
+            console.log(`[Auth] OAuth response:`, result);
+
+            // Note: If we reach here, the provider returned us to the app
+            // or oauth2.signIn returned successfully
+            // getSession() will be called on the next app initialization
+
+            // If we have a user, update the store
+            if (result?.user) {
+              set((state) => {
+                state.user = result.user as any;
+                state.isAuthenticated = true;
+                state.loginLoading = false;
+                state.lastActivity = new Date();
+              }, false, 'loginWithOAuth/success');
+
+              // Start auto-logout timer
+              get().updateLastLoginDate();
+              get().startAutoLogoutTimer();
+            } else {
+              console.log('[Auth] OAuth sign in completed, waiting for session initialization');
+            }
+          } catch (error) {
+            console.error(`[Auth] OAuth error for provider ${provider}:`, error);
+
+            // Use centralized error handler
+            const appError = errorHandler.handleError(error, `auth-oauth-${provider}`, {
+              showToast: false,
+              logError: true,
+              throwError: false,
+            });
+
+            const errorMessage = appError.userMessage;
+            set((state) => {
+              state.loginError = errorMessage;
+              state.error = errorMessage;
+              state.loginLoading = false;
+            }, false, 'loginWithOAuth/error');
+
+            console.error(`[Auth] OAuth login failed: ${errorMessage}`);
+            throw error;
+          }
+        },
+
         logout: async () => {
           set((state) => {
             state.logoutLoading = true;
@@ -500,13 +569,33 @@ export const useAuthStore = create<AuthStore>()(
         
         // Session management
         updateLastActivity: () => {
+          const now = new Date();
+          const lastActivity = get().lastActivity;
+
+          // Only update if at least 1 minute has passed (debounce)
+          if (lastActivity && (now.getTime() - lastActivity.getTime()) < 60000) {
+            return;
+          }
+
           set((state) => {
-            state.lastActivity = new Date();
+            state.lastActivity = now;
           }, false, 'updateLastActivity');
 
           // Restart the auto-logout timer
           if (get().isAuthenticated) {
             get().startAutoLogoutTimer();
+          }
+
+          // Check if session is expiring soon (within 1 hour)
+          const session = get().session;
+          if (session && !get().isSessionExpired()) {
+            const timeUntilExpiry = new Date(session.expiresAt).getTime() - now.getTime();
+            const oneHourMs = 60 * 60 * 1000;
+
+            // If session expires within 1 hour, refresh it in the background
+            if (timeUntilExpiry < oneHourMs && timeUntilExpiry > 0) {
+              get().refreshSession();
+            }
           }
         },
 

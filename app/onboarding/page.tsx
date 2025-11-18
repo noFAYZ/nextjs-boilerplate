@@ -46,7 +46,9 @@ import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
 import { LogoMappr } from '@/components/icons';
-import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
+import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone, PhPiggyBankDuotone, CircumBank, DuoIconsBank, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface OnboardingStep {
   id: string;
@@ -259,9 +261,29 @@ export default function OnboardingPage() {
         return (
           <div className="w-full max-w-2xl space-y-6 sm:space-y-8">
             <div className="space-y-4 text-center lg:text-left">
-              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto lg:mx-0">
-                <LogoMappr className="h-10 w-10" />
-              </div>
+            <Link
+                href="/"
+                className="flex items-center gap-2 -ml-1 group"
+             
+              >
+              <Image
+                  src="/logo/mappr.svg"
+                  alt="MoneyMappr logo"
+                  width={56}
+                  height={56}
+                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
+                  priority
+                /> 
+                 {/*  <LogoMappr className='w-10 h-10' />*/}
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-lg font-bold tracking-tight">
+                    MoneyMappr
+                  </span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block -mt-0.5">
+                    Financial Intelligence
+                  </span>
+                </div>
+              </Link>
               <div>
                 <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">
                   Welcome to MoneyMappr
@@ -273,24 +295,59 @@ export default function OnboardingPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-4">
-              <div className="space-y-2 text-center lg:text-left">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
-                  <GuidanceBank className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
-                </div>
+              <div className="space-y-1 text-center lg:text-left">
+              
+                <div
+          className={cn(
+            "flex items-center justify-center h-10 w-10 rounded-xl",
+            "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+          )}
+        >
+
+          <DuoIconsBank
+            className={cn(
+              "h-6 w-6",
+             "text-muted-foreground"
+            )}
+          />
+        </div>
                 <p className="text-xs sm:text-sm font-medium">Banking</p>
                 <p className="text-xs text-muted-foreground hidden sm:block">Connect bank accounts</p>
               </div>
-              <div className="space-y-2 text-center lg:text-left">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
-                  <SolarWalletBoldDuotone className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
-                </div>
+              <div className=" space-y-1 text-center lg:text-left">
+              
+                <div
+                className={cn(
+                  "flex items-center justify-center h-10 w-10 rounded-xl",
+                  "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                )}
+              >
+
+                <SolarWalletBoldDuotone
+                  className={cn(
+                    "h-6 w-6",
+                  "text-muted-foreground"
+                  )}
+                />
+              </div>
                 <p className="text-xs sm:text-sm font-medium">Crypto</p>
                 <p className="text-xs text-muted-foreground hidden sm:block">Track wallets & DeFi</p>
               </div>
               <div className="space-y-2 text-center lg:text-left">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-xl flex items-center justify-center mx-auto lg:mx-0">
-                  <PieChart className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
-                </div>
+              <div
+          className={cn(
+            "flex items-center justify-center h-10 w-10 rounded-xl",
+            "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+          )}
+        >
+
+          <SolarPieChart2BoldDuotone
+            className={cn(
+              "h-6 w-6",
+             "text-muted-foreground"
+            )}
+          />
+        </div>
                 <p className="text-xs sm:text-sm font-medium">Analytics</p>
                 <p className="text-xs text-muted-foreground hidden sm:block">Smart insights</p>
               </div>
@@ -400,19 +457,29 @@ export default function OnboardingPage() {
                   <Card
                     key={level.id}
                     className={cn(
-                      "cursor-pointer transition-all border-border shadow-none dark:bg-muted/40",
+                      "cursor-pointer transition-all border-border/80 rounded-2xl px-4 shadow-none dark:bg-muted/40",
                       isSelected ? "  shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
                     onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as any }))}
                   >
-                    <CardContent className="px-4 sm:px-4">
+                   
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className={cn(
-                          "w-12 h-12 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
-                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                        )}>
-                          <Icon className="h-6 w-6 sm:h-5 sm:w-5" />
-                        </div>
+                     
+                        <div  className={cn(
+                          "flex items-center justify-center h-10 w-10 rounded-xl",
+                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                        )}
+                      >
+
+                        <Icon
+                          className={cn(
+                            "h-6 w-6",
+                          "text-muted-foreground"
+                          )}
+                        />
+                      </div>
+
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-medium text-base sm:text-sm">{level.title}</h3>
@@ -437,7 +504,7 @@ export default function OnboardingPage() {
                       </div>
                       
                       
-                    </CardContent>
+                
                     
                   </Card>
                 );
@@ -462,22 +529,33 @@ export default function OnboardingPage() {
                   <Card
                     key={goal.id}
                     className={cn(
-                      "cursor-pointer transition-all border-border relative",
+                      "cursor-pointer transition-all border-border/80 rounded-2xl p-6 text-center items-center relative",
                       isSelected ? " shadow-sm" : "hover:border-border active:scale-98"
                     )}
                     onClick={() => toggleGoal(goal.id)}
                   >
-                    <CardContent className="px-4 sm:px-3 text-center">
-                      <div className={cn(
-                        "w-12 h-12 sm:w-10 sm:h-10 mx-auto mb-3 sm:mb-2 rounded-lg flex items-center justify-center transition-colors",
-                        isSelected ? "bg-primary/10" : "bg-muted"
-                      )}>
-                        <Icon className={cn("h-6 w-6 sm:h-5 sm:w-5", isSelected ? "text-primary" : "text-muted-foreground")} />
+                  
+                  
+
+                      <div  className={cn(
+                          "flex items-center justify-center h-10 w-10 mb-3 sm:mb-2 rounded-xl",
+                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                        )}
+                      >
+
+                        <Icon
+                          className={cn(
+                            "h-6 w-6",
+                          "text-muted-foreground"
+                          )}
+                        />
                       </div>
+
+
                       <p className="text-sm font-medium leading-tight">{goal.label}</p>
                 
                         {isSelected && <SolarCheckCircleBoldDuotone className="h-6 w-6  text-primary flex-shrink-0 absolute top-2 right-2" />}
-                    </CardContent>
+                    
                   </Card>
                 );
               })}
@@ -500,7 +578,7 @@ export default function OnboardingPage() {
               <p className="text-sm text-muted-foreground text-center lg:text-left">Select the account types you want to track</p>
             </div>
 
-            <div className="space-y-3">
+            <div className=" grid sm:grid-cols-2 gap-2 ">
               {ACCOUNT_TYPES.map((type) => {
                 const isSelected = preferences.investmentTypes.includes(type.id);
                 const Icon = type.icon;
@@ -509,19 +587,30 @@ export default function OnboardingPage() {
                   <Card
                     key={type.id}
                     className={cn(
-                      "cursor-pointer transition-all border-border shadow-none dark:bg-muted/40",
+                      "cursor-pointer transition-all border-border/80 px-2 shadow-sm dark:bg-muted/40",
                       isSelected ? " shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
                     onClick={() => toggleInvestmentType(type.id)}
                   >
-                    <CardContent className="px-4">
+                
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className={cn(
-                          "w-14 h-14 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
-                          isSelected ? "bg-primary/10" : "bg-muted"
-                        )}>
-                          <Icon className={cn("h-7 w-7 sm:h-6 sm:w-6", isSelected ? "text-primary" : "text-muted-foreground")} />
-                        </div>
+                      
+
+                        <div  className={cn(
+                          "flex items-center justify-center h-10 w-10 rounded-xl",
+                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                        )}
+                      >
+
+                        <Icon
+                          className={cn(
+                            "h-6 w-6",
+                          "text-muted-foreground"
+                          )}
+                        />
+                      </div>
+
+
                         <div className="flex-1 min-w-0">
                           <h3 className="text-base sm:text-sm font-medium mb-1 sm:mb-0.5">{type.label}</h3>
                           <p className="text-sm sm:text-xs text-muted-foreground">{type.description}</p>
@@ -536,7 +625,7 @@ export default function OnboardingPage() {
 
 
                       </div>
-                    </CardContent>
+                 
                   </Card>
                 );
               })}

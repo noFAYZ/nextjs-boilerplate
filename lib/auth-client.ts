@@ -18,6 +18,7 @@ const {
   verifyEmail,
   getSession: originalGetSession,
   useSession,
+  oauth2,
 } = authClient;
 
 // Request deduplication for getSession
@@ -66,4 +67,5 @@ export {
   forgetPassword,
   verifyEmail,
   useSession,
+  oauth2,
 };

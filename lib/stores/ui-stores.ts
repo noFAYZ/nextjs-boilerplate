@@ -16,6 +16,8 @@ export { useCryptoUIStore, cryptoUISelectors } from './crypto-ui-store';
 export { useBankingUIStore, bankingUISelectors } from './banking-ui-store';
 export { useSubscriptionUIStore, subscriptionUISelectors } from './subscription-ui-store';
 export { useBudgetUIStore } from './budget-ui-store';
+export { useDashboardLayoutStore, dashboardLayoutSelectors } from './dashboard-layout-ui-store';
+export { useOrganizationUIStore, organizationUISelectors } from './organization-ui-store';
 
 // Re-export auth store (unchanged - it manages session, not UI)
 export { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from './auth-store';

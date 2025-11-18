@@ -20,6 +20,8 @@ import { useBruteForceProtection, formatTimeRemaining } from '@/lib/security/bru
 import { logger } from '@/lib/utils/logger';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useLoading } from '@/lib/contexts/loading-context';
 
 // Validation schemas
 export const signInSchema = z.object({
@@ -108,7 +110,10 @@ export default function AuthForm({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
+  const [oauthLoading, setOAuthLoading] = useState<string | null>(null);
   const router = useRouter();
+  const loginWithOAuth = useAuthStore((state) => state.loginWithOAuth);
+  const { showLoading, showError } = useLoading();
 
   const {
     checkAttempt,
@@ -146,7 +151,7 @@ export default function AuthForm({
       const result = await checkAttempt();
       setIsBlocked(!result.allowed);
       setBlockTimeRemaining(result.nextAttemptIn);
-      
+
       if (!result.allowed) {
         logger.warn('Authentication blocked due to brute force protection', {
           reason: result.reason,
@@ -156,6 +161,36 @@ export default function AuthForm({
       }
     } catch (error) {
       logger.error('Error checking brute force protection', error);
+    }
+  };
+
+  const handleOAuthLogin = async (provider: 'google' | 'apple' | 'github') => {
+    try {
+      setOAuthLoading(provider);
+      const providerName = provider === 'github' ? 'GitHub' : provider === 'google' ? 'Google' : 'Apple';
+      showLoading(`Redirecting to ${providerName}...`);
+
+      // Call OAuth method - should redirect if successful
+      await loginWithOAuth(provider);
+
+      // Note: If we reach here, something went wrong (no redirect happened)
+      // This is uncommon, but we should inform the user
+      console.warn(`OAuth redirect to ${provider} did not occur`);
+
+      // User will be redirected to provider in most cases
+      // If not, this will execute after 3 seconds
+      setTimeout(() => {
+        if (document.hidden === false) {
+          // Still on same page after 3 seconds = OAuth failed silently
+          showError(`Failed to initiate ${providerName} login. Check console for details.`);
+          setOAuthLoading(null);
+        }
+      }, 3000);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : `Failed to sign in with ${provider}`;
+      logger.error(`OAuth login failed for ${provider}`, error);
+      showError(errorMessage);
+      setOAuthLoading(null);
     }
   };
 
@@ -351,17 +386,33 @@ export default function AuthForm({
                     variant="outline"
                     className="w-full sm:w-1/2 items-center gap-2"
                     size="lg"
+                    disabled={oauthLoading !== null}
+                    onClick={() => handleOAuthLogin('github')}
                   >
-                    <Fa7BrandsGithub className="w-5 h-5" />
-                    <span className="hidden sm:inline">Github</span>
+                    {oauthLoading === 'github' ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <Fa7BrandsGithub className="w-5 h-5" />
+                        <span className="hidden sm:inline">Github</span>
+                      </>
+                    )}
                   </Button>
                   <Button
                     variant="outline"
                     className="w-full sm:w-1/2 items-center gap-2"
                     size="lg"
+                    disabled={oauthLoading !== null}
+                    onClick={() => handleOAuthLogin('google')}
                   >
-                    <LogosGoogleIcon className="w-5 h-5" />
-                    <span className="hidden sm:inline">Google</span>
+                    {oauthLoading === 'google' ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <LogosGoogleIcon className="w-5 h-5" />
+                        <span className="hidden sm:inline">Google</span>
+                      </>
+                    )}
                   </Button>
                 </div>
                 <div className="after:border-border relative text-center text-xs sm:text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t mb-4">

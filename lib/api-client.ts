@@ -29,39 +29,14 @@ class ApiClient {
     return this.token;
   }
 
-  private async getAuthToken(): Promise<string | null> {
-    // In a browser environment, get token from better-auth session
-    if (typeof window !== 'undefined') {
-      try {
-        const { getSession } = await import('@/lib/auth-client');
-        const result = await getSession();
-        
-        // Handle different response structures
-        if (result && typeof result === 'object') {
-          if ('data' in result && result.data?.session?.token) {
-            return result.data.session.token;
-          }
-          if ('session' in result && (result as BetterAuthResponse).session?.token) {
-            return (result as BetterAuthResponse).session!.token;
-          }
-        }
-        
-        return null;
-      } catch {
-        return this.token;
-      }
-    }
-    return this.token;
-  }
-
-  private async getHeaders(): Promise<Record<string, string>> {
+  private async getHeaders(organizationId?: string): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
-    const token = await this.getAuthToken();
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
+    // Add organization context if provided
+    if (organizationId) {
+      headers['X-Organization-ID'] = organizationId;
     }
 
     return headers;
@@ -102,11 +77,12 @@ class ApiClient {
 
   async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    organizationId?: string
   ): Promise<ApiResponse<T>> {
     try {
       const url = `${this.baseURL}${endpoint}`;
-      const headers = await this.getHeaders();
+      const headers = await this.getHeaders(organizationId);
 
       const response = await fetch(url, {
         headers,
@@ -191,33 +167,33 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  async get<T>(endpoint: string, organizationId?: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET' }, organizationId);
   }
 
-  async post<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, data?: unknown, organizationId?: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }, organizationId);
   }
 
-  async put<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, data?: unknown, organizationId?: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }, organizationId);
   }
 
-  async patch<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+  async patch<T>(endpoint: string, data?: unknown, organizationId?: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }, organizationId);
   }
 
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async delete<T>(endpoint: string, organizationId?: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE' }, organizationId);
   }
 
   // Authentication specific methods

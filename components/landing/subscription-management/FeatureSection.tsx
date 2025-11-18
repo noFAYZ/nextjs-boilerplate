@@ -224,24 +224,24 @@ function FeatureButton({
       onClick={onClick}
       onMouseEnter={onClick}
       className={cn(
-        "w-full text-left p-6 rounded-xl transition-all duration-75 cursor-pointer",
+        "w-full text-left p-6 rounded-3xl transition-all duration-0  border ",
         isActive
-          ? "bg-accent/40 shadow-xs "
-          : "bg-none  hover:bg-card "
+          ? "bg-accent/40  border-border/50"
+          : "bg-none  border-transparent hover:bg-card "
       )}
     >
       <div className="flex items-start gap-3">
 
         <div
           className={cn(
-            "flex items-center justify-center h-8 w-8 rounded-lg",
+            "flex items-center justify-center h-9 w-9 rounded-xl",
             "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
           )}
         >
 
           <Icon
             className={cn(
-              "h-5 w-5",
+              "h-6 w-6",
              "text-muted-foreground"
             )}
           />
@@ -250,7 +250,7 @@ function FeatureButton({
         <div className="flex-1">
           <div
             className={cn(
-              "text-xs font-bold uppercase tracking-wider mb-1",
+              "text-sm font-bold uppercase tracking-wider mb-1",
               isActive ? "text-primary" : "text-muted-foreground"
             )}
           >

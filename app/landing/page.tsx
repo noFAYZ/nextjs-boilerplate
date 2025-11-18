@@ -39,11 +39,11 @@ export default function LandingPage() {
      {/*  <SocialProof /> */}
    <MoneyMapprFeatureSection />
         {/* <FeatureGrid />
-      <PortfolioShowcase />
-       <CryptoShowcase />
-      
+  
+       <SubscriptionsShowcase />
      <RealtimeTracking /> */}
-     <SubscriptionsShowcase />
+        <PortfolioShowcase />
+       <CryptoShowcase />
       <HowItWorks />
      {/* <AutomationShowcase />   */}
      

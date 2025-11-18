@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
 import { DuoIconsAlertOctagon, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
 import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
 // Compact Subscription List Item
 function SubscriptionItem({ subscription }: { subscription: UserSubscription }) {
@@ -265,7 +266,7 @@ export function SubscriptionsOverviewWidget() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none lg:col-span-2 h-fit">
+    <Card className=" " variant='outlined' >
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
@@ -409,6 +410,6 @@ export function SubscriptionsOverviewWidget() {
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

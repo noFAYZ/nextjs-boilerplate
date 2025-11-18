@@ -21,6 +21,7 @@ import { ProductPopover } from './ProductPopover';
 import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
+import { OrganizationSwitcher } from '@/components/organization';
 
 interface HeaderProps {
   className?: string;
@@ -110,13 +111,13 @@ export function Header({
       >
         {/* Simplified Header */}
         <div className="flex items-center justify-between h-16 px-4 lg:px-6">
-          {/* Left Section - Logo & Search */}
-            <div className='flex items-center gap-6'>
+          {/* Left Section - Logo, Organization Switcher, & Search */}
+            <div className='flex items-center gap-4'>
           <div className="flex items-center">
           <Link
                 href="/"
                 className="flex items-center gap-2 group relative   "
-               
+
               >
                   <Image
                   src="/logo/mappr.svg"
@@ -125,7 +126,7 @@ export function Header({
                   height={52}
                   className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
                   priority
-                /> 
+                />
              {/*  <LogoMappr className='w-10 h-10 antialiased'/> */}
                 <div className="flex flex-col">
                   <span className="text-base sm:text-base font-bold tracking-tight">
@@ -138,8 +139,12 @@ export function Header({
               </Link>
           </div>
 
+          {/* Organization Switcher */}
+          <div className="hidden md:block w-56">
+            <OrganizationSwitcher />
+          </div>
 
-        
+
 {/* Product Popover (hover to open) */}
 <ProductPopover />
 
