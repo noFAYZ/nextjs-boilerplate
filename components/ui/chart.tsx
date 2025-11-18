@@ -347,6 +347,151 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+// Simple Chart Components for quick usage without ChartContainer setup
+
+interface SimpleChartDataPoint {
+  label: string
+  value: number
+}
+
+interface TrendChartProps {
+  data: SimpleChartDataPoint[]
+  color?: string
+  animated?: boolean
+  showDots?: boolean
+  height?: number
+}
+
+function TrendChart({
+  data,
+  color = "hsl(var(--primary))",
+  animated = true,
+  showDots = true,
+  height = 200,
+}: TrendChartProps) {
+  if (!data?.length) return null
+
+  return (
+    <ChartContainer
+      config={{
+        value: {
+          label: "Value",
+          color: color,
+        },
+      }}
+      className={cn("h-[200px] w-full", animated && "animate-in fade-in-0 duration-500")}
+    >
+      <RechartsPrimitive.LineChart
+        data={data}
+        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+      >
+        <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <RechartsPrimitive.XAxis
+          dataKey="label"
+          tick={{ fill: "currentColor", fontSize: 12 }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <RechartsPrimitive.YAxis hide={true} />
+        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+        <RechartsPrimitive.Line
+          type="monotone"
+          dataKey="value"
+          stroke={color}
+          strokeWidth={2}
+          dot={showDots ? { fill: color, r: 3 } : false}
+          isAnimationActive={animated}
+        />
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>
+  )
+}
+
+interface SimpleBarChartProps {
+  data: SimpleChartDataPoint[]
+  showValues?: boolean
+  animated?: boolean
+  height?: number
+}
+
+function SimpleBarChart({
+  data,
+  showValues = true,
+  animated = true,
+  height = 200,
+}: SimpleBarChartProps) {
+  if (!data?.length) return null
+
+  return (
+    <ChartContainer
+      config={{
+        value: {
+          label: "Value",
+          color: "hsl(var(--primary))",
+        },
+      }}
+      className={cn("h-[200px] w-full", animated && "animate-in fade-in-0 duration-500")}
+    >
+      <RechartsPrimitive.BarChart
+        data={data}
+        margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
+      >
+        <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <RechartsPrimitive.XAxis
+          dataKey="label"
+          tick={{ fill: "currentColor", fontSize: 12 }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <RechartsPrimitive.YAxis hide={true} />
+        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+        <RechartsPrimitive.Bar
+          dataKey="value"
+          fill="hsl(var(--primary))"
+          isAnimationActive={animated}
+          label={showValues ? { position: "top", fill: "currentColor", fontSize: 12 } : false}
+        />
+      </RechartsPrimitive.BarChart>
+    </ChartContainer>
+  )
+}
+
+interface SimplePieChartProps {
+  data: SimpleChartDataPoint[]
+  animated?: boolean
+}
+
+function SimplePieChart({
+  data,
+  animated = true,
+}: SimplePieChartProps) {
+  if (!data?.length) return null
+
+  return (
+    <ChartContainer
+      config={{
+        value: {
+          label: "Value",
+        },
+      }}
+      className={cn("h-[200px] w-full", animated && "animate-in fade-in-0 duration-500")}
+    >
+      <RechartsPrimitive.PieChart>
+        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+        <RechartsPrimitive.Pie
+          data={data}
+          dataKey="value"
+          nameKey="label"
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          isAnimationActive={animated}
+        />
+      </RechartsPrimitive.PieChart>
+    </ChartContainer>
+  )
+}
+
 export {
   ChartContainer,
   ChartTooltip,
@@ -354,4 +499,7 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  TrendChart,
+  SimpleBarChart,
+  SimplePieChart,
 }
