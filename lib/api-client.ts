@@ -52,6 +52,9 @@ class ApiClient {
     // Add organization context if available (via header and query param for maximum compatibility)
     if (orgId) {
       headers['X-Organization-Id'] = orgId;
+      console.log('[ApiClient] Adding organization header:', { orgId, header: 'X-Organization-Id' });
+    } else {
+      console.log('[ApiClient] No organization ID, sending request without org header');
     }
 
     return headers;
