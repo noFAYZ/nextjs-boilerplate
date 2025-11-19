@@ -99,7 +99,33 @@ class ApiClient {
     organizationId?: string
   ): Promise<ApiResponse<T>> {
     try {
-      const url = `${this.baseURL}${endpoint}`;
+      // Build URL with organizationId as query parameter
+      let url = `${this.baseURL}${endpoint}`;
+
+      // Get organization from context store if not explicitly provided
+      let orgId = organizationId;
+      if (!orgId && typeof window !== 'undefined') {
+        try {
+          const { useOrganizationStore } = require('@/lib/stores/organization-store');
+          const selectedOrgId = useOrganizationStore.getState().selectedOrganizationId;
+          if (selectedOrgId) {
+            orgId = selectedOrgId;
+          }
+        } catch (error) {
+          // Organization store not available, skip
+        }
+      }
+
+      // Add organizationId to query string
+      if (orgId) {
+        const separator = url.includes('?') ? '&' : '?';
+        url = `${url}${separator}organizationId=${orgId}`;
+        console.log('[ApiClient] Adding organizationId to query string:', {
+          orgId,
+          finalUrl: url,
+        });
+      }
+
       const headers = await this.getHeaders(organizationId);
 
       const response = await fetch(url, {
