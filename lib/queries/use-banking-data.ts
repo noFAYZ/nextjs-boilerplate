@@ -28,6 +28,7 @@ import {
   useBankingDashboard as useBaseBankingDashboard,
 } from './banking-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { useBankingUIStore } from '@/lib/stores/banking-ui-store';
 import type {
   BankAccount,
@@ -42,6 +43,14 @@ function useAuthReady() {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   return { isAuthReady: !!user && isInitialized };
+}
+
+/**
+ * Helper to get organization ID from context store or explicit parameter
+ */
+function useContextOrganizationId(organizationId?: string) {
+  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  return organizationId || contextOrgId;
 }
 
 // ============================================================================

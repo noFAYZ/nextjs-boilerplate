@@ -21,6 +21,7 @@ import {
 } from '@tanstack/react-query';
 import { cryptoKeys, cryptoQueries, cryptoMutations } from './crypto-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { useCryptoUIStore } from '@/lib/stores/crypto-ui-store';
 import type {
   CryptoWallet,
@@ -42,20 +43,29 @@ function useAuthReady() {
   return { isAuthReady: !!user && isInitialized };
 }
 
+/**
+ * Helper to get organization ID from context store or explicit parameter
+ */
+function useContextOrganizationId(organizationId?: string) {
+  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  return organizationId || contextOrgId;
+}
+
 // ============================================================================
 // WALLET QUERIES
 // ============================================================================
 
 /**
  * Get all crypto wallets for the authenticated user
- * @param organizationId - Optional organization ID to scope data
+ * @param organizationId - Optional organization ID to scope data (uses context store if not provided)
  * @returns All wallets with loading/error states
  */
 export function useCryptoWallets(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.wallets(organizationId),
+    ...cryptoQueries.wallets(orgId),
     enabled: isAuthReady,
   });
 }
