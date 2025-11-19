@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useSyncCryptoWallet, useCryptoWallets } from '@/lib/queries';
+import { useOrganizationSyncCryptoWallet, useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import { Wallet2, Plus, Copy, ExternalLink, RefreshCw, Activity, AlertCircle, Loader2, ChevronRight, RefreshCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,9 @@ interface SidebarWalletsListProps {
 
 export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   const router = useRouter();
-  const { data: wallets = [], isLoading: walletsLoading } = useCryptoWallets();
+  const { data: wallets = [], isLoading: walletsLoading } = useOrganizationCryptoWallets();
   const { realtimeSyncStates } = useCryptoStore();
-  const { mutate: syncWallet } = useSyncCryptoWallet();
+  const { mutate: syncWallet } = useOrganizationSyncCryptoWallet();
 
   const handleWalletClick = (walletId: string) => {
     router.push(`/accounts/wallet/${walletId}`);

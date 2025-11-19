@@ -48,7 +48,13 @@ function useAuthReady() {
  */
 function useContextOrganizationId(organizationId?: string) {
   const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  return organizationId || contextOrgId;
+  const resolvedOrgId = organizationId || contextOrgId;
+  console.log('[useContextOrganizationId] Resolved org ID:', {
+    explicit: organizationId,
+    context: contextOrgId,
+    resolved: resolvedOrgId,
+  });
+  return resolvedOrgId;
 }
 
 // ============================================================================
@@ -64,8 +70,11 @@ export function useCryptoWallets(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const orgId = useContextOrganizationId(organizationId);
 
+  const queryOptions = cryptoQueries.wallets(orgId);
+  console.log('[useCryptoWallets] Query options:', { orgId, queryKey: queryOptions.queryKey });
+
   return useQuery({
-    ...cryptoQueries.wallets(orgId),
+    ...queryOptions,
     enabled: isAuthReady,
   });
 }

@@ -34,11 +34,11 @@ import { botttsNeutral } from '@dicebear/collection';
 
 // Import TanStack Query hooks and UI store
 import {
-  useCryptoWallets,
-  useDeleteCryptoWallet,
-  useSyncCryptoWallet,
-  useSyncAllCryptoWallets
-} from '@/lib/queries';
+  useOrganizationCryptoWallets,
+  useOrganizationDeleteCryptoWallet,
+  useOrganizationSyncCryptoWallet,
+} from '@/lib/queries/use-organization-data-context';
+import { useSyncAllCryptoWallets } from '@/lib/queries';
 import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -255,10 +255,10 @@ export default function WalletsPage() {
     enableBanking: false,
   });
 
-  // ✅ NEW: Data from TanStack Query
-  const { data: wallets = [], isLoading, error } = useCryptoWallets();
-  const { mutate: deleteWallet, isPending: isDeleting } = useDeleteCryptoWallet();
-  const { mutate: syncWallet } = useSyncCryptoWallet();
+  // ✅ NEW: Data from TanStack Query (organization-aware)
+  const { data: wallets = [], isLoading, error } = useOrganizationCryptoWallets();
+  const { mutate: deleteWallet, isPending: isDeleting } = useOrganizationDeleteCryptoWallet();
+  const { mutate: syncWallet } = useOrganizationSyncCryptoWallet();
   const { mutate: syncAllWallets, isPending: isSyncingAll } = useSyncAllCryptoWallets();
 
   // ✅ NEW: UI state from UI store

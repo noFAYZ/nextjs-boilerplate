@@ -9,14 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Plus, RefreshCw, TrendingUp, Wallet } from 'lucide-react';
 
-// Import TanStack Query hooks
+// Import TanStack Query hooks (organization-aware)
 import {
-  useCryptoWallets,
-  useCryptoPortfolio,
-  useCryptoTransactions,
-  useCreateCryptoWallet,
+  useOrganizationCryptoWallets,
+  useOrganizationCryptoPortfolio,
+  useOrganizationCryptoTransactions,
+  useOrganizationCreateCryptoWallet,
   useSyncAllCryptoWallets,
-} from '@/lib/queries';
+} from '@/lib/queries/use-organization-data-context';
 import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 
 // Import types
@@ -30,10 +30,10 @@ export function CryptoDashboardDemo() {
     type: 'HOT_WALLET' as WalletType,
   });
 
-  // Server data from TanStack Query
-  const { data: wallets = [], isLoading: walletsLoading, error: walletsError } = useCryptoWallets();
-  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
-  const { data: transactionsData } = useCryptoTransactions({ limit: 10 });
+  // Server data from TanStack Query (organization-aware)
+  const { data: wallets = [], isLoading: walletsLoading, error: walletsError } = useOrganizationCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
+  const { data: transactionsData } = useOrganizationCryptoTransactions({ limit: 10 });
   const transactions = transactionsData?.items ?? [];
   const pagination = transactionsData?.pagination;
 
@@ -45,8 +45,8 @@ export function CryptoDashboardDemo() {
     setPortfolioTimeRange
   } = useCryptoUIStore();
 
-  // Mutations
-  const { mutate: createWallet, isPending: isCreating } = useCreateCryptoWallet();
+  // Mutations (organization-aware)
+  const { mutate: createWallet, isPending: isCreating } = useOrganizationCreateCryptoWallet();
   const { mutate: syncAllWallets, isPending: isSyncing } = useSyncAllCryptoWallets();
 
   // Derived state

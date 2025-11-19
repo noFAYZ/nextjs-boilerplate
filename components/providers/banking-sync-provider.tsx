@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useBankingTransactions, useTopSpendingCategories } from '@/lib/queries/banking-queries';
+import { useOrganizationBankingTransactions, useOrganizationTopSpendingCategories } from '@/lib/queries/use-organization-data-context';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
@@ -16,12 +16,12 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 export function BankingSyncProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuthStore();
 
-  // Fetch transactions
-  const { data: transactions, isLoading: transactionsLoading, error: transactionsError } = useBankingTransactions();
+  // Fetch transactions (organization-aware)
+  const { data: transactions, isLoading: transactionsLoading, error: transactionsError } = useOrganizationBankingTransactions();
   const { setTransactions, setTransactionsLoading, setTransactionsError } = useBankingStore();
 
-  // Fetch spending categories (top 6)
-  const { data: spendingCategories, isLoading: categoriesLoading, error: categoriesError } = useTopSpendingCategories({ limit: 5 });
+  // Fetch spending categories (organization-aware, top 5)
+  const { data: spendingCategories, isLoading: categoriesLoading, error: categoriesError } = useOrganizationTopSpendingCategories({ limit: 5 });
   const { setSpendingCategories, setSpendingCategoriesLoading, setSpendingCategoriesError } = useBankingStore();
 
   // Sync transactions data to store

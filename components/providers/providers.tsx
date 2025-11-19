@@ -12,6 +12,9 @@ import { LoadingProvider } from "@/lib/contexts/loading-context";
 import { SessionTimeoutModal } from "@/components/auth/session-timeout-modal";
 import { CurrencyProvider } from "@/lib/contexts/currency-context";
 import { GlobalErrorHandler } from "./global-error-handler";
+import { OrganizationModalsProvider } from "./organization-modals-provider";
+import { OrganizationDataSyncProvider } from "./organization-data-sync-provider";
+import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
 
 /**
  * Global Providers
@@ -42,12 +45,15 @@ export default function Providers({ children }: { children: ReactNode }) {
             >
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
+                  <OrganizationURLSyncProvider />
+                  <OrganizationDataSyncProvider />
                   <ViewModeProvider>
                     <AccountProvider>
                       <DockProvider>
                         <OnboardingGuard>
                           {children}
                           <SessionTimeoutModal />
+                          <OrganizationModalsProvider />
                         </OnboardingGuard>
                       </DockProvider>
                     </AccountProvider>

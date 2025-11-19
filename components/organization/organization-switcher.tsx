@@ -77,11 +77,14 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
   }
 
   const handleOrgSelect = (org: Organization) => {
+    console.log('[OrganizationSwitcher] User selected organization:', org.id);
     // Update BOTH stores:
     // 1. UI store for selection state/visual feedback
     selectOrganization(org.id);
+    console.log('[OrganizationSwitcher] Updated UI store');
     // 2. Context store for data scoping (this triggers OrganizationDataSyncProvider to invalidate queries)
     setSelectedOrganization(org.id);
+    console.log('[OrganizationSwitcher] Updated context store - should trigger data sync');
     onOrgSelect?.(org);
     router.push(`/dashboard?org=${org.id}`);
   };

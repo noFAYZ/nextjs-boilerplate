@@ -18,7 +18,7 @@ import { AddOptionsModal } from "./AddOptionsModal"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
 import { SyncIndicator } from "./sync-indicator"
-import { useCryptoWallets } from "@/lib/queries"
+import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { LetsIconsSettingLineDuotone } from "../icons"
 
@@ -64,7 +64,7 @@ function formatTimeAgo(date: Date): string {
 // Wallets Dock Component
 export function WalletsDock() {
   const { wallets: dockWallets } = useDockContext()
-  const { data: wallets = [], isLoading, error } = useCryptoWallets()
+  const { data: wallets = [], isLoading, error } = useOrganizationCryptoWallets()
   const { realtimeSyncStates } = useCryptoStore()
   const router = useRouter()
   const pathname = usePathname()

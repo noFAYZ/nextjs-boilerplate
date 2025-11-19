@@ -31,8 +31,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-// ✅ Import TanStack Query hook for aggregated wallet
-import { useAggregatedCryptoWallet, useCryptoPortfolio, useSyncAllCryptoWallets } from "@/lib/queries";
+// ✅ Import TanStack Query hook for aggregated wallet (organization-aware)
+import { useAggregatedCryptoWallet } from "@/lib/queries";
+import { useOrganizationCryptoPortfolio } from "@/lib/queries/use-organization-data-context";
+import { useSyncAllCryptoWallets } from "@/lib/queries";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 
 // ✅ Use centralized utilities
@@ -111,7 +113,7 @@ export default function AggregatedWalletPage() {
   const { data: aggregatedData, isLoading, error, refetch } = useAggregatedCryptoWallet();
   const { mutate: syncAllWallets, isPending: isSyncing } = useSyncAllCryptoWallets();
 
-  const {data:portfolioData, isLoading:portfolioLoading,error:portfolioError} = useCryptoPortfolio({includeChart:true,chartTimeRange:'7d'})
+  const {data:portfolioData, isLoading:portfolioLoading,error:portfolioError} = useOrganizationCryptoPortfolio({includeChart:true,chartTimeRange:'7d'})
 
   // ✅ Memoize stats using centralized utilities
   const portfolioStats = useMemo(() => {

@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, ArrowRight } from 'lucide-react';
-import { useCryptoWallets, useCryptoPortfolio, useBankingOverview } from '@/lib/queries';
+import { useOrganizationCryptoWallets, useOrganizationCryptoPortfolio, useOrganizationBankingOverview } from '@/lib/queries/use-organization-data-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface SidebarPortfolioOverviewProps {
@@ -14,10 +14,10 @@ interface SidebarPortfolioOverviewProps {
 export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOverviewProps) {
 
   
-  // ✅ NEW: Data from TanStack Query
-  const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useCryptoWallets();
-  const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useCryptoPortfolio();
-  const { data: bankingOverview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
+  // ✅ NEW: Data from TanStack Query (organization-aware)
+  const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useOrganizationCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useOrganizationCryptoPortfolio();
+  const { data: bankingOverview, isLoading: overviewLoading, refetch: refetchOverview } = useOrganizationBankingOverview();
 
   const isLoading = walletsLoading || portfolioLoading || overviewLoading ;
 

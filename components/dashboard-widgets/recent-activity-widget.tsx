@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Activity, ArrowDownLeft, ArrowUpRight, Repeat, ShoppingBag, Utensils, Home, Zap } from 'lucide-react';
-import { useBankingTransactions, useCryptoTransactions } from '@/lib/queries';
+import { useOrganizationBankingTransactions, useOrganizationCryptoTransactions } from '@/lib/queries/use-organization-data-context';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';
@@ -32,13 +32,13 @@ interface ActivityItem {
 }
 
 export function RecentActivityWidget() {
-  const { data: bankTransactions, isLoading: bankLoading } = useBankingTransactions({
+  const { data: bankTransactions, isLoading: bankLoading } = useOrganizationBankingTransactions({
     limit: 10,
     sortBy: 'date',
     sortOrder: 'desc',
   });
 
-  const { data: cryptoTransactions, isLoading: cryptoLoading } = useCryptoTransactions({
+  const { data: cryptoTransactions, isLoading: cryptoLoading } = useOrganizationCryptoTransactions({
     limit: 10,
   });
 

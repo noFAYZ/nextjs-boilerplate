@@ -14,7 +14,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBankingAccounts } from '@/lib/queries/banking-queries';
+import { useOrganizationBankingAccounts } from '@/lib/queries/use-organization-data-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -50,7 +50,7 @@ export default function BankingPortfolioPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { pageClass } = useViewModeClasses();
 
-  const { data: bankAccounts, isLoading: bankLoading, refetch: refetchBanking } = useBankingAccounts();
+  const { data: bankAccounts, isLoading: bankLoading, refetch: refetchBanking } = useOrganizationBankingAccounts();
 
   const isLoading = bankLoading;
 

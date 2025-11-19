@@ -50,7 +50,8 @@
       "WebFetch(domain:www.monarch.com)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []

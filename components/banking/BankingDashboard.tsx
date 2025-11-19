@@ -45,14 +45,15 @@ import { BankAccountGrid } from './BankAccountCard';
 import { BankTransactionList } from './BankTransactionCard';
 import { BankingGlobalSyncStatus } from './BankAccountSyncProgress';
 import {
-  useBankingAccounts,
-  useBankingOverview,
-  useBankingTransactions,
-  useSpendingCategories,
-  useMonthlySpendingTrend,
-  bankingMutations,
-  useBankingGroupedAccounts,
-  useBankingGroupedAccountsRaw
+  useOrganizationBankingAccounts,
+  useOrganizationBankingOverview,
+  useOrganizationBankingTransactions,
+  useOrganizationTopSpendingCategories,
+  useOrganizationMonthlySpendingTrend,
+  useOrganizationBankingGroupedAccounts
+} from '@/lib/queries/use-organization-data-context';
+import {
+  bankingMutations
 } from '@/lib/queries/banking-queries';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import type { BankAccount, BankTransaction, TellerEnrollment } from '@/lib/types/banking';
@@ -94,10 +95,10 @@ export function BankingDashboard({
   const [selectedEnrollments, setSelectedEnrollments] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Queries
-  const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useBankingGroupedAccountsRaw();
-  const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
-  const { data: transactionsData = [], isLoading: transactionsLoading } = useBankingTransactions({
+  // Queries (organization-aware)
+  const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useOrganizationBankingGroupedAccounts();
+  const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useOrganizationBankingOverview();
+  const { data: transactionsData = [], isLoading: transactionsLoading } = useOrganizationBankingTransactions({
     limit: 10,
     startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd')
   });
@@ -113,8 +114,8 @@ export function BankingDashboard({
   const recentTransactions = Array.isArray(transactionsData)
     ? transactionsData
     : transactionsData?.data || [];
-  const { data: spendingCategories = [] } = useSpendingCategories(selectedTimeRange);
-  const { data: monthlyTrend = [] } = useMonthlySpendingTrend(6);
+  const { data: spendingCategories = [] } = useOrganizationTopSpendingCategories(selectedTimeRange);
+  const { data: monthlyTrend = [] } = useOrganizationMonthlySpendingTrend(selectedTimeRange);
 
   // Mutations
   const syncAccount = bankingMutations.useSyncAccount();

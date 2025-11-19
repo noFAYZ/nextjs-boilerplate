@@ -18,8 +18,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRightLeft } from 'lucide-react';
-import { useBankingTransactions, useBankingGroupedAccounts } from '@/lib/queries';
-import { useCryptoWallets } from '@/lib/queries/use-crypto-data';
+import { useOrganizationBankingTransactions, useOrganizationBankingGroupedAccounts } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import { useSubscriptions } from '@/lib/queries';
 
 /* ------------------------ Types ------------------------ */
@@ -215,10 +215,10 @@ export function layoutFlowNodes(basicNodes: Array<Omit<FlowNode, 'x' | 'y' | 'he
 
 /* ------------------------ React Component (UI) ------------------------ */
 export default function MoneyFlowWidget() {
-  // Data hooks (kept the original hooks so this file can slot into your app)
-  const { data: transactionsResponse, isLoading: transactionsLoading } = useBankingTransactions({ limit: 1000 });
-  const { data: accountsResponse, isLoading: accountsLoading } = useBankingGroupedAccounts();
-  const { data: cryptoWalletsResponse, isLoading: cryptoLoading } = useCryptoWallets();
+  // Data hooks (organization-aware)
+  const { data: transactionsResponse, isLoading: transactionsLoading } = useOrganizationBankingTransactions({ limit: 1000 });
+  const { data: accountsResponse, isLoading: accountsLoading } = useOrganizationBankingGroupedAccounts();
+  const { data: cryptoWalletsResponse, isLoading: cryptoLoading } = useOrganizationCryptoWallets();
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({ status: 'ACTIVE' });
 
   const [hoverInfo, setHoverInfo] = useState<null | { x: number; y: number; title: string; body?: string }>(null);

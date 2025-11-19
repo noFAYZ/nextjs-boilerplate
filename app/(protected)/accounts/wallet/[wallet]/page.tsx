@@ -23,14 +23,14 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-// ✅ Import TanStack Query hooks
+// ✅ Import TanStack Query hooks (organization-aware)
 import {
-  useCryptoWallet,
-  useWalletTransactions,
-  useWalletNFTs,
-  useWalletDeFi,
-  useSyncCryptoWallet
-} from '@/lib/queries';
+  useOrganizationCryptoWallet,
+  useOrganizationWalletTransactions,
+  useOrganizationWalletNFTs,
+  useOrganizationWalletDeFi,
+  useOrganizationSyncCryptoWallet
+} from '@/lib/queries/use-organization-data-context';
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 
 // Import new components
@@ -188,8 +188,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       radius: 20,
     }).toDataUri();
 
-  // ✅ NEW: Use TanStack Query hooks for parallel data fetching
-  const walletQuery = useCryptoWallet(walletIdentifier);
+  // ✅ NEW: Use TanStack Query hooks for parallel data fetching (organization-aware)
+  const walletQuery = useOrganizationCryptoWallet(walletIdentifier);
 
   // Combine data and states
   const wallet = walletQuery.data;
@@ -201,7 +201,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   };
 
-  const { mutate: syncWallet } = useSyncCryptoWallet();
+  const { mutate: syncWallet } = useOrganizationSyncCryptoWallet();
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 

@@ -32,8 +32,14 @@ export function OrganizationDataSyncProvider() {
   const previousOrgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    console.log('[OrganizationDataSyncProvider] selectedOrgId changed:', {
+      previous: previousOrgIdRef.current,
+      current: selectedOrgId,
+    });
+
     // Only process if organization has actually changed
     if (previousOrgIdRef.current === selectedOrgId) {
+      console.log('[OrganizationDataSyncProvider] No change detected, skipping');
       return;
     }
 
@@ -42,9 +48,14 @@ export function OrganizationDataSyncProvider() {
 
     // Skip initial setup (first render when both are null)
     if (previousOrgId === null && selectedOrgId === null) {
+      console.log('[OrganizationDataSyncProvider] Initial setup skip (both null)');
       return;
     }
 
+    console.log('[OrganizationDataSyncProvider] Organization changed, invalidating queries', {
+      from: previousOrgId,
+      to: selectedOrgId,
+    });
     logger.info('Organization changed, invalidating queries', {
       from: previousOrgId,
       to: selectedOrgId,

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
 import { TrendingUp, TrendingDown, Coins } from 'lucide-react';
-import { useCryptoPortfolio } from '@/lib/queries';
+import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
 import { CurrencyDisplay } from '../ui/currency-display';
 
 interface TokenAllocation {
@@ -27,7 +27,7 @@ const TOKEN_COLORS = [
 ];
 
 export function CryptoAllocationWidget() {
-  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
+  const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
 
   const topTokens = useMemo(() => {
     if (!portfolio?.topAssets || portfolio.topAssets.length === 0) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useCryptoPortfolio } from '@/lib/queries';
+import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
 /**
@@ -14,7 +14,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
  */
 export function PortfolioSyncProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuthStore();
-  const { data: portfolio, isLoading, error } = useCryptoPortfolio();
+  const { data: portfolio, isLoading, error } = useOrganizationCryptoPortfolio();
 
   // The usePortfolio hook automatically syncs data to the store
   // This component just ensures the hook is called at the top level

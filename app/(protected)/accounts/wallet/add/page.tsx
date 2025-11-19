@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import posthog from 'posthog-js';
 
-import { useCreateCryptoWallet } from '@/lib/queries';
+import { useOrganizationCreateCryptoWallet } from '@/lib/queries/use-organization-data-context';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
 import React from 'react';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
@@ -83,7 +83,7 @@ export default function AddWalletPage() {
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { mutate: createWallet, isPending } = useCreateCryptoWallet();
+  const { mutate: createWallet, isPending } = useOrganizationCreateCryptoWallet();
 
   // PRODUCTION-GRADE: Only fetch specific data needed, not full subscription
   const { data: plans = [] } = useSubscriptionPlans();

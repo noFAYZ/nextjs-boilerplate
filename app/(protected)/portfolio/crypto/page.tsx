@@ -17,7 +17,7 @@ import {
   SortAsc,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useCryptoWallets, useCryptoPortfolio } from '@/lib/queries';
+import { useOrganizationCryptoWallets, useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -67,9 +67,9 @@ export default function CryptoPortfolioPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { pageClass } = useViewModeClasses();
 
-  // ✅ NEW: Data from TanStack Query
-  const { data: wallets = [], isLoading: walletsLoading } = useCryptoWallets();
-  const { data: portfolio, isLoading: portfolioLoading } = useCryptoPortfolio();
+  // ✅ NEW: Data from TanStack Query (organization-aware)
+  const { data: wallets = [], isLoading: walletsLoading } = useOrganizationCryptoWallets();
+  const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
 
   const isLoading = walletsLoading || portfolioLoading;
 
