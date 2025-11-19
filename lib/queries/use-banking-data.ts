@@ -50,19 +50,30 @@ function useAuthReady() {
 
 /**
  * Get all bank accounts for the authenticated user
+ * @param organizationId - Optional organization ID to scope data
  * @returns All accounts with loading/error states
  */
-export function useBankingAccounts() {
-  return useBaseBankingAccounts();
+export function useBankingAccounts(organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+
+  // Note: organizationId parameter is accepted for future banking API support
+  // Currently, banking API doesn't scope to organizations
+  return useQuery({
+    ...bankingQueries.accounts(),
+    enabled: isAuthReady,
+  });
 }
 
 /**
  * Get grouped bank accounts by enrollment
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Grouped accounts with loading/error states
  */
-export function useBankingGroupedAccounts() {
+export function useBankingGroupedAccounts(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.groupedAccounts(),
     enabled: isAuthReady,
@@ -72,11 +83,14 @@ export function useBankingGroupedAccounts() {
 /**
  * Get a single bank account by ID
  * @param accountId - Account ID to fetch
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Account data with loading/error states
  */
-export function useBankingAccount(accountId: string | null) {
+export function useBankingAccount(accountId: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.account(accountId!),
     enabled: isAuthReady && !!accountId,
@@ -85,21 +99,25 @@ export function useBankingAccount(accountId: string | null) {
 
 /**
  * Get the currently selected bank account based on UI store
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Selected account data or null
  */
-export function useSelectedBankAccount() {
+export function useSelectedBankAccount(organizationId?: string) {
   const selectedAccountId = useBankingUIStore((state) => state.selectedAccountId);
-  return useBankingAccount(selectedAccountId);
+  return useBankingAccount(selectedAccountId, organizationId);
 }
 
 /**
  * Get account summary with aggregated data
  * @param accountId - Account ID
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Account summary
  */
-export function useBankAccountSummary(accountId: string | null) {
+export function useBankAccountSummary(accountId: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.accountSummary(accountId!),
     enabled: isAuthReady && !!accountId,
@@ -112,17 +130,23 @@ export function useBankAccountSummary(accountId: string | null) {
 
 /**
  * Get banking overview with aggregated metrics
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Overview data
  */
-export function useBankingOverview() {
+export function useBankingOverview(organizationId?: string) {
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useBaseBankingOverview();
 }
 
 /**
  * Get dashboard data for banking section
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Dashboard data
  */
-export function useBankingDashboard() {
+export function useBankingDashboard(organizationId?: string) {
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useBaseBankingDashboard();
 }
 
@@ -133,11 +157,14 @@ export function useBankingDashboard() {
 /**
  * Get all transactions with optional filtering
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Transactions with pagination
  */
-export function useBankingTransactions(params?: BankTransactionParams) {
+export function useBankingTransactions(params?: BankTransactionParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.transactions(params),
     enabled: isAuthReady,
@@ -148,14 +175,18 @@ export function useBankingTransactions(params?: BankTransactionParams) {
  * Get transactions for a specific account
  * @param accountId - Account ID
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Account transactions with pagination
  */
 export function useAccountTransactions(
   accountId: string | null,
-  params?: Omit<BankTransactionParams, 'accountId'>
+  params?: Omit<BankTransactionParams, 'accountId'>,
+  organizationId?: string
 ) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.accountTransactions(accountId!, params),
     enabled: isAuthReady && !!accountId,
@@ -165,11 +196,12 @@ export function useAccountTransactions(
 /**
  * Get transactions for the currently selected account
  * @param params - Transaction filter parameters
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Selected account transactions
  */
-export function useSelectedAccountTransactions(params?: Omit<BankTransactionParams, 'accountId'>) {
+export function useSelectedAccountTransactions(params?: Omit<BankTransactionParams, 'accountId'>, organizationId?: string) {
   const selectedAccountId = useBankingUIStore((state) => state.selectedAccountId);
-  return useAccountTransactions(selectedAccountId, params);
+  return useAccountTransactions(selectedAccountId, params, organizationId);
 }
 
 // ============================================================================
@@ -229,11 +261,14 @@ export function useAccountSyncStatus(accountId: string | null, jobId?: string) {
 /**
  * Get top spending categories
  * @param params - Analytics parameters
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Top spending categories
  */
-export function useTopSpendingCategories(params?: Record<string, unknown>) {
+export function useTopSpendingCategories(params?: Record<string, unknown>, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.topSpendingCategories(params),
     enabled: isAuthReady,
@@ -243,11 +278,14 @@ export function useTopSpendingCategories(params?: Record<string, unknown>) {
 /**
  * Get monthly spending trend
  * @param params - Analytics parameters
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Monthly spending trend data
  */
-export function useMonthlySpendingTrend(params?: Record<string, unknown>) {
+export function useMonthlySpendingTrend(params?: Record<string, unknown>, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.monthlySpendingTrend(params),
     enabled: isAuthReady,
@@ -288,13 +326,16 @@ export function useSpendingByCategory(params?: Record<string, unknown>) {
 
 /**
  * Connect a new bank account
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Mutation hook with optimistic updates
  */
-export function useConnectBankAccount() {
+export function useConnectBankAccount(organizationId?: string) {
   const queryClient = useQueryClient();
   const mutation = bankingMutations.useConnectAccount();
   const { closeConnectAccountModal } = useBankingUIStore();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useMutation({
     ...mutation,
     onSuccess: (response) => {
@@ -317,13 +358,17 @@ export function useConnectBankAccount() {
 
 /**
  * Update an existing bank account
+ * @param accountId - Optional account ID (for typing)
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Mutation hook with optimistic updates
  */
-export function useUpdateBankAccount() {
+export function useUpdateBankAccount(accountId?: string, organizationId?: string) {
   const queryClient = useQueryClient();
   const mutation = bankingMutations.useUpdateAccount();
   const { closeEditAccountModal } = useBankingUIStore();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useMutation({
     ...mutation,
     onMutate: async ({ id, updates }) => {
@@ -377,13 +422,17 @@ export function useUpdateBankAccount() {
 
 /**
  * Disconnect a bank account
+ * @param accountId - Optional account ID (for typing)
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Mutation hook with optimistic updates
  */
-export function useDisconnectBankAccount() {
+export function useDisconnectBankAccount(accountId?: string, organizationId?: string) {
   const queryClient = useQueryClient();
   const mutation = bankingMutations.useDisconnectAccount();
   const { closeDisconnectAccountModal, selectAccount } = useBankingUIStore();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useMutation({
     ...mutation,
     onMutate: async (accountId) => {
@@ -426,12 +475,16 @@ export function useDisconnectBankAccount() {
 
 /**
  * Trigger sync for an account
+ * @param accountId - Optional account ID (for typing)
+ * @param organizationId - Optional organization ID to scope data (future support)
  * @returns Mutation hook
  */
-export function useSyncBankAccount() {
+export function useSyncBankAccount(accountId?: string, organizationId?: string) {
   const { closeSyncModal } = useBankingUIStore();
   const mutation = bankingMutations.useSyncAccount();
 
+  // Banking API doesn't support organization scoping yet
+  // organizationId is accepted for future backend support
   return useMutation({
     ...mutation,
     onSuccess: (response) => {

@@ -28,21 +28,21 @@ export const budgetKeys = {
   all: ['budgets'] as const,
 
   // Budget lists
-  lists: () => [...budgetKeys.all, 'list'] as const,
-  list: (params?: GetBudgetsParams) => [...budgetKeys.lists(), params] as const,
+  lists: (orgId?: string) => [...budgetKeys.all, 'list', orgId] as const,
+  list: (params?: GetBudgetsParams, orgId?: string) => [...budgetKeys.lists(orgId), params] as const,
 
   // Single budget
-  details: () => [...budgetKeys.all, 'detail'] as const,
-  detail: (id: string, params?: GetBudgetParams) =>
-    [...budgetKeys.details(), id, params] as const,
+  details: (orgId?: string) => [...budgetKeys.all, 'detail', orgId] as const,
+  detail: (id: string, params?: GetBudgetParams, orgId?: string) =>
+    [...budgetKeys.details(orgId), id, params] as const,
 
   // Analytics & Summary
-  analytics: () => [...budgetKeys.all, 'analytics'] as const,
-  summary: () => [...budgetKeys.all, 'summary'] as const,
+  analytics: (orgId?: string) => [...budgetKeys.all, 'analytics', orgId] as const,
+  summary: (orgId?: string) => [...budgetKeys.all, 'summary', orgId] as const,
 
   // Transactions
-  transactions: (budgetId: string) =>
-    [...budgetKeys.all, 'transactions', budgetId] as const,
+  transactions: (budgetId: string, orgId?: string) =>
+    [...budgetKeys.all, 'transactions', budgetId, orgId] as const,
 };
 
 // ============================================================================
@@ -51,9 +51,9 @@ export const budgetKeys = {
 
 export const budgetQueries = {
   // Get all budgets
-  budgets: (params?: GetBudgetsParams) => ({
-    queryKey: budgetKeys.list(params),
-    queryFn: () => budgetApi.getBudgets(params),
+  budgets: (params?: GetBudgetsParams, orgId?: string) => ({
+    queryKey: budgetKeys.list(params, orgId),
+    queryFn: () => budgetApi.getBudgets(params, orgId),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 3, // 3 minutes
     refetchOnMount: true,
@@ -63,9 +63,9 @@ export const budgetQueries = {
   }),
 
   // Get single budget
-  budget: (id: string, params?: GetBudgetParams) => ({
-    queryKey: budgetKeys.detail(id, params),
-    queryFn: () => budgetApi.getBudget(id, params),
+  budget: (id: string, params?: GetBudgetParams, orgId?: string) => ({
+    queryKey: budgetKeys.detail(id, params, orgId),
+    queryFn: () => budgetApi.getBudget(id, params, orgId),
     enabled: !!id,
     staleTime: 1000 * 60 * 2, // 2 minutes
     gcTime: 1000 * 60 * 5, // 5 minutes
@@ -76,9 +76,9 @@ export const budgetQueries = {
   }),
 
   // Get budget analytics
-  analytics: () => ({
-    queryKey: budgetKeys.analytics(),
-    queryFn: () => budgetApi.getBudgetAnalytics(),
+  analytics: (orgId?: string) => ({
+    queryKey: budgetKeys.analytics(orgId),
+    queryFn: () => budgetApi.getBudgetAnalytics(orgId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnMount: true,
     refetchOnReconnect: true,

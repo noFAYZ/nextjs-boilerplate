@@ -58,6 +58,11 @@ export {
   dashboardLayoutSelectors,
 } from './dashboard-layout-ui-store';
 
+export {
+  useOrganizationStore,
+  organizationSelectors,
+} from './organization-store';
+
 // Re-export types for convenience
 export type { CryptoWallet, PortfolioData, CryptoTransaction, CryptoNFT, DeFiPosition, SyncJobStatus, NetworkType, WalletType } from '../types/crypto';
 export type { AccountGroup, AccountGroupHierarchy, CreateAccountGroupRequest, UpdateAccountGroupRequest, MoveAccountRequest, AccountGroupsQueryOptions, FinancialAccount } from '../types/account-groups';

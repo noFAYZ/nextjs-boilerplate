@@ -25,36 +25,36 @@ export const bankingKeys = {
   all: ['banking'] as const,
 
   // Accounts
-  accounts: () => [...bankingKeys.all, 'accounts'] as const,
-  groupedAccounts: () => [...bankingKeys.all, 'groupedAccounts'] as const,
+  accounts: (orgId?: string) => [...bankingKeys.all, 'accounts', orgId] as const,
+  groupedAccounts: (orgId?: string) => [...bankingKeys.all, 'groupedAccounts', orgId] as const,
 
-  account: (id: string) => [...bankingKeys.accounts(), id] as const,
-  accountSummary: (id: string) => [...bankingKeys.accounts(), id, 'summary'] as const,
+  account: (id: string, orgId?: string) => [...bankingKeys.accounts(orgId), id] as const,
+  accountSummary: (id: string, orgId?: string) => [...bankingKeys.accounts(orgId), id, 'summary'] as const,
 
   // Overview & Dashboard
-  overview: () => [...bankingKeys.all, 'overview'] as const,
-  dashboard: () => [...bankingKeys.all, 'dashboard'] as const,
+  overview: (orgId?: string) => [...bankingKeys.all, 'overview', orgId] as const,
+  dashboard: (orgId?: string) => [...bankingKeys.all, 'dashboard', orgId] as const,
 
   // Transactions
-  transactions: (params?: BankTransactionParams) =>
-    [...bankingKeys.all, 'transactions', params] as const,
-  accountTransactions: (accountId: string, params?: Omit<BankTransactionParams, 'accountId'>) =>
-    [...bankingKeys.accounts(), accountId, 'transactions', params] as const,
+  transactions: (params?: BankTransactionParams, orgId?: string) =>
+    [...bankingKeys.all, 'transactions', params, orgId] as const,
+  accountTransactions: (accountId: string, params?: Omit<BankTransactionParams, 'accountId'>, orgId?: string) =>
+    [...bankingKeys.accounts(orgId), accountId, 'transactions', params] as const,
 
   // Enrollments
-  enrollments: () => [...bankingKeys.all, 'enrollments'] as const,
-  enrollment: (id: string) => [...bankingKeys.enrollments(), id] as const,
+  enrollments: (orgId?: string) => [...bankingKeys.all, 'enrollments', orgId] as const,
+  enrollment: (id: string, orgId?: string) => [...bankingKeys.enrollments(orgId), id] as const,
 
   // Sync
-  syncStatus: (accountId: string, jobId?: string) =>
-    [...bankingKeys.accounts(), accountId, 'sync', { jobId }] as const,
+  syncStatus: (accountId: string, jobId?: string, orgId?: string) =>
+    [...bankingKeys.accounts(orgId), accountId, 'sync', { jobId }] as const,
 
   // Health & Analytics
-  health: () => [...bankingKeys.all, 'health'] as const,
-  spendingCategories: (timeRange?: string, accountIds?: string[]) =>
-    [...bankingKeys.all, 'spending-categories', { timeRange, accountIds }] as const,
-  monthlyTrend: (months?: number, accountIds?: string[]) =>
-    [...bankingKeys.all, 'monthly-trend', { months, accountIds }] as const,
+  health: (orgId?: string) => [...bankingKeys.all, 'health', orgId] as const,
+  spendingCategories: (timeRange?: string, accountIds?: string[], orgId?: string) =>
+    [...bankingKeys.all, 'spending-categories', { timeRange, accountIds }, orgId] as const,
+  monthlyTrend: (months?: number, accountIds?: string[], orgId?: string) =>
+    [...bankingKeys.all, 'monthly-trend', { months, accountIds }, orgId] as const,
 };
 
 // Helper function for error handling

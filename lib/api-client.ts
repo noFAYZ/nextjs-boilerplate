@@ -34,9 +34,24 @@ class ApiClient {
       'Content-Type': 'application/json',
     };
 
-    // Add organization context if provided
-    if (organizationId) {
-      headers['X-Organization-ID'] = organizationId;
+    // Get organization from context store if not explicitly provided
+    let orgId = organizationId;
+    if (!orgId && typeof window !== 'undefined') {
+      try {
+        // Dynamically import to avoid circular dependencies
+        const { useOrganizationStore } = await import('@/lib/stores/organization-store');
+        const selectedOrgId = useOrganizationStore.getState().selectedOrganizationId;
+        if (selectedOrgId) {
+          orgId = selectedOrgId;
+        }
+      } catch (error) {
+        // Organization store not available, skip
+      }
+    }
+
+    // Add organization context if available (via header and query param for maximum compatibility)
+    if (orgId) {
+      headers['X-Organization-Id'] = orgId;
     }
 
     return headers;

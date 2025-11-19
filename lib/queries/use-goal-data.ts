@@ -34,11 +34,11 @@ import type {
 
 export const goalKeys = {
   all: ['goals'] as const,
-  lists: () => [...goalKeys.all, 'list'] as const,
-  list: (filters: GetGoalsParams) => [...goalKeys.lists(), filters] as const,
-  details: () => [...goalKeys.all, 'detail'] as const,
-  detail: (id: string) => [...goalKeys.details(), id] as const,
-  analytics: () => [...goalKeys.all, 'analytics'] as const,
+  lists: (orgId?: string) => [...goalKeys.all, 'list', orgId] as const,
+  list: (filters: GetGoalsParams, orgId?: string) => [...goalKeys.lists(orgId), filters] as const,
+  details: (orgId?: string) => [...goalKeys.all, 'detail', orgId] as const,
+  detail: (id: string, orgId?: string) => [...goalKeys.details(orgId), id] as const,
+  analytics: (orgId?: string) => [...goalKeys.all, 'analytics', orgId] as const,
 };
 
 // ============================================================================

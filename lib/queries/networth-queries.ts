@@ -38,26 +38,26 @@ export const networthKeys = {
   all: ['networth'] as const,
 
   // Net Worth Aggregation
-  networth: (params?: NetWorthQueryParams) => [...networthKeys.all, params] as const,
-  summary: (params?: NetWorthQueryParams) => [...networthKeys.all, 'summary', params] as const,
-  breakdown: (params?: NetWorthQueryParams) => [...networthKeys.all, 'breakdown', params] as const,
-  performance: (params: PerformanceQueryParams) => [...networthKeys.all, 'performance', params] as const,
-  history: (params: HistoryQueryParams) => [...networthKeys.all, 'history', params] as const,
+  networth: (params?: NetWorthQueryParams, orgId?: string) => [...networthKeys.all, params, orgId] as const,
+  summary: (params?: NetWorthQueryParams, orgId?: string) => [...networthKeys.all, 'summary', params, orgId] as const,
+  breakdown: (params?: NetWorthQueryParams, orgId?: string) => [...networthKeys.all, 'breakdown', params, orgId] as const,
+  performance: (params: PerformanceQueryParams, orgId?: string) => [...networthKeys.all, 'performance', params, orgId] as const,
+  history: (params: HistoryQueryParams, orgId?: string) => [...networthKeys.all, 'history', params, orgId] as const,
 
   // Asset Accounts
-  assetAccounts: (params?: AssetAccountsQueryParams) =>
-    [...networthKeys.all, 'assets', params] as const,
-  assetAccount: (id: string) => [...networthKeys.all, 'assets', id] as const,
-  valuations: (accountId: string, limit?: number) =>
-    [...networthKeys.all, 'assets', accountId, 'valuations', { limit }] as const,
+  assetAccounts: (params?: AssetAccountsQueryParams, orgId?: string) =>
+    [...networthKeys.all, 'assets', params, orgId] as const,
+  assetAccount: (id: string, orgId?: string) => [...networthKeys.all, 'assets', id, orgId] as const,
+  valuations: (accountId: string, limit?: number, orgId?: string) =>
+    [...networthKeys.all, 'assets', accountId, 'valuations', { limit }, orgId] as const,
 
   // Asset Categories
-  categories: (params?: AssetCategoriesQueryParams) =>
-    [...networthKeys.all, 'categories', params] as const,
-  category: (id: string) => [...networthKeys.all, 'categories', id] as const,
+  categories: (params?: AssetCategoriesQueryParams, orgId?: string) =>
+    [...networthKeys.all, 'categories', params, orgId] as const,
+  category: (id: string, orgId?: string) => [...networthKeys.all, 'categories', id, orgId] as const,
 
   // Goals
-  goals: () => [...networthKeys.all, 'goals'] as const,
+  goals: (orgId?: string) => [...networthKeys.all, 'goals', orgId] as const,
 };
 
 // ============================================================================
