@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -20,10 +20,28 @@ import {
   Wallet,
   Home,
   Package,
-  Coins,
+  ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -37,32 +55,140 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 
 // Unified accounts API
 import { useAllAccounts } from '@/lib/queries';
-import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 
 // Components
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { NetWorthChart } from '@/components/networth/networth-chart';
-import WalletCard from '@/components/crypto/WalletCard';
-import BankCard from '@/components/banking/BankCard';
 import {
   DuoIconsCreditCard,
   HeroiconsWallet,
   MdiDollar,
+  MdiDragVertical,
 } from '@/components/icons/icons';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
-import { ChartAreaLinear } from '@/components/networth/chart';
 
 /* -------------------------------------------------------------------------- */
 /*                         CATEGORY CONFIGURATION                             */
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                      DRAGGABLE ACCOUNT ITEM                                */
+/* -------------------------------------------------------------------------- */
+interface DraggableAccountItemProps {
+  account: {
+    id: string;
+    name: string;
+    balance: number;
+    status?: string;
+    category?: string;
+    type?: string;
+    source?: string;
+    metadata?: Record<string, string>;
+    institution?: string;
+    accountNumber?: string;
+  };
+  isCrypto: boolean;
+  balanceVisible: boolean;
+  onAccountClick: (accountId: string) => void;
+}
+
+function DraggableAccountItem({
+  account,
+  isCrypto,
+  balanceVisible,
+  onAccountClick,
+}: DraggableAccountItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortableDragging } = useSortable({ id: account.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isSortableDragging ? 0.4 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={() => onAccountClick(account.id)}
+      className={cn(
+        "group relative flex items-center gap-2.5 p-3 transition-all border-b border-border/30 last:border-b-0 hover:bg-muted/20 cursor-pointer",
+        isSortableDragging && "bg-primary/10"
+      )}
+    >
+      {/* Drag Handle Icon */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="flex items-center justify-center flex-shrink-0 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+      >
+        <MdiDragVertical className="h-6 w-6 text-muted-foreground" />
+      </div>
+
+      {/* Icon */}
+      <div className="h-10 w-10 rounded-full bg-muted flex items-center border justify-center flex-shrink-0">
+        {isCrypto ? (
+          <HeroiconsWallet className="h-6 w-6" />
+        ) : (
+          <MdiDollar className="h-6 w-6" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-md font-medium text-foreground truncate transition-colors group-hover:text-primary">
+          {account.name}
+        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-[11px] text-muted-foreground truncate">
+            {isCrypto ? `${account.metadata?.network || 'Crypto'} Wallet` : account.institution || 'Bank Account'}
+          </p>
+          {account.accountNumber && (
+            <>
+              <span className="text-muted-foreground">•</span>
+              <p className="text-[10px] text-muted-foreground">••{account.accountNumber?.slice(-4)}</p>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Amount & Status */}
+      <div className="flex flex-col items-end flex-shrink-0 gap-1">
+        <div className="text-right">
+          {balanceVisible ? (
+            <CurrencyDisplay amountUSD={account.balance} className="text-sm font-medium text-foreground/90" />
+          ) : (
+            <span className="text-muted-foreground font-bold text-xs">••••••</span>
+          )}
+        </div>
+        {account.status && (
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-[9px] font-medium flex-shrink-0",
+              account.status === 'ACTIVE'
+                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
+                : "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/30"
+            )}
+          >
+            {account.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+          </Badge>
+        )}
+      </div>
+
+      {/* Hover Indicator */}
+      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+    </div>
+  );
+}
+
 const categoryConfig = {
-  CASH: { label: 'Cash', icon: <MdiDollar className="h-5 w-5" />, color: 'bg-blue-500' },
-  CREDIT: { label: 'Credit', icon: <DuoIconsCreditCard className="h-5 w-5" />, color: 'bg-orange-500' },
-  INVESTMENTS: { label: 'Investments', icon: <TrendingUp className="h-5 w-5" />, color: 'bg-green-500' },
-  CRYPTO: { label: 'Crypto', icon: <HeroiconsWallet className="h-5 w-5" />, color: 'bg-violet-500' },
-  ASSETS: { label: 'Assets', icon: <Home className="h-5 w-5" />, color: 'bg-purple-500' },
-  LIABILITIES: { label: 'Liabilities', icon: <TrendingDown className="h-5 w-5" />, color: 'bg-red-500' },
-  OTHER: { label: 'Other Accounts', icon: <Package className="h-5 w-5" />, color: 'bg-gray-400' },
+  CASH: { label: 'Cash', icon: <MdiDollar className="h-6 w-6" /> },
+  CREDIT: { label: 'Credit Cards', icon: <DuoIconsCreditCard className="h-6 w-6" /> },
+  INVESTMENTS: { label: 'Investments', icon: <TrendingUp className="h-6 w-6" /> },
+  CRYPTO: { label: 'Crypto', icon: <HeroiconsWallet className="h-6 w-6" /> },
+  ASSETS: { label: 'Assets', icon: <Home className="h-6 w-6" /> },
+  LIABILITIES: { label: 'Liabilities', icon: <TrendingDown className="h-6 w-6" /> },
+  OTHER: { label: 'Other Accounts', icon: <Package className="h-6 w-6" /> },
 };
 
 /* -------------------------------------------------------------------------- */
@@ -71,40 +197,171 @@ const categoryConfig = {
 function SummarySidebar({ summary }) {
   if (!summary) return null;
 
+  const netWorthStatus = summary.totalAssets > summary.totalLiabilities ? 'positive' : 'negative';
+  const assetsPercent = summary.totalAssets > 0
+    ? Math.round((summary.totalAssets / (summary.totalAssets + Math.abs(summary.totalLiabilities))) * 100)
+    : 0;
+  const liabilitiesPercent = 100 - assetsPercent;
+
   return (
-    <Card className="sticky top-4 shadow-lg border border-border/50 bg-white dark:bg-gray-900">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Financial Summary</CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {[
-          { label: 'Net Worth', value: summary.totalNetWorth },
-          { label: 'Total Assets', value: summary.totalAssets },
-          { label: 'Liabilities', value: summary.totalLiabilities },
-        ].map(item => (
-          <div key={item.label} className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{item.label}</span>
-            <CurrencyDisplay amountUSD={item.value} className="font-semibold" />
+    <div className="sticky top-4">
+      <Card className="relative border border-border/80" variant='outlined'>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
           </div>
-        ))}
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Accounts</span>
-          <span className="font-medium">{summary.accountCount}</span>
+          <Link href="/accounts">
+            <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7" size="sm">
+              View All
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
         </div>
 
-        <div className="pt-4 text-xs text-muted-foreground">
-          Last updated:{' '}
-          {new Date(summary.lastUpdated).toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+        {/* Main Metric */}
+        <div className="mb-4 pb-4 border-b border-border/50">
+          <div className="text-xs text-muted-foreground mb-1">Total Net Worth</div>
+          <div className="flex items-baseline gap-2">
+            <CurrencyDisplay
+              amountUSD={summary.totalNetWorth}
+              variant="large"
+              className="text-4xl font-semibold"
+            />
+            <div className={cn(
+              "flex items-center gap-1 text-xs font-medium",
+              netWorthStatus === 'positive'
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
+            )}>
+              {netWorthStatus === 'positive' ? (
+                <>
+                  <TrendingUp className="h-3 w-3" />
+                  <span>Positive</span>
+                </>
+              ) : (
+                <>
+                  <TrendingDown className="h-3 w-3" />
+                  <span>Negative</span>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Allocation Bar */}
+        {(summary.totalAssets > 0 || summary.totalLiabilities > 0) && (
+          <div className="mb-4 pb-4 border-b border-border/50 space-y-2">
+            <div className="flex items-center gap-1 w-full h-3 bg-muted rounded-full overflow-hidden">
+              {assetsPercent > 0 && (
+                <div
+                  className="h-full bg-emerald-500 transition-all"
+                  style={{ width: `${assetsPercent}%` }}
+                  title={`Assets: ${assetsPercent}%`}
+                />
+              )}
+              {liabilitiesPercent > 0 && (
+                <div
+                  className="h-full bg-red-500 transition-all"
+                  style={{ width: `${liabilitiesPercent}%` }}
+                  title={`Liabilities: ${liabilitiesPercent}%`}
+                />
+              )}
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              {assetsPercent > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] font-medium text-muted-foreground">Assets</span>
+                  <span className="text-[10px] font-semibold text-foreground">{assetsPercent}%</span>
+                </div>
+              )}
+              {liabilitiesPercent > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                  <span className="text-[10px] font-medium text-muted-foreground">Liabilities</span>
+                  <span className="text-[10px] font-semibold text-foreground">{liabilitiesPercent}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="space-y-2">
+          {/* Total Assets */}
+          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
+            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">Total Assets</p>
+              <p className="text-[10px] text-muted-foreground">
+                {summary.totalAssets > 0 ? `${Math.round((summary.totalAssets / (summary.totalAssets + Math.abs(summary.totalLiabilities))) * 100)}% of portfolio` : 'No assets'}
+              </p>
+            </div>
+            <CurrencyDisplay
+              amountUSD={summary.totalAssets}
+              variant="compact"
+              className="text-xs font-semibold text-foreground flex-shrink-0"
+            />
+          </div>
+
+          {/* Total Liabilities */}
+          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
+            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
+              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">Total Liabilities</p>
+              <p className="text-[10px] text-muted-foreground">
+                {summary.totalLiabilities > 0 ? `${Math.round((Math.abs(summary.totalLiabilities) / (summary.totalAssets + Math.abs(summary.totalLiabilities))) * 100)}% of portfolio` : 'No liabilities'}
+              </p>
+            </div>
+            <CurrencyDisplay
+              amountUSD={summary.totalLiabilities}
+              variant="compact"
+              className="text-xs font-semibold text-foreground flex-shrink-0"
+            />
+          </div>
+
+          {/* Account Count */}
+          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
+            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">Total Accounts</p>
+              <p className="text-[10px] text-muted-foreground">
+                {summary.accountCount} {summary.accountCount === 1 ? 'account' : 'accounts'} connected
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-foreground flex-shrink-0">{summary.accountCount}</span>
+          </div>
+
+          {/* Last Updated */}
+          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
+            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">Last Updated</p>
+              <p className="text-[10px] text-muted-foreground">
+                {new Date(summary.lastUpdated).toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -112,9 +369,23 @@ function SummarySidebar({ summary }) {
 /*                               MAIN PAGE                                    */
 /* -------------------------------------------------------------------------- */
 export default function AccountsPage() {
+  const router = useRouter();
   const [balanceVisible, setBalanceVisible] = useState(true);
-  const [showNetWorth, setShowNetWorth] = useState(true);
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
+  const showNetWorth = true;
+
+  // Reordered accounts state
+  const [accountOrder, setAccountOrder] = useState<Record<string, string[]> | null>(null);
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      distance: 8,
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const { data: accountsData, isLoading, refetch } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
@@ -133,12 +404,43 @@ export default function AccountsPage() {
   const categoriesWithAccounts = useMemo(() => {
     if (!accountsData?.groups) return [];
     return Object.entries(accountsData.groups)
-      .filter(([_, group]) => group.accounts.length > 0)
+      .filter(([, group]) => group.accounts.length > 0)
       .map(([key, group]) => ({ key, ...group }));
   }, [accountsData]);
 
   // Total for progress calculation
   const totalBalance = useMemo(() => categoriesWithAccounts.reduce((sum, g) => sum + g.totalBalance, 0), [categoriesWithAccounts]);
+
+  // Handle account click - navigate to account details
+  const handleAccountClick = (accountId: string) => {
+    router.push(`/accounts/${accountId}`);
+  };
+
+  // Handle drag end for reordering
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      // Find which accordion contains both items
+      const sourceGroup = categoriesWithAccounts.find(group =>
+        group.accounts.some(a => a.id === active.id)
+      );
+
+      if (!sourceGroup) return;
+
+      const accountIds = accountOrder?.[sourceGroup.key] || sourceGroup.accounts.map(a => a.id);
+      const oldIndex = accountIds.indexOf(String(active.id));
+      const newIndex = accountIds.indexOf(String(over.id));
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(accountIds, oldIndex, newIndex);
+        setAccountOrder({
+          ...accountOrder,
+          [sourceGroup.key]: newOrder,
+        });
+      }
+    }
+  };
 
   return (
     <div className="h-full flex flex-col relative">
@@ -190,7 +492,7 @@ export default function AccountsPage() {
         {/* Full-width Chart */}
         {showNetWorth && (
           <div className="mb-8">
-            <NetWorthChart mode="live"  height={280}  />
+            <NetWorthChart mode="live"  height={300}  />
           </div>
         )}
 
@@ -200,64 +502,81 @@ export default function AccountsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* Accordions Column */}
-          <div className="lg:col-span-8 space-y-4 gap-4">
-            <Accordion type="multiple" defaultValue={categoriesWithAccounts.map(c => c.key)} className='space-y-2'>
-              {categoriesWithAccounts.map(group => {
-                const config = categoryConfig[group.category] || categoryConfig.OTHER;
-                const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
+          <div className="lg:col-span-8">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <Accordion type="multiple" defaultValue={categoriesWithAccounts.map(c => c.key)} className='space-y-2'>
+                {categoriesWithAccounts.map(group => {
+                  const config = categoryConfig[group.category] || categoryConfig.OTHER;
+                  const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
 
-                return (
-                  <AccordionItem key={group.key} value={group.key} className=" shadow-xs  overflow-hidden  rounded-xl">
-                    <AccordionTrigger className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 cursor-pointer ">
-                      <div className="flex items-center gap-3">
-                    
-                        <div className={cn(
-                          "flex items-center justify-center h-8 w-8 rounded-lg",
-                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent text-foreground/80"
-                        )}
-                      > {config.icon}
-                      </div>
-                        <div className="flex flex-col">
-                          <h2 className="font-semibold text-base">{config.label}</h2> 
-                          
-                    
-                          
-                         
+                  // Get accounts for this group (use reordered if available)
+                  const accountIds = accountOrder?.[group.key] || group.accounts.map(a => a.id);
+                  const orderedAccounts = accountIds
+                    .map(id => group.accounts.find(a => a.id === id))
+                    .filter((a): a is DraggableAccountItemProps['account'] => a !== undefined);
+
+                  return (
+                    <AccordionItem
+                      key={group.key}
+                      value={group.key}
+                      className="overflow-hidden border border-divider rounded-lg shadow-xs "
+                    >
+                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-gradient-to-br from-muted/20 via-card to-muted/60 hover:bg-muted/30 transition-all duration-0 [&[data-state=open]]:bg-muted/20 rounded-lg cursor-pointer ">
+                        {/* Icon */}
+                        <div className="h-11 w-11 rounded-full border shadow group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
+                          {config.icon}
                         </div>
-                      </div>
 
-                      <div className="ml-auto text-right">
-                        {balanceVisible ? (
-                          <CurrencyDisplay amountUSD={group.totalBalance} className="font-semibold text-base" />
-                        ) : (
-                          <span className="text-muted-foreground font-bold">••••••</span>
-                        )}
-                      </div>
-                    </AccordionTrigger>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex items-center">
+                            <h3 className="font-semibold text-base text-foreground truncate">
+                              {config.label}
+                            </h3>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                            <span>{group.accounts.length} {group.accounts.length === 1 ? 'account' : 'accounts'}</span>
+                            <span>•</span>
+                            <span>{Math.round(progress)}% of total</span>
+                          </div>
+                        </div>
 
-                    <AccordionContent className="p-4 rounded-b-xl">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {group.accounts.map(account => {
-                          const isCrypto = account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
-                          return isCrypto ? (
-                            <WalletCard key={account.id} wallet={{
-                              id: account.id,
-                              name: account.name,
-                              address: account.metadata?.address,
-                              network: account.metadata?.network,
-                              balance: account.balance,
-                              totalBalanceUsd: account.balance,
-                            }} />
-                          ) : (
-                            <BankCard key={account.id} account={account} />
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
+                        {/* Amount and Chevron */}
+                        <div className="flex flex-col items-end flex-shrink-0 gap-1">
+                          <div className="text-right">
+                            {balanceVisible ? (
+                              <CurrencyDisplay amountUSD={group.totalBalance} className="font-medium text-lg text-foreground" />
+                            ) : (
+                              <span className="text-muted-foreground font-bold text-sm">••••••</span>
+                            )}
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+
+                      <AccordionContent className="bg-muted/10 p-0">
+                        <SortableContext items={orderedAccounts.map(a => a.id)} strategy={verticalListSortingStrategy}>
+                          <div className="space-y-0">
+                            {orderedAccounts.map((account) => {
+                              const isCrypto = account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
+
+                              return (
+                                <DraggableAccountItem
+                                  key={account.id}
+                                  account={account}
+                                  isCrypto={isCrypto}
+                                  balanceVisible={balanceVisible}
+                                  onAccountClick={handleAccountClick}
+                                />
+                              );
+                            })}
+                          </div>
+                        </SortableContext>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </DndContext>
           </div>
 
           {/* Right Sidebar Summary */}

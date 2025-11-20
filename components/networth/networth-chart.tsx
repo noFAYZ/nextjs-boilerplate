@@ -1,34 +1,24 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Loader2,
   TrendingUp,
-  TrendingDown,
-  Download,
   AlertCircle,
   ArrowUp,
   ArrowDown,
-  Minus,
-  BarChart3,
-  CalendarDays,
   RefreshCcw,
 } from 'lucide-react';
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
   AreaChart,
   Area,
-  Tooltip,
   XAxis,
   YAxis,
   CartesianGrid,
   ReferenceLine,
-  Cell,
+  ResponsiveContainer,
 } from 'recharts';
-import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/queries/use-networth-data';
 import type { TimePeriod } from '@/lib/types/networth';
@@ -40,13 +30,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SolarCalendarBoldDuotone } from '../icons/icons';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 
 /**
  * Enterprise-grade NetWorth Chart Component
  *
  * Features:
  * - Real-time data synchronization with TanStack Query
- * - Advanced 3D bar visualizations with glass-morphism
+ * - Linear area chart visualization with gradient fill
  * - Responsive design with mobile optimization
  * - Accessibility compliant (WCAG 2.1 AA)
  * - Performance optimized with memoization
@@ -77,8 +74,6 @@ interface NetWorthChartProps {
   compact?: boolean;
   /** Show period selection dropdown */
   showPeriodFilter?: boolean;
-  /** Display metric cards above chart */
-  showMetrics?: boolean;
   /** Show average reference line */
   showComparison?: boolean;
   /** Initial time period */
@@ -113,24 +108,6 @@ interface PerformanceMetrics {
   volatility: number;
 }
 
-interface TooltipPayload {
-  payload: ChartDataPoint;
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: TooltipPayload[];
-}
-
-interface BarShapeProps {
-  fill: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  radius?: number;
-  payload?: ChartDataPoint;
-}
 
 // ============================================================================
 // Constants & Configuration
@@ -140,19 +117,9 @@ const CHART_CONFIG = {
   MIN_HEIGHT: 200,
   MAX_HEIGHT: 1000,
   DEFAULT_HEIGHT: 400,
-  MAX_BAR_SIZE_COMPACT: 32,
-  MAX_BAR_SIZE_FULL: 48,
-  BAR_RADIUS_COMPACT: 0,
-  BAR_RADIUS_FULL: 8,
   THRESHOLD_PERCENT: 0.02, // 2% threshold for average comparison
-  DEBOUNCE_DELAY: 150,
 } as const;
 
-const COLOR_PALETTE = {
-  POSITIVE: '#E2653F', // Modern green (Tailwind emerald-500)
-  NEGATIVE: '#F2C2B4', // Red (Tailwind red-500)
-  NEUTRAL: '#f97316',  // Orange (Tailwind orange-500)
-} as const;
 
 // Period to granularity mapping
 const periodGranularityMap: Record<TimePeriod, SnapshotGranularity> = {
@@ -254,21 +221,6 @@ const validateDataPoint = (point: unknown): point is ChartDataPoint => {
     isValidNumber(p.totalAssets) &&
     isValidNumber(p.totalLiabilities)
   );
-};
-
-/**
- * Debounce function for performance optimization
- */
-const debounce = <T extends (...args: unknown[]) => unknown>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout | null = null;
-
-  return (...args: Parameters<T>) => {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
 };
 
 // Demo data generator
@@ -450,71 +402,17 @@ function generateDemoPerformance(dataPoints: Array<{ totalNetWorth: number; tota
   };
 }
 
-// Clean, enterprise-grade rounded bar component
-const RoundedBar = (props: BarShapeProps) => {
-  const { fill, x, y, width, height, radius = 6 } = props;
+// Custom tooltip for shadcn charts
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ payload: ChartDataPoint }>;
+}
 
-  if (height <= 0) return null;
-
-  const barId = `bar-${x}-${y}`;
-
-  return (
-    <g>
-      <defs>
-        {/* Simple, clean gradient */}
-        <linearGradient id={`barGradient-${barId}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={fill} stopOpacity={0.95} />
-          <stop offset="100%" stopColor={fill} stopOpacity={1} />
-        </linearGradient>
-
-        {/* Subtle shadow */}
-        <filter id={`shadow-${barId}`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-          <feOffset dx="0" dy="1" result="offsetblur" />
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="0.2" />
-          </feComponentTransfer>
-          <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      {/* Main bar */}
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill={`url(#barGradient-${barId})`}
-        rx={radius}
-        ry={radius}
-        filter={`url(#shadow-${barId})`}
-        className="transition-opacity duration-200 cursor-pointer"
-      />
-
-      {/* Subtle top highlight */}
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={Math.max(height * 0.3, 4)}
-        fill="#ffffff"
-        rx={radius}
-        ry={radius}
-        opacity={0.1}
-        className="pointer-events-none"
-      />
-    </g>
-  );
-};
-
-// Modern, compact tooltip
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+
   if (!active || !payload || !payload.length) return null;
 
-  const data = payload[0].payload;
+  const data = payload[0].payload as ChartDataPoint;
 
   // Validate data
   if (!validateDataPoint(data)) {
@@ -541,11 +439,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   }
 
   return (
-    <div
-      role="tooltip"
-      aria-label={`Net worth data for ${formattedDate}`}
-      className="bg-popover/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-[200px]"
-    >
+    <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
       <div className="space-y-2">
         {/* Header */}
         <div className="space-y-0.5">
@@ -553,15 +447,14 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
             {formattedDate}
           </time>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold tabular-nums" aria-label={`Net worth: ${formatCurrency(netWorth)}`}>
+            <span className="text-base font-bold tabular-nums">
               {formatCurrency(netWorth)}
             </span>
             {change !== 0 && (
               <span
-                aria-label={`Change: ${change >= 0 ? 'up' : 'down'} ${Math.abs(changePercent).toFixed(1)} percent`}
                 className={cn(
                   "text-[10px] font-semibold tabular-nums",
-                  change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                  change >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
                 )}
               >
                 {change >= 0 ? '+' : ''}{Math.abs(changePercent).toFixed(1)}%
@@ -571,17 +464,17 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
         </div>
 
         {/* Breakdown */}
-        <div className="space-y-1.5 pt-1.5 border-t" role="list" aria-label="Financial breakdown">
-          <div className="flex items-center justify-between text-xs" role="listitem">
+        <div className="space-y-1.5 pt-1.5 border-t">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Assets</span>
-            <span className="font-semibold tabular-nums" aria-label={`Assets: ${formatCurrency(assets, { maximumFractionDigits: 0 })}`}>
+            <span className="font-semibold tabular-nums">
               {formatCurrency(assets, { maximumFractionDigits: 0 })}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs" role="listitem">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Liabilities</span>
-            <span className="font-semibold tabular-nums" aria-label={`Liabilities: ${formatCurrency(liabilities, { maximumFractionDigits: 0 })}`}>
+            <span className="font-semibold tabular-nums">
               {formatCurrency(liabilities, { maximumFractionDigits: 0 })}
             </span>
           </div>
@@ -606,7 +499,7 @@ const EmptyState = ({ onRefresh }: { onRefresh?: () => void }) => (
   <div className="absolute inset-0 flex items-center justify-center p-6">
     <div className="text-center max-w-sm space-y-4">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-muted">
-        <BarChart3 className="h-8 w-8 text-muted-foreground" />
+        <TrendingUp className="h-8 w-8 text-muted-foreground" />
       </div>
 
       <div className="space-y-1">
@@ -656,78 +549,11 @@ const ErrorState = ({ error, onRetry }: { error: unknown; onRetry: () => void })
   </div>
 );
 
-// Metric card
-interface MetricCardProps {
-  label: string;
-  value: number;
-  change?: number;
-  changePercent?: number;
-  trend?: 'up' | 'down' | 'neutral';
-  icon: LucideIcon;
-}
-
-const MetricCard = ({
-  label,
-  value,
-  change,
-  changePercent,
-  trend = 'neutral',
-  icon: Icon
-}: MetricCardProps) => {
-  // Validate inputs
-  if (!isValidNumber(value)) {
-    console.warn('[NetWorthChart] Invalid metric value:', { label, value });
-    return null;
-  }
-
-  const hasChange = change !== undefined && changePercent !== undefined && isValidNumber(change) && isValidNumber(changePercent);
-
-  return (
-    <div className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow" role="article" aria-label={`${label} metric card`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1 flex-1 min-w-0">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
-          <p className="text-2xl font-bold tabular-nums" aria-label={`${label}: ${formatCurrency(value)}`}>
-            {formatCurrency(value)}
-          </p>
-          {hasChange && (
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className={cn(
-                "font-semibold tabular-nums",
-                change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-              )}
-              aria-label={`Change: ${change >= 0 ? 'up' : 'down'} ${Math.abs(changePercent).toFixed(2)} percent`}
-              >
-                {change >= 0 ? <ArrowUp className="inline h-3 w-3" aria-hidden="true" /> : <ArrowDown className="inline h-3 w-3" aria-hidden="true" />}
-                {change >= 0 ? '+' : ''}{Math.abs(changePercent).toFixed(2)}%
-              </span>
-              <span className="text-muted-foreground">
-                ({change >= 0 ? '+' : ''}{formatCurrency(Math.abs(change), { maximumFractionDigits: 0 })})
-              </span>
-            </div>
-          )}
-        </div>
-        <div className={cn(
-          "p-2.5 rounded-lg shrink-0",
-          trend === 'up' && "bg-green-500/10 text-green-600 dark:text-green-400",
-          trend === 'down' && "bg-red-500/10 text-red-600 dark:text-red-400",
-          trend === 'neutral' && "bg-muted text-muted-foreground"
-        )}
-        aria-label={`Trend: ${trend}`}
-        >
-          <Icon className="h-5 w-5" aria-hidden="true" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export function NetWorthChart({
   className,
   height: rawHeight,
   compact = false,
   showPeriodFilter = true,
-  showMetrics = true,
   showComparison = false,
   defaultPeriod = '1m',
   onPeriodChange,
@@ -739,10 +565,7 @@ export function NetWorthChart({
   // ============================================================================
 
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>(defaultPeriod);
-  const [activeBar, setActiveBar] = useState<number | null>(null);
-  const [chartType, setChartType] = useState<'bar' | 'area'>('area');
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const exportTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sanitize height input
   const height = useMemo(() => sanitizeHeight(rawHeight), [rawHeight]);
@@ -755,15 +578,6 @@ export function NetWorthChart({
   // ============================================================================
   // Cleanup Effects
   // ============================================================================
-
-  useEffect(() => {
-    // Cleanup timeout on unmount
-    return () => {
-      if (exportTimeoutRef.current) {
-        clearTimeout(exportTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Demo data generation
   const demoHistory = useMemo(() => {
@@ -811,22 +625,6 @@ export function NetWorthChart({
       console.error('[NetWorthChart] Period change error:', error);
     }
   }, [onPeriodChange]);
-
-  // Handle bar mouse events with debouncing
-  const handleBarMouseMove = useCallback(
-    debounce((state: { isTooltipActive?: boolean; activeTooltipIndex?: number }) => {
-      if (state.isTooltipActive && state.activeTooltipIndex !== undefined) {
-        setActiveBar(state.activeTooltipIndex);
-      } else {
-        setActiveBar(null);
-      }
-    }, CHART_CONFIG.DEBOUNCE_DELAY),
-    []
-  );
-
-  const handleBarMouseLeave = useCallback(() => {
-    setActiveBar(null);
-  }, []);
 
   // ============================================================================
   // Data Transformation & Validation
@@ -888,49 +686,6 @@ export function NetWorthChart({
     }
   }, [history]);
 
-  // Export data with comprehensive error handling
-  const handleExport = useCallback(() => {
-    if (!chartData.length) {
-      console.warn('[NetWorthChart] No data to export');
-      return;
-    }
-
-    try {
-      const csv = [
-        ['Date', 'Net Worth', 'Assets', 'Liabilities', 'Change', 'Change %'].join(','),
-        ...chartData.map(point => [
-          point.date,
-          point.totalNetWorth,
-          point.totalAssets,
-          point.totalLiabilities,
-          point.change || 0,
-          point.changePercent || 0,
-        ].join(','))
-      ].join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const timestamp = new Date().toISOString().split('T')[0];
-
-      a.href = url;
-      a.download = `networth-${selectedPeriod}-${timestamp}.csv`;
-      a.setAttribute('aria-label', 'Download net worth data as CSV');
-
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      // Cleanup URL after a delay to ensure download completes
-      exportTimeoutRef.current = setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 100);
-    } catch (error) {
-      console.error('[NetWorthChart] Export error:', error);
-      alert('Failed to export data. Please try again.');
-    }
-  }, [chartData, selectedPeriod]);
-
   // ============================================================================
   // Performance Metrics Calculation
   // ============================================================================
@@ -989,31 +744,6 @@ export function NetWorthChart({
     }
   }, [chartData]);
 
-  // ============================================================================
-  // Color Calculation (Memoized for Performance)
-  // ============================================================================
-
-  // Determine bar color based on performance threshold
-  const getBarColor = useCallback((value: number, _index: number): string => {
-    if (!isValidNumber(value)) {
-      console.warn('[NetWorthChart] Invalid color value:', value);
-      return COLOR_PALETTE.NEUTRAL;
-    }
-
-    if (!isValidNumber(averageValue) || averageValue === 0) {
-      return COLOR_PALETTE.NEUTRAL;
-    }
-
-    const threshold = averageValue * CHART_CONFIG.THRESHOLD_PERCENT;
-
-    if (value > averageValue + threshold) {
-      return COLOR_PALETTE.POSITIVE;
-    } else if (value < averageValue - threshold) {
-      return COLOR_PALETTE.NEGATIVE;
-    }
-
-    return COLOR_PALETTE.NEUTRAL;
-  }, [averageValue]);
 
   // ============================================================================
   // Component Render
@@ -1046,26 +776,6 @@ export function NetWorthChart({
                 {metrics.isPositive ? '+' : ''}{metrics.changePercent.toFixed(1)}%
               </div>
             )}
-
-            {/* Chart Type Toggle for Compact Mode */}
-            <div className="flex items-center gap-0.5 p-0.5 rounded-md border bg-muted/50">
-              <Button
-                variant={chartType === 'bar' ? 'secondary' : 'ghost'}
-                size="xs"
-                onClick={() => setChartType('bar')}
-                className="h-5 px-1.5 text-[10px] font-medium"
-              >
-                <BarChart3 className="h-3 w-3" />
-              </Button>
-              <Button
-                variant={chartType === 'area' ? 'secondary' : 'ghost'}
-                size="xs"
-                onClick={() => setChartType('area')}
-                className="h-5 px-1.5 text-[10px] font-medium"
-              >
-                <TrendingUp className="h-3 w-3" />
-              </Button>
-            </div>
           </div>
 
           {showPeriodFilter && (
@@ -1092,190 +802,100 @@ export function NetWorthChart({
           ) : chartData.length === 0 ? (
             <EmptyState onRefresh={() => refetch()} />
           ) : (
-            <div className="relative w-full h-full p-3">
+            <ChartContainer
+              config={{
+                totalNetWorth: {
+                  label: 'Net Worth',
+                  color: 'var(--chart-primary)',
+                },
+              } satisfies ChartConfig}
+              className="h-full w-full"
+            >
               <ResponsiveContainer width="100%" height="100%">
-                {chartType === 'bar' ? (
-                  <BarChart
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                    barGap={2}
-                    barCategoryGap="15%"
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
-                      opacity={0.2}
-                      vertical={false}
-                    />
-
-                    <XAxis
-                      dataKey="formattedDate"
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={5}
-                      opacity={0.7}
-                      interval="preserveStartEnd"
-                    />
-
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => formatCompactCurrency(value)}
-                      dx={-5}
-                      opacity={0.7}
-                      width={40}
-                      aria-label="Net worth value axis"
-                    />
-
-                    <Tooltip content={<CustomTooltip />} cursor={false} />
-
-                    <Bar
-                      dataKey="totalNetWorth"
-                      shape={(props: BarShapeProps) => <RoundedBar {...props} radius={CHART_CONFIG.BAR_RADIUS_COMPACT} />}
-                      maxBarSize={CHART_CONFIG.MAX_BAR_SIZE_COMPACT}
-                      aria-label="Net worth bars"
-                      isAnimationActive={true}
-                      animationDuration={500}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${entry.date}-${index}`}
-                          fill={getBarColor(entry.totalNetWorth, index)}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                ) : (
-                  <AreaChart
+                <AreaChart
                   accessibilityLayer
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                  >
-                    <defs>
-                      <linearGradient id="networthGradientCompact" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E2653F" stopOpacity={0.4} />
-                        <stop offset="50%" stopColor="#E2653F" stopOpacity={0.2} />
-                        <stop offset="100%" stopColor="#E2653F" stopOpacity={0.05} />
-                      </linearGradient>
-                    </defs>
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                >
+                  <defs>
+                    <linearGradient id="networthGradientCompact" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--chart-primary)" stopOpacity={0.5} />
+                      <stop offset="40%" stopColor="var(--chart-primary)" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="var(--chart-primary)" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
 
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
-                      opacity={0.2}
-                      vertical={false}
-                    />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--border)"
+                    opacity={0.2}
+                    vertical={false}
+                  />
 
-                    <XAxis
-                      dataKey="formattedDate"
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={5}
-                      opacity={0.7}
-                      interval="preserveStartEnd"
-                    />
+                  <XAxis
+                    dataKey="formattedDate"
+                    stroke="var(--muted-foreground)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={5}
+                    opacity={0.7}
+                    interval="preserveStartEnd"
+                  />
 
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => formatCompactCurrency(value)}
-                      dx={-5}
-                      opacity={0.7}
-                      width={40}
-                      aria-label="Net worth value axis"
-                    />
+                  <YAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    dx={-5}
+                    opacity={0.7}
+                    width={40}
+                    aria-label="Net worth value axis"
+                  />
 
-                    <Tooltip content={<CustomTooltip />} cursor={false} />
+                  <ChartTooltip content={<CustomTooltip />} cursor={false} />
 
-                    <Area
-                      type="linear"
-                      dataKey="totalNetWorth"
-                      stroke="#E2653F"
-                      strokeWidth={4}
-                      fill="url(#networthGradientCompact)"
-                      aria-label="Net worth area"
-                      isAnimationActive={true}
-                      animationDuration={100}
-                    />
-                  </AreaChart>
-                )}
+                  <Area
+                    type="linear"
+                    dataKey="totalNetWorth"
+                    stroke="var(--chart-primary)"
+                    strokeWidth={4}
+                    fill="url(#networthGradientCompact)"
+                    aria-label="Net worth area"
+                    isAnimationActive={true}
+                    animationDuration={100}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
-            </div>
+            </ChartContainer>
           )}
         </div>
       </section>
     );
   }
-
+  const chartConfig = {
+    date: {
+      label: "Date",
+      color: "var(--chart-1)",
+    },
+    totalNetWorth: {
+      label: "Networth",
+      color: "var(--chart-2)",
+    },
+  } satisfies ChartConfig
   // Full mode - enterprise-grade with accessibility
+
+  console.log(chartData)
   return (
     <section
       ref={chartContainerRef}
-      className={cn("w-full space-y-4 sm:space-y-5", className)}
+      className={cn("w-full space-y-2  border border-border/80 rounded-lg overflow-hidden  bg-muted/50 shadow-xs pr-3 pt-3", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
-      {/* Compact Header */}
-      <div className="flex items-end justify-between gap-3 flex-wrap">
-        {/* Chart Type Toggle */}
-        <div className="flex items-center gap-1 p-0.5 rounded-lg border bg-muted/50">
-          <Button
-            variant={chartType === 'bar' ? 'secondary' : 'ghost'}
-            size="xs"
-            onClick={() => setChartType('bar')}
-            className="h-6 px-2.5 text-xs font-medium gap-1.5"
-          >
-            <BarChart3 className="h-3.5 w-3.5" />
-            <span>Bar</span>
-          </Button>
-          <Button
-            variant={chartType === 'area' ? 'secondary' : 'ghost'}
-            size="xs"
-            onClick={() => setChartType('area')}
-            className="h-6 px-2.5 text-xs font-medium gap-1.5"
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-            <span>Area</span>
-          </Button>
-        </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-   {/*        <Button
-            variant="outline"
-            size="xs"
-            onClick={handleExport}
-            disabled={!chartData.length}
-            className="gap-1.5 text-xs font-medium h-7 px-2.5"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Export</span>
-          </Button> */}
-
-          {showPeriodFilter && (
-            <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
-              <SelectTrigger className="gap-1.5 font-medium h-7 text-xs" size='xs'>
-                <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {periods.map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
-                    <span className="font-medium text-xs">{period.label}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </div>
 
       {/* Compact Metrics Cards 
       {showMetrics && metrics && !isLoading && (
@@ -1304,12 +924,31 @@ export function NetWorthChart({
         </div>
       )}*/}
 
+<div className='flex justify-end'>
+      {showPeriodFilter && (
+        <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)} >
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs" size='xs' variant='outline2'>
+            <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {periods.map((period) => (
+              <SelectItem key={period.value} value={period.value}>
+                <span className="font-medium text-xs">{period.label}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+</div>
+
       {/* Chart Container */}
       <div
-        className="relative border border-border/80 rounded-xl overflow-hidden  bg-accent/40 shadow-xs"
+        className="relative "
         style={{ height }}
       >
-        
+ 
+      
         {isLoading ? (
           <ChartSkeleton height={height} />
         ) : error ? (
@@ -1317,168 +956,91 @@ export function NetWorthChart({
         ) : chartData.length === 0 ? (
           <EmptyState onRefresh={() => refetch()} />
         ) : (
-          <div className="relative p-2 h-full">
+          <ChartContainer
+            config={{
+              totalNetWorth: {
+                label: 'Net Worth',
+                color: 'var(--chart-primary)',
+              },
+            } satisfies ChartConfig}
+            className="h-full w-full"
+          >
             <ResponsiveContainer width="100%" height="100%">
-              {chartType === 'bar' ? (
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
-                  barGap={3}
-                  barCategoryGap="18%"
-                  onMouseMove={handleBarMouseMove}
-                  onMouseLeave={handleBarMouseLeave}
-                  role="img"
-                  aria-label={`Net worth bar chart showing ${chartData.length} data points over ${selectedPeriod}`}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    opacity={0.25}
-                    vertical={false}
+              <AreaChart
+                data={chartData}
+                margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
+                role="img"
+                aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
+              >
+                <defs>
+                  <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.5} />
+                    <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
+                  </linearGradient>
+                </defs>
+
+                <CartesianGrid vertical={false} />
+
+                <XAxis
+                  dataKey="formattedDate"
+                 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={8}
+                  
+                  interval="preserveStartEnd"
+                />
+
+                <YAxis
+            
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => formatCompactCurrency(value)}
+                  dx={-8}
+                 
+                  width={50}
+                  aria-label="Net worth value axis"
+                />
+
+                {showComparison && (
+                  <ReferenceLine
+                    y={averageValue}
+                    stroke="var(--chart-accent)"
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
+                    opacity={0.5}
+                    label={{
+                      value: 'Avg',
+                      position: 'right',
+                      fill: 'var(--muted-foreground)',
+                      fontSize: 10,
+                      fontWeight: 500,
+                    }}
                   />
+                )}
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={8}
-                    opacity={0.75}
-                    interval="preserveStartEnd"
-                  />
+                <ChartTooltip content={<CustomTooltip />} cursor={false} />
 
-                  <YAxis
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-8}
-                    opacity={0.75}
-                    width={50}
-                    aria-label="Net worth value axis"
-                  />
-
-                  {showComparison && (
-                    <ReferenceLine
-                      y={averageValue}
-                      stroke="var(--muted-foreground)"
-                      strokeDasharray="4 4"
-                      strokeWidth={1.5}
-                      opacity={0.4}
-                      label={{
-                        value: 'Avg',
-                        position: 'right',
-                        fill: 'hsl(var(--muted-foreground))',
-                        fontSize: 10,
-                        fontWeight: 500,
-                      }}
-                    />
-                  )}
-
-                  <Tooltip content={<CustomTooltip />} cursor={false} />
-
-                  <Bar
-                    dataKey="totalNetWorth"
-                    shape={(props: BarShapeProps) => <RoundedBar {...props} radius={CHART_CONFIG.BAR_RADIUS_FULL} />}
-                    maxBarSize={CHART_CONFIG.MAX_BAR_SIZE_FULL}
-                    aria-label="Net worth bars"
-                    isAnimationActive={true}
-                    animationDuration={500}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${entry.date}-${index}`}
-                        fill={getBarColor(entry.totalNetWorth, index)}
-                        opacity={activeBar === null || activeBar === index ? 1 : 0.4}
-                        className="transition-opacity duration-200"
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              ) : (
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
-                  role="img"
-                  aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
-                >
-                  <defs>
-                    <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#E2653F" stopOpacity={0.4} />
-                      <stop offset="50%" stopColor="#E2653F" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#E2653F" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    opacity={0.25}
-                    vertical={false}
-                  />
-
-                  <XAxis
-                    dataKey="formattedDate"
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={8}
-                    opacity={0.75}
-                    interval="preserveStartEnd"
-                  />
-
-                  <YAxis
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-8}
-                    opacity={0.75}
-                    width={50}
-                    aria-label="Net worth value axis"
-                  />
-
-                  {showComparison && (
-                    <ReferenceLine
-                      y={averageValue}
-                      stroke="var(--muted-foreground)"
-                      strokeDasharray="4 4"
-                      strokeWidth={1.5}
-                      opacity={0.4}
-                      label={{
-                        value: 'Avg',
-                        position: 'right',
-                        fill: 'hsl(var(--muted-foreground))',
-                        fontSize: 10,
-                        fontWeight: 500,
-                      }}
-                    />
-                  )}
-
-                  <Tooltip content={<CustomTooltip />} cursor={false} />
-
-                  <Area
-                    type="linear"
-                    dataKey="totalNetWorth"
-                    stroke="#E2653F"
-                    strokeWidth={3}
-                    fill="url(#networthGradient)"
-                    aria-label="Net worth area"
-                    isAnimationActive={true}
-                    animationDuration={500}
-                  />
-                </AreaChart>
-              )}
+                <Area
+                  type="linear"
+                  dataKey="totalNetWorth"
+                  stroke="var(--chart-primary)"
+                  strokeWidth={4}
+                  fill="url(#networthGradient)"
+                  aria-label="Net worth area"
+                  isAnimationActive={true}
+                  animationDuration={500}
+                />
+              </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         )}
+        
       </div>
 
-     
     </section>
   );
 }

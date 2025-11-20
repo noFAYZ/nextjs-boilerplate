@@ -107,7 +107,7 @@ export function SidebarMainColumn({
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 md:px-3")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 md:px-4")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -129,7 +129,7 @@ export function SidebarMainColumn({
                     size="lg"
                     className={cn(
                       "w-full h-auto",
-                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-2 border border-border",
+                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-1.5 border border-border",
                       isHighlighted
                         ? "bg-muted hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
@@ -193,7 +193,7 @@ export function SidebarMainColumn({
 
         {mainColumnExpanded && (
           <div className="px-2">
-            <div className="space-y-2 rounded-lg bg-muted p-2 md:p-3.5">
+            <div className="space-y-2 rounded-lg bg-gradient-to-br from-muted/90 via-muted/30 to-muted border border-border p-2 shadow-sm">
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-lg md:rounded-xl bg-background border border-border/80 shadow-sm flex-shrink-0">
                   <Crown className="h-4 md:h-5 w-4 md:w-5" />
@@ -218,39 +218,9 @@ export function SidebarMainColumn({
           </div>
         )}
 
-        <div className={cn("flex items-center gap-2 md:gap-3 p-1.5 md:p-2", mainColumnExpanded ? "justify-between w-full" : "justify-center flex-col")}>
-
-          {mainColumnExpanded && (
-            <>
-              <ThemeSwitcher />
-              <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
-            </>
-          )}
-
-          {/* Settings */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon-sm"
-                className="rounded-full shadow-transparent flex-shrink-0"
-                onClick={() => router.push("/settings")}
-              >
-                <LetsIconsSettingLineDuotone className="h-4 md:h-4.5 w-4 md:w-4.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              sideOffset={12}
-              className="bg-[#2a2a2a] text-xs font-medium rounded-lg shadow-xl border border-white/10"
-            >
-              Settings
-            </TooltipContent>
-          </Tooltip>
-        </div>
 
         {/* Profile Dropdown */}
-        <div className={cn("px-1.5 md:px-2", !mainColumnExpanded && "flex justify-center")}>
+        <div className={cn("px-2  ", !mainColumnExpanded && "flex justify-center")}>
           <Tooltip>
             <DropdownMenu>
               <TooltipTrigger asChild>
@@ -262,7 +232,7 @@ export function SidebarMainColumn({
                       className="flex items-center justify-between gap-2 md:gap-3 w-full px-2 md:px-3"
                     >
                       <div className="flex items-center text-start gap-2 flex-1 min-w-0">
-                        <Avatar className="h-6 md:h-7 w-6 md:w-7 flex-shrink-0">
+                        <Avatar className="h-7 w-7 flex-shrink-0">
                           <AvatarImage
                             src={avatar}
                             alt={`${user?.name || "User"}'s avatar`}
@@ -283,11 +253,11 @@ export function SidebarMainColumn({
                     </Button>
                   ) : (
                     <Button
-                      variant="outline2"
-                      size="icon"
-                      className="h-8 md:h-9 w-8 md:w-9 rounded-full flex-shrink-0"
+                      variant="outline"
+                      size="icon-lg"
+                      className=" rounded-full flex-shrink-0"
                     >
-                      <Avatar className="h-6 md:h-7 w-6 md:w-7">
+                      <Avatar className="h-full w-full">
                         <AvatarImage
                           src={avatar}
                           alt={`${user?.name || "User"}'s avatar`}

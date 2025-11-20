@@ -1,35 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Search, Filter, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+import { Plus, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { SubscriptionList } from "@/components/subscriptions/subscription-list";
-import { SubscriptionAnalytics } from "@/components/subscriptions/subscription-analytics";
 import { SubscriptionFormModal } from "@/components/subscriptions/subscription-form-modal";
-import { SubscriptionFiltersSheet } from "@/components/subscriptions/subscription-filters-sheet";
+import { UpcomingCharges } from "@/components/subscriptions/upcoming-charges";
+import { SubscriptionsFloatingToolbar } from "@/components/subscriptions/subscriptions-floating-toolbar";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
-import { useDeleteSubscription } from "@/lib/queries/use-subscription-data";
+import { useDeleteSubscription, useSubscriptions } from "@/lib/queries/use-subscription-data";
 import { useToast } from "@/lib/hooks/use-toast";
 import type { UserSubscription } from "@/lib/types/subscription";
-import Link from "next/link";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,21 +30,24 @@ export default function SubscriptionsPage() {
   );
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
   const [subscriptionToDelete, setSubscriptionToDelete] = React.useState<UserSubscription | null>(
     null
   );
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
-  const {
-    viewPreferences,
-    filters,
-    setSubscriptionsView,
-    setSearchQuery,
-    setActiveTab,
-    ui,
-  } = useSubscriptionUIStore();
+  const { setActiveTab, ui, viewPreferences, setSubscriptionsView } = useSubscriptionUIStore();
+  const { data: subscriptions = [] } = useSubscriptions();
 
   const { mutate: deleteSubscription, isPending: isDeleting } = useDeleteSubscription();
+
+  // Calculate total monthly spend for selected
+  const selectedSubscriptions = subscriptions.filter((s) =>
+    selectedIds.includes(s.id)
+  );
+  const totalMonthlySpend = selectedSubscriptions.reduce(
+    (total, sub) => total + (sub.monthlyEquivalent || 0),
+    0
+  );
 
   const handleEdit = (subscription: UserSubscription) => {
     setSelectedSubscription(subscription);
@@ -103,133 +88,107 @@ export default function SubscriptionsPage() {
 
 
   return (
-    <div className="max-5xl mx-auto flex-1 space-y-6 p-6">
+    <div className=" flex-1 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Subscriptions</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <h1 className="text-2xl font-bold">Subscriptions</h1>
           <p className="text-muted-foreground text-xs mt-1">
             Track and manage your recurring subscriptions
           </p>
         </div>
-        <Button onClick={handleAddNew} size={'xs'}>
-          <Plus className="mr-1 h-4 w-4" />
-          Add Subscription
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 border border-border rounded-lg p-0.5">
+            <Button
+              variant={viewPreferences.subscriptionsView === "grid" ? "outline2" : "ghost"}
+              size="xs"
+                onClick={() => setSubscriptionsView("grid")}
+              title="Grid view"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewPreferences.subscriptionsView === "list" ? "outline2" : "ghost"}
+              size="xs"
+              onClick={() => setSubscriptionsView("list")}
+              title="List view"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={handleAddNew} size={'xs'}>
+            <Plus className="mr-1 h-4 w-4" />
+            Add Subscription
+          </Button>
+        </div>
       </div>
 
-      {/* Analytics */}
-      <SubscriptionAnalytics />
-
+      {/* Upcoming Charges */}
+      <UpcomingCharges />
 
       {/* Tabs */}
       <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)} >
-        <div className="flex items-center justify-between">
         <TabsList variant={'card'} size="sm">
           <TabsTrigger value="all" variant={'card'} size="sm" >All</TabsTrigger>
           <TabsTrigger value="active" variant={'card'} size="sm">Active</TabsTrigger>
           <TabsTrigger value="trial" variant={'card'} size="sm">Trial</TabsTrigger>
           <TabsTrigger value="cancelled" variant={'card'} size="sm">Cancelled</TabsTrigger>
         </TabsList>
-              {/* Filters and View Controls */}
-      <div className="flex items-center justify-between min-w-sm gap-4">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
-            <Input
-              placeholder="Search subscriptions..."
-              className="pl-9"
-              value={filters.searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {/* View Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon-sm">
-                {viewPreferences.subscriptionsView === "grid" ? (
-                  <LayoutGrid className="h-4 w-4" />
-                ) : (
-                  <List className="h-4 w-4" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>View</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSubscriptionsView("grid")}>
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                Grid
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSubscriptionsView("list")}>
-                <List className="mr-2 h-4 w-4" />
-                List
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSubscriptionsView("compact")}>
-                <SlidersHorizontal className="mr-2 h-4 w-4" />
-                Compact
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button variant="outline" size="icon-sm" onClick={() => setIsFiltersOpen(true)}>
-            <Filter className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-</div>
-
-        <TabsContent value="all" className="mt-6">
+        <TabsContent value="all" className="mt-6 pb-32">
           <SubscriptionList
             activeTab="all"
             onEdit={handleEdit}
             onDelete={handleDelete}
             onSelect={(sub) => setSelectedSubscription(sub)}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
           />
         </TabsContent>
 
-        <TabsContent value="active" className="mt-6">
+        <TabsContent value="active" className="mt-6 pb-32">
           <SubscriptionList
             activeTab="active"
             onEdit={handleEdit}
             onDelete={handleDelete}
             onSelect={(sub) => setSelectedSubscription(sub)}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
           />
         </TabsContent>
 
-        <TabsContent value="trial" className="mt-6">
+        <TabsContent value="trial" className="mt-6 pb-32">
           <SubscriptionList
             activeTab="trial"
             onEdit={handleEdit}
             onDelete={handleDelete}
             onSelect={(sub) => setSelectedSubscription(sub)}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
           />
         </TabsContent>
 
-        <TabsContent value="cancelled" className="mt-6">
+        <TabsContent value="cancelled" className="mt-6 pb-32">
           <SubscriptionList
             activeTab="cancelled"
             onEdit={handleEdit}
             onDelete={handleDelete}
             onSelect={(sub) => setSelectedSubscription(sub)}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
           />
         </TabsContent>
       </Tabs>
+
+      {/* Floating Toolbar */}
+      <SubscriptionsFloatingToolbar
+        selectedCount={selectedIds.length}
+        totalMonthlySpend={totalMonthlySpend}
+        selectedSubscriptions={selectedSubscriptions}
+        onClearSelection={() => setSelectedIds([])}
+        onDelete={handleDelete}
+        isLoading={isDeleting}
+      />
 
       {/* Modals & Sheets */}
       <SubscriptionFormModal
@@ -240,8 +199,6 @@ export default function SubscriptionsPage() {
         }}
         subscription={selectedSubscription}
       />
-
-      <SubscriptionFiltersSheet open={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

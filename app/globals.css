@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *, .dark-pro *));
 /* fffefa */
 :root {
-  --background: oklch(1 0 0);
+  --background: #ffffff;
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -23,11 +23,11 @@
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.8118 0.0152 102.5130);
   --ring: oklch(0.8507 0.0536 40.1324);
-  --chart-1: oklch(0.5654 0.1326 44.2407);
-  --chart-2: oklch(0.3816 0.0713 76.6811);
-  --chart-3: oklch(0.8842 0.0302 94.3733);
-  --chart-4: oklch(0.8806 0.0432 298.7728);
-  --chart-5: oklch(0.5677 0.1418 42.7476);
+  --chart-1: oklch(0.5583 0.1276 42.9956);
+  --chart-2: oklch(0.6898 0.1581 290.4107);
+  --chart-3: oklch(0.8816 0.0276 93.1280);
+  --chart-4: oklch(0.8822 0.0403 298.1792);
+  --chart-5: oklch(0.5608 0.1348 42.0584);
   --chart-positive: oklch(0.65 0.18 150);
   --chart-negative: oklch(0.55 0.22 25);
   --chart-neutral: oklch(0.70 0.05 85);
@@ -58,7 +58,9 @@
   --shadow-xs: 0px 3px 4.5px -1.5px hsl(0 0% 78.0392% / 0.43);
   --shadow-xs: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.23);
   --shadow-sm: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.35), 0px 1px 2px -2.5px hsl(0 0% 78.0392% / 0.35);
-
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
 
 }
 

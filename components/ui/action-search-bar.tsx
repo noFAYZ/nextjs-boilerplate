@@ -303,11 +303,11 @@ export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) 
   return (
     <div
       ref={containerRef}
-      className="w-full max-w-sm sm:max-w-md md:max-w-lg relative"
+      className="w-full max-w-sm sm:max-w-md md:max-w-md relative"
     >
       {/* Input Container */}
       <div className="relative">
-        <div className="flex items-center h-9 sm:h-10 px-2 sm:px-3 bg-muted border border-border/80 rounded-2xl hover:bg-muted/70 focus-within:bg-muted/80 focus-within:border-border transition-colors">
+        <div className="flex items-center h-9 sm:h-10 px-2 sm:px-3 bg-muted border border-border/50 rounded-lg hover:bg-muted/70 focus-within:bg-muted/80 focus-within:border-border transition-colors">
           <Search className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-muted-foreground flex-shrink-0" />
           <input
             ref={inputRef}
@@ -363,7 +363,7 @@ export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) 
                             key={action.id}
                             onClick={() => handleSelectAction(action)}
                             className={cn(
-                              'w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors',
+                              'w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors cursor-pointer',
                               isSelected
                                 ? 'bg-muted text-foreground'
                                 : 'text-foreground hover:bg-muted/50'

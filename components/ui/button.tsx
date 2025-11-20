@@ -21,7 +21,15 @@ const buttonVariants = cva(
             "active:shadow-none active:translate-y-[4px] transition-all duration-150 " +
             "before:absolute before:inset-0 before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] before:opacity-0  before:transition-opacity before:duration-200 " +
             " overflow-hidden dark:from-[#FF8C1A] dark:via-[#E66A00] dark:to-[#B84D00]",
-          delete: 'bg-[rgb(245,126,47)] text-primary-foreground border-2 border-[rgb(245,102,9)] shadow-[0_3px_0_0_rgb(245,102,9)] hover:shadow-[0_1px_0_0_rgb(245,100,9)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-150 font-medium ',
+            delete:
+            "relative bg-gradient-to-b from-[#FF3333] via-[#FF1A1A] to-[#E60000] text-white font-semibold " +
+            "shadow-[0_4px_0_0_rgb(153,0,0)] border-2 border-[rgb(153,0,0)] " +
+            "hover:shadow-[0_2px_0_0_rgb(153,0,0)] hover:translate-y-[2px] " +
+            "active:shadow-none active:translate-y-[4px] transition-all duration-150 " +
+            "before:absolute before:inset-0 before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] before:opacity-0 before:transition-opacity before:duration-200 " +
+            "hover:before:opacity-100 " +
+            "overflow-hidden " +
+            "dark:from-[#FF5252] dark:via-[#FF3333] dark:to-[#CC0000]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         outline:
@@ -30,6 +38,16 @@ const buttonVariants = cva(
 ,
 
         secondary:  "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border-2 border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)] hover:shadow-[0_2px_0_0_rgb(254,215,170)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75 dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
+        successbrand:
+        "bg-muted text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm " +
+        "border-2 border-emerald-500/25 " +
+        "shadow-[0_4px_0_0_rgb(187,247,208)] " +                    /* light green highlight */
+        "hover:shadow-[0_2px_0_0_rgb(187,247,208)] hover:translate-y-[2px] " +
+        "active:shadow-none active:translate-y-[4px] " +
+        "transition-all duration-75 " +
+        "dark:border-emerald-400/30 " +
+        "dark:shadow-[0_3px_0_0_rgb(20,105,60)] " +                 /* darker green bottom shadow */
+        "dark:hover:shadow-[0_1px_0_0_rgb(20,105,60)]",
         ghost:
           "hover:bg-accent/60 hover:text-accent-foreground active:scale-[0.98] backdrop-blur-sm",
         link: 

@@ -39,37 +39,38 @@ import { useCommandPalette } from '@/components/command/command-palette';
 import { SidebarMainColumn } from './main-column';
 import { SidebarSecondaryColumn } from './secondary-column';
 import { MenuItem, QuickAction } from '../types';
-import { 
+import {
   FluentBuildingBank28Regular,
-  GuidanceBank, 
-  HeroiconsWallet, 
-  HeroiconsWallet16Solid, 
-  HugeiconsAnalytics02, 
-  HugeiconsAnalyticsUp,  
-  HugeiconsHome04, 
-  HugeiconsPieChart09, 
-  HugeiconsPuzzle, 
-  HugeiconsTransactionHistory, 
+  GuidanceBank,
+  HeroiconsWallet,
+  HeroiconsWallet16Solid,
+  HugeiconsAnalytics02,
+  HugeiconsAnalyticsUp,
+  HugeiconsHome04,
+  HugeiconsPieChart09,
+  HugeiconsPuzzle,
+  HugeiconsTransactionHistory,
 
-  MageGoals, 
-  SolarAddSquareBoldDuotone, 
-  SolarBillListBoldDuotone, 
-  SolarCalculatorBoldDuotone, 
-  SolarChartSquareBoldDuotone, 
-  SolarClipboardListBoldDuotone, 
-  SolarDownloadBoldDuotone, 
-  SolarGraphUpBoldDuotone, 
-  SolarHomeSmileBoldDuotone, 
-  SolarInboxInBoldDuotone, 
-  SolarLibraryBoldDuotone, 
-  SolarPieChart2BoldDuotone, 
-  SolarWallet2Outline, 
-  SolarWalletMoneyBoldDuotone, 
-  SolarWalletMoneyLinear, 
-  SolarWidgetAddBoldDuotone, 
-  StreamlineFlexWallet, 
-  StreamlinePlumpFileReport, 
-  TablerEyeDollar 
+  MageGoals,
+  PhBrainDuotone,
+  SolarAddSquareBoldDuotone,
+  SolarBillListBoldDuotone,
+  SolarCalculatorBoldDuotone,
+  SolarChartSquareBoldDuotone,
+  SolarClipboardListBoldDuotone,
+  SolarDownloadBoldDuotone,
+  SolarGraphUpBoldDuotone,
+  SolarHomeSmileBoldDuotone,
+  SolarInboxInBoldDuotone,
+  SolarLibraryBoldDuotone,
+  SolarPieChart2BoldDuotone,
+  SolarWallet2Outline,
+  SolarWalletMoneyBoldDuotone,
+  SolarWalletMoneyLinear,
+  SolarWidgetAddBoldDuotone,
+  StreamlineFlexWallet,
+  StreamlinePlumpFileReport,
+  TablerEyeDollar
 } from '@/components/icons/icons';
 import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
@@ -389,6 +390,43 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'add-integration', label: 'Add Integration', icon: Plus, action: () => {}, },
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
       { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
+    ]
+  },
+  {
+    id: 'ai',
+    label: 'MapprAI',
+    icon: PhBrainDuotone,
+    href: '/ai',
+    submenu: [
+      {
+        id: 'chat',
+        label: 'Chat',
+        href: '/ai',
+        icon: PhBrainDuotone,
+        description: 'Chat with MapprAI',
+        tooltip: 'Ask questions and get insights'
+      },
+      {
+        id: 'analysis',
+        label: 'Analysis',
+        href: '/ai/analysis',
+        icon: BarChart3,
+        description: 'AI-powered financial analysis',
+        tooltip: 'Deep insights into your finances'
+      },
+      {
+        id: 'recommendations',
+        label: 'Recommendations',
+        href: '/ai/recommendations',
+        icon: Lightbulb,
+        description: 'Personalized AI recommendations',
+        tooltip: 'Smart suggestions for your finances'
+      }
+    ],
+    quickActions: [
+      { id: 'ask-ai', label: 'Ask MapprAI', icon: PhBrainDuotone, action: () => {}, shortcut: '⌘A' },
+      { id: 'generate-report', label: 'Generate Report', icon: FileText, action: () => {}, },
+      { id: 'ai-settings', label: 'AI Settings', icon: Settings, action: () => {}, }
     ]
   },
 ];

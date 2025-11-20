@@ -1,8 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
 import { Menu } from 'lucide-react';
 import { TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 import { cn } from '@/lib/utils';
@@ -26,57 +24,18 @@ interface MainHeaderProps {
   isMobileMenuOpen?: boolean;
 }
 
-// Map routes to breadcrumb labels
-const BREADCRUMB_MAP: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/accounts': 'Accounts',
-  '/accounts/wallet': 'Crypto Wallets',
-  '/accounts/bank': 'Bank Accounts',
-  '/transactions': 'Transactions',
-  '/portfolio': 'Portfolio',
-  '/goals': 'Goals',
-  '/subscriptions': 'Subscriptions',
-  '/investments': 'Investments',
-  '/insights': 'Insights',
-  '/integrations': 'Integrations',
-  '/settings': 'Settings',
-};
-
 export function MainHeader({
   mainColumnExpanded,
   onToggleMainColumn,
   onMobileMenuToggle,
   isMobileMenuOpen = false
 }: MainHeaderProps) {
-  const pathname = usePathname();
   const { openCommandPalette } = useCommandPalette();
-
-  // Memoize breadcrumb label calculation to prevent recalculation on every render
-  const breadcrumbLabel = useMemo(() => {
-    // Try exact match first
-    if (BREADCRUMB_MAP[pathname]) {
-      return BREADCRUMB_MAP[pathname];
-    }
-
-    // Try prefix match (for routes like /accounts/wallet/[id])
-    // Sort by longest route first to ensure most specific match
-    const sortedRoutes = Object.entries(BREADCRUMB_MAP).sort(
-      ([routeA], [routeB]) => routeB.length - routeA.length
-    );
-
-    for (const [route, label] of sortedRoutes) {
-      if (pathname.startsWith(route)) {
-        return label;
-      }
-    }
-
-    return 'Dashboard';
-  }, [pathname]);
 
   return (
     <TooltipProvider delayDuration={200}>
-      <header className="h-14 md:h-16 border-b border-border/50 bg-card">
-        <div className="flex items-center justify-between h-full px-3 sm:px-4 gap-2 sm:gap-4">
+      <header className="h-14 md:h-16 border-b border-border/50 bg-card sticky top-0 z-40">
+        <div className="mx-auto h-full px-3 sm:px-4 md:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
           {/* Left Section - Mobile Menu & Desktop Collapse/Expand */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Mobile Menu Button - Visible only on mobile */}
@@ -129,15 +88,6 @@ export function MainHeader({
               </Tooltip>
             </div>
 
-            {/* Separator - Hidden on mobile */}
-            <div className="hidden sm:block h-6 w-px bg-border/50 flex-shrink-0" />
-
-            {/* Breadcrumbs - Hidden on mobile and small tablets */}
-            <div className="hidden lg:flex items-center gap-2 text-sm flex-shrink-0">
-              <span className="text-muted-foreground">Home</span>
-              <span className="text-muted-foreground/50">/</span>
-              <span className="text-foreground font-medium truncate">{breadcrumbLabel}</span>
-            </div>
           </div>
 
           {/* Center Section - Action Search Bar (Responsive Width) */}

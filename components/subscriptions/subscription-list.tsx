@@ -15,6 +15,8 @@ interface SubscriptionListProps {
   onSelect?: (subscription: UserSubscription) => void;
   activeTab?: "all" | "active" | "trial" | "cancelled";
   className?: string;
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
 }
 
 export function SubscriptionList({
@@ -23,6 +25,8 @@ export function SubscriptionList({
   onSelect,
   activeTab = "all",
   className,
+  selectedIds = [],
+  onSelectionChange,
 }: SubscriptionListProps) {
   const { data, isLoading, error } = useSubscriptions();
   const viewPreferences = useSubscriptionUIStore((state) => state.viewPreferences);
@@ -43,11 +47,6 @@ export function SubscriptionList({
       );
     return allSubscriptions;
   }, [allSubscriptions, activeTab]);
-
-  // Calculate total monthly spend
-  const totalMonthlySpend = React.useMemo(() => {
-    return subscriptions.reduce((total, sub) => total + (sub.monthlyEquivalent || 0), 0);
-  }, [subscriptions]);
 
   // NOW WE CAN DO CONDITIONAL RETURNS
   if (isLoading) {
@@ -90,10 +89,11 @@ export function SubscriptionList({
     return (
       <SubscriptionsDataTable
         subscriptions={subscriptions}
-        totalMonthlySpend={totalMonthlySpend}
         isLoading={isLoading}
         onEdit={onEdit}
         onDelete={onDelete}
+        selectedIds={selectedIds}
+        onSelectionChange={onSelectionChange}
       />
     );
   }
