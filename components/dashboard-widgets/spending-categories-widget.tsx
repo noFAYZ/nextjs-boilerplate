@@ -3,9 +3,11 @@
 import { useMemo, useState } from 'react';
 import { ShoppingBag, Utensils, Home, Car, Zap, Wallet } from 'lucide-react';
 import { useTopSpendingCategories } from '@/lib/queries/banking-queries';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Badge } from '../ui/badge';
 import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
 import { CurrencyDisplay } from '../ui/currency-display';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import type { LucideIcon } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -67,6 +69,9 @@ export function SpendingCategoriesWidget() {
     limit: 50, // Get all categories for accurate total
   });
 
+  // Check if organization data is being refetched
+  const { isRefetching } = useOrganizationRefetchState();
+
   // Calculate total from ALL categories
   const totalSpending = useMemo(() => {
     if (!spendingCategories || spendingCategories.length === 0) return 0;
@@ -102,6 +107,7 @@ export function SpendingCategoriesWidget() {
   };
 
 
+  // Show skeleton when initially loading
   if (spendingCategoriesLoading) {
     return (
       <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
@@ -130,7 +136,7 @@ export function SpendingCategoriesWidget() {
 
   if (categoryData.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
           <TimePeriodSelector
@@ -140,18 +146,19 @@ export function SpendingCategoriesWidget() {
             variant="ghost"
           />
         </div>
-        <div className="py-12 text-center">
+        <div className="relative py-12 text-center">
           <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
           <p className="text-xs text-muted-foreground">
             No spending data available.
           </p>
+          <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
         <TimePeriodSelector
@@ -333,6 +340,7 @@ export function SpendingCategoriesWidget() {
           })}
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

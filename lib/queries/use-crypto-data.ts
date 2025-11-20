@@ -48,13 +48,7 @@ function useAuthReady() {
  */
 function useContextOrganizationId(organizationId?: string) {
   const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  const resolvedOrgId = organizationId || contextOrgId;
-  console.log('[useContextOrganizationId] Resolved org ID:', {
-    explicit: organizationId,
-    context: contextOrgId,
-    resolved: resolvedOrgId,
-  });
-  return resolvedOrgId;
+  return organizationId || contextOrgId;
 }
 
 // ============================================================================
@@ -70,11 +64,8 @@ export function useCryptoWallets(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const orgId = useContextOrganizationId(organizationId);
 
-  const queryOptions = cryptoQueries.wallets(orgId);
-  console.log('[useCryptoWallets] Query options:', { orgId, queryKey: queryOptions.queryKey });
-
   return useQuery({
-    ...queryOptions,
+    ...cryptoQueries.wallets(orgId),
     enabled: isAuthReady,
   });
 }
@@ -89,11 +80,12 @@ export function useCryptoWallets(organizationId?: string) {
 export function useCryptoWallet(walletId: string | null, timeRange?: string, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const portfolioTimeRange = useCryptoUIStore((state) => state.viewPreferences.portfolioTimeRange);
+  const orgId = useContextOrganizationId(organizationId);
 
   const effectiveTimeRange = timeRange || portfolioTimeRange;
 
   return useQuery({
-    ...cryptoQueries.wallet(walletId!, effectiveTimeRange, organizationId),
+    ...cryptoQueries.wallet(walletId!, effectiveTimeRange, orgId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -105,7 +97,8 @@ export function useCryptoWallet(walletId: string | null, timeRange?: string, org
  */
 export function useSelectedCryptoWallet(organizationId?: string) {
   const selectedWalletId = useCryptoUIStore((state) => state.selectedWalletId);
-  return useCryptoWallet(selectedWalletId, undefined, organizationId);
+  const orgId = useContextOrganizationId(organizationId);
+  return useCryptoWallet(selectedWalletId, undefined, orgId);
 }
 
 /**
@@ -115,9 +108,10 @@ export function useSelectedCryptoWallet(organizationId?: string) {
  */
 export function useAggregatedCryptoWallet(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.aggregatedWallet(organizationId),
+    ...cryptoQueries.aggregatedWallet(orgId),
     enabled: isAuthReady,
   });
 }
@@ -135,6 +129,7 @@ export function useAggregatedCryptoWallet(organizationId?: string) {
 export function useCryptoPortfolio(params?: PortfolioParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
   const timeRange = useCryptoUIStore((state) => state.viewPreferences.portfolioTimeRange);
+  const orgId = useContextOrganizationId(organizationId);
 
   const effectiveParams: PortfolioParams = {
     timeRange,
@@ -142,7 +137,7 @@ export function useCryptoPortfolio(params?: PortfolioParams, organizationId?: st
   };
 
   return useQuery({
-    ...cryptoQueries.portfolio(effectiveParams, organizationId),
+    ...cryptoQueries.portfolio(effectiveParams, orgId),
     enabled: isAuthReady,
   });
 }
@@ -159,9 +154,10 @@ export function useCryptoPortfolio(params?: PortfolioParams, organizationId?: st
  */
 export function useCryptoTransactions(params?: TransactionParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.transactions(params, organizationId),
+    ...cryptoQueries.transactions(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -175,9 +171,10 @@ export function useCryptoTransactions(params?: TransactionParams, organizationId
  */
 export function useWalletTransactions(walletId: string | null, params?: TransactionParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.walletTransactions(walletId!, params, organizationId),
+    ...cryptoQueries.walletTransactions(walletId!, params, orgId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -190,7 +187,8 @@ export function useWalletTransactions(walletId: string | null, params?: Transact
  */
 export function useSelectedWalletTransactions(params?: TransactionParams, organizationId?: string) {
   const selectedWalletId = useCryptoUIStore((state) => state.selectedWalletId);
-  return useWalletTransactions(selectedWalletId, params, organizationId);
+  const orgId = useContextOrganizationId(organizationId);
+  return useWalletTransactions(selectedWalletId, params, orgId);
 }
 
 // ============================================================================
@@ -205,9 +203,10 @@ export function useSelectedWalletTransactions(params?: TransactionParams, organi
  */
 export function useCryptoNFTs(params?: NFTParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.nfts(params, organizationId),
+    ...cryptoQueries.nfts(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -221,9 +220,10 @@ export function useCryptoNFTs(params?: NFTParams, organizationId?: string) {
  */
 export function useWalletNFTs(walletId: string | null, params?: NFTParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.walletNfts(walletId!, params, organizationId),
+    ...cryptoQueries.walletNfts(walletId!, params, orgId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -239,9 +239,10 @@ export function useWalletNFTs(walletId: string | null, params?: NFTParams, organ
  */
 export function useCryptoDeFi(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.defi(organizationId),
+    ...cryptoQueries.defi(orgId),
     enabled: isAuthReady,
   });
 }
@@ -254,9 +255,10 @@ export function useCryptoDeFi(organizationId?: string) {
  */
 export function useWalletDeFi(walletId: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.walletDefi(walletId!, organizationId),
+    ...cryptoQueries.walletDefi(walletId!, orgId),
     enabled: isAuthReady && !!walletId,
   });
 }
@@ -274,9 +276,10 @@ export function useWalletDeFi(walletId: string | null, organizationId?: string) 
  */
 export function useWalletSyncStatus(walletId: string | null, jobId?: string, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.syncStatus(walletId!, jobId, organizationId),
+    ...cryptoQueries.syncStatus(walletId!, jobId, orgId),
     enabled: isAuthReady && !!walletId && !!jobId,
   });
 }
@@ -293,9 +296,10 @@ export function useWalletSyncStatus(walletId: string | null, jobId?: string, org
  */
 export function useCryptoAnalytics(params?: Record<string, unknown>, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...cryptoQueries.analytics(params, organizationId),
+    ...cryptoQueries.analytics(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -312,6 +316,7 @@ export function useCreateCryptoWallet() {
   const queryClient = useQueryClient();
   const mutation = cryptoMutations.useCreateWallet();
   const { closeCreateWalletModal } = useCryptoUIStore();
+  const orgId = useContextOrganizationId();
 
   return useMutation({
     ...mutation,
@@ -319,8 +324,8 @@ export function useCreateCryptoWallet() {
       if (response.success) {
         closeCreateWalletModal();
 
-        // Optimistic UI update
-        queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+        // Optimistic UI update with proper organization context
+        queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
           if (!old || typeof old !== 'object' || !('data' in old)) return old;
           return {
             ...old,
@@ -341,20 +346,21 @@ export function useUpdateCryptoWallet() {
   const queryClient = useQueryClient();
   const mutation = cryptoMutations.useUpdateWallet();
   const { closeEditWalletModal } = useCryptoUIStore();
+  const orgId = useContextOrganizationId();
 
   return useMutation({
     ...mutation,
     onMutate: async ({ id, updates }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallet(id) });
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets() });
+      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallet(id, undefined, orgId) });
+      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets(orgId) });
 
       // Snapshot previous value
-      const previousWallet = queryClient.getQueryData(cryptoKeys.wallet(id));
-      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
+      const previousWallet = queryClient.getQueryData(cryptoKeys.wallet(id, undefined, orgId));
+      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets(orgId));
 
       // Optimistically update wallet
-      queryClient.setQueryData(cryptoKeys.wallet(id), (old: unknown) => {
+      queryClient.setQueryData(cryptoKeys.wallet(id, undefined, orgId), (old: unknown) => {
         if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
@@ -363,7 +369,7 @@ export function useUpdateCryptoWallet() {
       });
 
       // Optimistically update wallet list
-      queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+      queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
         if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
@@ -378,10 +384,10 @@ export function useUpdateCryptoWallet() {
     onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousWallet) {
-        queryClient.setQueryData(cryptoKeys.wallet(_variables.id), context.previousWallet);
+        queryClient.setQueryData(cryptoKeys.wallet(_variables.id, undefined, orgId), context.previousWallet);
       }
       if (context?.previousWallets) {
-        queryClient.setQueryData(cryptoKeys.wallets(), context.previousWallets);
+        queryClient.setQueryData(cryptoKeys.wallets(orgId), context.previousWallets);
       }
     },
     onSuccess: (response) => {
@@ -401,18 +407,19 @@ export function useDeleteCryptoWallet() {
   const queryClient = useQueryClient();
   const mutation = cryptoMutations.useDeleteWallet();
   const { closeDeleteWalletModal, selectWallet } = useCryptoUIStore();
+  const orgId = useContextOrganizationId();
 
   return useMutation({
     ...mutation,
     onMutate: async (walletId) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets() });
+      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets(orgId) });
 
       // Snapshot previous value
-      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
+      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets(orgId));
 
       // Optimistically remove wallet
-      queryClient.setQueryData(cryptoKeys.wallets(), (old: unknown) => {
+      queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
         if (!old || typeof old !== 'object' || !('data' in old)) return old;
         return {
           ...old,
@@ -425,7 +432,7 @@ export function useDeleteCryptoWallet() {
     onError: (_error, _walletId, context) => {
       // Rollback on error
       if (context?.previousWallets) {
-        queryClient.setQueryData(cryptoKeys.wallets(), context.previousWallets);
+        queryClient.setQueryData(cryptoKeys.wallets(orgId), context.previousWallets);
       }
     },
     onSuccess: (response, walletId) => {

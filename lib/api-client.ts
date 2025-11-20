@@ -49,12 +49,9 @@ class ApiClient {
       }
     }
 
-    // Add organization context if available (via header and query param for maximum compatibility)
+    // Add organization context if available (via header)
     if (orgId) {
-      headers['X-Organization-Id'] = orgId;
-      console.log('[ApiClient] Adding organization header:', { orgId, header: 'X-Organization-Id' });
-    } else {
-      console.log('[ApiClient] No organization ID, sending request without org header');
+      headers['Organization-Id'] = orgId;
     }
 
     return headers;
@@ -116,14 +113,10 @@ class ApiClient {
         }
       }
 
-      // Add organizationId to query string
+      // Add organizationId to query string for backend filtering
       if (orgId) {
         const separator = url.includes('?') ? '&' : '?';
         url = `${url}${separator}organizationId=${orgId}`;
-        console.log('[ApiClient] Adding organizationId to query string:', {
-          orgId,
-          finalUrl: url,
-        });
       }
 
       const headers = await this.getHeaders(organizationId);

@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import Image from 'next/image';
 import { TrendingUp, TrendingDown, Coins } from 'lucide-react';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '../ui/currency-display';
 
 interface TokenAllocation {
@@ -28,6 +30,7 @@ const TOKEN_COLORS = [
 
 export function CryptoAllocationWidget() {
   const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const topTokens = useMemo(() => {
     if (!portfolio?.topAssets || portfolio.topAssets.length === 0) {
@@ -46,6 +49,7 @@ export function CryptoAllocationWidget() {
       }));
   }, [portfolio]);
 
+  // Show skeleton when initially loading
   if (portfolioLoading) {
     return (
       <div className="rounded-xl border border-border bg-card p-3">
@@ -57,8 +61,8 @@ export function CryptoAllocationWidget() {
               className={`rounded-lg p-3 bg-muted/50 ${i === 0 ? 'row-span-2' : ''}`}
               style={{ minHeight: i === 0 ? '140px' : '68px' }}
             >
-              <div className="h-3 w-10 bg-muted rounded mb-2" />
-              <div className="h-5 w-16 bg-muted rounded mt-auto" />
+              <div className="h-3 w-10 bg-muted rounded mb-2 animate-pulse" />
+              <div className="h-5 w-16 bg-muted rounded mt-auto animate-pulse" />
             </div>
           ))}
         </div>
@@ -68,19 +72,20 @@ export function CryptoAllocationWidget() {
 
   if (topTokens.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-card p-3">
         <h3 className="text-xs font-medium text-muted-foreground mb-3">Token allocation</h3>
         <div className="py-8 text-center">
           <p className="text-xs text-muted-foreground">
             No crypto assets found. Add wallets to see your allocation.
           </p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
       <h3 className="text-xs font-medium text-muted-foreground mb-3">Token allocation</h3>
 
       <div className="grid grid-cols-2 gap-2">
@@ -136,6 +141,7 @@ export function CryptoAllocationWidget() {
           );
         })}
       </div>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

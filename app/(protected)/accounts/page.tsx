@@ -32,6 +32,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 // Unified accounts API
 import { useAllAccounts } from '@/lib/queries';
@@ -115,6 +117,7 @@ export default function AccountsPage() {
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
 
   const { data: accountsData, isLoading, refetch } = useAllAccounts();
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Summary data
   const summaryData = {
@@ -138,7 +141,8 @@ export default function AccountsPage() {
   const totalBalance = useMemo(() => categoriesWithAccounts.reduce((sum, g) => sum + g.totalBalance, 0), [categoriesWithAccounts]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Header */}
       <div className="flex flex-col gap-4 p-6">

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import {
   Search,
   RefreshCw,
@@ -70,6 +72,7 @@ export default function CryptoPortfolioPage() {
   // ✅ NEW: Data from TanStack Query (organization-aware)
   const { data: wallets = [], isLoading: walletsLoading } = useOrganizationCryptoWallets();
   const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const isLoading = walletsLoading || portfolioLoading;
 
@@ -160,7 +163,8 @@ export default function CryptoPortfolioPage() {
   }
 
   return (
-    <div className={`${pageClass} max-w-3xl mx-auto p-4 lg:p-6 space-y-4`}>
+    <div className={`${pageClass} max-w-3xl mx-auto p-4 lg:p-6 space-y-4 relative`}>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating portfolio..." />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

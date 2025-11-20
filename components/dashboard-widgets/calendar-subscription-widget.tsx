@@ -6,6 +6,8 @@ import { useSubscriptions } from '@/lib/queries';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import {
   Dialog,
   DialogContent,
@@ -236,6 +238,7 @@ export function CalendarSubscriptionWidget() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isRefetching } = useOrganizationRefetchState();
 
   const { data: subscriptionsResponse, isLoading } = useSubscriptions({
     sortBy: 'nextBillingDate',
@@ -315,16 +318,17 @@ export function CalendarSubscriptionWidget() {
   // Loading State
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-border bg-gradient-to-br from-background to-muted/20 p-6">
+      <div className="relative rounded-2xl border border-border bg-gradient-to-br from-background to-muted/20 p-6">
         <div className="h-8 w-40 bg-muted/50 rounded-lg animate-pulse mb-6" />
         <div className="aspect-[16/9] bg-muted/50 rounded-xl animate-pulse" />
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
     <>
-      <div className="rounded-2xl border border-border/80  p-4 shadow-xs dark:shadow-none backdrop-blur-sm max-w-4xl">
+      <div className="relative rounded-2xl border border-border/80  p-4 shadow-xs dark:shadow-none backdrop-blur-sm max-w-4xl">
         {/* Modern Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
@@ -475,7 +479,8 @@ export function CalendarSubscriptionWidget() {
           </div>
         </div>
 
-    
+
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
 
       {/* Date Detail Modal */}

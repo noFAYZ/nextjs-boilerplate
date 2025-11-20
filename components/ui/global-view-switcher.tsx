@@ -43,19 +43,19 @@ function GlobalViewSwitcher({
     <TooltipProvider>
       <div 
         data-slot="global-view-switcher"
-        className={cn("flex items-center w-fit mx-auto gap-1 bg-muted p-1 rounded-lg border", className)}
+        className={cn("flex items-center w-fit mx-auto gap-1 bg-background p-0.5 rounded-lg border border-border", className)}
       >
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isBeginnerMode ? "outline" : "ghost"}
+              variant={isBeginnerMode ? "outline2" : "ghost"}
               size="sm"
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
                 "px-2 font-medium transition-all text-xs relative overflow-visible",
                 isBeginnerMode 
-                  ? "bg-background text-foreground shadow-sm" 
+                  ? " shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
@@ -78,14 +78,14 @@ function GlobalViewSwitcher({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isProMode ? "outline" : "ghost"}
+              variant={isProMode ? "outline2" : "ghost"}
               size="sm"
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
                 "px-2 font-medium transition-all relative text-xs",
                 isProMode 
-                  ? "bg-background text-foreground shadow-sm" 
+                  ? " shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >

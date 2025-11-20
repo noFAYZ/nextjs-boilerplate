@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Wallet, TrendingUp, ArrowRight, TrendingDown, Home, Package } from 'lucide-react';
 import { useAllAccounts } from '@/lib/queries';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { DuoIconsCreditCard, HeroiconsWallet, MdiDollar } from '@/components/icons/icons';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,7 @@ import { Badge } from '../ui/badge';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 
 // Account category configuration - same as /accounts page
 const categoryConfig = {
@@ -30,6 +32,9 @@ const MORE_CATEGORIES = ['LIABILITIES', 'OTHER'];
 export function NetWorthWidget() {
   // Fetch all accounts grouped by category
   const { data: accountsData, isLoading } = useAllAccounts();
+
+  // Check if organization data is being refetched
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Organize accounts by category
   const { netWorth, categoriesData } = useMemo(() => {
@@ -86,6 +91,7 @@ export function NetWorthWidget() {
     return MORE_CATEGORIES.some((cat) => categoriesData[cat]);
   }, [categoriesData]);
 
+  // Show skeleton when initially loading
   if (isLoading) {
     return (
       <div className="rounded-xl border border-border bg-background dark:bg-card p-4">
@@ -103,7 +109,7 @@ export function NetWorthWidget() {
   }
 
   return (
-    <Card className=" border border-border/80 bg-card p-4 shadow-sm   ">
+    <Card className="relative border border-border/80 bg-card p-4 shadow-sm   ">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -372,14 +378,16 @@ export function NetWorthWidget() {
           )}
         </div>
       ) : (
-        <div className="p-4 rounded-lg bg-muted/30 border border-border text-center">
+        <div className="relative p-4 rounded-lg bg-muted/30 border border-border text-center">
           <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
           <p className="text-xs font-medium text-foreground mb-0.5">No Accounts Found</p>
           <p className="text-[10px] text-muted-foreground">
             Connect your accounts to see net worth breakdown
           </p>
+          <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </Card>
   );
 }

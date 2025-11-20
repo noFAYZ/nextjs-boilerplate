@@ -21,6 +21,8 @@ import { ArrowRightLeft } from 'lucide-react';
 import { useOrganizationBankingTransactions, useOrganizationBankingGroupedAccounts } from '@/lib/queries/use-organization-data-context';
 import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import { useSubscriptions } from '@/lib/queries';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 /* ------------------------ Types ------------------------ */
 export interface FlowNodeBase {
@@ -220,6 +222,7 @@ export default function MoneyFlowWidget() {
   const { data: accountsResponse, isLoading: accountsLoading } = useOrganizationBankingGroupedAccounts();
   const { data: cryptoWalletsResponse, isLoading: cryptoLoading } = useOrganizationCryptoWallets();
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({ status: 'ACTIVE' });
+  const { isRefetching } = useOrganizationRefetchState();
 
   const [hoverInfo, setHoverInfo] = useState<null | { x: number; y: number; title: string; body?: string }>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -248,8 +251,9 @@ export default function MoneyFlowWidget() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-border bg-background p-4 animate-pulse">
+      <div className="relative rounded-2xl border border-border bg-background p-4 animate-pulse">
         <div className="h-72 bg-muted/60 rounded-lg" />
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
@@ -257,7 +261,7 @@ export default function MoneyFlowWidget() {
   const sourceCount = nodes.filter(n => n.level === 'source').length;
   if (sourceCount === 0 && totalExpenses === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-background p-4">
+      <div className="relative rounded-2xl border border-border bg-background p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-muted-foreground">Money Flow</h3>
           <Link href="/dashboard/accounts">
@@ -268,12 +272,13 @@ export default function MoneyFlowWidget() {
           <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground/60" />
           <p className="mt-3 text-sm text-muted-foreground">No flows to show — link a bank or wallet to visualize money flow.</p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-background p-4 shadow-sm relative">
+    <div className="relative rounded-2xl border border-border bg-background p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="text-sm font-semibold text-muted-foreground">Money Flow</h3>
@@ -392,6 +397,7 @@ export default function MoneyFlowWidget() {
           {hoverInfo.body && <div className="text-[11px] text-muted-foreground mt-1">{hoverInfo.body}</div>}
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Settings, User, Crown } from 'lucide-react';
+import { LogOut, Settings, User, Crown, ChevronsUpDownIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,6 +25,9 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { MenuItem } from '../types';
 import Image from 'next/image';
+import { OrganizationSwitcher } from '@/components/organization';
+import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
@@ -56,10 +59,10 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex h-full w-16 flex-col bg-black border-r border-white/10">
+      <div className="flex h-full w-70 flex-col bg-card border-r border-border/50">
       {/* Logo Section */}
-      <div className="flex h-16 items-center justify-center">
-        <Tooltip>
+      <div className="flex h-16 items-center justify-center px-4">
+      {/*   <Tooltip>
           <TooltipTrigger asChild>
             <Link
               href="/dashboard"
@@ -73,7 +76,7 @@ export function SidebarMainColumn({
                   className="object-contain w-10 h-10  "
                   priority
                 /> 
-         {/*    <LogoMappr className='w-10 h-10' /> */}
+       
             
             </Link>
           </TooltipTrigger>
@@ -84,12 +87,14 @@ export function SidebarMainColumn({
           >
             MoneyMappr
           </TooltipContent>
-        </Tooltip>
+        </Tooltip> */}    <OrganizationSwitcher />
       </div>
 
       {/* Main Menu */}
       <div className="flex-1 py-3 overflow-visible">
-        <nav className="flex flex-col gap-1 px-2">
+
+
+        <nav className="flex flex-col space-y-1 px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -108,19 +113,29 @@ export function SidebarMainColumn({
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="lg"
                     className={cn(
-                      "relative h-11 w-11 overflow-visible rounded-lg transition-all",
+                      " w-full justify-start gap-3 h-auto py-2 px-2 ",
                       isHighlighted
-                        ? "bg-white/15 hover:bg-white/20 text-white border border-white/15 hover:text-white"
-                        : "text-white/60 hover:text-white hover:bg-white/15"
+                        ? "bg-muted hover:bg-muted/80 text-foreground/90  "
+                        : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
+                    icon={<Icon className="h-5 w-5 antialiased" stroke={'1.9'} />}
+                    
                   >
-                    <Icon className="h-6.5 w-6.5 antialiased" stroke={'1.9'} />
+                    
+
+                    <span className={cn(
+                    'font-medium text-sm truncate',
+                    isHighlighted ? 'text-foreground' : 'text-muted-foreground'
+                  )}>
+                    {item.label}
+                  </span>
+            
 
                     {/* Active indicator */}
                     {isHighlighted && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-muted-foreground rounded-r-full" />
                     )}
 
                     {/* Badge */}
@@ -159,15 +174,44 @@ export function SidebarMainColumn({
       </div>
 
       {/* Footer Actions */}
-      <div className="px-2 pb-3 space-y-0.5">
+      <div className="px-2 pb-3 space-y-2">
 
-        {/* Settings */}
+      <div className="px-2">
+            <div className="space-y-2 rounded-lg bg-muted   p-3.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background border border-border/80 shadow-sm">
+                  <Crown className="h-5 w-5 " />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
+                  <p className="text-[11px] text-muted-foreground">Unlock advanced features</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 ">
+                <span className="text-[10px] text-muted-foreground font-medium">14-day free trial</span>
+                <Button
+                  size="sm"
+                  className="h-7 text-[11px] px-3 font-medium"
+                  onClick={() => router.push('/subscription')}
+                >
+                  Upgrade
+                </Button>
+              </div>
+            </div>
+          </div>
+
+        <div className="flex items-center justify-between w-full gap-3 p-2">
+          
+            <ThemeSwitcher />
+            <GlobalViewSwitcher size='sm' className='items-start justify-start mx-0' />
+              {/* Settings */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-11 w-11 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-all"
+              variant="outline"
+              size="icon-sm"
+              className=" rounded-full shadow-transparent"
               onClick={() => router.push('/settings')}
             >
               <Settings className="h-5 w-5" />
@@ -176,28 +220,45 @@ export function SidebarMainColumn({
           <TooltipContent
             side="right"
             sideOffset={12}
-            className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
+            className="bg-[#2a2a2a] text-xs font-medium rounded-lg shadow-xl border border-white/10"
           >
             Settings
           </TooltipContent>
         </Tooltip>
-
+          </div>
+<div className='px-2'>
         {/* Profile Dropdown */}
         <Tooltip>
           <DropdownMenu>
             <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild  >
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 rounded-lg hover:bg-white/5 transition-all p-0"
+                   variant='outline2'
+          size='xs'
+                  className="flex items-center  justify-between gap-3 w-full px-3 py-5 rounded-lg"
+               
                 >
-                  <Avatar className="h-8 w-8 ring-1 ring-white/10">
+
+<div className="flex items-center text-start gap-2 flex-1 min-w-0">
+<Avatar className="h-8 w-8 ring-1 ring-border">
                     <AvatarImage src={user?.image} />
-                    <AvatarFallback className="text-xs font-semibold bg-white/10 text-white">
+                    <AvatarFallback className="text-xs font-semibold ">
                       {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
+            <div className="flex-1 min-w-0">
+            
+                <p className="text-xs font-medium ">{user?.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+            
+           
+            </div>
+          </div>
+          <ChevronsUpDownIcon
+            size={16}
+            className="flex-shrink-0 text-muted-foreground  "
+          />
+
                 </Button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
@@ -235,7 +296,7 @@ export function SidebarMainColumn({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </Tooltip>
+        </Tooltip></div>
       </div>
       </div>
     </TooltipProvider>

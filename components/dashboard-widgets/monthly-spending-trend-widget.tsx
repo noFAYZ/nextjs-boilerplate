@@ -3,12 +3,15 @@
 import { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
 import { useMonthlySpendingTrendNew } from '@/lib/queries/banking-queries';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '../ui/currency-display';
 import SpendingIncomeChart from './SpendingIncomeChart';
 
 export function MonthlySpendingTrendWidget() {
   // Fetch monthly trend data (last 6 months)
   const { data: monthlyTrend = [], isLoading: monthlyTrendLoading } = useMonthlySpendingTrendNew({ months: 6 });
+  const { isRefetching } = useOrganizationRefetchState();
 
   const trendSummary = useMemo(() => {
     if (!monthlyTrend || monthlyTrend.length === 0) return null;
@@ -55,6 +58,7 @@ export function MonthlySpendingTrendWidget() {
     return new Date(dateString).toLocaleDateString('en-US', { month: 'short' });
   };
 
+  // Show skeleton when initially loading
   if (monthlyTrendLoading) {
     return (
       <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
@@ -69,7 +73,7 @@ export function MonthlySpendingTrendWidget() {
 
   if (!trendSummary) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <h3 className="text-xs font-medium text-muted-foreground mb-4">Monthly trend</h3>
         <div className="py-12 text-center">
           <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
@@ -77,13 +81,14 @@ export function MonthlySpendingTrendWidget() {
             No trend data available.
           </p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       {/* Header */}
       <div className="flex items-center justify-between ">
       <h3 className="text-xs font-medium text-muted-foreground mb-1">Monthly trend</h3>
@@ -168,6 +173,7 @@ export function MonthlySpendingTrendWidget() {
   </div>
 </div>
 
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

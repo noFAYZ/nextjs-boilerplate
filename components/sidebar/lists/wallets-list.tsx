@@ -15,6 +15,8 @@ import { SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarWalletMo
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
 import { ChainBadge } from '@/components/crypto/ui/ChainBadge';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 interface SidebarWalletsListProps {
   onMobileClose: () => void;
@@ -25,6 +27,7 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   const { data: wallets = [], isLoading: walletsLoading } = useOrganizationCryptoWallets();
   const { realtimeSyncStates } = useCryptoStore();
   const { mutate: syncWallet } = useOrganizationSyncCryptoWallet();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const handleWalletClick = (walletId: string) => {
     router.push(`/accounts/wallet/${walletId}`);
@@ -112,7 +115,9 @@ export function SidebarWalletsList({ onMobileClose }: SidebarWalletsListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       {/* Add Wallet Button */}
    
       <div className='flex gap-2 justify-end'> 

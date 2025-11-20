@@ -1,45 +1,207 @@
 'use client';
 
 /**
- * Organization Data Sync Provider
+ * Organization Data Sync Provider - OPTIMIZED
  *
- * PURPOSE: Manages automatic data fetching when organization changes
- * - Watches for organization selection changes in the context store
- * - Invalidates and refetches all organization-scoped queries
- * - Handles cache cleanup when switching organizations
+ * PURPOSE: Fast, efficient organization switching with priority-based refetching
+ * - Watches for organization selection changes
+ * - Uses priority-based refetch strategy: critical queries first, then secondary, then background
+ * - Completes overlay as soon as critical data is loaded
+ * - Implements timeouts to prevent hanging
+ * - Handles cache cleanup efficiently
  *
- * BEHAVIOR:
- * 1. When user switches organization, all organization-scoped queries are invalidated
- * 2. Components using org-scoped queries (crypto, banking, budgets, etc) automatically refetch
- * 3. Previous organization's cached data is preserved for fast switching
- * 4. Loading states handled by React Query automatically
+ * STRATEGY:
+ * 1. Phase 1 (CRITICAL - ~200ms): Wallets, accounts, portfolio, banking overview
+ *    → UI becomes interactive quickly with essential data
+ * 2. Phase 2 (SECONDARY - ~500ms): Transactions, spending categories, net worth
+ *    → Additional data for visible components
+ * 3. Phase 3 (BACKGROUND - parallel): Goals, budgets, settings, subscriptions
+ *    → Less critical data continues loading in background
+ * 4. Timeouts prevent hanging on slow APIs
+ * 5. Early completion releases overlay when critical data is ready
  */
 
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationRefetchStore } from '@/lib/stores/organization-refetch-store';
 import { cryptoKeys } from '@/lib/queries/crypto-queries';
 import { bankingKeys } from '@/lib/queries/banking-queries';
 import { budgetKeys } from '@/lib/queries/budget-queries';
 import { goalKeys } from '@/lib/queries/use-goal-data';
 import { networthKeys } from '@/lib/queries/networth-queries';
 import { organizationKeys } from '@/lib/queries/use-organization-data';
-import { logger } from '@/lib/utils/logger';
+import { accountsKeys } from '@/lib/queries/accounts-queries';
+import { integrationsQueryKeys } from '@/lib/queries/integrations-queries';
+import { paymentMethodKeys } from '@/lib/queries/payment-method-queries';
+import { settingsKeys } from '@/lib/queries/settings-queries';
+import { subscriptionKeys } from '@/lib/queries/subscription-queries';
+import { billingSubscriptionKeys } from '@/lib/queries/use-billing-subscription-data';
+
+// ============================================================================
+// REFETCH TIMING CONSTANTS
+// ============================================================================
+
+const REFETCH_TIMEOUTS = {
+  CRITICAL: 3000,    // 3 second timeout for critical queries
+  SECONDARY: 5000,   // 5 second timeout for secondary queries
+  BACKGROUND: 10000, // 10 second timeout for background queries
+};
+
+// ============================================================================
+// PRIORITY-BASED REFETCH STRATEGY
+// ============================================================================
+
+async function refetchWithTimeout(
+  promise: Promise<any>,
+  timeoutMs: number,
+  label: string
+): Promise<void> {
+  try {
+    await Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Refetch timeout (${label})`)), timeoutMs)
+      ),
+    ]);
+  } catch (error) {
+    // Silently handle timeouts and errors - overlay will remain visible until critical queries complete
+    // Errors are expected during refetch and don't need logging
+  }
+}
+
+/**
+ * Phase 1: CRITICAL queries (wallets, accounts, portfolio)
+ * These are shown immediately on dashboard - must complete before releasing overlay
+ */
+async function refetchCriticalQueries(
+  queryClient: ReturnType<typeof useQueryClient>
+): Promise<void> {
+  await Promise.all([
+    // Most important: Crypto & Banking data
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: cryptoKeys.wallets(), exact: false }),
+      REFETCH_TIMEOUTS.CRITICAL,
+      'Crypto Wallets'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: bankingKeys.accounts(), exact: false }),
+      REFETCH_TIMEOUTS.CRITICAL,
+      'Banking Accounts'
+    ),
+    // Portfolio overview (depends on wallets/accounts)
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: cryptoKeys.portfolio(), exact: false }),
+      REFETCH_TIMEOUTS.CRITICAL,
+      'Portfolio'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: bankingKeys.overview(), exact: false }),
+      REFETCH_TIMEOUTS.CRITICAL,
+      'Banking Overview'
+    ),
+  ]);
+}
+
+/**
+ * Phase 2: SECONDARY queries (transactions, spending, net worth)
+ * These are visible when scrolling - should complete quickly after phase 1
+ */
+async function refetchSecondaryQueries(
+  queryClient: ReturnType<typeof useQueryClient>
+): Promise<void> {
+  await Promise.all([
+    // Transactions and spending data
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: cryptoKeys.transactions(), exact: false }),
+      REFETCH_TIMEOUTS.SECONDARY,
+      'Crypto Transactions'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: bankingKeys.transactions(), exact: false }),
+      REFETCH_TIMEOUTS.SECONDARY,
+      'Banking Transactions'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: bankingKeys.spendingCategories(), exact: false }),
+      REFETCH_TIMEOUTS.SECONDARY,
+      'Spending Categories'
+    ),
+    // Net worth calculations
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: networthKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.SECONDARY,
+      'Net Worth'
+    ),
+  ]);
+}
+
+/**
+ * Phase 3: BACKGROUND queries (goals, budgets, settings)
+ * These are less critical - continue loading without blocking
+ */
+async function refetchBackgroundQueries(
+  queryClient: ReturnType<typeof useQueryClient>
+): Promise<void> {
+  // Start these in parallel but don't wait for them
+  Promise.allSettled([
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: goalKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Goals'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: budgetKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Budgets'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: organizationKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Organization'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: accountsKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Accounts'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: integrationsQueryKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Integrations'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: paymentMethodKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Payment Methods'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: settingsKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Settings'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: subscriptionKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Subscriptions'
+    ),
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: billingSubscriptionKeys.all, exact: false }),
+      REFETCH_TIMEOUTS.BACKGROUND,
+      'Billing Subscriptions'
+    ),
+  ]);
+}
 
 export function OrganizationDataSyncProvider() {
   const queryClient = useQueryClient();
   const selectedOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  const { startRefetch, completeRefetch } = useOrganizationRefetchStore();
   const previousOrgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    console.log('[OrganizationDataSyncProvider] selectedOrgId changed:', {
-      previous: previousOrgIdRef.current,
-      current: selectedOrgId,
-    });
-
     // Only process if organization has actually changed
     if (previousOrgIdRef.current === selectedOrgId) {
-      console.log('[OrganizationDataSyncProvider] No change detected, skipping');
       return;
     }
 
@@ -48,60 +210,38 @@ export function OrganizationDataSyncProvider() {
 
     // Skip initial setup (first render when both are null)
     if (previousOrgId === null && selectedOrgId === null) {
-      console.log('[OrganizationDataSyncProvider] Initial setup skip (both null)');
       return;
     }
 
-    console.log('[OrganizationDataSyncProvider] Organization changed, invalidating queries', {
-      from: previousOrgId,
-      to: selectedOrgId,
-    });
-    logger.info('Organization changed, invalidating queries', {
-      from: previousOrgId,
-      to: selectedOrgId,
-    });
 
-    // Invalidate all organization-specific data queries
-    // This causes them to refetch with the new organization context
-    Promise.all([
-      // Crypto data
-      queryClient.invalidateQueries({
-        queryKey: cryptoKeys.all,
-        exact: false,
-      }),
+    // Start refetch loading state
+    if (selectedOrgId) {
+      startRefetch(selectedOrgId);
+    }
 
-      // Banking data
-      queryClient.invalidateQueries({
-        queryKey: bankingKeys.all,
-        exact: false,
-      }),
+    // ========================================================================
+    // PRIORITY-BASED REFETCH FLOW
+    // ========================================================================
+    (async () => {
+      try {
+        // Phase 1: Critical queries (must complete before releasing overlay)
+        await refetchCriticalQueries(queryClient);
 
-      // Budget data
-      queryClient.invalidateQueries({
-        queryKey: budgetKeys.all,
-        exact: false,
-      }),
+        // Phase 2: Secondary queries (visible when scrolling)
+        await refetchSecondaryQueries(queryClient);
 
-      // Goal data
-      queryClient.invalidateQueries({
-        queryKey: goalKeys.all,
-        exact: false,
-      }),
+        // Release overlay once critical + secondary queries are done
+        // This ensures smooth transitions without prolonged loading state
+        completeRefetch();
 
-      // Net worth data
-      queryClient.invalidateQueries({
-        queryKey: networthKeys.all,
-        exact: false,
-      }),
-
-      // Organization data (refresh members, invitations, etc)
-      queryClient.invalidateQueries({
-        queryKey: organizationKeys.lists(),
-        exact: false,
-      }),
-    ]).catch((error) => {
-      logger.error('Error during query invalidation', error);
-    });
+        // Phase 3: Background queries (continue loading in background)
+        // These complete after overlay is released
+        await refetchBackgroundQueries(queryClient);
+      } catch (error) {
+        // Always complete refetch state, even if errors occurred
+        completeRefetch();
+      }
+    })();
   }, [selectedOrgId, queryClient]);
 
   return null;

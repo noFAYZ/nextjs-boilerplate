@@ -20,41 +20,41 @@ class BankingApiService {
   private readonly basePath = '/banking';
 
   // Bank Account Management
-  async connectAccount(enrollmentData: CreateBankAccountRequest): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.post(`${this.basePath}/connect`, enrollmentData);
+  async connectAccount(enrollmentData: CreateBankAccountRequest, organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.post(`${this.basePath}/connect`, enrollmentData, organizationId);
   }
 
-  async getAccounts(): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.get(`${this.basePath}/accounts`);
+  async getAccounts(organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.get(`${this.basePath}/accounts`, organizationId);
   }
 
-  async getGroupedAccounts(): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.get(`${this.basePath}/accounts/grouped`);
+  async getGroupedAccounts(organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.get(`${this.basePath}/accounts/grouped`, organizationId);
   }
 
-  async getAccount(accountId: string): Promise<ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>> {
-    return apiClient.get(`${this.basePath}/accounts/${accountId}`);
+  async getAccount(accountId: string, organizationId?: string): Promise<ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>> {
+    return apiClient.get(`${this.basePath}/accounts/${accountId}`, organizationId);
   }
 
-  async updateAccount(accountId: string, updates: UpdateBankAccountRequest): Promise<ApiResponse<BankAccount>> {
-    return apiClient.put(`${this.basePath}/accounts/${accountId}`, updates);
+  async updateAccount(accountId: string, updates: UpdateBankAccountRequest, organizationId?: string): Promise<ApiResponse<BankAccount>> {
+    return apiClient.put(`${this.basePath}/accounts/${accountId}`, updates, organizationId);
   }
 
-  async disconnectAccount(accountId: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiClient.delete(`${this.basePath}/accounts/${accountId}`);
+  async disconnectAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.delete(`${this.basePath}/accounts/${accountId}`, organizationId);
   }
 
   // Banking Overview
-  async getOverview(): Promise<ApiResponse<BankingOverview>> {
-    return apiClient.get(`${this.basePath}/overview`);
+  async getOverview(organizationId?: string): Promise<ApiResponse<BankingOverview>> {
+    return apiClient.get(`${this.basePath}/overview`, organizationId);
   }
 
-  async getDashboardData(): Promise<ApiResponse<BankingDashboardData>> {
-    return apiClient.get(`${this.basePath}/dashboard`);
+  async getDashboardData(organizationId?: string): Promise<ApiResponse<BankingDashboardData>> {
+    return apiClient.get(`${this.basePath}/dashboard`, organizationId);
   }
 
   // Transaction Management
-  async getTransactions(params: BankTransactionParams = {}): Promise<ApiResponse<BankTransaction[]>> {
+  async getTransactions(params: BankTransactionParams = {}, organizationId?: string): Promise<ApiResponse<BankTransaction[]>> {
     const searchParams = new URLSearchParams();
 
     if (params.page) searchParams.set('page', params.page.toString());
@@ -66,12 +66,13 @@ class BankingApiService {
     if (params.type) searchParams.set('type', params.type);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`, organizationId);
   }
 
   async getAccountTransactions(
     accountId: string,
-    params: Omit<BankTransactionParams, 'accountId'> = {}
+    params: Omit<BankTransactionParams, 'accountId'> = {},
+    organizationId?: string
   ): Promise<ApiResponse<BankTransaction[]>> {
     const searchParams = new URLSearchParams();
 
@@ -83,61 +84,61 @@ class BankingApiService {
     if (params.type) searchParams.set('type', params.type);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/accounts/${accountId}/transactions${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/accounts/${accountId}/transactions${query ? `?${query}` : ''}`, organizationId);
   }
 
   // Sync Operations
-  async syncAccount(accountId: string, syncData: BankSyncRequest = {}): Promise<ApiResponse<{ jobId: string }>> {
-    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync`, syncData);
+  async syncAccount(accountId: string, syncData: BankSyncRequest = {}, organizationId?: string): Promise<ApiResponse<{ jobId: string }>> {
+    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync`, syncData, organizationId);
   }
 
-  async getSyncStatus(accountId: string, jobId?: string): Promise<ApiResponse<BankSyncJob>> {
+  async getSyncStatus(accountId: string, jobId?: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
     const query = jobId ? `?jobId=${jobId}` : '';
-    return apiClient.get(`${this.basePath}/accounts/${accountId}/sync/status${query}`);
+    return apiClient.get(`${this.basePath}/accounts/${accountId}/sync/status${query}`, organizationId);
   }
 
   // Health Check
-  async getHealthStatus(): Promise<ApiResponse<BankingHealthCheck>> {
-    return apiClient.get(`${this.basePath}/health`);
+  async getHealthStatus(organizationId?: string): Promise<ApiResponse<BankingHealthCheck>> {
+    return apiClient.get(`${this.basePath}/health`, organizationId);
   }
 
   // Data Export
-  async exportBankingData(exportData: BankingExportRequest): Promise<ApiResponse<BankingExportResponse>> {
-    return apiClient.post(`${this.basePath}/export`, exportData);
+  async exportBankingData(exportData: BankingExportRequest, organizationId?: string): Promise<ApiResponse<BankingExportResponse>> {
+    return apiClient.post(`${this.basePath}/export`, exportData, organizationId);
   }
 
   // Teller Enrollments
-  async getEnrollments(): Promise<ApiResponse<TellerEnrollment[]>> {
-    return apiClient.get(`${this.basePath}/enrollments`);
+  async getEnrollments(organizationId?: string): Promise<ApiResponse<TellerEnrollment[]>> {
+    return apiClient.get(`${this.basePath}/enrollments`, organizationId);
   }
 
-  async getEnrollment(enrollmentId: string): Promise<ApiResponse<TellerEnrollment>> {
-    return apiClient.get(`${this.basePath}/enrollments/${enrollmentId}`);
+  async getEnrollment(enrollmentId: string, organizationId?: string): Promise<ApiResponse<TellerEnrollment>> {
+    return apiClient.get(`${this.basePath}/enrollments/${enrollmentId}`, organizationId);
   }
 
-  async deleteEnrollment(enrollmentId: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiClient.delete(`${this.basePath}/enrollments/${enrollmentId}`);
+  async deleteEnrollment(enrollmentId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.delete(`${this.basePath}/enrollments/${enrollmentId}`, organizationId);
   }
 
   // Stripe Financial Connections
-  async createStripeSession(): Promise<ApiResponse<{ clientSecret: string }>> {
-    return apiClient.post(`${this.basePath}/stripe/create-session`, {});
+  async createStripeSession(organizationId?: string): Promise<ApiResponse<{ clientSecret: string }>> {
+    return apiClient.post(`${this.basePath}/stripe/create-session`, {}, organizationId);
   }
 
-  async connectStripeAccounts(data: { sessionId: string; selectedAccountIds?: string[] }): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.post(`${this.basePath}/stripe/connect`, data);
+  async connectStripeAccounts(data: { sessionId: string; selectedAccountIds?: string[] }, organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.post(`${this.basePath}/stripe/connect`, data, organizationId);
   }
 
-  async getStripeAccountsPreview(sessionId: string): Promise<ApiResponse<{
+  async getStripeAccountsPreview(sessionId: string, organizationId?: string): Promise<ApiResponse<{
     sessionId: string;
     accounts: Array<Record<string, unknown>>;
     totalAccounts: number;
   }>> {
-    return apiClient.post(`${this.basePath}/stripe/preview`, { sessionId });
+    return apiClient.post(`${this.basePath}/stripe/preview`, { sessionId }, organizationId);
   }
 
-  async syncStripeAccount(accountId: string): Promise<ApiResponse<BankSyncJob>> {
-    return apiClient.post(`${this.basePath}/stripe/accounts/${accountId}/sync`, {});
+  async syncStripeAccount(accountId: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
+    return apiClient.post(`${this.basePath}/stripe/accounts/${accountId}/sync`, {}, organizationId);
   }
 
   // Transaction Sync
@@ -148,19 +149,20 @@ class BankingApiService {
       endDate?: string;
       limit?: number;
       force?: boolean;
-    }
+    },
+    organizationId?: string
   ): Promise<ApiResponse<{
     syncJobId: string;
     processed: number;
     skipped: number;
     totalFromTeller: number;
   }>> {
-    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync/transactions`, options || {});
+    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync/transactions`, options || {}, organizationId);
   }
 
   // Utility methods for common operations
-  async refreshAllAccounts(): Promise<ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>> {
-    const accountsResponse = await this.getAccounts();
+  async refreshAllAccounts(organizationId?: string): Promise<ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>> {
+    const accountsResponse = await this.getAccounts(organizationId);
 
     if (!accountsResponse.success) {
       return accountsResponse as ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>;
@@ -170,7 +172,7 @@ class BankingApiService {
       accountsResponse.data
         .filter(account => account.isActive) // Only sync active accounts
         .map(async (account) => {
-          const syncResponse = await this.syncAccount(account.id, { fullSync: false });
+          const syncResponse = await this.syncAccount(account.id, { fullSync: false }, organizationId);
           if (syncResponse.success) {
             return { accountId: account.id, jobId: syncResponse.data.jobId };
           }
@@ -190,19 +192,19 @@ class BankingApiService {
     };
   }
 
-  async getAccountSummary(accountId: string): Promise<ApiResponse<{
+  async getAccountSummary(accountId: string, organizationId?: string): Promise<ApiResponse<{
     account: BankAccount;
     transactions: BankTransaction[];
     recentActivity: BankTransaction[];
   }>> {
     try {
       const [accountResponse, transactionsResponse, recentResponse] = await Promise.all([
-        this.getAccount(accountId),
-        this.getAccountTransactions(accountId, { limit: 50 }),
+        this.getAccount(accountId, organizationId),
+        this.getAccountTransactions(accountId, { limit: 50 }, organizationId),
         this.getAccountTransactions(accountId, {
           limit: 10,
           startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last 7 days
-        })
+        }, organizationId)
       ]);
 
       if (!accountResponse.success) {
@@ -235,12 +237,13 @@ class BankingApiService {
     jobId: string,
     onProgress?: (status: BankSyncJob) => void,
     maxAttempts: number = 30,
-    interval: number = 3000 // Banking sync might be slower than crypto
+    interval: number = 3000, // Banking sync might be slower than crypto
+    organizationId?: string
   ): Promise<BankSyncJob> {
     let attempts = 0;
 
     while (attempts < maxAttempts) {
-      const response = await this.getSyncStatus(accountId, jobId);
+      const response = await this.getSyncStatus(accountId, jobId, organizationId);
 
       if (!response.success) {
         throw new Error(response.error.message);
@@ -265,12 +268,13 @@ class BankingApiService {
 
   // Batch operations
   async bulkUpdateAccounts(
-    updates: { accountId: string; updates: UpdateBankAccountRequest }[]
+    updates: { accountId: string; updates: UpdateBankAccountRequest }[],
+    organizationId?: string
   ): Promise<ApiResponse<BankAccount[]>> {
     try {
       const results = await Promise.allSettled(
         updates.map(({ accountId, updates }) =>
-          this.updateAccount(accountId, updates)
+          this.updateAccount(accountId, updates, organizationId)
         )
       );
 
@@ -313,7 +317,7 @@ class BankingApiService {
     fromMonth?: string;
     toMonth?: string;
     limit?: number;
-  }): Promise<ApiResponse<Array<{
+  }, organizationId?: string): Promise<ApiResponse<Array<{
     category: string;
     totalSpending: number;
     transactionCount: number;
@@ -334,7 +338,7 @@ class BankingApiService {
     if (params?.limit) searchParams.set('limit', params.limit.toString());
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/analytics/spending/categories${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/analytics/spending/categories${query ? `?${query}` : ''}`, organizationId);
   }
 
   async getMonthlyTrend(params?: {
@@ -343,7 +347,7 @@ class BankingApiService {
     toDate?: string;
     months?: number;
     accountId?: string;
-  }): Promise<ApiResponse<Array<{
+  }, organizationId?: string): Promise<ApiResponse<Array<{
     month: string;
     totalSpending: number;
     totalIncome: number;
@@ -364,7 +368,7 @@ class BankingApiService {
     if (params?.accountId) searchParams.set('accountId', params.accountId);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/analytics/spending/trend${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/analytics/spending/trend${query ? `?${query}` : ''}`, organizationId);
   }
 
   async getAccountSpendingComparison(params?: {
@@ -372,7 +376,7 @@ class BankingApiService {
     fromDate?: string;
     toDate?: string;
     month?: string;
-  }): Promise<ApiResponse<Array<{
+  }, organizationId?: string): Promise<ApiResponse<Array<{
     accountId: string;
     totalSpending: number;
     totalIncome: number;
@@ -390,7 +394,7 @@ class BankingApiService {
     if (params?.month) searchParams.set('month', params.month);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/analytics/spending/accounts${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/analytics/spending/accounts${query ? `?${query}` : ''}`, organizationId);
   }
 
   async getSpendingByCategory(params?: {
@@ -400,7 +404,7 @@ class BankingApiService {
     fromMonth?: string;
     toMonth?: string;
     limit?: number;
-  }): Promise<ApiResponse<Array<{
+  }, organizationId?: string): Promise<ApiResponse<Array<{
     userId: string;
     accountId: string;
     category: string | null;
@@ -432,17 +436,18 @@ class BankingApiService {
     if (params?.limit) searchParams.set('limit', params.limit.toString());
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/analytics/spending${query ? `?${query}` : ''}`);
+    return apiClient.get(`${this.basePath}/analytics/spending${query ? `?${query}` : ''}`, organizationId);
   }
 
-  async refreshAnalytics(): Promise<ApiResponse<{ message: string }>> {
-    return apiClient.post(`${this.basePath}/analytics/refresh`, {});
+  async refreshAnalytics(organizationId?: string): Promise<ApiResponse<{ message: string }>> {
+    return apiClient.post(`${this.basePath}/analytics/refresh`, {}, organizationId);
   }
 
   // Analytics helpers (legacy - for backward compatibility)
   async getSpendingCategories(
     timeRange: 'week' | 'month' | 'quarter' | 'year' = 'month',
-    accountIds?: string[]
+    accountIds?: string[],
+    organizationId?: string
   ): Promise<ApiResponse<Array<{ category: string; amount: number; count: number }>>> {
     const endDate = new Date();
     const startDate = new Date();
@@ -474,7 +479,7 @@ class BankingApiService {
       // For now, we'll use the general endpoint and filter client-side
     }
 
-    const response = await this.getTransactions(params);
+    const response = await this.getTransactions(params, organizationId);
 
     if (!response.success) {
       return response as ApiResponse<BankTransactionSyncResult>;
@@ -509,7 +514,8 @@ class BankingApiService {
 
   async getMonthlySpendingTrend(
     months: number = 12,
-    _accountIds?: string[]
+    _accountIds?: string[],
+    organizationId?: string
   ): Promise<ApiResponse<Array<{ month: string; spending: number; income: number; net: number }>>> {
     const endDate = new Date();
     const startDate = new Date();
@@ -521,7 +527,7 @@ class BankingApiService {
       limit: 5000 // Large limit to get all transactions
     };
 
-    const response = await this.getTransactions(params);
+    const response = await this.getTransactions(params, organizationId);
 
     if (!response.success) {
       return response as ApiResponse<BankTransactionSyncResult>;
@@ -569,14 +575,14 @@ class BankingApiService {
   }
 
   // Account status helpers
-  async checkAccountsHealth(): Promise<ApiResponse<{
+  async checkAccountsHealth(organizationId?: string): Promise<ApiResponse<{
     totalAccounts: number;
     activeAccounts: number;
     syncingAccounts: number;
     errorAccounts: number;
     lastSyncTimes: Record<string, string>;
   }>> {
-    const accountsResponse = await this.getAccounts();
+    const accountsResponse = await this.getAccounts(organizationId);
 
     if (!accountsResponse.success) {
       return accountsResponse as ApiResponse<BankAccountDetails[]>;

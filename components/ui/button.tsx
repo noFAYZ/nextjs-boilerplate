@@ -26,6 +26,9 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         outline:
           "border-2 border-border bg-gray-50 dark:bg-[#3E3C3C] backdrop-blur-sm hover:bg-gray-200 hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-100  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
+      outline2:"border-2 border-border/80  bg-muted      hover:bg-muted/80  hover:text-accent-foreground  shadow-xs   "
+,
+
         secondary:  "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border-2 border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)] hover:shadow-[0_2px_0_0_rgb(254,215,170)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75 dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
         ghost:
           "hover:bg-accent/60 hover:text-accent-foreground active:scale-[0.98] backdrop-blur-sm",

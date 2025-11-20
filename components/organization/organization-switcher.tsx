@@ -12,7 +12,7 @@
  */
 
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Plus, Users, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronsUpDownIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -37,7 +37,7 @@ interface OrganizationSwitcherProps {
 
 function OrgAvatar({ org, size = 'default' }: { org: Organization; size?: 'sm' | 'default' | 'lg' }) {
   const sizeClasses = {
-    sm: 'w-6 h-6 text-xs',
+    sm: 'w-7 h-7 text-xs',
     default: 'w-8 h-8 text-sm',
     lg: 'w-10 h-10 text-base',
   };
@@ -77,16 +77,12 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
   }
 
   const handleOrgSelect = (org: Organization) => {
-    console.log('[OrganizationSwitcher] User selected organization:', org.id);
     // Update BOTH stores:
     // 1. UI store for selection state/visual feedback
     selectOrganization(org.id);
-    console.log('[OrganizationSwitcher] Updated UI store');
-    // 2. Context store for data scoping (this triggers OrganizationDataSyncProvider to invalidate queries)
+    // 2. Context store for data scoping (triggers automatic refetch via OrganizationDataSyncProvider)
     setSelectedOrganization(org.id);
-    console.log('[OrganizationSwitcher] Updated context store - should trigger data sync');
     onOrgSelect?.(org);
-    router.push(`/dashboard?org=${org.id}`);
   };
 
   const handleCreateOrg = () => {
@@ -135,26 +131,28 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            'flex items-center justify-between gap-3 w-full px-3 py-5 rounded-lg',
+            'flex items-center  justify-between gap-3 w-full px-3 py-5 rounded-lg',
             
         
             'group',
             className
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}
-          variant='outline'
-          size='lg'
+          variant='outline2'
+          size='xs'
         >
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center text-start gap-2 flex-1 min-w-0">
             <OrgAvatar org={currentOrg} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{currentOrg.name}</p>
-           
+             
+              {currentOrg.isPersonal ? <p className="text-xs ">Personal Workspace</p> :  <p className="text-sm  truncate ">{currentOrg.name}</p>
+                  }
+              <p className="text-[11px]  text-muted-foreground truncate">Free</p>
             </div>
           </div>
-          <ChevronDown
+          <ChevronsUpDownIcon
             size={16}
-            className="flex-shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180"
+            className="flex-shrink-0 text-muted-foreground  "
           />
         </Button>
       </DropdownMenuTrigger>

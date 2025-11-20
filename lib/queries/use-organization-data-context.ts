@@ -49,7 +49,7 @@ import {
   useDisconnectBankAccount,
   useSyncBankAccount,
 } from './use-banking-data';
-import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type { PortfolioParams, TransactionParams, NFTParams } from '@/lib/types/crypto';
 
 // ============================================================================
@@ -57,14 +57,10 @@ import type { PortfolioParams, TransactionParams, NFTParams } from '@/lib/types/
 // ============================================================================
 
 /**
- * Get the currently selected organization ID
+ * Get the currently selected organization ID from context store
  */
 function useSelectedOrganizationId(): string | undefined | null {
-  const orgId = useOrganizationUIStore((state) => state.selectedOrganizationId);
-  if (orgId) {
-    console.log('[useSelectedOrganizationId] Organization ID:', orgId);
-  }
-  return orgId;
+  return useOrganizationStore((state) => state.selectedOrganizationId);
 }
 
 // ============================================================================
@@ -167,32 +163,28 @@ export function useOrganizationWalletSyncProgress(walletId: string) {
  * Create a crypto wallet in the current organization
  */
 export function useOrganizationCreateCryptoWallet() {
-  const orgId = useSelectedOrganizationId();
-  return useCreateCryptoWallet(orgId);
+  return useCreateCryptoWallet();
 }
 
 /**
  * Update a crypto wallet in the current organization
  */
 export function useOrganizationUpdateCryptoWallet(walletId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useUpdateCryptoWallet(walletId, orgId);
+  return useUpdateCryptoWallet();
 }
 
 /**
  * Delete a crypto wallet in the current organization
  */
 export function useOrganizationDeleteCryptoWallet(walletId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useDeleteCryptoWallet(walletId, orgId);
+  return useDeleteCryptoWallet();
 }
 
 /**
  * Sync a crypto wallet in the current organization
  */
 export function useOrganizationSyncCryptoWallet(walletId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useSyncCryptoWallet(walletId, orgId);
+  return useSyncCryptoWallet();
 }
 
 // ============================================================================
@@ -279,30 +271,26 @@ export function useOrganizationMonthlySpendingTrend(params?: Record<string, unkn
  * Connect a bank account to the current organization
  */
 export function useOrganizationConnectBankAccount() {
-  const orgId = useSelectedOrganizationId();
-  return useConnectBankAccount(orgId);
+  return useConnectBankAccount();
 }
 
 /**
  * Update a banking account in the current organization
  */
 export function useOrganizationUpdateBankAccount(accountId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useUpdateBankAccount(accountId, orgId);
+  return useUpdateBankAccount(accountId);
 }
 
 /**
  * Disconnect a banking account from the current organization
  */
 export function useOrganizationDisconnectBankAccount(accountId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useDisconnectBankAccount(accountId, orgId);
+  return useDisconnectBankAccount(accountId);
 }
 
 /**
  * Sync a banking account in the current organization
  */
 export function useOrganizationSyncBankAccount(accountId?: string) {
-  const orgId = useSelectedOrganizationId();
-  return useSyncBankAccount(accountId, orgId);
+  return useSyncBankAccount(accountId);
 }

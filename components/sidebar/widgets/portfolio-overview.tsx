@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { TrendingUp, ArrowRight } from 'lucide-react';
 import { useOrganizationCryptoWallets, useOrganizationCryptoPortfolio, useOrganizationBankingOverview } from '@/lib/queries/use-organization-data-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 interface SidebarPortfolioOverviewProps {
   onMobileClose?: () => void;
@@ -13,15 +15,15 @@ interface SidebarPortfolioOverviewProps {
 
 export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOverviewProps) {
 
-  
+
   // ✅ NEW: Data from TanStack Query (organization-aware)
   const { data: wallets = [], isLoading: walletsLoading, refetch: refetchWallets } = useOrganizationCryptoWallets();
   const { data: portfolio, isLoading: portfolioLoading, refetch: refetchPortfolio } = useOrganizationCryptoPortfolio();
   const { data: bankingOverview, isLoading: overviewLoading, refetch: refetchOverview } = useOrganizationBankingOverview();
 
   const isLoading = walletsLoading || portfolioLoading || overviewLoading ;
+  const { isRefetching } = useOrganizationRefetchState();
 
-  console.log(portfolio)
 
   // Calculate stats
   const stats = React.useMemo(() => {
@@ -61,7 +63,9 @@ export function SidebarPortfolioOverview({ onMobileClose }: SidebarPortfolioOver
 console.log(stats)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       <div className="p-4 rounded-lg bg-muted/50 border border-border">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 rounded-lg bg-primary/10">

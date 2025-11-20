@@ -38,8 +38,8 @@ export function SidebarSecondaryColumn({
 
   return (
     <div className={cn(
-      "flex h-full flex-col transition-[width]  bg-background dark:bg-sidebar border-r border-border shadow-xl ",
-      isExpanded ? "w-80" : "w-16"
+      "flex h-full flex-col transition-[width] bg-background dark:bg-card border-r border-border/80 shadow-sm ",
+      isExpanded ? "w-76" : "w-16"
     )}>
       {/* Header */}
       <div className="flex h-16 items-center px-4">

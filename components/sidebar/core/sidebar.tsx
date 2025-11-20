@@ -511,7 +511,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           selectedMenuItem={selectedMenuItem}
           onMenuItemClick={handleMenuItemClick}
         />
-        <SidebarSecondaryColumn
+       {/*  <SidebarSecondaryColumn
           isExpanded={isSecondaryExpanded}
           selectedMenuItem={selectedMenuItem}
           selectedMenuData={selectedMenuData}
@@ -520,7 +520,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           onMobileClose={() => {}}
           onOpenCommandPalette={openCommandPalette}
           onActionClick={handleActionClick}
-        />
+        /> */}
       </div>
     </>
   );

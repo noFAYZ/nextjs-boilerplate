@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { BankAccount } from '@/lib/types/banking';
 import { format } from 'date-fns';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 interface SidebarBankAccountsListProps {
   onMobileClose: () => void;
@@ -20,6 +22,7 @@ export function SidebarBankAccountsList({ onMobileClose }: SidebarBankAccountsLi
   const router = useRouter();
   const { data: groupedAccountsRaw = {}, isLoading } = useBankingGroupedAccountsRaw();
   const { realtimeSyncStates } = useBankingStore();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const handleAccountClick = (accountId: string) => {
     router.push(`/accounts/bank/${accountId}`);
@@ -131,7 +134,9 @@ export function SidebarBankAccountsList({ onMobileClose }: SidebarBankAccountsLi
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       {/* Add Account Button */}
       <div className='flex gap-2 justify-end'>
         

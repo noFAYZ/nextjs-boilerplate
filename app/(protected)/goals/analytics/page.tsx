@@ -19,12 +19,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export default function GoalsAnalyticsPage() {
   const router = useRouter();
   const { analytics, setAnalytics, setAnalyticsLoading } = useGoalsStore();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const { isRefetching } = useOrganizationRefetchState();
 
   const loadAnalytics = async () => {
     setIsLoading(true);
@@ -73,7 +76,9 @@ export default function GoalsAnalyticsPage() {
   };
 
   return (
-    <div className="mx-auto p-6 space-y-6">
+    <div className="mx-auto p-6 space-y-6 relative">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">

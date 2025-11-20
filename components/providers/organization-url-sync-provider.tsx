@@ -80,30 +80,13 @@ export function OrganizationURLSyncProvider() {
     setSelectedOrganization(orgToSelect);
     setInitialized();
 
-    // Update URL if organization changed
-    if (orgToSelect && orgFromUrl !== orgToSelect) {
-      const url = new URL(window.location);
-      url.searchParams.set('org', orgToSelect);
-      window.history.replaceState({}, '', url);
-    }
+    // NOTE: We do NOT sync the selected organization back to the URL.
+    // This keeps the URL clean and matches Vercel's team switching behavior.
   }, [isInitialized, organizations, isLoadingOrgs, setSelectedOrganization, setInitialized]);
 
-  // Sync URL when selected organization changes (after initialization)
-  useEffect(() => {
-    if (!isInitialized || typeof window === 'undefined') {
-      return;
-    }
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const orgFromUrl = searchParams.get('org');
-
-    if (selectedOrgId && orgFromUrl !== selectedOrgId) {
-      logger.info('Syncing organization to URL', { orgId: selectedOrgId });
-      const url = new URL(window.location);
-      url.searchParams.set('org', selectedOrgId);
-      window.history.replaceState({}, '', url);
-    }
-  }, [selectedOrgId, isInitialized]);
+  // NOTE: We intentionally do NOT sync URL when organization changes
+  // URL stays clean (no ?org= parameter). Data updates via context store.
+  // This provides a Vercel-like experience where switching teams doesn't change the URL.
 
   return null;
 }

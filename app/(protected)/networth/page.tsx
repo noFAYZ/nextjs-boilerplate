@@ -26,6 +26,8 @@ import { AssetList } from '@/components/assets/asset-list';
 import { AssetFormModal } from '@/components/assets/asset-form-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { AssetAccount } from '@/lib/types/networth';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export default function NetWorthPage() {
   const { pageClass } = useViewModeClasses();
@@ -35,6 +37,7 @@ export default function NetWorthPage() {
 
   // ✅ Use Net Worth API
   const { data: netWorth, isLoading, refetch } = useNetWorth();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const handleRefresh = () => {
     refetch();
@@ -78,7 +81,9 @@ export default function NetWorthPage() {
   const dayPerformance = performance?.day;
 
   return (
-    <div className={`${pageClass} max-w-7xl mx-auto p-4 lg:p-6 space-y-6`}>
+    <div className={`${pageClass} max-w-7xl mx-auto p-4 lg:p-6 space-y-6 relative`}>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

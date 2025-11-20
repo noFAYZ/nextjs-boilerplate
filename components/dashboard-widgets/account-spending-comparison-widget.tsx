@@ -5,10 +5,13 @@ import { CreditCard, TrendingUp, ArrowUpRight, Wallet, Minus } from 'lucide-reac
 import { useAccountSpendingComparison, useBankingGroupedAccountsRaw } from '@/lib/queries/banking-queries';
 import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
 import { CurrencyDisplay } from '../ui/currency-display';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export function AccountSpendingComparisonWidget() {
   const [period, setPeriod] = useState<TimePeriod>('this_month');
   const [hoveredAccount, setHoveredAccount] = useState<string | null>(null);
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Fetch account spending comparison data with selected period
   const { data: comparisonData, isLoading } = useAccountSpendingComparison({ period });
@@ -47,7 +50,7 @@ export function AccountSpendingComparisonWidget() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-medium text-muted-foreground">Account spendings</h3>
           <TimePeriodSelector
@@ -65,13 +68,14 @@ export function AccountSpendingComparisonWidget() {
             ))}
           </div>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   if (sortedAccounts.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-medium text-muted-foreground">Account spendings</h3>
           <TimePeriodSelector
@@ -87,6 +91,7 @@ export function AccountSpendingComparisonWidget() {
             No account data available.
           </p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
@@ -105,7 +110,7 @@ export function AccountSpendingComparisonWidget() {
   
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground">Account spendings</h3>
@@ -269,6 +274,7 @@ export function AccountSpendingComparisonWidget() {
           />
         </div>
       </div>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

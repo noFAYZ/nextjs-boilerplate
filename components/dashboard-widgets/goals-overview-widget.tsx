@@ -17,6 +17,8 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 // Goal Item Component - Similar to Subscription List
 function GoalItem({ goal }: { goal: any }) {
@@ -166,6 +168,7 @@ export function GoalsOverviewWidget() {
   const { data: goalsResponse, isLoading: goalsLoading } = useActiveGoals();
   const summary = useGoalSummary();
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Get goals to display based on active tab
   const goalsToShow = useMemo(() => {
@@ -203,7 +206,7 @@ export function GoalsOverviewWidget() {
   // Loading State
   if (goalsLoading) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-4">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
         <div className="space-y-3">
           <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
           <div className="h-20 bg-muted/50 rounded-lg animate-pulse" />
@@ -213,6 +216,7 @@ export function GoalsOverviewWidget() {
             ))}
           </div>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
@@ -220,7 +224,7 @@ export function GoalsOverviewWidget() {
   // Empty State
   if (tabCounts.all === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-4">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
@@ -244,12 +248,13 @@ export function GoalsOverviewWidget() {
             Create a goal to start tracking progress
           </p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none h-fit">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none h-fit">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -397,6 +402,7 @@ export function GoalsOverviewWidget() {
           )}
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

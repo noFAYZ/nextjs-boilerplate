@@ -79,7 +79,6 @@ export const useOrganizationStore = create<OrganizationContextStore>()(
         ...initialState,
 
         setSelectedOrganization: (orgId: string | null) => {
-          console.log('[OrganizationStore] Setting selected organization:', orgId);
           set((state) => {
             state.selectedOrganizationId = orgId;
             state.isChangingOrg = false;

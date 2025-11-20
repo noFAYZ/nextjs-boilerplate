@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { cryptoApi } from '@/lib/services/crypto-api';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   CryptoWallet,
   CreateWalletRequest,
@@ -23,6 +24,22 @@ import type {
   CryptoNFT,
   SyncJobStatus
 } from '@/lib/types/crypto';
+
+// ============================================================================
+// HELPER: Get current organization ID from store (not from closure)
+// ============================================================================
+function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+  // Explicit orgId takes precedence
+  if (explicitOrgId) return explicitOrgId;
+
+  // Otherwise get from store (gets current org at execution time, not creation time)
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // Query Keys Factory
 export const cryptoKeys = {
@@ -69,12 +86,22 @@ export const cryptoKeys = {
 // Query Options Factory
 export const cryptoQueries = {
   // Wallets
-  wallets: (orgId?: string) => ({
-    queryKey: cryptoKeys.wallets(orgId),
-    queryFn: () => cryptoApi.getWallets(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: ApiResponse<CryptoWallet[]>) => data.success ? data.data : [],
-  }),
+  wallets: (orgId?: string) => {
+    // Generate query key ONCE with the provided orgId
+    const queryKey = cryptoKeys.wallets(orgId);
+
+    return {
+      queryKey,
+      queryFn: async () => {
+        // ⭐ FIX: ALWAYS use current org from store (not closure variable)
+        // This ensures refetchQueries() uses the CURRENT organization, not the one from closure
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getWallets(currentOrgId);
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      select: (data: ApiResponse<CryptoWallet[]>) => data.success ? data.data : [],
+    };
+  },
 
   wallet: (id: string, timeRange = '24h', orgId?: string) => ({
     queryKey: cryptoKeys.wallet(id, timeRange, orgId),
@@ -107,31 +134,49 @@ export const cryptoQueries = {
   }),
 
   // Portfolio
-  portfolio: (params?: PortfolioParams, orgId?: string) => ({
-    queryKey: cryptoKeys.portfolio(params, orgId),
-    queryFn: () => cryptoApi.getPortfolio(params, orgId),
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    refetchInterval: 1000 * 60 * 5, // Auto-refresh every 5 minutes
-    select: (data: ApiResponse<PortfolioData>) => data.success ? data.data : null,
-  }),
+  portfolio: (params?: PortfolioParams, orgId?: string) => {
+    const queryKey = cryptoKeys.portfolio(params, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getPortfolio(params, currentOrgId);
+      },
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      refetchInterval: 1000 * 60 * 5, // Auto-refresh every 5 minutes
+      select: (data: ApiResponse<PortfolioData>) => data.success ? data.data : null,
+    };
+  },
 
   // Transactions
-  transactions: (params?: TransactionParams, orgId?: string) => ({
-    queryKey: cryptoKeys.transactions(params, orgId),
-    queryFn: () => cryptoApi.getTransactions(params, orgId),
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
-  }),
+  transactions: (params?: TransactionParams, orgId?: string) => {
+    const queryKey = cryptoKeys.transactions(params, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getTransactions(params, currentOrgId);
+      },
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 3, // 3 minutes
+      select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
+    };
+  },
 
-  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string) => ({
-    queryKey: cryptoKeys.walletTransactions(walletId, params, orgId),
-    queryFn: () => cryptoApi.getWalletTransactions(walletId, params, orgId),
-    enabled: !!walletId,
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 3, // 3 minutes
-    select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
-  }),
+  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string) => {
+    const queryKey = cryptoKeys.walletTransactions(walletId, params, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getWalletTransactions(walletId, params, currentOrgId);
+      },
+      enabled: !!walletId,
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 3, // 3 minutes
+      select: (data: ApiResponse<CryptoTransaction[]>) => data.success ? data : { data: [] },
+    };
+  },
 
   // Infinite query for transactions
   infiniteTransactions: (params?: Omit<TransactionParams, 'page'>, orgId?: string) => ({
@@ -156,38 +201,62 @@ export const cryptoQueries = {
   }),
 
   // NFTs
-  nfts: (params?: NFTParams, orgId?: string) => ({
-    queryKey: cryptoKeys.nfts(params, orgId),
-    queryFn: () => cryptoApi.getNFTs(params, orgId),
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 10, // 10 minutes (NFTs change less frequently)
-    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
-  }),
+  nfts: (params?: NFTParams, orgId?: string) => {
+    const queryKey = cryptoKeys.nfts(params, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getNFTs(params, currentOrgId);
+      },
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 10, // 10 minutes (NFTs change less frequently)
+      select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
+    };
+  },
 
-  walletNfts: (walletId: string, params?: NFTParams, orgId?: string) => ({
-    queryKey: cryptoKeys.walletNfts(walletId, params, orgId),
-    queryFn: () => cryptoApi.getWalletNFTs(walletId, params, orgId),
-    enabled: !!walletId,
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 10,
-    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
-  }),
+  walletNfts: (walletId: string, params?: NFTParams, orgId?: string) => {
+    const queryKey = cryptoKeys.walletNfts(walletId, params, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getWalletNFTs(walletId, params, currentOrgId);
+      },
+      enabled: !!walletId,
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 10,
+      select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data : { data: [] },
+    };
+  },
 
   // DeFi
-  defi: (orgId?: string) => ({
-    queryKey: cryptoKeys.defi(orgId),
-    queryFn: () => cryptoApi.getDeFiPositions(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: ApiResponse<DeFiPosition[]>) => data.success ? data.data : [],
-  }),
+  defi: (orgId?: string) => {
+    const queryKey = cryptoKeys.defi(orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getDeFiPositions(currentOrgId);
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      select: (data: ApiResponse<DeFiPosition[]>) => data.success ? data.data : [],
+    };
+  },
 
-  walletDefi: (walletId: string, orgId?: string) => ({
-    queryKey: cryptoKeys.walletDefi(walletId, orgId),
-    queryFn: () => cryptoApi.getWalletDeFiPositions(walletId, orgId),
-    enabled: !!walletId,
-    staleTime: 1000 * 60 * 5,
-    select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
-  }),
+  walletDefi: (walletId: string, orgId?: string) => {
+    const queryKey = cryptoKeys.walletDefi(walletId, orgId);
+    return {
+      queryKey,
+      queryFn: async () => {
+        const currentOrgId = getCurrentOrganizationId();
+        return await cryptoApi.getWalletDeFiPositions(walletId, currentOrgId);
+      },
+      enabled: !!walletId,
+      staleTime: 1000 * 60 * 5,
+      select: (data: ApiResponse<CryptoNFT[]>) => data.success ? data.data : [],
+    };
+  },
 
   // Sync Status
   syncStatus: (walletId: string, jobId?: string, orgId?: string) => ({

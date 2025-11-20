@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 // Category icon mapping
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -41,6 +43,7 @@ export function RecentActivityWidget() {
   const { data: cryptoTransactions, isLoading: cryptoLoading } = useOrganizationCryptoTransactions({
     limit: 10,
   });
+  const { isRefetching } = useOrganizationRefetchState();
 
   const isLoading = bankLoading || cryptoLoading;
 
@@ -105,20 +108,21 @@ export function RecentActivityWidget() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <h3 className="text-xs font-medium text-muted-foreground mb-3">Recent activity</h3>
         <div className="space-y-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
           ))}
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   if (recentActivities.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-medium text-muted-foreground">Recent activity</h3>
         </div>
@@ -126,12 +130,13 @@ export function RecentActivityWidget() {
           <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
           <p className="text-xs text-muted-foreground">No recent activity</p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-medium text-muted-foreground">Recent activity</h3>
@@ -226,6 +231,7 @@ export function RecentActivityWidget() {
           );
         })}
       </div>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

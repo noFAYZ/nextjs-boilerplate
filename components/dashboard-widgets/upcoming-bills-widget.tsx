@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';
 import Image from 'next/image';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export function UpcomingBillsWidget() {
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({
@@ -15,6 +17,7 @@ export function UpcomingBillsWidget() {
     sortOrder: 'asc',
     limit: 20,
   });
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Get bills for the next 30 days
   const upcomingBills = useMemo(() => {
@@ -70,7 +73,7 @@ export function UpcomingBillsWidget() {
 
   if (subscriptionsLoading) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <h3 className="text-xs font-medium text-muted-foreground mb-3">Upcoming bills</h3>
         <div className="space-y-2">
           <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
@@ -78,13 +81,14 @@ export function UpcomingBillsWidget() {
             <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
           ))}
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   if (upcomingBills.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-medium text-muted-foreground">Upcoming bills</h3>
           <Link href="/subscriptions">
@@ -97,12 +101,13 @@ export function UpcomingBillsWidget() {
           <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
           <p className="text-xs text-muted-foreground">No bills due in the next 30 days</p>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-medium text-muted-foreground">Upcoming bills</h3>
@@ -238,6 +243,7 @@ export function UpcomingBillsWidget() {
           </p>
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

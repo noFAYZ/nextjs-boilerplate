@@ -23,6 +23,8 @@ import type { UserSubscription } from '@/lib/types/subscription';
 import { DuoIconsAlertOctagon, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 // Compact Subscription List Item
 function SubscriptionItem({ subscription }: { subscription: UserSubscription }) {
@@ -148,6 +150,7 @@ export function SubscriptionsOverviewWidget() {
   });
   const summary = useSubscriptionSummary();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Get subscriptions to display based on active tab
   const subscriptionsToShow = useMemo(() => {
@@ -224,7 +227,7 @@ export function SubscriptionsOverviewWidget() {
   // Loading State
   if (subscriptionsLoading) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3 lg:col-span-2">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 lg:col-span-2">
         <div className="space-y-2.5">
           <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
           <div className="grid grid-cols-2 gap-2">
@@ -238,6 +241,7 @@ export function SubscriptionsOverviewWidget() {
             ))}
           </div>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
@@ -245,7 +249,7 @@ export function SubscriptionsOverviewWidget() {
   // Empty State
   if (summary.total === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-4 lg:col-span-2">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4 lg:col-span-2">
         <h3 className="text-sm font-medium text-muted-foreground mb-3">Subscriptions</h3>
         <div className="py-6 text-center">
           <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-muted/50 flex items-center justify-center">
@@ -261,12 +265,13 @@ export function SubscriptionsOverviewWidget() {
             </Badge>
           </Link>
         </div>
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </div>
     );
   }
 
   return (
-    <Card className=" " variant='outlined' >
+    <Card className="relative" variant='outlined' >
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
@@ -410,6 +415,7 @@ export function SubscriptionsOverviewWidget() {
           )}
         </div>
       )}
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </Card>
   );
 }

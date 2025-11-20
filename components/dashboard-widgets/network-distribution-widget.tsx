@@ -4,8 +4,10 @@ import { useMemo } from 'react';
 import Image from 'next/image';
 import { Network } from 'lucide-react';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { CurrencyDisplay } from '../ui/currency-display';
+import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 
 const NETWORK_COLORS: Record<string, string> = {
   ETHEREUM: 'bg-blue-100 dark:bg-blue-950/40',
@@ -41,6 +43,7 @@ const getChainIcon = (network: string): string | null => {
 
 export function NetworkDistributionWidget() {
   const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
+  const { isRefetching } = useOrganizationRefetchState();
 
   const networkData = useMemo(() => {
     if (!portfolio?.networkDistribution || portfolio.networkDistribution.length === 0) {
@@ -70,6 +73,7 @@ export function NetworkDistributionWidget() {
     return percentage.toFixed(1) + '%';
   };
 
+  // Show skeleton when initially loading
   if (portfolioLoading) {
     return (
       <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
@@ -81,8 +85,8 @@ export function NetworkDistributionWidget() {
               className={`rounded-lg p-3 bg-muted/50 ${i === 0 ? 'row-span-2' : ''}`}
               style={{ minHeight: i === 0 ? '140px' : '68px' }}
             >
-              <div className="h-3 w-10 bg-muted rounded mb-2" />
-              <div className="h-5 w-16 bg-muted rounded mt-auto" />
+              <div className="h-3 w-10 bg-muted rounded mb-2 animate-pulse" />
+              <div className="h-5 w-16 bg-muted rounded mt-auto animate-pulse" />
             </div>
           ))}
         </div>
@@ -92,19 +96,20 @@ export function NetworkDistributionWidget() {
 
   if (networkData.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
         <h3 className="text-xs font-medium text-muted-foreground mb-3">Network distribution</h3>
-        <div className="py-8 text-center">
+        <div className="relative py-8 text-center">
           <p className="text-xs text-muted-foreground">
             No network data available.
           </p>
+          <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
       <h3 className="text-xs font-medium text-muted-foreground mb-3">Network distribution</h3>
 
       <div className="grid grid-cols-2 gap-2 ">
@@ -159,6 +164,7 @@ export function NetworkDistributionWidget() {
           );
         })}
       </div>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
     </div>
   );
 }

@@ -34,6 +34,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export default function PortfolioPage() {
   const router = useRouter();
@@ -41,6 +43,7 @@ export default function PortfolioPage() {
 
   // ✅ UPDATED: Use Net Worth API for comprehensive aggregation
   const { data: netWorth, isLoading, refetch } = useNetWorth();
+  const { isRefetching } = useOrganizationRefetchState();
 
   // Calculate stats from net worth data
   const stats = useMemo(() => {
@@ -161,7 +164,9 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className={`${pageClass} max-w-3xl mx-auto p-4 lg:p-6 space-y-4`}>
+    <div className={`${pageClass} max-w-3xl mx-auto p-4 lg:p-6 space-y-4 relative`}>
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

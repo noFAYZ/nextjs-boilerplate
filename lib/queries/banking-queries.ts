@@ -7,6 +7,7 @@ import {
 import { bankingApi } from '@/lib/services/banking-api';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   BankAccount,
   BankTransaction,
@@ -96,14 +97,31 @@ const mockBankingOverview = {
 
 const mockTransactions: BankTransaction[] = [];
 
+// ============================================================================
+// HELPER: Get current organization ID from store (not from closure)
+// ============================================================================
+function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+  // Explicit orgId takes precedence
+  if (explicitOrgId) return explicitOrgId;
+
+  // Otherwise get from store (gets current org at execution time, not creation time)
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // Query Options Factory
 export const bankingQueries = {
   // Accounts
-  accounts: () => ({
-    queryKey: bankingKeys.accounts(),
+  accounts: (orgId?: string) => ({
+    queryKey: bankingKeys.accounts(orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getAccounts();
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getAccounts(currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, mockBankAccounts);
       }
@@ -119,11 +137,12 @@ export const bankingQueries = {
   }),
 
     // Accounts
-    groupedAccounts: () => ({
-      queryKey: bankingKeys.accounts(),
+    groupedAccounts: (orgId?: string) => ({
+      queryKey: bankingKeys.groupedAccounts(orgId),
       queryFn: async () => {
         try {
-          return await bankingApi.getGroupedAccounts();
+          const currentOrgId = getCurrentOrganizationId(orgId);
+          return await bankingApi.getGroupedAccounts(currentOrgId);
         } catch (error: unknown) {
           return handleApiError(error, mockBankAccounts);
         }
@@ -157,11 +176,12 @@ export const bankingQueries = {
       },
     }),
 
-  account: (id: string) => ({
-    queryKey: bankingKeys.account(id),
+  account: (id: string, orgId?: string) => ({
+    queryKey: bankingKeys.account(id, orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getAccount(id);
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getAccount(id, currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, null);
       }
@@ -172,11 +192,12 @@ export const bankingQueries = {
     select: (data: ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>) => data.success ? data.data : null,
   }),
 
-  accountSummary: (id: string) => ({
-    queryKey: bankingKeys.accountSummary(id),
+  accountSummary: (id: string, orgId?: string) => ({
+    queryKey: bankingKeys.accountSummary(id, orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getAccountSummary(id);
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getAccountSummary(id, currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, null);
       }
@@ -188,11 +209,12 @@ export const bankingQueries = {
   }),
 
   // Overview & Dashboard
-  overview: () => ({
-    queryKey: bankingKeys.overview(),
+  overview: (orgId?: string) => ({
+    queryKey: bankingKeys.overview(orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getOverview();
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getOverview(currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, mockBankingOverview);
       }
@@ -203,11 +225,12 @@ export const bankingQueries = {
     select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
-  dashboard: () => ({
-    queryKey: bankingKeys.dashboard(),
+  dashboard: (orgId?: string) => ({
+    queryKey: bankingKeys.dashboard(orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getDashboardData();
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getDashboardData(currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, null);
       }
@@ -219,12 +242,12 @@ export const bankingQueries = {
   }),
 
   // Transactions
-  transactions: (params?: BankTransactionParams) => ({
-    queryKey: bankingKeys.transactions(params),
+  transactions: (params?: BankTransactionParams, orgId?: string) => ({
+    queryKey: bankingKeys.transactions(params, orgId),
     queryFn: async () => {
       try {
-        const tx = await bankingApi.getTransactions(params);
-        return await bankingApi.getTransactions(params);
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getTransactions(params, currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, { data: mockTransactions, pagination: null });
       }
@@ -240,11 +263,12 @@ export const bankingQueries = {
     },
   }),
 
-  accountTransactions: (accountId: string, params?: Omit<BankTransactionParams, 'accountId'>) => ({
-    queryKey: bankingKeys.accountTransactions(accountId, params),
+  accountTransactions: (accountId: string, params?: Omit<BankTransactionParams, 'accountId'>, orgId?: string) => ({
+    queryKey: bankingKeys.accountTransactions(accountId, params, orgId),
     queryFn: async () => {
       try {
-        return await bankingApi.getAccountTransactions(accountId, params);
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getAccountTransactions(accountId, params, currentOrgId);
       } catch (error: unknown) {
         return handleApiError(error, { data: mockTransactions, pagination: null });
       }

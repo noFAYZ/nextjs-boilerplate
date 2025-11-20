@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { useAcceptInvitationByToken, usePendingInvitations } from '@/lib/queries/use-organization-data';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 
 interface PageProps {
   params: { token: string };
@@ -18,6 +19,7 @@ interface PageProps {
 
 export default function AcceptInvitationPage({ params }: PageProps) {
   const router = useRouter();
+  const { setSelectedOrganization } = useOrganizationStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,9 +43,10 @@ export default function AcceptInvitationPage({ params }: PageProps) {
           setStatus('success');
           refetchInvitations();
 
-          // Redirect after 3 seconds
+          // Set the organization in context store and redirect
           setTimeout(() => {
-            router.push(`/dashboard?org=${response.data.organizationId}`);
+            setSelectedOrganization(response.data.organizationId);
+            router.push('/dashboard');
           }, 3000);
         } else {
           setStatus('error');
