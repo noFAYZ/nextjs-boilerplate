@@ -139,10 +139,7 @@ export function Header({
               </Link>
           </div>
 
-          {/* Organization Switcher */}
-          <div className="hidden md:block w-56">
-            <OrganizationSwitcher />
-          </div>
+        
 
 
 {/* Product Popover (hover to open) */}

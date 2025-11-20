@@ -53,6 +53,7 @@ import {
 
   MageGoals, 
   SolarAddSquareBoldDuotone, 
+  SolarBillListBoldDuotone, 
   SolarCalculatorBoldDuotone, 
   SolarChartSquareBoldDuotone, 
   SolarClipboardListBoldDuotone, 
@@ -170,7 +171,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'transactions',
     label: 'Transactions',
-    icon: SolarClipboardListBoldDuotone,
+    icon: SolarBillListBoldDuotone,
     href: '/transactions',
     submenu: [
       {
@@ -435,22 +436,41 @@ export const QUICK_ACTIONS: QuickAction[] = [
 export interface SidebarProps {
   className?: string;
   defaultExpanded?: boolean;
+  mainColumnExpanded: boolean;
+  onToggleMainColumn: () => void;
+  selectedMenuItem?: string | null;
+  activeMenuItem?: string | null;
+  onMenuItemClick?: (itemId: string) => void;
 }
 
-export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
+export function Sidebar({
+  className,
+  defaultExpanded = true,
+  mainColumnExpanded,
+  onToggleMainColumn,
+  selectedMenuItem: externalSelectedMenuItem,
+  activeMenuItem: externalActiveMenuItem,
+  onMenuItemClick: externalOnMenuItemClick
+}: SidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { selectedAccount } = useAccount();
   const { openCommandPalette, CommandPalette } = useCommandPalette();
   const pathname = usePathname();
-  
-  // Use the custom sidebar hook for better state management
+
+  // Use internal hook ONLY for secondary column and keyboard shortcuts
+  // All main state (mainColumnExpanded, selectedMenuItem, activeMenuItem) comes from props
   const {
     isExpanded: isSecondaryExpanded,
-    selectedMenuItem,
-    activeMenuItem,
+    selectedMenuItem: internalSelectedMenuItem,
+    activeMenuItem: internalActiveMenuItem,
     toggleExpanded,
-    selectMenuItem
+    selectMenuItem: internalSelectMenuItem
   } = useSidebar({ defaultExpanded });
+
+  // Use props if provided, otherwise fall back to internal state
+  const selectedMenuItem = externalSelectedMenuItem !== undefined ? externalSelectedMenuItem : internalSelectedMenuItem;
+  const activeMenuItem = externalActiveMenuItem !== undefined ? externalActiveMenuItem : internalActiveMenuItem;
+  const selectMenuItem = externalOnMenuItemClick ? (itemId: string) => externalOnMenuItemClick(itemId) : internalSelectMenuItem;
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -467,9 +487,13 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
   }, [toggleExpanded]);
 
   const handleMenuItemClick = useCallback((itemId: string) => {
-    // Always keep the menu item selected, don't toggle it off
-    selectMenuItem(itemId);
-  }, [selectMenuItem]);
+    // Use external callback if provided, otherwise use internal state
+    if (externalOnMenuItemClick) {
+      externalOnMenuItemClick(itemId);
+    } else {
+      internalSelectMenuItem(itemId);
+    }
+  }, [externalOnMenuItemClick, internalSelectMenuItem]);
 
   const handleActionClick = useCallback((actionId: string) => {
     const action = QUICK_ACTIONS.find(a => a.id === actionId);
@@ -510,6 +534,7 @@ export function Sidebar({ className, defaultExpanded = true }: SidebarProps) {
           activeMenuItem={activeMenuItem}
           selectedMenuItem={selectedMenuItem}
           onMenuItemClick={handleMenuItemClick}
+          mainColumnExpanded={mainColumnExpanded}
         />
        {/*  <SidebarSecondaryColumn
           isExpanded={isSecondaryExpanded}

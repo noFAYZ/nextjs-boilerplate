@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon } from 'lucide-react';
+import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,16 +20,16 @@ import {
   TooltipContent,
   TooltipProvider
 } from '@/components/ui/tooltip';
-import { LetsIconsSettingLineDuotone, LogoMappr } from '@/components/icons';
+import { LetsIconsSettingLineDuotone } from '@/components/icons';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { MenuItem } from '../types';
 import Image from 'next/image';
-import { OrganizationSwitcher } from '@/components/organization';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
+import { OrganizationSwitcher } from '@/components/organization';
 
 
 interface SidebarMainColumnProps {
@@ -37,13 +37,15 @@ interface SidebarMainColumnProps {
   activeMenuItem: string | null;
   selectedMenuItem: string | null;
   onMenuItemClick: (itemId: string) => void;
+  mainColumnExpanded?: boolean;
 }
 
 export function SidebarMainColumn({
   menuItems,
   activeMenuItem,
   selectedMenuItem,
-  onMenuItemClick
+  onMenuItemClick,
+  mainColumnExpanded = true
 }: SidebarMainColumnProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,42 +70,44 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex h-full w-70 flex-col bg-card border-r border-border/50">
-      {/* Logo Section */}
-      <div className="flex h-16 items-center justify-center px-4">
-      {/*   <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/dashboard"
-              className="flex items-center justify-center w-14 h-14 hover:opacity-90 transition-opacity"
-            >
+      <div className={cn("flex h-full flex-col bg-card border-r border-border/50 transition-all duration-200", mainColumnExpanded ? "w-70" : "w-18")}>
+
+      {/* Sidebar Header - Logo */}
+      <div className="flex h-14 md:h-16 items-center justify-center px-3 md:px-4">
+        {!mainColumnExpanded ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/logo/mappr.svg"
                   alt="MoneyMappr logo"
-                  width={56}
-                  height={56}
-                  className="object-contain w-10 h-10  "
+                  width={52}
+                  height={52}
+                  className="object-contain w-10 md:w-11 h-10 md:h-11"
                   priority
-                /> 
-       
-            
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent
-            side="right"
-            sideOffset={12}
-            className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
-          >
-            MoneyMappr
-          </TooltipContent>
-        </Tooltip> */}    <OrganizationSwitcher />
+                />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              sideOffset={12}
+              className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
+            >
+              MoneyMappr
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <OrganizationSwitcher />
+        )}
       </div>
 
       {/* Main Menu */}
-      <div className="flex-1 py-3 overflow-visible">
+      <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-
-        <nav className="flex flex-col space-y-1 px-4">
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 md:px-3")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -124,22 +128,24 @@ export function SidebarMainColumn({
                     variant="ghost"
                     size="lg"
                     className={cn(
-                      " w-full justify-start gap-3 h-auto py-2 px-2 ",
+                      "w-full h-auto",
+                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-2 border border-border",
                       isHighlighted
-                        ? "bg-muted hover:bg-muted/80 text-foreground/90  "
+                        ? "bg-muted hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className="h-5 w-5 antialiased" stroke={'1.9'} />}
-                    
+                    icon={<Icon className={cn("antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5 md:h-6 w-5 md:w-6")} stroke="1.9" />}
                   >
-                    
 
-                    <span className={cn(
-                    'font-medium text-sm truncate',
-                    isHighlighted ? 'text-foreground' : 'text-muted-foreground'
-                  )}>
-                    {item.label}
-                  </span>
+
+                    {mainColumnExpanded && (
+                      <span className={cn(
+                        "font-medium text-xs md:text-sm truncate",
+                        isHighlighted ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {item.label}
+                      </span>
+                    )}
             
 
                     {/* Active indicator */}
@@ -183,133 +189,155 @@ export function SidebarMainColumn({
       </div>
 
       {/* Footer Actions */}
-      <div className="px-2 pb-3 space-y-2">
+      <div className={cn("pb-2 md:pb-3 space-y-2", mainColumnExpanded ? "px-2 md:px-2" : "px-1 md:px-1")}>
 
-      <div className="px-2">
-            <div className="space-y-2 rounded-lg bg-muted   p-3.5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background border border-border/80 shadow-sm">
-                  <Crown className="h-5 w-5 " />
+        {mainColumnExpanded && (
+          <div className="px-2">
+            <div className="space-y-2 rounded-lg bg-muted p-2 md:p-3.5">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-lg md:rounded-xl bg-background border border-border/80 shadow-sm flex-shrink-0">
+                  <Crown className="h-4 md:h-5 w-4 md:w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
-                  <p className="text-[11px] text-muted-foreground">Unlock advanced features</p>
+                  <h3 className="font-semibold text-xs md:text-sm text-foreground">Upgrade to Pro</h3>
+                  <p className="text-[10px] md:text-[11px] text-muted-foreground">Unlock advanced features</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 ">
-                <span className="text-[10px] text-muted-foreground font-medium">14-day free trial</span>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[9px] md:text-[10px] text-muted-foreground font-medium">14-day free trial</span>
                 <Button
                   size="sm"
-                  className="h-7 text-[11px] px-3 font-medium"
-                  onClick={() => router.push('/subscription')}
+                  className="h-6 md:h-7 text-[10px] md:text-[11px] px-2 md:px-3 font-medium"
+                  onClick={() => router.push("/subscription")}
                 >
                   Upgrade
                 </Button>
               </div>
             </div>
           </div>
+        )}
 
-        <div className="flex items-center justify-between w-full gap-3 p-2">
-          
-            <ThemeSwitcher />
-            <GlobalViewSwitcher size='sm' className='items-start justify-start mx-0' />
-              {/* Settings */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              className=" rounded-full shadow-transparent"
-              onClick={() => router.push('/settings')}
-            >
-              <LetsIconsSettingLineDuotone className="h-4.5 w-4.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent
-            side="right"
-            sideOffset={12}
-            className="bg-[#2a2a2a] text-xs font-medium rounded-lg shadow-xl border border-white/10"
-          >
-            Settings
-          </TooltipContent>
-        </Tooltip>
-          </div>
-<div className='px-2'>
-        {/* Profile Dropdown */}
-        <Tooltip>
-          <DropdownMenu>
+        <div className={cn("flex items-center gap-2 md:gap-3 p-1.5 md:p-2", mainColumnExpanded ? "justify-between w-full" : "justify-center flex-col")}>
+
+          {mainColumnExpanded && (
+            <>
+              <ThemeSwitcher />
+              <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
+            </>
+          )}
+
+          {/* Settings */}
+          <Tooltip>
             <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild  >
-                <Button
-                   variant='outline2'
-          size='xl'
-                  className="flex items-center  justify-between gap-3 w-full px-3  "
-               
-                >
-
-<div className="flex items-center text-start gap-2 flex-1 min-w-0">
-
-                  <Avatar className="h-7 w-7">
-                      <AvatarImage
-                        src={ avatar}
-                        alt={`${user?.name || 'User'}'s avatar`}
-                      />
-                      <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                        {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-            <div className="flex-1 min-w-0">
-            
-                <p className="text-xs font-medium ">{user?.name}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
-            
-           
-            </div>
-          </div>
-          <MenuIcon
-            size={16}
-            className="flex-shrink-0 text-muted-foreground  "
-          />
-
-                </Button>
-              </DropdownMenuTrigger>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                className="rounded-full shadow-transparent flex-shrink-0"
+                onClick={() => router.push("/settings")}
+              >
+                <LetsIconsSettingLineDuotone className="h-4 md:h-4.5 w-4 md:w-4.5" />
+              </Button>
             </TooltipTrigger>
             <TooltipContent
               side="right"
               sideOffset={12}
-              className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
+              className="bg-[#2a2a2a] text-xs font-medium rounded-lg shadow-xl border border-white/10"
             >
-              {user?.name || 'Profile'}
+              Settings
             </TooltipContent>
-            <DropdownMenuContent align="end" side="right" className="w-56 bg-[#2a2a2a] border-white/10 text-white">
-              <div className="px-3 py-2 border-b border-white/10">
-                <p className="text-sm font-medium text-white">{user?.name}</p>
-                <p className="text-xs text-white/60 truncate">{user?.email}</p>
-              </div>
-              <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
-                <Link href="/profile" className="flex items-center gap-3 cursor-pointer">
-                  <User className="h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
-                <Link href="/subscription" className="flex items-center gap-3 cursor-pointer">
-                  <Crown className="h-4 w-4" />
-                  <span>Subscription</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem
-                className="flex items-center gap-3 text-red-400 focus:text-red-400 focus:bg-white/10 cursor-pointer"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Tooltip></div>
+          </Tooltip>
+        </div>
+
+        {/* Profile Dropdown */}
+        <div className={cn("px-1.5 md:px-2", !mainColumnExpanded && "flex justify-center")}>
+          <Tooltip>
+            <DropdownMenu>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  {mainColumnExpanded ? (
+                    <Button
+                      variant="outline2"
+                      size="xl"
+                      className="flex items-center justify-between gap-2 md:gap-3 w-full px-2 md:px-3"
+                    >
+                      <div className="flex items-center text-start gap-2 flex-1 min-w-0">
+                        <Avatar className="h-6 md:h-7 w-6 md:w-7 flex-shrink-0">
+                          <AvatarImage
+                            src={avatar}
+                            alt={`${user?.name || "User"}'s avatar`}
+                          />
+                          <AvatarFallback className="text-xs md:text-sm bg-muted text-muted-foreground">
+                            {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] md:text-xs font-medium truncate">{user?.name}</p>
+                          <p className="text-[9px] md:text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                        </div>
+                      </div>
+                      <MenuIcon
+                        size={14}
+                        className="flex-shrink-0 text-muted-foreground hidden sm:block"
+                      />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline2"
+                      size="icon"
+                      className="h-8 md:h-9 w-8 md:w-9 rounded-full flex-shrink-0"
+                    >
+                      <Avatar className="h-6 md:h-7 w-6 md:w-7">
+                        <AvatarImage
+                          src={avatar}
+                          alt={`${user?.name || "User"}'s avatar`}
+                        />
+                        <AvatarFallback className="text-xs md:text-sm bg-muted text-muted-foreground">
+                          {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  )}
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              {mainColumnExpanded && (
+                <TooltipContent
+                  side="right"
+                  sideOffset={12}
+                  className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
+                >
+                  {user?.name || 'Profile'}
+                </TooltipContent>
+              )}
+              <DropdownMenuContent align="end" side="right" className="w-56 bg-[#2a2a2a] border-white/10 text-white">
+                <div className="px-3 py-2 border-b border-white/10">
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs text-white/60 truncate">{user?.email}</p>
+                </div>
+                <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+                  <Link href="/profile" className="flex items-center gap-3 cursor-pointer">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+                  <Link href="/subscription" className="flex items-center gap-3 cursor-pointer">
+                    <Crown className="h-4 w-4" />
+                    <span>Subscription</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem
+                  className="flex items-center gap-3 text-red-400 focus:text-red-400 focus:bg-white/10 cursor-pointer"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Tooltip>
+        </div>
       </div>
       </div>
     </TooltipProvider>
