@@ -15,6 +15,7 @@ import { GlobalErrorHandler } from "./global-error-handler";
 import { OrganizationModalsProvider } from "./organization-modals-provider";
 import { OrganizationDataSyncProvider } from "./organization-data-sync-provider";
 import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
+import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-overlay";
 
 /**
  * Global Providers
@@ -47,6 +48,7 @@ export default function Providers({ children }: { children: ReactNode }) {
                 <StoreProvider>
                   <OrganizationURLSyncProvider />
                   <OrganizationDataSyncProvider />
+                  <GlobalRefetchOverlay />
                   <ViewModeProvider>
                     <AccountProvider>
                       <DockProvider>

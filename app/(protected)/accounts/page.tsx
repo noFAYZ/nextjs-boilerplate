@@ -492,7 +492,7 @@ export default function AccountsPage() {
         {/* Full-width Chart */}
         {showNetWorth && (
           <div className="mb-8">
-            <NetWorthChart mode="live"  height={300}  />
+            <NetWorthChart mode="live"  height={280}  />
           </div>
         )}
 

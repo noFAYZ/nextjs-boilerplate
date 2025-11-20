@@ -43,9 +43,9 @@ import { billingSubscriptionKeys } from '@/lib/queries/use-billing-subscription-
 // ============================================================================
 
 const REFETCH_TIMEOUTS = {
-  CRITICAL: 3000,    // 3 second timeout for critical queries
-  SECONDARY: 5000,   // 5 second timeout for secondary queries
-  BACKGROUND: 10000, // 10 second timeout for background queries
+  CRITICAL: 2000,    // 2 second timeout for critical queries (fast endpoint)
+  SECONDARY: 3000,   // 3 second timeout for secondary queries
+  BACKGROUND: 5000,  // 5 second timeout for background queries (only org-scoped queries)
 };
 
 // ============================================================================
@@ -104,13 +104,19 @@ async function refetchCriticalQueries(
 }
 
 /**
- * Phase 2: SECONDARY queries (transactions, spending, net worth)
+ * Phase 2: SECONDARY queries (transactions, spending, net worth, unified accounts)
  * These are visible when scrolling - should complete quickly after phase 1
  */
 async function refetchSecondaryQueries(
   queryClient: ReturnType<typeof useQueryClient>
 ): Promise<void> {
   await Promise.all([
+    // Unified accounts list (combines crypto + banking accounts)
+    refetchWithTimeout(
+      queryClient.refetchQueries({ queryKey: accountsKeys.list(), exact: false }),
+      REFETCH_TIMEOUTS.SECONDARY,
+      'Unified Accounts'
+    ),
     // Transactions and spending data
     refetchWithTimeout(
       queryClient.refetchQueries({ queryKey: cryptoKeys.transactions(), exact: false }),
@@ -137,14 +143,15 @@ async function refetchSecondaryQueries(
 }
 
 /**
- * Phase 3: BACKGROUND queries (goals, budgets, settings)
- * These are less critical - continue loading without blocking
+ * Phase 3: BACKGROUND queries (less critical, org-specific data)
+ * Only refetch org-dependent data. Skip global queries (settings, billing)
  */
 async function refetchBackgroundQueries(
   queryClient: ReturnType<typeof useQueryClient>
 ): Promise<void> {
-  // Start these in parallel but don't wait for them
-  Promise.allSettled([
+  // Only refetch organization-scoped queries that users care about
+  // Skip: settings, billing, payment methods (global/org-independent)
+  await Promise.allSettled([
     refetchWithTimeout(
       queryClient.refetchQueries({ queryKey: goalKeys.all, exact: false }),
       REFETCH_TIMEOUTS.BACKGROUND,
@@ -161,34 +168,9 @@ async function refetchBackgroundQueries(
       'Organization'
     ),
     refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: accountsKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Accounts'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: integrationsQueryKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Integrations'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: paymentMethodKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Payment Methods'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: settingsKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Settings'
-    ),
-    refetchWithTimeout(
       queryClient.refetchQueries({ queryKey: subscriptionKeys.all, exact: false }),
       REFETCH_TIMEOUTS.BACKGROUND,
       'Subscriptions'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: billingSubscriptionKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Billing Subscriptions'
     ),
   ]);
 }
@@ -213,10 +195,18 @@ export function OrganizationDataSyncProvider() {
       return;
     }
 
+    // Skip initial load (coming from null to first org) - don't show overlay
+    // Only show overlay when switching FROM one org TO another org
+    if (previousOrgId === null && selectedOrgId !== null) {
+      return;
+    }
 
-    // Start refetch loading state
-    if (selectedOrgId) {
+    // Start refetch loading state only on actual org switch
+    if (selectedOrgId && previousOrgId && previousOrgId !== selectedOrgId) {
       startRefetch(selectedOrgId);
+    } else {
+      // Not a valid switch, don't refetch
+      return;
     }
 
     // ========================================================================
@@ -224,19 +214,17 @@ export function OrganizationDataSyncProvider() {
     // ========================================================================
     (async () => {
       try {
-        // Phase 1: Critical queries (must complete before releasing overlay)
+        // Phase 1: Critical queries
         await refetchCriticalQueries(queryClient);
 
-        // Phase 2: Secondary queries (visible when scrolling)
+        // Phase 2: Secondary queries
         await refetchSecondaryQueries(queryClient);
 
-        // Release overlay once critical + secondary queries are done
-        // This ensures smooth transitions without prolonged loading state
-        completeRefetch();
-
-        // Phase 3: Background queries (continue loading in background)
-        // These complete after overlay is released
+        // Phase 3: Background queries (wait for all data to load)
         await refetchBackgroundQueries(queryClient);
+
+        // Release overlay only after ALL data has been loaded and refetched
+        completeRefetch();
       } catch (error) {
         // Always complete refetch state, even if errors occurred
         completeRefetch();

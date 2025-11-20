@@ -28,7 +28,7 @@ export function OrganizationURLSyncProvider() {
     enabled: !isInitialized
   });
 
-  // Initialize organization from URL or default to personal org
+  // Initialize organization from URL, persisted storage, or default to personal org
   useEffect(() => {
     if (isInitialized) {
       return;
@@ -49,11 +49,12 @@ export function OrganizationURLSyncProvider() {
     logger.info('Initializing organization context', {
       urlOrg: orgFromUrl,
       orgsAvailable: organizations.length,
+      persistedOrg: selectedOrgId,
     });
 
     let orgToSelect: string | null = null;
 
-    // If URL specifies organization, validate it exists
+    // Priority 1: If URL specifies organization, validate it exists
     if (orgFromUrl) {
       const orgExists = organizations.some((org) => org.id === orgFromUrl);
       if (orgExists) {
@@ -64,7 +65,16 @@ export function OrganizationURLSyncProvider() {
       }
     }
 
-    // If no valid URL org, default to personal organization
+    // Priority 2: If persisted organization exists and is still valid, use it
+    if (!orgToSelect && selectedOrgId) {
+      const orgExists = organizations.some((org) => org.id === selectedOrgId);
+      if (orgExists) {
+        orgToSelect = selectedOrgId;
+        logger.info('Using persisted organization', { orgId: selectedOrgId });
+      }
+    }
+
+    // Priority 3: Default to personal organization
     if (!orgToSelect && organizations.length > 0) {
       const personalOrg = organizations.find((org) => org.isPersonal);
       if (personalOrg) {
@@ -82,7 +92,7 @@ export function OrganizationURLSyncProvider() {
 
     // NOTE: We do NOT sync the selected organization back to the URL.
     // This keeps the URL clean and matches Vercel's team switching behavior.
-  }, [isInitialized, organizations, isLoadingOrgs, setSelectedOrganization, setInitialized]);
+  }, [isInitialized, organizations, isLoadingOrgs, selectedOrgId, setSelectedOrganization, setInitialized]);
 
   // NOTE: We intentionally do NOT sync URL when organization changes
   // URL stays clean (no ?org= parameter). Data updates via context store.
