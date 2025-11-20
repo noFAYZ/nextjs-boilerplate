@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Settings, User, Crown, ChevronsUpDownIcon } from 'lucide-react';
+import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,7 +20,7 @@ import {
   TooltipContent,
   TooltipProvider
 } from '@/components/ui/tooltip';
-import { LogoMappr } from '@/components/icons';
+import { LetsIconsSettingLineDuotone, LogoMappr } from '@/components/icons';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { MenuItem } from '../types';
@@ -28,6 +28,9 @@ import Image from 'next/image';
 import { OrganizationSwitcher } from '@/components/organization';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
+import { createAvatar } from '@dicebear/core';
+import { avataaarsNeutral } from '@dicebear/collection';
+
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
@@ -56,6 +59,12 @@ export function SidebarMainColumn({
       console.error('Sign out failed:', error);
     }
   }, [router]);
+
+  const avatar = createAvatar(avataaarsNeutral, {
+    size: 128,
+    seed: user.name,
+    radius: 20,
+  }).toDataUri();
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -214,7 +223,7 @@ export function SidebarMainColumn({
               className=" rounded-full shadow-transparent"
               onClick={() => router.push('/settings')}
             >
-              <Settings className="h-5 w-5" />
+              <LetsIconsSettingLineDuotone className="h-4.5 w-4.5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent
@@ -234,18 +243,22 @@ export function SidebarMainColumn({
               <DropdownMenuTrigger asChild  >
                 <Button
                    variant='outline2'
-          size='xs'
-                  className="flex items-center  justify-between gap-3 w-full px-3 py-5 rounded-lg"
+          size='xl'
+                  className="flex items-center  justify-between gap-3 w-full px-3  "
                
                 >
 
 <div className="flex items-center text-start gap-2 flex-1 min-w-0">
-<Avatar className="h-8 w-8 ring-1 ring-border">
-                    <AvatarImage src={user?.image} />
-                    <AvatarFallback className="text-xs font-semibold ">
-                      {user?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
+
+                  <Avatar className="h-7 w-7">
+                      <AvatarImage
+                        src={ avatar}
+                        alt={`${user?.name || 'User'}'s avatar`}
+                      />
+                      <AvatarFallback className="text-sm bg-muted text-muted-foreground">
+                        {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
             <div className="flex-1 min-w-0">
             
                 <p className="text-xs font-medium ">{user?.name}</p>
@@ -254,7 +267,7 @@ export function SidebarMainColumn({
            
             </div>
           </div>
-          <ChevronsUpDownIcon
+          <MenuIcon
             size={16}
             className="flex-shrink-0 text-muted-foreground  "
           />

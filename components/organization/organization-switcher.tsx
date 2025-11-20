@@ -131,7 +131,7 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            'flex items-center  justify-between gap-3 w-full px-3 py-5 rounded-lg',
+            'flex items-center  justify-between gap-3 w-full px-3  ',
             
         
             'group',
@@ -139,7 +139,7 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}
           variant='outline2'
-          size='xs'
+       size='xl'
         >
           <div className="flex items-center text-start gap-2 flex-1 min-w-0">
             <OrgAvatar org={currentOrg} size="sm" />

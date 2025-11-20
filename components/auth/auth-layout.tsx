@@ -12,18 +12,18 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     <div className="min-h-screen w-full flex bg-background">
 
       {/* LEFT PANEL — only logo */}
-      <div className="hidden lg:flex w-1/2 bg-muted/30 justify-center items-center">
+      <div className="hidden lg:flex w-1/2 bg-muted dark:bg-muted/40 justify-center items-center">
         <Link href="/" className="flex flex-col items-center group">
           <Image
             src="/logo/mappr.svg"
             alt="MoneyMappr logo"
-            width={80}
-            height={80}
-            className="transition-transform group-hover:scale-105"
+            width={120}
+            height={120}
+            className="   "
             priority
           />
-          <h1 className="mt-3 text-2xl font-bold tracking-tight">MoneyMappr</h1>
-          <p className="text-xs text-muted-foreground -mt-1">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight">MoneyMappr</h1>
+          <p className="text-sm text-muted-foreground ">
             Financial Intelligence
           </p>
         </Link>
@@ -39,7 +39,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             alt="MoneyMappr logo"
             width={60}
             height={60}
-            className="transition-transform group-hover:scale-105"
+            className="transition-transform group-hover:scale-102"
             priority
           />
           <h1 className="mt-2 text-xl font-bold tracking-tight">MoneyMappr</h1>
