@@ -128,11 +128,11 @@ export default function SubscriptionsPage() {
 
       {/* Tabs */}
       <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)} >
-        <TabsList variant={'card'} size="sm">
-          <TabsTrigger value="all" variant={'card'} size="sm" >All</TabsTrigger>
-          <TabsTrigger value="active" variant={'card'} size="sm">Active</TabsTrigger>
-          <TabsTrigger value="trial" variant={'card'} size="sm">Trial</TabsTrigger>
-          <TabsTrigger value="cancelled" variant={'card'} size="sm">Cancelled</TabsTrigger>
+        <TabsList variant={'pill'}   >
+          <TabsTrigger value="all" variant={'pill'}  >All</TabsTrigger>
+          <TabsTrigger value="active" variant={'pill'} >Active</TabsTrigger>
+          <TabsTrigger value="trial" variant={'pill'} >Trial</TabsTrigger>
+          <TabsTrigger value="cancelled" variant={'pill'} >Cancelled</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-6 pb-32">

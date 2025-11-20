@@ -141,9 +141,9 @@ export function SubscriptionsDataTable({
   return (
     <div className="space-y-4">
       {/* Data Table */}
-      <div className="bg-card border border-border/50 rounded-xl overflow-x-auto shadow-sm">
+      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm">
         <Table>
-          <TableHeader className="bg-muted/40 border-b border-border/50">
+          <TableHeader className="bg-muted/80 border-b border-border/50">
             <TableRow className="hover:bg-transparent border-none">
               <TableHead className="w-10 px-2 sm:px-4 py-3">
                 <Checkbox

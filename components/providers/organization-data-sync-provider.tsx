@@ -43,9 +43,8 @@ import { billingSubscriptionKeys } from '@/lib/queries/use-billing-subscription-
 // ============================================================================
 
 const REFETCH_TIMEOUTS = {
-  CRITICAL: 2000,    // 2 second timeout for critical queries (fast endpoint)
-  SECONDARY: 3000,   // 3 second timeout for secondary queries
-  BACKGROUND: 5000,  // 5 second timeout for background queries (only org-scoped queries)
+  CRITICAL: 1500,    // 1.5 second timeout for critical queries
+  SECONDARY: 2000,   // 2 second timeout for secondary queries
 };
 
 // ============================================================================
@@ -71,14 +70,14 @@ async function refetchWithTimeout(
 }
 
 /**
- * Phase 1: CRITICAL queries (wallets, accounts, portfolio)
- * These are shown immediately on dashboard - must complete before releasing overlay
+ * Phase 1: CRITICAL queries (core account data)
+ * Fastest queries - must complete before releasing overlay
  */
 async function refetchCriticalQueries(
   queryClient: ReturnType<typeof useQueryClient>
 ): Promise<void> {
   await Promise.all([
-    // Most important: Crypto & Banking data
+    // Most important: Crypto & Banking wallets/accounts
     refetchWithTimeout(
       queryClient.refetchQueries({ queryKey: cryptoKeys.wallets(), exact: false }),
       REFETCH_TIMEOUTS.CRITICAL,
@@ -89,23 +88,12 @@ async function refetchCriticalQueries(
       REFETCH_TIMEOUTS.CRITICAL,
       'Banking Accounts'
     ),
-    // Portfolio overview (depends on wallets/accounts)
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: cryptoKeys.portfolio(), exact: false }),
-      REFETCH_TIMEOUTS.CRITICAL,
-      'Portfolio'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: bankingKeys.overview(), exact: false }),
-      REFETCH_TIMEOUTS.CRITICAL,
-      'Banking Overview'
-    ),
   ]);
 }
 
 /**
- * Phase 2: SECONDARY queries (transactions, spending, net worth, unified accounts)
- * These are visible when scrolling - should complete quickly after phase 1
+ * Phase 2: SECONDARY queries (transactions, unified accounts, net worth)
+ * Visible data that users care about - completes quickly after phase 1
  */
 async function refetchSecondaryQueries(
   queryClient: ReturnType<typeof useQueryClient>
@@ -117,23 +105,7 @@ async function refetchSecondaryQueries(
       REFETCH_TIMEOUTS.SECONDARY,
       'Unified Accounts'
     ),
-    // Transactions and spending data
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: cryptoKeys.transactions(), exact: false }),
-      REFETCH_TIMEOUTS.SECONDARY,
-      'Crypto Transactions'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: bankingKeys.transactions(), exact: false }),
-      REFETCH_TIMEOUTS.SECONDARY,
-      'Banking Transactions'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: bankingKeys.spendingCategories(), exact: false }),
-      REFETCH_TIMEOUTS.SECONDARY,
-      'Spending Categories'
-    ),
-    // Net worth calculations
+    // Net worth (primary dashboard chart)
     refetchWithTimeout(
       queryClient.refetchQueries({ queryKey: networthKeys.all, exact: false }),
       REFETCH_TIMEOUTS.SECONDARY,
@@ -143,36 +115,24 @@ async function refetchSecondaryQueries(
 }
 
 /**
- * Phase 3: BACKGROUND queries (less critical, org-specific data)
- * Only refetch org-dependent data. Skip global queries (settings, billing)
+ * Phase 3: BACKGROUND queries (non-blocking, fire and forget)
+ * These load in background without blocking the overlay
  */
-async function refetchBackgroundQueries(
+function refetchBackgroundQueries(
   queryClient: ReturnType<typeof useQueryClient>
-): Promise<void> {
-  // Only refetch organization-scoped queries that users care about
-  // Skip: settings, billing, payment methods (global/org-independent)
-  await Promise.allSettled([
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: goalKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Goals'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: budgetKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Budgets'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: organizationKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Organization'
-    ),
-    refetchWithTimeout(
-      queryClient.refetchQueries({ queryKey: subscriptionKeys.all, exact: false }),
-      REFETCH_TIMEOUTS.BACKGROUND,
-      'Subscriptions'
-    ),
-  ]);
+): void {
+  // Fire these in background without waiting
+  // They'll update the UI as they complete
+  Promise.allSettled([
+    queryClient.refetchQueries({ queryKey: goalKeys.all, exact: false }),
+    queryClient.refetchQueries({ queryKey: budgetKeys.all, exact: false }),
+    queryClient.refetchQueries({ queryKey: organizationKeys.all, exact: false }),
+    queryClient.refetchQueries({ queryKey: subscriptionKeys.all, exact: false }),
+    queryClient.refetchQueries({ queryKey: cryptoKeys.portfolio(), exact: false }),
+    queryClient.refetchQueries({ queryKey: bankingKeys.overview(), exact: false }),
+  ]).catch(() => {
+    // Silent catch - background queries failures don't matter
+  });
 }
 
 export function OrganizationDataSyncProvider() {
@@ -210,21 +170,22 @@ export function OrganizationDataSyncProvider() {
     }
 
     // ========================================================================
-    // PRIORITY-BASED REFETCH FLOW
+    // FAST REFETCH FLOW - Optimized for Speed
     // ========================================================================
     (async () => {
       try {
-        // Phase 1: Critical queries
+        // Phase 1: Critical queries (wallets/accounts) - Wait for these
         await refetchCriticalQueries(queryClient);
 
-        // Phase 2: Secondary queries
+        // Phase 2: Secondary queries (transactions/unified accounts) - Wait for these
         await refetchSecondaryQueries(queryClient);
 
-        // Phase 3: Background queries (wait for all data to load)
-        await refetchBackgroundQueries(queryClient);
-
-        // Release overlay only after ALL data has been loaded and refetched
+        // Release overlay immediately after critical + secondary data loads
+        // Phase 3 background queries continue loading without blocking
         completeRefetch();
+
+        // Phase 3: Background queries - Fire and forget (don't wait)
+        refetchBackgroundQueries(queryClient);
       } catch (error) {
         // Always complete refetch state, even if errors occurred
         completeRefetch();

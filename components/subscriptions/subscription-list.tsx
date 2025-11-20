@@ -8,6 +8,7 @@ import { useSubscriptions } from "@/lib/queries/use-subscription-data";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import type { UserSubscription } from "@/lib/types/subscription";
 import { cn } from "@/lib/utils";
+import { SolarInboxInBoldDuotone } from "../icons/icons";
 
 interface SubscriptionListProps {
   onEdit?: (subscription: UserSubscription) => void;
@@ -69,7 +70,7 @@ export function SubscriptionList({
   if (subscriptions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
-        <Inbox className="h-12 w-12 text-muted-foreground/50" />
+        <SolarInboxInBoldDuotone className="h-12 w-12 text-muted-foreground/50" />
         <p className="text-sm font-medium">
           {activeTab === "all"
             ? "No subscriptions found"
