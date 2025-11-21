@@ -111,6 +111,25 @@ export function LandingHero() {
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
 
+         {/* Floating Finance Cards - Ultra Premium */}
+         <div className="relative  hidden lg:block">
+            <FloatingCard delay={0} className="left-10 top-10 -rotate-12">
+              <CryptoCard />
+            </FloatingCard>
+
+            <FloatingCard delay={0.5} className="left-left-4 top-64 rotate-6">
+              <SubscriptionCard />
+            </FloatingCard>
+
+            <FloatingCard delay={1} className="right-20 top-20 rotate-12">
+              <NetWorthCard />
+            </FloatingCard>
+
+            <FloatingCard delay={1.5} className="right-10 top-80 -rotate-6">
+              <SpendingCard />
+            </FloatingCard>
+          </div>
+
       <div className="relative z-10 mx-auto px-6 max-w-2xl lg:max-w-3xl text-center">
         {/* Heading */}
         <motion.h1
@@ -188,6 +207,10 @@ export function LandingHero() {
             See Demo
           </Button>
         </motion.div>
+
+
+        
+       
       </div>
 
       {/* ============================================================= */}
@@ -255,6 +278,7 @@ export function LandingHero() {
   <Example/>
 
         </ScrollReveal>
+
       </div>
 
       {/* Features
@@ -286,5 +310,82 @@ export function LandingHero() {
         {/* <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> */}
       </section>
     </section>
+  );
+}
+// Reusable floating card with physics-like motion
+function FloatingCard({ children, delay = 0, className = "" }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 100, rotate: 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 1, type: "spring", stiffness: 80 }}
+      whileHover={{ y: -10, rotate: 0 }}
+      className={`absolute ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Mini live cards
+function CryptoCard() {
+  return (
+    <div className="w-72 overflow-hidden rounded-2xl border bg-card/90 shadow-2xl backdrop-blur-xl">
+      <div className="bg-gradient-to-r from-orange-500 to-pink-600 p-4 text-white">
+        <p className="text-sm opacity-90">Crypto Portfolio</p>
+        <p className="text-3xl font-bold">$127,483</p>
+      </div>
+      <div className="space-y-3 p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Bitcoin</span>
+          <span className="text-emerald-500 font-semibold">+$4,231 (12.4%)</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Ethereum</span>
+          <span className="text-emerald-500 font-semibold">+$892 (8.1%)</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NetWorthCard() {
+  return (
+    <div className="w-80 rounded-2xl border bg-card/95 p-6 shadow-2xl backdrop-blur-xl">
+      <p className="text-sm text-muted-foreground">Net Worth</p>
+      <p className="mt-2 text-4xl font-bold">$1,284,921</p>
+      <p className="mt-2 text-emerald-500">+42.8% all time</p>
+      <div className="mt-6 h-24 rounded-xl bg-gradient-to-r from-emerald-500/20 to-transparent" />
+    </div>
+  );
+}
+
+function SubscriptionCard() {
+  return (
+    <div className="w-64 rounded-2xl border bg-card/90 p-5 shadow-xl shadow-2xl backdrop-blur-xl">
+      <p className="text-sm font-medium">Upcoming Bills</p>
+      <div className="mt-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="size-8 rounded-lg bg-red-500/20 p-1">
+              <span className="text-xs">N</span>
+            </div>
+            <span className="text-sm">Netflix</span>
+          </div>
+          <span className="text-sm font-medium">$15.99</span>
+        </div>
+        <div className="text-xs text-orange-500">Renews in 3 days</div>
+      </div>
+    </div>
+  );
+}
+
+function SpendingCard() {
+  return (
+    <div className="w-72 rounded-2xl border bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
+      <p className="text-sm text-muted-foreground">This Month</p>
+      <p className="mt-2 text-3xl font-bold">$4,821</p>
+      <p className="text-sm text-emerald-500">↓ 18% vs last month</p>
+    </div>
   );
 }

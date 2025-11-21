@@ -394,7 +394,7 @@ export default function MoneyMapprFeatureSection() {
   const rightFeatures = FEATURES.filter((f) => f.position === "right");
 
   return (
-    <section className="relative w-full py-16 md:py-24 ">
+    <section className="relative w-full py-16 md:py-50  ">
       <div className="container  mx-auto px-6 ">
         {/* Header */}
         <div className="text-center mb-12 max-w-3xl mx-auto">
