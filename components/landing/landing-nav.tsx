@@ -108,7 +108,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
   return (
     <>
       <nav className={cn('fixed inset-x-0 top-0 z-50', isScrolled ? 'py-2' : 'py-4')}>
-        <div className={cn('mx-auto transition-all duration-200 border ', isScrolled ? 'max-w-5xl  rounded-lg bg-gradient-to-br from-muted/95 via-muted to-accent/95  border-border/80' : 'max-w-7xl  border-transparent')}>
+        <div className={cn('mx-auto transition-all duration-200 border ', isScrolled ? 'max-w-5xl  rounded-lg bg-gradient-to-br from-muted/95 via-muted to-accent/95  border-border/50 dark:from-muted shadow-sm dark:via-background dark:to-muted ' : 'max-w-7xl  border-transparent')}>
           <div className="relative ">
             <div className="flex h-16 sm:h-14 items-center justify-between px-4">
 
