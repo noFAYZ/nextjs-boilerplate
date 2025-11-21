@@ -2041,3 +2041,7 @@ export function SolarCalendarBoldDuotone(props: SVGProps<SVGSVGElement>) {
 export function PhTerminalDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={256} height={256} viewBox="0 0 256 256" {...props}><g fill="currentColor"><path d="M216 80v112H40V64h160a16 16 0 0 1 16 16" opacity={0.2}></path><path d="m117.31 134l-72 64a8 8 0 1 1-10.63-12L100 128L34.69 70a8 8 0 1 1 10.63-12l72 64a8 8 0 0 1 0 12ZM216 184h-96a8 8 0 0 0 0 16h96a8 8 0 0 0 0-16"></path></g></svg>);
 }
+
+export function TablerPlant2(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.4}><path d="M2 9a10 10 0 1 0 20 0"></path><path d="M12 19A10 10 0 0 1 22 9M2 9a10 10 0 0 1 10 10"></path><path d="M12 4a9.7 9.7 0 0 1 2.99 7.5m-5.98 0A9.7 9.7 0 0 1 12 4"></path></g></svg>);
+}

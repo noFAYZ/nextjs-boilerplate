@@ -23,6 +23,7 @@ import {
 } from '@/components/landing';
 import { CryptoShowcase } from '@/components/landing/crypto-section';
 import IntegrationHero from '@/components/landing/integration-showcase';
+import { Example } from '@/components/landing/section-widgets/features-tabs';
 import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
 import MoneyMapprFeatureSection from '@/components/landing/subscription-management/FeatureSection';
 import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
@@ -42,7 +43,7 @@ export default function LandingPage() {
 
    <MoneyMapprFeatureSection />
    < FeaturesSectionWithHoverEffects />
-       
+     
   
        {/*  <FeatureGrid /><SubscriptionsShowcase />
      <RealtimeTracking /> 

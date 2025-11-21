@@ -20,6 +20,9 @@ import { BudgetCard } from "@/components/budgets/budget-card";
 import { GoalCard } from "@/components/goals/goal-card";
 import { SubscriptionCard } from "@/components/subscriptions/subscription-card";
 import { Card } from "@/components/ui/card";
+import { NetWorthWidget } from "@/components/dashboard-widgets";
+import { SpendingCategoriesWidget } from "@/components/dashboard-widgets";
+import { UpcomingBillsWidget } from "@/components/dashboard-widgets";
 
 // Demo Data
 const DEMO_WALLETS = [
@@ -274,30 +277,27 @@ function FeatureButton({
 
 function WalletsStackVisual() {
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md mx-auto">
-      {DEMO_WALLETS.map((wallet, idx) => (
-        <motion.div
-          key={wallet.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
-        >
-          <WalletCard wallet={wallet} />
-        </motion.div>
-      ))}
+    <div className="w-full max-w-md mx-auto">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <NetWorthWidget />
+      </motion.div>
     </div>
   );
 }
 
 function BudgetsVisual() {
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto space-y-4">
       {DEMO_BUDGETS.map((budget, idx) => (
         <motion.div
           key={budget.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
+          transition={{ delay: idx * 0.15 }}
         >
           <BudgetCard budget={budget as any} />
         </motion.div>
@@ -307,61 +307,28 @@ function BudgetsVisual() {
 }
 
 function InsightsVisual() {
-  const categories = [
-    { name: "Groceries", amount: 1245, percentage: 28, icon: "🛒" },
-    { name: "Dining", amount: 856, percentage: 19, icon: "🍽️" },
-    { name: "Transport", amount: 654, percentage: 15, icon: "🚗" },
-    { name: "Entertainment", amount: 432, percentage: 10, icon: "🎬" },
-  ];
-
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="p-6">
-        <div className="mb-6">
-          <h3 className="text-xl font-bold mb-1">Top Spending Categories</h3>
-          <p className="text-sm text-muted-foreground">This month</p>
-        </div>
-
-        <div className="space-y-4">
-          {categories.map((cat, idx) => (
-            <motion.div
-              key={cat.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{cat.icon}</span>
-                  <span className="font-medium text-sm">{cat.name}</span>
-                </div>
-                <span className="text-sm font-bold">${cat.amount}</span>
-              </div>
-              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${cat.percentage}%` }}
-                  transition={{ duration: 1, delay: idx * 0.1 }}
-                  className="h-full bg-primary rounded-full"
-                />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <SpendingCategoriesWidget />
+      </motion.div>
     </div>
   );
 }
 
 function SubscriptionsVisual() {
   return (
-    <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-md mx-auto space-y-4">
       {DEMO_SUBSCRIPTIONS.map((subscription, idx) => (
         <motion.div
           key={subscription.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
+          transition={{ delay: idx * 0.15 }}
         >
           <SubscriptionCard subscription={subscription as any} />
         </motion.div>
@@ -372,13 +339,13 @@ function SubscriptionsVisual() {
 
 function GoalsVisual() {
   return (
-    <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-md mx-auto space-y-4">
       {DEMO_GOALS.map((goal, idx) => (
         <motion.div
           key={goal.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
+          transition={{ delay: idx * 0.15 }}
         >
           <GoalCard goal={goal as any} />
         </motion.div>
@@ -388,52 +355,15 @@ function GoalsVisual() {
 }
 
 function AlertsVisual() {
-  const upcomingBills = [
-    { name: "Netflix", amount: 15.99, dueDate: "in 3 days", icon: "🎬" },
-    { name: "Spotify", amount: 9.99, dueDate: "in 5 days", icon: "🎵" },
-    { name: "Adobe CC", amount: 54.99, dueDate: "in 12 days", icon: "🎨" },
-  ];
-
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="p-6">
-        <div className="mb-6 pb-4 border-b border-border">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">Upcoming Bills</h3>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-semibold">
-              Next 30 days
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {upcomingBills.map((bill, idx) => (
-            <motion.div
-              key={bill.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{bill.icon}</span>
-                <div>
-                  <div className="font-semibold text-sm">{bill.name}</div>
-                  <div className="text-xs text-muted-foreground">Due {bill.dueDate}</div>
-                </div>
-              </div>
-              <div className="text-sm font-bold">${bill.amount}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-6 pt-4 border-t border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Total upcoming</span>
-            <span className="text-lg font-bold">$80.97</span>
-          </div>
-        </div>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <UpcomingBillsWidget />
+      </motion.div>
     </div>
   );
 }
@@ -471,7 +401,7 @@ export default function MoneyMapprFeatureSection() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
             Everything, in one app
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
+          <p className="text-base   text-muted-foreground">
             Connect your accounts and MoneyMappr will do the heavy lifting to
             categorize your finances. From there, you can track, budget,
             collaborate, and set goals specific to you.

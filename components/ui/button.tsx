@@ -38,6 +38,7 @@ const buttonVariants = cva(
 ,
 
         secondary:  "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border-2 border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)] hover:shadow-[0_2px_0_0_rgb(254,215,170)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75 dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
+        secondary2:  "bg-gray-50 dark:bg-[#3E3C3C] text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm border-2 border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)] hover:shadow-[0_2px_0_0_rgb(254,215,170)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75 dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
         successbrand:
         "bg-muted text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98] backdrop-blur-sm " +
         "border-2 border-emerald-500/25 " +

@@ -28,6 +28,7 @@ import { WaitlistFormCompact } from "@/components/coming-soon/waitlist-form-comp
 import { TextRotate } from "../section-widgets/text-rotate";
 import { Mockup, MockupFrame } from "../section-widgets/hero-mockup";
 import { AvatarCircles } from "../section-widgets/avatar-circles";
+import { Example } from "../section-widgets/features-tabs";
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },
@@ -74,12 +75,12 @@ export function LandingHero() {
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
 
-      <div className="relative z-10 mx-auto px-6 max-w-3xl text-center">
+      <div className="relative z-10 mx-auto px-6 max-w-2xl lg:max-w-3xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-tight text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+          className="font-semibold tracking-tight leading-snug text-4xl md:text-4xl lg:text-5xl xl:text-6xl"
         >
           Take Control of Your{" "}
 
@@ -94,7 +95,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-white px-2 sm:px-2 md:px-6 bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-2xl py-0"
+            mainClassName="text-white px-2 sm:px-2 md:px-6  bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-2xl py-0"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -111,7 +112,7 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-6 max-w-xl text-base sm:text-lg text-muted-foreground"
+          className="mx-auto mt-6 max-w-xl text-sm sm:text-sm md:text-md lg:text-lg text-muted-foreground"
         >
           Track, manage and predict every recurring payment — with AI-powered
           alerts, smart insights, and real-time spend forecasting.
@@ -157,8 +158,8 @@ export function LandingHero() {
       {/*        BACKGROUND ONLY BEHIND THE DASHBOARD PREVIEW           */}
       {/* ============================================================= */}
 
-      <div className="relative mx-auto container">
-        {/* FULL-WIDTH BACKGROUND JUST FOR DASHBOARD */}
+      <div className="relative py-10">
+        {/* FULL-WIDTH BACKGROUND JUST FOR DASHBOARD 
      
          
   <div
@@ -180,15 +181,15 @@ export function LandingHero() {
     maxOpacity={0.5}
     flickerChance={0.1}
   />
-</div>
+</div>*/}
      
 
         {/* Dashboard Preview */}
         <ScrollReveal>
-          <motion.div
+      {/*     <motion.div
             {...scaleIn}
             transition={{ delay: 0.3 }}
-            className="relative mx-auto max-w-7xl  mt-10 pt-20 "
+            className="relative mx-auto max-w-7xl  mt-10 pt-10 "
           >
   
                      
@@ -214,6 +215,9 @@ export function LandingHero() {
             />
           </div>
           </motion.div>
+ */}
+  <Example/>
+
         </ScrollReveal>
       </div>
 
