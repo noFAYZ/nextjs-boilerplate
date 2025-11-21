@@ -92,8 +92,8 @@ export default function SubscriptionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Subscriptions</h1>
-          <p className="text-muted-foreground text-xs mt-1">
+          <h1 className="text-xl font-bold">Subscriptions</h1>
+          <p className="text-muted-foreground text-xs ">
             Track and manage your recurring subscriptions
           </p>
         </div>
@@ -123,8 +123,8 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      {/* Upcoming Charges */}
-      <UpcomingCharges />
+      {/* Upcoming Charges
+      <UpcomingCharges /> */}
 
       {/* Tabs */}
       <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)} >

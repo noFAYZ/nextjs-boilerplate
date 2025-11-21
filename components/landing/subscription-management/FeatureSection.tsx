@@ -224,9 +224,9 @@ function FeatureButton({
       onClick={onClick}
       onMouseEnter={onClick}
       className={cn(
-        "w-full text-left p-6 rounded-3xl transition-all duration-0  border ",
+        "w-full text-left p-3 rounded-lg transition-all duration-0  border ",
         isActive
-          ? "bg-accent/40  border-border/50"
+          ? "bg-muted/40 dark:bg-card  border-border/50"
           : "bg-none  border-transparent hover:bg-card "
       )}
     >
@@ -234,14 +234,14 @@ function FeatureButton({
 
         <div
           className={cn(
-            "flex items-center justify-center h-9 w-9 rounded-xl",
-            "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+            "flex items-center justify-center h-9 w-9 rounded-lg",
+            "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-muted"
           )}
         >
 
           <Icon
             className={cn(
-              "h-6 w-6",
+              "h-5 w-5",
              "text-muted-foreground"
             )}
           />
@@ -250,16 +250,16 @@ function FeatureButton({
         <div className="flex-1">
           <div
             className={cn(
-              "text-sm font-bold uppercase tracking-wider mb-1",
+              "text-xs font-bold uppercase tracking-tight ",
               isActive ? "text-primary" : "text-muted-foreground"
             )}
           >
             {feature.tag}
           </div>
-          <h3 className="text-lg font-semibold mb-1.5 text-foreground">
+          <h3 className="text-lg font-bold mb-3 text-foreground">
             {feature.title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+          <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-sm mb-4">
             {feature.description}
           </p>
           <Button className="inline-flex items-center   text-[11px] h-7" size="sm" variant="steel">
@@ -464,7 +464,7 @@ export default function MoneyMapprFeatureSection() {
   const rightFeatures = FEATURES.filter((f) => f.position === "right");
 
   return (
-    <section className="relative w-full py-16 md:py-24 bg-muted/60">
+    <section className="relative w-full py-16 md:py-24 ">
       <div className="container  mx-auto px-6 ">
         {/* Header */}
         <div className="text-center mb-12 max-w-3xl mx-auto">
@@ -481,7 +481,7 @@ export default function MoneyMapprFeatureSection() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center  rounded-2xl">
           {/* Left Features */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {leftFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}
@@ -509,7 +509,7 @@ export default function MoneyMapprFeatureSection() {
           </div>
 
           {/* Right Features */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {rightFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}

@@ -390,15 +390,45 @@ export default function AccountsPage() {
   const { data: accountsData, isLoading, refetch } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Summary data
-  const summaryData = {
-    totalNetWorth: 66733.49,
-    totalAssets: 74733.49,
-    totalLiabilities: 8000,
-    accountCount: 8,
-    currency: 'USD',
-    lastUpdated: '2025-11-17T11:02:16.143Z',
-  };
+  // Calculate summary data from actual accounts
+  const summaryData = useMemo(() => {
+    if (!accountsData?.groups) {
+      return {
+        totalNetWorth: 0,
+        totalAssets: 0,
+        totalLiabilities: 0,
+        accountCount: 0,
+        currency: 'USD',
+        lastUpdated: new Date().toISOString(),
+      };
+    }
+
+    let totalAssets = 0;
+    let totalLiabilities = 0;
+    let accountCount = 0;
+
+    // Sum all accounts by category
+    Object.entries(accountsData.groups).forEach(([, group]) => {
+      group.accounts.forEach(account => {
+        accountCount++;
+        const balance = account.balance || 0;
+        if (account.category === 'LIABILITIES') {
+          totalLiabilities += Math.abs(balance);
+        } else {
+          totalAssets += balance;
+        }
+      });
+    });
+
+    return {
+      totalNetWorth: totalAssets - totalLiabilities,
+      totalAssets,
+      totalLiabilities,
+      accountCount,
+      currency: 'USD',
+      lastUpdated: new Date().toISOString(),
+    };
+  }, [accountsData]);
 
   // Categories with accounts
   const categoriesWithAccounts = useMemo(() => {
@@ -449,29 +479,15 @@ export default function AccountsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 p-6">
         <div className="flex items-center justify-between">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Accounts</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <div>
+          <h1 className="text-xl font-bold">Subscriptions</h1>
+          <p className="text-muted-foreground text-xs ">
+            Track and manage your recurring subscriptions
+          </p>
+        </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setBalanceVisible(!balanceVisible)}
-              title={balanceVisible ? "Hide balances" : "Show balances"}
-            >
-              {balanceVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            </Button>
+      
 
             <Button variant="outline" size="xs" onClick={refetch} disabled={isLoading}>
               <RefreshCw className={cn("h-4 w-4 mr-1", isLoading && "animate-spin")} />
