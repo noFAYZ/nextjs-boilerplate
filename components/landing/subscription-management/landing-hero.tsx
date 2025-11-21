@@ -29,6 +29,7 @@ import { TextRotate } from "../section-widgets/text-rotate";
 import { Mockup, MockupFrame } from "../section-widgets/hero-mockup";
 import { AvatarCircles } from "../section-widgets/avatar-circles";
 import { Example } from "../section-widgets/features-tabs";
+import { LogoCloud } from "./logo-cld-section";
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },
@@ -43,6 +44,41 @@ const DASHBOARD_IMAGES = {
   alt: "Financial dashboard with predictive insights",
 } as const;
 type Item = { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> };
+
+const logos = [
+  {
+    src: "https://svgl.app/library/nvidia-wordmark-light.svg",
+    alt: "Nvidia Logo",
+  },
+  {
+    src: "https://svgl.app/library/supabase_wordmark_light.svg",
+    alt: "Supabase Logo",
+  },
+  {
+    src: "https://svgl.app/library/openai_wordmark_light.svg",
+    alt: "OpenAI Logo",
+  },
+  {
+    src: "https://svgl.app/library/turso-wordmark-light.svg",
+    alt: "Turso Logo",
+  },
+  {
+    src: "https://svgl.app/library/vercel_wordmark.svg",
+    alt: "Vercel Logo",
+  },
+  {
+    src: "https://svgl.app/library/github_wordmark_light.svg",
+    alt: "GitHub Logo",
+  },
+  {
+    src: "https://svgl.app/library/claude-ai-wordmark-icon_light.svg",
+    alt: "Claude AI Logo",
+  },
+  {
+    src: "https://svgl.app/library/clerk-wordmark-light.svg",
+    alt: "Clerk Logo",
+  },
+];
 
 export function LandingHero() {
   const { resolvedTheme } = useTheme();
@@ -70,7 +106,7 @@ export function LandingHero() {
     { label: 'Goals', icon: MageGoals },
   ];
   return (
-    <section className="relative overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32">
+    <section className="relative overflow-hidden pt-32 md:pt-40 ">
       {/* ============================================================= */}
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
@@ -158,7 +194,7 @@ export function LandingHero() {
       {/*        BACKGROUND ONLY BEHIND THE DASHBOARD PREVIEW           */}
       {/* ============================================================= */}
 
-      <div className="relative py-10">
+      <div className="relative pt-10">
         {/* FULL-WIDTH BACKGROUND JUST FOR DASHBOARD 
      
          
@@ -221,7 +257,7 @@ export function LandingHero() {
         </ScrollReveal>
       </div>
 
-      {/* Features */}
+      {/* Features
       <div className="mt-12 flex flex-wrap justify-center gap-4 ">
         {FEATURES.map(({ Icon, label }, i) => (
           <motion.div
@@ -235,7 +271,20 @@ export function LandingHero() {
             <span className="font-medium">{label}</span>
           </motion.div>
         ))}
-      </div>
+      </div> */}
+
+<section className="relative mx-auto container">
+      {/*   <h2 className="mb-5 text-center font-semibold text-foreground text-xl tracking-tight md:text-3xl">
+          <span className="text-muted-foreground">Trusted by experts.</span>
+          <br />
+       
+        </h2>
+        <div className="mx-auto my-5 h-px max-w-lg bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> */}
+
+        <LogoCloud logos={logos} />
+
+        {/* <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> */}
+      </section>
     </section>
   );
 }

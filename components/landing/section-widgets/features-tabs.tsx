@@ -80,8 +80,8 @@ export function FeatureTabs({ tabs }) {
       </div>
 
       {/* Panels */}
-      <div className="mx-auto mt-6 max-w-7xl px-4 [perspective:1000px]">
-        <div className="relative h-[380px] md:h-[680px]">
+      <div className="mx-auto mt-6 container sm:max-w-6xl px-2 sm:px-4 [perspective:1000px]">
+        <div className="relative h-[300px] md:h-[680px]">
           {tabs.map((t, i) => (
             <div
               id={`panel-${i}`}
@@ -121,7 +121,7 @@ function PanelContainer({ children }) {
           rounded-t-xl 
           border-x border-t border-border/80
           bg-muted
-          px-2 pt-2 
+          
           sm:rounded-t-[1.25rem] sm:px-2 sm:pt-2
           [mask-image:linear-gradient(to_bottom,black_95%,transparent_100%)]
         "
@@ -270,9 +270,9 @@ export function Example() {
         },
         {
           label: "Plan",
-          iconBg: "#c084fc",
-          iconColor: "#581c87",
-          icon: (<svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24"  ><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3}><path d="M2 9a10 10 0 1 0 20 0"></path><path d="M12 19A10 10 0 0 1 22 9M2 9a10 10 0 0 1 10 10"></path><path d="M12 4a9.7 9.7 0 0 1 2.99 7.5m-5.98 0A9.7 9.7 0 0 1 12 4"></path></g></svg>),
+          iconBg: "#7ABB08",
+          iconColor: "#085F46",
+          icon: (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24"  ><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}><path d="M2 9a10 10 0 1 0 20 0"></path><path d="M12 19A10 10 0 0 1 22 9M2 9a10 10 0 0 1 10 10"></path><path d="M12 4a9.7 9.7 0 0 1 2.99 7.5m-5.98 0A9.7 9.7 0 0 1 12 4"></path></g></svg>),
           content: <div className="flex items-center justify-center h-full text-neutral-700">Affiliate Preview</div>
         },
         {
