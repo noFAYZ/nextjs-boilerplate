@@ -111,7 +111,7 @@ export function LandingHero() {
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
 
-         {/* Floating Finance Cards - Ultra Premium */}
+         {/* Floating Finance Cards - Ultra Premium 
          <div className="relative  hidden lg:block">
             <FloatingCard delay={0} className="left-10 top-10 -rotate-12">
               <CryptoCard />
@@ -128,7 +128,7 @@ export function LandingHero() {
             <FloatingCard delay={1.5} className="right-10 top-80 -rotate-6">
               <SpendingCard />
             </FloatingCard>
-          </div>
+          </div>*/}
 
       <div className="relative z-10 mx-auto px-6 max-w-2xl lg:max-w-3xl text-center">
         {/* Heading */}

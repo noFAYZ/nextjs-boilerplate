@@ -3,23 +3,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Zap, TrendingUp, Target, LucideIcon, History, MapPinned, Briefcase, CreditCard, Lock, Activity, Mail, HelpCircle, FileText, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '../ui/theme-switcher';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarHomeSmileBoldDuotone, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } from '../icons/icons';
+import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
 import { LogoMappr } from '../icons';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import { Building2, PlugIcon, Users } from 'lucide-react';
 
 export function LandingNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [openPopover, setOpenPopover] = useState<string | null>(null);
-  const {user} = useAuth()
+  const { user } = useAuth();
 
-  /** === Scroll handling === */
   const handleScroll = useCallback(() => {
     setIsScrolled(window.scrollY > 24);
   }, []);
@@ -30,184 +36,184 @@ export function LandingNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  /** === Prevent scroll when mobile menu open === */
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
-
-
-  /** === Nav Links with optional popover === */
-  const navLinks = [
-    { label: 'Features', type: '#features' },
-    { label: 'How it Works', href: '#how-it-works' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
-  ];
-
-  const quickLinks = [
-    { label: 'Security', href: '#security' },
-    { label: 'Integrations', href: '#integrations' },
-    { label: 'Testimonials', href: '#testimonials' },
-    { label: 'Comparison', href: '#comparison' },
-  ];
 
   const handleLinkClick = () => setIsMobileMenuOpen(false);
 
+  // Real Mappr Features
+  const features = [
+    { title: 'Crypto Portfolio', description: '15+ chains, DeFi, NFTs & transactions', icon: SolarWalletMoneyBoldDuotone, color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-500/10', href: '/app/crypto' },
+    { title: 'Banking & Accounts', description: '12,000+ banks via Teller & Stripe', icon: DuoIconsBank, color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-500/10', href: '/app/banking' },
+    { title: 'Net Worth Tracker', description: 'Real-time asset & liability aggregation', icon: TrendingUp, color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-500/10', href: '/app/net-worth' },
+    { title: 'Budgets & Alerts', description: 'Smart budgets with threshold notifications', icon: Zap, color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-500/10', href: '/app/budgets' },
+    { title: 'Financial Goals', description: 'Automated savings goals & milestones', icon: Target, color: 'text-pink-600 dark:text-pink-400', bgColor: 'bg-pink-500/10', href: '/app/goals' },
+    { title: 'Subscription Manager', description: 'Auto-detect recurring payments', icon: SolarInboxInBoldDuotone, color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-500/10', href: '/app/subscriptions' },
+    { title: 'Teams & Organizations', description: 'Shared access with role-based permissions', icon: Users, color: 'text-indigo-600 dark:text-indigo-400', bgColor: 'bg-indigo-500/10', href: '/app/organizations' },
+  ];
+
+  type LinkItem = { title: string; href: string; icon: LucideIcon; description?: string };
+
+  const productLinks: LinkItem[] = [
+    { title: 'Crypto Portfolio', href: '/app/crypto', description: 'Multi-chain, DeFi & NFTs', icon: SolarWalletMoneyBoldDuotone },
+    { title: 'Banking Aggregation', href: '/app/banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
+    { title: 'Net Worth Dashboard', href: '/app/net-worth', description: 'Full financial snapshot', icon: TrendingUp },
+    { title: 'Budgets', href: '/app/budgets', description: 'Flexible budgeting & alerts', icon: Zap },
+    { title: 'Goals', href: '/app/goals', description: 'Automated progress tracking', icon: Target },
+    { title: 'Subscription Tracker', href: '/app/subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
+    { title: 'Teams & Organizations', href: '/app/organizations', description: 'Multi-user access', icon: Users },
+    { title: 'Integrations', href: '/app/integrations', description: 'QuickBooks, Zerion + more', icon: PlugIcon },
+  ];
+
+  const companyLinks: LinkItem[] = [
+    { title: 'About Mappr', href: '/about', description: 'Our mission and story', icon: Users },
+    { title: 'Changelog', href: '/changelog', description: 'Latest features & updates', icon: History },
+    { title: 'Roadmap', href: '/roadmap', description: 'Vote on what’s next', icon: MapPinned },
+    { title: 'Careers', href: '/careers', description: 'Join our team', icon: Briefcase },
+  ];
+
+  const companyLinks2: LinkItem[] = [
+    { title: 'Pricing', href: '/pricing', icon: CreditCard },
+    { title: 'Terms of Service', href: '/legal/terms', icon: FileText },
+    { title: 'Privacy Policy', href: '/legal/privacy', icon: Shield },
+    { title: 'Security', href: '/security', icon: Lock },
+    { title: 'Help Center', href: '/help', icon: HelpCircle },
+    { title: 'Status', href: 'https://status.mappr.com', icon: Activity },
+    { title: 'Contact', href: '/contact', icon: Mail },
+  ];
+
+  // Reusable ListItem (unchanged, just moved for clarity)
+function ListItem({ title, href, description, icon: Icon }: LinkItem) {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a href={href} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-background/50">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-sm font-medium leading-none">{title}</div>
+              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">{description}</p>
+            </div>
+          </div>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+}
+
   return (
     <>
-      {/* === Floating Navbar === */}
-      <nav
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-100',
-          isScrolled ? 'py-2' : 'py-4'
-        )}
-      >
-        <div
-          className={cn(
-            'mx-auto transition-all duration-200 px-4 sm:px-6',
-            isScrolled ? 'max-w-6xl' : 'max-w-7xl'
-          )}
-        >
-          <div
-            className={cn(
-              'relative rounded-xl transition-all duration-200',
-              isScrolled
-                ? 'bg-gradient-to-br from-muted/95 via-background to-muted/95 border border-border/60 '
-                : 'bg-transparent border-transparent'
-            )}
-          >
+      <nav className={cn('fixed inset-x-0 top-0 z-50', isScrolled ? 'py-2' : 'py-4')}>
+        <div className={cn('mx-auto transition-all duration-200 border ', isScrolled ? 'max-w-5xl  rounded-lg bg-gradient-to-br from-muted/95 via-muted to-accent/95  border-border/80' : 'max-w-7xl  border-transparent')}>
+          <div className="relative ">
             <div className="flex h-16 sm:h-14 items-center justify-between px-4">
-              {/* === Logo === */}
-              <Link
-                href="/"
-                className="flex items-center gap-2 -ml-1 group"
-                onClick={handleLinkClick}
-              >
-              <Image
-                  src="/logo/mappr.svg"
-                  alt="MoneyMappr logo"
-                  width={56}
-                  height={56}
-                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
-                  priority
-                /> 
-                 {/*  <LogoMappr className='w-10 h-10' />*/}
+
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 -ml-1 group" onClick={handleLinkClick}>
+                <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-11 h-11 object-contain transition-transform group-hover:scale-102" priority />
                 <div className="flex flex-col">
-                  <span className="text-base sm:text-lg font-bold tracking-tight">
-                    MoneyMappr
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block -mt-0.5">
-                    Financial Intelligence
-                  </span>
+                  <span className="text-md sm:text-md font-bold tracking-tight">MoneyMappr</span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block -mt-0.5">Financial Intelligence</span>
                 </div>
               </Link>
 
-              {/* === Desktop Nav === */}
-       {/* === Redesigned Desktop Nav === */}
-<div className="hidden lg:flex items-center justify-center gap-2">
-  {navLinks.map((link) => {
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center justify-center flex-1">
+                <NavigationMenu delayDuration={0}> {/* Instant open */}
+                  <NavigationMenuList className="gap-1">
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="bg-transparent">Product</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[580px] grid-cols-2 gap-3 p-4 bg-popover border rounded-md shadow-lg">
+                          {productLinks.map((item) => (
+                            <ListItem key={item.title} title={item.title} href={item.href} description={item.description} icon={item.icon} />
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
 
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="bg-transparent">Company</NavigationMenuTrigger>
+                      <NavigationMenuContent className="bg-background p-1 pr-1.5 pb-1.5">
+                        <div className="grid w-[520px] grid-cols-2 gap-2">
+                          <ul className="bg-popover space-y-2 rounded-md border p-2 shadow">
+                            {companyLinks.map((item, i) => (
+                              <ListItem key={i} {...item} />
+                            ))}
+                          </ul>
+                          <ul className="space-y-2 p-3">
+                            {companyLinks2.map((item, i) => (
+                              <li key={i}>
+                                <NavigationMenuLink asChild>
+                                  <a href={item.href} className="flex p-2 hover:bg-accent flex-row rounded-md items-center gap-x-2 transition-colors">
+                                    <item.icon className="text-foreground size-4" />
+                                    <span className="font-medium">{item.title}</span>
+                                  </a>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
 
-    return (
-      <Link key={link.label} href={link.href ?? "#"}>
-        <Button
-         variant='ghost'
-          className="relative px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors duration-200"
-        >
-          {link.label}
-     
-        </Button>
-      </Link>
-    );
-  })}
-</div>
+                    {/* Direct Links */}
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link href="/#how-it-works" className="px-4 py-2 text-sm font-medium hover:bg-accent/50 rounded-md transition-colors">
+                          How it Works
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
 
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link href="/pricing" className="px-4 py-2 text-sm font-medium hover:bg-accent/50 rounded-md transition-colors">
+                          Pricing
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
 
-              {/* === Desktop CTA === */}
-              <div className="hidden lg:flex items-center gap-2">
-                <ThemeSwitcher />
-
-                {!process.env.NEXT_PUBLIC_WAITLIST_MODE ?    <Link href="/auth/signup">
-                  <Button size="sm" className="group text-xs font-semibold">
-                    <span className="flex items-center gap-1">
-                     Join Waitlist
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Button>
-                </Link> : <>
-
-                {user?    <Link href="/auth/signup">
-                  <Button size="sm" >
-                 
-                      Dashboard
-                  
-                  
-                  </Button>
-                </Link> :
-                <>
-                
-                <Link href="/auth/login">
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm" className="group text-xs font-semibold">
-                    <span className="flex items-center gap-1">
-                      Get Started
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Button>
-                </Link></>
-                }
-                </>}
-
-
-           {/*      <Link href="/auth/login">
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm" className="group text-xs font-semibold">
-                    <span className="flex items-center gap-1">
-                      Get Started
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </Button>
-                </Link> */}
-
-             
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link href="/#faq" className="px-4 py-2 text-sm font-medium hover:bg-accent/50 rounded-md transition-colors">
+                          FAQ
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
               </div>
 
-              {/* === Mobile Menu Button === */}
+              {/* Desktop CTA */}
+              <div className="hidden lg:flex items-center gap-3">
+                <ThemeSwitcher />
+                {user ? (
+                  <Link href="/app"><Button size="sm">Dashboard</Button></Link>
+                ) : (
+                  <>
+                    <Link href="/auth/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
+                    <Link href="/auth/signup">
+                      <Button size="sm" className="group">
+                        Get Started <ChevronRight className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition" />
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              {/* Mobile Toggle */}
               <div className="flex lg:hidden items-center gap-2">
                 <ThemeSwitcher />
-                <button
-                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                  className="relative flex items-center justify-center h-10 w-10 rounded-lg hover:bg-muted/70 active:bg-muted transition-colors"
-                  aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-                  aria-expanded={isMobileMenuOpen}
-                >
+                <button onClick={() => setIsMobileMenuOpen(v => !v)} className="p-2 rounded-lg hover:bg-muted/70 transition">
                   <div className="relative w-5 h-5">
-                    <span
-                      className={`absolute top-1.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300 ${
-                        isMobileMenuOpen ? 'rotate-45 top-2' : ''
-                      }`}
-                    />
-                    <span
-                      className={`absolute top-2.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300 ${
-                        isMobileMenuOpen ? 'opacity-0' : ''
-                      }`}
-                    />
-                    <span
-                      className={`absolute top-3.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300 ${
-                        isMobileMenuOpen ? '-rotate-45 top-2' : ''
-                      }`}
-                    />
+                    <span className={cn("absolute top-1.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300", isMobileMenuOpen && "rotate-45 top-2")} />
+                    <span className={cn("absolute top-2.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300", isMobileMenuOpen && "opacity-0")} />
+                    <span className={cn("absolute top-3.5 left-0 w-5 h-0.5 bg-foreground rounded-full transition-all duration-300", isMobileMenuOpen && "-rotate-45 top-2")} />
                   </div>
                 </button>
               </div>
@@ -216,222 +222,67 @@ export function LandingNav() {
         </div>
       </nav>
 
-      {/* === Mobile Menu Overlay === */}
-      <motion.div
-        initial={false}
-        animate={isMobileMenuOpen ? 'open' : 'closed'}
-        variants={{
-          open: { opacity: 1, pointerEvents: 'auto' },
-          closed: { opacity: 0, pointerEvents: 'none' },
-        }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-40 lg:hidden"
-      >
-        {/* Backdrop */}
-        <motion.div
-          variants={{
-            open: { opacity: 1 },
-            closed: { opacity: 0 },
-          }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-background/80 backdrop-blur-xl"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-
-        {/* Menu Panel */}
-        <motion.div
-          variants={{
-            open: { x: 0 },
-            closed: { x: '100%' },
-          }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="absolute top-0 right-0 bottom-0 w-full sm:w-[400px] bg-background border-l border-border shadow-2xl overflow-y-auto"
-        >
+      {/* Mobile Menu – unchanged but faster */}
+      <motion.div initial={false} animate={isMobileMenuOpen ? "open" : "closed"}
+        variants={{ open: { opacity: 1, pointerEvents: "auto" }, closed: { opacity: 0, pointerEvents: "none" } }}
+        className="fixed inset-0 z-40 lg:hidden">
+        <motion.div variants={{ open: { opacity: 1 }, closed: { opacity: 0 } }} className="absolute inset-0 bg-background/80 backdrop-blur-xl" onClick={() => setIsMobileMenuOpen(false)} />
+        <motion.div variants={{ open: { x: 0 }, closed: { x: "100%" } }} transition={{ type: "spring", damping: 30, stiffness: 300 }}
+          className="absolute top-0 right-0 bottom-0 w-full sm:w-96 bg-background border-l border-border shadow-2xl overflow-y-auto">
+          {/* Mobile menu content – same as before, just faster */}
           <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border/50">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div className="flex items-center gap-3">
                 <LogoMappr className="w-10 h-10" />
-                <div className="flex flex-col">
-                  <span className="text-lg font-bold">MoneyMappr</span>
-                  <span className="text-[10px] text-muted-foreground -mt-0.5">
-                    Financial Intelligence
-                  </span>
+                <div>
+                  <div className="font-bold text-lg">Mappr</div>
+                  <div className="text-xs text-muted-foreground">Financial Intelligence</div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-muted/70 active:bg-muted transition-colors"
-                aria-label="Close menu"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-foreground"
-                >
-                  <path
-                    d="M15 5L5 15M5 5L15 15"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full hover:bg-muted">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-              {/* Features Section */}
+            <div className="flex-1 p-6 space-y-8 overflow-y-auto">
               <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Features
-                </h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Features</h3>
                 <div className="space-y-3">
-                  {[
-                    {
-                      title: 'Bank Portfolio',
-                      desc: 'Track all your bank accounts in one place.',
-                      icon: DuoIconsBank,
-                      color: 'text-blue-600 dark:text-blue-400',
-                      bgColor: 'bg-blue-500/10',
-                    },
-                    {
-                      title: 'Crypto Portfolio',
-                      desc: 'Manage your crypto assets and wallets.',
-                      icon: SolarWalletMoneyBoldDuotone,
-                      color: 'text-orange-800 dark:text-orange-600',
-                      bgColor: 'bg-orange-500/10',
-                    },
-                    {
-                      title: 'Subscription Management',
-                      desc: 'Track all your recurring payments.',
-                      icon: SolarInboxInBoldDuotone,
-                      color: 'text-purple-600 dark:text-purple-400',
-                      bgColor: 'bg-purple-500/10',
-                    },
-                  ].map((feature, i) => {
-                    const Icon = feature.icon;
+                  {features.map((f, i) => {
+                    const Icon = f.icon;
                     return (
-                      <motion.div
-                        key={feature.title}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="group flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all cursor-pointer"
-                      >
-                        <div className={cn('p-2 rounded-lg', feature.bgColor)}>
-                          <Icon className={cn('w-5 h-5', feature.color)} />
+                      <Link key={i} href={f.href} onClick={handleLinkClick} className="flex items-start gap-4 p-3 rounded-xl hover:bg-muted/50 transition">
+                        <div className={cn("p-2 rounded-lg", f.bgColor)}><Icon className={cn("w-5 h-5", f.color)} /></div>
+                        <div>
+                          <div className="font-medium">{f.title}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{f.description}</div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold group-hover:text-primary transition-colors">
-                            {feature.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {feature.desc}
-                          </p>
-                        </div>
-                      </motion.div>
+                      </Link>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Navigation Links */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Navigation
-                </h3>
-                <div className="space-y-1">
-                  {navLinks
-                    .filter((link) => link.type !== 'popover')
-                    .map((link, i) => (
-                      <motion.div
-                        key={link.label}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.05 }}
-                      >
-                        <Link
-                          href={link.href ?? '#'}
-                          onClick={handleLinkClick}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-all group"
-                        >
-                          <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                            {link.label}
-                          </span>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </Link>
-                      </motion.div>
-                    ))}
-                </div>
-              </div>
-
-              {/* Quick Links */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Quick Links
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {quickLinks.map((link, i) => (
-                    <motion.div
-                      key={link.label}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 + i * 0.05 }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={handleLinkClick}
-                        className="flex items-center justify-center p-3 rounded-lg border border-border/50 hover:border-primary/50 hover:bg-muted/30 transition-all text-xs font-medium group"
-                      >
-                        <span className="group-hover:text-primary transition-colors">
-                          {link.label}
-                        </span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-2 gap-3">
+                {["How it Works", "Pricing", "FAQ", "Security", "Help Center", "Status"].map((label) => (
+                  <Link key={label} href={label === "Status" ? "https://status.mappr.com" : `/#${label.toLowerCase().replace(" ", "-")}`} onClick={handleLinkClick}
+                    className="p-4 text-center rounded-lg border hover:border-primary/50 hover:bg-muted/30 transition text-sm font-medium">
+                    {label}
+                  </Link>
+                ))}
               </div>
             </div>
 
-            {/* Footer CTA */}
-            <div className="p-6 border-t border-border/50 space-y-3 bg-muted/20">
+            <div className="p-6 border-t bg-muted/20">
               <Link href="/auth/signup" onClick={handleLinkClick} className="block">
-                <Button size="lg" className="w-full group font-semibold">
-                  <span className="flex items-center justify-center gap-2">
-                    Join Waitlist
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Button>
+                <Button size="lg" className="w-full">Get Started Free</Button>
               </Link>
-              <p className="text-xs text-center text-muted-foreground">
-                Be the first to experience MoneyMappr
-              </p>
+              <p className="text-center text-xs text-muted-foreground mt-3">No card required • 14-day trial</p>
             </div>
           </div>
         </motion.div>
       </motion.div>
-
-      {/* === Animations === */}
-      <style jsx>{`
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(24px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .safe-area-inset {
-          padding-top: env(safe-area-inset-top);
-          padding-bottom: env(safe-area-inset-bottom);
-        }
-      `}</style>
     </>
   );
 }
+

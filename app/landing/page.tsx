@@ -24,6 +24,7 @@ import {
 import { CryptoShowcase } from '@/components/landing/crypto-section';
 import IntegrationHero from '@/components/landing/integration-showcase';
 import { Example } from '@/components/landing/section-widgets/features-tabs';
+import { Header } from '@/components/landing/section-widgets/header';
 import FinanceHeroDubStyle from '@/components/landing/subscription-management/about-section';
 import   UltimateFinanceHero  from '@/components/landing/subscription-management/about-section';
 import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
@@ -40,12 +41,13 @@ export default function LandingPage() {
     <div >
   
       <ScrollProgress />
-      <LandingNav />
+      
+    <LandingNav />
       <LandingHero />
 <FinanceHeroDubStyle />
    <MoneyMapprFeatureSection />
    
-    {/*  < FeaturesSectionWithHoverEffects />
+    {/*   <Header /> < FeaturesSectionWithHoverEffects />
   
       <FeatureGrid /><SubscriptionsShowcase />
      <RealtimeTracking /> 
