@@ -31,6 +31,16 @@ const nextConfig: NextConfig = {
         hostname: 'img.logo.dev',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+        pathname: '/**',
+      },
     ]
   },
   eslint: {

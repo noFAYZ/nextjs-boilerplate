@@ -27,6 +27,7 @@ import MoneyMapprFeatureSection from '@/components/landing/subscription-manageme
 import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
 import { LandingHeroAlt } from '@/components/landing/subscription-management/landing-hero-alt';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
+import { TestimonialsDemo } from '@/components/landing/subscription-management/testimonials-section';
 
 
 export default function LandingPage() {
@@ -48,9 +49,9 @@ export default function LandingPage() {
        <CryptoShowcase />
       <HowItWorks />
      {/* <AutomationShowcase />   */}
-     
+     <TestimonialsDemo />
     {/*   
-      <TestimonialsSection />
+      
       <ComparisonSection />
       <SecuritySection /> */}
       <PricingSection />

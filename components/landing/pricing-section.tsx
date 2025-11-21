@@ -55,10 +55,10 @@ export function PricingSection() {
       <div className=" mx-auto px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="text-sm md:text-lg text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Start free, upgrade when you need more. No hidden fees, cancel anytime.
           </p>
         </div>
