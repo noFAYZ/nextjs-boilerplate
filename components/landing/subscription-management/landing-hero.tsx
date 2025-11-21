@@ -15,9 +15,19 @@ import {
   SolarShieldBoldDuotone,
   SolarPlayCircleBoldDuotone,
 } from "@/components/icons/icons";
-
+import {
+  DuoIconsBank,
+  FinancesIconDuotone,
+  MageGoals,
+  SolarInboxInBoldDuotone,
+  SolarPieChart2BoldDuotone,
+  SolarWalletMoneyBoldDuotone,
+} from '../../icons/icons';
 import { FlickeringGrid } from "../bg/FlickeringGrid";
 import { WaitlistFormCompact } from "@/components/coming-soon/waitlist-form-compact";
+import { TextRotate } from "../section-widgets/text-rotate";
+import { Mockup, MockupFrame } from "../section-widgets/hero-mockup";
+import { AvatarCircles } from "../section-widgets/avatar-circles";
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },
@@ -31,6 +41,7 @@ const DASHBOARD_IMAGES = {
   dark: "/landing/subscription-management-dark.PNG",
   alt: "Financial dashboard with predictive insights",
 } as const;
+type Item = { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> };
 
 export function LandingHero() {
   const { resolvedTheme } = useTheme();
@@ -49,7 +60,14 @@ export function LandingHero() {
     animate: { opacity: 1, scale: 1 },
     transition: { duration: 0.65, ease: "easeOut" },
   };
-
+  const rotatingItems: Item[] = [
+    { label: 'Finances', icon: FinancesIconDuotone },
+    { label: 'Banks', icon: DuoIconsBank },
+    { label: 'Crypto', icon: SolarWalletMoneyBoldDuotone },
+    { label: 'Subscriptions', icon: SolarInboxInBoldDuotone },
+    { label: 'Budgets', icon: SolarPieChart2BoldDuotone },
+    { label: 'Goals', icon: MageGoals },
+  ];
   return (
     <section className="relative overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32">
       {/* ============================================================= */}
@@ -61,11 +79,31 @@ export function LandingHero() {
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-tight text-5xl md:text-6xl lg:text-7xl"
+          className="font-bold tracking-tight leading-tight text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
         >
           Take Control of Your{" "}
+
+         
           <span className="inline-block relative">
-            <RotatingHeadline />
+          <TextRotate
+            texts={[ 
+              "Finances ✽",
+              "Banks",
+              "Crypto",
+              "Subscriptions",
+              "Budgets",
+              "Goals",
+            ]}
+            mainClassName="text-white px-2 sm:px-2 md:px-6 bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-2xl py-0"
+            staggerFrom={"last"}
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-120%" }}
+            staggerDuration={0.025}
+            splitLevelClassName="overflow-hidden "
+            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            rotationInterval={3000}
+          />
           </span>
         </motion.h1>
 
@@ -79,15 +117,20 @@ export function LandingHero() {
           alerts, smart insights, and real-time spend forecasting.
         </motion.p>
 
-               {/* CTA 
+               {/* CTA */}
                <motion.div
           {...fadeUp}
           transition={{ delay: 0.5 }}
           className="mt-8 flex justify-center gap-4 flex-wrap"
         >
-          
+          <AvatarCircles numPeople={99} avatarUrls={[
+  "https://avatars.githubusercontent.com/u/16860528",
+  "https://avatars.githubusercontent.com/u/20110627",
+  "https://avatars.githubusercontent.com/u/106103625",
+  "https://avatars.githubusercontent.com/u/59228569",
+]} />
        
-        </motion.div>*/}
+        </motion.div>
 
         {/* CTA */}
         <motion.div
@@ -144,28 +187,32 @@ export function LandingHero() {
         <ScrollReveal>
           <motion.div
             {...scaleIn}
-            transition={{ delay: 0.75 }}
+            transition={{ delay: 0.3 }}
             className="relative mx-auto max-w-7xl  mt-10 pt-20 "
           >
-            {/* Dashboard Container */}
-            <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-muted backdrop-blur-xl shadow-[0_10px_45px_rgba(0,0,0,0.28)]">
-              {/* Browser frame */}
-              <div className="flex items-center gap-2 border-b border-border/60 bg-background/30 px-4 py-3">
-                <span className="h-3 w-3 rounded-full bg-red-500/80" />
-                <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
-                <span className="h-3 w-3 rounded-full bg-green-500/80" />
-              </div>
-
-              <div className="relative aspect-[13.7/9] w-full bg-background/20">
+  
+                     
+          <div className=" w-full relative  ">
+            <MockupFrame>
+              <Mockup type="responsive">
                 <Image
                   src={imageSrc}
                   alt={DASHBOARD_IMAGES.alt}
-                  fill
+                  width={1920}
+                  height={1200}
+                  className="w-full rounded-2xl"
                   priority
-                  className="object-cover object-top"
                 />
-              </div>
-            </div>
+              </Mockup>
+            </MockupFrame>
+            <div
+              className="absolute bottom-0 left-0 right-0 w-full h-[303px]"
+              style={{
+                background: "linear-gradient(to top, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+                zIndex: 10,
+              }}
+            />
+          </div>
           </motion.div>
         </ScrollReveal>
       </div>

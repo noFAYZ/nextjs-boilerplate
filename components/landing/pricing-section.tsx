@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, Sparkles, Zap, Crown } from 'lucide-react';
+import { Check, Sparkles, Zap, Crown, CrownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SolarCheckCircleBoldDuotone } from '../icons/icons';
+import { GameIconsUpgrade } from '../icons';
 
 export function PricingSection() {
   const plans = [
@@ -26,7 +28,7 @@ export function PricingSection() {
     },
     {
       name: 'Pro',
-      icon: Zap,
+      icon: GameIconsUpgrade,
       price: '$12',
       period: 'per month',
       description: 'For serious financial tracking and optimization',
@@ -45,27 +47,7 @@ export function PricingSection() {
       popular: true,
       highlighted: true,
     },
-    {
-      name: 'Enterprise',
-      icon: Crown,
-      price: 'Custom',
-      period: 'contact us',
-      description: 'For teams and organizations with advanced needs',
-      features: [
-        'Everything in Pro',
-        'Team collaboration features',
-        'API access & webhooks',
-        'Dedicated account manager',
-        'Custom integrations',
-        'SLA guarantee (99.99% uptime)',
-        'Advanced security features',
-        'White-label options',
-        'Custom reporting',
-      ],
-      cta: 'Contact Sales',
-      popular: false,
-      highlighted: false,
-    },
+  
   ];
 
   return (
@@ -76,13 +58,13 @@ export function PricingSection() {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground">
+          <p className="text-sm md:text-lg text-muted-foreground">
             Start free, upgrade when you need more. No hidden fees, cancel anytime.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -100,39 +82,32 @@ export function PricingSection() {
                   </div>
                 </div>
               )}
-
+<div className='flex items-center gap-3 mb-4'>
               {/* Icon */}
               <div
-                className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${
+                className={` border border-border/80 inline-flex h-12 w-12 items-center justify-center rounded-xl ${
                   !plan.highlighted
-                    ? 'bg-white/20 backdrop-blur-sm'
-                    : 'bg-orange-100 dark:bg-orange-950/50'
+                    ? 'bg-muted backdrop-blur-sm'
+                    : 'bg-gradient-to-b from-[#FFB347] via-[#FF7A00] to-[#E66A00] '
                 }`}
               >
                 <plan.icon
                   className={`h-6 w-6 ${
-                    !plan.highlighted ? '' : 'text-orange-600 dark:text-orange-400'
+                    !plan.highlighted ? '' : 'text-white'
                   }`}
                 />
               </div>
-
-              {/* Plan Name */}
-              <h3
+  {/* Plan Name */}
+  <h3
                 className={`text-2xl font-bold mb-2 ${
                   plan.highlighted ? '' : 'text-foreground'
                 }`}
               >
                 {plan.name}
               </h3>
-
-              {/* Description */}
-              <p
-                className={`text-sm mb-6 ${
-                  plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
-                }`}
-              >
-                {plan.description}
-              </p>
+</div>
+            
+          
 
               {/* Price */}
               <div className="mb-8">
@@ -171,7 +146,7 @@ export function PricingSection() {
                       ? ' '
                       : ''
                   }`}
-                  variant={!plan.highlighted ? 'outline' : 'default'}
+                  variant={!plan.highlighted ? 'outline2' : 'default'}
                   size="lg"
                 >
                   {plan.cta}
@@ -189,9 +164,9 @@ export function PricingSection() {
                 </p>
                 {plan.features.map((feature) => (
                   <div key={feature} className="flex items-start gap-3">
-                    <Check
+                    <SolarCheckCircleBoldDuotone
                       className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                        plan.highlighted ? '' : 'text-orange-500'
+                        plan.highlighted ? 'text-orange-500' : 'text-muted-foreground'
                       }`}
                     />
                     <span
