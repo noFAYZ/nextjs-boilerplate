@@ -22,6 +22,7 @@ import {
   SubscriptionsShowcase,
 } from '@/components/landing';
 import { CryptoShowcase } from '@/components/landing/crypto-section';
+import IntegrationHero from '@/components/landing/integration-showcase';
 import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
 import MoneyMapprFeatureSection from '@/components/landing/subscription-management/FeatureSection';
 import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
@@ -38,17 +39,17 @@ export default function LandingPage() {
       <ScrollProgress />
       <LandingNav />
       <LandingHero />
-     {/*  <SocialProof /> */}
+
    <MoneyMapprFeatureSection />
    < FeaturesSectionWithHoverEffects />
-        {/* <FeatureGrid />
-  FeaturesSectionWithHoverEffects
-       <SubscriptionsShowcase />
-     <RealtimeTracking /> */}
+       
+  
+       {/*  <FeatureGrid /><SubscriptionsShowcase />
+     <RealtimeTracking /> 
         <PortfolioShowcase />
-       <CryptoShowcase />
+       <CryptoShowcase />*/}
       <HowItWorks />
-     {/* <AutomationShowcase />   */}
+<IntegrationHero />
      <TestimonialsDemo />
     {/*   
       
@@ -56,7 +57,7 @@ export default function LandingPage() {
       <SecuritySection /> */}
       <PricingSection />
       <FAQSection />
-      {/* <FinalCTASection /> */}
+      {/* */}<FinalCTASection /> 
       <LandingFooter />
      {/*  <StickyCTA /> */}
     </div>

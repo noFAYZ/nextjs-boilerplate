@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 
 export function FinalCTASection() {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 ">
       <div className="container mx-auto px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-lg border bg-card p-12 text-center">
+          <div className="rounded-lg  bg-muted/70 p-12 text-center">
             <h2 className="text-2xl font-semibold mb-3">
               Ready to get started?
             </h2>

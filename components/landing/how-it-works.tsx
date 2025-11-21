@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { UserPlus, Link2, LineChart, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhUser } from '../icons';
-import { BarChartIcon, HugeiconsAnalytics02, MingcutePlugin2Fill, SolarPieChartBold, TablerPlugConnected } from '../icons/icons';
+import { BarChartIcon, HugeiconsAnalytics02, MingcutePlugin2Fill, PhUsersDuotone, SolarCheckCircleBoldDuotone, SolarPieChart2BoldDuotone, SolarPieChartBold, TablerPlugConnected } from '../icons/icons';
 
 export function HowItWorks() {
   const steps = [
     {
       number: '01',
-      icon: PhUser,
+      icon: PhUsersDuotone,
       title: 'Create Your Account',
       description: 'Sign up for free in under 60 seconds. No credit card required to start exploring.',
       details: [
@@ -36,7 +36,7 @@ export function HowItWorks() {
     },
     {
       number: '03',
-      icon: SolarPieChartBold,
+      icon: SolarPieChart2BoldDuotone,
       title: 'Track & Optimize',
       description: 'Get instant insights into your complete financial picture and start optimizing your wealth.',
       details: [
@@ -50,18 +50,20 @@ export function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-muted/30">
-      <div className=" mx-auto px-6">
+    <section id="how-it-works" className="   p-6 bg-white dark:bg-black">
+
+      <div className='container mx-auto'>
+
         {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Get started in minutes</h2>
-          <p className="text-lg md:text-xl text-muted-foreground">
+        <div className="mx-auto max-w-3xl text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Get started in minutes</h2>
+          <p className="text-sm md:text-base text-muted-foreground">
             Three simple steps to complete financial clarity
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-10">
           {steps.map((step, index) => (
             <div key={step.number} className="relative">
               {/* Connection Line */}
@@ -74,26 +76,25 @@ export function HowItWorks() {
               )}
 
               {/* Step Card */}
-              <div className="relative rounded-2xl border bg-card p-8 shadow-sm hover:shadow-xl transition-all duration-300 h-full">
+              <div className="relative rounded-lg border bg-card p-6 shadow hover:shadow-sm transition-all duration-300 h-full">
                 {/* Step Number Badge */}
-                <div className="absolute -top-4 -left-4 h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg">
+                <div className="absolute -top-4 -left-4 h-10 w-10 rounded-xl bg-gradient-to-b from-orange-400 via-orange-500 to-amber-600 flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">{step.number}</span>
                 </div>
-
+<div className='flex items-center mt-2 gap-4 mb-6'>
                 {/* Icon */}
-                <div className="mb-6 mt-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100 dark:bg-orange-950/50">
+                <div className="  inline-flex h-12 w-12 items-center justify-center rounded-xl bg-muted border border-border/80 shadow-xs">
                   <step.icon className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                 </div>
-
-                {/* Content */}
-                <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
-                <p className="text-muted-foreground leading-relaxed mb-6">{step.description}</p>
-
+<div>               {/* Content */}
+                <h3 className="text-xl font-bold ">{step.title}</h3>
+                </div> 
+</div><p className="text-muted-foreground max-w-xs text-sm mb-6">{step.description}</p>
                 {/* Details List */}
                 <ul className="space-y-2">
                   {step.details.map((detail) => (
-                    <li key={detail} className="flex items-start gap-2 text-sm">
-                      <Check className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                    <li key={detail} className="flex items-center gap-2 text-sm">
+                      <SolarCheckCircleBoldDuotone className="h-4 w-4 text-orange-500  flex-shrink-0" />
                       <span className="text-muted-foreground">{detail}</span>
                     </li>
                   ))}
@@ -104,8 +105,8 @@ export function HowItWorks() {
         </div>
 
         {/* Video/Demo Section */}
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl border bg-card p-8 shadow-lg">
+        <div className="max-w-3xl mx-auto rounded-2xl border bg-card p-6 shadow-md">
+        
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-1">
                 <h3 className="text-2xl font-bold mb-4">See it in action</h3>
@@ -143,31 +144,10 @@ export function HowItWorks() {
                 </div>
               </div>
             </div>
-          </div>
+       
         </div>
-
-        {/* Trust Section
-        <div className="mt-16 text-center">
-          <p className="text-sm text-muted-foreground mb-4">Trusted by thousands of users worldwide</p>
-          <div className="flex items-center justify-center gap-8 flex-wrap">
-            {[
-              'AES-256 Encryption',
-              'SOC 2 Compliant',
-              '99.9% Uptime',
-              '24/7 Support',
-              'GDPR Compliant',
-            ].map((badge) => (
-              <div
-                key={badge}
-                className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-              >
-                <Check className="h-4 w-4 text-orange-500" />
-                <span>{badge}</span>
-              </div>
-            ))}
-          </div>
-        </div> */}
-      </div>
+</div>
+     
     </section>
   );
 }
