@@ -140,7 +140,7 @@ export function LandingHero() {
           Take Control of Your{" "}
 
          
-          <span className="inline-block relative">
+          <span className="inline-block relative mt-4">
           <TextRotate
             texts={[ 
               "Finances ✽",
@@ -150,7 +150,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-white px-2 sm:px-2 md:px-6  bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-2xl py-0"
+            mainClassName="text-white px-2 sm:px-2 md:px-6  bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-lg py-0 "
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
