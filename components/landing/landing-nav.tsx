@@ -45,43 +45,43 @@ export function LandingNav() {
 
   // Real Mappr Features
   const features = [
-    { title: 'Crypto Portfolio', description: '15+ chains, DeFi, NFTs & transactions', icon: SolarWalletMoneyBoldDuotone, color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-500/10', href: '/app/crypto' },
-    { title: 'Banking & Accounts', description: '12,000+ banks via Teller & Stripe', icon: DuoIconsBank, color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-500/10', href: '/app/banking' },
-    { title: 'Net Worth Tracker', description: 'Real-time asset & liability aggregation', icon: TrendingUp, color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-500/10', href: '/app/net-worth' },
-    { title: 'Budgets & Alerts', description: 'Smart budgets with threshold notifications', icon: Zap, color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-500/10', href: '/app/budgets' },
-    { title: 'Financial Goals', description: 'Automated savings goals & milestones', icon: Target, color: 'text-pink-600 dark:text-pink-400', bgColor: 'bg-pink-500/10', href: '/app/goals' },
-    { title: 'Subscription Manager', description: 'Auto-detect recurring payments', icon: SolarInboxInBoldDuotone, color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-500/10', href: '/app/subscriptions' },
-    { title: 'Teams & Organizations', description: 'Shared access with role-based permissions', icon: Users, color: 'text-indigo-600 dark:text-indigo-400', bgColor: 'bg-indigo-500/10', href: '/app/organizations' },
+    { title: 'Crypto Portfolio', description: '15+ chains, DeFi, NFTs & transactions', icon: SolarWalletMoneyBoldDuotone, color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-500/10', href: '/#crypto' },
+    { title: 'Banking & Accounts', description: '12,000+ banks via Teller & Stripe', icon: DuoIconsBank, color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-500/10', href: '/#banking' },
+    { title: 'Net Worth Tracker', description: 'Real-time asset & liability aggregation', icon: TrendingUp, color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-500/10', href: '/#net-worth' },
+    { title: 'Budgets & Alerts', description: 'Smart budgets with threshold notifications', icon: Zap, color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-500/10', href: '/#budgets' },
+    { title: 'Financial Goals', description: 'Automated savings goals & milestones', icon: Target, color: 'text-pink-600 dark:text-pink-400', bgColor: 'bg-pink-500/10', href: '/#goals' },
+    { title: 'Subscription Manager', description: 'Auto-detect recurring payments', icon: SolarInboxInBoldDuotone, color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-500/10', href: '/#subscriptions' },
+    { title: 'Teams & Organizations', description: 'Shared access with role-based permissions', icon: Users, color: 'text-indigo-600 dark:text-indigo-400', bgColor: 'bg-indigo-500/10', href: '/#teams' },
   ];
 
   type LinkItem = { title: string; href: string; icon: LucideIcon; description?: string };
 
   const productLinks: LinkItem[] = [
-    { title: 'Crypto Portfolio', href: '/app/crypto', description: 'Multi-chain, DeFi & NFTs', icon: SolarWalletMoneyBoldDuotone },
-    { title: 'Banking Aggregation', href: '/app/banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
-    { title: 'Net Worth Dashboard', href: '/app/net-worth', description: 'Full financial snapshot', icon: TrendingUp },
-    { title: 'Budgets', href: '/app/budgets', description: 'Flexible budgeting & alerts', icon: Zap },
-    { title: 'Goals', href: '/app/goals', description: 'Automated progress tracking', icon: Target },
-    { title: 'Subscription Tracker', href: '/app/subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
-    { title: 'Teams & Organizations', href: '/app/organizations', description: 'Multi-user access', icon: Users },
-    { title: 'Integrations', href: '/app/integrations', description: 'QuickBooks, Zerion + more', icon: PlugIcon },
+    { title: 'Crypto Portfolio', href: '/#crypto', description: 'Multi-chain, DeFi & NFTs', icon: SolarWalletMoneyBoldDuotone },
+    { title: 'Banking Aggregation', href: '/#banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
+    { title: 'Net Worth Dashboard', href: '/#net-worth', description: 'Full financial snapshot', icon: TrendingUp },
+    { title: 'Budgets', href: '/#budgets', description: 'Flexible budgeting & alerts', icon: Zap },
+    { title: 'Goals', href: '/#goals', description: 'Automated progress tracking', icon: Target },
+    { title: 'Subscription Tracker', href: '/#subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
+    { title: 'Teams & Organizations', href: '/#teams', description: 'Multi-user access', icon: Users },
+    { title: 'Integrations', href: '/#integrations', description: 'QuickBooks, Zerion + more', icon: PlugIcon },
   ];
 
   const companyLinks: LinkItem[] = [
-    { title: 'About Mappr', href: '/about', description: 'Our mission and story', icon: Users },
-    { title: 'Changelog', href: '/changelog', description: 'Latest features & updates', icon: History },
-    { title: 'Roadmap', href: '/roadmap', description: 'Vote on what’s next', icon: MapPinned },
-    { title: 'Careers', href: '/careers', description: 'Join our team', icon: Briefcase },
+    { title: 'About MoneyMappr', href: '/#about', description: 'Our mission and story', icon: Users },
+    { title: 'Changelog', href: '/#changelog', description: 'Latest features & updates', icon: History },
+    { title: 'Roadmap', href: '/#roadmap', description: "Vote on what's next", icon: MapPinned },
+    { title: 'Careers', href: '/#careers', description: 'Join our team', icon: Briefcase },
   ];
 
   const companyLinks2: LinkItem[] = [
-    { title: 'Pricing', href: '/pricing', icon: CreditCard },
-    { title: 'Terms of Service', href: '/legal/terms', icon: FileText },
-    { title: 'Privacy Policy', href: '/legal/privacy', icon: Shield },
-    { title: 'Security', href: '/security', icon: Lock },
-    { title: 'Help Center', href: '/help', icon: HelpCircle },
+    { title: 'Pricing', href: '/#pricing', icon: CreditCard },
+    { title: 'Terms of Service', href: '/#terms', icon: FileText },
+    { title: 'Privacy Policy', href: '/#privacy', icon: Shield },
+    { title: 'Security', href: '/#security', icon: Lock },
+    { title: 'Help Center', href: '/#help', icon: HelpCircle },
     { title: 'Status', href: 'https://status.mappr.com', icon: Activity },
-    { title: 'Contact', href: '/contact', icon: Mail },
+    { title: 'Contact', href: '/#contact', icon: Mail },
   ];
 
   // Reusable ListItem (unchanged, just moved for clarity)

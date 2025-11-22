@@ -20,6 +20,7 @@ import type { UserSubscription } from '@/lib/types/subscription';
 import Link from 'next/link';
 import { MageCalendar2 } from '@/components/icons/icons';
 import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
 // Helper to get days in a month
 function getDaysInMonth(year: number, month: number): Date[] {
@@ -328,7 +329,7 @@ export function CalendarSubscriptionWidget() {
 
   return (
     <>
-      <div className="relative rounded-2xl border border-border/80  p-4 shadow-xs dark:shadow-none backdrop-blur-sm max-w-4xl">
+      <Card className="relative h-full w-full flex flex-col border border-border/50">
         {/* Modern Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
@@ -336,7 +337,7 @@ export function CalendarSubscriptionWidget() {
               <MageCalendar2 className="h-5 w-5 " />
             </div>
             <div>
-              <h3 className="text-base font-bold text-foreground">
+              <h3 className="text-md font-semibold text-foreground">
                 Subscriptions
               </h3>
          
@@ -481,7 +482,7 @@ export function CalendarSubscriptionWidget() {
 
 
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
 
       {/* Date Detail Modal */}
       <DateDetailModal

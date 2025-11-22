@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *, .dark-pro *));
 /* fffefa */
 :root {
-  --background: #ffffff;
+  --background: rgb(243,242,237);
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -43,7 +43,7 @@
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
 
-  --radius: 0.5rem;
+  --radius: 0.2rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.24rem;

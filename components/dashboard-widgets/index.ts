@@ -1,5 +1,6 @@
 // Financial Overview Widgets
 export { NetWorthWidget } from './net-worth-widget';
+export { NetWorthPerformanceWidget } from './networth-performance-widget';
 export { MonthlySpendingTrendWidget } from './monthly-spending-trend-widget';
 export { SpendingCategoriesWidget } from './spending-categories-widget';
 

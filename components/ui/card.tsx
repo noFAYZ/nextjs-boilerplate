@@ -20,6 +20,7 @@ const cardVariants = cva(
         destructive: "rounded-xl bg-gradient-to-br from-red-50/80 to-rose-50/80 dark:from-red-950/20 dark:to-rose-950/20 border-red-200/50 dark:border-red-800/50 shadow-md hover:shadow-lg",
         premium: "rounded-xl bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-950/20 dark:to-blue-950/20 border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-xl",
         enterprise: "rounded-xl bg-gradient-to-br from-slate-50/80 to-slate-100/80 dark:from-slate-900/50 dark:to-slate-800/50 border-slate-200/80 dark:border-slate-700/80 shadow-lg hover:shadow-xl backdrop-blur-sm",
+        
       },
       size: {
         xs: "p-2 ",

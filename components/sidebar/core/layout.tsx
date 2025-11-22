@@ -92,10 +92,10 @@ export function SidebarLayout({
         )}
 
         {/* Content Area - Responsive padding and max-width */}
-        <div className="flex-1 w-full overflow-y-auto">
-          <div className="mx-auto w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="  mx-auto container p-3 md:p-6" >
+ 
             {children}
-          </div>
+     
         </div>
       </div>
     </div>

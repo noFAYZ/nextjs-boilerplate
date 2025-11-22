@@ -218,6 +218,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Global activity listener - tracks user interactions to keep session alive
+  useEffect(() => {
+    if (!storeIsAuthenticated) return;
+
+    const updateLastActivity = () => {
+      useAuthStore.getState().updateLastActivity();
+    };
+
+    // Debounced activity tracking on user interactions
+    let activityTimeout: NodeJS.Timeout | null = null;
+    const debouncedUpdateActivity = () => {
+      if (activityTimeout) clearTimeout(activityTimeout);
+      activityTimeout = setTimeout(() => {
+        updateLastActivity();
+      }, 1000); // Debounce: update activity max once per second
+    };
+
+    // Track user interactions
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+      window.addEventListener(event, debouncedUpdateActivity, { passive: true });
+    });
+
+    // Also refresh session periodically (every 6 hours) even without user activity
+    const refreshInterval = setInterval(() => {
+      storeRefreshSession();
+    }, 6 * 60 * 60 * 1000); // 6 hours
+
+    return () => {
+      // Clean up event listeners
+      events.forEach(event => {
+        window.removeEventListener(event, debouncedUpdateActivity);
+      });
+
+      // Clear interval
+      clearInterval(refreshInterval);
+
+      // Clear timeout
+      if (activityTimeout) clearTimeout(activityTimeout);
+    };
+  }, [storeIsAuthenticated, storeRefreshSession]);
+
   const value: AuthContextType = {
     user,
     session,

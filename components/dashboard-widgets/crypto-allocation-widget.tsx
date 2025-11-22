@@ -85,7 +85,7 @@ export function CryptoAllocationWidget() {
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 h-full w-full flex flex-col">
       <h3 className="text-xs font-medium text-muted-foreground mb-3">Token allocation</h3>
 
       <div className="grid grid-cols-2 gap-2">

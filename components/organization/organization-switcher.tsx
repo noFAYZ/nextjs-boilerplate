@@ -131,9 +131,7 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            'flex items-center  justify-between gap-3 w-full px-3  ',
-            
-        
+            'flex items-center  justify-between gap-3 w-full px-3 rounded-none shadow ',
             'group',
             className
           )}

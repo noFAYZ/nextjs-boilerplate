@@ -13,6 +13,10 @@ import {
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  ComposedChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -35,6 +39,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
 
@@ -143,6 +149,13 @@ const periods: { value: TimePeriod; label: string; description: string }[] = [
   { value: 'all', label: 'All Time', description: 'All time' },
 ];
 
+// Breakdown chart period options (monthly, quarterly, yearly)
+const breakdownPeriods: { value: 'monthly' | 'quarterly' | 'yearly'; label: string; description: string }[] = [
+  { value: 'monthly', label: 'Monthly', description: 'Monthly breakdown' },
+  { value: 'quarterly', label: 'Quarterly', description: 'Quarterly breakdown' },
+  { value: 'yearly', label: 'Yearly', description: 'Yearly breakdown' },
+];
+
 // ============================================================================
 // Utility Functions
 // ============================================================================
@@ -221,6 +234,71 @@ const validateDataPoint = (point: unknown): point is ChartDataPoint => {
     isValidNumber(p.totalAssets) &&
     isValidNumber(p.totalLiabilities)
   );
+};
+
+/**
+ * Aggregates chart data by period (monthly, quarterly, yearly)
+ */
+const aggregateDataByPeriod = (
+  data: ChartDataPoint[],
+  period: 'monthly' | 'quarterly' | 'yearly'
+): ChartDataPoint[] => {
+  if (!data.length) return [];
+
+  const grouped: Record<string, ChartDataPoint[]> = {};
+
+  data.forEach((point) => {
+    const date = new Date(point.date);
+    let key: string;
+
+    if (period === 'monthly') {
+      // Group by month
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    } else if (period === 'quarterly') {
+      // Group by quarter
+      const quarter = Math.floor(date.getMonth() / 3) + 1;
+      key = `${date.getFullYear()}-Q${quarter}`;
+    } else {
+      // Group by year
+      key = `${date.getFullYear()}`;
+    }
+
+    if (!grouped[key]) {
+      grouped[key] = [];
+    }
+    grouped[key].push(point);
+  });
+
+  // Calculate averages for each group
+  return Object.entries(grouped).map(([key, points]) => {
+    const avgAssets = points.reduce((sum, p) => sum + p.totalAssets, 0) / points.length;
+    const avgLiabilities = points.reduce((sum, p) => sum + p.totalLiabilities, 0) / points.length;
+    // Calculate net worth from aggregated assets and liabilities to match stacked bar representation
+    const avgNetWorth = avgAssets - avgLiabilities;
+
+    let formattedDate: string;
+    if (period === 'monthly') {
+      const [year, month] = key.split('-');
+      const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', {
+        month: 'short',
+      });
+      formattedDate = monthName;
+    } else if (period === 'quarterly') {
+      formattedDate = key;
+    } else {
+      formattedDate = key;
+    }
+
+    return {
+      date: points[points.length - 1].date, // Use last date in group
+      totalNetWorth: avgNetWorth,
+      totalAssets: avgAssets,
+      totalLiabilities: avgLiabilities,
+      change: points[points.length - 1].change,
+      changePercent: points[points.length - 1].changePercent,
+      formattedDate,
+    };
+  });
 };
 
 // Demo data generator
@@ -484,6 +562,24 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   );
 };
 
+// Custom dot component for breakdown line chart
+interface CustomDotProps {
+  cx?: number;
+  cy?: number;
+  fill?: string;
+  stroke?: string;
+}
+
+const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
+  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
+
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={3} fill="white" stroke="var(--chart-1)" strokeWidth={2} />
+    </g>
+  );
+};
+
 // Loading skeleton
 const ChartSkeleton = ({ height }: { height: number }) => (
   <div className="relative w-full flex items-center justify-center" style={{ height }}>
@@ -554,17 +650,19 @@ export function NetWorthChart({
   height: rawHeight,
   compact = false,
   showPeriodFilter = true,
-  showComparison = false,
+  showComparison = true,
   defaultPeriod = '1m',
   onPeriodChange,
   mode = 'live',
-  demoScenario = 'growth',
+  demoScenario = 'volatile',
 }: NetWorthChartProps) {
   // ============================================================================
   // State Management
   // ============================================================================
 
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>(defaultPeriod);
+  const [chartType, setChartType] = useState<'performance' | 'breakdown'>('performance');
+  const [breakdownPeriod, setBreakdownPeriod] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   // Sanitize height input
@@ -744,6 +842,55 @@ export function NetWorthChart({
     }
   }, [chartData]);
 
+  // Calculate Y-axis domain with padding
+  const yAxisDomain = useMemo(() => {
+    if (!chartData.length) return [0, 100000];
+
+    try {
+      const validData = chartData.filter(d => isValidNumber(d.totalNetWorth));
+      if (validData.length === 0) return [0, 100000];
+
+      const values = validData.map(d => d.totalNetWorth);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min;
+      const padding = Math.max(range * 0.1, 1000); // 10% padding or minimum 1000
+
+      return [
+        Math.max(0, Math.floor((min - padding) / 1000) * 1000), // Round down to nearest 1000
+        Math.ceil((max + padding) / 1000) * 1000, // Round up to nearest 1000
+      ];
+    } catch (error) {
+      console.error('[NetWorthChart] Y-axis domain calculation error:', error);
+      return [0, 100000];
+    }
+  }, [chartData]);
+
+  // Aggregate breakdown data based on selected breakdown period
+  const breakdownChartData = useMemo(() => {
+    if (chartType === 'breakdown') {
+      return aggregateDataByPeriod(chartData, breakdownPeriod);
+    }
+    return chartData;
+  }, [chartData, chartType, breakdownPeriod]);
+
+  // Calculate average assets and liabilities for breakdown chart
+  const breakdownAverages = useMemo(() => {
+    if (!breakdownChartData.length) return { avgAssets: 0, avgLiabilities: 0 };
+
+    try {
+      const validData = breakdownChartData.filter(d => isValidNumber(d.totalAssets) && isValidNumber(d.totalLiabilities));
+      if (validData.length === 0) return { avgAssets: 0, avgLiabilities: 0 };
+
+      const avgAssets = validData.reduce((sum, d) => sum + d.totalAssets, 0) / validData.length;
+      const avgLiabilities = validData.reduce((sum, d) => sum + d.totalLiabilities, 0) / validData.length;
+
+      return { avgAssets, avgLiabilities };
+    } catch (error) {
+      console.error('[NetWorthChart] Breakdown averages calculation error:', error);
+      return { avgAssets: 0, avgLiabilities: 0 };
+    }
+  }, [breakdownChartData]);
 
   // ============================================================================
   // Component Render
@@ -761,7 +908,7 @@ export function NetWorthChart({
         <div className="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 flex-wrap">
             {mode === 'demo' && (
-              <span className="text-[9px] font-extrabold px-2 py-1 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20">
+              <span className="text-[9px] font-extrabold px-2 py-1  bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20">
                 DEMO
               </span>
             )}
@@ -794,7 +941,7 @@ export function NetWorthChart({
           )}
         </div>
 
-        <div className="relative rounded-xl overflow-hidden border bg-card shadow-sm" style={{ height }}>
+        <div className="relative rounded-none overflow-hidden border bg-muted/30 shadow-sm" style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (
@@ -852,6 +999,7 @@ export function NetWorthChart({
                     dx={-5}
                     opacity={0.7}
                     width={40}
+                    domain={yAxisDomain as [number, number]}
                     aria-label="Net worth value axis"
                   />
 
@@ -887,11 +1035,10 @@ export function NetWorthChart({
   } satisfies ChartConfig
   // Full mode - enterprise-grade with accessibility
 
-  console.log(chartData)
   return (
     <section
       ref={chartContainerRef}
-      className={cn("w-full space-y-2  border border-border/80 rounded-lg overflow-hidden  bg-muted/50 shadow-xs pr-3 pt-3", className)}
+      className={cn("w-full space-y-2  border border-border/80 rounded-none overflow-hidden  bg-card shadow-xs pr-3 pt-3", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -924,16 +1071,46 @@ export function NetWorthChart({
         </div>
       )}*/}
 
-<div className='flex justify-end'>
-      {showPeriodFilter && (
+<div className='flex justify-end gap-2'>
+      {/* Chart Type Selector */}
+      <Select value={chartType} onValueChange={(v) => setChartType(v as 'performance' | 'breakdown')}>
+        <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none w-[120px]" size='xs' variant='outline2'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className='rounded-none shadow-none'>
+          <SelectItem value="performance" className='rounded-none'>
+            <span className="font-medium text-xs">Performance</span>
+          </SelectItem>
+          <SelectItem value="breakdown" className='rounded-none'>
+            <span className="font-medium text-xs">Breakdown</span>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      {showPeriodFilter && chartType === 'performance' && (
         <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)} >
-          <SelectTrigger className="gap-1 font-medium h-7 text-xs" size='xs' variant='outline2'>
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none" size='xs' variant='outline2'>
             <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className='rounded-none shadow-none'>
             {periods.map((period) => (
-              <SelectItem key={period.value} value={period.value}>
+              <SelectItem key={period.value} value={period.value} className='rounded-none'>
+                <span className="font-medium text-xs">{period.label}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {showPeriodFilter && chartType === 'breakdown' && (
+        <Select value={breakdownPeriod} onValueChange={(v) => setBreakdownPeriod(v as 'monthly' | 'quarterly' | 'yearly')} >
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none w-[110px]" size='xs' variant='outline2'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className='rounded-none shadow-none'>
+            {breakdownPeriods.map((period) => (
+              <SelectItem key={period.value} value={period.value} className='rounded-none'>
                 <span className="font-medium text-xs">{period.label}</span>
               </SelectItem>
             ))}
@@ -960,55 +1137,119 @@ export function NetWorthChart({
             config={{
               totalNetWorth: {
                 label: 'Net Worth',
-                color: 'var(--chart-primary)',
+                color: 'var(--chart-1)',
+              },
+              totalAssets: {
+                label: 'Assets',
+                color: 'var(--chart-2)',
+              },
+              totalLiabilities: {
+                label: 'Liabilities',
+                color: 'var(--chart-3)',
               },
             } satisfies ChartConfig}
             className="h-full w-full"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
-                role="img"
-                aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
-              >
-                <defs>
-                  <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.5} />
-                    <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
-                  </linearGradient>
-                </defs>
+              {chartType === 'performance' ? (
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
+                  role="img"
+                  aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
+                >
+                  <defs>
+                    <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.5} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
+                    </linearGradient>
+                  </defs>
 
-                <CartesianGrid vertical={false} />
+                  <CartesianGrid vertical={false} />
 
-                <XAxis
-                  dataKey="formattedDate"
-                 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  dy={8}
-                  
-                  interval="preserveStartEnd"
-                />
+                  <XAxis
+                    dataKey="formattedDate"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={8}
+                    interval="preserveStartEnd"
+                  />
 
-                <YAxis
-            
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => formatCompactCurrency(value)}
-                  dx={-8}
-                 
-                  width={50}
-                  aria-label="Net worth value axis"
-                />
+                  <YAxis
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    dx={-8}
+                    domain={yAxisDomain as [number, number]}
+                    width={50}
+                    aria-label="Net worth value axis"
+                  />
 
-                {showComparison && (
                   <ReferenceLine
                     y={averageValue}
-                    stroke="var(--chart-accent)"
+                    stroke="var(--muted-foreground)"
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
+                    opacity={0.4}
+                    label={{
+                      value: 'Avg',
+                      position: 'right',
+                      fill: 'var(--muted-foreground)',
+                      fontSize: 10,
+                      fontWeight: 500,
+                    }}
+                  />
+
+                  <ChartTooltip content={<CustomTooltip />} cursor={false} />
+
+                  <Area
+                    type="linear"
+                    dataKey="totalNetWorth"
+                    stroke="var(--chart-primary)"
+                    strokeWidth={3}
+                    fill="url(#networthGradient)"
+                    aria-label="Net worth area"
+                    isAnimationActive={true}
+                    animationDuration={500}
+                    dot={<CustomNetWorthDot />}
+                    activeDot={{ r: 5 }}
+                  />
+                </AreaChart>
+              ) : (
+                <ComposedChart
+                  accessibilityLayer
+                  data={breakdownChartData}
+                  margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
+                  barSize={45}
+                  barCategoryGap={20}
+                >
+                  <CartesianGrid vertical={false} />
+
+                  <XAxis
+                    dataKey="formattedDate"
+                    tickLine={true}
+                    tickMargin={10}
+                    axisLine={false}
+                    fontSize={12}
+                   className='text-foreground'
+                    interval="preserveStartEnd"
+                  />
+
+                  <YAxis
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    dx={-8}
+                    width={50}
+                  />
+
+               {/*    <ReferenceLine
+                    y={breakdownAverages.avgAssets + breakdownAverages.avgLiabilities}
+                    stroke="var(--foreground)"
                     strokeDasharray="4 4"
                     strokeWidth={1.5}
                     opacity={0.5}
@@ -1019,22 +1260,58 @@ export function NetWorthChart({
                       fontSize: 10,
                       fontWeight: 500,
                     }}
+                  /> */}
+
+                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+
+                {/*   <ChartLegend content={<ChartLegendContent />} /> */}
+
+                  <Bar
+                    dataKey="totalLiabilities"
+                    stackId="a"
+                    fill="rgb(246,115,49)"
+                    name="Liabilities"
+                    radius={[0, 0, 8, 8]}
+                    isAnimationActive={true}
+                    animationDuration={500}
+                    activeBar={false}
                   />
-                )}
+                  <Bar
+                    dataKey="totalAssets"
+                    stackId="a"
+                    fill="rgb(246,193,152)"
+                    name="Assets"
+                    radius={[8, 8, 0, 0]}
+                    isAnimationActive={true}
+                    animationDuration={500}
+                    activeBar={false}
+                  />
 
-                <ChartTooltip content={<CustomTooltip />} cursor={false} />
-
-                <Area
-                  type="linear"
-                  dataKey="totalNetWorth"
-                  stroke="var(--chart-primary)"
-                  strokeWidth={4}
-                  fill="url(#networthGradient)"
-                  aria-label="Net worth area"
-                  isAnimationActive={true}
-                  animationDuration={500}
-                />
-              </AreaChart>
+                  <Line
+                    type="linear"
+                    dataKey="totalNetWorth"
+                    stroke="var(--muted-foreground)"
+                    strokeWidth={3.5}
+                    strokeDasharray="5 5"
+                    dot={<CustomNetWorthDot />}
+                    activeDot={{ r: 5 }}
+                    name="Net Worth"
+                    isAnimationActive={true}
+                    animationDuration={500}
+                    yAxisId="right"
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    dx={8}
+                    width={50}
+                  />
+                </ComposedChart>
+              )}
             </ResponsiveContainer>
           </ChartContainer>
         )}

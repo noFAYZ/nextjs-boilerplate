@@ -172,7 +172,7 @@ const initialState: AuthState = {
   // Session management
   lastActivity: null,
   lastLoginDate: null,
-  sessionTimeout: 30, // 30 minutes of inactivity before auto-logout (separate from backend 7-day session)
+  sessionTimeout: 480, // 8 hours of inactivity before auto-logout (separate from backend 7-day session)
   autoLogoutTimer: null,
 };
 

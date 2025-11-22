@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useDashboardLayoutStore } from '@/lib/stores/ui-stores';
+import { useDashboardLayoutStore, WIDGET_SIZE_CONFIG } from '@/lib/stores/ui-stores';
 import { DashboardWidgetContainer } from './dashboard-widget-container';
 import { cn } from '@/lib/utils';
 
@@ -33,11 +33,12 @@ interface DashboardWidgetGridProps {
 /**
  * DashboardWidgetGrid
  *
- * A responsive, draggable and resizable dashboard widget grid
- * - Direct widget drag & drop (no wrapper encapsulation)
- * - Widgets are resizable with handles
+ * A responsive, draggable dashboard widget grid with predefined sizes
+ * - CSS Grid layout with responsive column spans (1-4 columns)
+ * - Drag & drop reordering in edit mode
+ * - Widgets have predefined sizes: small (1 col), medium (2 col), large (3 col), full (4 col)
  * - Layout persists to localStorage
- * - Edit mode for drag/drop and resize
+ * - Responsive on mobile, tablet, and desktop
  */
 export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
   const { widgets: layoutState, isEditMode, setWidgetOrder } = useDashboardLayoutStore();
@@ -100,21 +101,34 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
       <SortableContext items={widgetIds} strategy={verticalListSortingStrategy} disabled={!isEditMode}>
         <div
           className={cn(
-            'flex flex-wrap gap-4 ',
+            'grid auto-rows-max gap-4',
+            'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
             isDragging && isEditMode && 'opacity-75'
           )}
         >
           {orderedWidgets.map((widget) => {
             const widgetLayout = layoutState[widget.id as keyof typeof layoutState];
+            const size = widgetLayout?.size ?? 'medium';
+            const colSpan = WIDGET_SIZE_CONFIG[size].cols;
+
             return (
-              <DashboardWidgetContainer
+              <div
                 key={widget.id}
-                id={widget.id}
-                isDraggable={isEditMode}
-                width={widgetLayout?.width}
+                className={cn(
+                  'col-span-1',
+                  // Responsive column spans
+                  colSpan === 2 && 'sm:col-span-2 lg:col-span-2',
+                  colSpan === 3 && 'sm:col-span-2 lg:col-span-3',
+                  colSpan === 4 && 'sm:col-span-2 lg:col-span-4'
+                )}
               >
-                {widget.component}
-              </DashboardWidgetContainer>
+                <DashboardWidgetContainer
+                  id={widget.id}
+                  isDraggable={isEditMode}
+                >
+                  {widget.component}
+                </DashboardWidgetContainer>
+              </div>
             );
           })}
         </div>

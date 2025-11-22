@@ -6,13 +6,13 @@
  * View and manage organization members and invitations
  */
 
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import { MembersList } from '@/components/organization';
 import { useOrganization } from '@/lib/queries/use-organization-data';
 import { useCurrentUser } from '@/lib/queries/use-auth-data';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function MembersContent({ organizationId }: { organizationId: string }) {
@@ -52,6 +52,8 @@ function MembersContent({ organizationId }: { organizationId: string }) {
 }
 
 export default function MembersPage({ params }: PageProps) {
+  const { id } = use(params);
+
   return (
     <div className="container py-6">
       <Suspense
@@ -61,7 +63,7 @@ export default function MembersPage({ params }: PageProps) {
           </div>
         }
       >
-        <MembersContent organizationId={params.id} />
+        <MembersContent organizationId={id} />
       </Suspense>
     </div>
   );

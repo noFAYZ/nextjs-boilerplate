@@ -205,9 +205,9 @@ function SummarySidebar({ summary }) {
 
   return (
     <div className="sticky top-4">
-      <Card className="relative border border-border/80" variant='outlined'>
+      <Card className="relative" variant='outlined'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/50">
+        <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
               <Wallet className="h-5 w-5 text-muted-foreground" />
@@ -254,34 +254,34 @@ function SummarySidebar({ summary }) {
 
         {/* Allocation Bar */}
         {(summary.totalAssets > 0 || summary.totalLiabilities > 0) && (
-          <div className="mb-4 pb-4 border-b border-border/50 space-y-2">
-            <div className="flex items-center gap-1 w-full h-3 bg-muted rounded-full overflow-hidden">
+          <div className="mb-4 pb-4 border-b border-border/50 space-y-2.5">
+            <div className="flex items-center gap-1 w-full h-3 bg-muted rounded-full overflow-hidden border border-border/40">
               {assetsPercent > 0 && (
                 <div
-                  className="h-full bg-emerald-500 transition-all"
+                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all"
                   style={{ width: `${assetsPercent}%` }}
                   title={`Assets: ${assetsPercent}%`}
                 />
               )}
               {liabilitiesPercent > 0 && (
                 <div
-                  className="h-full bg-red-500 transition-all"
+                  className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all"
                   style={{ width: `${liabilitiesPercent}%` }}
                   title={`Liabilities: ${liabilitiesPercent}%`}
                 />
               )}
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-4 flex-wrap">
               {assetsPercent > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30" />
                   <span className="text-[10px] font-medium text-muted-foreground">Assets</span>
                   <span className="text-[10px] font-semibold text-foreground">{assetsPercent}%</span>
                 </div>
               )}
               {liabilitiesPercent > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 ring-1 ring-red-500/30" />
                   <span className="text-[10px] font-medium text-muted-foreground">Liabilities</span>
                   <span className="text-[10px] font-semibold text-foreground">{liabilitiesPercent}%</span>
                 </div>
@@ -290,15 +290,15 @@ function SummarySidebar({ summary }) {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="space-y-2">
+        {/* Stats Grid */}
+        <div className="space-y-1.5">
           {/* Total Assets */}
-          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
-            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+            <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/15 transition-colors">
+              <TrendingUp className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground">Total Assets</p>
+              <p className="text-xs font-semibold text-foreground">Total Assets</p>
               <p className="text-[10px] text-muted-foreground">
                 {summary.totalAssets > 0 ? `${Math.round((summary.totalAssets / (summary.totalAssets + Math.abs(summary.totalLiabilities))) * 100)}% of portfolio` : 'No assets'}
               </p>
@@ -306,17 +306,17 @@ function SummarySidebar({ summary }) {
             <CurrencyDisplay
               amountUSD={summary.totalAssets}
               variant="compact"
-              className="text-xs font-semibold text-foreground flex-shrink-0"
+              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex-shrink-0"
             />
           </div>
 
           {/* Total Liabilities */}
-          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
-            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
-              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+            <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/15 transition-colors">
+              <TrendingDown className="h-4.5 w-4.5 text-red-600 dark:text-red-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground">Total Liabilities</p>
+              <p className="text-xs font-semibold text-foreground">Total Liabilities</p>
               <p className="text-[10px] text-muted-foreground">
                 {summary.totalLiabilities > 0 ? `${Math.round((Math.abs(summary.totalLiabilities) / (summary.totalAssets + Math.abs(summary.totalLiabilities))) * 100)}% of portfolio` : 'No liabilities'}
               </p>
@@ -324,31 +324,31 @@ function SummarySidebar({ summary }) {
             <CurrencyDisplay
               amountUSD={summary.totalLiabilities}
               variant="compact"
-              className="text-xs font-semibold text-foreground flex-shrink-0"
+              className="text-xs font-bold text-red-600 dark:text-red-400 flex-shrink-0"
             />
           </div>
 
           {/* Account Count */}
-          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
-            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
-              <Wallet className="h-4 w-4 text-muted-foreground" />
+          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+            <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/15 transition-colors">
+              <Wallet className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground">Total Accounts</p>
+              <p className="text-xs font-semibold text-foreground">Total Accounts</p>
               <p className="text-[10px] text-muted-foreground">
                 {summary.accountCount} {summary.accountCount === 1 ? 'account' : 'accounts'} connected
               </p>
             </div>
-            <span className="text-xs font-semibold text-foreground flex-shrink-0">{summary.accountCount}</span>
+            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">{summary.accountCount}</span>
           </div>
 
           {/* Last Updated */}
-          <div className="group relative border border-border/60 flex items-center gap-2.5 p-2.5 rounded-lg transition-all hover:bg-muted/40 cursor-default">
-            <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0">
-              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+            <div className="h-9 w-9 rounded-lg bg-muted/40 flex items-center justify-center flex-shrink-0 group-hover:bg-muted/60 transition-colors">
+              <RefreshCw className="h-4.5 w-4.5 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground">Last Updated</p>
+              <p className="text-xs font-semibold text-foreground">Last Updated</p>
               <p className="text-[10px] text-muted-foreground">
                 {new Date(summary.lastUpdated).toLocaleString('en-US', {
                   month: 'short',
@@ -473,42 +473,36 @@ export default function AccountsPage() {
   };
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Header */}
-      <div className="flex flex-col gap-4 p-6">
-        <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Subscriptions</h1>
-          <p className="text-muted-foreground text-xs ">
-            Track and manage your recurring subscriptions
-          </p>
-        </div>
-
-          <div className="flex items-center gap-2">
+   
+        <div className="flex items-center justify-end ">
+        <div className="flex items-center gap-2">
       
 
-            <Button variant="outline" size="xs" onClick={refetch} disabled={isLoading}>
-              <RefreshCw className={cn("h-4 w-4 mr-1", isLoading && "animate-spin")} />
-              Refresh
-            </Button>
+      <Button variant="outline" size="xs" onClick={refetch} disabled={isLoading}>
+        <RefreshCw className={cn("h-4 w-4 mr-1", isLoading && "animate-spin")} />
+        Refresh
+      </Button>
 
-            <Button size="xs" onClick={() => setIsAddAccountDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add Account
-            </Button>
-          </div>
+      <Button size="xs" onClick={() => setIsAddAccountDialogOpen(true)}>
+        <Plus className="h-4 w-4 mr-1" />
+        Add Account
+      </Button>
+    </div>
+         
         </div>
-      </div>
+ 
 
       {/* Body Layout */}
-      <div className="flex-1 overflow-auto px-6 pb-10">
+      <div className="flex-1 overflow-auto  ">
 
         {/* Full-width Chart */}
         {showNetWorth && (
           <div className="mb-8">
-            <NetWorthChart mode="live"  height={280}  />
+            <NetWorthChart mode="demo"   height={250}  />
           </div>
         )}
 
@@ -535,11 +529,11 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden border border-divider rounded-lg shadow-xs "
+                      className="overflow-hidden border border-border/50   "
                     >
-                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-gradient-to-br from-muted/20 via-card to-muted/60 hover:bg-muted/30 transition-all duration-0 [&[data-state=open]]:bg-muted/20 rounded-lg cursor-pointer ">
+                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-lg cursor-pointer ">
                         {/* Icon */}
-                        <div className="h-11 w-11 rounded-full border shadow group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
+                        <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
                           {config.icon}
                         </div>
 
@@ -569,7 +563,7 @@ export default function AccountsPage() {
                         </div>
                       </AccordionTrigger>
 
-                      <AccordionContent className="bg-muted/10 p-0">
+                      <AccordionContent className="bg-card p-0">
                         <SortableContext items={orderedAccounts.map(a => a.id)} strategy={verticalListSortingStrategy}>
                           <div className="space-y-0">
                             {orderedAccounts.map((account) => {

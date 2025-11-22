@@ -17,6 +17,7 @@ import { useState } from 'react';
 // Import dashboard widgets
 import {
   NetWorthWidget,
+  NetWorthPerformanceWidget,
   MonthlySpendingTrendWidget,
   SpendingCategoriesWidget,
   CryptoAllocationWidget,
@@ -50,6 +51,10 @@ export default function DashboardPage() {
     {
       id: 'net-worth',
       component: <NetWorthWidget />,
+    },
+    {
+      id: 'networth-performance',
+      component: <NetWorthPerformanceWidget />,
     },
     {
       id: 'monthly-spending',

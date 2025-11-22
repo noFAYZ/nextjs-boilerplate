@@ -20,8 +20,11 @@ import { immer } from 'zustand/middleware/immer';
 // STATE TYPES
 // ============================================================================
 
+export type WidgetSize = 'small' | 'medium' | 'large' | 'full';
+
 export type WidgetId =
   | 'net-worth'
+  | 'networth-performance'
   | 'monthly-spending'
   | 'spending-categories'
   | 'crypto-allocation'
@@ -38,8 +41,16 @@ export interface WidgetLayout {
   id: WidgetId;
   visible: boolean;
   order: number;
-  width?: number; // custom width in pixels (optional)
+  size: WidgetSize; // Predefined sizes: small (1 col), medium (2 cols), large (3 cols), full (4 cols)
 }
+
+// Predefined size configurations
+export const WIDGET_SIZE_CONFIG: Record<WidgetSize, { cols: number; label: string; description: string }> = {
+  small: { cols: 1, label: 'Small', description: '1 column' },
+  medium: { cols: 2, label: 'Medium', description: '2 columns' },
+  large: { cols: 3, label: 'Large', description: '3 columns' },
+  full: { cols: 4, label: 'Full Width', description: 'Full width (4 columns)' },
+};
 
 interface DashboardLayoutState {
   // Widget layout preferences (persistent)
@@ -53,7 +64,7 @@ interface DashboardLayoutActions {
   // Widget visibility and order
   setWidgetVisible: (id: WidgetId, visible: boolean) => void;
   setWidgetOrder: (widgets: WidgetLayout[]) => void;
-  setWidgetSize: (id: WidgetId, width?: number) => void;
+  setWidgetSize: (id: WidgetId, size: WidgetSize) => void;
 
   // Edit mode
   toggleEditMode: () => void;
@@ -70,18 +81,19 @@ type DashboardLayoutStore = DashboardLayoutState & DashboardLayoutActions;
 // ============================================================================
 
 const DEFAULT_WIDGETS: Record<WidgetId, WidgetLayout> = {
-  'net-worth': { id: 'net-worth', visible: true, order: 0 },
-  'monthly-spending': { id: 'monthly-spending', visible: true, order: 1 },
-  'spending-categories': { id: 'spending-categories', visible: true, order: 2 },
-  'crypto-allocation': { id: 'crypto-allocation', visible: true, order: 3 },
-  'network-distribution': { id: 'network-distribution', visible: true, order: 4 },
-  'account-comparison': { id: 'account-comparison', visible: true, order: 5 },
-  'subscriptions': { id: 'subscriptions', visible: true, order: 6 },
-  'calendar-subscriptions': { id: 'calendar-subscriptions', visible: true, order: 7 },
-  'upcoming-bills': { id: 'upcoming-bills', visible: false, order: 8 },
-  'recent-activity': { id: 'recent-activity', visible: false, order: 9 },
-  'goals': { id: 'goals', visible: false, order: 10 },
-  'money-flow': { id: 'money-flow', visible: false, order: 11 },
+  'net-worth': { id: 'net-worth', visible: true, order: 0, size: 'medium' },
+  'networth-performance': { id: 'networth-performance', visible: true, order: 1, size: 'large' },
+  'monthly-spending': { id: 'monthly-spending', visible: true, order: 2, size: 'large' },
+  'spending-categories': { id: 'spending-categories', visible: true, order: 3, size: 'large' },
+  'crypto-allocation': { id: 'crypto-allocation', visible: true, order: 4, size: 'medium' },
+  'network-distribution': { id: 'network-distribution', visible: true, order: 5, size: 'medium' },
+  'account-comparison': { id: 'account-comparison', visible: true, order: 6, size: 'large' },
+  'subscriptions': { id: 'subscriptions', visible: true, order: 7, size: 'medium' },
+  'calendar-subscriptions': { id: 'calendar-subscriptions', visible: true, order: 8, size: 'large' },
+  'upcoming-bills': { id: 'upcoming-bills', visible: false, order: 9, size: 'medium' },
+  'recent-activity': { id: 'recent-activity', visible: false, order: 10, size: 'large' },
+  'goals': { id: 'goals', visible: false, order: 11, size: 'medium' },
+  'money-flow': { id: 'money-flow', visible: false, order: 12, size: 'full' },
 };
 
 const initialState: DashboardLayoutState = {
@@ -118,10 +130,10 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
             });
           }, false, 'dashboard-layout/setWidgetOrder'),
 
-        setWidgetSize: (id, width) =>
+        setWidgetSize: (id, size) =>
           set((state) => {
             if (state.widgets[id]) {
-              state.widgets[id].width = width;
+              state.widgets[id].size = size;
             }
           }, false, 'dashboard-layout/setWidgetSize'),
 

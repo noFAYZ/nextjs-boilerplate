@@ -271,7 +271,7 @@ export function SubscriptionsOverviewWidget() {
   }
 
   return (
-    <Card className="relative" variant='outlined' >
+    <Card className="relative h-full w-full flex flex-col" variant='outlined' >
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">

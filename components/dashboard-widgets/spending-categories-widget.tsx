@@ -158,7 +158,7 @@ export function SpendingCategoriesWidget() {
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none h-full w-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
         <TimePeriodSelector

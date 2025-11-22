@@ -88,7 +88,7 @@ export function MonthlySpendingTrendWidget() {
 
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none h-full w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between ">
       <h3 className="text-xs font-medium text-muted-foreground mb-1">Monthly trend</h3>

@@ -33,7 +33,7 @@ export function MainLayout({
         {shouldShowHeader && <Header />}
      
           <div className={cn(
-            "h-full px-4 py-6",
+            "h-full",
             isProMode ? "max-w-7xl mx-auto" : "max-w-3xl mx-auto"
           )}>
             {children}
@@ -47,8 +47,6 @@ export function MainLayout({
   return (
     <div className={cn("min-h-screen ", className)}>
       {shouldShowHeader && <Header />}
-      
-      
 
       <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))]" : "h-screen"}>
         <SidebarLayout>

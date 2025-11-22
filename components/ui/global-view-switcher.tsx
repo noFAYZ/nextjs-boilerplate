@@ -43,7 +43,7 @@ function GlobalViewSwitcher({
     <TooltipProvider>
       <div 
         data-slot="global-view-switcher"
-        className={cn("flex items-center w-fit mx-auto gap-1 bg-background p-0.5 rounded-lg border border-border", className)}
+        className={cn("flex items-center w-fit mx-auto gap-1 bg-card p-0.5 rounded-lg border border-border", className)}
       >
         <Tooltip>
           <TooltipTrigger asChild>

@@ -70,7 +70,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-card border-r border-border/50 transition-all duration-200", mainColumnExpanded ? "w-70" : "w-18")}>
+      <div className={cn("flex h-full flex-col bg-card border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
       {/* Sidebar Header - Logo */}
       <div className="flex h-14 md:h-16 items-center justify-center px-3 md:px-4">
@@ -84,9 +84,9 @@ export function SidebarMainColumn({
                 <Image
                   src="/logo/mappr.svg"
                   alt="MoneyMappr logo"
-                  width={52}
-                  height={52}
-                  className="object-contain w-10 md:w-11 h-10 md:h-11"
+                  width={62}
+                  height={62}
+                  className="object-contain w-10 md:w-12 h-10 md:h-12"
                   priority
                 />
               </Link>
@@ -107,7 +107,7 @@ export function SidebarMainColumn({
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 md:px-4")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 ")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -128,20 +128,20 @@ export function SidebarMainColumn({
                     variant="ghost"
                     size="lg"
                     className={cn(
-                      "w-full h-auto",
-                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-1.5 border border-border",
+                      "w-full h-auto shadow-none rounded-sm",
+                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-2 border-r border-border/50  ",
                       isHighlighted
-                        ? "bg-muted hover:bg-muted/80 text-foreground/90"
+                        ? "dark:bg-muted/60 bg-accent/50 hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className={cn("antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5 md:h-6 w-5 md:w-6")} stroke="1.9" />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-6 w-4 md:w-6" : "h-5  w-5 md:h-6 md:w-6 ")}  />}
                   >
 
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-medium text-xs md:text-sm truncate",
-                        isHighlighted ? "text-foreground" : "text-muted-foreground"
+                        "font-normal text-xs md:text-[15px] truncate",
+                        isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}
                       </span>

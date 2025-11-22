@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Settings2, X } from 'lucide-react';
-import { useDashboardLayoutStore, dashboardLayoutSelectors, WidgetId } from '@/lib/stores/ui-stores';
+import { useDashboardLayoutStore, dashboardLayoutSelectors, WidgetId, WidgetSize, WIDGET_SIZE_CONFIG } from '@/lib/stores/ui-stores';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,11 @@ const WIDGET_OPTIONS: WidgetOption[] = [
   {
     id: 'net-worth',
     label: 'Net Worth',
+    category: 'Financial',
+  },
+  {
+    id: 'networth-performance',
+    label: 'Net Worth Performance',
     category: 'Financial',
   },
   {
@@ -95,8 +100,10 @@ interface WidgetSettingsModalProps {
  * - All/None buttons for quick selection per category
  */
 export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProps) {
+  const [expandedWidget, setExpandedWidget] = useState<WidgetId | null>(null);
   const widgets = useDashboardLayoutStore((state) => state.widgets);
   const setWidgetVisible = useDashboardLayoutStore((state) => state.setWidgetVisible);
+  const setWidgetSize = useDashboardLayoutStore((state) => state.setWidgetSize);
   const resetLayout = useDashboardLayoutStore((state) => state.resetLayout);
 
   const categories = Array.from(new Set(WIDGET_OPTIONS.map((w) => w.category)));
@@ -175,40 +182,75 @@ export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProp
                 </div>
 
                 {/* Category Widgets as Cards */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
                   {categoryWidgets.map((widget) => {
                     const isVisible = widgets[widget.id]?.visible !== false;
+                    const currentSize = widgets[widget.id]?.size ?? 'medium';
+                    const isExpanded = expandedWidget === widget.id;
 
                     return (
-                      <div
-                        key={widget.id}
-                        className={cn(
-                          'relative overflow-hidden rounded-lg border transition-all cursor-pointer group',
-                          isVisible
-                            ? 'bg-primary/5 border-primary/30 hover:border-primary/50 hover:bg-primary/10'
-                            : 'bg-muted/30 border-muted/50 hover:bg-muted/40'
-                        )}
-                        onClick={() => handleWidgetToggle(widget.id)}
-                      >
-                        {/* Card Background Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div key={widget.id} className="space-y-2">
+                        <div
+                          className={cn(
+                            'relative overflow-hidden rounded-lg border transition-all cursor-pointer group',
+                            isVisible
+                              ? 'bg-primary/5 border-primary/30 hover:border-primary/50 hover:bg-primary/10'
+                              : 'bg-muted/30 border-muted/50 hover:bg-muted/40'
+                          )}
+                          onClick={() => setExpandedWidget(isExpanded ? null : widget.id)}
+                        >
+                          {/* Card Background Effect */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                        {/* Card Content */}
-                        <div className="relative p-4 flex items-center justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate text-foreground">
-                              {widget.label}
-                            </p>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <Switch
-                              checked={isVisible}
-                              onCheckedChange={() => handleWidgetToggle(widget.id)}
-                              onClick={(e) => e.stopPropagation()}
-                              className="data-[state=checked]:bg-primary"
-                            />
+                          {/* Card Content */}
+                          <div className="relative p-4 flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate text-foreground">
+                                {widget.label}
+                              </p>
+                              {isVisible && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Size: {WIDGET_SIZE_CONFIG[currentSize].label}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex-shrink-0 flex items-center gap-2">
+                              <Switch
+                                checked={isVisible}
+                                onCheckedChange={() => handleWidgetToggle(widget.id)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="data-[state=checked]:bg-primary"
+                              />
+                            </div>
                           </div>
                         </div>
+
+                        {/* Size Selection (Expanded) */}
+                        {isExpanded && isVisible && (
+                          <div className="ml-4 p-3 bg-muted/30 rounded-lg border border-border/50 space-y-2">
+                            <p className="text-xs font-medium text-foreground mb-2">Widget Size</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {(Object.entries(WIDGET_SIZE_CONFIG) as [WidgetSize, typeof WIDGET_SIZE_CONFIG[WidgetSize]][]).map(([size, config]) => (
+                                <button
+                                  key={size}
+                                  onClick={() => {
+                                    setWidgetSize(widget.id, size);
+                                    setExpandedWidget(null);
+                                  }}
+                                  className={cn(
+                                    'p-2.5 rounded-lg border transition-all text-left',
+                                    currentSize === size
+                                      ? 'bg-primary/15 border-primary/50 ring-1 ring-primary/30'
+                                      : 'border-border/50 hover:border-border hover:bg-muted/50'
+                                  )}
+                                >
+                                  <p className="text-xs font-medium text-foreground">{config.label}</p>
+                                  <p className="text-[10px] text-muted-foreground">{config.description}</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
