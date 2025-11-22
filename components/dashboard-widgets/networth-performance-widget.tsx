@@ -18,7 +18,7 @@ import { HeroiconsWallet16Solid } from "@/components/icons/icons";
  */
 export function NetWorthPerformanceWidget() {
   return (
-    <Card className="relative border border-border/50 shadow-xs h-full w-full flex flex-col gap-4 p-4">
+    <Card className="relative border border-border/50 shadow-xs h-full w-full flex flex-col gap-4 ">
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -43,7 +43,7 @@ export function NetWorthPerformanceWidget() {
 
       {/* Chart Container - Flex grow to fill available space */}
       <div className="flex-1 flex items-center justify-center min-h-0 w-full">
-        <NetWorthChart mode="demo" height={250} />
+        <NetWorthChart mode="demo" height={300} />
       </div>
     </Card>
   );

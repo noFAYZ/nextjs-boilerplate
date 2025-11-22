@@ -227,9 +227,9 @@ function FeatureButton({
       onClick={onClick}
       onMouseEnter={onClick}
       className={cn(
-        "w-full text-left p-3 rounded-lg transition-all duration-0  border ",
+        "w-full text-left p-3  transition-all duration-0  border ",
         isActive
-          ? "bg-muted/40 dark:bg-card  border-border/50"
+          ? "bg-card border-border/50"
           : "bg-none  border-transparent hover:bg-card "
       )}
     >
@@ -411,7 +411,7 @@ export default function MoneyMapprFeatureSection() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center  rounded-2xl">
           {/* Left Features */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-12">
             {leftFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}
@@ -439,7 +439,7 @@ export default function MoneyMapprFeatureSection() {
           </div>
 
           {/* Right Features */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-12">
             {rightFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}

@@ -45,15 +45,16 @@ export function FeatureTabs({ tabs }) {
         <SVGDecorative reversed={undefined} />
 
         {/* Tabs */}
-        <div className="relative z-10 h-[calc(100%+1px)] min-w-0 grow  bg-background drop-shadow-xl">
-          <div className="flex size-full flex-wrap items-center justify-center gap-2.5 max-md:pt-4" role="tablist">
+        <div className="relative z-10 h-[calc(100%)] min-w-0 grow  bg-background shadow-[0_6px_12px_-6px_rgba(0,0,0,0.12)]
+      dark:shadow-[0_6px_12px_-6px_rgba(0,0,0,0.3)] ">
+          <div className="flex size-full flex-wrap  items-center justify-center gap-2.5 max-md:pt-4" role="tablist">
             {tabs.map((t, i) => (
               <Button
                 key={t.label}
                
                 onClick={() => setActive(i)}
                 role="tab"
-                variant={active === i  ? 'secondary2' : 'outline'}
+                variant={active === i  ? 'outlinepressed' : 'outline'}
                 aria-selected={active === i}
                 size="sm"
                 aria-controls={`panel-${i}`}
@@ -169,7 +170,7 @@ function SVGDecorative({ reversed }) {
     return (
       <div
         className={cn(
-          "relative h-full w-auto shrink-0 drop-shadow-2xl",
+          "relative h-full w-auto shrink-0 drop-shadow-xl",
           reversed ? "-scale-x-100 -translate-x-px" : "translate-x-px"
         )}
       >
@@ -178,7 +179,7 @@ function SVGDecorative({ reversed }) {
           className="
             absolute inset-0 
             blur-xl opacity-25
-            bg-black/20 dark:bg-white/10
+            bg-background 
           "
         />
   
@@ -186,9 +187,7 @@ function SVGDecorative({ reversed }) {
         <div
           className="
             absolute inset-y-0 w-6
-            bg-gradient-to-r
-            from-black/10 to-transparent
-            dark:from-white/10
+             bg-background
             pointer-events-none
             blur-md
           "
@@ -199,7 +198,7 @@ function SVGDecorative({ reversed }) {
           viewBox="0 0 85 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="relative z-10 h-full w-auto overflow-visible"
+          className="relative z-10 h-full w-auto overflow-visible "
         >
           <rect
             x={0}
@@ -211,7 +210,7 @@ function SVGDecorative({ reversed }) {
           />
           <path
             d="M50 45C57.3095 56.6952 71.2084 63.9997 85 64V0H0C13.7915 0 26.6905 7.30481 34 19L50 45Z"
-            className="fill-background"
+            className="fill-background "
           />
         </svg>
       </div>
