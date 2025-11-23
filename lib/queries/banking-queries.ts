@@ -17,7 +17,8 @@ import type {
   BankSyncRequest,
   BankingExportRequest,
   TellerEnrollment,
-  BankSyncJob
+  BankSyncJob,
+  BankingOverview
 } from '@/lib/types/banking';
 import type { ApiResponse, PaginationInfo } from '@/lib/types/crypto';
 
@@ -156,7 +157,7 @@ export const bankingQueries = {
 
         // The API returns grouped data by enrollment ID
         // Structure: { enrollmentId: { enrollment: {...}, accounts: [...] } }
-        const groupedData = data.data as GroupedBankAccounts;
+        const groupedData = data.data as unknown as GroupedBankAccounts;
 
         if (!groupedData || typeof groupedData !== 'object') {
           return [];
@@ -220,9 +221,10 @@ export const bankingQueries = {
       }
     },
     staleTime: 1000 * 60 * 3, // 3 minutes
-    refetchInterval: false, // Disable auto-refresh for mock data
     retry: false,
-    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
+    select: (data: ApiResponse<unknown>): BankingOverview | null => {
+      return data.success ? (data.data as BankingOverview) : null;
+    },
   }),
 
   dashboard: (orgId?: string) => ({
@@ -236,7 +238,6 @@ export const bankingQueries = {
       }
     },
     staleTime: 1000 * 60 * 3, // 3 minutes
-    refetchInterval: false, // Disable auto-refresh for mock data
     retry: false,
     select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
@@ -334,7 +335,8 @@ export const bankingQueries = {
     queryKey: bankingKeys.syncStatus(accountId, jobId),
     queryFn: () => bankingApi.getSyncStatus(accountId, jobId),
     enabled: false, // Will be overridden by the hook with proper shouldQuery logic
-    refetchInterval: (data: ApiResponse<BankSyncJob>) => {
+    refetchInterval: (query) => {
+      const data = query.state.data as ApiResponse<BankSyncJob> | undefined;
       // If the API returned an error (like 404 for no sync job), stop polling
       if (!data || !data.success) {
         return false;

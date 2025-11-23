@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,9 +37,9 @@ import {
   MoreHorizontal,
   RefreshCw,
   Building2,
-  Clock,
   CreditCard,
-  Landmark,
+  Loader2,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -46,22 +47,35 @@ import {
   HugeiconsCreditCard,
   StreamlineFlexFilter2,
   SolarClockCircleBoldDuotone,
+  StreamlineUltimatePowerPlugDisconnected,
+  SolarRefreshCircleBoldDuotone,
+  SolarTrashBinTrashOutline,
+  CircumBank,
+  GuidanceBank,
+  BankBuildingIcon,
+  StashCreditCardLight,
+  LetsIconsCreditCardDuotone,
 } from "../icons/icons";
 import { Toggle } from "../ui/toggle";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { BankAccount } from "@/lib/types/banking";
-import { useDisconnectBankAccount, useSyncBankAccount } from "@/lib/queries";
+import { bankingMutations } from "@/lib/queries/banking-queries";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
 
 interface BankAccountsDataTableProps {
   accounts: BankAccount[];
   totalBalance: number;
   isLoading?: boolean;
   hideFilters?: boolean;
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
+  onDisconnect?: (account: BankAccount) => void;
+  onDelete?: (account: BankAccount) => void;
+  onSync?: (account: BankAccount) => void;
 }
 
 const ITEMS_PER_PAGE = 20;
+const EMPTY_ARRAY: string[] = [];
 
 // Account type display names
 const accountTypeLabels: Record<string, string> = {
@@ -89,6 +103,11 @@ export function BankAccountsDataTable({
   totalBalance,
   isLoading,
   hideFilters = false,
+  selectedIds: externalSelectedIds = EMPTY_ARRAY,
+  onSelectionChange,
+  onDisconnect,
+  onDelete,
+  onSync,
 }: BankAccountsDataTableProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,9 +115,14 @@ export function BankAccountsDataTable({
   const [sortBy, setSortBy] = useState<"balance" | "name" | "lastSync">("balance");
   const [filterBy, setFilterBy] = useState<"all" | "checking" | "savings" | "credit" | "investment">("all");
   const [toggleFilters, setToggleFilters] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>(externalSelectedIds);
 
-  const { mutate: disconnectAccount } = useDisconnectBankAccount();
-  const { mutate: syncAccount } = useSyncBankAccount();
+  const { mutate: syncAccount } = bankingMutations.useSyncAccount();
+
+  // Sync with external selectedIds
+  useEffect(() => {
+    setSelectedIds(externalSelectedIds);
+  }, [externalSelectedIds]);
 
   // Filter and search accounts
   const filteredAccounts = accounts.filter((account) => {
@@ -137,16 +161,27 @@ export function BankAccountsDataTable({
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleDisconnect = (accountId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm("Are you sure you want to disconnect this account?")) {
-      disconnectAccount(accountId);
-    }
+  // Selection handlers
+  const handleSelectAll = (checked: boolean) => {
+    const newIds = checked ? paginatedAccounts.map((a) => a.id) : [];
+    setSelectedIds(newIds);
+    onSelectionChange?.(newIds);
   };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    const newIds = checked
+      ? [...selectedIds, id]
+      : selectedIds.filter((sid) => sid !== id);
+    setSelectedIds(newIds);
+    onSelectionChange?.(newIds);
+  };
+
+  const isAllSelected = paginatedAccounts.length > 0 && paginatedAccounts.every((a) => selectedIds.includes(a.id));
+  const isSomeSelected = selectedIds.length > 0 && !isAllSelected;
 
   const handleSync = (accountId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    syncAccount(accountId);
+    syncAccount({ accountId });
   };
 
   const handleEdit = (accountId: string, e: React.MouseEvent) => {
@@ -160,9 +195,9 @@ export function BankAccountsDataTable({
 
   const getAccountIcon = (type: string) => {
     if (type === "CREDIT_CARD") {
-      return <HugeiconsCreditCard className="h-6 w-6 text-white" />;
+      return <LetsIconsCreditCardDuotone className="h-6 w-6 " />;
     }
-    return <FluentBuildingBank28Regular className="h-6 w-6 text-white" />;
+    return <FluentBuildingBank28Regular className="h-6 w-6 " strokeWidth={2} />;
   };
 
   const getSyncStatusBadge = (syncStatus: string) => {
@@ -176,7 +211,20 @@ export function BankAccountsDataTable({
     };
 
     const config = statusConfig[syncStatus] || statusConfig.disconnected;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return (
+      <Badge 
+        variant={config.variant} 
+        className={cn(
+          "text-xs rounded-md font-medium",
+          syncStatus === 'connected' && "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+          syncStatus === 'syncing' && "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
+          syncStatus === 'error' && "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
+          syncStatus === 'disconnected' && "bg-muted text-muted-foreground"
+        )}
+      >
+        {config.label}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -200,225 +248,181 @@ export function BankAccountsDataTable({
     <div className="space-y-4">
       {/* Filters - Only show if not hidden */}
       {!hideFilters && (
-        <>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
-            {/* Left: Value */}
-            <div>
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                Total Balance
-              </span>
-              <div className="text-xl font-bold">
-                <CurrencyDisplay
-                  amountUSD={totalBalance}
-                  variant="default"
-                  isLoading={isLoading}
-                />
-              </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+          {/* Left: Value */}
+       
+
+          {/* Right: Search + Filters */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:items-center">
+            {/* Search */}
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <Input
+                placeholder="Search accounts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-9"
+              
+              />
             </div>
-
-            {/* Right: Search + Filters */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:items-center">
-              {/* Search */}
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                <Input
-                  placeholder="Search accounts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-9"
-                />
-              </div>
-              <Toggle
-                className="px-2 gap-1.5"
-                title="Filters"
-                variant="outline"
-                onClick={() => setToggleFilters(!toggleFilters)}
-              >
-                <StreamlineFlexFilter2 className="h-4 w-4" />
-                Filters
-              </Toggle>
-            </div>
-          </div>
-
-          {/* Sort & Filter */}
-          <div
-            className={`px-4 gap-2 sm:justify-end ${
-              toggleFilters ? "flex" : "hidden"
-            }`}
-          >
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
-              <SelectTrigger className="w-[140px] h-9">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="balance">By Balance</SelectItem>
-                <SelectItem value="name">By Name</SelectItem>
-                <SelectItem value="lastSync">By Last Sync</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filterBy}
-              onValueChange={(value) => setFilterBy(value as typeof filterBy)}
+            <Toggle
+              className="px-2 gap-1.5"
+              title="Filters"
+             
+              onClick={() => setToggleFilters(!toggleFilters)}
             >
-              <SelectTrigger className="w-[140px] h-9">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Accounts</SelectItem>
-                <SelectItem value="checking">Checking</SelectItem>
-                <SelectItem value="savings">Savings</SelectItem>
-                <SelectItem value="credit">Credit Cards</SelectItem>
-                <SelectItem value="investment">Investment</SelectItem>
-              </SelectContent>
-            </Select>
+              <StreamlineFlexFilter2 className="h-4 w-4" />
+              Filters
+            </Toggle>
           </div>
-        </>
+        </div>
+      )}
+
+      {/* Sort & Filter */}
+      {!hideFilters && (
+        <div
+          className={`gap-2 sm:justify-end ${
+            toggleFilters ? "flex" : "hidden"
+          }`}
+        >
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+            <SelectTrigger className="w-[140px] h-9">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="balance">By Balance</SelectItem>
+              <SelectItem value="name">By Name</SelectItem>
+              <SelectItem value="lastSync">By Last Sync</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filterBy}
+            onValueChange={(value) => setFilterBy(value as typeof filterBy)}
+          >
+            <SelectTrigger className="w-[140px] h-9">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Accounts</SelectItem>
+              <SelectItem value="checking">Checking</SelectItem>
+              <SelectItem value="savings">Savings</SelectItem>
+              <SelectItem value="credit">Credit Cards</SelectItem>
+              <SelectItem value="investment">Investment</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       )}
 
       {/* Data Table */}
-      <div className="bg-card p-4 rounded-2xl">
+      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/80 border-b border-border/50">
             <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="w-[250px] font-bold">NAME</TableHead>
-              <TableHead className="font-bold">ACCOUNT</TableHead>
-              <TableHead className="font-bold text-right">BALANCE</TableHead>
-              <TableHead className="font-bold">LIMIT</TableHead>
-              <TableHead className="font-bold">SOURCE</TableHead>
-              <TableHead className="font-bold">POSITION</TableHead>
-              <TableHead className="font-bold">TRANSACTIONS</TableHead>
-              <TableHead className="font-bold">LAST SYNCED</TableHead>
-              <TableHead className="text-center font-bold">STATUS</TableHead>
-              <TableHead className="text-right font-bold">ACTION</TableHead>
+              <TableHead className="w-10 px-2 sm:px-4 py-3">
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
+              <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3 min-w-[200px] sm:w-auto">Account</TableHead>
+              <TableHead className="hidden sm:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Status</TableHead>
+              <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Balance</TableHead>
+              <TableHead className="hidden xl:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Limit / Available</TableHead>
+              <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Last Synced</TableHead>
+              <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedAccounts.map((account) => {
               const gradient = bankTypeGradients[account.type] || bankTypeGradients.DEFAULT;
               const accountLabel = accountTypeLabels[account.type] || account.type;
-              const lastFour = account.tellerLastFour || account.accountNumber.slice(-4);
+              const lastFour = account.accountNumber.slice(-4);
               const balance = parseFloat(account.availableBalance || account.balance.toString() || "0");
               const isCreditCard = account.type === "CREDIT_CARD";
               const creditLimit = isCreditCard ? parseFloat(account.ledgerBalance || "0") : 0;
               const creditUsed = isCreditCard && creditLimit > 0 ? creditLimit - balance : 0;
-              const transactionCount = account._count?.bankTransactions || 0;
-
-              // Get provider name
-              const provider = account.provider || "TELLER";
-              const providerDisplay = provider === "TELLER" ? "Teller" : provider;
+              
+              const isSelected = selectedIds.includes(account.id);
 
               return (
                 <TableRow
                   key={account.id}
-                  className="group border-none cursor-pointer"
+                  className={cn(
+                    "group border-b border-border/30 hover:bg-muted/30 transition-colors py-2 cursor-pointer",
+                    isSelected && "bg-primary/5"
+                  )}
                   onClick={() => handleRowClick(account.id)}
                 >
-                  {/* NAME */}
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-12 rounded-lg bg-muted flex-shrink-0">
-                        <div className={cn("h-full w-full rounded-lg bg-gradient-to-br flex items-center justify-center", gradient)}>
-                          {getAccountIcon(account.type)}
+                  <TableCell className="px-2 sm:px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) =>
+                        handleSelectRow(account.id, !!checked)
+                      }
+                    />
+                  </TableCell>
+
+                  <TableCell className="px-2 sm:px-4 py-3 group-hover:text-primary transition-colors">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                   
+
+                      <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted   text-foreground flex items-center justify-center flex-shrink-0">
+                      {getAccountIcon(account.type)}
                         </div>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex flex-col gap-0.5">
-                          <p className="font-semibold text-sm truncate">
-                            {account.institutionName}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <p className="font-semibold text-xs sm:text-sm truncate">
+                            {account.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            By {account.name} • {formatDistanceToNow(new Date(account.createdAt), { addSuffix: true })}
-                          </p>
+                          <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
+                            {accountLabel}
+                          </Badge>
                         </div>
+                        <p className="text-xs text-muted-foreground truncate hidden sm:block">
+                          {account.institutionName} • ****{lastFour}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
 
-                  {/* ACCOUNT */}
-                  <TableCell>
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-mono">xxxxx{lastFour}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{accountLabel}</span>
-                    </div>
+                  <TableCell className="hidden sm:table-cell text-right px-4 py-3">
+                    {getSyncStatusBadge(account.syncStatus)}
                   </TableCell>
 
-                  {/* BALANCE */}
-                  <TableCell className="text-right">
-                    <div className="flex flex-col gap-0.5 items-end">
-                      <div className="font-semibold text-sm">
-                        <CurrencyDisplay
-                          amountUSD={balance}
-                          variant="compact"
-                        />
-                      </div>
-                      {isCreditCard && creditLimit > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          Used: <CurrencyDisplay
-                            amountUSD={creditUsed}
-                            variant="compact"
-                            formatOptions={{ notation: "compact" }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                  <TableCell className="hidden lg:table-cell text-right px-4 py-3">
+                    <p className="text-sm font-semibold">
+                      <CurrencyDisplay
+                        amountUSD={balance}
+                        variant="small"
+                        isLoading={isLoading}
+                      />
+                    </p>
                   </TableCell>
 
-                  {/* LIMIT */}
-                  <TableCell>
+                  <TableCell className="hidden xl:table-cell text-right px-4 py-3">
                     {isCreditCard && creditLimit > 0 ? (
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1">
-                          <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="text-sm font-medium">
+                      <div className="flex flex-col items-end gap-0.5">
+                         <p className="text-sm font-medium">
                             <CurrencyDisplay
                               amountUSD={creditLimit}
-                              variant="compact"
+                              variant="small"
                               formatOptions={{ notation: "compact" }}
                             />
-                          </span>
-                        </div>
-                        {creditLimit > 0 && (
-                          <div className="text-xs text-muted-foreground">
+                          </p>
+                          <span className="text-xs text-muted-foreground">
                             {Math.round((creditUsed / creditLimit) * 100)}% used
-                          </div>
-                        )}
+                          </span>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground text-sm">—</span>
                     )}
                   </TableCell>
 
-                  {/* SOURCE */}
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs capitalize">
-                      {providerDisplay}
-                    </Badge>
-                  </TableCell>
-
-                  {/* POSITION */}
-                  <TableCell>
-                    <span className="text-sm">
-                      {isCreditCard ? "Credit" : account.type === "INVESTMENT" ? "Investment" : "Cash"}
-                    </span>
-                  </TableCell>
-
-                  {/* TRANSACTIONS */}
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      <span className="text-sm font-medium">
-                        {transactionCount.toLocaleString()}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  {/* LAST SYNCED */}
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
+                  <TableCell className="hidden lg:table-cell text-right px-4 py-3">
+                    <div className="flex items-center justify-end gap-1.5">
                       <SolarClockCircleBoldDuotone className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(account.lastTellerSync), { addSuffix: true })}
@@ -426,69 +430,52 @@ export function BankAccountsDataTable({
                     </div>
                   </TableCell>
 
-                  {/* STATUS */}
-                  <TableCell className="text-center">
-                    {getSyncStatusBadge(account.syncStatus)}
-                  </TableCell>
-
-                  {/* ACTION */}
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      {account.syncStatus === "connected" ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 text-xs text-destructive hover:text-destructive"
-                          onClick={(e) => handleDisconnect(account.id, e)}
-                        >
-                          Disconnect
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 text-xs text-green-600 hover:text-green-600"
-                          onClick={(e) => handleSync(account.id, e)}
-                        >
-                          Connect
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        onClick={(e) => handleEdit(account.id, e)}
-                      >
-                        <Edit3 className="h-3.5 w-3.5" />
-                      </Button>
+                  <TableCell
+                    className="text-center px-2 sm:px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0"
-                            onClick={(e) => e.stopPropagation()}
+                            size="icon-sm"
+                            className="h-8 w-8"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            handleRowClick(account.id);
-                          }}>
+                          <DropdownMenuItem onClick={() => handleRowClick(account.id)}>
+                            <Edit3 className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSync(account.id, e as React.MouseEvent<HTMLDivElement>)}>
-                            <RefreshCw className="h-3.5 w-3.5 mr-2" />
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            onSync?.(account);
+                          }}>
+                            <SolarRefreshCircleBoldDuotone className="mr-2 h-4 w-4" />
                             Sync Account
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={(e) => handleDisconnect(account.id, e as React.MouseEvent<HTMLDivElement>)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDisconnect?.(account);
+                            }}
                           >
+                            <StreamlineUltimatePowerPlugDisconnected className="mr-2 h-4 w-4" />
                             Disconnect
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete?.(account);
+                            }}
+                          >
+                            <SolarTrashBinTrashOutline className="mr-2 h-4 w-4" />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -503,12 +490,12 @@ export function BankAccountsDataTable({
 
       {/* Empty State */}
       {filteredAccounts.length === 0 && (
-        <div className="text-center py-12 border rounded-lg">
-          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-medium mb-2">
+        <div className="text-center py-16 border border-border/50 rounded-xl bg-muted/20">
+          <Building2 className="h-14 w-14 text-muted-foreground/50 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
             {searchTerm || filterBy !== "all"
               ? "No accounts match your criteria"
-              : "No accounts found"}
+              : "No bank accounts found"}
           </h3>
           <p className="text-sm text-muted-foreground">
             {searchTerm || filterBy !== "all"
@@ -520,31 +507,31 @@ export function BankAccountsDataTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–
-            {Math.min(currentPage * ITEMS_PER_PAGE, filteredAccounts.length)} of{" "}
-            {filteredAccounts.length} accounts
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-4">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground order-2 sm:order-1">
+            Showing <span className="text-foreground">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–
+            {Math.min(currentPage * ITEMS_PER_PAGE, filteredAccounts.length)}</span> of{" "}
+            <span className="text-foreground">{filteredAccounts.length}</span>
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 order-1 sm:order-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="h-8 px-3"
+              className="h-8 px-2 sm:px-3"
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              <span className="hidden sm:inline ml-1">Prev</span>
             </Button>
 
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-medium bg-primary text-primary-foreground px-3 py-1 rounded">
+            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3">
+              <span className="text-xs sm:text-sm font-semibold text-foreground">
                 {currentPage}
               </span>
-              <span className="text-sm text-muted-foreground">
-                of {totalPages}
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                / {totalPages}
               </span>
             </div>
 
@@ -553,9 +540,9 @@ export function BankAccountsDataTable({
               size="sm"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="h-8 px-3"
+              className="h-8 px-2 sm:px-3"
             >
-              Next
+              <span className="hidden sm:inline mr-1">Next</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

@@ -54,7 +54,7 @@ const badgeVariants = cva(
           max:
           "border-transparent bg-gradient-to-br from-orange-500/70 via-amber-600/70 to-pink-600/70 text-white shadow-lg [a&]:hover:shadow-xl",
         new:
-          "border-transparent bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-sm animate-pulse [a&]:hover:animate-none [a&]:hover:from-pink-600 [a&]:hover:to-rose-600",
+          "border-transparent bg-gradient-to-br from-pink-600 to-rose-700 text-white shadow-xs  ",
 
         subtle:
           "border-border/50 bg-muted/50 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
@@ -62,6 +62,31 @@ const badgeVariants = cva(
           "border-border/50 bg-muted/80 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
         "subtle-primary":
           "border-primary/20 bg-primary/10 text-primary [a&]:hover:bg-primary/20 [a&]:hover:border-primary/30",
+
+          cupertino:
+          "bg-[rgba(255,255,255,0.55)] dark:bg-[rgba(40,40,40,0.55)] backdrop-blur-md   border border-white/20 dark:border-white/10 text-foreground shadow-sm",
+        
+        "cupertino-tint":
+          "bg-primary/15 text-primary font-medium border border-primary/20     backdrop-blur-sm shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.4)]",
+        
+        glass:
+          "relative bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 shadow-sm  before:absolute before:inset-0 before:rounded-md  before:bg-gradient-to-b before:from-white/30 before:to-transparent dark:before:from-white/10",
+        
+        frost:
+          "backdrop-blur-lg bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(30,30,30,0.4)]   border border-white/30 dark:border-white/10 text-foreground shadow-sm",
+        
+        aqua:
+          "bg-[linear-gradient(to_bottom_right,rgba(0,122,255,0.18),rgba(0,122,255,0.1))]   text-[rgb(0,122,255)] border border-[rgba(0,122,255,0.25)] backdrop-blur-sm",
+        
+        metal:
+          "bg-gradient-to-br from-zinc-200/70 via-zinc-100/60 to-zinc-300/70     dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-700   border border-zinc-400/40 dark:border-zinc-700/40   text-zinc-900 dark:text-zinc-100 shadow-inner",
+        
+        slate:
+          "bg-[rgb(245,245,247)] dark:bg-[rgb(36,36,38)]    text-foreground border border-black/5 dark:border-white/5 shadow-sm",
+        
+        tag:
+          "bg-primary/12 text-primary border border-transparent backdrop-blur-sm   shadow-[0_0_0_1px_rgba(0,0,0,0.04)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]",
+        
       },
       size: {
         icon: "p-0.5 text-[10px]",

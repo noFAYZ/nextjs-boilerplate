@@ -432,11 +432,12 @@ function IntegrationGridCard({ integration, isConnected }: { integration: any; i
 
   return (
     <Link href={`/accounts/connection?integration=${integration.id}&type=${getConnectionType(integration.category)}`}>
-      <div
+      <Card
+      interactive
         className={cn(
-          "group relative bg-background dark:bg-muted/60 flex flex-col border items-center justify-center text-center rounded-2xl",
-          "p-3 h-full transition-all duration-75 hover:shadow-lg shadow-xs hover:shadow-primary/10",
-          "hover:bg-muted/40 cursor-pointer",
+          "group relative bg-card flex flex-col border items-center justify-center text-center rounded-lg",
+          "p-2 h-full transition-all duration-75  ",
+          "cursor-pointer",
           isConnected && "ring-2 ring-green-500/30 border-green-500/50"
         )}
       >
@@ -468,7 +469,7 @@ function IntegrationGridCard({ integration, isConnected }: { integration: any; i
             "transition-all duration-100"
           )}
         />
-      </div>
+      </Card>
     </Link>
   );
 }

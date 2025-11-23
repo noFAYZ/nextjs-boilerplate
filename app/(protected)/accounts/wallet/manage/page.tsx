@@ -112,14 +112,15 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
   };
 
   return (
-    <div
+    <Card
+    interactive
       className={cn(
-        "group border bg-muted/60 rounded-xl hover:bg-muted transition-colors duration-75 cursor-pointer",
+        "group rounded-lg border-border/50  px-2 py-1 cursor-pointer",
         isSelected && " border-primary/55 "
       )}
       onClick={handleCardClick}
     >
-      <div className="px-4 py-3">
+    
         <div className="flex items-center gap-3">
           {/* Selection Checkbox in Manage Mode */}
           {isManageMode && (
@@ -138,7 +139,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
 
           {/* Compact Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="h-10 w-10 bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
+            <div className="h-10 w-10 bg-muted rounded-full flex items-center justify-center relative overflow-hidden">
               <Image src={avataUrl} fill alt="Wallet Avatar" className="rounded-lg" unoptimized />
             </div>
             <button
@@ -200,7 +201,7 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
               <div className="font-semibold text-sm">
                 <CurrencyDisplay
                   amountUSD={parseFloat(wallet.totalBalanceUsd)}
-                  variant="small"
+                 
                 />
               </div>
               <div className="text-xs text-muted-foreground">Portfolio</div>
@@ -234,8 +235,8 @@ function WalletCard({ wallet, onWalletClick, onCopyAddress, getNetworkExplorerUr
           {/* Subtle Arrow */}
           <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
         </div>
-      </div>
-    </div>
+ 
+    </Card>
   );
 }
 

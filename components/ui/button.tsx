@@ -56,7 +56,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent/60 hover:text-accent-foreground active:scale-[0.98] backdrop-blur-sm",
         link: 
-          "text-primary underline-offset-4 hover:underline active:scale-[0.98]",
+          "text-primary underline-offset-4 hover:underline active:scale-[0.98] hover:bg-transparent",
         success:
           "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:shadow-md active:scale-[0.98] focus-visible:ring-emerald-500/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         warning:

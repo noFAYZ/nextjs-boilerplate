@@ -60,9 +60,13 @@ import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { BankAccount } from "@/lib/types/banking";
 import {
   HugeiconsCreditCard,
+  LetsIconsCreditCardDuotone,
+  MageCaretDownFill,
   MdiDollar,
+  SolarBillListBoldDuotone,
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
+  StashCreditCardLight,
 } from "@/components/icons/icons";
 import { LetsIconsSettingLineDuotone } from "@/components/icons";
 import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
@@ -87,13 +91,13 @@ const ACCOUNT_TYPE_CONFIG = {
     icon: TrendingUp,
     label: "Savings",
     color: "from-green-400 to-green-400",
-    textColor: "text-green-900 dark:text-green-400",
+    textColor: "text-green-900 ",
   },
   CREDIT_CARD: {
-    icon: HugeiconsCreditCard,
+    icon: LetsIconsCreditCardDuotone,
     label: "Credit Card",
-    color: "from-purple-500 to-purple-600",
-    textColor: "text-purple-600 dark:text-purple-400",
+    color: "from-purple-400 to-purple-500",
+    textColor: "text-purple-900 ",
   },
   INVESTMENT: {
     icon: TrendingUp,
@@ -315,7 +319,7 @@ export default function BankAccountDetailsPage() {
   const syncState = realtimeSyncStates[account.id];
 
   return (
-    <div className={`${pageClass} p-4 lg:p-6 space-y-6`}>
+    <div className={`${pageClass} space-y-6`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button
@@ -332,11 +336,7 @@ export default function BankAccountDetailsPage() {
         <div className="flex items-center gap-2">
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="xs" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-
+           
             <Button
               onClick={handleSync}
               disabled={
@@ -358,6 +358,12 @@ export default function BankAccountDetailsPage() {
               )}
               Sync
             </Button>
+            <Button variant="outline" size="xs" icon={   <MageCaretDownFill className="h-4 w-4" />}>
+           
+         
+            </Button>
+
+
           </div>
         </div>
       </div>
@@ -372,24 +378,25 @@ export default function BankAccountDetailsPage() {
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
-          <TabsList variant="card" size="sm">
-            <TabsTrigger value="transactions" variant="card" size="sm">
-              <SolarClipboardListBoldDuotone className="h-4 w-4 " />
+          <TabsList variant="pill" >
+            <TabsTrigger value="transactions" variant="pill" >
+              <SolarBillListBoldDuotone className="h-5 w-5 " />
               Transactions
             </TabsTrigger>
-            <TabsTrigger value="analytics" variant="card" size="sm">
-              <SolarChartSquareBoldDuotone className="h-4 w-4 " />
+            <TabsTrigger value="analytics" variant="pill" >
+              <SolarChartSquareBoldDuotone className="h-5 w-5 " />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="settings" variant="card" size="sm">
-              <LetsIconsSettingLineDuotone className="h-4 w-4 " />
+            <TabsTrigger value="settings" variant="pill" >
+              <LetsIconsSettingLineDuotone className="h-5 w-5 " />
               Settings
             </TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
             <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
+              variant="outline"
                 placeholder="Search transactions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -520,7 +527,7 @@ export default function BankAccountDetailsPage() {
                             <TableCell>
                               <Badge
                                 variant={
-                                  isIncome ? "success-soft" : "destructive-soft"
+                                  isIncome ? "success-soft" : "error-soft"
                                 }
                                 className="text-xs"
                               >

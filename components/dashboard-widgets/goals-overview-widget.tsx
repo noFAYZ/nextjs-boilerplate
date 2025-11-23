@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '../ui/card';
+import { MageGoals } from '../icons/icons';
 
 // Goal Item Component - Similar to Subscription List
 function GoalItem({ goal }: { goal: any }) {
@@ -286,13 +287,15 @@ export function GoalsOverviewWidget() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-muted border flex items-center justify-center">
-            <Target className="h-5 w-5 text-muted-foreground" />
+        
+          <div className="h-6 w-6 rounded-xl bg-lime-500  flex items-center justify-center">
+            <MageGoals className="h-5 w-5 text-lime-900" />
           </div>
           <h3 className="text-sm font-semibold text-foreground">Goals</h3>
         </div>
+        
         <Link href="/goals">
-          <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7" size="sm">
+          <Button variant="link" className="text-[11px] cursor-pointer   transition-colors h-7" size="sm">
             View All
             <ArrowRight className="h-3 w-3" />
           </Button>

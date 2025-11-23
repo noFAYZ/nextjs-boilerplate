@@ -9,12 +9,13 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-input rounded-lg shadow-sm hover:shadow-md focus-visible:ring-0 focus-visible:ring-primary/60 focus-visible:ring-offset-0 focus-visible:border-primary/60",
+        default: "border-border/80 bg-card rounded-lg shadow-sm hover:shadow-md ",
         filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80",
         underlined: "border-0 border-b-2 border-input rounded-none bg-transparent hover:border-border focus-visible:border-primary shadow-none",
         primary:"border-2 rounded-md border-border bg-gray-50 dark:bg-[#3E3C3C] backdrop-blur-sm  hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)]  transition-all duration-100  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
         premium: "border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:border-purple-500",
         enterprise: "border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-900/50 rounded-lg shadow-sm focus-visible:ring-1 focus-visible:ring-slate-500 focus-visible:border-slate-500 backdrop-blur-sm",
+        outline:'rounded-lg shadow-sm bg-card'
       },
       size: {
         sm: "h-8 px-3 py-1 text-sm rounded-md",

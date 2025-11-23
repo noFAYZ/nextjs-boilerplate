@@ -64,6 +64,7 @@ import {
   HeroiconsWallet,
   MdiDollar,
   MdiDragVertical,
+  StreamlineFreehandMoneyCashBill,
 } from '@/components/icons/icons';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
 
@@ -182,7 +183,7 @@ function DraggableAccountItem({
 }
 
 const categoryConfig = {
-  CASH: { label: 'Cash', icon: <MdiDollar className="h-6 w-6" /> },
+  CASH: { label: 'Cash', icon: <StreamlineFreehandMoneyCashBill className="h-6 w-6" /> },
   CREDIT: { label: 'Credit Cards', icon: <DuoIconsCreditCard className="h-6 w-6" /> },
   INVESTMENTS: { label: 'Investments', icon: <TrendingUp className="h-6 w-6" /> },
   CRYPTO: { label: 'Crypto', icon: <HeroiconsWallet className="h-6 w-6" /> },
@@ -205,92 +206,191 @@ function SummarySidebar({ summary }) {
 
   return (
     <div className="sticky top-4">
-      <Card className="relative" variant='outlined'>
+      <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-muted-foreground" />
+            <div className="h-6 w-6 rounded-xl bg-[rgb(251,146,60)] shadow-inner flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-[rgb(124,45,18)]" />
             </div>
             <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
           </div>
-          <Link href="/accounts">
-            <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7" size="sm">
+          <Link href="/networth">
+            <Button variant="link" className="text-[11px] cursor-pointer transition-colors h-7" size="sm">
               View All
               <ArrowRight className="h-3 w-3" />
             </Button>
           </Link>
         </div>
 
-        {/* Main Metric */}
-        <div className="mb-4 pb-4 border-b border-border/50">
-          <div className="text-xs text-muted-foreground mb-1">Total Net Worth</div>
-          <div className="flex items-baseline gap-2">
-            <CurrencyDisplay
-              amountUSD={summary.totalNetWorth}
-              variant="large"
-              className="text-4xl font-semibold"
-            />
-            <div className={cn(
-              "flex items-center gap-1 text-xs font-medium",
-              netWorthStatus === 'positive'
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            )}>
-              {netWorthStatus === 'positive' ? (
-                <>
-                  <TrendingUp className="h-3 w-3" />
-                  <span>Positive</span>
-                </>
-              ) : (
-                <>
-                  <TrendingDown className="h-3 w-3" />
-                  <span>Negative</span>
-                </>
+        {/* Glassmorphic Main Card */}
+        <div className="relative">
+          <Card className="p-3 bg-gradient-to-br from-accent/50 via-accent/60 to-accent/50 dark:from-accent/80 dark:via-accent/50 dark:to-accent/80 border-dashed border-2 border-accent/80">
+            {/* Subtle inner glow */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent dark:via-white/5" />
+            </div>
+
+            {/* Content */}
+            <div className="relative space-y-6">
+              {/* Header – Clean & Hierarchical */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-medium text-black/50 dark:text-white/50 tracking-wider uppercase">
+                    Total Net Worth
+                  </p>
+                  <h2 className="mt-2 text-4xl font-semibold text-black dark:text-white tracking-tight">
+                    {summary.totalNetWorth > 0 ? (
+                      <CurrencyDisplay
+                        amountUSD={summary.totalNetWorth}
+                        variant="large"
+                        className="text-4xl font-semibold"
+                      />
+                    ) : (
+                      "—"
+                    )}
+                  </h2>
+                </div>
+
+                {/* Subtle positive trend */}
+                {summary.totalNetWorth > 0 && (
+                  <div className={cn(
+                    "flex items-center gap-2",
+                    netWorthStatus === 'positive' 
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-600 dark:text-red-400"
+                  )}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {netWorthStatus === 'positive' ? (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 11l5-5 5 5" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l5-5 5 5" />
+                        </>
+                      ) : (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 13l5 5 5-5" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7l5 5 5-5" />
+                        </>
+                      )}
+                    </svg>
+                    <span className="text-sm font-medium">{netWorthStatus === 'positive' ? 'Positive' : 'Negative'}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Allocation Section with SVG Patterns */}
+              {(summary.totalAssets > 0 || summary.totalLiabilities > 0) && (
+                <div className="space-y-3">
+                  {/* Allocation bar with SVG pattern overlays */}
+                  <div className="relative w-full h-8 rounded-lg overflow-hidden bg-black/5 dark:bg-white/5 backdrop-blur-md shadow-inner border border-black/5 dark:border-white/10">
+                    {/* Glossy overlay */}
+                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/10 to-black/10 mix-blend-overlay" />
+
+                    {/* SVG Patterns Definition */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                      <defs>
+                        {/* Assets: Diagonal lines pattern */}
+                        <pattern id="pattern-ASSETS" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                          <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1.2" strokeOpacity="0.2" />
+                        </pattern>
+
+                        {/* Liabilities: Dots pattern */}
+                        <pattern id="pattern-LIABILITIES" width="6" height="6" patternUnits="userSpaceOnUse">
+                          <circle cx="3" cy="3" r="1.2" fill="white" fillOpacity="0.18" />
+                        </pattern>
+                      </defs>
+                    </svg>
+
+                    {/* Allocation bars with patterns */}
+                    {assetsPercent > 0 && (
+                      <div
+                        style={{ width: `${assetsPercent}%` }}
+                        className="h-full relative inline-block transition-all duration-500 ease-out group"
+                      >
+                        {/* Base color */}
+                        <div className="h-full w-full bg-green-600/70" />
+
+                        {/* Pattern overlay */}
+                        <svg
+                          className="absolute inset-0 w-full h-full pointer-events-none"
+                          preserveAspectRatio="none"
+                          viewBox="0 0 100 100"
+                        >
+                          <rect width="100" height="100" fill="url(#pattern-ASSETS)" />
+                        </svg>
+
+                        {/* Hover highlight */}
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                      </div>
+                    )}
+                    {liabilitiesPercent > 0 && (
+                      <div
+                        style={{ width: `${liabilitiesPercent}%` }}
+                        className="h-full relative inline-block transition-all duration-500 ease-out group"
+                      >
+                        {/* Base color */}
+                        <div className="h-full w-full bg-orange-600/70" />
+
+                        {/* Pattern overlay */}
+                        <svg
+                          className="absolute inset-0 w-full h-full pointer-events-none"
+                          preserveAspectRatio="none"
+                          viewBox="0 0 100 100"
+                        >
+                          <rect width="100" height="100" fill="url(#pattern-LIABILITIES)" />
+                        </svg>
+
+                        {/* Hover highlight */}
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Legend */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {assetsPercent > 0 && (
+                      <div className="flex items-center gap-2">
+                        {/* Color dot */}
+                        <div className="w-3 h-3 rounded-full shadow-sm bg-emerald-600" />
+
+                        {/* Text */}
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
+                            Assets
+                          </span>
+                          <span className="text-[12px] font-semibold text-black dark:text-white">
+                            {assetsPercent}%
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {liabilitiesPercent > 0 && (
+                      <div className="flex items-center gap-2">
+                        {/* Color dot */}
+                        <div className="w-3 h-3 rounded-full shadow-sm bg-orange-600" />
+
+                        {/* Text */}
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
+                            Liabilities
+                          </span>
+                          <span className="text-[12px] font-semibold text-black dark:text-white">
+                            {liabilitiesPercent}%
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
-          </div>
+          </Card>
+
+          {/* Optional ultra-subtle outer glow */}
+          <div className="absolute -inset-px rounded-3xl bg-gradient-to-tr from-transparent via-white/10 to-transparent dark:via-white/5 blur-xl -z-10" />
         </div>
 
-        {/* Allocation Bar */}
-        {(summary.totalAssets > 0 || summary.totalLiabilities > 0) && (
-          <div className="mb-4 pb-4 border-b border-border/50 space-y-2.5">
-            <div className="flex items-center gap-1 w-full h-3 bg-muted rounded-full overflow-hidden border border-border/40">
-              {assetsPercent > 0 && (
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all"
-                  style={{ width: `${assetsPercent}%` }}
-                  title={`Assets: ${assetsPercent}%`}
-                />
-              )}
-              {liabilitiesPercent > 0 && (
-                <div
-                  className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all"
-                  style={{ width: `${liabilitiesPercent}%` }}
-                  title={`Liabilities: ${liabilitiesPercent}%`}
-                />
-              )}
-            </div>
-            <div className="flex gap-4 flex-wrap">
-              {assetsPercent > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30" />
-                  <span className="text-[10px] font-medium text-muted-foreground">Assets</span>
-                  <span className="text-[10px] font-semibold text-foreground">{assetsPercent}%</span>
-                </div>
-              )}
-              {liabilitiesPercent > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 ring-1 ring-red-500/30" />
-                  <span className="text-[10px] font-medium text-muted-foreground">Liabilities</span>
-                  <span className="text-[10px] font-semibold text-foreground">{liabilitiesPercent}%</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Stats Grid */}
+        {/* Stats Grid - Simplified */}
         <div className="space-y-1.5">
           {/* Total Assets */}
           <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
@@ -340,24 +440,6 @@ function SummarySidebar({ summary }) {
               </p>
             </div>
             <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">{summary.accountCount}</span>
-          </div>
-
-          {/* Last Updated */}
-          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
-            <div className="h-9 w-9 rounded-lg bg-muted/40 flex items-center justify-center flex-shrink-0 group-hover:bg-muted/60 transition-colors">
-              <RefreshCw className="h-4.5 w-4.5 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-foreground">Last Updated</p>
-              <p className="text-[10px] text-muted-foreground">
-                {new Date(summary.lastUpdated).toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </p>
-            </div>
           </div>
         </div>
       </Card>

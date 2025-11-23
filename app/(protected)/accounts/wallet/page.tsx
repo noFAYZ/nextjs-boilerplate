@@ -50,7 +50,7 @@ import { WalletTransactions } from "@/components/crypto/wallet-transactions";
 import { WalletChart } from "@/components/crypto/wallet-chart";
 import { WalletDeFi } from "@/components/crypto/wallet-defi";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
-import {
+import StreamlineUltimateAccountingCoins, {
   StreamlineFlexWallet,
   MageCaretUpFill,
   MageCaretDownFill,
@@ -62,6 +62,7 @@ import {
   StreamlineUltimateCryptoCurrencyBitcoinDollarExchange,
   SolarWalletMoneyLinear,
   SolarGalleryOutline,
+  HeroiconsWallet16Solid,
 } from "@/components/icons/icons";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -169,7 +170,7 @@ export default function AggregatedWalletPage() {
 
   if (!aggregatedData) {
     return (
-      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+      <div className="max-w-7xl mx-auto">
         <Card>
           <CardContent className="p-8 text-center">
             <StreamlineFlexWallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -187,41 +188,17 @@ export default function AggregatedWalletPage() {
   }
 
   return (
-    <div className=" mx-auto p-4 lg:p-6 space-y-6">
+    <div className=" mx-auto space-y-2">
    {/* Header Row */}
-        <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6 p-4">
-          {/* Left: Breadcrumbs & Description */}
-          <div className="flex flex-col gap-2">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/">Home</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/accounts">Accounts</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Wallet</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            <p className="text-xs text-muted-foreground">
-              Track your crypto holdings across all wallets
-            </p>
-          </div>
+        <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-end gap-4 mb-6 ">
+    
 
           {/* Right: Action Buttons */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Link href="/accounts/wallet/manage">
               <Button
                 variant="outline"
-                size="sm"
+                size="xs"
                 className=" font-medium border-border/60 hover:border-border"
               >
                 <LetsIconsSettingLineDuotone className="h-4 w-4 mr-1" />
@@ -232,7 +209,7 @@ export default function AggregatedWalletPage() {
             <Button
               onClick={handleSync}
               disabled={isSyncing}
-              size="sm"
+              size="xs"
               className=" font-medium"
             >
               {isSyncing ? (
@@ -251,12 +228,10 @@ export default function AggregatedWalletPage() {
         </div>
 
       {/* Integrated Portfolio Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-background via-muted/30 to-background p-4 shadow-lg">
+      <Card className="relative overflow-hidden rounded-lg p-4 border-border/80 hover:shadow-xs">
   
 
-     
-
-        {/* Main Metrics Grid */}
+     {/* Main Metrics Grid */}
         <div className="relative w-full flex justify-between gap-2">
           {/* Total Value - Spans 8 columns on large screens */}
           <div className="w-full">
@@ -364,8 +339,8 @@ export default function AggregatedWalletPage() {
               {/* Portfolio Breakdown Stats */}
               <div className="flex flex-wrap gap-6  mt-4 ">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <Wallet className="h-4 w-4 text-blue-600" />
+                  <div className="h-8 w-8 rounded-lg bg-blue-400/90 flex items-center justify-center">
+                    <HeroiconsWallet16Solid className="h-5 w-5 text-blue-900" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg font-semibold text-foreground">
@@ -376,8 +351,8 @@ export default function AggregatedWalletPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center">
-                    <Coins className="h-4 w-4 " />
+                  <div className="h-8 w-8 rounded-lg bg-orange-400 flex items-center justify-center">
+                    <StreamlineFreehandCryptoCurrencyUsdCoin className="h-5 w-5 text-orange-900" />
                   </div>
                   <div className="flex flex-col ">
                     <span className=" text-foreground">
@@ -426,108 +401,21 @@ export default function AggregatedWalletPage() {
         
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Secondary Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-    {/* Top 5 Performing Assets 
-    <div className="rounded-xl border bg-muted/40 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-semibold text-muted-foreground">Top Assets</p>
-        <Badge variant="soft" className="text-xs">24h</Badge>
-      </div>
-      {portfolioStats?.topPerformingAssets && portfolioStats.topPerformingAssets.length > 0 ? (
-        <div className="space-y-1">
-          {portfolioStats.topPerformingAssets.map((asset, index) => (
-            <div key={asset.symbol + index} className="flex items-center justify-between group hover:bg-muted/60 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-xs text-muted-foreground font-medium w-4">{index + 1}</span>
-                {asset.logoUrl && (
-                  <img
-                    src={asset.logoUrl}
-                    alt={asset.symbol}
-                    className="h-5 w-5 rounded-full flex-shrink-0"
-                  />
-                )}
-                <div className="flex flex-col min-w-0">
-                  <p className="font-medium text-xs truncate">{asset.symbol}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{asset.name}</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-2">
-                <p
-                  className={cn(
-                    "text-xs font-semibold",
-                    asset.change24h > 0 ? "text-green-500" : "text-red-500"
-                  )}
-                >
-                  {asset.change24h > 0 ? "+" : ""}
-                  {asset.change24h.toFixed(2)}%
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  <CurrencyDisplay amountUSD={asset.balanceUsd} variant="compact" />
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-xs text-muted-foreground text-center py-4">No assets data</p>
-      )}
-    </div>*/}
 
-    {/* Top 5 Networks
-    <div className="rounded-xl border bg-muted/40 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-semibold text-muted-foreground">Top Networks</p>
-        <Badge variant="soft" className="text-xs">By Value</Badge>
-      </div>
-      {portfolioStats?.topNetworks && portfolioStats.topNetworks.length > 0 ? (
-        <div className="space-y-1">
-          {portfolioStats.topNetworks.map((network, index) => (
-            <div key={network.network + index} className="flex items-center justify-between group hover:bg-muted/60 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-xs text-muted-foreground font-medium w-4">{index + 1}</span>
-                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-                  {network.network.charAt(0)}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <p className="font-medium text-xs">
-                    {network.network.charAt(0) + network.network.slice(1).toLowerCase()}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {network.assetCount} asset{network.assetCount !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-2">
-                <p className="text-xs font-semibold text-foreground">
-                  {network.percentage.toFixed(1)}%
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  <CurrencyDisplay amountUSD={network.valueUsd} variant="compact" />
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-xs text-muted-foreground text-center py-4">No network data</p>
-      )}
-    </div> */}
-      </div>
 
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
      
 
-        <TabsList className="  mt-2 " variant="card" size={'sm'}>
+        <TabsList className="  mt-2 " variant="pill" size={'sm'}>
           <TabsTrigger
             value="tokens"
             className="flex px-2 items-center gap-1.5 cursor-pointer  "
                 size={'sm'}
-            variant="card"
+            variant="pill"
           >
            
              <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
@@ -537,7 +425,7 @@ export default function AggregatedWalletPage() {
             value="defi"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
              size={'sm'}
-            variant="card"
+            variant="pill"
           >
             <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
             
@@ -547,7 +435,7 @@ export default function AggregatedWalletPage() {
             value="nfts"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
              size={'sm'}
-            variant="card"
+            variant="pill"
           >
              <SolarGalleryWideOutline className="w-5 h-5" />
             <span className="inline">NFTs</span>
@@ -556,7 +444,7 @@ export default function AggregatedWalletPage() {
             value="transactions"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
             size={'sm'}
-            variant="card"
+            variant="pill"
           >
             <MynauiActivitySquare className="w-5.5 h-5.5" />
             
@@ -566,7 +454,7 @@ export default function AggregatedWalletPage() {
             value="wallets"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
             size={'sm'}
-            variant="card"
+            variant="pill"
           >
             <SolarWalletMoneyLinear className="w-5.5 h-5.5" stroke="1.7" />
             

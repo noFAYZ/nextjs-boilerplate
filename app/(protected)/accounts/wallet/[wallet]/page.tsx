@@ -121,7 +121,7 @@ function LoadingSpinner({ text }: { text: string }) {
 
 function WalletSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
+    <div className="max-w-7xl mx-auto  space-y-6">
       <div className="flex items-center gap-4">
         <div className="h-8 w-16 bg-muted animate-pulse rounded" />
       </div>
@@ -205,7 +205,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 
-  console.log('Wallet data:', wallet);
+  
  
 
   // Get SSE-based sync status for this wallet
@@ -319,7 +319,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   if (!wallet) {
     return (
-      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+      <div className="max-w-7xl mx-auto ">
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -341,7 +341,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
 
   return (
-    <div className={`${pageClass} p-4 lg:p-6 space-y-6`}>
+    <div className={`${pageClass}  space-y-4`}>
       {/* Back Navigation */}
       <div className="flex items-center justify-between">
         <Button
@@ -379,28 +379,31 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                 : "Not synced"}
             </span>
           </Tooltip> */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSync}
-            disabled={syncWallet.isPending || isSyncingSSE}
-            className="min-w-[80px]"
-          >
-            {syncWallet.isPending || isSyncingSSE ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            {isSyncingSSE ? `${syncProgress}%` : 'Sync'}
-          
-          </Button>
-            {wallet?.walletData?.lastSyncAt && !isSyncing ? (
+
+           {wallet?.walletData?.lastSyncAt && !isSyncing ? (
               <span className="ml-2 text-xs text-muted-foreground">
                 {timestampzToReadable(wallet?.walletData?.lastSyncAt)}
               </span>
             ) : null}
+          <Button
+         
+            size="xs"
+            onClick={handleSync}
+            disabled={syncWallet.isPending || isSyncingSSE}
+           
+          >
+            {syncWallet.isPending || isSyncingSSE ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-1" />
+            )}
+            {isSyncingSSE ? `${syncProgress}%` : 'Sync'}
+          
+          </Button>
+           
          
         </div>
+        
       </div>
 
  

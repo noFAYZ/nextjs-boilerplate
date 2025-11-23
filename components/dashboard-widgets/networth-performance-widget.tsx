@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, BarChart, TrendingUp } from "lucide-react";
 import { NetWorthChart } from "@/components/networth/networth-chart";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import { HeroiconsWallet16Solid } from "@/components/icons/icons";
+import { HeroiconsWallet16Solid, MingcuteChartBarFill } from "@/components/icons/icons";
 
 /**
  * NetWorth Performance Widget
@@ -22,8 +22,8 @@ export function NetWorthPerformanceWidget() {
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-[rgb(251,146,60)] border flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-[rgb(124,45,18)]" />
+          <div className="h-6 w-6 rounded-xl bg-purple-400 flex items-center justify-center">
+            <MingcuteChartBarFill className="h-4.5 w-4.5 text-purple-900" />
           </div>
           <h3 className="text-sm font-semibold text-foreground">
             Net Worth Performance
@@ -31,8 +31,8 @@ export function NetWorthPerformanceWidget() {
         </div>
         <Link href="/networth">
           <Button
-            variant="outline"
-            className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7"
+            variant="link"
+            className="text-[11px] cursor-pointer  transition-colors h-7"
             size="sm"
           >
             View Analytics

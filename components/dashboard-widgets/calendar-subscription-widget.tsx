@@ -332,17 +332,21 @@ export function CalendarSubscriptionWidget() {
       <Card className="relative h-full w-full flex flex-col border border-border/50">
         {/* Modern Header */}
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-muted/70 to-muted/85 flex items-center justify-center ring-1 ring-foreground/20 shadow-xs">
-              <MageCalendar2 className="h-5 w-5 " />
-            </div>
-            <div>
-              <h3 className="text-md font-semibold text-foreground">
-                Subscriptions
-              </h3>
-         
-            </div>
+      
+        
+          <div className="flex items-center gap-2">
+       
+        
+          <div className="h-6 w-6 rounded-xl bg-indigo-300  flex items-center justify-center">
+            <MageCalendar2 className="h-5 w-5 text-indigo-900" />
           </div>
+          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
+  
+       
+            
+         
+         
+        </div>
 
           {/* Navigation Controls */}
           <div className="flex items-center ">

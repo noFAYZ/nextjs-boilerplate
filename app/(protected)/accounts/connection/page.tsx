@@ -893,7 +893,7 @@ function ConnectionPageContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto  space-y-6">
       {/* Back Button */}
       <Link href="/accounts/integrations">
         <Button variant="ghost" size="sm">
@@ -902,37 +902,13 @@ function ConnectionPageContent() {
         </Button>
       </Link>
 
-      {/* Header */}
-      <div className="mb-8">
-        <Breadcrumb className="mb-2">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/accounts">Accounts</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Connect {getIntegrationName()}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <p className="text-sm text-muted-foreground">
-          Follow the steps below to securely connect your account
-        </p>
-      </div>
+    
 
       {/* Stepper */}
-      <Stepper steps={steps} currentStep={stepper.currentStep} variant="indicator" />
+      <Stepper steps={steps} currentStep={stepper.currentStep} variant="indicator" className='max-w-3xl mx-auto py-10' />
 
       {/* Step Content */}
-      <Card className='dark:bg-card/60 border-border/60'>
+      <Card className=' border-0'>
         <CardContent className="p-8">
           {/* Bank Flow */}
           {integrationType === 'bank' && (

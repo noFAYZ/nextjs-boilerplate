@@ -271,20 +271,24 @@ export function SubscriptionsOverviewWidget() {
   }
 
   return (
-    <Card className="relative h-full w-full flex flex-col" variant='outlined' >
+    <Card className="relative h-full w-full flex flex-col border/50"  >
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
-            <SolarInboxInBoldDuotone className="h-5 w-5 text-muted-foreground" />
-          </div>
        
-            <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
+        
+          <div className="h-6 w-6 rounded-xl bg-violet-300  flex items-center justify-center">
+            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
+  
+       
+            
          
          
         </div>
         <Link href="/subscriptions">
-          <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors  h-7" size='sm'>
+          <Button variant="link" className="text-[11px] cursor-pointer  transition-colors  h-7" size='sm'>
             View All
             <ArrowRight className="h-3 w-3 " />
           </Button>

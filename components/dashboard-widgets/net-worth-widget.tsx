@@ -197,15 +197,15 @@ export function NetWorthWidget() {
       {/* Header */}
       <div className="flex items-center justify-between  ">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-[rgb(251,146,60)] border flex items-center justify-center">
+          <div className="h-6 w-6 rounded-xl bg-[rgb(251,146,60)] shadow-inner flex items-center justify-center">
             <HeroiconsWallet16Solid className="h-5 w-5 text-[rgb(124,45,18)]" />
           </div>
           <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
         </div>
         <Link href="/networth">
           <Button
-            variant="outline"
-            className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7"
+            variant="link"
+            className="text-[11px] cursor-pointer transition-colors h-7"
             size="sm"
           >
             View All

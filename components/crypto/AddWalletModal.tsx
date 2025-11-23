@@ -391,7 +391,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
           error={planLimitDialog.error}
           availablePlans={plans}
           onUpgrade={handleUpgrade}
-          isUpgrading={createWallet.isPending}
+          isUpgrading={isPending}
         />
       )}
     </>

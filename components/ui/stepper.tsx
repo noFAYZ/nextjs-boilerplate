@@ -88,7 +88,7 @@ function StepperIndicator({ steps, currentStep, className }: Omit<StepperProps, 
                   'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all',
                   isActive && 'border-primary bg-primary text-primary-foreground',
                   isCompleted && 'border-primary bg-primary text-primary-foreground',
-                  !isActive && !isCompleted && 'border-muted-foreground/30 bg-background'
+                  !isActive && !isCompleted && 'border-muted-foreground/30 bg-card'
                 )}
               >
                 {isCompleted ? (

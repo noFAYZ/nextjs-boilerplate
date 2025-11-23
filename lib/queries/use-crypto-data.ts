@@ -313,29 +313,9 @@ export function useCryptoAnalytics(params?: Record<string, unknown>, organizatio
  * @returns Mutation hook with optimistic updates
  */
 export function useCreateCryptoWallet() {
-  const queryClient = useQueryClient();
-  const mutation = cryptoMutations.useCreateWallet();
-  const { closeCreateWalletModal } = useCryptoUIStore();
-  const orgId = useContextOrganizationId();
-
-  return useMutation({
-    ...mutation,
-    onSuccess: (response) => {
-      if (response.success) {
-        closeCreateWalletModal();
-
-        // Optimistic UI update with proper organization context
-        queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
-          if (!old || typeof old !== 'object' || !('data' in old)) return old;
-          return {
-            ...old,
-            data: [...(old.data as CryptoWallet[]), response.data],
-          };
-        });
-      }
-      mutation.onSuccess?.(response, {} as CreateWalletRequest, undefined);
-    },
-  });
+  // Simply return the mutation from cryptoMutations
+  // The mutation already has all the necessary logic including mutationFn
+  return cryptoMutations.useCreateWallet();
 }
 
 /**
@@ -343,60 +323,9 @@ export function useCreateCryptoWallet() {
  * @returns Mutation hook with optimistic updates
  */
 export function useUpdateCryptoWallet() {
-  const queryClient = useQueryClient();
-  const mutation = cryptoMutations.useUpdateWallet();
-  const { closeEditWalletModal } = useCryptoUIStore();
-  const orgId = useContextOrganizationId();
-
-  return useMutation({
-    ...mutation,
-    onMutate: async ({ id, updates }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallet(id, undefined, orgId) });
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets(orgId) });
-
-      // Snapshot previous value
-      const previousWallet = queryClient.getQueryData(cryptoKeys.wallet(id, undefined, orgId));
-      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets(orgId));
-
-      // Optimistically update wallet
-      queryClient.setQueryData(cryptoKeys.wallet(id, undefined, orgId), (old: unknown) => {
-        if (!old || typeof old !== 'object' || !('data' in old)) return old;
-        return {
-          ...old,
-          data: { ...(old.data as CryptoWallet), ...updates },
-        };
-      });
-
-      // Optimistically update wallet list
-      queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
-        if (!old || typeof old !== 'object' || !('data' in old)) return old;
-        return {
-          ...old,
-          data: (old.data as CryptoWallet[]).map((w: CryptoWallet) =>
-            w.id === id ? { ...w, ...updates } : w
-          ),
-        };
-      });
-
-      return { previousWallet, previousWallets };
-    },
-    onError: (_error, _variables, context) => {
-      // Rollback on error
-      if (context?.previousWallet) {
-        queryClient.setQueryData(cryptoKeys.wallet(_variables.id, undefined, orgId), context.previousWallet);
-      }
-      if (context?.previousWallets) {
-        queryClient.setQueryData(cryptoKeys.wallets(orgId), context.previousWallets);
-      }
-    },
-    onSuccess: (response) => {
-      if (response.success) {
-        closeEditWalletModal();
-      }
-      mutation.onSuccess?.(response, { id: '', updates: {} as UpdateWalletRequest }, undefined);
-    },
-  });
+  // Simply return the mutation from cryptoMutations
+  // The mutation already has all the necessary logic including mutationFn
+  return cryptoMutations.useUpdateWallet();
 }
 
 /**
@@ -404,45 +333,9 @@ export function useUpdateCryptoWallet() {
  * @returns Mutation hook with optimistic updates
  */
 export function useDeleteCryptoWallet() {
-  const queryClient = useQueryClient();
-  const mutation = cryptoMutations.useDeleteWallet();
-  const { closeDeleteWalletModal, selectWallet } = useCryptoUIStore();
-  const orgId = useContextOrganizationId();
-
-  return useMutation({
-    ...mutation,
-    onMutate: async (walletId) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets(orgId) });
-
-      // Snapshot previous value
-      const previousWallets = queryClient.getQueryData(cryptoKeys.wallets(orgId));
-
-      // Optimistically remove wallet
-      queryClient.setQueryData(cryptoKeys.wallets(orgId), (old: unknown) => {
-        if (!old || typeof old !== 'object' || !('data' in old)) return old;
-        return {
-          ...old,
-          data: (old.data as CryptoWallet[]).filter((w: CryptoWallet) => w.id !== walletId),
-        };
-      });
-
-      return { previousWallets };
-    },
-    onError: (_error, _walletId, context) => {
-      // Rollback on error
-      if (context?.previousWallets) {
-        queryClient.setQueryData(cryptoKeys.wallets(orgId), context.previousWallets);
-      }
-    },
-    onSuccess: (response, walletId) => {
-      if (response.success) {
-        closeDeleteWalletModal();
-        selectWallet(null); // Deselect if deleted
-      }
-      mutation.onSuccess?.(response, walletId, undefined);
-    },
-  });
+  // Simply return the mutation from cryptoMutations
+  // The mutation already has all the necessary logic including mutationFn
+  return cryptoMutations.useDeleteWallet();
 }
 
 // ============================================================================
@@ -454,18 +347,9 @@ export function useDeleteCryptoWallet() {
  * @returns Mutation hook
  */
 export function useSyncCryptoWallet() {
-  const { closeSyncModal } = useCryptoUIStore();
-  const mutation = cryptoMutations.useSyncWallet();
-
-  return useMutation({
-    ...mutation,
-    onSuccess: (response) => {
-      if (response.success) {
-        closeSyncModal();
-      }
-      mutation.onSuccess?.(response, {} as SyncRequest, undefined);
-    },
-  });
+  // Simply return the mutation from cryptoMutations
+  // The mutation already has all the necessary logic including mutationFn
+  return cryptoMutations.useSyncWallet();
 }
 
 /**
