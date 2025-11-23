@@ -54,8 +54,13 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
     })
   );
 
-  // Get ordered and visible widgets
-  const visibleWidgets = widgets.filter((w) => layoutState[w.id as keyof typeof layoutState]?.visible !== false);
+  // Get ordered and visible widgets - explicitly check for true visibility
+  const visibleWidgets = widgets.filter((w) => {
+    const widgetState = layoutState[w.id as keyof typeof layoutState];
+    // Widget is visible if: explicitly set to true, OR not explicitly set to false (defaults to visible)
+    return widgetState?.visible !== false;
+  });
+
   const orderedWidgets = [...visibleWidgets].sort((a, b) => {
     const orderA = layoutState[a.id as keyof typeof layoutState]?.order ?? 0;
     const orderB = layoutState[b.id as keyof typeof layoutState]?.order ?? 0;

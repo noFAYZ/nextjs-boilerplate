@@ -60,6 +60,7 @@ import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { BankAccount } from "@/lib/types/banking";
 import {
   HugeiconsCreditCard,
+  MdiDollar,
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
 } from "@/components/icons/icons";
@@ -77,16 +78,16 @@ import { AccountHeader } from "@/components/accounts/AccountHeader";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
-    icon: DollarSign,
+    icon: MdiDollar,
     label: "Checking",
-    color: "from-blue-500 to-blue-600",
-    textColor: "text-blue-600 dark:text-blue-400",
+    color: "from-blue-400 to-blue-400",
+    textColor: "text-blue-900 ",
   },
   SAVINGS: {
     icon: TrendingUp,
     label: "Savings",
-    color: "from-green-500 to-green-600",
-    textColor: "text-green-600 dark:text-green-400",
+    color: "from-green-400 to-green-400",
+    textColor: "text-green-900 dark:text-green-400",
   },
   CREDIT_CARD: {
     icon: HugeiconsCreditCard,

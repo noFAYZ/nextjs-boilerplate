@@ -19,18 +19,41 @@ import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { Card } from '../ui/card';
 
 // Goal Item Component - Similar to Subscription List
 function GoalItem({ goal }: { goal: any }) {
-  // Normalize progress value - handle both decimal (0-1) and percentage (0-100) formats
-  let progress = goal.progress ?? 0;
-  if (progress > 1) {
-    // Already a percentage (0-100)
-    progress = Math.min(progress, 100);
-  } else {
-    // Decimal format (0-1), convert to percentage
-    progress = Math.min(progress * 100, 100);
+  // Calculate progress with multiple fallback strategies
+  let progress = 0;
+
+  // Always calculate from amounts first (most reliable source of truth)
+  if (goal.currentAmount !== undefined && goal.targetAmount) {
+    const current = Number(goal.currentAmount) || 0;
+    const target = Number(goal.targetAmount) || 0;
+    if (target > 0) {
+      progress = (current / target) * 100;
+    }
   }
+  // Fallback: Calculate from amountRemaining if amounts not available
+  else if (goal.amountRemaining !== undefined && goal.targetAmount) {
+    const remaining = Number(goal.amountRemaining) || 0;
+    const target = Number(goal.targetAmount) || 0;
+    if (target > 0) {
+      const achieved = target - remaining;
+      progress = (achieved / target) * 100;
+    }
+  }
+  // Final fallback: Use goal.progress if available and > 0
+  else if (typeof goal.progress === 'number' && goal.progress > 0) {
+    progress = goal.progress;
+    // If it's a decimal (0-1), convert to percentage
+    if (progress < 1) {
+      progress = progress * 100;
+    }
+  }
+
+  // Ensure progress is always between 0-100
+  progress = Math.max(0, Math.min(progress, 100));
 
   const isUrgent = goal.daysRemaining <= 7 && goal.daysRemaining > 0;
   const isOverdue = goal.daysRemaining < 0;
@@ -96,19 +119,24 @@ function GoalItem({ goal }: { goal: any }) {
           </div>
 
           {/* Progress Bar and Info */}
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 w-full">
             {/* Progress Bar */}
-            <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden" data-progress={`${progress.toFixed(1)}%`}>
               <div
-                className={cn('h-full rounded-full transition-all duration-300', getProgressColor())}
-                style={{ width: `${progress}%` }}
+                className={cn('h-full rounded-full transition-all duration-300 ease-out', getProgressColor())}
+                style={{
+                  width: `${Math.max(progress, 0)}%`,
+                  minWidth: progress > 2 ? '0px' : '2px'
+                }}
+                data-current={goal.currentAmount}
+                data-target={goal.targetAmount}
               />
             </div>
             {/* Progress Info */}
             <div className="flex items-center justify-between text-[10px] gap-1">
               <div className="flex items-center gap-1">
                 <span className={cn('font-semibold', getProgressTextColor())}>
-                  {progress.toFixed(0)}%
+                  {Math.max(progress, 0).toFixed(1)}%
                 </span>
                 <span className="text-muted-foreground">•</span>
                 <CurrencyDisplay
@@ -254,11 +282,11 @@ export function GoalsOverviewWidget() {
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4 shadow-xs dark:shadow-none h-fit">
+    <Card className="relative  border border-border/50  ">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
+          <div className="h-7 w-7 rounded-lg bg-muted border flex items-center justify-center">
             <Target className="h-5 w-5 text-muted-foreground" />
           </div>
           <h3 className="text-sm font-semibold text-foreground">Goals</h3>
@@ -273,13 +301,13 @@ export function GoalsOverviewWidget() {
 
       {/* Main Metric */}
       {summary.totalTargetAmount > 0 && (
-        <div className="mb-4 border-b border-border/50">
+        <div className="my-4  ">
           <div className="text-xs text-muted-foreground mb-1">Target Amount</div>
           <div className="flex items-baseline gap-2">
             <CurrencyDisplay
               amountUSD={summary.totalTargetAmount}
               variant="large"
-              className="text-4xl font-semibold"
+              className="text-3xl font-semibold"
             />
             <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
               <TrendingUp className="h-3 w-3" />
@@ -403,6 +431,6 @@ export function GoalsOverviewWidget() {
         </div>
       )}
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+    </Card>
   );
 }

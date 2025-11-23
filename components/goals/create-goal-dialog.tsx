@@ -348,14 +348,16 @@ export function CreateGoalDialog({
     return result
   }
 
-  const handleNext = async () => {
+  const handleNext = async (e?: React.MouseEvent) => {
+    e?.preventDefault()
     const isValid = await validateStep(currentStep)
     if (isValid && currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
     }
   }
 
-  const handleBack = () => {
+  const handleBack = (e?: React.MouseEvent) => {
+    e?.preventDefault()
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
     }
@@ -364,17 +366,33 @@ export function CreateGoalDialog({
   const canGoNext = currentStep < steps.length - 1
   const canGoBack = currentStep > 0
 
+  // Helper function to clean empty strings to undefined for optional fields
+  const cleanData = (data: GoalFormValues) => {
+    return {
+      ...data,
+      accountId: data.accountId === "" ? undefined : data.accountId,
+      cryptoWalletId: data.cryptoWalletId === "" ? undefined : data.cryptoWalletId,
+      accountGroupId: data.accountGroupId === "" ? undefined : data.accountGroupId,
+      icon: data.icon === "" ? undefined : data.icon,
+      color: data.color === "" ? undefined : data.color,
+      tags: data.tags && data.tags.length > 0 ? data.tags : undefined,
+      notes: data.notes === "" ? undefined : data.notes,
+    }
+  }
+
   const onSubmit = async (data: GoalFormValues) => {
     setIsSubmitting(true)
     setIsCreatingGoal(true)
 
     try {
+      const cleanedData = cleanData(data)
+
       if (isEditing && goal) {
         // Update existing goal
         const updateData = {
-          ...data,
-          targetDate: data.targetDate.toISOString(),
-          startDate: data.startDate?.toISOString(),
+          ...cleanedData,
+          targetDate: cleanedData.targetDate.toISOString(),
+          startDate: cleanedData.startDate?.toISOString(),
         }
 
         const response = await goalsApi.updateGoal(goal.id, updateData)
@@ -382,13 +400,13 @@ export function CreateGoalDialog({
         if (response.success && response.data) {
           posthog.capture('goal_updated', {
             goal_id: goal.id,
-            goal_type: data.type,
-            goal_category: data.category,
-            priority: data.priority,
-            source_type: data.sourceType,
-            has_recurring_contribution: !!data.recurringAmount,
+            goal_type: cleanedData.type,
+            goal_category: cleanedData.category,
+            priority: cleanedData.priority,
+            source_type: cleanedData.sourceType,
+            has_recurring_contribution: !!cleanedData.recurringAmount,
             milestone_count: milestones.length,
-            tag_count: data.tags?.length || 0,
+            tag_count: cleanedData.tags?.length || 0,
           })
           updateGoal(response.data)
           toast.success("Goal updated successfully!", {
@@ -404,9 +422,9 @@ export function CreateGoalDialog({
       } else {
         // Create new goal
         const requestData: CreateGoalRequest = {
-          ...data,
-          targetDate: data.targetDate.toISOString(),
-          startDate: data.startDate?.toISOString(),
+          ...cleanedData,
+          targetDate: cleanedData.targetDate.toISOString(),
+          startDate: cleanedData.startDate?.toISOString(),
           milestones: milestones.map((m, index) => ({
             ...m,
             sortOrder: index,
@@ -417,13 +435,13 @@ export function CreateGoalDialog({
 
         if (response.success && response.data) {
           posthog.capture('goal_created', {
-            goal_type: data.type,
-            goal_category: data.category,
-            priority: data.priority,
-            source_type: data.sourceType,
-            has_recurring_contribution: !!data.recurringAmount,
+            goal_type: cleanedData.type,
+            goal_category: cleanedData.category,
+            priority: cleanedData.priority,
+            source_type: cleanedData.sourceType,
+            has_recurring_contribution: !!cleanedData.recurringAmount,
             milestone_count: milestones.length,
-            tag_count: data.tags?.length || 0,
+            tag_count: cleanedData.tags?.length || 0,
           })
           addGoal(response.data)
           toast.success("Goal created successfully!", {
@@ -1083,7 +1101,7 @@ export function CreateGoalDialog({
                       type="button"
                       variant="outline"
                       size={'sm'}
-                      onClick={handleBack}
+                      onClick={(e) => handleBack(e as any)}
                       disabled={isSubmitting}
                     >
                       Back
@@ -1094,7 +1112,7 @@ export function CreateGoalDialog({
                     <Button
                     size={'sm'}
                       type="button"
-                      onClick={handleNext}
+                      onClick={(e) => handleNext(e as any)}
                       disabled={isSubmitting}
                     >
                       Next

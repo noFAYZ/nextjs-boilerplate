@@ -165,6 +165,31 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
         partialize: (state) => ({
           widgets: state.widgets,
         }),
+        // Version for detecting stale cache and rebuilding
+        // Incremented to force cache reset and widget state rebuild
+        version: 3,
+        // Migrate from old format if needed and merge with defaults
+        migrate: (persistedState: any, version: number) => {
+          // Always merge persisted widgets with defaults to ensure all widgets exist
+          const persistedWidgets = persistedState?.widgets || {};
+          const mergedWidgets = {
+            ...DEFAULT_WIDGETS,
+            ...persistedWidgets,
+          };
+
+          // If version is old (less than 3), merge with defaults to fix any corruption
+          if (version < 3) {
+            return {
+              ...initialState,
+              widgets: mergedWidgets,
+            };
+          }
+
+          return {
+            ...persistedState,
+            widgets: mergedWidgets,
+          };
+        },
       }
     ),
     {

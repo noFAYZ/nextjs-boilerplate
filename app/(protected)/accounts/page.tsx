@@ -443,7 +443,7 @@ export default function AccountsPage() {
 
   // Handle account click - navigate to account details
   const handleAccountClick = (accountId: string) => {
-    router.push(`/accounts/${accountId}`);
+    router.push(`/accounts/bank/${accountId}`);
   };
 
   // Handle drag end for reordering

@@ -101,7 +101,13 @@ interface WidgetSettingsModalProps {
  */
 export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProps) {
   const [expandedWidget, setExpandedWidget] = useState<WidgetId | null>(null);
-  const widgets = useDashboardLayoutStore((state) => state.widgets);
+
+  // Use specific selector to ensure proper re-renders
+  const widgets = useDashboardLayoutStore((state) => {
+    // Return a new reference when widgets change to ensure re-render
+    return state.widgets;
+  });
+
   const setWidgetVisible = useDashboardLayoutStore((state) => state.setWidgetVisible);
   const setWidgetSize = useDashboardLayoutStore((state) => state.setWidgetSize);
   const resetLayout = useDashboardLayoutStore((state) => state.resetLayout);
@@ -126,8 +132,17 @@ export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProp
   };
 
   const handleWidgetToggle = (id: WidgetId) => {
-    const currentVisibility = widgets[id]?.visible ?? true;
+    // Get current state - default to true (visible) if not set
+    const currentState = widgets[id];
+    const currentVisibility = currentState?.visible !== false;
+
+    // Toggle the visibility
     setWidgetVisible(id, !currentVisibility);
+
+    // Close expansion when toggling visibility
+    if (expandedWidget === id) {
+      setExpandedWidget(null);
+    }
   };
 
   return (
@@ -214,11 +229,12 @@ export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProp
                                 </p>
                               )}
                             </div>
-                            <div className="flex-shrink-0 flex items-center gap-2">
+                            <div className="flex-shrink-0 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                               <Switch
                                 checked={isVisible}
-                                onCheckedChange={() => handleWidgetToggle(widget.id)}
-                                onClick={(e) => e.stopPropagation()}
+                                onCheckedChange={() => {
+                                  handleWidgetToggle(widget.id);
+                                }}
                                 className="data-[state=checked]:bg-primary"
                               />
                             </div>
@@ -226,7 +242,7 @@ export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProp
                         </div>
 
                         {/* Size Selection (Expanded) */}
-                        {isExpanded && isVisible && (
+                        {isExpanded && (
                           <div className="ml-4 p-3 bg-muted/30 rounded-lg border border-border/50 space-y-2">
                             <p className="text-xs font-medium text-foreground mb-2">Widget Size</p>
                             <div className="grid grid-cols-2 gap-2">
@@ -237,8 +253,10 @@ export function WidgetSettingsModal({ isOpen, onClose }: WidgetSettingsModalProp
                                     setWidgetSize(widget.id, size);
                                     setExpandedWidget(null);
                                   }}
+                                  disabled={!isVisible}
                                   className={cn(
                                     'p-2.5 rounded-lg border transition-all text-left',
+                                    !isVisible && 'opacity-50 cursor-not-allowed',
                                     currentSize === size
                                       ? 'bg-primary/15 border-primary/50 ring-1 ring-primary/30'
                                       : 'border-border/50 hover:border-border hover:bg-muted/50'

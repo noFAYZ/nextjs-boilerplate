@@ -45,13 +45,12 @@ import { BankAccountGrid } from './BankAccountCard';
 import { BankTransactionList } from './BankTransactionCard';
 import { BankingGlobalSyncStatus } from './BankAccountSyncProgress';
 import {
-  useOrganizationBankingAccounts,
-  useOrganizationBankingOverview,
-  useOrganizationBankingTransactions,
-  useOrganizationTopSpendingCategories,
-  useOrganizationMonthlySpendingTrend,
-  useOrganizationBankingGroupedAccounts
-} from '@/lib/queries/use-organization-data-context';
+  useBankingGroupedAccounts,
+  useBankingOverview,
+  useBankingTransactions,
+  useTopSpendingCategories,
+  useMonthlySpendingTrend
+} from '@/lib/queries/use-banking-data';
 import {
   bankingMutations
 } from '@/lib/queries/banking-queries';
@@ -99,10 +98,10 @@ export function BankingDashboard({
 
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Queries (organization-aware)
-  const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useOrganizationBankingGroupedAccounts();
-  const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useOrganizationBankingOverview();
-  const { data: transactionsData = [], isLoading: transactionsLoading } = useOrganizationBankingTransactions({
+  // Queries (banking endpoints)
+  const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useBankingGroupedAccounts();
+  const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
+  const { data: transactionsData = [], isLoading: transactionsLoading } = useBankingTransactions({
     limit: 10,
     startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd')
   });
@@ -118,8 +117,8 @@ export function BankingDashboard({
   const recentTransactions = Array.isArray(transactionsData)
     ? transactionsData
     : transactionsData?.data || [];
-  const { data: spendingCategories = [] } = useOrganizationTopSpendingCategories(selectedTimeRange);
-  const { data: monthlyTrend = [] } = useOrganizationMonthlySpendingTrend(selectedTimeRange);
+  const { data: spendingCategories = [] } = useTopSpendingCategories({ timeRange: selectedTimeRange });
+  const { data: monthlyTrend = [] } = useMonthlySpendingTrend({ timeRange: selectedTimeRange });
 
   // Mutations
   const syncAccount = bankingMutations.useSyncAccount();

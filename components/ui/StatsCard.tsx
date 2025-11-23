@@ -36,9 +36,9 @@ interface CompactStatCardProps {
   
     return (
 
-        <Card className={cn("p-2 bg-muted/60 hover-shadow")}>
-          <div className="flex items-center  gap-3">
-          <div className={cn("size-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm", iconVariantStyles[variant])}>
+        <Card className="px-2 py-1.5 border-border/50" >
+          <div className="flex items-center  gap-2">
+          <div className={cn("size-9 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm", iconVariantStyles[variant])}>
               <Icon className="size-6 " />
             </div>
             <div className="w-full">
