@@ -1,15 +1,14 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 
 import AuthForm from '@/components/auth/auth-form';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignInFormData } from '@/lib/types';
-import { PageLoader } from '@/components/ui/page-loader';
 import { useAuthStore, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
-import { useLoading } from '@/lib/contexts/loading-context';
+import { toast } from 'sonner';
 function LoginForm() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
@@ -17,7 +16,6 @@ function LoginForm() {
   const clearError = useAuthStore((state) => state.clearAuthErrors);
   const session = useAuthStore(selectSession);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
-  const { showLoading, showSuccess, showError } = useLoading();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -30,15 +28,15 @@ function LoginForm() {
     clearError();
 
     try {
-      showLoading('Signing you in...');
+      // Navigate to loading screen
+      router.push('/auth/login-loading');
+      
+      // Perform login
       await login(data?.email, data?.password);
       posthog.capture('login_form_submitted', { success: true });
-      showSuccess('Welcome back! Redirecting to dashboard...');
-
-      // Redirect to dashboard after successful login
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
+      
+      // Navigate to success screen (which will auto-redirect to dashboard)
+      router.push('/auth/login-success');
     } catch (error) {
       const errorObj = error as Error & { code?: string };
       posthog.capture('login_form_submitted', {
@@ -46,15 +44,19 @@ function LoginForm() {
         error_code: errorObj.code,
         error_message: error instanceof Error ? error.message : String(error),
       });
+      
+      // Navigate back to login page
+      router.push('/auth/login');
+      
       // Check if error is EMAIL_NOT_VERIFIED
       if (errorObj.code === 'EMAIL_NOT_VERIFIED') {
         // Redirect to verification page with email
-        showError('Please verify your email to continue');
+        toast.error('Please verify your email to continue');
         setTimeout(() => {
           router.push(`/auth/resend-verification?email=${encodeURIComponent(data?.email)}`);
         }, 1500);
       } else {
-        showError(error instanceof Error ? error.message : 'Login failed');
+        toast.error(error instanceof Error ? error.message : 'Login failed');
       }
     }
   };
@@ -89,9 +91,5 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return (
-    <Suspense fallback={<PageLoader message="Loading login..." />}>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginForm />;
 }

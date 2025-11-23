@@ -25,7 +25,7 @@ export function PageLoader({
   fullScreen = true
 }: PageLoaderProps) {
   const containerClasses = fullScreen 
-    ? "fixed inset-0 z-40 flex items-center justify-center bg-background" 
+    ? "fixed inset-0 z-40 flex items-center justify-center bg-card" 
     : "flex items-center justify-center min-h-[200px]"
 
   return (

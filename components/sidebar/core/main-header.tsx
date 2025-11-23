@@ -84,10 +84,18 @@ export function MainHeader({
 
   const handleSignOut = useCallback(async () => {
     try {
+      // Navigate to logout loading screen
+      router.push('/auth/logout-loading');
+      
+      // Perform logout
       await authClient.signOut();
+      
+      // Navigate directly to login (no success screen)
       router.push('/auth/login');
     } catch (error) {
       console.error('Sign out failed:', error);
+      // On error, redirect to login
+      router.push('/auth/login');
     }
   }, [router]);
 
