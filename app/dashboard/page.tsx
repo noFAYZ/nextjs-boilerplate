@@ -28,6 +28,7 @@ import {
   UpcomingBillsWidget,
   RecentActivityWidget,
   GoalsOverviewWidget,
+  BudgetOverviewWidget,
 } from '@/components/dashboard-widgets';
 
 // Import dashboard components
@@ -95,6 +96,10 @@ export default function DashboardPage() {
     {
       id: 'goals',
       component: <GoalsOverviewWidget />,
+    },
+    {
+      id: 'budgets',
+      component: <BudgetOverviewWidget />,
     },
   ];
 

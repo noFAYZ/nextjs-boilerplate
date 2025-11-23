@@ -84,6 +84,11 @@ const WIDGET_OPTIONS: WidgetOption[] = [
     label: 'Goals Overview',
     category: 'Goals',
   },
+  {
+    id: 'budgets',
+    label: 'Budgets Overview',
+    category: 'Financial',
+  },
 ];
 
 interface WidgetSettingsModalProps {

@@ -317,6 +317,53 @@ const MENU_ITEMS: MenuItem[] = [
     ]
   },
   {
+    id: 'budgets',
+    label: 'Budgets',
+    icon: SolarCalculatorBoldDuotone,
+    href: '/budgets',
+    submenu: [
+      {
+        id: 'all-budgets',
+        label: 'All Budgets',
+        href: '/budgets',
+        icon: SolarCalculatorBoldDuotone,
+        description: 'View and manage all your budgets',
+        tooltip: 'Track spending against your budgets'
+      },
+      {
+        id: 'active-budgets',
+        label: 'Active Budgets',
+        href: '/budgets',
+        icon: TrendingUp,
+        description: 'Currently active budgets',
+        tooltip: 'Your active budget plans'
+      },
+      {
+        id: 'exceeded-budgets',
+        label: 'Exceeded',
+        href: '/budgets',
+        icon: TrendingUp,
+        description: 'Over-budget alerts',
+        tooltip: 'Budgets you have exceeded',
+        iconColor: '#ef4444'
+      },
+      {
+        id: 'create-budget',
+        label: 'Create Budget',
+        href: '/budgets',
+        icon: Plus,
+        description: 'Create a new budget',
+        tooltip: 'Set up a new spending budget',
+        iconColor: '#10b981'
+      }
+    ],
+    quickActions: [
+      { id: 'create-budget', label: 'Create Budget', icon: Plus, action: () => {}, shortcut: '⌘U' },
+      { id: 'budget-alerts', label: 'Budget Alerts', icon: Bell, action: () => {}, },
+      { id: 'budget-insights', label: 'Budget Insights', icon: Lightbulb, action: () => {}, }
+    ]
+  },
+  {
     id: 'subscriptions',
     label: 'Subscriptions',
     icon: SolarInboxInBoldDuotone,

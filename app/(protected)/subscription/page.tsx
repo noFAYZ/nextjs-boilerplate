@@ -196,11 +196,26 @@ export default function SubscriptionPage() {
     }
   };
 
+  // IMPORTANT: All hooks must be called before any conditional returns
+  // This useEffect must be here to maintain consistent hook order
+  useEffect(() => {
+    if (isInitialized && !isLoading) {
+      console.debug('Subscription data loaded:', {
+        currentSubscription,
+        subscriptionHistory,
+        paymentHistory,
+        usageStats,
+        lastFetched,
+      });
+    }
+  }, [isInitialized, isLoading, currentSubscription, subscriptionHistory, paymentHistory, usageStats, lastFetched]);
+
+  // Early returns AFTER all hooks
   if (isLoading && !isInitialized) {
     return (
-      <AuthGuard>
+    
         <PageLoader message="Loading your subscription details..." />
-      </AuthGuard>
+      
     );
   }
 
@@ -222,45 +237,17 @@ export default function SubscriptionPage() {
     );
   }
 
-  useEffect(() => {
-    if (isInitialized && !isLoading) {
-      console.debug('Subscription data loaded:', {
-        currentSubscription,
-        subscriptionHistory,
-        paymentHistory,
-        usageStats,
-        lastFetched,
-      });
-    }
-  }, [isInitialized, isLoading, currentSubscription, subscriptionHistory, paymentHistory, usageStats, lastFetched]);
-
 
   return (
-    <AuthGuard>
-      <div className=" bg-background p-8 relative">
-        {/* Loading Overlay for Refresh */}
-        {isLoading && isInitialized && (
+
+      <div className="  relative">
     
-            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-            <Card className="px-6 shadow-none">
-              <div className="flex items-center space-x-3">
-                <LogoLoader className="w-8 h-8" />
-                <span className="text-sm font-medium">Refreshing data....</span>
-              </div>
-            </Card>
-          </div>
-        )}
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex-1" />
-              <div className="">
-                <h1 className="text-4xl font-bold">Subscription Management</h1>
-                <p className="text-muted-foreground text-lg">
-                  Manage your MoneyMappr subscription and billing preferences
-                </p>
-              </div>
+         
               <div className="flex-1 flex justify-end">
                 <div className="flex flex-col items-end space-y-2">
                   <Button
@@ -567,6 +554,6 @@ export default function SubscriptionPage() {
           )}
         </div>
       </div>
-    </AuthGuard>
+   
   );
 }

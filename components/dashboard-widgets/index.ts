@@ -12,8 +12,9 @@ export { NetworkDistributionWidget } from './network-distribution-widget';
 // Banking Widgets
 export { AccountSpendingComparisonWidget } from './account-spending-comparison-widget';
 
-// Goals & Subscriptions Widgets
+// Goals, Budgets & Subscriptions Widgets
 export { GoalsOverviewWidget } from './goals-overview-widget';
+export { BudgetOverviewWidget } from './budget-overview-widget';
 export { SubscriptionsOverviewWidget } from './subscriptions-overview-widget';
 export { CalendarSubscriptionWidget } from './calendar-subscription-widget';
 export { UpcomingBillsWidget } from './upcoming-bills-widget';

@@ -25,15 +25,15 @@ export function PageLoader({
   fullScreen = true
 }: PageLoaderProps) {
   const containerClasses = fullScreen 
-    ? "fixed inset-0 z-40 flex items-center justify-center bg-card" 
-    : "flex items-center justify-center min-h-[200px]"
+    ? "  flex items-center justify-center bg-card" 
+    : "flex items-center justify-center min-h-[600px]"
 
   return (
     <div className={cn(containerClasses, className)}>
       <div className="flex flex-col items-center gap-4 text-center">
         <LogoLoader className={cn(sizeClasses[size])} />
         {message && (
-          <p className="text-sm text-muted-foreground font-medium animate-pulse">
+          <p className="text-sm text-muted-foreground font-medium ">
             {message}
           </p>
         )}

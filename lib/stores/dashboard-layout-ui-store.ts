@@ -35,6 +35,7 @@ export type WidgetId =
   | 'upcoming-bills'
   | 'recent-activity'
   | 'goals'
+  | 'budgets'
   | 'money-flow';
 
 export interface WidgetLayout {
@@ -93,7 +94,8 @@ const DEFAULT_WIDGETS: Record<WidgetId, WidgetLayout> = {
   'upcoming-bills': { id: 'upcoming-bills', visible: false, order: 9, size: 'medium' },
   'recent-activity': { id: 'recent-activity', visible: false, order: 10, size: 'large' },
   'goals': { id: 'goals', visible: false, order: 11, size: 'medium' },
-  'money-flow': { id: 'money-flow', visible: false, order: 12, size: 'full' },
+  'budgets': { id: 'budgets', visible: false, order: 12, size: 'medium' },
+  'money-flow': { id: 'money-flow', visible: false, order: 13, size: 'full' },
 };
 
 const initialState: DashboardLayoutState = {
@@ -167,7 +169,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
         }),
         // Version for detecting stale cache and rebuilding
         // Incremented to force cache reset and widget state rebuild
-        version: 3,
+        version: 4,
         // Migrate from old format if needed and merge with defaults
         migrate: (persistedState: any, version: number) => {
           // Always merge persisted widgets with defaults to ensure all widgets exist
@@ -177,8 +179,8 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
             ...persistedWidgets,
           };
 
-          // If version is old (less than 3), merge with defaults to fix any corruption
-          if (version < 3) {
+          // If version is old (less than 4), merge with defaults to fix any corruption and add new widgets
+          if (version < 4) {
             return {
               ...initialState,
               widgets: mergedWidgets,

@@ -190,7 +190,7 @@ console.log(user?.image)
           </div>
 
           {/* Center Section - Action Search Bar (Always Centered) */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full max-w-lg px-3 sm:px-4 md:px-6">
+          <div className="absolute left-1/2  -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full md:max-w-md px-3 sm:px-4 md:px-6">
             <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
           </div>
 
