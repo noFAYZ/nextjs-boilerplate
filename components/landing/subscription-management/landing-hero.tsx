@@ -180,7 +180,7 @@ export function LandingHero() {
           transition={{ delay: 0.5 }}
           className="mt-8 flex justify-center gap-4 flex-wrap"
         >
-          <AvatarCircles numPeople={73} avatarUrls={[
+          <AvatarCircles numPeople={49} avatarUrls={[
   "https://avatars.githubusercontent.com/u/16860528",
   "https://avatars.githubusercontent.com/u/20110627",
   "https://avatars.githubusercontent.com/u/106103625",

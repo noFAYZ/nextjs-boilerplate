@@ -4,23 +4,23 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 
 const ICONS_ROW1 = [
-  "https://cdn-icons-png.flaticon.com/512/5968/5968854.png",
-  "https://cdn-icons-png.flaticon.com/512/732/732221.png",
-  "https://cdn-icons-png.flaticon.com/512/733/733609.png",
-  "https://cdn-icons-png.flaticon.com/512/732/732084.png",
-  "https://cdn-icons-png.flaticon.com/512/733/733585.png",
-  "https://cdn-icons-png.flaticon.com/512/281/281763.png",
-  "https://cdn-icons-png.flaticon.com/512/888/888879.png",
+  "https://cdn-icons-png.flaticon.com/512/196/196559.png", // Chase
+  "https://cdn-icons-png.flaticon.com/512/732/732204.png", // Bank of America
+  "https://cdn-icons-png.flaticon.com/512/196/196566.png", // Wells Fargo
+  "https://cdn-icons-png.flaticon.com/512/888/888857.png", // Citibank
+  "https://cdn-icons-png.flaticon.com/512/196/196578.png", // HSBC
+  "https://cdn-icons-png.flaticon.com/512/196/196554.png", // Capital One
+  "https://cdn-icons-png.flaticon.com/512/196/196571.png", // Santander
 ];
 
 const ICONS_ROW2 = [
-  "https://cdn-icons-png.flaticon.com/512/174/174857.png",
-  "https://cdn-icons-png.flaticon.com/512/906/906324.png",
-  "https://cdn-icons-png.flaticon.com/512/888/888841.png",
-  "https://cdn-icons-png.flaticon.com/512/5968/5968875.png",
-  "https://cdn-icons-png.flaticon.com/512/906/906361.png",
-  "https://cdn-icons-png.flaticon.com/512/732/732190.png",
-  "https://cdn-icons-png.flaticon.com/512/888/888847.png",
+  "https://cdn-icons-png.flaticon.com/512/174/174861.png", // PayPal
+  "https://cdn-icons-png.flaticon.com/512/349/349228.png", // Visa
+  "https://cdn-icons-png.flaticon.com/512/5968/5968144.png", // Mastercard
+  "https://cdn-icons-png.flaticon.com/512/888/888879.png", // Revolut
+  "https://cdn-icons-png.flaticon.com/512/6124/6124991.png", // Monzo
+  "https://cdn-icons-png.flaticon.com/512/888/888841.png", // Stripe
+  "https://cdn-icons-png.flaticon.com/512/825/825454.png", // Coinbase
 ];
 
 // Utility to repeat icons enough times

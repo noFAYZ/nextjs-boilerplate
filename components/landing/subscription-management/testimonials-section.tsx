@@ -119,91 +119,92 @@ export function Testimonials({
   )
 }
 const testimonials = [
-    {
-      image: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      text: 'I\'m blown away by the versatility of the components in this library. They make UI development a breeze!',
-      name: 'Alice Johnson',
-      username: '@alicejohnson',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      text: 'Using this component library has significantly speed up our development process. The quality and ease of integration are remarkable!',
-      name: 'David Smith',
-      username: '@davidsmith',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/kaDy9hV.jpeg',
-      text: 'The components in this library are not just well-designed but also highly customizable. It\'s a developer\'s dream!',
-      name: 'Emma Brown',
-      username: '@emmabrown',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/cRwFxtE.png',
-      text: 'I love  how intuitive and well-documented this component library is. It has significantly improved our UI consistency across projects.',
-      name: 'James Wilson',
-      username: '@jameswilson',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/TQIqsob.png',
-      text: 'Implementing this component library was a game-changer for our team. It has elevated our product\'s UI to a whole new level!',
-      name: 'Sophia Lee',
-      username: '@sophialee',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/3ROmJ0S.png',
-      text: 'Using this library has been a game-changer for our product development.',
-      name: 'Michael Davis',
-      username: '@michaeldavis',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/6fKCuVC.png',
-      text: 'The components are highly responsive and work seamlessly across different devices and screen sizes.',
-      name: 'Emily Chen',
-      username: '@emilychen',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/Jjqe7St.png',
-      text: 'I love how easy it is to customize the components  to fit our brand\'s style. The design is clean and modern.',
-      name: 'Robert Lee',
-      username: '@robertlee',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/bG88vHI.png',
-      text: 'This library has saved us a significant amount of time and effort. The components are well-documented and easy to integrate.',
-      name: 'Sarah Taylor',
-      username: '@sarahtaylor',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/tjmS77j.png',
-      text: 'I appreciate the attention to detail in the design. The components are visually appealing and professional.',
-      name: 'Kevin White',
-      username: '@kevinwhite',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/yTsomza.png',
-      text: 'The components are highly customizable and can be easily integrated with our existing UI framework.',
-      name: 'Rachel Patel',
-      username: '@rachelpatel',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    },
-    {
-      image: 'https://i.imgur.com/pnsLqpq.png',
-      text: 'I love how the components are designed to be highly responsive and work well across different screen sizes.',
-      name: 'Brian Kim',
-      username: '@briankim',
-      social: 'https://i.imgur.com/VRtqhGC.png'
-    }
-  ];
+  {
+    image: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    text: 'This app finally gave me a single place to track both my traditional accounts and my crypto wallets. The clarity it brings to my finances is unmatched.',
+    name: 'Alice Johnson',
+    username: '@alicejohnson',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    text: 'Our team adopted this app internally, and the ability to link banks, exchanges, and cold wallets in one dashboard has transformed how we manage budgets.',
+    name: 'David Smith',
+    username: '@davidsmith',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/kaDy9hV.jpeg',
+    text: 'The budgeting tools are intuitive, and the real-time crypto tracking is a huge bonus. It’s easily the most complete finance manager I’ve used.',
+    name: 'Emma Brown',
+    username: '@emmabrown',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/cRwFxtE.png',
+    text: 'This app helped standardize financial reporting across my projects. I especially appreciate the accuracy of the exchange balance updates.',
+    name: 'James Wilson',
+    username: '@jameswilson',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/TQIqsob.png',
+    text: 'The seamless integration with crypto accounts is a game-changer. I can finally see my entire net worth—including on-chain assets—at a glance.',
+    name: 'Sophia Lee',
+    username: '@sophialee',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/3ROmJ0S.png',
+    text: 'I’ve tried several finance apps, but none handled both DeFi and bank accounts this well. Everything updates instantly and just works.',
+    name: 'Michael Davis',
+    username: '@michaeldavis',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/6fKCuVC.png',
+    text: 'Whether I’m on my laptop or phone, the app feels fast and reliable. The cross-device syncing for crypto data is extremely impressive.',
+    name: 'Emily Chen',
+    username: '@emilychen',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/Jjqe7St.png',
+    text: 'Customizing categories and dashboards for both fiat and crypto spending has made tracking my habits actually enjoyable.',
+    name: 'Robert Lee',
+    username: '@robertlee',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/bG88vHI.png',
+    text: 'The documentation is excellent, and the setup was effortless. Connecting banks, exchanges, and wallets took minutes instead of hours.',
+    name: 'Sarah Taylor',
+    username: '@sarahtaylor',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/tjmS77j.png',
+    text: 'The attention to detail is clear throughout the experience. The visual net worth graphs for both fiat and crypto are especially well-designed.',
+    name: 'Kevin White',
+    username: '@kevinwhite',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/yTsomza.png',
+    text: 'I love how easily the app integrates with my existing setup. From centralized exchanges to cold wallets, everything syncs without issues.',
+    name: 'Rachel Patel',
+    username: '@rachelpatel',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  },
+  {
+    image: 'https://i.imgur.com/pnsLqpq.png',
+    text: 'It’s rare to find a finance management app this thorough. The crypto support is not an afterthought—it’s built into every part of the product.',
+    name: 'Brian Kim',
+    username: '@briankim',
+    social: 'https://i.imgur.com/VRtqhGC.png'
+  }
+];
+
   
   export function TestimonialsDemo() {
     return (
