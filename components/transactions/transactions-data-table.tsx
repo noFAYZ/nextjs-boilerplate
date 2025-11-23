@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Fragment, useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -313,6 +313,19 @@ export function TransactionsDataTable({
     return filtered;
   }, [transactions, searchTerm, typeFilter, statusFilter, sourceFilter, sortBy]);
 
+  // Group transactions by date
+  const groupedTransactions = useMemo(() => {
+    const groups: { [key: string]: UnifiedTransaction[] } = {};
+    filteredTransactions.forEach((tx) => {
+      const date = formatDate(new Date(tx.timestamp), 'MMMM dd, yyyy');
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(tx);
+    });
+    return groups;
+  }, [filteredTransactions]);
+
   // Paginate
   const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
   const paginatedTransactions = filteredTransactions.slice(
@@ -332,25 +345,23 @@ export function TransactionsDataTable({
           <Table>
             <TableHeader className="bg-muted/80 border-b border-border/50">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3">Type</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3 min-w-[250px]">Description</TableHead>
+                <TableHead className="w-10 px-4 py-3"></TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3 min-w-[250px]">Transaction</TableHead>
                 <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Account</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Category</TableHead>
                 <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Amount</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Date</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3">Status</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-4 py-3 w-10"></TableHead>
+                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3 w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {[...Array(4)].map((_, i) => (
                 <TableRow key={i} className="border-b border-border/30">
-                  <TableCell className="px-4 py-3"><div className="h-6 w-6 bg-muted rounded-full animate-pulse" /></TableCell>
-                  <TableCell className="px-4 py-3"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></TableCell>
-                  <TableCell className="hidden sm:table-cell px-4 py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="hidden lg:table-cell px-4 py-3"><div className="h-4 w-20 bg-muted rounded ml-auto animate-pulse" /></TableCell>
-                  <TableCell className="hidden md:table-cell px-4 py-3"><div className="h-4 w-28 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="px-4 py-3"><div className="h-6 w-20 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="px-4 py-3"><div className="h-4 w-4 bg-muted rounded animate-pulse ml-auto" /></TableCell>
+                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded-full animate-pulse" /></TableCell>
+                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></TableCell>
+                  <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
+                  <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded animate-pulse" /></TableCell>
+                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded ml-auto animate-pulse" /></TableCell>
+                  <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded animate-pulse ml-auto" /></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -392,126 +403,136 @@ export function TransactionsDataTable({
   return (
     <div className="space-y-4">
       {/* Data Table */}
-      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm">
-        <Table>
-          <TableHeader className="bg-muted/80 border-b border-border/50">
-            <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="w-10 px-4 py-3"></TableHead>
-              <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3 min-w-[250px]">Transaction</TableHead>
-              <TableHead className="hidden sm:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Account</TableHead>
-              <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Amount</TableHead>
-              <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Date</TableHead>
-              <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Status</TableHead>
-              <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3 w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedTransactions.map((tx) => (
-              <TableRow
-                key={tx.id}
-                className={cn(
-                  'group border-b border-border/30 hover:bg-muted/30 transition-colors py-2'
-                )}
-              >
-                {/* Type Icon */}
-                <TableCell className="px-4 py-3">
-                  <div className={`flex justify-center h-8 w-8 rounded-full items-center ${getTypeBgColor(tx.type)}`}>
-                    {getTypeIcon(tx.type)}
-                  </div>
-                </TableCell>
-
-                {/* Description */}
-                <TableCell className="px-4 py-3 cursor-pointer group-hover:text-primary transition-colors">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {tx.description}
-                    </p>
-                    {tx.hash && (
-                      <p className="text-xs text-muted-foreground font-mono truncate">
-                        {tx.hash.slice(0, 32)}...
-                      </p>
-                    )}
-                  </div>
-                </TableCell>
-
-                {/* Account */}
-                <TableCell className="hidden sm:table-cell px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
-                      {tx.account?.name.charAt(0).toUpperCase() || 'A'}
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {tx.account?.name || 'Unknown'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {tx.account?.type === 'CRYPTO' ? 'Crypto' : tx?.account?.institute}
-                        
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-
-                {/* Amount */}
-                <TableCell className="hidden lg:table-cell text-right px-4 py-3">
-                  <div className={cn('font-semibold text-sm', getTypeColor(tx.type))}>
-                    <span>{tx.type === 'SEND' || tx.type === 'WITHDRAWAL' ? '-' : '+'}</span>
-                    <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline" />
-                  </div>
-                </TableCell>
-
-                {/* Date */}
-                <TableCell className="hidden md:table-cell px-4 py-3">
-                  <p className="text-sm font-medium text-foreground">
-                    {formatDate(new Date(tx.timestamp), 'MMM dd, yyyy')}
-                  </p>
-                </TableCell>
-
-                {/* Status */}
-                <TableCell className="text-right px-4 py-3">
-                  <Badge
-                    className={cn('text-xs rounded-md font-medium', getStatusColor(tx.status))}
-                  >
-                    {tx.status === 'CONFIRMED' || tx.status === 'COMPLETED'
-                      ? 'Completed'
-                      : tx.status === 'PROCESSING'
-                        ? 'Processing'
-                        : tx.status}
-                  </Badge>
-                </TableCell>
-
-                {/* Actions */}
-                <TableCell className="text-center px-2 sm:px-4 py-3">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {tx.hash && (
-                          <DropdownMenuItem>
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View on {tx.source === 'CRYPTO' ? 'Explorer' : 'Bank'}
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem>
-                          <Download className="h-4 w-4 mr-2" />
-                          Export
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TableCell>
+      <div className="bg-card border border-border/80 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-muted/80 border-b border-border/50">
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="w-8 sm:w-10 px-2 sm:px-4 py-2 sm:py-3"></TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[200px] sm:min-w-[250px]">Transaction</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[150px]">Account</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3">Category</TableHead>
+                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[80px]">Amount</TableHead>
+                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"></TableHead>
               </TableRow>
-            ))}
+            </TableHeader>
+          <TableBody>
+            {Object.entries(groupedTransactions).map(([date, txs]) => {
+              const txsInPage = txs.filter(tx => paginatedTransactions.includes(tx));
+              if (txsInPage.length === 0) return null;
+
+              return (
+                <Fragment key={date}>
+                  {/* Date Separator */}
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={6} className="px-2 sm:px-4 py-2 sm:py-3 bg-muted/40">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {date}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+
+                  {/* Transactions for this date */}
+                  {txsInPage.map((tx) => (
+                    <TableRow
+                      key={tx.id}
+                      className={cn(
+                        'group border-b border-border/30 hover:bg-muted/30 transition-colors py-2'
+                      )}
+                    >
+                      {/* Type Icon */}
+                      <TableCell className="px-2 sm:px-4 py-2 sm:py-3">
+                        <div className={`flex justify-center h-8 sm:h-10 w-8 sm:w-10 rounded-full items-center ${getTypeBgColor(tx.type)}`}>
+                          {getTypeIcon(tx.type)}
+                        </div>
+                      </TableCell>
+
+                      {/* Description */}
+                      <TableCell className="px-2 sm:px-4 py-2 sm:py-3 cursor-pointer group-hover:text-primary transition-colors">
+                        <div className="flex flex-col gap-1">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {tx.description}
+                          </p>
+                          {tx.hash && (
+                            <p className="text-xs text-muted-foreground font-mono truncate">
+                              {tx.hash.slice(0, 32)}...
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      {/* Account */}
+                      <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
+                            {tx.account?.name.charAt(0).toUpperCase() || 'A'}
+                          </div>
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {tx.account?.name || 'Unknown'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {tx.account?.type === 'CRYPTO' ? 'Crypto' : tx?.account?.institute}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Category */}
+                      <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3">
+                        {tx.category ? (
+                          <Badge variant="outline" className="text-xs">
+                            {tx.category}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+
+                      {/* Amount */}
+                      <TableCell className="text-right px-2 sm:px-4 py-2 sm:py-3 min-w-[80px]">
+                        <div className={cn('font-semibold text-sm', getTypeColor(tx.type))}>
+                          <span>{tx.type === 'SEND' || tx.type === 'WITHDRAWAL' ? '-' : '+'}</span>
+                          <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline" />
+                        </div>
+                      </TableCell>
+
+                      {/* Actions */}
+                      <TableCell className="text-center px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="h-8 w-8 sm:h-10 sm:w-10"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {tx.hash && (
+                                <DropdownMenuItem>
+                                  <ExternalLink className="h-4 w-4 mr-2" />
+                                  View on {tx.source === 'CRYPTO' ? 'Explorer' : 'Bank'}
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem>
+                                <Download className="h-4 w-4 mr-2" />
+                                Export
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </Fragment>
+              );
+            })}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       {/* Pagination */}

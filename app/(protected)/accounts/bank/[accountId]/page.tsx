@@ -79,6 +79,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
+import { TransactionsDataTable, UnifiedTransaction } from "@/components/transactions/transactions-data-table";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -267,6 +268,30 @@ export default function BankAccountDetailsPage() {
     return sortTransactions(filtered, sortOrder);
   }, [transactions, searchQuery, selectedFilter, dateRange, sortOrder]);
 
+  // Transform banking transactions to UnifiedTransaction format
+  const unifiedTransactions = useMemo(() => {
+    return filteredTransactions.map((tx: any) => ({
+      id: tx.id,
+      type: parseFloat(tx.amount.toString()) > 0 ? 'DEPOSIT' : 'WITHDRAWAL',
+      status: 'COMPLETED' as const,
+      timestamp: tx.date,
+      amount: Math.abs(parseFloat(tx.amount.toString())),
+      currency: 'USD',
+      description: tx.description || tx.merchantName || 'Transaction',
+      hash: tx.id,
+      merchent: tx.merchantName,
+      account: {
+        id: account?.id || '',
+        name: account?.name || 'Unknown Account',
+        type: 'BANKING' as const,
+        institute: account?.institutionName || '',
+      },
+      category: tx.category,
+      tags: [],
+      source: 'BANKING' as const,
+    })) as UnifiedTransaction[];
+  }, [filteredTransactions, account]);
+
   // ✅ Analytics calculations using centralized utilities
   const analytics = useMemo(() => {
     return calculateTransactionAnalytics(transactions);
@@ -431,242 +456,110 @@ export default function BankAccountDetailsPage() {
 
         {/* Transactions Tab */}
         <TabsContent value="transactions" className="space-y-3">
-          {transactionsLoading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
-            ))
-          ) : filteredTransactions.length > 0 ? (
-            <>
-              {/* Table View */}
-              {transactionView === "list" && (
-                <div className="bg-card p-4 rounded-2xl">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent border-none">
-                        <TableHead className="font-bold">DATE</TableHead>
-                        <TableHead className="font-bold">CATEGORY</TableHead>
-                        <TableHead className="font-bold w-[300px]">
-                          DESCRIPTION
-                        </TableHead>
-                        <TableHead className="font-bold">TYPE</TableHead>
-                        <TableHead className="font-bold text-right">
-                          AMOUNT
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredTransactions.map((transaction) => {
-                        const isIncome =
-                          parseFloat(transaction.amount.toString()) > 0;
-                        const categoryConfig =
-                          categoryIcons[transaction.category as Category] ||
-                          categoryIcons.general;
-                        const Icon = categoryConfig.icon;
+          {transactionView === "list" && (
+            <TransactionsDataTable
+              transactions={unifiedTransactions}
+              isLoading={transactionsLoading}
+            />
+          )}
 
-                        return (
-                          <TableRow
-                            key={transaction.id}
-                            className="group border-none cursor-pointer hover:bg-muted/50"
-                          >
-                            {/* DATE */}
-                            <TableCell>
-                              <div className="flex flex-col gap-0.5">
-                                <span className="text-sm font-medium">
-                                  {format(
-                                    new Date(transaction.date),
-                                    "MMM d, yyyy"
-                                  )}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(new Date(transaction.date), "h:mm a")}
-                                </span>
-                              </div>
-                            </TableCell>
+          {/* Card View */}
+          {transactionView === "table" && filteredTransactions.length > 0 ? (
+            <div className="space-y-3">
+              {filteredTransactions.slice(0, 20).map((transaction) => {
+                const isIncome =
+                  parseFloat(transaction.amount.toString()) > 0;
+                const categoryConfig =
+                  categoryIcons[transaction.category as Category] ||
+                  categoryIcons.general;
+                const Icon = categoryConfig.icon;
 
-                            {/* CATEGORY */}
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={cn(
-                                    "h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0",
-                                    transaction.category
-                                      ? categoryConfig.gradient
-                                      : "bg-muted"
-                                  )}
-                                >
-                                  <Icon
-                                    className={cn(
-                                      "h-4 w-4",
-                                      transaction.category
-                                        ? "text-foreground"
-                                        : isIncome
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                    )}
-                                  />
-                                </div>
-                                <span className="text-sm capitalize">
-                                  {transaction.category || "General"}
-                                </span>
-                              </div>
-                            </TableCell>
+                return (
+                  <Card
+                    key={transaction.id}
+                    interactive
+                    className="shadow-xs border-border/80 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Category Icon */}
+                      <div
+                        className={cn(
+                          "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
+                          transaction.category
+                            ? categoryConfig.gradient
+                            : "bg-muted"
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "h-8 w-8",
+                            transaction.category
+                              ? "text-foreground"
+                              : isIncome
+                              ? "text-green-600"
+                              : "text-red-600"
+                          )}
+                        />
+                      </div>
 
-                            {/* DESCRIPTION */}
-                            <TableCell>
-                              <div className="flex flex-col gap-0.5">
-                                <span className="text-sm font-medium truncate">
-                                  {transaction.description || "Transaction"}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {transaction.merchantName || "N/A"}
-                                </span>
-                              </div>
-                            </TableCell>
-
-                            {/* TYPE */}
-                            <TableCell>
-                              <Badge
-                                variant={
-                                  isIncome ? "success-soft" : "error-soft"
-                                }
-                                className="text-xs"
-                              >
-                                {isIncome ? "Income" : "Expense"}
-                              </Badge>
-                            </TableCell>
-
-                            {/* AMOUNT */}
-                            <TableCell className="text-right">
-                              <div
-                                className={cn(
-                                  "font-bold text-sm",
-                                  isIncome
-                                    ? "text-green-600 dark:text-green-400"
-                                    : "text-red-600 dark:text-red-400"
+                      {/* Transaction Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">
+                              {transaction.description || "Transaction"}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                              <span>
+                                {format(
+                                  new Date(transaction.date),
+                                  "MMM d, yyyy"
                                 )}
+                              </span>
+                              <Separator
+                                orientation="vertical"
+                                className="h-3"
+                              />
+                              <Badge
+                                variant="secondary"
+                                className="text-xs capitalize"
                               >
-                                {isIncome ? "+" : "-"}
-                                <CurrencyDisplay
-                                  amountUSD={Math.abs(
-                                    parseFloat(transaction.amount.toString())
-                                  )}
-                                  variant="compact"
-                                  className="inline"
-                                  formatOptions={{
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  }}
-                                />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-
-              {/* List View */}
-              {transactionView === "table" &&
-                filteredTransactions.slice(0, 20).map((transaction) => {
-                  const isIncome =
-                    parseFloat(transaction.amount.toString()) > 0;
-                  const categoryConfig =
-                    categoryIcons[transaction.category as Category] ||
-                    categoryIcons.general;
-                  const Icon = categoryConfig.icon;
-
-                  return (
-                    <Card
-                      key={transaction.id}
-                      interactive
-                      className="shadow-xs border-border/80 transition-all"
-                    >
-                      
-                        <div className="flex items-center gap-4">
-                          {/* Category Icon */}
-                          <div
-                            className={cn(
-                              "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
-                              transaction.category
-                                ? "bg-muted"
-                                : "bg-muted"
-                            )}
-                          >
-                            <Icon
-                              className={cn(
-                                "h-8 w-8",
-                                transaction.category
-                                  ? ""
-                                  : isIncome
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              )}
-                            />
+                                {transaction.category || "General"}
+                              </Badge>
+                            </div>
                           </div>
 
-                          {/* Transaction Details */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-sm truncate">
-                                  {transaction.description || "Transaction"}
-                                </h4>
-                                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                  <span>
-                                    {format(
-                                      new Date(transaction.date),
-                                      "MMM d, yyyy"
-                                    )}
-                                  </span>
-                                  <Separator
-                                    orientation="vertical"
-                                    className="h-3"
-                                  />
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs capitalize"
-                                  >
-                                    {transaction.category || "General"}
-                                  </Badge>
-                                </div>
-                              </div>
-
-                              {/* Amount */}
-                              <div className="text-right">
-                                <div
-                                  className={cn(
-                                    "font-bold text-lg",
-                                    isIncome
-                                      ? "text-green-600 dark:text-green-400"
-                                      : "text-red-600 dark:text-red-400"
-                                  )}
-                                >
-                                  {isIncome ? "+" : "-"}
-                                  <CurrencyDisplay
-                                    amountUSD={Math.abs(
-                                      parseFloat(transaction.amount.toString())
-                                    )}
-                                    
-                                   
-                                    className="inline "
-                                    formatOptions={{
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }}
-                                  />
-                                </div>
-                              </div>
+                          {/* Amount */}
+                          <div className="text-right">
+                            <div
+                              className={cn(
+                                "font-bold text-lg",
+                                isIncome
+                                  ? "text-green-600 dark:text-green-400"
+                                  : "text-red-600 dark:text-red-400"
+                              )}
+                            >
+                              {isIncome ? "+" : "-"}
+                              <CurrencyDisplay
+                                amountUSD={Math.abs(
+                                  parseFloat(transaction.amount.toString())
+                                )}
+                                className="inline "
+                                formatOptions={{
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
-                 
-                    </Card>
-                  );
-                })}
-            </>
-          ) : (
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : transactionView === "table" ? (
             <Card variant="outlined" className="p-12">
               <div className="text-center">
                 <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -678,7 +571,7 @@ export default function BankAccountDetailsPage() {
                 </p>
               </div>
             </Card>
-          )}
+          ) : null}
         </TabsContent>
 
         {/* Analytics Tab */}
