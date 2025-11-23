@@ -143,20 +143,29 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
 type TabType = 'upcoming' | 'active' | 'trial';
 
 export function SubscriptionsOverviewWidget() {
-  const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({
-    sortBy: 'nextBillingDate',
-    sortOrder: 'asc',
-    limit: 20,
-  });
-  const summary = useSubscriptionSummary();
+  // Use the same hook as the subscriptions page (no custom filters)
+  const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions();
+
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const { isRefetching } = useOrganizationRefetchState();
 
+  // Get subscriptions array (handle both array and wrapped response)
+  const allSubscriptions = useMemo(() => {
+    if (!subscriptionsResponse) return [];
+    // If it's an array, use it directly
+    if (Array.isArray(subscriptionsResponse)) {
+      return subscriptionsResponse;
+    }
+    // If it's a SubscriptionListResponse object with data property
+    if (subscriptionsResponse.data && Array.isArray(subscriptionsResponse.data)) {
+      return subscriptionsResponse.data;
+    }
+    return [];
+  }, [subscriptionsResponse]);
+
   // Get subscriptions to display based on active tab
   const subscriptionsToShow = useMemo(() => {
-    // Defensive check: ensure subscriptionsResponse.data is an array
-    const subscriptions = subscriptionsResponse?.data;
-    if (!subscriptions || !Array.isArray(subscriptions)) return [];
+    if (!allSubscriptions || allSubscriptions.length === 0) return [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -166,7 +175,7 @@ export function SubscriptionsOverviewWidget() {
 
     if (activeTab === 'upcoming') {
       // Show upcoming bills (next 7 days)
-      const upcoming = subscriptions
+      const upcoming = allSubscriptions
         .filter((sub) => {
           if (sub.status !== 'ACTIVE' || !sub.nextBillingDate) return false;
 
@@ -179,7 +188,7 @@ export function SubscriptionsOverviewWidget() {
 
       // If no upcoming, show active instead
       if (upcoming.length === 0) {
-        return subscriptions
+        return allSubscriptions
           .filter(sub => sub.status === 'ACTIVE')
           .slice(0, 5);
       }
@@ -189,26 +198,24 @@ export function SubscriptionsOverviewWidget() {
 
     if (activeTab === 'active') {
       // Show all active subscriptions
-      return subscriptions
+      return allSubscriptions
         .filter(sub => sub.status === 'ACTIVE')
         .slice(0, 5);
     }
 
     if (activeTab === 'trial') {
       // Show trial subscriptions
-      return subscriptions
+      return allSubscriptions
         .filter(sub => sub.status === 'TRIAL')
         .slice(0, 5);
     }
 
     return [];
-  }, [subscriptionsResponse, activeTab]);
+  }, [allSubscriptions, activeTab]);
 
   // Calculate tab counts
   const tabCounts = useMemo(() => {
-    // Defensive check: ensure subscriptionsResponse.data is an array
-    const subscriptions = subscriptionsResponse?.data;
-    if (!subscriptions || !Array.isArray(subscriptions)) {
+    if (!allSubscriptions || allSubscriptions.length === 0) {
       return { upcoming: 0, active: 0, trial: 0 };
     }
 
@@ -217,19 +224,19 @@ export function SubscriptionsOverviewWidget() {
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(today.getDate() + 7);
 
-    const upcomingCount = subscriptions.filter((sub) => {
+    const upcomingCount = allSubscriptions.filter((sub) => {
       if (sub.status !== 'ACTIVE' || !sub.nextBillingDate) return false;
       const billingDate = new Date(sub.nextBillingDate);
       billingDate.setHours(0, 0, 0, 0);
       return billingDate >= today && billingDate <= sevenDaysFromNow;
     }).length;
 
-    const activeCount = subscriptions.filter(sub => sub.status === 'ACTIVE').length;
-    const trialCount = subscriptions.filter(sub => sub.status === 'TRIAL').length;
+    const activeCount = allSubscriptions.filter(sub => sub.status === 'ACTIVE').length;
+    const trialCount = allSubscriptions.filter(sub => sub.status === 'TRIAL').length;
 
     return { upcoming: upcomingCount, active: activeCount, trial: trialCount };
-  }, [subscriptionsResponse]);
-
+  }, [allSubscriptions]);
+ 
   // Loading State
   if (subscriptionsLoading) {
     return (
@@ -253,27 +260,54 @@ export function SubscriptionsOverviewWidget() {
   }
 
   // Empty State
-  if (summary.total === 0) {
+  if (allSubscriptions.length === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4 lg:col-span-2">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Subscriptions</h3>
+      <Card className="relative rounded-xl border border-borderlg:col-span-2">
+         <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-2">
+       
+        
+          <div className="h-6 w-6 rounded-xl bg-violet-300  flex items-center justify-center">
+            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
+  
+       
+            
+         
+         
+        </div>
+        <Link href="/subscriptions">
+          <Button variant="outline" className="text-[11px] cursor-pointer  transition-colors  h-7" size='sm'>
+          Add Subscription
+            <ArrowRight className="h-3 w-3 " />
+          </Button>
+        </Link>
+      </div>
+
+       
         <div className="py-6 text-center">
           <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-muted/50 flex items-center justify-center">
-            <CreditCard className="h-5 w-5 text-muted-foreground" />
+            <SolarInboxInBoldDuotone className="h-8 w-8 text-muted-foreground" />
           </div>
           <p className="text-xs font-medium text-foreground mb-1">No subscriptions yet</p>
           <p className="text-[10px] text-muted-foreground mb-3">
             Track your subscriptions to manage spending
           </p>
-          <Link href="/subscriptions">
-            <Badge variant="default" className="cursor-pointer text-[10px]">
-              Add Subscription
-            </Badge>
-          </Link>
+     
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
+  }
+
+  const summary = {
+    total: allSubscriptions?.length,
+    active: allSubscriptions?.filter((s) => s.status === 'ACTIVE')?.length,
+    trial: allSubscriptions?.filter((s) => s.status === 'TRIAL')?.length,
+    cancelled: allSubscriptions?.filter((s) => s.status === 'CANCELLED')?.length,
+    totalMonthlySpend: allSubscriptions?.reduce((sum, s) => sum + s.monthlyEquivalent, 0),
+    totalYearlySpend: allSubscriptions?.reduce((sum, s) => sum + s?.yearlyEstimate, 0),
   }
 
   return (

@@ -1,237 +1,197 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Activity, ArrowDownLeft, ArrowUpRight, Repeat, ShoppingBag, Utensils, Home, Zap } from 'lucide-react';
-import { useOrganizationBankingTransactions, useOrganizationCryptoTransactions } from '@/lib/queries/use-organization-data-context';
+import { ArrowRight } from 'lucide-react';
+import { useOrganizationBankingTransactions } from '@/lib/queries/use-organization-data-context';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import Link from 'next/link';
-import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
-
-// Category icon mapping
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  groceries: ShoppingBag,
-  dining: Utensils,
-  shopping: ShoppingBag,
-  home: Home,
-  utilities: Zap,
-  general: ArrowDownLeft,
-};
-
-// Activity type for combined view
-interface ActivityItem {
-  id: string;
-  type: 'bank' | 'crypto';
-  description: string;
-  amount: number;
-  date: string;
-  category?: string;
-  isIncome: boolean;
-  accountName?: string;
-  icon: LucideIcon;
-}
+import { categoryIcons, type Category } from '@/lib/constants/transaction-categories';
+import { SolarBillListBoldDuotone, SolarClipboardListBoldDuotone } from '@/components/icons/icons';
 
 export function RecentActivityWidget() {
-  const { data: bankTransactions, isLoading: bankLoading } = useOrganizationBankingTransactions({
-    limit: 10,
+  const { data: transactionsResponse, isLoading } = useOrganizationBankingTransactions({
+    limit: 8,
     sortBy: 'date',
     sortOrder: 'desc',
   });
-
-  const { data: cryptoTransactions, isLoading: cryptoLoading } = useOrganizationCryptoTransactions({
-    limit: 10,
-  });
+  
   const { isRefetching } = useOrganizationRefetchState();
 
-  const isLoading = bankLoading || cryptoLoading;
-
-  // Combine and sort activities
-  const recentActivities = useMemo(() => {
-    const activities: ActivityItem[] = [];
-
-    // Add bank transactions
-    if (bankTransactions?.data) {
-      bankTransactions.data.forEach((tx) => {
-        activities.push({
-          id: `bank-${tx.id}`,
-          type: 'bank',
-          description: tx.description || tx.merchantName || 'Bank Transaction',
-          amount: Math.abs(tx.amount),
-          date: tx.date,
-          category: tx.category,
-          isIncome: tx.amount > 0,
-          accountName: tx.accountName,
-          icon: tx.amount > 0
-            ? ArrowDownLeft
-            : CATEGORY_ICONS[tx.category?.toLowerCase() || 'general'] || ArrowUpRight,
-        });
-      });
+  // Extract transactions array from response
+  const transactions = useMemo(() => {
+    if (!transactionsResponse) return [];
+    // Handle both array and wrapped response
+    if (Array.isArray(transactionsResponse)) {
+      return transactionsResponse;
     }
-
-    // Add crypto transactions
-    if (cryptoTransactions?.data) {
-      cryptoTransactions.data.forEach((tx) => {
-        const isSend = tx.type === 'send';
-        const isReceive = tx.type === 'receive';
-
-        activities.push({
-          id: `crypto-${tx.id}`,
-          type: 'crypto',
-          description: `${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)} ${tx.symbol || 'Crypto'}`,
-          amount: tx.valueUsd || 0,
-          date: tx.timestamp,
-          isIncome: isReceive,
-          icon: isSend ? ArrowUpRight : isReceive ? ArrowDownLeft : Repeat,
-        });
-      });
+    if (transactionsResponse.data && Array.isArray(transactionsResponse.data)) {
+      return transactionsResponse.data;
     }
+    return [];
+  }, [transactionsResponse]);
 
-    // Sort by date (most recent first)
-    return activities
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 8);
-  }, [bankTransactions, cryptoTransactions]);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) return 'Today';
-    if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
+  // Loading State
   if (isLoading) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <h3 className="text-xs font-medium text-muted-foreground mb-3">Recent activity</h3>
+      <Card className="relative h-full w-full flex flex-col border border-border/50">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-xl bg-green-300 flex items-center justify-center">
+              <SolarClipboardListBoldDuotone className="h-4 w-4 text-green-900" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+          </div>
+        </div>
         <div className="space-y-2">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
+            <div key={i} className="h-16 bg-muted/50 rounded-lg animate-pulse" />
           ))}
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
-  if (recentActivities.length === 0) {
+  // Empty State
+  if (transactions.length === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-medium text-muted-foreground">Recent activity</h3>
+      <Card className="relative h-full w-full flex flex-col border border-border/50">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-xl bg-green-300 flex items-center justify-center">
+              <SolarClipboardListBoldDuotone className="h-4 w-4 text-green-900" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+          </div>
+          <Link href="/accounts">
+            <Button variant="link" className="text-[11px] cursor-pointer transition-colors h-7" size="sm">
+              View All
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
         </div>
         <div className="py-8 text-center">
-          <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-xs text-muted-foreground">No recent activity</p>
+          <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-muted/50 flex items-center justify-center">
+            <SolarClipboardListBoldDuotone className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-xs font-medium text-foreground mb-1">No recent activity</p>
+          <p className="text-[10px] text-muted-foreground">
+            Your transactions will appear here
+          </p>
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
+    <Card className="relative h-full w-full flex flex-col border border-border/50">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-medium text-muted-foreground">Recent activity</h3>
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-amber-400 flex items-center justify-center">
+            <SolarBillListBoldDuotone className="h-4.5 w-4.5 text-amber-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+        </div>
         <Link href="/accounts">
-          <Badge variant="outline" className="text-[10px] cursor-pointer hover:bg-muted">
+          <Button variant="link" className="text-[11px] cursor-pointer transition-colors h-7" size="sm">
             View All
-          </Badge>
+            <ArrowRight className="h-3 w-3" />
+          </Button>
         </Link>
       </div>
 
-      {/* Activity List */}
-      <div className="space-y-1.5">
-        {recentActivities.map((activity) => {
-          const Icon = activity.icon;
+      {/* Transaction Grid */}
+      <div className="space-y-2">
+        {transactions.map((transaction) => {
+          const isIncome = parseFloat(transaction.amount.toString()) > 0;
+          const categoryConfig = categoryIcons[transaction.category as Category] || categoryIcons.general;
+          const Icon = categoryConfig.icon;
 
           return (
-            <div
-              key={activity.id}
-              className="group p-2.5 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-all"
+            <Link 
+              key={transaction.id} 
+              href={`/accounts/bank/${transaction.accountId}`}
+              className="block"
             >
-              <div className="flex items-center justify-between">
-                {/* Left: Icon & Description */}
-                <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                  {/* Transaction Icon */}
+              <div className="group border border-border/80 rounded-lg  hover:bg-muted/40 transition-all cursor-pointer bg-muted/30">
+                <div className="flex items-center gap-3">
+                  {/* Category Icon */}
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      activity.isIncome
-                        ? 'bg-green-500/10'
-                        : 'bg-orange-500/10'
-                    }`}
+                    className={cn(
+                      "h-11 w-11 rounded-lg flex items-center border border-border/50 justify-center flex-shrink-0",
+                      transaction.category ? "bg-muted" : "bg-muted"
+                    )}
                   >
                     <Icon
-                      className={`h-4 w-4 ${
-                        activity.isIncome
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      }`}
+                      className={cn(
+                        "h-8 w-8",
+                        transaction.category
+                          ? ""
+                          : isIncome
+                          ? "text-green-600"
+                          : "text-red-600"
+                      )}
                     />
                   </div>
 
-                  {/* Details */}
-                  <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-semibold text-foreground truncate">
-                      {activity.description}
-                    </h4>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground">
-                        {formatDate(activity.date)}
-                      </span>
-                      {activity.accountName && (
-                        <>
-                          <span className="text-[10px] text-muted-foreground">•</span>
-                          <span className="text-[10px] text-muted-foreground truncate">
-                            {activity.accountName}
+                  {/* Transaction Details */}
+                  <div className="flex-1 min-w-0 pr-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm truncate">
+                          {transaction.description || transaction.merchantName || "Transaction"}
+                        </h4>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] text-muted-foreground">
+                            {format(new Date(transaction.date), "MMM d, yyyy")}
                           </span>
-                        </>
-                      )}
+                          <span className="text-[10px] text-muted-foreground">•</span>
+                          <Badge
+                            variant="muted"
+                            className="text-[9px] h-4 px-1.5 capitalize"
+                          >
+                            {transaction.category || "General"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Amount */}
+                      <div className=" text-center flex-shrink-0">
+                        <div
+                          className={cn(
+                            "font-bold text-sm",
+                            isIncome
+                              ? "text-green-700 dark:text-green-500"
+                              : "text-red-700 dark:text-red-500"
+                          )}
+                        >
+                          {isIncome ? "+" : "-"}
+                          <CurrencyDisplay
+                            amountUSD={Math.abs(parseFloat(transaction.amount.toString()))}
+                        
+                           
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Right: Amount & Badge */}
-                <div className="flex flex-col items-end gap-0.5">
-                  <CurrencyDisplay
-                    amountUSD={activity.isIncome ? activity.amount : -activity.amount}
-                    variant="compact"
-                    colorCoded={true}
-                    className="text-sm font-bold"
-                  />
-                  <Badge
-                    variant="outline"
-                    className={`text-[8px] h-3.5 px-1 font-medium ${
-                      activity.type === 'bank'
-                        ? 'bg-blue-500/5 text-blue-600 dark:text-blue-400 border-blue-500/20'
-                        : 'bg-purple-500/5 text-purple-600 dark:text-purple-400 border-purple-500/20'
-                    }`}
-                  >
-                    {activity.type === 'bank' ? 'Bank' : 'Crypto'}
-                  </Badge>
-                </div>
               </div>
-
-              {/* Category Badge (for bank transactions) */}
-              {activity.category && (
-                <div className="mt-1.5">
-                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 font-medium">
-                    {activity.category}
-                  </Badge>
-                </div>
-              )}
-            </div>
+            </Link>
           );
         })}
       </div>
+
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+    </Card>
   );
 }

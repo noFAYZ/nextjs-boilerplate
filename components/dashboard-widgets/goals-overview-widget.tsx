@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '../ui/card';
-import { MageGoals } from '../icons/icons';
+import { MageGoals, SolarCheckCircleBoldDuotone } from '../icons/icons';
 
 // Goal Item Component - Similar to Subscription List
 function GoalItem({ goal }: { goal: any }) {
@@ -63,26 +63,26 @@ function GoalItem({ goal }: { goal: any }) {
     if (goal.isAchieved) return 'bg-blue-500/5 hover:bg-blue-500/10';
     if (isOverdue) return 'bg-red-500/5 hover:bg-red-500/10';
     if (isUrgent) return 'bg-orange-500/5 hover:bg-orange-500/10';
-    if (goal.onTrack) return 'bg-green-500/5 hover:bg-green-500/10';
+    if (goal.onTrack) return 'bg-lime-500/5 hover:bg-green-500/10';
     return 'hover:bg-muted/60';
   };
 
   const getProgressColor = () => {
-    if (goal.isAchieved) return 'bg-blue-600 dark:bg-blue-400';
-    if (goal.onTrack) return 'bg-green-600 dark:bg-green-400';
+    if (goal.isAchieved) return 'bg-blue-700 dark:bg-blue-500';
+    if (goal.onTrack) return 'bg-lime-700 dark:bg-lime-600';
     return 'bg-orange-600 dark:bg-orange-400';
   };
 
   const getProgressTextColor = () => {
-    if (goal.isAchieved) return 'text-blue-600 dark:text-blue-400';
-    if (goal.onTrack) return 'text-green-600 dark:text-green-400';
-    return 'text-orange-600 dark:text-orange-400';
+    if (goal.isAchieved) return 'text-blue-800 dark:text-blue-400';
+    if (goal.onTrack) return 'text-green-800 dark:text-green-400';
+    return 'text-orange-800 dark:text-orange-400';
   };
 
   const getTimeColor = () => {
-    if (goal.isAchieved) return 'text-blue-600 dark:text-blue-400';
-    if (isOverdue) return 'text-red-600 dark:text-red-400';
-    if (isUrgent) return 'text-orange-600 dark:text-orange-400';
+    if (goal.isAchieved) return 'text-blue-700 dark:text-blue-400';
+    if (isOverdue) return 'text-red-800 dark:text-red-400';
+    if (isUrgent) return 'text-orange-800 dark:text-orange-400';
     return 'text-muted-foreground';
   };
 
@@ -90,26 +90,34 @@ function GoalItem({ goal }: { goal: any }) {
     <Link href="/goals">
       <div
         className={cn(
-          'group relative border border-border/80 flex items-center gap-2.5 p-2.5 rounded-xl transition-all duration-75',
+          'group relative border border-border/80 flex items-center gap-2.5 px-2 py-1 rounded-lg transition-all duration-75 bg-muted/30',
           'cursor-pointer',
-          getStatusBgColor()
+      
         )}
       >
         {/* Icon */}
-        <div className="relative flex-shrink-0">
-          <div className="h-11 w-11 rounded-lg bg-muted/50 flex items-center justify-center">
-            {goal.icon && goal.icon !== 'null' ? (
-              <span className="text-lg">{goal.icon}</span>
-            ) : (
-              <Target className="h-5 w-5 text-muted-foreground" />
-            )}
-          </div>
-          {goal.isAchieved && (
-            <div className="absolute -bottom-0.5 -right-0.5 rounded-full p-[4px] bg-blue-500 ring-1 ring-background">
-              <CheckCircle2 className="h-2.5 w-2.5 text-white" fill="currentColor" />
-            </div>
+
+      <div className="relative flex-shrink-0">
+        <div className="h-11 w-11 rounded-full bg-card border flex items-center justify-center shadow-sm">
+
+          {/* Replace icon with check mark when achieved or progress condition met */}
+          {(goal.isAchieved || progress >= 100) ? (
+            <SolarCheckCircleBoldDuotone className="h-7 w-7 text-lime-800" />
+          ) : (
+            <>
+              {goal.icon && goal.icon !== "null" ? (
+                <span className="text-lg">{goal.icon}</span>
+              ) : (
+                <MageGoals className="h-7 w-7 text-muted-foreground" />
+              )}
+            </>
           )}
+
         </div>
+
+    
+      </div>
+
 
         {/* Info Section */}
         <div className="flex-1 min-w-0">
@@ -117,14 +125,17 @@ function GoalItem({ goal }: { goal: any }) {
             <h4 className="font-semibold text-sm truncate text-foreground">
               {goal.name}
             </h4>
+            <Badge size='sm' variant='soft' className={cn('font-semibold text-[10px] rounded-full', getProgressTextColor(),getStatusBgColor())}>
+                  {Math.max(progress, 0).toFixed(1)}%
+                </Badge>
           </div>
 
           {/* Progress Bar and Info */}
           <div className="space-y-1.5 w-full">
             {/* Progress Bar */}
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden" data-progress={`${progress.toFixed(1)}%`}>
+            <div className="w-full h-2.5 bg-accent rounded-xs overflow-hidden" data-progress={`${progress.toFixed(1)}%`}>
               <div
-                className={cn('h-full rounded-full transition-all duration-300 ease-out', getProgressColor())}
+                className={cn('h-full rounded-none transition-all duration-300 ease-out', getProgressColor())}
                 style={{
                   width: `${Math.max(progress, 0)}%`,
                   minWidth: progress > 2 ? '0px' : '2px'
@@ -136,10 +147,8 @@ function GoalItem({ goal }: { goal: any }) {
             {/* Progress Info */}
             <div className="flex items-center justify-between text-[10px] gap-1">
               <div className="flex items-center gap-1">
-                <span className={cn('font-semibold', getProgressTextColor())}>
-                  {Math.max(progress, 0).toFixed(1)}%
-                </span>
-                <span className="text-muted-foreground">•</span>
+               
+                
                 <CurrencyDisplay
                   amountUSD={goal.currentAmount}
                   variant="compact"
@@ -159,8 +168,8 @@ function GoalItem({ goal }: { goal: any }) {
         {/* Status Info */}
         <div className="flex flex-col items-end flex-shrink-0 gap-1">
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3 text-muted-foreground" />
-            <span className={cn('text-[10px] font-semibold', getTimeColor())}>
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className={cn('text-[12px] font-semibold', getTimeColor())}>
               {goal.isAchieved
                 ? 'Done'
                 : isOverdue
@@ -235,7 +244,7 @@ export function GoalsOverviewWidget() {
   // Loading State
   if (goalsLoading) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
+      <Card className="relative rounded-xl border border-border/50  ">
         <div className="space-y-3">
           <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
           <div className="h-20 bg-muted/50 rounded-lg animate-pulse" />
@@ -246,21 +255,23 @@ export function GoalsOverviewWidget() {
           </div>
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
   // Empty State
   if (tabCounts.all === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
+      <Card className="relative rounded-xl border border-border/50 ">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
-              <Target className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground">Goals</h3>
-          </div>
+        <div className="flex items-center gap-2">
+        
+        <div className="h-6 w-6 rounded-xl bg-lime-500  flex items-center justify-center">
+          <MageGoals className="h-5 w-5 text-lime-900" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">Goals</h3>
+      </div>
+      
           <Link href="/goals">
             <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7" size="sm">
               Create Goal
@@ -278,7 +289,7 @@ export function GoalsOverviewWidget() {
           </p>
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
@@ -364,7 +375,7 @@ export function GoalsOverviewWidget() {
       {/* Goals List */}
       {goalsToShow.length > 0 ? (
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between px-1">
+         {/*  <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-1">
               {activeTab === 'all' && <Target className="h-4 w-4 text-muted-foreground" />}
               {activeTab === 'on-track' && <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />}
@@ -385,7 +396,7 @@ export function GoalsOverviewWidget() {
                 tabCounts.completed
               }
             </span>
-          </div>
+          </div> */}
 
           <div className="flex flex-col space-y-1.5">
             {goalsToShow.map((goal) => (

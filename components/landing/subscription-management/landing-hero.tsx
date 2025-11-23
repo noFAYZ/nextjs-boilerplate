@@ -22,6 +22,7 @@ import {
   SolarInboxInBoldDuotone,
   SolarPieChart2BoldDuotone,
   SolarWalletMoneyBoldDuotone,
+  SolarClipboardListBoldDuotone,
 } from '../../icons/icons';
 import { FlickeringGrid } from "../bg/FlickeringGrid";
 import { WaitlistFormCompact } from "@/components/coming-soon/waitlist-form-compact";
@@ -112,7 +113,7 @@ export function LandingHero() {
       {/* ============================================================= */}
 
          {/* Floating Finance Cards - Ultra Premium 
-         <div className="relative  hidden lg:block">
+         <div className="relative -z-40 hidden lg:block">
             <FloatingCard delay={0} className="left-10 top-10 -rotate-12">
               <CryptoCard />
             </FloatingCard>
@@ -327,22 +328,53 @@ function FloatingCard({ children, delay = 0, className = "" }: any) {
   );
 }
 
-// Mini live cards
+// Mini live cards matching actual dashboard widgets
 function CryptoCard() {
   return (
-    <div className="w-72 overflow-hidden rounded-2xl border bg-card/90 shadow-2xl backdrop-blur-xl">
-      <div className="bg-gradient-to-r from-orange-500 to-pink-600 p-4 text-white">
-        <p className="text-sm opacity-90">Crypto Portfolio</p>
-        <p className="text-3xl font-bold">$127,483</p>
-      </div>
-      <div className="space-y-3 p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Bitcoin</span>
-          <span className="text-emerald-500 font-semibold">+$4,231 (12.4%)</span>
+    <div className="w-80 overflow-hidden rounded-xl border border-border/50 bg-card shadow-2xl backdrop-blur-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-purple-300 flex items-center justify-center">
+            <SolarWalletMoneyBoldDuotone className="h-4 w-4 text-purple-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Crypto Portfolio</h3>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Ethereum</span>
-          <span className="text-emerald-500 font-semibold">+$892 (8.1%)</span>
+        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">+12.4%</span>
+      </div>
+      
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <span className="text-lg font-bold">₿</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Bitcoin</p>
+              <p className="text-xs text-muted-foreground">2.45 BTC</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">+$4,231</p>
+            <p className="text-xs text-muted-foreground">$89,450</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <span className="text-lg font-bold">Ξ</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Ethereum</p>
+              <p className="text-xs text-muted-foreground">15.8 ETH</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">+$892</p>
+            <p className="text-xs text-muted-foreground">$38,033</p>
+          </div>
         </div>
       </div>
     </div>
@@ -351,30 +383,78 @@ function CryptoCard() {
 
 function NetWorthCard() {
   return (
-    <div className="w-80 rounded-2xl border bg-card/95 p-6 shadow-2xl backdrop-blur-xl">
-      <p className="text-sm text-muted-foreground">Net Worth</p>
-      <p className="mt-2 text-4xl font-bold">$1,284,921</p>
-      <p className="mt-2 text-emerald-500">+42.8% all time</p>
-      <div className="mt-6 h-24 rounded-xl bg-gradient-to-r from-emerald-500/20 to-transparent" />
+    <div className="w-80 rounded-xl border border-border/50 bg-card/95 p-5 shadow-2xl backdrop-blur-xl">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="h-6 w-6 rounded-xl bg-blue-300 flex items-center justify-center">
+          <SolarChartSquareBoldDuotone className="h-4 w-4 text-blue-900" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
+      </div>
+      
+      {/* Main Value */}
+      <div className="mb-4">
+        <p className="text-4xl font-bold">$1,284,921</p>
+        <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+          +$142,831 (+42.8%) all time
+        </p>
+      </div>
+      
+      {/* Mini Chart */}
+      <div className="h-20 rounded-lg bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent relative overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-full flex items-end justify-around gap-1 px-2 pb-2">
+          <div className="w-full h-[40%] bg-emerald-500/30 rounded-t"></div>
+          <div className="w-full h-[55%] bg-emerald-500/40 rounded-t"></div>
+          <div className="w-full h-[70%] bg-emerald-500/50 rounded-t"></div>
+          <div className="w-full h-[85%] bg-emerald-500/60 rounded-t"></div>
+          <div className="w-full h-[100%] bg-emerald-500/70 rounded-t"></div>
+        </div>
+      </div>
     </div>
   );
 }
 
 function SubscriptionCard() {
   return (
-    <div className="w-64 rounded-2xl border bg-card/90 p-5 shadow-xl shadow-2xl backdrop-blur-xl">
-      <p className="text-sm font-medium">Upcoming Bills</p>
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-red-500/20 p-1">
-              <span className="text-xs">N</span>
-            </div>
-            <span className="text-sm">Netflix</span>
+    <div className="w-72 rounded-xl border border-border/50 bg-card shadow-2xl backdrop-blur-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-violet-300 flex items-center justify-center">
+            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
           </div>
-          <span className="text-sm font-medium">$15.99</span>
+          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
         </div>
-        <div className="text-xs text-orange-500">Renews in 3 days</div>
+        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">3 upcoming</span>
+      </div>
+      
+      {/* Content */}
+      <div className="p-4 space-y-2">
+        <div className="flex items-center justify-between py-1 px-2 rounded-lg bg-muted/30 border border-border/80 hover:bg-muted/40 transition-all">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-border/50">
+              <span className="text-lg font-bold text-red-600">N</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Netflix</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400">Renews in 3 days</p>
+            </div>
+          </div>
+          <p className="text-sm font-bold">$15.99</p>
+        </div>
+        
+        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80 hover:bg-muted/40 transition-all">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center border border-border/50">
+              <span className="text-lg font-bold text-green-600">S</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Spotify</p>
+              <p className="text-xs text-muted-foreground">Monthly</p>
+            </div>
+          </div>
+          <p className="text-sm font-bold">$9.99</p>
+        </div>
       </div>
     </div>
   );
@@ -382,10 +462,51 @@ function SubscriptionCard() {
 
 function SpendingCard() {
   return (
-    <div className="w-72 rounded-2xl border bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
-      <p className="text-sm text-muted-foreground">This Month</p>
-      <p className="mt-2 text-3xl font-bold">$4,821</p>
-      <p className="text-sm text-emerald-500">↓ 18% vs last month</p>
+    <div className="w-80 rounded-xl border border-border/50 bg-card/95 shadow-2xl backdrop-blur-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-amber-400 flex items-center justify-center">
+            <SolarClipboardListBoldDuotone className="h-4.5 w-4.5 text-amber-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+        </div>
+      </div>
+      
+      {/* Content */}
+      <div className="p-4 space-y-2">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/80">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border/50">
+              <span className="text-xl">🛒</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Amazon Purchase</p>
+              <p className="text-xs text-muted-foreground">Today • Shopping</p>
+            </div>
+          </div>
+          <p className="text-sm font-bold text-red-700 dark:text-red-500">-$127.50</p>
+        </div>
+        
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/80">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border/50">
+              <span className="text-xl">💰</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Salary Deposit</p>
+              <p className="text-xs text-muted-foreground">Yesterday • Income</p>
+            </div>
+          </div>
+          <p className="text-sm font-bold text-green-700 dark:text-green-500">+$4,500</p>
+        </div>
+        
+        <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+            ↓ 18% less spending vs last month
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

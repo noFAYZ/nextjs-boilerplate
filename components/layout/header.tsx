@@ -14,7 +14,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useCallback, useEffect, useRef } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CommandPalette, useCommandPalette } from '@/components/ui/command-palette';
+import { CommandPalette } from '@/components/ui/command-palette';
 import { CurrencySelector } from '@/components/ui/currency-selector';
 import { GlobalViewSwitcher } from '../ui/global-view-switcher';
 import { ProductPopover } from './ProductPopover';
@@ -22,6 +22,8 @@ import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
+import { ActionSearchBar } from '../ui/action-search-bar';
+import { useCommandPalette } from '../command/command-palette';
 
 interface HeaderProps {
   className?: string;
@@ -39,7 +41,7 @@ export function Header({
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  
+  const { openCommandPalette } = useCommandPalette();
   const menuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
 
@@ -51,7 +53,7 @@ export function Header({
 
   const pathname = usePathname();
   const router = useRouter();
-  const commandPalette = useCommandPalette();
+
 
   // Scroll detection for header styling
   useEffect(() => {
@@ -110,7 +112,7 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          'bg-background dark:bg-card shadow-sm ',
+          'bg-background dark:bg-card  ',
           isScrolled && sticky && 'shadow-sm',
           className
         )}
@@ -157,19 +159,11 @@ export function Header({
           </div>
 
           {/* Center Section - Command Palette Search */}
-          <div className="flex-1 max-w-xl mx-8">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-sm text-muted-foreground  h-10 px-4 bg-muted border hover:bg-muted/80"
-              onClick={() => commandPalette.setOpen(true)}
-            >
-              <Search className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline-block">Search or type a command...</span>
-              <span className="sm:hidden">Search...</span>
-              <kbd className="ml-auto pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
+       
+
+             {/* Center Section - Action Search Bar (Always Centered) */}
+             <div className="absolute left-1/2  -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full md:max-w-md px-3 sm:px-4 md:px-6">
+            <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
           </div>
 
           {/* Right Section - Actions */}
@@ -180,9 +174,9 @@ export function Header({
             </div>*/}
 
            <div  className='hidden sm:flex' ><ThemeSwitcher  /></div> 
-           <GlobalViewSwitcher size="sm" />
+     
       
-            {/* Create Button
+            {/* Create Button      <GlobalViewSwitcher size="sm" />
             <Button size="sm" className="hidden sm:flex items-center gap-1">
               <Plus className="h-4 w-4" />
               New
@@ -279,8 +273,8 @@ export function Header({
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
     
-           <GlobalViewSwitcher size="sm" />
-            <CurrencySelector variant="compact" />
+         {/*   <GlobalViewSwitcher size="sm" />
+            <CurrencySelector variant="compact" /> */}
             
         </div>
  
@@ -293,11 +287,7 @@ export function Header({
 
       </header>
 
-      {/* Command Palette */}
-      <CommandPalette
-        open={commandPalette.open}
-        onOpenChange={commandPalette.setOpen}
-      />
+  
     </>
   );
 }

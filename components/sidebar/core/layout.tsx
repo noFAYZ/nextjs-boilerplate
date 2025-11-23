@@ -44,60 +44,58 @@ export function SidebarLayout({
   }, [selectMenuItem]);
 
   return (
-    <div className={cn("flex h-screen bg-background flex-col md:flex-row", className)}>
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:flex md:flex-col">
-        <Sidebar
-          className={sidebarClassName}
-          defaultExpanded={defaultSidebarExpanded}
+    <div className={cn("flex h-screen bg-background", className)}>
+    {/* Desktop Sidebar */}
+    <div className="hidden md:flex md:flex-col">
+      <Sidebar
+        className={sidebarClassName}
+        defaultExpanded={defaultSidebarExpanded}
+        mainColumnExpanded={mainColumnExpanded}
+        onToggleMainColumn={toggleMainColumn}
+        selectedMenuItem={selectedMenuItem}
+        activeMenuItem={activeMenuItem}
+        onMenuItemClick={selectMenuItem}
+      />
+    </div>
+
+    {/* Mobile Sidebar */}
+    <div className="md:hidden">
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetTrigger asChild />
+        <SheetContent side="left" className="w-70 p-0 border-0">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+          <Sidebar
+            className={sidebarClassName}
+            defaultExpanded={true}
+            mainColumnExpanded={true}
+            onToggleMainColumn={() => {}}
+            selectedMenuItem={selectedMenuItem}
+            activeMenuItem={activeMenuItem}
+            onMenuItemClick={handleMenuItemClick}
+          />
+        </SheetContent>
+      </Sheet>
+    </div>
+
+    {/* Main Column */}
+    <div className="flex flex-col flex-1 h-full w-full">
+      {showHeader && (
+        <MainHeader
           mainColumnExpanded={mainColumnExpanded}
           onToggleMainColumn={toggleMainColumn}
-          selectedMenuItem={selectedMenuItem}
-          activeMenuItem={activeMenuItem}
-          onMenuItemClick={selectMenuItem}
+          onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+          isMobileMenuOpen={mobileMenuOpen}
         />
-      </div>
+      )}
 
-      {/* Mobile Sidebar Sheet - Visible on mobile */}
-      <div className="md:hidden">
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetTrigger asChild>
-            {/* This is handled by the header's mobile menu button */}
-          </SheetTrigger>
-          <SheetContent side="left" className="w-70 p-0 border-0">
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-            <Sidebar
-              className={sidebarClassName}
-              defaultExpanded={true}
-              mainColumnExpanded={true}
-              onToggleMainColumn={() => {}}
-              selectedMenuItem={selectedMenuItem}
-              activeMenuItem={activeMenuItem}
-              onMenuItemClick={handleMenuItemClick}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Main Content Area - Header + Content */}
-      <div className="flex flex-col flex-1 overflow-hidden w-full">
-        {/* Main Header - Width fluid to sidebar */}
-        {showHeader && (
-          <MainHeader
-            mainColumnExpanded={mainColumnExpanded}
-            onToggleMainColumn={toggleMainColumn}
-            onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-            isMobileMenuOpen={mobileMenuOpen}
-          />
-        )}
-
-        {/* Content Area - Responsive padding and max-width */}
-        <div className="  mx-auto container p-3 md:p-6" >
- 
-            {children}
-     
+      {/* SCROLLABLE CONTENT AREA */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto container p-3 md:p-6">
+          {children}
         </div>
       </div>
     </div>
+  </div>
+
   );
 }

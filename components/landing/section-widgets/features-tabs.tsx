@@ -228,8 +228,8 @@ export function Example() {
     const theme = resolvedTheme?.startsWith("dark") ? "dark" : "light";
 
     const DASHBOARD_IMAGES = {
-        light: "/landing/subscription-management.PNG",
-        dark: "/landing/subscription-management-dark.PNG",
+        light: "/landing/hero-light2.JPG",
+        dark: "/landing/hero-dark2.JPG",
         alt: "Financial dashboard with predictive insights",
       } as const;
       type Item = { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> };
@@ -252,6 +252,7 @@ export function Example() {
           alt={DASHBOARD_IMAGES.alt}
           width={1920}
           height={1200}
+          quality={100}
           className="w-full rounded-2xl"
           priority
         />

@@ -252,8 +252,15 @@ export function CalendarSubscriptionWidget() {
 
     const map = new Map<string, UserSubscription[]>();
     
-    // Extract the data array from the response object
-    const subscriptions = subscriptionsResponse?.data || [];
+    // Extract the data array from the response object - handle both formats
+    let subscriptions: any[] = [];
+    if (Array.isArray(subscriptionsResponse)) {
+      subscriptions = subscriptionsResponse;
+    } else if (subscriptionsResponse.data && Array.isArray(subscriptionsResponse.data)) {
+      subscriptions = subscriptionsResponse.data;
+    }
+
+    console.log('[Calendar Widget] Processing subscriptions:', subscriptions.length);
 
     subscriptions.forEach((sub) => {
       if (sub.nextBillingDate && sub.status === 'ACTIVE') {
@@ -266,6 +273,8 @@ export function CalendarSubscriptionWidget() {
         map.get(dateKey)!.push(sub);
       }
     });
+
+    console.log('[Calendar Widget] Subscriptions by date:', map.size, 'dates');
 
     return map;
   }, [subscriptionsResponse]);

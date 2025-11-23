@@ -204,7 +204,7 @@ export function BudgetOverviewWidget() {
   // Loading State
   if (budgetsLoading) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
+      <Card className="relative rounded-lg border border-border/50  ">
         <div className="space-y-3">
           <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
           <div className="h-20 bg-muted/50 rounded-lg animate-pulse" />
@@ -215,21 +215,21 @@ export function BudgetOverviewWidget() {
           </div>
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
   // Empty State
   if (tabCounts.all === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-4">
+      <Card className="relative rounded-lg border border-border/50  ">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center">
-              <SolarCalculatorBoldDuotone className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground">Budgets</h3>
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-blue-400 flex items-center justify-center">
+            <SolarCalculatorBoldDuotone className="h-5 w-5 text-blue-900" />
           </div>
+          <h3 className="text-sm font-semibold text-foreground">Budgets</h3>
+        </div>
           <Link href="/budgets">
             <Button variant="outline" className="text-[11px] cursor-pointer hover:bg-muted transition-colors h-7" size="sm">
               Create Budget
@@ -247,7 +247,7 @@ export function BudgetOverviewWidget() {
           </p>
         </div>
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+      </Card>
     );
   }
 
@@ -256,7 +256,7 @@ export function BudgetOverviewWidget() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-xl bg-blue-500 flex items-center justify-center">
+          <div className="h-6 w-6 rounded-xl bg-blue-400 flex items-center justify-center">
             <SolarCalculatorBoldDuotone className="h-5 w-5 text-blue-900" />
           </div>
           <h3 className="text-sm font-semibold text-foreground">Budgets</h3>

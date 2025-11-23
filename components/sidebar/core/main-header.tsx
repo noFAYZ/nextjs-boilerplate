@@ -199,8 +199,8 @@ console.log(user?.image)
             {/* Hide global switcher on small mobile
             <div className="hidden sm:block">
               <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
-            </div>
-             */}<ThemeSwitcher />
+            </div>*/}
+             <ThemeSwitcher />
 
             {/* User Profile Dropdown */}
             <DropdownMenu>

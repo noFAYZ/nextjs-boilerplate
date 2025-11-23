@@ -59,7 +59,7 @@ const badgeVariants = cva(
         subtle:
           "border-border/50 bg-muted/50 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
         muted:
-          "border-border/50 bg-muted/80 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
+          "border-border/80 bg-muted/90 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
         "subtle-primary":
           "border-primary/20 bg-primary/10 text-primary [a&]:hover:bg-primary/20 [a&]:hover:border-primary/30",
 
