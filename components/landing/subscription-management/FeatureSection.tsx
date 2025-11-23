@@ -278,30 +278,35 @@ function FeatureButton({
 function WalletsStackVisual() {
   return (
     <div className="w-full max-w-md mx-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <NetWorthWidget />
-      </motion.div>
+      <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="h-full"
+        >
+          <NetWorthWidget />
+        </motion.div>
+      </Card>
     </div>
   );
 }
 
 function BudgetsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
-      {DEMO_BUDGETS.map((budget, idx) => (
-        <motion.div
-          key={budget.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.15 }}
-        >
-          <BudgetCard budget={budget as any} />
-        </motion.div>
-      ))}
+    <div className="w-full max-w-md mx-auto">
+      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+        {DEMO_BUDGETS.map((budget, idx) => (
+          <motion.div
+            key={budget.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.15 }}
+          >
+            <BudgetCard budget={budget as any} />
+          </motion.div>
+        ))}
+      </Card>
     </div>
   );
 }
@@ -309,47 +314,53 @@ function BudgetsVisual() {
 function InsightsVisual() {
   return (
     <div className="w-full max-w-md mx-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <SpendingCategoriesWidget />
-      </motion.div>
+      <Card className="relative border border-border/50 shadow-xs p-4 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <SpendingCategoriesWidget />
+        </motion.div>
+      </Card>
     </div>
   );
 }
 
 function SubscriptionsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
-      {DEMO_SUBSCRIPTIONS.map((subscription, idx) => (
-        <motion.div
-          key={subscription.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.15 }}
-        >
-          <SubscriptionCard subscription={subscription as any} />
-        </motion.div>
-      ))}
+    <div className="w-full max-w-md mx-auto">
+      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+        {DEMO_SUBSCRIPTIONS.map((subscription, idx) => (
+          <motion.div
+            key={subscription.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.15 }}
+          >
+            <SubscriptionCard subscription={subscription as any} />
+          </motion.div>
+        ))}
+      </Card>
     </div>
   );
 }
 
 function GoalsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
-      {DEMO_GOALS.map((goal, idx) => (
-        <motion.div
-          key={goal.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.15 }}
-        >
-          <GoalCard goal={goal as any} />
-        </motion.div>
-      ))}
+    <div className="w-full max-w-md mx-auto">
+      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+        {DEMO_GOALS.map((goal, idx) => (
+          <motion.div
+            key={goal.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.15 }}
+          >
+            <GoalCard goal={goal as any} />
+          </motion.div>
+        ))}
+      </Card>
     </div>
   );
 }
@@ -357,13 +368,15 @@ function GoalsVisual() {
 function AlertsVisual() {
   return (
     <div className="w-full max-w-md mx-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <UpcomingBillsWidget />
-      </motion.div>
+      <Card className="relative border border-border/50 shadow-xs p-4 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <UpcomingBillsWidget />
+        </motion.div>
+      </Card>
     </div>
   );
 }

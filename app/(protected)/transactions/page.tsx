@@ -50,26 +50,28 @@ export default function TransactionsPage() {
   });
 
   const { isRefetching } = useOrganizationRefetchState();
-
+  console.log(cryptoTxData)
   // Combine and normalize transactions
   const allTransactions = useMemo(() => {
     const combined: UnifiedTransaction[] = [];
 
     // Add banking transactions
-    if (bankingTxData?.transactions) {
-      bankingTxData.transactions.forEach((tx: any) => {
+    if (bankingTxData) {
+      bankingTxData?.forEach((tx: any) => {
         combined.push({
           id: tx.id,
-          type: tx.type === 'debit' ? 'WITHDRAWAL' : 'DEPOSIT',
+          type: tx.type  ,
           status: 'COMPLETED',
           timestamp: tx.date || new Date().toISOString(),
           amount: tx.amount || 0,
           currency: 'USD',
-          description: tx.description || tx.merchant || 'Bank Transaction',
+          merchent: tx.merchant ,
+          description: tx.description || 'Bank Transaction',
           account: {
             id: tx.accountId,
-            name: tx.accountName || 'Bank Account',
-            type: 'BANKING' as const,
+            name: tx.account?.name || 'Bank Account',
+            type: tx.accountTellerType ||'BANKING' as const,
+            institute: tx.account?.institutionName,
           },
           category: tx.category,
           source: 'BANKING' as const,
@@ -78,8 +80,8 @@ export default function TransactionsPage() {
     }
 
     // Add crypto transactions
-    if (cryptoTxData?.transactions) {
-      cryptoTxData.transactions.forEach((tx: any) => {
+    if (cryptoTxData?.data) {
+      cryptoTxData?.data?.forEach((tx: any) => {
         combined.push({
           id: tx.id,
           type: tx.type || 'OTHER',
@@ -126,70 +128,56 @@ export default function TransactionsPage() {
     setSourceFilter('all');
   };
 
+console.log(bankingTxData)
+
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="h-full flex flex-col relative space-y-4 ">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 p-6">
-        {/* Breadcrumb */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Transactions</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        {/* Title */}
-        <div>
-          <h1 className="text-2xl font-bold">Transactions</h1>
-          <p className="text-muted-foreground text-sm">
-            View and manage all your banking and cryptocurrency transactions
-          </p>
-        </div>
-      </div>
 
       {/* Toolbar */}
-      <div className="px-6 pb-4">
-        <Card className="p-4 border-border/50">
-          {/* Filter Row 1: Search and Quick Filters */}
-          <div className="flex flex-col lg:flex-row gap-3 mb-4">
+
+        <Card className="p-3 border-border/50 space-y-4">
+          {/* Filter Row 1: Search and Quick Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             {/* Search Input */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                 <Input
-                  placeholder="Search transactions by description, account, or hash..."
+                  placeholder="Search by description, account, or hash..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9 max-w-lg"
                 />
               </div>
             </div>
 
             {/* Quick Actions */}
-            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
-              <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={handleRefresh}
+                disabled={isLoading}
+                title={isLoading ? "Refreshing..." : "Refresh transactions"}
+              >
+                <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
 
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
-
-          {/* Filter Row 2: Dropdowns */}
-          <div className="flex flex-col lg:flex-row gap-3">
-            {/* Type Filter */}
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full lg:w-40">
-                <Filter className="h-4 w-4 mr-2" />
+              <Button
+                variant="outline"
+                size="xs"
+                title="Export transactions"
+              >
+                <Download className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+            </div>
+  <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger size='xs' className='text-xs'>
+                <Filter className="h-4 w-4 mr-1" />
                 <SelectValue placeholder="Transaction Type" />
               </SelectTrigger>
               <SelectContent>
@@ -205,8 +193,8 @@ export default function TransactionsPage() {
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full lg:w-40">
-                <Zap className="h-4 w-4 mr-2" />
+              <SelectTrigger size='xs' className='text-xs'>
+                <Zap className="h-4 w-4 mr-1" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -221,8 +209,8 @@ export default function TransactionsPage() {
 
             {/* Source Filter */}
             <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger className="w-full lg:w-40">
-                <Filter className="h-4 w-4 mr-2" />
+              <SelectTrigger size='xs' className='text-xs'>
+                <Filter className="h-4 w-4 mr-1" />
                 <SelectValue placeholder="Source" />
               </SelectTrigger>
               <SelectContent>
@@ -231,15 +219,16 @@ export default function TransactionsPage() {
                 <SelectItem value="CRYPTO">Crypto</SelectItem>
               </SelectContent>
             </Select>
+
           </div>
 
-          {/* Active Filters Chips */}
+          {/* Active Filters Display */}
           {activeFilters.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/30">
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-border/30">
               {activeFilters.map((filter) => (
                 <div
                   key={filter.key}
-                  className="inline-flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full text-xs font-medium"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/60 hover:bg-muted/80 rounded-full text-xs font-medium transition-colors"
                 >
                   <span>{filter.label}</span>
                   <button
@@ -249,7 +238,8 @@ export default function TransactionsPage() {
                       else if (filter.key === 'status') setStatusFilter('all');
                       else if (filter.key === 'source') setSourceFilter('all');
                     }}
-                    className="ml-1 hover:text-foreground transition-colors"
+                    className="hover:text-foreground ml-1 transition-colors"
+                    title="Remove filter"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -259,21 +249,25 @@ export default function TransactionsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="text-xs h-7"
+                className="text-xs h-7 ml-2"
               >
-                Clear all
+                Clear all filters
               </Button>
             </div>
           )}
         </Card>
-      </div>
+
 
       {/* Content */}
-      <div className="flex-1 overflow-auto px-6 pb-10">
+      <div className="flex-1 overflow-auto   pb-10">
         <TransactionsDataTable
           transactions={allTransactions}
           isLoading={isLoading}
           onRefresh={handleRefresh}
+          searchTerm={searchTerm}
+          typeFilter={typeFilter}
+          statusFilter={statusFilter}
+          sourceFilter={sourceFilter}
         />
       </div>
     </div>

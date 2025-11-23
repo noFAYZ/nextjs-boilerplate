@@ -175,8 +175,8 @@ export function Header({
 
            <div  className='hidden sm:flex' ><ThemeSwitcher  /></div> 
      
-      
-            {/* Create Button      <GlobalViewSwitcher size="sm" />
+       <GlobalViewSwitcher size="sm" />
+            {/* Create Button     
             <Button size="sm" className="hidden sm:flex items-center gap-1">
               <Plus className="h-4 w-4" />
               New
