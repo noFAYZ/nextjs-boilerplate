@@ -109,9 +109,9 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
     <>
       <nav className={cn('fixed inset-x-0 top-0 z-50', isScrolled ? 'py-2' : 'py-4')}>
         <div className={cn('mx-auto transition-all duration-200 border ',
-          'max-w-6xl  rounded-lg bg-gradient-to-r from-card/95 via-card to-card/95  border-border/50 dark:from-card shadow-sm dark:via-muted dark:to-card'
+          'max-w-6xl  rounded-lg bg-gradient-to-r from-card/95 via-card to-card/95  border-border/50 dark:from-card shadow-sm dark:via-muted dark:to-card',
           
-        /*   isScrolled ? 'max-w-6xl  rounded-lg bg-gradient-to-br from-card/95 via-card to-card/95  border-border/50 dark:from-muted shadow-sm dark:via-background dark:to-muted ' : 'max-w-7xl  rounded-lg bg-gradient-to-br from-card via-card to-card  border-border/50 dark:from-muted shadow-sm dark:via-muted/50 dark:to-muted' */
+        /*  */ isScrolled ? 'max-w-6xl  rounded-lg bg-gradient-to-br from-card/95 via-card to-card/95  border-border/50 dark:from-muted shadow-sm dark:via-background dark:to-muted ' : 'max-w-7xl  rounded-lg bg-gradient-to-br from-card via-card to-card  border-border/50 dark:from-muted shadow-sm dark:via-muted/50 dark:to-muted' 
           
           )}>
           <div className="relative ">
@@ -197,7 +197,10 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               {/* Desktop CTA */}
               <div className="hidden lg:flex items-center gap-3">
                 <ThemeSwitcher />
-                {user ? (
+                <Button size="xs" className="group">
+                        Join waitlist <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
+                      </Button>
+              {/*   {user ? (
                   <Link href="/app"><Button size="sm">Dashboard</Button></Link>
                 ) : (
                   <>
@@ -208,7 +211,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                       </Button>
                     </Link>
                   </>
-                )}
+                )} */}
               </div>
 
               {/* Mobile Toggle */}

@@ -180,7 +180,7 @@ export function LandingHero() {
           transition={{ delay: 0.5 }}
           className="mt-8 flex justify-center gap-4 flex-wrap"
         >
-          <AvatarCircles numPeople={99} avatarUrls={[
+          <AvatarCircles numPeople={73} avatarUrls={[
   "https://avatars.githubusercontent.com/u/16860528",
   "https://avatars.githubusercontent.com/u/20110627",
   "https://avatars.githubusercontent.com/u/106103625",
@@ -195,7 +195,7 @@ export function LandingHero() {
           transition={{ delay: 0.6 }}
           className="mt-8 flex justify-center gap-4 flex-wrap"
         >
-          <Button  >
+        {/*   <Button  >
             Get Started
           </Button>
 
@@ -206,7 +206,8 @@ export function LandingHero() {
             icon={<SolarPlayCircleBoldDuotone className="w-5 h-5" />}
           >
             See Demo
-          </Button>
+          </Button> */}
+          <WaitlistFormCompact />
         </motion.div>
 
 

@@ -30,6 +30,10 @@ import {
   MoreHorizontal,
   RefreshCw,
   Wallet,
+  ChevronUp,
+  ChevronDownIcon,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { formatDate } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -40,6 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { GgArrowsExchange } from '../icons/icons';
 
 export interface UnifiedTransaction {
   id: string;
@@ -228,22 +233,22 @@ const getTypeIcon = (type: string) => {
     case 'atm':
     case 'payment':
     case 'digital_payment':
-      return <ArrowUp className={cn("h-4 w-4", getTypeColor(type))} />;
+      return <ChevronUp className={cn("h-5 w-5", getTypeColor(type))} />;
 
     // Money In
     case 'receive':
     case 'deposit':
-      return <ArrowDown className={cn("h-4 w-4", getTypeColor(type))} />;
+      return <ChevronDownIcon className={cn("h-5 w-5", getTypeColor(type))} />;
 
     // Neutral Transfers
     case 'swap':
     case 'transfer':
     case 'ach':
-      return <ArrowUpDown className={cn("h-4 w-4", getTypeColor(type))} />;
+      return <GgArrowsExchange className={cn("h-5 w-5", getTypeColor(type))} />;
 
     // Unknown type → neutral wallet icon
     default:
-      return <Wallet className={cn("h-4 w-4 text-muted-foreground")} />;
+      return <Wallet className={cn("h-5 w-5 text-muted-foreground")} />;
   }
 };
 export function TransactionsDataTable({
