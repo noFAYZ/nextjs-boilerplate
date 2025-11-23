@@ -303,7 +303,8 @@ export function useSubscriptionSummary() {
     };
   }
 
-  const subs = subscriptions || [];
+  // Extract the data array from the response object
+  const subs = subscriptions?.data || [];
 
   return {
     total: subs.length,

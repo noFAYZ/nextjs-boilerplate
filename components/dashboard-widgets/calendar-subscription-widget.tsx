@@ -251,8 +251,11 @@ export function CalendarSubscriptionWidget() {
     if (!subscriptionsResponse) return new Map<string, UserSubscription[]>();
 
     const map = new Map<string, UserSubscription[]>();
+    
+    // Extract the data array from the response object
+    const subscriptions = subscriptionsResponse?.data || [];
 
-    subscriptionsResponse.forEach((sub) => {
+    subscriptions.forEach((sub) => {
       if (sub.nextBillingDate && sub.status === 'ACTIVE') {
         const date = new Date(sub.nextBillingDate);
         const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;

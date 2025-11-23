@@ -6,6 +6,14 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: 'include', // Important for cookie-based sessions
   },
+
+  
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || "",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    redirectURI: `${process.env.BETTER_AUTH_BASE_URL}/api/auth/callback/google`,
+  },
+
 });
 
 // Export auth functions

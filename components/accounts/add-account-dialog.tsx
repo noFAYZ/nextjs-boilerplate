@@ -223,7 +223,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                 <Input
                   placeholder="Search 13,000 institutions..."
-                  className="pl-10 h-10 bg-muted/50 border-border"
+                  className="pl-10 h-10 "
                 />
               </div>
             </div>
@@ -235,8 +235,8 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   key={category.id}
                   onClick={() => handleCategoryClick(category)}
                   className={cn(
-                    'w-full flex items-center justify-between p-4 rounded-xl border shadow-xs border-border cursor-pointer',
-                    'hover:bg-muted/60 hover:border-border',
+                    'w-full flex items-center justify-between p-4 bg-card rounded-lg border shadow-xs border-border cursor-pointer',
+                    'hover:bg-muted/30 hover:border-border',
                     'group focus:outline-none focus:ring-0'
                   )}
                 >
@@ -251,7 +251,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                     <div className="flex items-center gap-2">
                       {category.id === 'import' || category.id === 'manual' ? (
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-muted/50 flex items-center justify-center">
+                          <div className="h-8 w-8 rounded-full bg-muted border border-bordder/80 flex items-center justify-center">
                             {category.id === 'import' ? (
                               <Upload className="h-4 w-4 text-muted-foreground" />
                             ) : (

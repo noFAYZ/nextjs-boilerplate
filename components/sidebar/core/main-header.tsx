@@ -105,7 +105,7 @@ export function MainHeader({
     radius: 100,
   }).toDataUri();
 
-
+console.log(user?.image)
   return (
     <TooltipProvider delayDuration={200}>
       <header className="sticky top-0 z-40  bg-background">
@@ -207,16 +207,17 @@ export function MainHeader({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="rounded-full p-1 h-9 gap-2 hover:bg-muted"
+                  className="rounded-full p-1 pr-2 h-9 gap-2 hover:bg-muted"
                 >
-                  {profileLoading ? (
+                  {profileLoading || !user.id? (
                     <Skeleton className="h-7 w-7 rounded-full" />
                   ) : (
                     <>
-                      <Avatar className="h-7 w-7 flex-shrink-0">
+                      <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
                         <AvatarImage
-                          src={avatar}
+                          src={user?.image ?? avatar}
                           alt={`${user?.name || 'User'}'s avatar`}
+                          className='rounded-full'
                         />
                         <AvatarFallback className="text-xs bg-primary text-primary-foreground font-semibold">
                           {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}

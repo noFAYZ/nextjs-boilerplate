@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { signIn, signUp, signOut, getSession, oauth2 } from '@/lib/auth-client';
+import { signIn, signUp, signOut, getSession, oauth2, authClient } from '@/lib/auth-client';
 import { errorHandler } from '@/lib/utils/error-handler';
 
 interface User {
@@ -352,33 +352,22 @@ export const useAuthStore = create<AuthStore>()(
             const callbackURL = `${window.location.origin}/dashboard`;
             console.log(`[Auth] OAuth callback URL: ${callbackURL}`);
 
-            // Initiate OAuth flow - this will redirect to provider
-            const result = await oauth2.signIn({
-              provider,
-              callbackURL,
+            // Use provider-specific signin endpoint instead of generic oauth2
+            // This calls /api/auth/signin/{provider} which is the correct Better Auth endpoint
+            const data = await authClient.signIn.social({
+              provider: "google",
+              callbackURL: "http://localhost:3001/dashboard", // Full frontend URL for redirect after auth
             });
-
-            console.log(`[Auth] OAuth response:`, result);
-
-            // Note: If we reach here, the provider returned us to the app
-            // or oauth2.signIn returned successfully
-            // getSession() will be called on the next app initialization
-
-            // If we have a user, update the store
-            if (result?.user) {
-              set((state) => {
-                state.user = result.user as any;
-                state.isAuthenticated = true;
-                state.loginLoading = false;
-                state.lastActivity = new Date();
-              }, false, 'loginWithOAuth/success');
-
-              // Start auto-logout timer
-              get().updateLastLoginDate();
-              get().startAutoLogoutTimer();
-            } else {
-              console.log('[Auth] OAuth sign in completed, waiting for session initialization');
-            }
+        /*     const baseURL = process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL || 'http://localhost:3000';
+            const signinURL = `${baseURL}/api/auth/signin/${provider}`;
+            
+            console.log(`[Auth] Redirecting to: ${signinURL}`);
+            
+            // Redirect to provider-specific signin endpoint with callback
+            window.location.href = `${signinURL}?callbackURL=${encodeURIComponent(callbackURL)}`; */
+            
+            // Note: The page will redirect, so code below won't execute
+            // The callback will be handled when user returns from OAuth provider
           } catch (error) {
             console.error(`[Auth] OAuth error for provider ${provider}:`, error);
 

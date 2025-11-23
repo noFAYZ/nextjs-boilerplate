@@ -154,7 +154,9 @@ export function SubscriptionsOverviewWidget() {
 
   // Get subscriptions to display based on active tab
   const subscriptionsToShow = useMemo(() => {
-    if (!subscriptionsResponse) return [];
+    // Defensive check: ensure subscriptionsResponse.data is an array
+    const subscriptions = subscriptionsResponse?.data;
+    if (!subscriptions || !Array.isArray(subscriptions)) return [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -164,7 +166,7 @@ export function SubscriptionsOverviewWidget() {
 
     if (activeTab === 'upcoming') {
       // Show upcoming bills (next 7 days)
-      const upcoming = subscriptionsResponse
+      const upcoming = subscriptions
         .filter((sub) => {
           if (sub.status !== 'ACTIVE' || !sub.nextBillingDate) return false;
 
@@ -177,7 +179,7 @@ export function SubscriptionsOverviewWidget() {
 
       // If no upcoming, show active instead
       if (upcoming.length === 0) {
-        return subscriptionsResponse
+        return subscriptions
           .filter(sub => sub.status === 'ACTIVE')
           .slice(0, 5);
       }
@@ -187,14 +189,14 @@ export function SubscriptionsOverviewWidget() {
 
     if (activeTab === 'active') {
       // Show all active subscriptions
-      return subscriptionsResponse
+      return subscriptions
         .filter(sub => sub.status === 'ACTIVE')
         .slice(0, 5);
     }
 
     if (activeTab === 'trial') {
       // Show trial subscriptions
-      return subscriptionsResponse
+      return subscriptions
         .filter(sub => sub.status === 'TRIAL')
         .slice(0, 5);
     }
@@ -204,22 +206,26 @@ export function SubscriptionsOverviewWidget() {
 
   // Calculate tab counts
   const tabCounts = useMemo(() => {
-    if (!subscriptionsResponse) return { upcoming: 0, active: 0, trial: 0 };
+    // Defensive check: ensure subscriptionsResponse.data is an array
+    const subscriptions = subscriptionsResponse?.data;
+    if (!subscriptions || !Array.isArray(subscriptions)) {
+      return { upcoming: 0, active: 0, trial: 0 };
+    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(today.getDate() + 7);
 
-    const upcomingCount = subscriptionsResponse.filter((sub) => {
+    const upcomingCount = subscriptions.filter((sub) => {
       if (sub.status !== 'ACTIVE' || !sub.nextBillingDate) return false;
       const billingDate = new Date(sub.nextBillingDate);
       billingDate.setHours(0, 0, 0, 0);
       return billingDate >= today && billingDate <= sevenDaysFromNow;
     }).length;
 
-    const activeCount = subscriptionsResponse.filter(sub => sub.status === 'ACTIVE').length;
-    const trialCount = subscriptionsResponse.filter(sub => sub.status === 'TRIAL').length;
+    const activeCount = subscriptions.filter(sub => sub.status === 'ACTIVE').length;
+    const trialCount = subscriptions.filter(sub => sub.status === 'TRIAL').length;
 
     return { upcoming: upcomingCount, active: activeCount, trial: trialCount };
   }, [subscriptionsResponse]);

@@ -126,6 +126,7 @@ cookieOptions: {
   
   plugins: [
     // Add any additional plugins here
+   
   ],
   
   // Advanced session management
