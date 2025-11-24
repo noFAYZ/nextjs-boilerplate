@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "bg-card text-card-foreground flex flex-col relative overflow-hidden group border transition-all duration-75 ease-in-out",
+  "bg-card text-card-foreground flex flex-col relative overflow-hidden group border ",
   {
     variants: {
       variant: {
@@ -30,7 +30,7 @@ const cardVariants = cva(
         xl: "p-6 gap-3",
       },
       interactive: {
-        true: "cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none",
+        true: "cursor-pointer hover:scale-[1.01] active:scale-[1]  outline-none",
         false: "",
       },
       loading: {

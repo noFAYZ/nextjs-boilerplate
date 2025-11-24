@@ -12,7 +12,7 @@ const tabsListVariants = cva(
       variant: {
         default: "bg-muted rounded-lg p-1",
         floating: " shadow-lg rounded-xl p-2 border border-border",
-        segmented: "bg-muted rounded-lg p-1",
+        segmented: "bg-card border border-border/80 rounded-lg p-1",
         outline: "bg-background border rounded-xl p-1 border-border",
         steps: "bg-transparent",
         accent: " rounded-xl p-1 shadow-sm bg-accent/50 border",

@@ -30,6 +30,7 @@ import {
   Repeat,
   Sparkles,
   Plus,
+  X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -73,7 +74,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import { HugeiconsCreditCard, MageCalendar2, MdiDollar } from "@/components/icons/icons";
+import { DuoIconsCreditCard, HugeiconsCreditCard, LetsIconsCreditCardDuotone, MageCalendar2, MageDashboard, MdiDollar, SolarCalendarBoldDuotone, SolarCheckCircleBoldDuotone, StreamlineFlexBellNotification } from "@/components/icons/icons";
+import { StashBell } from "@/components/icons";
 
 
 export default function SubscriptionDetailPage() {
@@ -183,18 +185,10 @@ export default function SubscriptionDetailPage() {
     : subscription.monthlyEquivalent;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-3 p-4 sm:p-6">
+    <div className="mx-auto space-y-3 max-w-3xl">
       {/* Top Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="xs"
-          onClick={() => router.push("/subscriptions")}
-          className="gap-1.5 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Subscriptions
-        </Button>
+      <div className="flex items-center justify-end">
+
 
         <div className="flex items-center gap-2">
           <Button
@@ -249,237 +243,257 @@ export default function SubscriptionDetailPage() {
         </div>
       </div>
 
+
       {/* MODERN COMPACT HEADER WITH INTEGRATED STATS */}
-      <div className="relative overflow-hidden rounded-none border border-border/70 bg-gradient-to-br from-muted via-muted/30 to-background backdrop-blur-xl drop-shadow-sm">
-        {/* Decorative Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-muted/25 via-transparent to-muted/15" />
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-muted/10 blur-3xl" />
-        <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-muted/5 blur-3xl" />
+<Card className="relative overflow-hidden rounded-none border-border/80 p-3 hover:shadow-xs">
 
-        <div className="relative p-4 sm:p-5">
-          {/* Top Section - Logo, Title, Actions */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            {/* Left - Logo & Info */}
-            <div className="flex items-start gap-3 min-w-0 flex-1">
-              <div className="relative shrink-0">
-              <Avatar className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-18 md:w-18 items-center align-middle justify-center bg-white shadow-md">
-                  <AvatarImage
-                    src={subscription.logoUrl || getLogoUrl(subscription.websiteUrl)}
-                    alt={subscription.name}
-                    className="h-12 w-12 object-fit "
-                  />
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                    {subscription.name.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {subscription.autoRenew && (
-                  <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-0.5 shadow-md">
-                    <RefreshCw className="h-3 w-3 text-primary" />
-                  </div>
-                )}
-              </div>
+{/* HEADER */}
+<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+  {/* LEFT */}
+  <div className="flex items-start gap-3 min-w-0 flex-1">
+    <div className="relative shrink-0">
+      <Avatar className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-18 md:w-18 items-center justify-center shadow-md">
+        <AvatarImage
+          src={subscription.logoUrl || getLogoUrl(subscription.websiteUrl)}
+          alt={subscription.name}
+          className="h-full w-full object-contain"
+        />
+        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+          {subscription.name.slice(0, 2).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
 
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <div>
-                  <Breadcrumb className="mb-1">
-                    <BreadcrumbList>
-                      <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link href="/">Home</Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link href="/subscriptions">Subscriptions</Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbPage>{subscription.name}</BreadcrumbPage>
-                      </BreadcrumbItem>
-                    </BreadcrumbList>
-                  </Breadcrumb>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {subscription.merchantName || "Manual Entry"}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge
-                    className={cn(
-                      "flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 shadow-sm",
-                      subscription.status === "ACTIVE" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30" :
-                      subscription.status === "TRIAL" ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30" :
-                      subscription.status === "CANCELLED" || subscription.status === "EXPIRED" ? "bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30" :
-                      subscription.status === "PAYMENT_FAILED" ? "bg-red-500/15 text-red-700 dark:text-red-400 border border-red-500/30" :
-                      "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border border-yellow-500/30"
-                    )}
-                  >
-                    {getStatusIcon()}
-                    {subscription.status.charAt(0) + subscription.status.slice(1).toLowerCase().replace('_', ' ')}
-                  </Badge>
-
-                  {subscription.category && (
-                    <Badge variant="outline" className="text-[10px] bg-background/60 backdrop-blur-sm flex items-center gap-1 px-2 py-0.5">
-                      <Tag className="h-2.5 w-2.5" />
-                      {subscriptionsApi.getCategoryDisplayName(subscription.category)}
-                    </Badge>
-                  )}
-
-                  {subscription.isInTrial && (
-                    <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30 backdrop-blur-sm px-2 py-0.5">
-                      <Sparkles className="h-2.5 w-2.5 mr-1" />
-                      Trial
-                    </Badge>
-                  )}
-                       {subscription.notifyBeforeBilling && (
-                <Badge variant="outline" className="text-[10px] bg-background/60 backdrop-blur-sm px-2 py-0.5">
-                  <Bell className="h-2.5 w-2.5 mr-1" />
-                  Reminders ({subscription.notifyDaysBefore}d)
-                </Badge>
-              )}
-                </div>
-              </div>
-            </div>
-
-            {/* Right - Quick Actions */}
-            <div className="flex gap-1.5 sm:shrink-0">
-            {subscription.websiteUrl && (
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => window.open(subscription.websiteUrl, "_blank")}
-                  className="backdrop-blur-sm "
-                >
-                  <Globe className="h-3 w-3 mr-1" />
-                  Visit
-                </Button>
-              )}
-              {subscription.cancellationUrl && (
-                <Button
-                  variant="delete"
-                  size="xs"
-                  onClick={() => window.open(subscription.cancellationUrl, "_blank")}
-                  className="backdrop-blur-sm "
-                  icon={<XCircle className="h-3.5 w-3.5 " />}
-                >
-                  
-                  <span className="hidden sm:inline text-xs">Cancel</span>
-                </Button>
-              )}
-             
-
-            </div>
-          </div>
-
-          {/* Stats Grid - Modern Horizontal Compact */}
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Current Billing */}
-            <div className="group relative overflow-hidden rounded-lg border border-border/70  bg-gradient-to-r from-primary/5 via-background/95 to-background backdrop-blur-sm transition-all hover:shadow-md  items-center  hover:from-primary/8">
-              <div className="flex items-center gap-2.5 p-2">
-                <div className="shrink-0 rounded-md bg-primary/10 p-1.5 transition-all group-hover:bg-primary/15 group-hover:scale-105">
-                  <MdiDollar className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Cost</p>
-                  <p className="text-base font-bold tracking-tight truncate">
-                    {subscriptionsApi.formatCurrency(subscription.amount, subscription.currency).replace(/\.00$/, "")}   <span className="text-[9px] text-muted-foreground truncate">
-                    /{subscriptionsApi.getBillingCycleDisplayName(subscription.billingCycle).toLowerCase()}
-                  </span>
-                  </p>
-               
-                </div>
-              </div>
-            </div>
-
-            {/* Next Billing */}
-            <div className="group relative overflow-hidden rounded-lg border border-border/70  bg-gradient-to-r from-blue-500/5 via-background/95 to-background backdrop-blur-sm transition-all hover:shadow-md  items-center  hover:from-blue-500/8">
-              <div className="flex items-center gap-2.5 p-2">
-                <div className="shrink-0 rounded-md bg-blue-500/10 p-1.5 transition-all group-hover:bg-blue-500/15 group-hover:scale-105">
-                  <MageCalendar2 className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Next Billing</p>
-                  <p className="text-base font-bold tracking-tight truncate">
-                    {subscription.nextBillingDate ? (
-                      formatDate(subscription.nextBillingDate).split(',')[0]
-                    ) : "—"}
-                  </p>
-                  <div className="flex items-center gap-1.5">
-                    {subscription.daysUntilNextBilling !== undefined && (
-                      <p className="text-[9px] text-muted-foreground">
-                        {subscription.daysUntilNextBilling === 0 ? "Today" :
-                          subscription.daysUntilNextBilling === 1 ? "Tomorrow" :
-                          `in ${subscription.daysUntilNextBilling}d`}
-                      </p>
-                    )}
-                    {subscription.daysUntilNextBilling !== undefined && subscription.daysUntilNextBilling <= 7 && (
-                      <Badge variant="outline" className="text-[8px] h-3.5 px-1 border-orange-500/30 bg-orange-500/10 text-orange-600">
-                        Soon
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Yearly Estimate */}
-            <div className="group relative overflow-hidden rounded-lg border border-border/70  bg-gradient-to-r from-primary/8 via-primary/5 to-background backdrop-blur-sm transition-all hover:shadow-md  items-center  hover:from-primary/12">
-              <div className="flex items-center gap-2.5 p-2">
-                <div className="shrink-0 rounded-md bg-primary/15 p-1.5 transition-all group-hover:bg-primary/20 group-hover:scale-105">
-                  <Repeat className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-semibold uppercase tracking-wider text-primary/80 mb-0.5">Yearly</p>
-                  <p className="text-base flex items-baseline gap-1 font-bold tracking-tight text-primary truncate">
-                    {subscriptionsApi.formatCurrency(subscription.yearlyEstimate, subscription.currency).replace(/\.00$/, "")}
-                    <span className="text-[9px] text-primary/70 truncate">
-                    projected annual
-                  </span>
-                  </p>
-                 
-                </div>
-              </div>
-            </div>
-
-            {/* Total Spent */}
-            <div className="group relative overflow-hidden rounded-lg border border-border/70  bg-gradient-to-r from-emerald-500/8 via-emerald-500/5 to-background backdrop-blur-sm transition-all hover:shadow-md items-center hover:from-emerald-500/12">
-              <div className="flex items-center gap-2.5 p-2">
-                <div className="shrink-0 rounded-md bg-emerald-500/15 p-1.5 transition-all group-hover:bg-emerald-500/20 group-hover:scale-105">
-                  <HugeiconsCreditCard className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-400/80 mb-0.5">Total Spent</p>
-                  <p className="flex gap-1 items-baseline text-base font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate">
-                    {subscriptionsApi.formatCurrency(subscription.totalSpent, subscription.currency).replace(/\.00$/, "")}
-                    <span className="flex items-center gap-1 text-[9px] text-emerald-700/70 dark:text-emerald-400/70">
-                    {subscription.startDate && (
-                      <span className="truncate">since {formatDate(subscription.startDate).split(',')[0].split(' ')[0]}</span>
-                    )}
-                    {daysActive > 0 && subscription.startDate && <span>•</span>}
-                    {daysActive > 0 && <span>{daysActive}d</span>}
-                  </span>
-                  </p>
-              
-                </div>
-              </div>
-            </div>
-          </div>
-
- 
+      {subscription.autoRenew && (
+        <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-0.5 shadow-md">
+          <RefreshCw className="h-3 w-3 text-primary" />
         </div>
+      )}
+    </div>
+
+    <div className="min-w-0 flex-1 space-y-1.5">
+      <p className="text-lg font-semibold truncate">
+        {subscription.merchantName || "Manual Entry"}
+      </p>
+
+      <div className="flex flex-wrap gap-1.5">
+        {/* STATUS BADGE */}
+        <Badge
+          className={cn(
+            "flex items-center gap-1 text-[10px] font-semibold px-1 py-0.5 shadow-sm",
+            subscription.status === "ACTIVE"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+              : subscription.status === "TRIAL"
+              ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30"
+              : subscription.status === "CANCELLED" ||
+                subscription.status === "EXPIRED"
+              ? "bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30"
+              : subscription.status === "PAYMENT_FAILED"
+              ? "bg-red-500/15 text-red-700 dark:text-red-400 border border-red-500/30"
+              : "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border border-yellow-500/30"
+          )}
+        >
+          {getStatusIcon()}
+          {subscription.status.charAt(0) +
+            subscription.status.slice(1).toLowerCase().replace("_", " ")}
+        </Badge>
+
+        {subscription.category && (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-background/60 backdrop-blur-sm flex items-center gap-1 px-1 py-0.5"
+          >
+            <Tag className="h-2.5 w-2.5" />
+            {subscriptionsApi.getCategoryDisplayName(subscription.category)}
+          </Badge>
+        )}
+
+        {subscription.isInTrial && (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30 backdrop-blur-sm px-2 py-0.5"
+          >
+            <Sparkles className="h-2.5 w-2.5 mr-1" />
+            Trial
+          </Badge>
+        )}
+
+        {subscription.notifyBeforeBilling && (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-background/60 backdrop-blur-sm px-1 py-0.5"
+          >
+            <Bell className="h-2.5 w-2.5 mr-1" />
+            Reminders ({subscription.notifyDaysBefore}d)
+          </Badge>
+        )}
       </div>
+    </div>
+  </div>
+
+  {/* ACTIONS */}
+  <div className="flex gap-1.5 sm:shrink-0 flex-wrap">
+    {subscription.websiteUrl && (
+      <Button
+        variant="outline"
+        size="xs"
+        onClick={() => window.open(subscription.websiteUrl, "_blank")}
+        className="backdrop-blur-sm"
+      >
+        <Globe className="h-3 w-3 mr-1" />
+        Visit
+      </Button>
+    )}
+
+    {subscription.cancellationUrl && (
+      <Button
+        variant="secondary2"
+        size="xs"
+        onClick={() => window.open(subscription.cancellationUrl, "_blank")}
+        className="backdrop-blur-sm"
+        icon={<XCircle className="h-3.5 w-3.5" />}
+      >
+        <span className="hidden sm:inline text-xs">Cancel</span>
+      </Button>
+    )}
+  </div>
+</div>
+
+<Separator className="my-4 bg-border/70" />
+
+{/* RESPONSIVE STATS GRID */}
+<div
+  className="
+    grid w-full 
+    grid-cols-2 gap-1
+    md:grid-cols-3
+    lg:grid-cols-4
+  "
+>
+  {/* COST */}
+  <div className="flex items-center gap-3">
+    <div className="shrink-0 rounded-full bg-muted border shadow p-2">
+      <MdiDollar className="h-5 w-5 text-foreground/80" />
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Cost
+      </p>
+
+      <div className="flex items-baseline gap-1">
+      <p className="text-base font-semibold truncate tracking-tight">
+        {subscriptionsApi
+          .formatCurrency(subscription.amount, subscription.currency)
+          .replace(/\.00$/, "")}
+       
+      </p> <span className="text-[11px] text-muted-foreground  ">
+          /
+          {subscriptionsApi
+            .getBillingCycleDisplayName(subscription.billingCycle)
+            .toLowerCase()}
+        </span></div>
+    </div>
+  </div>
+
+  {/* NEXT BILLING */}
+  <div className="flex items-center gap-3">
+    <div className="shrink-0 rounded-full bg-muted border shadow p-2">
+      <SolarCalendarBoldDuotone className="h-5 w-5 text-foreground/80" />
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Next Billing
+      </p>
+
+      <div className="flex items-baseline gap-2 truncate">
+        <span className="font-semibold text-base truncate tracking-tight">
+          {subscription.nextBillingDate
+            ? formatDate(subscription.nextBillingDate).split(",")[0]
+            : "—"}
+        </span>
+
+        {subscription.daysUntilNextBilling !== undefined && (
+          <span className="text-[11px] text-muted-foreground truncate">
+            {subscription.daysUntilNextBilling === 0
+              ? "Today"
+              : subscription.daysUntilNextBilling === 1
+              ? "Tomorrow"
+              : `in ${subscription.daysUntilNextBilling}d`}
+          </span>
+        )}
+
+        {/* {subscription.daysUntilNextBilling <= 7 && (
+          <Badge
+            variant="outline"
+            className="text-[11px] h-4 px-1 border-orange-500/30 bg-orange-500/10 text-orange-600"
+          >
+            Soon
+          </Badge>
+        )} */}
+      </div>
+    </div>
+  </div>
+
+  {/* YEARLY */}
+  <div className="flex items-center gap-3">
+    <div className="shrink-0 rounded-full bg-muted border shadow p-2">
+      <Repeat className="h-5 w-5 text-foreground/80" />
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Yearly
+      </p>
+      <div className="flex items-baseline gap-2 truncate">
+        <p className="text-base font-semibold truncate tracking-tight">
+          {subscriptionsApi
+            .formatCurrency(subscription.yearlyEstimate, subscription.currency)
+            .replace(/\.00$/, "")}
+        </p>
+        <span className="text-[11px] text-muted-foreground">proj. annual</span>
+      </div>
+    </div>
+  </div>
+
+  {/* TOTAL SPENT */}
+  <div className="flex items-center gap-3">
+    <div className="shrink-0 rounded-full bg-muted border shadow p-2">
+      <DuoIconsCreditCard className="h-6 w-6 text-foreground/80" />
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Total Spent
+      </p>
+
+      <div className="flex items-baseline gap-1 truncate">
+        <p className="text-base font-semibold truncate tracking-tight">
+          {subscriptionsApi
+            .formatCurrency(subscription.totalSpent, subscription.currency)
+            .replace(/\.00$/, "")}
+        </p>
+
+        <span className="text-[11px] text-muted-foreground truncate">
+          {subscription.startDate &&
+            `since ${formatDate(subscription.startDate).split(",")[0]}`}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</Card>
+
 
      
       {/* Tabs - Content Sections */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList variant="card" className=" justify-start overflow-x-auto" size="sm">
-          <TabsTrigger value="overview" variant="card" className="gap-2" size="sm">
-            <FileText className="h-4 w-4" />
+        <TabsList variant="pill" className=" justify-start overflow-x-auto" >
+          <TabsTrigger value="overview" variant="pill" >
+            <MageDashboard className="h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="charges" variant="card" className="gap-2" size="sm">
+          <TabsTrigger value="charges" variant="pill" >
             <CreditCard className="h-4 w-4" />
             Charges
             {subscription.charges && subscription.charges.length > 0 && (
@@ -488,7 +502,7 @@ export default function SubscriptionDetailPage() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="reminders" variant="card" className="gap-2" size="sm">
+          <TabsTrigger value="reminders" variant="pill">
             <Bell className="h-4 w-4" />
             Reminders
             {subscription.reminders && subscription.reminders.length > 0 && (
@@ -497,264 +511,180 @@ export default function SubscriptionDetailPage() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="details" variant="card" className="gap-2" size="sm">
+          <TabsTrigger value="details" variant="pill" >
             <Tag className="h-4 w-4" />
             Details
           </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Subscription Timeline */}
-            <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="rounded-lg bg-primary/10 p-2">
-                  <Calendar className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-base font-semibold">Subscription Timeline</h3>
-              </div>
-              <div className="space-y-4">
-                <InfoRow
-                  icon={<ArrowUpRight className="h-4 w-4 text-emerald-600" />}
-                  label="Start Date"
-                  value={formatDate(subscription.startDate)}
-                />
-                <InfoRow
-                  icon={<Clock className="h-4 w-4 text-blue-600" />}
-                  label="Next Billing"
-                  value={formatDate(subscription.nextBillingDate)}
-                />
-                {subscription.endDate && (
-                  <InfoRow
-                    icon={<ArrowDownRight className="h-4 w-4 text-red-600" />}
-                    label="End Date"
-                    value={formatDate(subscription.endDate)}
-                  />
-                )}
-                {subscription.trialEndDate && (
-                  <InfoRow
-                    icon={<Sparkles className="h-4 w-4 text-blue-600" />}
-                    label="Trial Ends"
-                    value={formatDate(subscription.trialEndDate)}
-                    highlight={subscription.isInTrial}
-                  />
-                )}
-                <InfoRow
-                  icon={<Tag className="h-4 w-4" />}
-                  label="Category"
-                  value={
-                    subscription.category
-                      ? subscriptionsApi.getCategoryDisplayName(subscription.category)
-                      : "—"
-                  }
-                />
-              </div>
-            </Card>
+       {/* Overview Tab */}
+       <TabsContent value="overview" className="space-y-4">
 
-            {/* Billing Summary */}
-            <Card className="overflow-hidden rounded-xl border-primary/30 bg-gradient-to-br from-primary/5 to-background p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="rounded-lg bg-primary/10 p-2">
-                  <DollarSign className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-base font-semibold">Billing Summary</h3>
-              </div>
-              <div className="space-y-4">
-                <InfoRow
-                  icon={<DollarSign className="h-4 w-4 text-primary" />}
-                  label="Amount"
-                  value={subscriptionsApi.formatCurrency(
-                    subscription.amount,
-                    subscription.currency
-                  )}
-                />
-                <InfoRow
-                  icon={<Repeat className="h-4 w-4" />}
-                  label="Billing Cycle"
-                  value={subscriptionsApi.getBillingCycleDisplayName(subscription.billingCycle)}
-                />
-                <InfoRow
-                  icon={<TrendingUp className="h-4 w-4 text-blue-600" />}
-                  label="Monthly Equivalent"
-                  value={subscriptionsApi.formatCurrency(
-                    subscription.monthlyEquivalent,
-                    subscription.currency
-                  )}
-                />
-                <InfoRow
-                  icon={<Calendar className="h-4 w-4 text-primary" />}
-                  label="Yearly Estimate"
-                  value={subscriptionsApi.formatCurrency(
-                    subscription.yearlyEstimate,
-                    subscription.currency
-                  )}
-                />
-                <InfoRow
-                  icon={<CreditCard className="h-4 w-4 text-emerald-600" />}
-                  label="Total Spent"
-                  value={subscriptionsApi.formatCurrency(
-                    subscription.totalSpent,
-                    subscription.currency
-                  )}
-                />
-              </div>
-            </Card>
+{/* Top Row – 1 → 2 → 3 columns */}
+<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+  
+  {/* Subscription Timeline */}
+  <Card className=" border hover:shadow-none border-border/50  p-3 ">
+    <div className="flex items-center gap-3 mb-5">
+      <div className="rounded-full bg-muted border p-1">
+        <SolarCalendarBoldDuotone className="h-5 w-5 text-foreground/80" />
+      </div>
+      <h3 className="font-medium text-foreground">Timeline</h3>
+    </div>
+    <div className="space-y-4 text-sm">
+      <InfoRow label="Start Date" value={formatDate(subscription.startDate)} icon={""} />
+      <InfoRow label="Next Billing"    value={formatDate(subscription.nextBillingDate)} />
+      {subscription.endDate && (
+        <InfoRow label="End Date" value={formatDate(subscription.endDate)} />
+      )}
+      {subscription.trialEndDate && (
+        <InfoRow 
+          label="Trial Ends" 
+          value={formatDate(subscription.trialEndDate)} 
+          highlight={subscription.isInTrial}
+        />
+      )}
+      <InfoRow 
+        label="Category" 
+        value={subscription.category ? subscriptionsApi.getCategoryDisplayName(subscription.category) : "—"} 
+      />
+    </div>
+  </Card>
 
-            {/* Notification Settings */}
-            <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className={cn(
-                  "rounded-lg p-2",
-                  subscription.notifyBeforeBilling ? "bg-emerald-500/10" : "bg-muted"
-                )}>
-                  {subscription.notifyBeforeBilling ? (
-                    <Bell className="h-5 w-5 text-emerald-600" />
-                  ) : (
-                    <BellOff className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </div>
-                <h3 className="text-base font-semibold">Notifications</h3>
-              </div>
-              <div className="space-y-4">
-                <InfoRow
-                  icon={
-                    subscription.notifyBeforeBilling ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-muted-foreground" />
-                    )
-                  }
-                  label="Reminders"
-                  value={subscription.notifyBeforeBilling ? "Enabled" : "Disabled"}
-                />
-                {subscription.notifyBeforeBilling && (
-                  <InfoRow
-                    icon={<Clock className="h-4 w-4 text-blue-600" />}
-                    label="Reminder Days"
-                    value={`${subscription.notifyDaysBefore} days before`}
-                  />
-                )}
-                {subscription.lastNotificationDate && (
-                  <InfoRow
-                    icon={<Calendar className="h-4 w-4" />}
-                    label="Last Notification"
-                    value={formatDate(subscription.lastNotificationDate)}
-                  />
-                )}
-              </div>
-            </Card>
+  {/* Billing Summary */}
+  <Card className="border hover:shadow-none border-border/50  p-3">
+    <div className="flex items-center gap-3 mb-5">
+      <div className="rounded-full border bg-muted p-1">
+        <MdiDollar className="h-5 w-5 text-foreground/80" />
+      </div>
+      <h3 className="font-medium text-foreground">Billing</h3>
+    </div>
+    <div className="space-y-4 text-sm">
+      <InfoRow label="Amount"           value={subscriptionsApi.formatCurrency(subscription.amount, subscription.currency)}  />
+      <InfoRow label="Cycle" value={subscriptionsApi.getBillingCycleDisplayName(subscription.billingCycle)} icon={""} />
+      <InfoRow label="Monthly Equiv."   value={subscriptionsApi.formatCurrency(subscription.monthlyEquivalent, subscription.currency)} />
+      <InfoRow label="Yearly Estimate"  value={subscriptionsApi.formatCurrency(subscription.yearlyEstimate, subscription.currency)} />
+      <Separator className="my-3" />
+      <InfoRow label="Total Spent"      value={subscriptionsApi.formatCurrency(subscription.totalSpent, subscription.currency)}  />
+    </div>
+  </Card>
 
-            {/* Additional Information */}
-            <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="rounded-lg bg-blue-500/10 p-2">
-                  <Globe className="h-5 w-5 text-blue-600" />
-                </div>
-                <h3 className="text-base font-semibold">Additional Info</h3>
-              </div>
-              <div className="space-y-4">
-                {subscription.websiteUrl && (
-                  <InfoRow
-                    icon={<Globe className="h-4 w-4 text-blue-600" />}
-                    label="Website"
-                    value={
-                      <a
-                        href={subscription.websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        {new URL(subscription.websiteUrl).hostname}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    }
-                  />
-                )}
-                {subscription.cancellationUrl && (
-                  <InfoRow
-                    icon={<XCircle className="h-4 w-4 text-red-600" />}
-                    label="Cancellation"
-                    value={
-                      <a
-                        href={subscription.cancellationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-destructive hover:underline inline-flex items-center gap-1"
-                      >
-                        Cancel Link
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    }
-                  />
-                )}
-                <InfoRow
-                  icon={<Tag className="h-4 w-4" />}
-                  label="Source"
-                  value={subscription.sourceType}
-                />
-                {subscription.account && (
-                  <InfoRow
-                    icon={<CreditCard className="h-4 w-4" />}
-                    label="Account"
-                    value={subscription.account.name}
-                  />
-                )}
-                {subscription.autoRenew && (
-                  <InfoRow
-                    icon={<RefreshCw className="h-4 w-4 text-emerald-600" />}
-                    label="Auto-Renew"
-                    value="Enabled"
-                  />
-                )}
-              </div>
-            </Card>
+  {/* Notifications */}
+  <Card className="border hover:shadow-none border-border/50  p-3 sm:col-span-2 lg:col-span-1">
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        <div className={cn("rounded-full border bg-muted p-1")}>
+      <StashBell className="w-5 h-5 text-foreground/80" />
+        </div>
+        <h3 className="font-medium text-foreground">Notifications</h3>
+      </div>
+      <Badge variant={subscription.notifyBeforeBilling ? "success" : "new"} className="text-xs rounded-full">
+        {subscription.notifyBeforeBilling ? "On" : "Off"}
+      </Badge>
+    </div>
+    <div className="space-y-4 text-sm">
+      <InfoRow 
+        label="Reminders" 
+        value={subscription.notifyBeforeBilling ? "Enabled" : "Disabled"}
+        icon={subscription.notifyBeforeBilling ? <SolarCheckCircleBoldDuotone className="h-4 w-4 text-lime-700" /> : <X className="h-4 w-4 text-muted-foreground" />}
+      />
+      {subscription.notifyBeforeBilling && (
+        <InfoRow label="Notify Before" value={`${subscription.notifyDaysBefore} days`} />
+      )}
+      {subscription.lastNotificationDate && (
+        <InfoRow label="Last Sent" value={formatDate(subscription.lastNotificationDate)} />
+      )}
+    </div>
+  </Card>
+</div>
+
+{/* Bottom Row – Flexible layout */}
+<div className="grid gap-3 lg:grid-cols-2">
+
+  {/* Service Details */}
+  <Card className="border hover:shadow-none border-border/50  p-3">
+    <div className="flex items-center gap-3 mb-5">
+      <div className="rounded-xl bg-primary/10 p-2.5">
+        <Globe className="h-5 w-5 text-primary" />
+      </div>
+      <h3 className="font-medium text-foreground">Service Details</h3>
+    </div>
+    <div className="space-y-4 text-sm">
+      {subscription.websiteUrl && (
+        <InfoRow 
+          label="Website"
+          value={
+            <a href={subscription.websiteUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
+              {new URL(subscription.websiteUrl).hostname}
+            </a>
+          }
+        />
+      )}
+      {subscription.cancellationUrl && (
+        <InfoRow 
+          label="Cancel Subscription"
+          value={
+            <a href={subscription.cancellationUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-red-600 hover:underline">
+              Open cancellation page →
+            </a>
+          }
+        />
+      )}
+      <InfoRow label="Source"     value={subscription.sourceType} />
+      {subscription.account && <InfoRow label="Account" value={subscription.account.name} />}
+      <InfoRow 
+        label="Auto-Renew" 
+        value={subscription.autoRenew ? "Enabled" : "Disabled"}
+        icon={subscription.autoRenew ? <Check className="h-4 w-4 text-emerald-600" /> : <X className="h-4 w-4 text-red-600" />}
+      />
+    </div>
+  </Card>
+
+  {/* Notes + Tags (stacked on mobile, side-by-side on lg) */}
+  <div className="space-y-3">
+    {subscription.notes && (
+      <div className="rounded-2xl border bg-card/90 backdrop-blur-sm p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="rounded-xl bg-primary/10 p-2.5">
+            <FileText className="h-5 w-5 text-primary" />
           </div>
+          <h3 className="font-medium text-foreground">Notes</h3>
+        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+          {subscription.notes}
+        </p>
+      </div>
+    )}
 
-          {/* Notes Section */}
-          {subscription.notes && (
-            <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
-              <div className="mb-3 flex items-center gap-2">
-                <div className="rounded-lg bg-blue-500/10 p-2">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                </div>
-                <h3 className="text-base font-semibold">Notes</h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{subscription.notes}</p>
-            </Card>
-          )}
+    {subscription.tags?.length > 0 && (
+      <div className="rounded-2xl border bg-card/90 backdrop-blur-sm p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="rounded-xl bg-primary/10 p-2.5">
+            <Tags className="h-5 w-5 text-primary" />
+          </div>
+          <h3 className="font-medium text-foreground">Tags</h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {subscription.tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="border-primary/30 font-medium">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+</TabsContent>
 
-          {/* Tags Section */}
-          {subscription.tags && subscription.tags.length > 0 && (
-            <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="rounded-lg bg-purple-500/10 p-2">
-                  <Tag className="h-5 w-5 text-purple-600" />
-                </div>
-                <h3 className="text-base font-semibold">Tags</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {subscription.tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </Card>
-          )}
-        </TabsContent>
 
         {/* Charges Tab */}
         <TabsContent value="charges" className="space-y-6">
-          <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
+          <Card className="overflow-hidden rounded-xl border-border/60  p-3 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-emerald-500/10 p-2">
-                  <CreditCard className="h-5 w-5 text-emerald-600" />
+                <div className="rounded-full bg-muted border shadow p-2">
+                  <DuoIconsCreditCard className="h-5 w-5 text-foreground/80" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold">Charge History</h3>
@@ -852,11 +782,11 @@ export default function SubscriptionDetailPage() {
 
         {/* Reminders Tab */}
         <TabsContent value="reminders" className="space-y-6">
-          <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
+          <Card className="overflow-hidden rounded-xl border-border/60 p-4 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-blue-500/10 p-2">
-                  <Bell className="h-5 w-5 text-blue-600" />
+                <div className="rounded-full bg-muted border shadow p-2">
+                  <StashBell className="h-5 w-5 text-foreground/80" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold">Reminders</h3>
@@ -930,7 +860,7 @@ export default function SubscriptionDetailPage() {
 
         {/* Details Tab */}
         <TabsContent value="details" className="space-y-6">
-          <Card className="overflow-hidden rounded-xl border-border/60 bg-gradient-to-br from-background to-muted/20 p-6 shadow-sm">
+          <Card className="overflow-hidden rounded-xl border-border/60 p-4 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
               <div className="rounded-lg bg-purple-500/10 p-2">
                 <Tag className="h-5 w-5 text-purple-600" />
@@ -1023,9 +953,10 @@ export default function SubscriptionDetailPage() {
   );
 }
 
+
 // Helper Components
 interface InfoRowProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
   value: React.ReactNode;
   highlight?: boolean;

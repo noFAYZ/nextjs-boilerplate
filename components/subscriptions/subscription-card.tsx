@@ -85,13 +85,14 @@ export function SubscriptionCard({
     <>
       <Card
         onClick={handleCardClick}
+        interactive
         className={cn(
-          "group relative flex flex-col justify-between rounded-2xl border border-border bg-gradient-to-b from-muted/50 to-muted/30 p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-[2px]",
+          "group relative flex flex-col justify-between border border-border/50 ",
           "cursor-pointer"
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="h-10 w-10 ring-1 ring-border">
               {subscription.websiteUrl ? (
@@ -107,43 +108,48 @@ export function SubscriptionCard({
               <h3 className="font-semibold text-sm truncate flex gap-2">
                 {subscription.name}
                 {subscription.autoRenew && (
-                  <div className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                  <div className="text-[10px] bg-primary/10 text-primary px-1 py-0.5 rounded-full border border-primary/20">
                     Auto-renew
                   </div>
                 )}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate">
-                {subscription.merchantName || subscription.description || "—"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-lg">
-                {subscriptionsApi.formatCurrency(subscription.amount, subscription.currency)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                /{subscriptionsApi.getBillingCycleDisplayName(subscription.billingCycle)}
-              </span>
-            </div>
-
-            <Badge
+                       <Badge
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full",
+                "flex items-center gap-1 px-1 py-0.5 text-[10px] font-medium rounded-full",
                 statusColor[subscription.status]
               )}
             >
               {getStatusIcon()}
               {subscription.status.toLowerCase()}
             </Badge>
+              </h3>
+              <p className="text-xs text-muted-foreground truncate">
+                {subscription.merchantName || subscription.description || "—"}
+              </p>
+              
+            </div>
+     
           </div>
 
+          <div className="flex flex-col items-end justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-lg">
+                {subscriptionsApi.formatCurrency(subscription.amount, subscription.currency)}
+              </span>
+              
+            </div>
+<span className="text-xs text-muted-foreground">
+                {subscriptionsApi.getBillingCycleDisplayName(subscription.billingCycle)}
+              </span>
+  
+          </div>
+        </div>
+
+        {/* Content 
+        <div className="mt-4 space-y-3">
+       
+
           {subscription.nextBillingDate && (
-            <div className="flex items-center justify-between text-xs border-t border-border/60 pt-2 mt-1">
+            <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2 mt-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Calendar className="w-3.5 h-3.5" />
                 Next billing
@@ -152,13 +158,13 @@ export function SubscriptionCard({
             </div>
           )}
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/60 pt-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/50 pt-2">
             <span className="text-xs">Total Spent</span>
             <span className="font-semibold text-foreground">
               {subscriptionsApi.formatCurrency(subscription.totalSpent, subscription.currency)}
             </span>
           </div>
-        </div>
+        </div>*/}
       </Card>
     </>
   )
