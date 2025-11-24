@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import {
   RefreshCw,
   Loader2,
@@ -38,6 +39,7 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 export default function PortfolioPage() {
+  usePostHogPageView('portfolio');
   const router = useRouter();
   const { pageClass } = useViewModeClasses();
 

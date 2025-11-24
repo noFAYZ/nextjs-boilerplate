@@ -24,7 +24,7 @@ import { TestimonialsDemo } from '@/components/landing/subscription-management/t
 export default function LandingPage() {
 
   return (
-    <div >
+    <div className=''>
   
       <ScrollProgress />
       

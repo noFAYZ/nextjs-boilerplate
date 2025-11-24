@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,7 @@ function WalletErrorState({ error }: { error: any }) {
 }
 
 export default function AggregatedWalletPage() {
+  usePostHogPageView('wallet');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("tokens");
 

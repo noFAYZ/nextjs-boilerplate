@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 export default function ProfilePage() {
+  usePostHogPageView('profile');
   // PRODUCTION-GRADE: Use TanStack Query hooks with explicit enabled flag
   const { data: profile, isLoading: profileLoading, error: profileError } = useUserProfile({ enabled: true });
   const { data: stats, isLoading: statsLoading } = useUserStats({ enabled: true });

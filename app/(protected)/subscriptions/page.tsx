@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Plus, LayoutGrid, List } from "lucide-react";
+import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "@/components/subscriptions/subscription-list";
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function SubscriptionsPage() {
+  usePostHogPageView('subscriptions');
   const { toast } = useToast();
   const [selectedSubscription, setSelectedSubscription] = React.useState<UserSubscription | null>(
     null

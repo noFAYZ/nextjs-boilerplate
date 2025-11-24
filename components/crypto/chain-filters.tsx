@@ -117,7 +117,7 @@ export function ChainFilters({
            variant={selectedChain === null ? "secondary" : "outline"}
           size="xs"
           onClick={() => {
-            console.log('🔵 All chains selected');
+    
             onChainSelect(null);
           }}
           className={cn(

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 import {
   ArrowLeft,
@@ -16,6 +17,8 @@ import {
   Coins,
   ImageIcon,
   ArrowUpDown,
+  TrendingUp,
+  ArrowDownRight,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,7 +40,7 @@ import { useCryptoStore } from "@/lib/stores/crypto-store";
 import { WalletTokens } from "@/components/crypto/wallet-tokens";
 import { WalletNFTs } from "@/components/crypto/wallet-nfts";
 import { WalletTransactions } from "@/components/crypto/wallet-transactions";
-import { WalletChart } from "@/components/crypto/wallet-chart";
+import { PortfolioChart } from "@/components/charts/portfolio-chart";
 import { WalletDeFi } from "@/components/crypto/wallet-defi";
 import {
   BalanceSkeleton,
@@ -62,6 +65,8 @@ import StreamlineUltimateAccountingCoins, {
   StreamlineUltimateCryptoCurrencyBitcoinDollarExchange,
   StreamlineUltimateCryptoCurrencyBitcoinDollarExchangeBold,
   TablerReportMoney,
+  LetsIconsTimeProgressDuotone,
+  SolarLockKeyholeBoldDuotone,
 } from "@/components/icons/icons";
 import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
 import Image from "next/image";
@@ -341,18 +346,10 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
 
   return (
-    <div className={`${pageClass}  space-y-4`}>
+    <div className={`max-w-3xl mx-auto  space-y-3`}>
       {/* Back Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+      <div className="flex items-center justify-end">
+  
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
    {/*     <Tooltip content={
          isSyncingSSE ? `Syncing... ${syncProgress}% ${syncMessage ? `- ${syncMessage}` : ''}` :
@@ -409,59 +406,111 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
  
 
     {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col justify-between ">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="h-8 w-8 sm:h-20 sm:w-20 bg-muted rounded-3xl flex items-center justify-center flex-shrink-0 relative">
-              <Image src={avataUrl} fill alt="ja" className="rounded-3xl" unoptimized />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-sm font-semibold truncate">
-                  {isSyncing ? (
-                    <WalletNameSkeleton />
-                  ) : (
-                    wallet?.walletData?.name
-                  )}
-                </h1>
-
-                {isSyncing ? (
-                  <NetworkBadgeSkeleton />
-                ) : (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs bg-primary/10 text-primary flex-shrink-0"
-                  >
-                    {wallet?.walletData?.network}
-                  </Badge>
-                )}
+      <Card className="border-border/80 border-b-0 rounded-none hover:shadow-xs p-0">
+        <div className="p-3">
+          <div className="flex flex-col gap-4">
+            {/* TOP ROW: Identity & Balance */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Left: Icon & Name */}
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                  <Image src={avataUrl} fill alt="wallet" className="rounded-full object-cover" unoptimized />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
+                      {isSyncing ? (
+                        <WalletNameSkeleton />
+                      ) : (
+                        wallet?.walletData?.name
+                      )}
+                    </h1>
+                    {isSyncing ? (
+                      <NetworkBadgeSkeleton />
+                    ) : (
+                      <Badge variant="new" className="text-[10px] px-1.5 py-0 h-4.5 font-normal flex-shrink-0">
+                        {wallet?.walletData?.network}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {isSyncing ? (
+                      <AddressSkeleton />
+                    ) : (
+                      <>
+                        <span className="font-mono truncate">
+                          {`${wallet?.walletData?.address?.slice(0, 6)}...${wallet?.walletData?.address?.slice(-4)}`}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            onClick={handleCopyAddress}
+                            className="h-4 w-4 p-0"
+                            title="Copy address"
+                            disabled={isSyncing}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            asChild
+                            className="h-4 w-4 p-0"
+                            title="View in explorer"
+                          >
+                            <a
+                              href={isSyncing ? "#" : getNetworkExplorerUrl(
+                                wallet?.walletData?.network,
+                                wallet?.walletData?.address
+                              )}
+                              target={isSyncing ? undefined : "_blank"}
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center"
+                              onClick={isSyncing ? (e) => e.preventDefault() : undefined}
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="flex items-baseline text-base sm:text-4xl font-medium gap-2">
+
+              {/* Right: Balance & 24h Change */}
+              <div className="flex flex-col sm:items-end gap-2">
+                <div className="flex flex-col items-end">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                    Total Balance
+                  </span>
                   {isSyncing ? (
                     <BalanceSkeleton />
                   ) : (
                     <CurrencyDisplay
                       amountUSD={walletStats?.totalBalance || 0}
-                      variant="large"
-                      isLoading={isSyncing}
+                      className="text-2xl font-bold text-foreground"
                     />
                   )}
-
+                </div>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className="text-muted-foreground">24h Change:</span>
                   {isSyncing ? (
                     <ChangeBadgeSkeleton />
                   ) : wallet?.portfolio?.percent24hChange !== undefined ? (
-                    <Badge  className={cn(
-                      "flex items-center h-6  gap-1 rounded-sm px-1",
-                      wallet?.portfolio?.percent24hChange >= 0 ? 'bg-green-500/20 rounded-xs text-green-700 hover:bg-green-500/30' : 'bg-red-500/20 rounded-xs 0 hover:bg-red-500/30 text-red-700'
+                    <Badge className={cn(
+                      "flex items-center h-5 gap-1 rounded-xs px-1.5 font-medium",
+                      wallet?.portfolio?.percent24hChange >= 0
+                        ? 'bg-green-500/20 text-green-700 dark:text-green-400'
+                        : 'bg-red-500/20 text-red-700 dark:text-red-400'
                     )}>
                       {wallet?.portfolio?.percent24hChange >= 0 ? (
-                        <MageCaretUpFill className="h-4 w-4" />
+                        <MageCaretUpFill className="h-3.5 w-3.5" />
                       ) : (
-                        <MageCaretDownFill className="h-4 w-4" />
+                        <MageCaretDownFill className="h-3.5 w-3.5" />
                       )}
-                      <span className="font-medium text-xs">
+                      <span className="text-xs">
                         {Math.abs(wallet?.portfolio?.percent24hChange).toFixed(2)}%
                       </span>
                     </Badge>
@@ -470,144 +519,125 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                <span className="font-mono text-sm">
-                  {isSyncing ? (
-                    <AddressSkeleton />
-                  ) : (
-                    `${wallet?.walletData?.address?.slice(0, 6)}...${wallet?.walletData?.address?.slice(-4)}`
-                  )}
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyAddress}
-                    className="h-5 w-5 p-0"
-                    title="Copy"
-                    disabled={isSyncing}
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="h-5 w-5 p-0"
-                    title="Explorer"
-                  >
-                    <a
-                      href={isSyncing ? "#" : getNetworkExplorerUrl(
-                        wallet?.walletData?.network,
-                        wallet?.walletData?.address
-                      )}
-                      target={isSyncing ? undefined : "_blank"}
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center"
-                      onClick={isSyncing ? (e) => e.preventDefault() : undefined}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
+            </div>
+
+            {/* BOTTOM ROW: Stats Group & Chart */}
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
+              {/* Stats Group */}
+              <div className="flex items-center gap-6 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+                {/* Staked */}
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                      Staked
+                    </p>
+                    {isSyncing ? (
+                      <StatsValueSkeleton />
+                    ) : (
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.stakedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Locked */}
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                    <SolarLockKeyholeBoldDuotone className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                      Locked
+                    </p>
+                    {isSyncing ? (
+                      <StatsValueSkeleton />
+                    ) : (
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.lockedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Borrowed */}
+                <div className="flex items-center gap-2 pl-2 border-l border-border/50">
+                  <div className="h-8 w-8 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                    <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                      Borrowed
+                    </p>
+                    {isSyncing ? (
+                      <StatsValueSkeleton />
+                    ) : (
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.borrowedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="flex gap-6 mt-4 pl-2">
-            <div className="text-left uppercase">
-              <div className="text-[10px] font-medium text-muted-foreground">
-                Staked
-              </div>
-              <div className="text-sm font-semibold">
-                {isSyncing ? (
-                  <StatsValueSkeleton />
-                ) : (
-                  <CurrencyDisplay
-                    amountUSD={wallet.portfolio?.stakedValue || 0}
-                    variant="small"
-                    isLoading={isSyncing}
-                  />
-                )}
-              </div>
+         
+
+         
+
+
             </div>
-            <div className="text-left uppercase">
-              <div className="text-[10px] font-medium text-muted-foreground">
-                Locked
-              </div>
-              <div className="text-sm font-semibold">
-                {isSyncing ? (
-                  <StatsValueSkeleton />
-                ) : (
-                  <CurrencyDisplay
-                    amountUSD={wallet.portfolio?.lockedValue || 0}
-                    variant="small"
-                    isLoading={isSyncing}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="text-center uppercase">
-              <div className="text-[10px] font-medium text-muted-foreground">
-                Borrowed
-              </div>
-              <div className="text-sm font-semibold">
-                {isSyncing ? (
-                  <StatsValueSkeleton />
-                ) : (
-                  <CurrencyDisplay
-                    amountUSD={wallet.portfolio?.borrowedValue || 0}
-                    variant="small"
-                    isLoading={isSyncing}
-                  />
-                )}
-              </div>
-            </div>
+         
+
           </div>
         </div>
-        
-<div className="flex flex-col justify-between mt-4 gap-3">
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground">
-                  Total Balance
-                </div>
-                <div className="text-base sm:text-lg font-bold">
-                  ${walletStats?.totalBalance.toLocaleString() || "0"}
-                </div>
-              </div>
-                  {isSyncing ? (
-          <WalletChartSkeleton height={100} compact={true} />
-        ) : (
-          <WalletChart
-            walletAddress={wallet?.walletData?.address}
-            className="w-fit"
-            height={80}
-            compact={true}
-          />
-        )}
-              </div>
-    
-      </div>
+        <Separator className="bg-border/50" />
+ {/* Chart */}
+             
+                {isSyncing ? (
+                  <WalletChartSkeleton height={80} compact={true} />
+                ) : (
+                  <PortfolioChart
+                    walletAddress={wallet?.walletData?.address}
+                 
+                    height={200}
+                    showPeriodFilter={true}
+                    enableArea={true}
+                    enableBreakdown={false}
+                    className="w-full border-none *:shadow-none"
+                  />
+                )}
+          
+
+      </Card>
 
 
-
+<Card className="">
       {/* Chain Filters */}
       <ChainFilters
         portfolio={wallet?.portfolio || {}}
         selectedChain={selectedChain}
         onChainSelect={setSelectedChain}
         isLoading={isLoading || isSyncing}
-      />
+      /></Card>
 
       {/* Wallet Details Tabs */}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="  mt-2 " variant="card" size={'sm'}>
+        <TabsList className="  mt-2 " variant="pill" >
           <TabsTrigger
             value="tokens"
             className="flex px-2 items-center gap-1.5 cursor-pointer  "
-                size={'sm'}
-            variant="card"
+          
+            variant="pill"
           >
            
              <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
@@ -616,8 +646,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="defi"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-             size={'sm'}
-            variant="card"
+         
+            variant="pill"
           >
             <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
             
@@ -626,8 +656,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="nfts"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-             size={'sm'}
-            variant="card"
+         
+            variant="pill"
           >
              <SolarGalleryWideOutline className="w-5 h-5" />
             <span className="inline">NFTs</span>
@@ -635,8 +665,8 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
           <TabsTrigger
             value="transactions"
             className="flex px-2 items-center gap-1.5 cursor-pointer"
-            size={'sm'}
-            variant="card"
+         
+            variant="pill"
           >
             <MynauiActivitySquare className="w-5.5 h-5.5" />
             

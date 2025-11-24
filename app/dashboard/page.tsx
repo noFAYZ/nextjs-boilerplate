@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore, selectUser, useDashboardLayoutStore } from '@/lib/stores';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { WelcomeBanner } from '@/components/onboarding/welcome-banner';
 import {
   Calendar,
@@ -39,6 +40,7 @@ import { DuoIconsBank, SolarInboxInBoldDuotone, SolarWalletMoneyBoldDuotone } fr
 import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
 export default function DashboardPage() {
+  usePostHogPageView('dashboard');
   const user = useAuthStore(selectUser);
   const { isEditMode, toggleEditMode, resetLayout } = useDashboardLayoutStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

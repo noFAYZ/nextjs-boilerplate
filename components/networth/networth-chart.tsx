@@ -1038,7 +1038,7 @@ export function NetWorthChart({
   return (
     <section
       ref={chartContainerRef}
-      className={cn("w-full space-y-2  border border-border/80 rounded-none overflow-hidden  bg-card shadow-xs pr-3 pt-3", className)}
+      className={cn("w-full space-y-2  border border-border/80 rounded-none  bg-card shadow-xs pr-2 pt-2", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -1148,13 +1148,13 @@ export function NetWorthChart({
                 color: 'var(--chart-3)',
               },
             } satisfies ChartConfig}
-            className="h-full w-full"
+            className="h-full w-full "
           >
             <ResponsiveContainer width="100%" height="100%">
               {chartType === 'performance' ? (
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
+                  margin={{ top: 15, right: 20, left: 15, bottom: 10 }}
                   role="img"
                   aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
                 >

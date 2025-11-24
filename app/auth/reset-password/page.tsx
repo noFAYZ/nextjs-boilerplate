@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/auth-client';
 import AuthForm from '@/components/auth/auth-form';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 
 interface ResetPasswordFormData {
   password: string;
@@ -16,11 +18,12 @@ interface ErrorState {
 }
 
 function ResetPasswordForm() {
+  usePostHogPageView('auth_reset_password');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [success, setSuccess] = useState(false);
   const [token, setToken] = useState<string>('');
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -31,6 +34,7 @@ function ResetPasswordForm() {
       return;
     }
     setToken(tokenParam);
+    posthog.capture('reset_password_page_viewed');
   }, [searchParams, router]);
 
   const handleResetPassword = async (data: ResetPasswordFormData) => {
@@ -56,8 +60,12 @@ function ResetPasswordForm() {
           code: 'RESET_PASSWORD_ERROR',
           message: result.error.message || 'Failed to reset password'
         });
+        posthog.capture('reset_password_failed', {
+          error: result.error.message
+        });
       } else {
         setSuccess(true);
+        posthog.capture('reset_password_success');
       }
     } catch {
       setError({

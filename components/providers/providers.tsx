@@ -3,6 +3,7 @@ import { QueryProvider } from "./query-provider";
 import { ErrorBoundary } from "./error-boundary";
 import { StoreProvider } from "./store-provider";
 import { DockProvider } from "./dock-provider";
+import { PostHogProvider } from "./posthog-provider";
 import { ReactNode } from "react";
 import { ViewModeProvider } from "@/lib/contexts/view-mode-context";
 import { OnboardingGuard } from "@/components/auth/onboarding-guard";
@@ -35,8 +36,9 @@ import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-o
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <LoadingProvider>
+      <PostHogProvider>
+        <AuthProvider>
+          <LoadingProvider>
           <QueryProvider>
             <ThemeProvider
               attribute="class"
@@ -65,7 +67,8 @@ export default function Providers({ children }: { children: ReactNode }) {
             </ThemeProvider>
           </QueryProvider>
         </LoadingProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </PostHogProvider>
     </ErrorBoundary>
   )
 }

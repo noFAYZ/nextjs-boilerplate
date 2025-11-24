@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import posthog from 'posthog-js';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +40,7 @@ import { CreateOrganizationModal, OrganizationSettings } from '@/components/orga
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
 export default function SettingsPage() {
+  usePostHogPageView('settings');
   const { data: userProfile, isLoading } = useUserProfile({ enabled: true });
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateUserProfile();
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
@@ -89,6 +92,12 @@ export default function SettingsPage() {
       },
       {
         onSuccess: () => {
+          posthog.capture('settings_saved', {
+            theme: preferences.theme,
+            currency: preferences.currency,
+            language: preferences.language,
+            timezone: preferences.timezone,
+          });
           toast.success('Settings saved');
           setHasUnsavedChanges(false);
         },

@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
+import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verifyEmail, useSession } from '@/lib/auth-client';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, AlertCircle, Mail } from 'lucide-react';
@@ -10,10 +12,11 @@ import { PageLoader } from '@/components/ui/page-loader';
 import Link from 'next/link';
 
 function VerifyEmailForm() {
+  usePostHogPageView('auth_verify_email');
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'pending'>('loading');
   const [message, setMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionData = useSession();
@@ -31,10 +34,14 @@ function VerifyEmailForm() {
       if (result.error) {
         setStatus('error');
         setMessage(result.error.message || 'Failed to verify email. The verification link may be invalid or expired.');
+        posthog.capture('email_verification_failed', {
+          error: result.error.message
+        });
       } else {
         setStatus('success');
         setMessage('Your email has been successfully verified! You can now access all features of your account.');
-        
+        posthog.capture('email_verified');
+
         // Redirect to dashboard after 3 seconds
         setTimeout(() => {
           router.push('/dashboard');
@@ -68,9 +75,9 @@ function VerifyEmailForm() {
 
   const handleResendEmail = async () => {
     if (!session?.user?.email) return;
-    
+
     setIsResending(true);
-    
+
     try {
       const response = await fetch('/api/auth/resend-verification', {
         method: 'POST',
@@ -84,11 +91,20 @@ function VerifyEmailForm() {
 
       if (response.ok) {
         setMessage('Verification email sent! Please check your inbox and spam folder.');
+        posthog.capture('verification_email_resent', {
+          email: session.user.email
+        });
       } else {
         setMessage(result.message || 'Failed to resend verification email.');
+        posthog.capture('verification_email_resend_failed', {
+          error: result.message
+        });
       }
-    } catch {
+    } catch (error) {
       setMessage('An unexpected error occurred while resending the email.');
+      posthog.capture('verification_email_resend_error', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     } finally {
       setIsResending(false);
     }

@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import posthog from 'posthog-js';
 import { forgetPassword } from '@/lib/auth-client';
 import AuthForm from '@/components/auth/auth-form';
 import { useLoading } from '@/lib/contexts/loading-context';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -15,10 +17,16 @@ interface ErrorState {
 }
 
 export default function ForgotPasswordPage() {
+  usePostHogPageView('auth_forgot_password');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [success, setSuccess] = useState(false);
   const { withLoading } = useLoading();
+
+  // Track when user views forgot password page
+  useEffect(() => {
+    posthog.capture('forgot_password_page_viewed');
+  }, []);
 
   const handleForgotPassword = async (data: ForgotPasswordFormData) => {
     setError(null);
@@ -38,8 +46,14 @@ export default function ForgotPasswordPage() {
           code: 'FORGOT_PASSWORD_ERROR',
           message: result.error.message || 'Failed to send reset password email'
         });
+        posthog.capture('forgot_password_failed', {
+          error: result.error.message
+        });
       } else {
         setSuccess(true);
+        posthog.capture('forgot_password_submitted', {
+          email: data.email
+        });
       }
     } catch {
       setError({

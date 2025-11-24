@@ -8,8 +8,10 @@ import AuthForm from '@/components/auth/auth-form';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignInFormData } from '@/lib/types';
 import { useAuthStore, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { toast } from 'sonner';
 function LoginForm() {
+  usePostHogPageView('auth_login');
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const error = useAuthStore(selectAuthError);
@@ -23,6 +25,11 @@ function LoginForm() {
       router.push('/dashboard');
     }
   }, [isAuthenticated, session, router]);
+
+  // Track when user views login page
+  useEffect(() => {
+    posthog.capture('login_page_viewed');
+  }, []);
 
   const handleSignIn = async (data: SignInFormData) => {
     clearError();

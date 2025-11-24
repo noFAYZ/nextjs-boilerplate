@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -451,6 +452,7 @@ function SummarySidebar({ summary }) {
 /*                               MAIN PAGE                                    */
 /* -------------------------------------------------------------------------- */
 export default function AccountsPage() {
+  usePostHogPageView('accounts');
   const router = useRouter();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);

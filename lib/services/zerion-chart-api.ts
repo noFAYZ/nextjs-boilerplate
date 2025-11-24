@@ -1,10 +1,10 @@
 import { TimePeriod } from '@/components/crypto/wallet-chart';
 import  ZerionSDK  from 'zerion-sdk-ts';
 
-export interface ChartDataPoint {
+interface ChartDataPoint {
   timestamp: number;
   value: number;
-  date: string;
+  date: Date;
   formattedDate: string;
 }
 
@@ -39,6 +39,8 @@ export class ZerionChartService {
   async getPortfolioTimeline(params: PortfolioTimelineParams): Promise<ChartDataPoint[]> {
     try {
       const period = this.mapPeriodToZerion(params.period);
+
+      console.log("PERIODSDDSD: ",period)
       
       // Get balance chart from Zerion SDK
       const chartResponse = await this.sdk.wallets.getChart(
@@ -48,7 +50,7 @@ export class ZerionChartService {
       if (!chartResponse) {
         throw new Error('No chart data received from Zerion');
       }
-      
+
       // Transform Zerion response to our ChartDataPoint format
       return this.transformZerionData(chartResponse, params.period);
       
@@ -63,25 +65,35 @@ export class ZerionChartService {
   /**
    * Transform Zerion API response to our ChartDataPoint format
    */
-  private transformZerionData(chartResponse: { data?: { attributes?: { points?: [number, string][] } } }, period: TimePeriod): ChartDataPoint[] {
-    if (!chartResponse?.data?.attributes?.points) {
+  private transformZerionData(
+    chartResponse: { data?: { attributes?: { points?: [number, string][] } } },
+    period: TimePeriod
+  ): ChartDataPoint[] {
+    const points = chartResponse?.data?.attributes?.points;
+  
+    if (!points) {
       throw new Error('Invalid chart data received from Zerion');
     }
-    
-    const chartData = chartResponse.data.attributes.points;
-    
-    return chartData.map((point: [number, string]) => {
-      const timestamp = point[0]; // Convert to milliseconds
-      const date = new Date(timestamp);
-      
-      return {
-        timestamp,
-        value: parseFloat(point[1] || '0'),
-        date: timestamp,
-        formattedDate: this.formatDateForPeriod(date, period)
-      };
-    }); // Filter out invalid data points
+  
+    return points
+      .map(([timestamp, valueStr]) => {
+        const value = parseFloat(valueStr || '0');
+        if (isNaN(value)) return null;
+  
+        // Convert seconds → milliseconds for Date
+        const date = new Date(timestamp * 1000);
+  
+        return {
+          timestamp,                 // original timestamp (seconds)
+          value,                     // numeric value
+          date,                      // Date object
+          formattedDate: this.formatDateForPeriod(date, period) // formatted string
+        };
+      })
+      .filter((point): point is ChartDataPoint => point !== null); // Type guard to filter nulls
   }
+  
+  
 
   /**
    * Map our TimePeriod enum to Zerion's period format

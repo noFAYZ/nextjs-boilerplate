@@ -47,6 +47,7 @@ import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
 import { LogoMappr } from '@/components/icons';
 import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone, PhPiggyBankDuotone, CircumBank, DuoIconsBank, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -147,6 +148,7 @@ const EXPERIENCE_LEVELS = [
 ];
 
 export default function OnboardingPage() {
+  usePostHogPageView('onboarding');
   const router = useRouter();
   const user = useAuthStore(selectUser);
   const { setViewMode } = useViewMode();
@@ -232,6 +234,13 @@ export default function OnboardingPage() {
     localStorage.setItem('onboarding-completed', 'true');
     localStorage.setItem('onboarding-just-completed', 'true');
     localStorage.setItem('onboarding-preferences', JSON.stringify(preferences));
+    posthog.capture('onboarding_completed', {
+      experience_level: preferences.experienceLevel,
+      primary_goals: preferences.primaryGoals,
+      investment_types: preferences.investmentTypes,
+      risk_tolerance: preferences.riskTolerance,
+      monthly_income: preferences.monthlyIncome,
+    });
     router.push('/dashboard');
   };
 
@@ -457,7 +466,7 @@ export default function OnboardingPage() {
                   <Card
                     key={level.id}
                     className={cn(
-                      "cursor-pointer transition-all border-border/80 rounded-2xl px-4 shadow-none dark:bg-muted/40",
+                      "cursor-pointer transition-all border-border/80  px-4 shadow-none ",
                       isSelected ? "  shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
                     onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as any }))}
@@ -466,8 +475,8 @@ export default function OnboardingPage() {
                       <div className="flex items-center gap-3 sm:gap-4">
                      
                         <div  className={cn(
-                          "flex items-center justify-center h-10 w-10 rounded-xl",
-                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                          "flex items-center justify-center h-12 w-12 rounded-full",
+                          "bg-gradient-to-br shadow ring-1 ring-inset ring-foreground/10 from-muted to-accent"
                         )}
                       >
 
@@ -529,7 +538,7 @@ export default function OnboardingPage() {
                   <Card
                     key={goal.id}
                     className={cn(
-                      "cursor-pointer transition-all border-border/80 rounded-2xl p-6 text-center items-center relative",
+                      "cursor-pointer transition-all border-border/80 p-6 text-center items-center relative",
                       isSelected ? " shadow-sm" : "hover:border-border active:scale-98"
                     )}
                     onClick={() => toggleGoal(goal.id)}
@@ -538,8 +547,8 @@ export default function OnboardingPage() {
                   
 
                       <div  className={cn(
-                          "flex items-center justify-center h-10 w-10 mb-3 sm:mb-2 rounded-xl",
-                          "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-accent"
+                          "flex items-center justify-center h-12 w-12 mb-3 sm:mb-2 rounded-full",
+                          "bg-gradient-to-br shadow ring-1 ring-inset ring-foreground/10 from-muted to-accent"
                         )}
                       >
 

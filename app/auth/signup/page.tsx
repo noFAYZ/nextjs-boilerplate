@@ -8,8 +8,10 @@ import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignUpFormData } from '@/lib/types';
 import { useAuthStore, selectAuthError, selectIsAuthenticated, selectSession } from '@/lib/stores';
 import { useLoading } from '@/lib/contexts/loading-context';
+import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 
 export default function SignUpPage() {
+  usePostHogPageView('auth_signup');
   const router = useRouter();
   const signup = useAuthStore((state) => state.signup);
   const error = useAuthStore(selectAuthError);
@@ -25,6 +27,11 @@ export default function SignUpPage() {
       router.push('/dashboard');
     }
   }, [isAuthenticated, session, router]);
+
+  // Track when user views signup page
+  useEffect(() => {
+    posthog.capture('signup_page_viewed');
+  }, []);
 
   const handleSignUp = async (data: SignUpFormData) => {
     clearError();

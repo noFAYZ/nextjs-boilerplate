@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Plus, Search, Filter, LayoutGrid, List, SlidersHorizontal } from "lucide-react"
+import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/breadcrumb"
 
 export default function BudgetsPage() {
+  usePostHogPageView('budgets')
   const { toast } = useToast()
   const [selectedBudget, setSelectedBudget] = React.useState<Budget | null>(null)
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false)
