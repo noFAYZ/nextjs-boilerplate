@@ -27,21 +27,27 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useConsentManager } from '@/lib/hooks/useConsentManager';
 
 export function GoogleAnalytics4() {
   const measurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
+  const { consent, isLoaded } = useConsentManager();
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    if (measurementId) {
-      console.log('GA4 initialized with Measurement ID:', measurementId);
-    } else {
-      console.warn('GA4 Measurement ID not configured. Set NEXT_PUBLIC_GA4_MEASUREMENT_ID in your environment.');
+    if (isLoaded) {
+      if (consent.analytics) {
+        console.log('GA4 initialized with Measurement ID:', measurementId);
+        setShouldLoad(true);
+      } else {
+        console.log('GA4 disabled: User did not consent to analytics');
+      }
     }
-  }, [measurementId]);
+  }, [measurementId, consent.analytics, isLoaded]);
 
-  // Don't render if GA4 Measurement ID is not configured
-  if (!measurementId) {
+  // Don't render if GA4 Measurement ID is not configured or user hasn't consented
+  if (!measurementId || !shouldLoad) {
     return null;
   }
 

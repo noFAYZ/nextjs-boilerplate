@@ -7,8 +7,8 @@ import { useConsentManager } from '@/lib/hooks/useConsentManager';
 import { ConsentPreferenceModal } from './consent-preference-modal';
 
 /**
- * Consent Banner Component
- * Displays GDPR/privacy consent request to users
+ * Consent Popup Component
+ * Displays GDPR/privacy consent request in bottom right corner
  * Shows only once until user makes a choice
  */
 export function ConsentBanner() {
@@ -16,7 +16,7 @@ export function ConsentBanner() {
   const [isOpen, setIsOpen] = useState(false);
   const [showPreferenceModal, setShowPreferenceModal] = useState(false);
 
-  // Show banner only if consent hasn't been given
+  // Show popup only if consent hasn't been given
   useEffect(() => {
     if (isLoaded && !consent.consentGiven) {
       setIsOpen(true);
@@ -29,61 +29,78 @@ export function ConsentBanner() {
 
   return (
     <>
-      {/* Consent Banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950 text-white border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Message */}
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1">Privacy & Analytics</h3>
-              <p className="text-xs text-slate-400">
-                We use analytics and marketing tools to improve your experience. You can accept all, reject all, or customize your preferences.{' '}
-                <a
-                  href="/privacy"
-                  className="underline hover:text-slate-300 transition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Learn more
-                </a>
+      {/* Consent Popup - Bottom Right */}
+      <div className="fixed bottom-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)] animate-in slide-in-from-bottom-4 duration-300">
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-slate-900 dark:to-slate-800 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
+                Privacy & Analytics
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                We use analytics to improve your experience
               </p>
             </div>
-
-            {/* Actions */}
-            <div className="flex gap-2 flex-wrap sm:flex-nowrap sm:ml-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPreferenceModal(true)}
-                className="text-xs"
-              >
-                <Settings className="w-3 h-3 mr-1" />
-                Customize
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={rejectAll}
-                className="text-xs"
-              >
-                Reject All
-              </Button>
-              <Button
-                size="sm"
-                onClick={acceptAll}
-                className="text-xs bg-blue-600 hover:bg-blue-700"
-              >
-                Accept All
-              </Button>
-            </div>
-
-            {/* Close Button */}
             <button
-              onClick={rejectAll}
-              className="absolute top-2 right-2 sm:relative p-1 hover:bg-slate-800 rounded transition"
+              onClick={() => {
+                rejectAll();
+                setIsOpen(false);
+              }}
+              className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition flex-shrink-0"
+              aria-label="Close"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-slate-500 dark:text-slate-400" />
             </button>
+          </div>
+
+          {/* Content */}
+          <div className="px-4 py-3">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              We use Google Analytics, GTM, and PostHog to understand how you use our app.{' '}
+              <a
+                href="/privacy"
+                className="font-medium underline hover:opacity-75 transition"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+
+          {/* Actions */}
+          <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-800 flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreferenceModal(true)}
+              className="flex-1 text-xs h-8"
+            >
+              <Settings className="w-3 h-3 mr-1" />
+              Customize
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                rejectAll();
+                setIsOpen(false);
+              }}
+              className="flex-1 text-xs h-8"
+            >
+              Reject
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                acceptAll();
+                setIsOpen(false);
+              }}
+              className="flex-1 text-xs h-8"
+            >
+              Accept
+            </Button>
           </div>
         </div>
       </div>

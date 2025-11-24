@@ -26,21 +26,27 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useConsentManager } from '@/lib/hooks/useConsentManager';
 
 export function GoogleTagManager() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const { consent, isLoaded } = useConsentManager();
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    if (gtmId) {
-      console.log('GTM initialized with ID:', gtmId);
-    } else {
-      console.warn('GTM ID not configured. Set NEXT_PUBLIC_GTM_ID in your environment.');
+    if (isLoaded) {
+      if (consent.analytics) {
+        console.log('GTM initialized with ID:', gtmId);
+        setShouldLoad(true);
+      } else {
+        console.log('GTM disabled: User did not consent to analytics');
+      }
     }
-  }, [gtmId]);
+  }, [gtmId, consent.analytics, isLoaded]);
 
-  // Don't render if GTM ID is not configured
-  if (!gtmId) {
+  // Don't render if GTM ID is not configured or user hasn't consented
+  if (!gtmId || !shouldLoad) {
     return null;
   }
 
