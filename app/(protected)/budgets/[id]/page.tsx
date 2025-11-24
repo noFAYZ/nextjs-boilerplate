@@ -20,6 +20,7 @@ import {
   useRefreshBudget,
 } from "@/lib/queries/use-budget-data"
 import { BudgetFormModal } from "@/components/budgets/budget-form-modal"
+import { BudgetHeader } from "@/components/budgets/budget-header"
 import { useToast } from "@/lib/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import type { Budget } from "@/lib/types/budget"
@@ -176,7 +177,7 @@ export default function BudgetDetailPage() {
 
   return (
     <div className="max-5xl mx-auto flex-1 space-y-6 p-6">
-      {/* Header */}
+      {/* Breadcrumb and Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
@@ -186,30 +187,25 @@ export default function BudgetDetailPage() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/">Home</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/budgets">Budgets</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{budget.name}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            {budget.description && (
-              <p className="text-muted-foreground text-xs mt-1">{budget.description}</p>
-            )}
-          </div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/budgets">Budgets</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{budget.name}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
 
         <div className="flex items-center gap-2">
@@ -252,118 +248,8 @@ export default function BudgetDetailPage() {
         </div>
       </div>
 
-      {/* Budget Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Budget
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(budget.amount, budget.currency)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {budget.cycle} cycle
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Spent
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={cn(
-              "text-2xl font-bold",
-              budget.isExceeded ? "text-red-600 dark:text-red-400" : ""
-            )}>
-              {formatCurrency(budget.spent, budget.currency)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {budget.percentageUsed.toFixed(1)}% of budget
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Remaining
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={cn(
-              "text-2xl font-bold",
-              budget.remaining < 0
-                ? "text-red-600 dark:text-red-400"
-                : "text-emerald-600 dark:text-emerald-400"
-            )}>
-              {formatCurrency(budget.remaining, budget.currency)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {budget.daysRemaining} days left
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Spending Progress</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Budget Progress</span>
-              <span className="font-medium">{budget.percentageUsed.toFixed(1)}%</span>
-            </div>
-            <Progress
-              value={Math.min(budget.percentageUsed, 100)}
-              className="h-3"
-              indicatorClassName={getProgressColor()}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-            <div>
-              <p className="text-xs text-muted-foreground">Daily Average</p>
-              <p className="text-sm font-medium">
-                {formatCurrency(budget.dailyAverage, budget.currency)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Projected Total</p>
-              <p className="text-sm font-medium">
-                {formatCurrency(budget.projectedTotal, budget.currency)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Recommended Daily</p>
-              <p className="text-sm font-medium">
-                {formatCurrency(budget.recommendedDailySpend, budget.currency)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Status</p>
-              <Badge variant={budget.onTrack ? "default" : "destructive"} className="text-xs">
-                {budget.onTrack ? "On Track" : "Off Track"}
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm pt-4 border-t">
-            <span className="text-muted-foreground">Period</span>
-            <span className="font-medium">
-              {formatDate(budget.currentPeriodStart)} - {formatDate(budget.currentPeriodEnd)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Budget Header with Chart */}
+      <BudgetHeader budget={budget} progress={budget.percentageUsed} progressColor={getProgressColor()} />
 
       {/* Tabs for Periods, Transactions, Alerts */}
       <Tabs defaultValue="details" className="space-y-4">

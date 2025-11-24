@@ -17,10 +17,14 @@ import {
   Flame,
   Rocket,
   Zap,
-  type LucideIcon
+  type LucideIcon,
+  Trophy,
+  Medal,
+  Gauge,
+  Goal
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardAction, CardFooter } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -34,9 +38,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CurrencyDisplay } from "@/components/ui/currency-display"
 import type { Goal } from "@/lib/types/goals"
-import { MageGoals, SolarCheckCircleBoldDuotone } from "../icons/icons"
+import { MageGoals, SolarCalendarBoldDuotone, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone } from "../icons/icons"
 import { motion } from "motion/react"
-import { GoalSummary } from "./GoalSummary"
 
 interface GoalCardProps {
   goal: Goal
@@ -63,7 +66,7 @@ function getPriorityBadgeVariant(priority: Goal["priority"]) {
 }
 
 function getProgressColor(progress: number, onTrack: boolean): string {
-  if (progress >= 100) return "#3C6300" // emerald-500
+  if (progress >= 100) return "#54850F" // emerald-500
   if (!onTrack) return "#ef4444" // red-500
   if (progress >= 75) return "#10b981" // emerald-500
   if (progress >= 50) return "#3b82f6" // blue-500
@@ -72,7 +75,7 @@ function getProgressColor(progress: number, onTrack: boolean): string {
 }
 
 function getProgressFillColor(progress: number, onTrack: boolean): string {
-  if (progress >= 100) return "text-green-800"
+  if (progress >= 100) return "text-lime-800"
   if (!onTrack) return "text-red-500"
   if (progress >= 75) return "text-emerald-500"
   if (progress >= 50) return "text-blue-500"
@@ -123,17 +126,17 @@ export function CircularProgress({
 
   // Get dynamic icon based on progress
   const getDynamicIcon = () => {
-    if (clampedProgress >= 100) return Star
-    if (clampedProgress >= 75) return Rocket
-    if (clampedProgress >= 50) return Flame
-    if (clampedProgress >= 25) return Zap
-    return Target
+    if (clampedProgress >= 100) return Trophy        // Achievement
+    if (clampedProgress >= 75) return Medal         // Excellence / near-complete
+    if (clampedProgress >= 50) return Gauge         // Strong progress
+    if (clampedProgress >= 25) return TrendingUp    // Building momentum
+    return Goal                                     // Starting point
   }
 
   const DynamicIcon = Icon || getDynamicIcon()
 
   return (
-    <div className={cn("relative flex items-center justify-center", className)}>
+    <div className={cn("relative flex items-center justify-center bg-muted rounded-full", className)}>
       <svg
         width={size}
         height={size}
@@ -193,28 +196,12 @@ export function CircularProgress({
           r={radius}
           strokeWidth={strokeWidth}
           stroke="currentColor"
-          className="text-accent"
+          className="text-foreground/20"
           fill="none"
           strokeDasharray="2 8"
         />
 
-        {/* Glow layer underneath */}
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth + 4}
-          fill="none"
-          stroke={progressColor}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          opacity={0.2}
-          filter={`url(#glow-${progress})`}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        />
+ 
 
         {/* Main Progress Circle with gradient */}
         <motion.circle
@@ -230,6 +217,7 @@ export function CircularProgress({
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+          className={'shadow-lg drop-shadow-2xl backdrop-blur-3xl'}
         />
 
         {/* Shimmer overlay on progress */}
@@ -275,46 +263,61 @@ export function CircularProgress({
       </svg>
 
       {/* Center text with enhanced styling */}
-      <motion.div
+      <div
         className="absolute flex flex-col items-center justify-center"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+  
       >
         <span
           className={cn(
-            "text-lg font-bold",
+            "text-sm font-bold",
             fillColor
           )}
           style={{
             textShadow: `0 2px 4px ${progressColor}20`
           }}
-        >
-          {clampedProgress.toFixed(0)}%
+        >{clampedProgress >=100 ? <>   <SolarCheckCircleBoldDuotone className="size-8 text-lime-700" /></> : <>{clampedProgress.toFixed(0)}%</>}
+         
         </span>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
 function GoalCardSkeleton() {
   return (
-    <Card className="overflow-hidden bg-card border-border/50 rounded-xl">
-      <CardHeader className="p-2.5">
-        <div className="flex items-center gap-2">
-          <Skeleton className="size-7 rounded-full" />
-          <div className="space-y-1 flex-1">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-2 w-14" />
+    <Card className="border border-border/50">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+        {/* Left */}
+        <div className="flex items-start gap-3 flex-1">
+          <Skeleton className="size-10 sm:size-12 rounded-lg flex-shrink-0" />
+          <div className="space-y-2 flex-1 min-w-0">
+            <Skeleton className="h-4 w-32" />
+            <div className="flex gap-1.5">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-16" />
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-2.5 pt-0">
-        <Skeleton className="h-10 w-10 rounded-full mx-auto" />
-      </CardContent>
-      <CardAction className="p-2.5">
-        <Skeleton className="h-5 w-5 rounded-full" />
-      </CardAction>
+
+        {/* Right */}
+        <div className="flex items-end justify-between gap-3 sm:gap-4 sm:flex-col sm:items-end flex-1 sm:flex-none w-full sm:w-auto">
+          <div className="space-y-1">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="size-16 rounded-full flex-shrink-0" />
+        </div>
+      </div>
+
+      <div className="h-px bg-border/50 my-2.5" />
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <Skeleton className="h-6 w-6" />
+      </div>
     </Card>
   )
 }
@@ -346,167 +349,139 @@ export function GoalCard({
   }
 
   return (
-    <TooltipProvider>
       <Card
         className={cn(
-          "border-border p-2  gap-2 justify-between flex flex-col",
-          !goal.isActive && "opacity-80",
+          "group relative border border-border/50",
+          "cursor-pointer transition-all hover:shadow-md hover:border-border/80",
+          !goal.isActive && "opacity-70",
           className
         )}
+        onClick={() => onViewDetails?.(goal)}
+        interactive
       >
-        {/* Header with Overlapping Icon */}
-
-          <div className="flex items-center gap-2 relative">
-            <div className="relative ">
+  <div className="grid grid-cols-[1fr_auto] gap-4 h-full">
+  <div className="flex flex-col min-h-full justify-between">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+          {/* Left: Icon & Title */}
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            {/* Icon Badge */}
+            <div className="relative flex-shrink-0">
               <div
                 className={cn(
-                  "size-10 rounded-xl flex items-center justify-center shadow-md bg-foreground dark:bg-muted "
+                  "size-10 sm:size-12 rounded-full flex items-center shadow justify-center border",
+                  "bg-muted/50 group-hover:bg-muted group-hover:ring-border/80"
                 )}
               >
                 {goal.icon && goal.icon !== 'null' ? (
-                  <span className="text-lg">{goal.icon}</span>
+                  <span className="text-lg sm:text-xl">{goal.icon}</span>
                 ) : (
-                  <MageGoals className={cn("size-7", goal.color && goal.color !== 'null' ? `text-background` : "text-white/80 ")} stroke="2" />
+                  <MageGoals className="size-5 sm:size-6 text-muted-foreground" stroke="1.5" />
                 )}
               </div>
-              {goal.isAchieved && (
-                <SolarCheckCircleBoldDuotone className="absolute -top-2 -right-2 size-5 text-green-800" />
+      
+{goal.isAchieved || progress >=100 && (
+                <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-0.5 shadow-md">
+                  <SolarCheckCircleBoldDuotone className="h-5 w-5 text-lime-700" />
+                </div>
               )}
             </div>
-            <div className="flex-1 min-w-0 mt-2">
-              <h3 className="text-sm font-semibold truncate leading-tight">{goal.name}</h3>
-              <div className="flex gap-1 mt-1.5 flex-wrap">
-                <Badge
-                  variant={getPriorityBadgeVariant(goal.priority)}
-                  size="sm"
-                  className="text-[9px] h-4 px-1.5 font-medium"
-                >
-                  {goal.priority}
-                </Badge>
-                {goal.category && goal.category !== 'null' && (
-                  <Badge variant="outline" size="sm" className="text-[9px] h-4 px-1.5 font-medium">
+
+            {/* Title & Status */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm sm:text-base font-semibold truncate text-foreground">
+                  {goal.name}
+                </h3>
+                {goal.isAchieved && (
+                  <Badge variant="outline" size="sm" className="text-[10px] h-5 px-2 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    Achieved
+                  </Badge>
+                )}
+                    {goal.category && goal.category !== 'null' && (
+                  <Badge variant="soft" size="sm" className="text-[9px] h-4 px-1.5 font-medium">
                     {goal.category}
                   </Badge>
                 )}
+              </div>
+              <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant={getPriorityBadgeVariant(goal.priority)}
+                      size="sm"
+                      className="text-[9px] h-4 px-1.5 font-medium cursor-help"
+                    >
+                      {goal.priority}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>Priority Level</TooltipContent>
+                </Tooltip>
+
+            
+
                 {!goal.isAchieved && !goal.onTrack && progressValue > 0 && (
-                  <Badge variant="error-soft" size="sm" className="text-[9px] h-4 px-1.5">
-                    <TrendingDown className="size-2.5 mr-0.5" />
+                  <Badge variant="error-soft" size="sm" className="text-[9px] h-4 px-1.5 flex items-center gap-0.5">
+                    <TrendingDown className="size-2.5" />
                     Behind
                   </Badge>
                 )}
+
                 {!goal.isAchieved && goal.onTrack && progressValue > 0 && (
-                  <Badge variant="success-soft" size="sm" className="text-[9px] h-4 px-1.5">
-                    <TrendingUp className="size-2.5 mr-0.5" />
+                  <Badge variant="success-soft" size="sm" className="text-[9px] h-4 px-1.5 flex items-center gap-0.5">
+                    <TrendingUp className="size-2.5" />
                     On Track
                   </Badge>
                 )}
               </div>
             </div>
+          </div>
+
+       
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border/50 my-2.5" />
+
+        {/* Footer: Timeline & Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+
+              {/* Amount & Timeline */}
+              <div className="flex  items-end gap-1">
+           <CurrencyDisplay amountUSD={goal.currentAmount || 0} variant="small" className="font-semibold" />
+               
+             /
+           
+                 <CurrencyDisplay amountUSD={goal.targetAmount || 0} variant="small" className="text-muted-foreground font-semibold" />
          
-            
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="xs" className="h-6 w-6 p-0">
-                      <MoreVertical className="size-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40 h-full">
-                    {onViewDetails && (
-                      <DropdownMenuItem onClick={() => onViewDetails(goal)} className="text-xs font-medium">
-                        <ExternalLink className="mr-1 size-3" />
-                        View Details
-                      </DropdownMenuItem>
-                    )}
-                    {onEdit && (
-                      <DropdownMenuItem onClick={() => onEdit(goal)} className="text-xs font-medium">
-                        <Edit className="mr-1 size-3" />
-                        Edit Goal
-                      </DropdownMenuItem>
-                    )}
-                    {onCalculateProgress && (
-                      <DropdownMenuItem onClick={() => onCalculateProgress(goal)} className="text-xs font-medium">
-                        <RefreshCw className="mr-1 size-3" />
-                        Refresh Progress
-                      </DropdownMenuItem>
-                    )}
-                    {onAddContribution && !goal.isAchieved && (
-                      <DropdownMenuItem onClick={() => onAddContribution(goal)} className="text-xs font-medium">
-                        <PlusCircle className="mr-1 size-3" />
-                        Add Contribution
-                      </DropdownMenuItem>
-                    )}
-                    {onDelete && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => onDelete(goal)}
-                          className="text-destructive text-xs font-medium"
-                        >
-                          <Trash2 className="mr-1 size-3" />
-                          Delete Goal
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-            
-      
-          </div>
-      
-      
-
-        {/* Content with Modern Layout */}
-       
-       
-          <div className="flex items-center gap-4 justify-between">
-            {/* Left: Amounts */}
-
-<GoalSummary goal={{
-            currentAmount: goal.currentAmount ,
-            targetAmount: goal.targetAmount ,
-            amountRemaining: goal.amountRemaining,
-            isAchieved: goal.isAchieved,
-            
-          }} showMilestones nextMilestone={nextMilestone} />
-
-            {/* Right: Circular Progress */}
-            <div className="flex-shrink-0">
-              <CircularProgress
-                progress={progress}
-                size={110}
-                strokeWidth={20}
-                progressColor={progressColor}
-                fillColor={progressFillColor}
-              />
             </div>
-          </div>
-    
-    
- 
 
-        {/* Footer */}
-        
-          <div className="flex items-center justify-between w-full gap-2 p-2">
-            <Tooltip>
+          {/* Left: Date & Days */}
+          <div className="flex items-center gap-3 text-xs">
+      {/*       <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <Calendar className="size-3" />
+                <div className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors cursor-help">
+                  <SolarCalendarBoldDuotone className="size-4 flex-shrink-0" />
                   <span className={cn("font-medium", isOverdue && "text-destructive")}>
                     {formatDate(goal.targetDate)}
                   </span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>Target Date</TooltipContent>
-            </Tooltip>
+            </Tooltip> */}
 
             {!goal.isAchieved && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={cn(
-                    "flex items-center gap-1 text-[10px] font-medium",
-                    isOverdue ? "text-destructive" : isUrgent ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    "flex items-center gap-1.5 font-medium cursor-help transition-colors",
+                    isOverdue
+                      ? "text-destructive"
+                      : isUrgent
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-muted-foreground hover:text-foreground"
                   )}>
-                    <Clock className="size-3" />
+                    <SolarClockCircleBoldDuotone className="size-4 flex-shrink-0" />
                     {getDaysRemainingText(goal.daysRemaining || 0)}
                   </div>
                 </TooltipTrigger>
@@ -515,16 +490,77 @@ export function GoalCard({
                 </TooltipContent>
               </Tooltip>
             )}
-
-            {goal.isAchieved && (
-              <Badge variant="success-icon" size={'sm'}  className="  ">
-
-                Achieved
-              </Badge>
-            )}
           </div>
-        
+
+          {/* Right: Actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              {onViewDetails && (
+                <DropdownMenuItem onClick={() => onViewDetails(goal)} className="text-xs cursor-pointer">
+                  <ExternalLink className="mr-2 size-3" />
+                  View Details
+                </DropdownMenuItem>
+              )}
+              {onEdit && (
+                <DropdownMenuItem onClick={() => onEdit(goal)} className="text-xs cursor-pointer">
+                  <Edit className="mr-2 size-3" />
+                  Edit Goal
+                </DropdownMenuItem>
+              )}
+              {onCalculateProgress && (
+                <DropdownMenuItem onClick={() => onCalculateProgress(goal)} className="text-xs cursor-pointer">
+                  <RefreshCw className="mr-2 size-3" />
+                  Refresh Progress
+                </DropdownMenuItem>
+              )}
+              {onAddContribution && !goal.isAchieved && (
+                <DropdownMenuItem onClick={() => onAddContribution(goal)} className="text-xs cursor-pointer">
+                  <PlusCircle className="mr-2 size-3" />
+                  Add Contribution
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(goal)}
+                    className="text-destructive text-xs cursor-pointer"
+                  >
+                    <Trash2 className="mr-2 size-3" />
+                    Delete Goal
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        </div>
+
+         {/* RIGHT COLUMN: FULL HEIGHT PROGRESS */}
+    <div className="flex items-center justify-center ">
+      <CircularProgress
+        progress={progress}
+        size={85}
+        strokeWidth={13}
+        progressColor={progressColor}
+        fillColor={progressFillColor}
+      />
+    </div>
+
+        </div>
       </Card>
-    </TooltipProvider>
+
+      
+  
   )
 }

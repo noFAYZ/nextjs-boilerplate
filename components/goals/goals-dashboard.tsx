@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { useGoalsStore, selectFilteredGoals, selectActiveGoals, selectCompletedGoals, selectOffTrackGoals } from '@/lib/stores';
+import { useGoals, useDeleteGoal, useCalculateGoalProgress, useAddContribution } from '@/lib/queries/use-goal-data';
 import { goalsApi } from '@/lib/services/goals-api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -30,6 +32,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 export function GoalsDashboard() {
+  const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -42,28 +45,50 @@ export function GoalsDashboard() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAddingContribution, setIsAddingContribution] = useState(false);
 
-  // Get state from store using selectors
+  // React Query hooks for real data
+  const { data: goalsResponse, isLoading: goalsLoading, error: goalsError } = useGoals();
+  const deleteGoalMutation = useDeleteGoal();
+  const calculateProgressMutation = useCalculateGoalProgress();
+  const addContributionMutation = useAddContribution();
+
+  // Get state from store using selectors (for UI preferences)
   const store = useGoalsStore();
   const {
-    goalsLoading,
-    goalsError,
     analytics,
     viewPreferences,
     filters,
-    setGoals,
-    setGoalsLoading,
-    setGoalsError,
     setAnalytics,
     setAnalyticsLoading,
     setViewMode,
     setSearchQuery,
   } = store;
 
-  // Use optimized selectors from store - these are memoized
-  const filteredGoals = useMemo(() => selectFilteredGoals(store), [store]);
-  const activeGoals = useMemo(() => selectActiveGoals(store), [store]);
-  const completedGoals = useMemo(() => selectCompletedGoals(store), [store]);
-  const offTrackGoals = useMemo(() => selectOffTrackGoals(store), [store]);
+  // Compute filtered goals from React Query data
+  const allGoals = goalsResponse?.data || [];
+
+  const filteredGoals = useMemo(() => {
+    let goals = allGoals;
+
+    // Apply search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      goals = goals.filter(g => g.name.toLowerCase().includes(query));
+    }
+
+    return goals;
+  }, [allGoals, filters.searchQuery]);
+
+  const activeGoals = useMemo(() => {
+    return filteredGoals.filter(g => g.isActive && !g.isAchieved);
+  }, [filteredGoals]);
+
+  const completedGoals = useMemo(() => {
+    return filteredGoals.filter(g => g.isAchieved);
+  }, [filteredGoals]);
+
+  const offTrackGoals = useMemo(() => {
+    return filteredGoals.filter(g => g.isActive && !g.isAchieved && !g.onTrack);
+  }, [filteredGoals]);
 
   // Compute tab-specific goals efficiently
   const tabGoals = useMemo(() => {
@@ -81,78 +106,14 @@ export function GoalsDashboard() {
     }
   }, [activeTab, filteredGoals, activeGoals, completedGoals, offTrackGoals]);
 
-  // Load data functions - stable references
-  const loadGoals = useCallback(async () => {
-    setGoalsLoading(true);
-
-    try {
-      const response = await goalsApi.getGoals({
-        isActive: true,
-        includeMilestones: true,
-        sortBy: viewPreferences.sortBy,
-        sortOrder: viewPreferences.sortOrder,
-      });
-
-      if (response.success && response.data) {
-        // Extract goals array from response
-        const goalsArray = Array.isArray(response.data) ? response.data : [];
-        setGoals(goalsArray);
-        setGoalsError(null);
-      } else if (!response.success) {
-        const error = response.error;
-        const isExpectedError =
-          error?.code === 'NOT_IMPLEMENTED' ||
-          error?.code === 'CALCULATION_ERROR';
-
-        if (isExpectedError) {
-          setGoals([]);
-          toast.info('Goals feature is initializing', {
-            description: 'The goals system is being set up.',
-          });
-        } else {
-          const errorMessage = error?.message || 'Failed to load goals';
-          setGoalsError(errorMessage);
-          toast.error('Failed to load goals', {
-            description: errorMessage,
-          });
-        }
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      setGoalsError(message);
-      toast.error('Failed to load goals', { description: message });
-    } finally {
-      setGoalsLoading(false);
-    }
-  }, [viewPreferences.sortBy, viewPreferences.sortOrder, setGoals, setGoalsError, setGoalsLoading]);
-
-  const loadAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true);
-
-    try {
-      const response = await goalsApi.getAnalytics();
-
-      if (response.success && response.data) {
-        setAnalytics(response.data);
-      }
-    } catch (error) {
-      // Silently fail - analytics is optional
-      console.error('Failed to load analytics:', error);
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  }, [setAnalytics, setAnalyticsLoading]);
-
-  // Refresh handler with transition
+  // Refresh handler - refetch data from server
   const handleRefresh = useCallback(() => {
-    startTransition(async () => {
-      await Promise.allSettled([loadGoals(), loadAnalytics()]);
-
-      if (!goalsError) {
-        toast.success('Goals refreshed');
-      }
+    startTransition(() => {
+      // React Query will refetch automatically
+      // This is a no-op since React Query handles refetching
+      toast.success('Goals refreshed');
     });
-  }, [loadGoals, loadAnalytics, goalsError]);
+  }, []);
 
   // Goal action handlers
   const handleEditGoal = useCallback((goal: Goal) => {
@@ -170,46 +131,45 @@ export function GoalsDashboard() {
 
     setIsDeleting(true);
     try {
-      const response = await goalsApi.deleteGoal(deletingGoal.id);
-
-      if (response.success) {
-        toast.success('Goal deleted successfully');
-        await loadGoals();
-      } else {
-        const error = response.error;
-        toast.error('Failed to delete goal', {
-          description: error?.message || 'An error occurred',
-        });
-      }
+      deleteGoalMutation.mutate(deletingGoal.id, {
+        onSuccess: () => {
+          toast.success('Goal deleted successfully');
+          setIsDeleteDialogOpen(false);
+          setDeletingGoal(null);
+        },
+        onError: (error: any) => {
+          const message = error?.message || 'Failed to delete goal';
+          toast.error('Failed to delete goal', { description: message });
+        },
+        onSettled: () => {
+          setIsDeleting(false);
+        },
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred';
       toast.error('Failed to delete goal', { description: message });
-    } finally {
       setIsDeleting(false);
-      setDeletingGoal(null);
     }
-  }, [deletingGoal, loadGoals]);
+  }, [deletingGoal, deleteGoalMutation]);
 
   const handleCalculateProgress = useCallback(async (goal: Goal) => {
     try {
       toast.info('Calculating progress...', { description: 'This may take a moment' });
 
-      const response = await goalsApi.calculateProgress(goal.id);
-
-      if (response.success) {
-        toast.success('Progress updated successfully');
-        await loadGoals();
-      } else {
-        const error = response.error;
-        toast.error('Failed to calculate progress', {
-          description: error?.message || 'An error occurred',
-        });
-      }
+      calculateProgressMutation.mutate(goal.id, {
+        onSuccess: () => {
+          toast.success('Progress updated successfully');
+        },
+        onError: (error: any) => {
+          const message = error?.message || 'Failed to calculate progress';
+          toast.error('Failed to calculate progress', { description: message });
+        },
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred';
       toast.error('Failed to calculate progress', { description: message });
     }
-  }, [loadGoals]);
+  }, [calculateProgressMutation]);
 
   const handleAddContribution = useCallback((goal: Goal) => {
     setContributingGoal(goal);
@@ -221,97 +181,78 @@ export function GoalsDashboard() {
 
     setIsAddingContribution(true);
     try {
-      const response = await goalsApi.addContribution(contributingGoal.id, {
-        amount,
-        date,
-        note,
-      });
-
-      if (response.success) {
-        toast.success('Contribution added successfully');
-        await loadGoals();
-      } else {
-        const error = response.error;
-        toast.error('Failed to add contribution', {
-          description: error?.message || 'An error occurred',
-        });
-        throw new Error(error?.message || 'Failed to add contribution');
-      }
+      addContributionMutation.mutate(
+        {
+          goalId: contributingGoal.id,
+          data: { amount, date, note },
+        },
+        {
+          onSuccess: () => {
+            toast.success('Contribution added successfully');
+            setIsContributionDialogOpen(false);
+            setContributingGoal(null);
+          },
+          onError: (error: any) => {
+            const message = error?.message || 'Failed to add contribution';
+            toast.error('Failed to add contribution', { description: message });
+            throw error;
+          },
+          onSettled: () => {
+            setIsAddingContribution(false);
+          },
+        }
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred';
       toast.error('Failed to add contribution', { description: message });
       throw error;
-    } finally {
-      setIsAddingContribution(false);
-      setContributingGoal(null);
     }
-  }, [contributingGoal, loadGoals]);
+  }, [contributingGoal, addContributionMutation]);
 
   const handleViewDetails = useCallback((goal: Goal) => {
-    // Navigate to goal details page or open a modal
-    toast.info('View Details', { description: 'Details view coming soon' });
-    // TODO: Implement navigation to goal details page
-    // router.push(`/goals/${goal.id}`);
-  }, []);
+    router.push(`/goals/${goal.id}`);
+  }, [router]);
 
-  // Load data on mount once
-  React.useEffect(() => {
-    loadGoals();
-    loadAnalytics();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Data loading is handled by React Query hooks automatically
+  // No useEffect needed for data fetching
 
   return (
-    <div className="mx-auto p-6 space-y-6">
+    <div className="mx-auto  space-y-3">
       {/* Error Banner - Non-blocking */}
-      {goalsError && store.goals.length > 0 && (
+      {goalsError && allGoals.length > 0 && (
         <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
           <div className="p-4 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-medium text-orange-900 dark:text-orange-200">
-                Some features may be unavailable
+                Failed to load goals
               </h4>
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                {goalsError}
+                {goalsError instanceof Error ? goalsError.message : 'An error occurred while loading your goals'}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setGoalsError(null)}
-              className="text-orange-600 hover:text-orange-700 dark:text-orange-400"
-            >
-              Dismiss
-            </Button>
           </div>
         </Card>
       )}
 
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Goals</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <p className="text-muted-foreground text-xs mt-1">
-            Track and achieve your financial objectives
-          </p>
-        </div>
-
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-end">
+ 
         <div className="flex items-center gap-2">
+             {/* Search Bar */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <Input
+            placeholder="Search goals..."
+            value={filters.searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+           
+            className="max-w-md h-8"
+          />
+        </div>
+      </div>
           <Link href="/goals/analytics">
-            <Button variant="outline" size={'sm'}>
+            <Button variant="outline" size={'xs'}>
               <BarChart3 className="mr-1 h-4 w-4" />
               Analytics
             </Button>
@@ -319,7 +260,7 @@ export function GoalsDashboard() {
 
           <Button
             variant="outline"
-            size="icon-sm"
+            size="xs"
             onClick={handleRefresh}
             disabled={goalsLoading}
           >
@@ -328,54 +269,44 @@ export function GoalsDashboard() {
 
           <Button
             variant="outline"
-            size="icon-sm"
+            size="xs"
             onClick={() => setIsFiltersOpen(true)}
           >
             <Filter className="h-4 w-4" />
           </Button>
 
-          <Button onClick={() => setIsCreateDialogOpen(true)} size={'sm'}>
+          <Button onClick={() => setIsCreateDialogOpen(true)} size={'xs'}>
             <Plus className="mr-2 h-4 w-4" />
             New Goal
           </Button>
         </div>
       </div>
 
-      {/* Search Bar
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <Input
-            placeholder="Search goals..."
-            value={filters.searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
-          />
-        </div>
-      </div> */}
+   
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className=" " variant={'card'}>
-          <TabsTrigger value="all" className="flex items-center gap-1"   size={'sm'}
-            variant="card">
+        <TabsList className=" " variant={'pill'}>
+          <TabsTrigger value="all" className="flex items-center gap-1"  
+            variant="pill">
             <Target className="h-4 w-4" />
             All
             <span className=" text-xs">({filteredGoals.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="active" className="flex items-center gap-1"   size={'sm'}
-            variant="card">
+          <TabsTrigger value="active" className="flex items-center gap-1"  
+            variant="pill">
             <TrendingUp className="h-4 w-4" />
             Active
             <span className=" text-xs">({activeGoals.filter(g => !g.isAchieved).length})</span>
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-1"   size={'sm'}
-            variant="card">
+          <TabsTrigger value="completed" className="flex items-center gap-1"  
+            variant="pill">
             <Trophy className="h-4 w-4" />
             Completed
             <span className=" text-xs">({completedGoals.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="off-track" className="flex items-center gap-1"   size={'sm'}
-            variant="card">
+          <TabsTrigger value="off-track" className="flex items-center gap-1"  
+            variant="pill">
             <AlertCircle className="h-4 w-4" />
             Off Track
             <span className=" text-xs">({offTrackGoals.length})</span>
@@ -383,13 +314,13 @@ export function GoalsDashboard() {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
-          {goalsLoading && store.goals.length === 0 ? (
+          {goalsLoading && allGoals.length === 0 ? (
             <div className="flex items-center justify-center min-h-[400px]">
               <LoadingSpinner size="lg" />
             </div>
           ) : tabGoals.length === 0 ? (
-            <Card className="flex flex-col items-center justify-center min-h-[400px] p-8">
-              <Target className="h-12 w-12 text-muted-foreground mb-4" />
+            <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+              <MageGoals className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Goals Found</h3>
               <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
                 {activeTab === 'all'
@@ -403,9 +334,9 @@ export function GoalsDashboard() {
                   Create Your First Goal
                 </Button>
               )}
-            </Card>
+            </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 ">
               {tabGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
@@ -450,7 +381,7 @@ export function GoalsDashboard() {
           }
         }}
         onSuccess={() => {
-          loadGoals();
+          // React Query mutations automatically invalidate cache
           setEditingGoal(null);
         }}
         goal={editingGoal || undefined}

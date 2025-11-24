@@ -148,7 +148,7 @@ export function SidebarMainColumn({
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-normal text-xs md:text-[15px] truncate",
+                        "font-normal text-xs md:text-sm truncate",
                         isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}

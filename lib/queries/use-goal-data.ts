@@ -84,7 +84,10 @@ export function useGoal(goalId: string | null) {
 
   return useQuery({
     queryKey: goalKeys.detail(goalId!),
-    queryFn: () => goalsApi.getGoal(goalId!),
+    queryFn: async () => {
+      const response = await goalsApi.getGoal(goalId!);
+      return response.data; // Return just the Goal object, not the full response
+    },
     enabled: isAuthReady && !!goalId,
     staleTime: 30_000,
   });
