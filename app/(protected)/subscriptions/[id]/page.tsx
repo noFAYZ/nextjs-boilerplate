@@ -203,7 +203,7 @@ export default function SubscriptionDetailPage() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon-sm">
+              <Button variant="outline" size="xs" >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -245,14 +245,14 @@ export default function SubscriptionDetailPage() {
 
 
       {/* MODERN COMPACT HEADER WITH INTEGRATED STATS */}
-<Card className="relative overflow-hidden rounded-none border-border/80 p-3 hover:shadow-xs">
+<Card className="relative overflow-hidden rounded-none border-border/80 p-3 hover:shadow-xs ">
 
 {/* HEADER */}
-<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between group">
   {/* LEFT */}
   <div className="flex items-start gap-3 min-w-0 flex-1">
     <div className="relative shrink-0">
-      <Avatar className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-18 md:w-18 items-center justify-center shadow-md">
+      <Avatar className="flex h-12 w-12 sm:h-14 sm:w-14  items-center justify-center shadow-md group-hover:shadow-lg">
         <AvatarImage
           src={subscription.logoUrl || getLogoUrl(subscription.websiteUrl)}
           alt={subscription.name}

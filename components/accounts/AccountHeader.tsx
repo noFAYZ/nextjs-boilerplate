@@ -22,7 +22,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
 
   return (
     <Card className="border-border/80 border-b-0 rounded-none hover:shadow-xs p-0">
-      <div className="p-4 "  >
+      <div className="p-3 "  >
         <div className="flex flex-col gap-4">
           {/* TOP ROW: Identity & Balance */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -36,7 +36,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
               >
                 <IconComponent className={`h-7 w-7 ${accountConfig.textColor}`} />
               </div> */}
-              <div className="h-12 w-12 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 sm:h-14 sm:w-14  rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
               <IconComponent className={`h-7 w-7 `} />
                         </div>
               <div className="min-w-0">
@@ -58,15 +58,15 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
 
             {/* Right: Balance */}
             <div className="flex flex-col sm:items-end gap-2">
-              <div className="flex flex-col items-baseline ">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              <div className="flex flex-col items-end ">
+                <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                   {account.type === 'CREDIT_CARD' ? 'Remaining' : 'Available'}
                 </span>
                 <CurrencyDisplay
                   amountUSD={parseFloat(
                     account.availableBalance?.toString() || account.balance.toString()
                   )}
-                  className="text-xl font-bold text-foreground"
+                  className="text-2xl font-bold text-foreground"
                 />
               </div>
               <div className="flex items-center gap-1.5 text-xs">

@@ -344,19 +344,9 @@ export default function BankAccountDetailsPage() {
   const syncState = realtimeSyncStates[account.id];
 
   return (
-    <div className={`${pageClass} space-y-6`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="xs"
-            onClick={() => router.push("/accounts/bank")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </div>
+    <div className={` max-w-3xl mx-auto space-y-3`}>
+      <div className="flex items-center justify-end">
+  
 
         <div className="flex items-center gap-2">
           {/* Action Buttons */}
@@ -465,7 +455,7 @@ export default function BankAccountDetailsPage() {
 
           {/* Card View */}
           {transactionView === "table" && filteredTransactions.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {filteredTransactions.slice(0, 20).map((transaction) => {
                 const isIncome =
                   parseFloat(transaction.amount.toString()) > 0;
@@ -478,13 +468,13 @@ export default function BankAccountDetailsPage() {
                   <Card
                     key={transaction.id}
                     interactive
-                    className="shadow-xs border-border/80 transition-all"
+                    className="shadow-xs border-border/50 "
                   >
                     <div className="flex items-center gap-4">
                       {/* Category Icon */}
                       <div
                         className={cn(
-                          "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
+                          "h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
                           transaction.category
                             ? categoryConfig.gradient
                             : "bg-muted"
@@ -533,10 +523,10 @@ export default function BankAccountDetailsPage() {
                           <div className="text-right">
                             <div
                               className={cn(
-                                "font-bold text-lg",
+                                "font-bold text-base",
                                 isIncome
-                                  ? "text-green-600 dark:text-green-400"
-                                  : "text-red-600 dark:text-red-400"
+                                  ? "text-lime-700 dark:text-lime-500"
+                                  : "text-red-700 dark:text-rose-500"
                               )}
                             >
                               {isIncome ? "+" : "-"}
@@ -544,7 +534,8 @@ export default function BankAccountDetailsPage() {
                                 amountUSD={Math.abs(
                                   parseFloat(transaction.amount.toString())
                                 )}
-                                className="inline "
+                                className="inline text-base font-semibold"
+                              
                                 formatOptions={{
                                   minimumFractionDigits: 2,
                                   maximumFractionDigits: 2,
