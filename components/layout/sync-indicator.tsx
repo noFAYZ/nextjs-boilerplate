@@ -121,25 +121,6 @@ export function SyncIndicator() {
   const { realtimeSyncStates: cryptoSyncStates, realtimeSyncConnected: cryptoConnected } = useCryptoStore()
   const { realtimeSyncStates: bankingSyncStates, realtimeSyncConnected: bankingConnected } = useBankingStore()
 
-  useUnifiedAutoSync()
-
-  useUnifiedSyncProgress(
-    (accountId, progress) => {
-      useBankingStore.getState().updateRealtimeSyncProgress(
-        accountId,
-        progress.progress,
-        progress.status as string,
-        progress.message
-      )
-    },
-    (accountId, result) => {
-      useBankingStore.getState().completeRealtimeSync(accountId, result.syncedData)
-    },
-    (accountId, error) => {
-      useBankingStore.getState().failRealtimeSync(accountId, error)
-    }
-  )
-
   if (!user) {
     return null
   }
