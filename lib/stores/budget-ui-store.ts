@@ -67,7 +67,7 @@ interface BudgetUIState {
     isAnalyticsPanelOpen: boolean;
 
     // Active tabs
-    activeTab: 'overview' | 'budgets' | 'analytics' | 'alerts';
+    activeTab: 'all' | 'active' | 'exceeded';
 
     // Bulk operations
     bulkSelectMode: boolean;
@@ -177,7 +177,7 @@ const initialState: BudgetUIState = {
     isAddTransactionModalOpen: false,
     isFiltersPanelOpen: false,
     isAnalyticsPanelOpen: false,
-    activeTab: 'overview',
+    activeTab: 'all',
     bulkSelectMode: false,
     selectedBudgetIds: [],
   },

@@ -176,7 +176,7 @@ export default function BudgetDetailPage() {
   }
 
   return (
-    <div className="max-5xl mx-auto flex-1 space-y-6 p-6">
+    <div className="max-w-3xl mx-auto  space-y-3">
       {/* Breadcrumb and Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -252,18 +252,18 @@ export default function BudgetDetailPage() {
       <BudgetHeader budget={budget} progress={budget.percentageUsed} progressColor={getProgressColor()} />
 
       {/* Tabs for Periods, Transactions, Alerts */}
-      <Tabs defaultValue="details" className="space-y-4">
-        <TabsList variant="card">
-          <TabsTrigger value="details" variant="card">
+      <Tabs defaultValue="details" className="space-y-2">
+        <TabsList variant="pill">
+          <TabsTrigger value="details" variant="pill">
             Details
           </TabsTrigger>
-          <TabsTrigger value="periods" variant="card">
+          <TabsTrigger value="periods" variant="pill">
             Periods
           </TabsTrigger>
-          <TabsTrigger value="transactions" variant="card">
+          <TabsTrigger value="transactions" variant="pill">
             Transactions
           </TabsTrigger>
-          <TabsTrigger value="alerts" variant="card">
+          <TabsTrigger value="alerts" variant="pill">
             Alerts
           </TabsTrigger>
         </TabsList>

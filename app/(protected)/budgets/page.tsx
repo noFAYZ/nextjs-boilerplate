@@ -16,14 +16,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { BudgetList } from "@/components/budgets/budget-list"
-import { BudgetStats } from "@/components/budgets/budget-stats"
 import { BudgetFormModal } from "@/components/budgets/budget-form-modal"
 import { useBudgetUIStore } from "@/lib/stores/ui-stores"
 import {
   useBudgets,
   useActiveBudgets,
   useExceededBudgets,
-  useBudgetSummary,
   useDeleteBudget,
   usePauseBudget,
   useResumeBudget,
@@ -46,7 +44,6 @@ export default function BudgetsPage() {
   const { data: allBudgetsData = { data: [] }, isLoading: isLoadingBudgets, error: budgetsError } = useBudgets()
   const { data: activeBudgetsData = { data: [] } } = useActiveBudgets()
   const { data: exceededBudgetsData = { data: [] } } = useExceededBudgets()
-  const { data: summary } = useBudgetSummary()
 
   // Mutations
   const { mutate: deleteBudget, isPending: isDeleting } = useDeleteBudget()
@@ -181,22 +178,33 @@ export default function BudgetsPage() {
         </div>
       </div>
 
-      {/* Stats Summary */}
-      {summary && <BudgetStats summary={summary} />}
-
       {/* Tabs */}
       <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)}>
         <TabsList variant="pill">
+          <TabsTrigger value="all" variant="pill">
+            All
+          </TabsTrigger>
           <TabsTrigger value="active" variant="pill">
             Active
           </TabsTrigger>
           <TabsTrigger value="exceeded" variant="pill">
             Exceeded
           </TabsTrigger>
-          <TabsTrigger value="all" variant="pill">
-            All
-          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="all" className="mt-6 pb-32">
+          <BudgetList
+            budgets={allBudgetsData.data || []}
+            isLoading={isLoadingBudgets}
+            error={budgetsError as Error}
+            onCreateBudget={handleAddNew}
+            onEditBudget={handleEdit}
+            onDeleteBudget={handleDelete}
+            onPauseBudget={handlePause}
+            onResumeBudget={handleResume}
+            onArchiveBudget={handleArchive}
+          />
+        </TabsContent>
 
         <TabsContent value="active" className="mt-6 pb-32">
           <BudgetList
@@ -215,20 +223,6 @@ export default function BudgetsPage() {
         <TabsContent value="exceeded" className="mt-6 pb-32">
           <BudgetList
             budgets={exceededBudgetsData.data || []}
-            isLoading={isLoadingBudgets}
-            error={budgetsError as Error}
-            onCreateBudget={handleAddNew}
-            onEditBudget={handleEdit}
-            onDeleteBudget={handleDelete}
-            onPauseBudget={handlePause}
-            onResumeBudget={handleResume}
-            onArchiveBudget={handleArchive}
-          />
-        </TabsContent>
-
-        <TabsContent value="all" className="mt-6 pb-32">
-          <BudgetList
-            budgets={allBudgetsData.data || []}
             isLoading={isLoadingBudgets}
             error={budgetsError as Error}
             onCreateBudget={handleAddNew}
