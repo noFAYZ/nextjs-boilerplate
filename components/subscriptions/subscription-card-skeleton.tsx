@@ -15,7 +15,7 @@ export function SubscriptionCardSkeleton({
   return (
     <Card
       className={cn(
-        "relative flex flex-col justify-between rounded-2xl border border-border bg-gradient-to-b from-muted/50 to-muted/30 p-4 opacity-60 pointer-events-none",
+        "relative flex flex-col justify-between  border border-border p-3 opacity-60 pointer-events-none",
         className
       )}
     >
@@ -31,29 +31,13 @@ export function SubscriptionCardSkeleton({
         </div>
       </div>
 
-      {/* Content */}
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-5 w-16 rounded-full" />
-        </div>
-
-        <div className="flex items-center justify-between border-t border-border/60 pt-2 mt-1">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-
-        <div className="flex items-center justify-between border-t border-border/60 pt-2">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-      </div>
+  
 
       {/* Deleting overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-background/20 backdrop-blur-[2px] rounded-2xl">
         <div className="flex flex-col items-center gap-2">
           <div className="h-8 w-8 rounded-full border-2 border-muted-foreground/30 border-t-primary animate-spin" />
-          <p className="text-xs text-muted-foreground font-medium">Deleting...</p>
+       
         </div>
       </div>
     </Card>
