@@ -303,12 +303,12 @@ function FeatureButton({
           : "bg-none  border-transparent hover:bg-card "
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 group">
 
         <div
           className={cn(
-            "flex items-center justify-center h-9 w-9 rounded-lg",
-            "bg-gradient-to-br shadow-xs ring-1 ring-inset ring-foreground/10 from-muted to-muted"
+            "flex items-center justify-center h-9 w-9 rounded-full",
+            " bg-card group-hover:bg-muted shadow-lg ring-1 ring-inset ring-foreground/10 "
           )}
         >
 
