@@ -51,8 +51,6 @@ import { LogoLoader } from '@/components/icons';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { ChainBadge } from '@/components/crypto/ui/ChainBadge';
 
-// PRODUCTION-GRADE: Establish real-time sync connection only on this page
-import { useRealtimeSyncConnection } from '@/lib/hooks/use-realtime-sync-connection';
 
 interface WalletCardProps {
   wallet: CryptoWallet;
@@ -250,11 +248,6 @@ export default function WalletsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
 
-  // PRODUCTION-GRADE: Establish SSE connection ONLY on this page (not globally)
-  const { isConnected: isRealtimeConnected } = useRealtimeSyncConnection({
-    enableCrypto: true,
-    enableBanking: false,
-  });
 
   // ✅ NEW: Data from TanStack Query (organization-aware)
   const { data: wallets = [], isLoading, error } = useOrganizationCryptoWallets();
