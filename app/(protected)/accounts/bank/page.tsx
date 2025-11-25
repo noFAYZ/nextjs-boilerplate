@@ -6,12 +6,14 @@ import { BankAccountsDataTable } from '@/components/banking/bank-accounts-data-t
 import { BankAccountsFloatingToolbar } from '@/components/banking/bank-accounts-floating-toolbar';
 import { bankingQueries, bankingMutations } from '@/lib/queries/banking-queries';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { useTellerConnect } from '@/components/banking/TellerConnect';
 import { BankAccount } from '@/lib/types/banking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Wallet, Activity, RefreshCw } from 'lucide-react';
+import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
+import { useBankingStore } from '@/lib/stores/banking-store';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Breadcrumb,
@@ -25,14 +27,30 @@ import Link from 'next/link';
 
 export default function BankAccountsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   const { data: accounts = [], isLoading: accountsLoading } = useQuery(bankingQueries.accounts());
   const { data: overview, isLoading: overviewLoading } = useQuery(bankingQueries.overview());
   
   const { mutateAsync: updateAccount } = bankingMutations.useUpdateAccount();
   const { mutateAsync: disconnectAccount } = bankingMutations.useDisconnectAccount();
   const { mutateAsync: syncAccount } = bankingMutations.useSyncAccount();
-  
+  const { mutate: syncAllAccounts, isPending: isSyncingAll } = bankingMutations.useSyncAllAccounts();
+
   const tellerConnect = useTellerConnect();
+  const { realtimeSyncStates } = useBankingStore();
+
+  // Check if any accounts are actively syncing via SSE
+  const hasActiveSyncs = () => {
+    return Object.values(realtimeSyncStates).some(state =>
+      BANKING_SYNC_ACTIVE_STATUSES.includes(state.status as any)
+    );
+  };
+
+  const getActiveSyncs = () => {
+    return Object.keys(realtimeSyncStates).filter(accountId =>
+      BANKING_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[accountId].status as any)
+    );
+  };
 
   const selectedAccounts = accounts.filter(acc => selectedIds.includes(acc.id));
 
@@ -64,22 +82,42 @@ export default function BankAccountsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
+    <div className="max-w-7xl mx-auto  space-y-6">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Bank Accounts</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl font-bold tracking-tight">Bank Accounts</h1>
+          <p className="text-muted-foreground text-xs">
             Manage your connected bank accounts and credit cards.
           </p>
         </div>
-        <Button onClick={tellerConnect.openConnect} size={'sm'} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Connect Bank
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => syncAllAccounts()}
+            disabled={isSyncingAll || hasActiveSyncs()}
+            variant="outline"
+            size="xs"
+          >
+            {isSyncingAll || hasActiveSyncs() ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Syncing ({getActiveSyncs().length})
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Sync All
+              </>
+            )}
+          </Button>
+          <Button onClick={tellerConnect.openConnect} size={'xs'} className="flex items-center gap-1">
+            <Plus className="h-4 w-4" />
+            Connect Bank
+          </Button>
+        </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -132,7 +170,7 @@ export default function BankAccountsPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </div>*/}
 
       <BankAccountsDataTable 
         accounts={accounts} 

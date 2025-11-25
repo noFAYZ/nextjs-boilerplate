@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Header } from './header';
 import { SidebarLayout } from '@/components/sidebar';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
+import { useUnifiedAutoSync } from '@/lib/hooks/use-unified-auto-sync';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,13 +14,15 @@ interface MainLayoutProps {
   showSidebar?: boolean;
 }
 
-export function MainLayout({ 
-  children, 
+export function MainLayout({
+  children,
   className,
   showHeader = true,
-  showSidebar = true 
+  showSidebar = true
 }: MainLayoutProps) {
   const { isProMode, isBeginnerMode } = useViewMode();
+  // Trigger unified auto-sync on authentication
+  useUnifiedAutoSync();
   
   // In pro mode, we hide the sidebar and show header
   // In beginner mode, we show sidebar and hide header

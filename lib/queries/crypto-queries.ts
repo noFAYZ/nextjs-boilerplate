@@ -25,6 +25,19 @@ import type {
   SyncJobStatus
 } from '@/lib/types/crypto';
 
+// Module-level map to track initialization timeouts (30s "no SSE response" timeouts)
+// Keyed by walletId, stores the timeout ID so it can be cleared when SSE messages arrive
+const initializationTimeouts = new Map<string, NodeJS.Timeout>();
+
+// Utility function to clear initialization timeout for a wallet
+export function clearInitializationTimeout(walletId: string) {
+  const timeoutId = initializationTimeouts.get(walletId);
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    initializationTimeouts.delete(walletId);
+  }
+}
+
 // ============================================================================
 // HELPER: Get current organization ID from store (not from closure)
 // ============================================================================
@@ -403,6 +416,7 @@ export const cryptoMutations = {
   // Sync mutations
   useSyncWallet: () => {
     const queryClient = useQueryClient();
+    const cryptoStore = useCryptoStore();
 
     return useMutation({
       mutationFn: ({ walletId, syncData }: { walletId: string; syncData?: SyncRequest }) =>
@@ -412,11 +426,31 @@ export const cryptoMutations = {
           const { walletId } = variables;
           const { jobId } = response.data;
 
+          // Initialize sync state for this wallet
+          cryptoStore.updateRealtimeSyncProgress(
+            walletId,
+            0,
+            'queued',
+            'Starting sync...'
+          );
+
           // SSE will handle sync status updates automatically
           // Just invalidate queries to refresh UI data when sync completes
           queryClient.invalidateQueries({
             queryKey: cryptoKeys.syncStatus(walletId, jobId)
           });
+
+          // Timeout: if no SSE message within 30s, auto-fail the sync
+          const timeoutId = setTimeout(() => {
+            const currentState = useCryptoStore.getState().realtimeSyncStates[walletId];
+            if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status as any)) {
+              console.warn(`[Crypto Sync] Timeout: No SSE messages for wallet ${walletId}, auto-failing`);
+              useCryptoStore.getState().failRealtimeSync(walletId, 'Sync timeout - no response from server');
+            }
+          }, 30000); // 30 seconds
+
+          // Store timeout so it can be cleared when SSE messages arrive
+          initializationTimeouts.set(walletId, timeoutId);
         }
       },
       onError: (error) => {
@@ -427,11 +461,34 @@ export const cryptoMutations = {
 
   useSyncAllWallets: () => {
     const queryClient = useQueryClient();
+    const cryptoStore = useCryptoStore();
 
     return useMutation({
       mutationFn: () => cryptoApi.refreshAllWallets(),
       onSuccess: (response) => {
-        if (response.success) {
+        if (response.success && response.data?.wallets) {
+          // Initialize sync state for each wallet being synced
+          response.data.wallets.forEach((wallet: any) => {
+            cryptoStore.updateRealtimeSyncProgress(
+              wallet.id,
+              0,
+              'queued',
+              'Starting sync...'
+            );
+
+            // Timeout: if no SSE message within 30s, auto-fail the sync
+            const timeoutId = setTimeout(() => {
+              const currentState = useCryptoStore.getState().realtimeSyncStates[wallet.id];
+              if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status as any)) {
+                console.warn(`[Crypto Sync] Timeout: No SSE messages for wallet ${wallet.id}, auto-failing`);
+                useCryptoStore.getState().failRealtimeSync(wallet.id, 'Sync timeout - no response from server');
+              }
+            }, 30000); // 30 seconds
+
+            // Store timeout so it can be cleared when SSE messages arrive
+            initializationTimeouts.set(wallet.id, timeoutId);
+          });
+
           // Comprehensive cache invalidation for all wallet sync
           queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
         }

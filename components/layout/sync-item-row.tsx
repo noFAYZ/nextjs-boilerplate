@@ -20,6 +20,7 @@ import {
   SolarWalletMoneyLinear,
 } from '../icons/icons'
 import { Badge } from '@/components/ui/badge'
+import { Card } from '../ui/card'
 
 interface ExtendedSyncState {
   status: string
@@ -171,9 +172,9 @@ export const SyncItemRow = React.memo(
     if (isExpanded) {
       // Expanded view with full details
       return (
-        <div
+        <Card
         className={cn(
-          'w-full p-2 rounded-xl border shadow-sm transition-all duration-100 backdrop-blur-sm',
+          'w-full  bg-muted/50',
           isFailed &&
             ' dark:border-red-900/50 bg-red-50/40 dark:bg-red-950/30',
           !isSyncing && !isFailed && !isCompleted && ' bg-muted/20 hover:bg-muted/30',
@@ -181,13 +182,12 @@ export const SyncItemRow = React.memo(
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 ">
+        <div className="flex items-start justify-between gap-3 ">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div
               className={cn(
-                'p-1 rounded-lg flex-shrink-0 shadow-sm',
-                colorClasses[statusConfig.color],
-                'bg-accent rounded-xl'
+                'p-1 rounded-full border flex-shrink-0 shadow-sm',
+                'bg-accent '
               )}
             >
               {statusConfig.icon}
@@ -196,9 +196,9 @@ export const SyncItemRow = React.memo(
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
                 {type === 'crypto' ? (
-                  <SolarWalletMoneyBoldDuotone className="w-8 h-8 text-foreground/70" />
+                  <SolarWalletMoneyBoldDuotone className="w-6 h-6 text-foreground/70" />
                 ) : (
-                  <DuoIconsBank className="w-8 h-8 text-foreground/70" />
+                  <DuoIconsBank className="w-6 h-6 text-foreground/70" />
                 )}
                 <div className="text-xs font-semibold text-foreground">
                   {type === 'crypto' ? 'Wallet' : 'Account'}
@@ -213,7 +213,7 @@ export const SyncItemRow = React.memo(
           </div>
       
           <div className="flex items-center gap-1">
-            <Badge
+            {/* <Badge
               className={cn(
                 'text-[10px] font-semibold h-5 px-2 rounded-md shadow-sm flex items-center gap-1',
                 badgeColorClasses[statusConfig.color]
@@ -222,7 +222,7 @@ export const SyncItemRow = React.memo(
               {statusConfig.label}
             </Badge>
       
-            {/* Actions 
+            Actions 
             <button
               onClick={copyToClipboard}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
@@ -243,22 +243,18 @@ export const SyncItemRow = React.memo(
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
             )}
-          </div>
-        </div>
-      
-        {/* Progress bar */}
+                   {/* Progress bar */}
         {isSyncing && (
-          <div className="mb-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-medium text-muted-foreground">Progress</span>
+         
+            <div className="flex items-center gap-1 ">
+             
               <span className="text-[11px] font-semibold text-foreground tabular-nums">
                 {state.progress}%
               </span>
-            </div>
-            <div className="relative w-full h-1.5 bg-accent rounded-full overflow-hidden">
+               <div className="relative w-[80px] h-2 bg-accent rounded-xs overflow-hidden">
               <div
                 className={cn(
-                  'absolute left-0 top-0 h-full rounded-full transition-all duration-300',
+                  'absolute left-0 top-0 h-full rounded-xs transition-all duration-300',
                   statusConfig.color === 'blue' && 'bg-blue-500/80 dark:bg-blue-600',
                   statusConfig.color === 'amber' && 'bg-amber-500 dark:bg-amber-600',
                   statusConfig.color === 'green' && 'bg-green-500 dark:bg-green-600',
@@ -267,15 +263,21 @@ export const SyncItemRow = React.memo(
                 style={{ width: `${state.progress}%` }}
               />
             </div>
-          </div>
+            </div>
+           
+        
         )}
+          </div>
+        </div>
       
-        {/* Message 
-        {state.message && (
-          <p className="text-xs text-muted-foreground bg-muted/30 border border-border/30 rounded-lg px-3 py-2 mb-1 line-clamp-2">
+ 
+          {state.message && (
+          <p className="text-[11px] mt-1 text-muted-foreground  ">
             {state.message}
           </p>
-        )}*/}
+        )}
+       
+    
       
         {/* Error */}
         {state.error && (
@@ -286,25 +288,17 @@ export const SyncItemRow = React.memo(
             </p>
           </div>
         )}
-      </div>
+      </Card>
       
       )
     }
 
     // Compact row view for collapsed list
     return (
-      <div
+      <Card
         className={cn(
-          'w-full px-2 py-1.5 flex items-center justify-between gap-2 rounded-lg transition-colors border bg-muted/60',
-          isFailed &&
-            'border-red-200/50 dark:border-red-900/30 bg-red-50/30 dark:bg-red-950/10 hover:bg-red-50/50 dark:hover:bg-red-950/20',
+          'w-full  flex flex-row hover:bg-muted/60 bg-muted/50',
        
-          isSyncing &&
-            'border-blue-200/50 dark:border-blue-900/30 bg-blue-50/30 dark:bg-blue-950/10 hover:bg-blue-50/50 dark:hover:bg-blue-950/20',
-          !isSyncing &&
-            !isFailed &&
-            !isCompleted &&
-            ' bg-muted hover:bg-muted'
         )}
       >
         {/* Left: Icon + Info */}
@@ -312,28 +306,34 @@ export const SyncItemRow = React.memo(
           {/* Status Icon */}
           <div
             className={cn(
-              'p-1.5 rounded-md flex-shrink-0 flex items-center justify-center',
-              colorClasses[statusConfig.color],'bg-accent'
+              'p-1.5 rounded-full flex-shrink-0 flex border text-muted-foreground items-center justify-center',
+            'bg-accent'
             )}
           >
-            {statusConfig.icon}
+              {type === 'crypto' ? (
+                  <SolarWalletMoneyBoldDuotone className="w-5 h-5 text-foreground/70" />
+                ) : (
+                  <DuoIconsBank className="w-5 h-5 text-foreground/70" />
+                )}
           </div>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-xs font-medium text-foreground">
-                {type === 'crypto' ? 'Wallet' : 'Account'}
-              </p>
-              <span className="text-[10px] text-muted-foreground font-mono">
+          <div className="flex items-center gap-1.5">
+            
+                <div className="text-xs flex  gap-2 font-semibold text-foreground">
+                  {type === 'crypto' ? 'Wallet' : 'Account'}
+
+                  <p className="text-[11px] text-muted-foreground font-mono truncate mt-0.5">
                 {identifier}
-              </span>
-            </div>
+              </p>
+                </div>
+              </div>
             {isSyncing && (
               <div className="flex items-center gap-1 mt-0.5">
-                <div className="w-12 h-1 bg-muted/50 rounded-full overflow-hidden border border-border/30 flex-shrink-0">
+                <div className="w-22 h-2 bg-accent rounded-full overflow-hidden border border-border/30 flex-shrink-0">
                   <div
-                    className="h-full bg-blue-500 dark:bg-blue-600 transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-orange-300 to-orange-600 dark:from-orange-300 dark:to-orange-700 transition-all duration-300"
                     style={{ width: `${state.progress}%` }}
                   />
                 </div>
@@ -357,7 +357,7 @@ export const SyncItemRow = React.memo(
           </Badge>
           <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
         </div>
-      </div>
+      </Card>
     )
   }
 )

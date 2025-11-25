@@ -17,6 +17,7 @@ import { OrganizationModalsProvider } from "./organization-modals-provider";
 import { OrganizationDataSyncProvider } from "./organization-data-sync-provider";
 import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
 import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-overlay";
+import { RealtimeSyncProvider } from "./realtime-sync-provider";
 
 /**
  * Global Providers
@@ -48,6 +49,7 @@ export default function Providers({ children }: { children: ReactNode }) {
             >
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
+                <RealtimeSyncProvider>
                   <OrganizationURLSyncProvider />
                   <OrganizationDataSyncProvider />
                   <GlobalRefetchOverlay />
@@ -62,6 +64,7 @@ export default function Providers({ children }: { children: ReactNode }) {
                       </DockProvider>
                     </AccountProvider>
                   </ViewModeProvider>
+                  </RealtimeSyncProvider>
                 </StoreProvider>
               </CurrencyProvider>
             </ThemeProvider>

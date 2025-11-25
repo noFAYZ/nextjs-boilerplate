@@ -8,6 +8,19 @@ import { bankingApi } from '@/lib/services/banking-api';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
+
+// Module-level map to track initialization timeouts (30s "no SSE response" timeouts)
+// Keyed by accountId, stores the timeout ID so it can be cleared when SSE messages arrive
+const initializationTimeouts = new Map<string, NodeJS.Timeout>();
+
+// Utility function to clear initialization timeout for an account
+export function clearInitializationTimeout(accountId: string) {
+  const timeoutId = initializationTimeouts.get(accountId);
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    initializationTimeouts.delete(accountId);
+  }
+}
 import type {
   BankAccount,
   BankTransaction,
@@ -641,6 +654,7 @@ export const bankingMutations = {
   // Sync mutations
   useSyncAccount: () => {
     const queryClient = useQueryClient();
+    const bankingStore = useBankingStore();
 
     return useMutation({
       mutationFn: ({ accountId, syncData }: { accountId: string; syncData?: BankSyncRequest }) =>
@@ -650,11 +664,37 @@ export const bankingMutations = {
           const { accountId } = variables;
           const { jobId } = response.data;
 
-          // SSE will handle sync status updates automatically
-          // Just invalidate queries to refresh UI data when sync completes
+          console.log(`[Banking Sync] Mutation succeeded for account ${accountId}, jobId: ${jobId}`);
+
+          // Initialize sync state for this account
+          bankingStore.updateRealtimeSyncProgress(
+            accountId,
+            0,
+            'processing',
+            'Starting sync...'
+          );
+
+          console.log(`[Banking Sync] State initialized for account ${accountId}`);
+
+          // SSE will handle subsequent sync status updates automatically
+          // Invalidate queries to refresh UI data when sync completes
           queryClient.invalidateQueries({
             queryKey: bankingKeys.syncStatus(accountId, jobId)
           });
+
+          // Timeout: if no SSE message within 30s, auto-fail the sync
+          const timeoutId = setTimeout(() => {
+            const currentState = useBankingStore.getState().realtimeSyncStates[accountId];
+            console.log(`[Banking Sync] 30s timeout check for ${accountId}, status: ${currentState?.status}`);
+            if (currentState && ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(currentState.status as any)) {
+              console.warn(`[Banking Sync] Timeout: No SSE messages for account ${accountId}, auto-failing`);
+              useBankingStore.getState().failRealtimeSync(accountId, 'Sync timeout - no response from server');
+            }
+          }, 30000); // 30 seconds
+
+          // Store timeout so it can be cleared when SSE messages arrive
+          initializationTimeouts.set(accountId, timeoutId);
+          console.log(`[Banking Sync] 30s timeout set for account ${accountId}`);
         }
       },
       onError: (error) => {
@@ -665,11 +705,40 @@ export const bankingMutations = {
 
   useSyncAllAccounts: () => {
     const queryClient = useQueryClient();
+    const bankingStore = useBankingStore();
 
     return useMutation({
       mutationFn: () => bankingApi.refreshAllAccounts(),
       onSuccess: (response) => {
-        if (response.success) {
+        if (response.success && response.data.syncJobs) {
+          console.log(`[Banking Sync] Sync all mutation succeeded, initializing ${response.data.syncJobs.length} syncs`);
+
+          // Initialize sync state for each account being synced
+          response.data.syncJobs.forEach(job => {
+            console.log(`[Banking Sync] Initializing sync for account ${job.accountId}, jobId: ${job.jobId}`);
+
+            bankingStore.updateRealtimeSyncProgress(
+              job.accountId,
+              0,
+              'processing',
+              'Starting sync...'
+            );
+
+            // Timeout: if no SSE message within 30s, auto-fail the sync
+            const timeoutId = setTimeout(() => {
+              const currentState = useBankingStore.getState().realtimeSyncStates[job.accountId];
+              console.log(`[Banking Sync] 30s timeout check for ${job.accountId}, status: ${currentState?.status}`);
+              if (currentState && ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(currentState.status as any)) {
+                console.warn(`[Banking Sync] Timeout: No SSE messages for account ${job.accountId}, auto-failing`);
+                useBankingStore.getState().failRealtimeSync(job.accountId, 'Sync timeout - no response from server');
+              }
+            }, 30000); // 30 seconds
+
+            // Store timeout so it can be cleared when SSE messages arrive
+            initializationTimeouts.set(job.accountId, timeoutId);
+            console.log(`[Banking Sync] 30s timeout set for account ${job.accountId}`);
+          });
+
           // Comprehensive cache invalidation for all account sync
           queryClient.invalidateQueries({ queryKey: bankingKeys.all });
         }

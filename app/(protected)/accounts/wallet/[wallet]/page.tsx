@@ -35,6 +35,7 @@ import {
   useOrganizationSyncCryptoWallet
 } from '@/lib/queries/use-organization-data-context';
 import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { CRYPTO_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status";
 
 // Import new components
 import { WalletTokens } from "@/components/crypto/wallet-tokens";
@@ -186,7 +187,6 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const [showSyncModal, setShowSyncModal] = useState(false);
   const { pageClass } = useViewModeClasses();
 
-
   const avataUrl = createAvatar(botttsNeutral, {
       size: 128,
       seed: walletIdentifier,
@@ -215,7 +215,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
-  const isSyncingSSE = walletSyncState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(walletSyncState.status);
+  const isSyncingSSE = walletSyncState && CRYPTO_SYNC_ACTIVE_STATUSES.includes(walletSyncState.status as any);
   const syncProgress = walletSyncState?.progress || 0;
   const syncMessage = walletSyncState?.message || '';
   const lastSyncAt = walletSyncState?.completedAt;

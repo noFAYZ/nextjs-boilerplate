@@ -47,6 +47,7 @@ import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { useBankingAccounts, useCryptoWallets } from "@/lib/queries"
 import { goalsApi } from "@/lib/services/goals-api"
 import { useGoalsStore } from "@/lib/stores/goals-store"
 import { useBankingStore } from "@/lib/stores/banking-store"
@@ -211,8 +212,8 @@ export function CreateGoalDialog({
   const [currentTag, setCurrentTag] = React.useState("")
   const [currentStep, setCurrentStep] = React.useState(0)
   const { addGoal, updateGoal, setIsCreatingGoal } = useGoalsStore()
-  const { accounts: bankAccounts } = useBankingStore()
-  const { wallets: cryptoWallets } = useCryptoStore()
+  const { data: bankAccounts = [] } = useBankingAccounts()
+  const { data: cryptoWallets = [] } = useCryptoWallets()
   const isEditing = !!goal
 
   const {currencySymbol} = useCurrency()

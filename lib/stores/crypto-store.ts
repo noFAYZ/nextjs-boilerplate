@@ -56,6 +56,8 @@ interface CryptoActions {
   completeRealtimeSync: (walletId: string, syncedData?: string[]) => void;
   failRealtimeSync: (walletId: string, error: string) => void;
   clearRealtimeSyncState: (walletId: string) => void;
+  clearAllRealtimeSyncStates: () => void;
+  cleanupStuckSyncs: () => void;
   setRealtimeSyncConnected: (connected: boolean) => void;
   setRealtimeSyncError: (error: string | null) => void;
 
@@ -159,6 +161,16 @@ export const useCryptoStore = create<CryptoStore>()(
               state.realtimeSyncStates[walletId].syncedData = syncedData;
             }
           }
+
+          // Auto-cleanup completed sync state after 5 seconds
+          // This prevents the UI from showing "completed" as still active
+          setTimeout(() => {
+            useCryptoStore.setState((s) => {
+              if (s.realtimeSyncStates[walletId]?.status === 'completed') {
+                delete s.realtimeSyncStates[walletId];
+              }
+            });
+          }, 5000);
         }, false, 'completeRealtimeSync'),
 
       failRealtimeSync: (walletId, error) =>
@@ -168,12 +180,48 @@ export const useCryptoStore = create<CryptoStore>()(
             state.realtimeSyncStates[walletId].error = error;
             state.realtimeSyncStates[walletId].completedAt = new Date();
           }
+
+          // Auto-cleanup failed sync state after 5 seconds
+          // This prevents the UI from showing "failed" as still active
+          setTimeout(() => {
+            useCryptoStore.setState((s) => {
+              if (s.realtimeSyncStates[walletId]?.status === 'failed') {
+                delete s.realtimeSyncStates[walletId];
+              }
+            });
+          }, 5000);
         }, false, 'failRealtimeSync'),
 
       clearRealtimeSyncState: (walletId) =>
         set((state) => {
           delete state.realtimeSyncStates[walletId];
         }, false, 'clearRealtimeSyncState'),
+
+      clearAllRealtimeSyncStates: () =>
+        set((state) => {
+          state.realtimeSyncStates = {};
+        }, false, 'clearAllRealtimeSyncStates'),
+
+      cleanupStuckSyncs: () =>
+        set((state) => {
+          const now = Date.now();
+          const twoMinutesMs = 2 * 60 * 1000;
+
+          Object.keys(state.realtimeSyncStates).forEach(walletId => {
+            const syncState = state.realtimeSyncStates[walletId];
+            if (syncState.startedAt) {
+              const elapsedMs = now - new Date(syncState.startedAt).getTime();
+              // Remove any sync stuck for more than 2 minutes in active status
+              if (
+                elapsedMs > twoMinutesMs &&
+                ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(syncState.status as any)
+              ) {
+                console.warn(`[Crypto Store] Removing stuck sync for ${walletId} (${Math.round(elapsedMs / 1000)}s old, status: ${syncState.status})`);
+                delete state.realtimeSyncStates[walletId];
+              }
+            }
+          });
+        }, false, 'cleanupStuckSyncs'),
 
       setRealtimeSyncConnected: (connected) =>
         set((state) => {

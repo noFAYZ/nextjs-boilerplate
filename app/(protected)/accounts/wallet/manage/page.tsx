@@ -43,7 +43,8 @@ import { useCryptoUIStore } from '@/lib/stores/ui-stores';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
-import {  SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
+import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
+import {  HeroiconsWallet16Solid, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarWalletBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
 import { AddWalletModal } from '@/components/crypto/AddWalletModal';
 import { SyncStatusIndicator } from '@/components/crypto/SyncStatusIndicator';
 import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
@@ -248,7 +249,6 @@ export default function WalletsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [syncingWalletId, setSyncingWalletId] = useState<string | null>(null);
 
-
   // ✅ NEW: Data from TanStack Query (organization-aware)
   const { data: wallets = [], isLoading, error } = useOrganizationCryptoWallets();
   const { mutate: deleteWallet, isPending: isDeleting } = useOrganizationDeleteCryptoWallet();
@@ -264,13 +264,13 @@ export default function WalletsPage() {
   // Check if any wallets are actively syncing via SSE
   const hasActiveSyncs = () => {
     return Object.values(realtimeSyncStates).some(state =>
-      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
+      CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status as any)
     );
   };
 
   const getActiveSyncs = () => {
     return Object.keys(realtimeSyncStates).filter(walletId =>
-      ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(realtimeSyncStates[walletId].status)
+      CRYPTO_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[walletId].status as any)
     );
   };
 
@@ -329,7 +329,12 @@ export default function WalletsPage() {
   };
 
   const handleSyncStatusClick = (walletId: string) => {
+    // Open the sync modal to show progress
     setSyncingWalletId(walletId);
+    // Trigger sync for this wallet if not already syncing
+    if (!realtimeSyncStates[walletId] || !['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(realtimeSyncStates[walletId].status)) {
+      syncWallet(walletId);
+    }
   };
 
   const handleManageMode = () => {
@@ -420,10 +425,10 @@ export default function WalletsPage() {
     return (
 
 
-<div className=" relative h-screen  bg-background/50 backdrop-blur-sm  z-10 flex items-center justify-center">
+<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
 <Card className="px-5 border-border shadow-none " >
   <div className="flex items-center space-x-3">
-    <LogoLoader className="w-8 h-8" />
+   
     <span className="text-sm font-medium">Loading your wallets....</span>
   </div>
 </Card>
@@ -436,13 +441,13 @@ export default function WalletsPage() {
 
 
 
-      <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-4">
+      <div className="max-w-3xl mx-auto  space-y-4">
         {/* Modern Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
-                <StreamlineFlexWallet className="h-5 w-5" />
+              <div className="h-12 w-12 bg-card rounded-full border flex items-center justify-center ">
+                <HeroiconsWallet16Solid className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight">Crypto Wallets</h1>
@@ -681,7 +686,7 @@ export default function WalletsPage() {
         onOpenChange={setIsAddModalOpen}
       />
 
-      {/* Sync Progress Modal 
+      {/* Sync Progress Modal */}
       {syncingWalletId && (
         <WalletSyncModal
           isOpen={true}
@@ -690,7 +695,7 @@ export default function WalletsPage() {
           walletName={wallets.find(w => w.id === syncingWalletId)?.name}
           onSyncComplete={handleSyncComplete}
         />
-      )}*/}
+      )}
 
    
     </> 

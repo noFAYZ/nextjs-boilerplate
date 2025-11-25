@@ -299,18 +299,18 @@ export function LandingHero() {
         ))}
       </div> */}
 
-<section className="relative mx-auto container">
-      {/*   <h2 className="mb-5 text-center font-semibold text-foreground text-xl tracking-tight md:text-3xl">
+ {/*<section className="relative mx-auto container">
+       <h2 className="mb-5 text-center font-semibold text-foreground text-xl tracking-tight md:text-3xl">
           <span className="text-muted-foreground">Trusted by experts.</span>
           <br />
        
         </h2>
-        <div className="mx-auto my-5 h-px max-w-lg bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> */}
+        <div className="mx-auto my-5 h-px max-w-lg bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" />
 
         <LogoCloud logos={logos} />
 
-        {/* <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> */}
-      </section>
+       <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> 
+      </section> */} 
     </section>
   );
 }

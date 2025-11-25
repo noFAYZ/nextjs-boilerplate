@@ -12,6 +12,8 @@ import {
   TrendingUp,
   Bell,
   LucideArrowRight,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PhUsersDuotone, SolarPieChart2BoldDuotone, SolarWalletBoldDuotone } from "@/components/icons/icons";
@@ -128,13 +130,13 @@ const DEMO_SUBSCRIPTIONS = [
   },
   {
     id: "demo-sub-2",
-    name: "Spotify",
+    name: "Claude",
     amount: 9.99,
     billingCycle: "MONTHLY" as const,
     nextBillingDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
     status: "ACTIVE" as const,
-    category: "Music",
-    websiteUrl: "spotify.com",
+    category: "AI",
+    websiteUrl: "claude.ai",
   },
   {
     id: "demo-sub-3",
@@ -145,6 +147,74 @@ const DEMO_SUBSCRIPTIONS = [
     status: "ACTIVE" as const,
     category: "Software",
     websiteUrl: "adobe.com",
+  },
+  {
+    id: "demo-sub-3",
+    name: "Dropbox Pro",
+    amount: 54.99,
+    billingCycle: "MONTHLY" as const,
+    nextBillingDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "ACTIVE" as const,
+    category: "Software",
+    websiteUrl: "dropbox.com",
+  },
+];
+
+// Demo data for visualization widgets
+const DEMO_NET_WORTH_ALLOCATION = [
+  { category: "CASH", amount: 32680, percent: 38, color: "bg-green-600/70" },
+  { category: "INVESTMENTS", amount: 27060, percent: 31, color: "bg-lime-600/60" },
+  { category: "CRYPTO", amount: 15400, percent: 18, color: "bg-orange-50" },
+  { category: "ASSETS", amount: 10920, percent: 13, color: "bg-l-200/85" },
+];
+
+const DEMO_NET_WORTH_ACCOUNTS = {
+  CASH: [
+    { id: "acc-1", name: "Checking Account", balance: 18000 },
+    { id: "acc-2", name: "Savings Account", balance: 14680 },
+  ],
+  INVESTMENTS: [
+    { id: "inv-1", name: "S&P 500 ETF", balance: 18000 },
+    { id: "inv-2", name: "Bond Portfolio", balance: 9060 },
+  ],
+  CRYPTO: [
+    { id: "crypto-1", name: "Bitcoin Holdings", balance: 9600 },
+    { id: "crypto-2", name: "Ethereum & Others", balance: 5800 },
+  ],
+  ASSETS: [
+    { id: "asset-1", name: "Home Equity", balance: 10920 },
+  ],
+};
+
+const DEMO_SPENDING_CATEGORIES = [
+  { name: "Groceries", value: 1200, percentage: 35 },
+  { name: "Entertainment", value: 600, percentage: 17 },
+  { name: "Transport", value: 450, percentage: 13 },
+  { name: "Utilities", value: 350, percentage: 10 },
+  { name: "Dining", value: 800, percentage: 25 },
+];
+
+const DEMO_UPCOMING_BILLS = [
+  {
+    id: "bill-1",
+    name: "Netflix",
+    amount: 15.99,
+    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    category: "Entertainment",
+  },
+  {
+    id: "bill-2",
+    name: "Spotify",
+    amount: 9.99,
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    category: "Music",
+  },
+  {
+    id: "bill-3",
+    name: "Electric Bill",
+    amount: 125.50,
+    dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    category: "Utilities",
   },
 ];
 
@@ -276,16 +346,150 @@ function FeatureButton({
 }
 
 function WalletsStackVisual() {
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const totalNetWorth = DEMO_NET_WORTH_ALLOCATION.reduce((sum, item) => sum + item.amount, 0);
+
+  const categoryConfig: Record<string, { icon: string; label: string; dot: string }> = {
+    CASH: { icon: "$", label: "Cash", dot: "bg-orange-600" },
+    INVESTMENTS: { icon: "📈", label: "Investments", dot: "bg-orange-400" },
+    CRYPTO: { icon: "₿", label: "Crypto", dot: "bg-orange-300" },
+    ASSETS: { icon: "🏠", label: "Assets", dot: "bg-orange-200" },
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4">
+          <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 1 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-full"
+          transition={{ duration: 0.1, ease: "easeIn" }}
+          className="px-4 pb-4"
         >
-          <NetWorthWidget />
+          <div className="space-y-6">
+            {/* Net Worth Header */}
+            <div className="relative rounded-2xl p-4 bg-gradient-to-br from-accent/50 via-accent/60 to-accent/50 dark:from-accent/80 dark:via-accent/50 dark:to-accent/80 border-dashed border-2 border-accent/80">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-medium text-black/50 dark:text-white/50 tracking-wider uppercase">
+                      Total Net Worth
+                    </p>
+                    <h2 className="mt-2 text-3xl font-semibold text-black dark:text-white">
+                      ${totalNetWorth.toLocaleString()}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 11l5-5 5 5" />
+                    </svg>
+                    <span className="text-sm font-medium">+12.4%</span>
+                  </div>
+                </div>
+
+                {/* Allocation Bar */}
+                <div className="relative w-full h-8 rounded-lg overflow-hidden bg-black/5 dark:bg-white/5">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/10 to-black/10 mix-blend-overlay" />
+                  {DEMO_NET_WORTH_ALLOCATION.map((item) => (
+                    <div
+                      key={item.category}
+                      style={{ width: `${item.percent}%` }}
+                      className={cn("h-full relative inline-block transition-all duration-300", item.color)}
+                    />
+                  ))}
+                </div>
+
+                {/* Legend */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  {DEMO_NET_WORTH_ALLOCATION.map((item) => {
+                    const cfg = categoryConfig[item.category];
+                    return (
+                      <div key={item.category} className="flex items-center gap-2">
+                        <div className={cn("w-3 h-3 rounded-full shadow-sm", cfg.dot)} />
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
+                            {cfg.label}
+                          </span>
+                          <span className="text-[12px] font-semibold text-black dark:text-white">
+                            {item.percent}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Category List */}
+            <div className="space-y-1.5">
+              {DEMO_NET_WORTH_ALLOCATION.map((item) => {
+                const cfg = categoryConfig[item.category];
+                const accounts = DEMO_NET_WORTH_ACCOUNTS[item.category as keyof typeof DEMO_NET_WORTH_ACCOUNTS] || [];
+                const isExpanded = expandedGroup === item.category;
+
+                return (
+                  <div key={item.category}>
+                    {/* Category Header */}
+                    <button
+                      onClick={() => setExpandedGroup(isExpanded ? null : item.category)}
+                      className="group relative border border-border/70 w-full flex items-center gap-2.5 p-2 rounded-lg transition-colors duration-200 cursor-pointer bg-muted/50 hover:bg-muted/50"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0 text-sm">
+                        {cfg.icon}
+                      </div>
+
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="font-semibold text-sm text-foreground">{cfg.label}</div>
+                        <div className="text-[10px] font-medium text-muted-foreground">
+                          {accounts.length} {accounts.length === 1 ? "account" : "accounts"}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          <div className="font-semibold text-sm text-foreground">${item.amount.toLocaleString()}</div>
+                        </div>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Expanded Accounts */}
+                    {isExpanded && (
+                      <div className="space-y-1 mt-1 ml-2 transition-all duration-200">
+                        {accounts.map((account) => (
+                          <div
+                            key={account.id}
+                            className="group relative border border-border/60 flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200"
+                          >
+                            <div className="h-6 w-6 rounded bg-muted flex items-center justify-center flex-shrink-0 text-xs">
+                              📊
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-foreground truncate">{account.name}</p>
+                            </div>
+                            <div className="flex-shrink-0">
+                              <p className="text-xs font-semibold text-foreground">
+                                ${account.balance.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </motion.div>
       </Card>
     </div>
@@ -294,33 +498,66 @@ function WalletsStackVisual() {
 
 function BudgetsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+    <div className="w-full max-w-md mx-auto space-y-3">
+      
         {DEMO_BUDGETS.map((budget, idx) => (
           <motion.div
             key={budget.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.15 }}
+            transition={{ duration: 0.2, delay: idx * 0.08, ease: "easeOut" }}
           >
             <BudgetCard budget={budget as any} />
           </motion.div>
         ))}
-      </Card>
+     
     </div>
   );
 }
 
 function InsightsVisual() {
+  const totalSpending = DEMO_SPENDING_CATEGORIES.reduce((sum, cat) => sum + cat.value, 0);
+
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="relative border border-border/50 shadow-xs p-4 overflow-hidden">
+      <Card className="relative border border-border/50 shadow-xs p-6 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="space-y-4"
         >
-          <SpendingCategoriesWidget />
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">Monthly Spending</h3>
+            <div className="text-3xl font-bold text-foreground">${totalSpending.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
+          </div>
+
+          <div className="space-y-3 pt-4">
+            {DEMO_SPENDING_CATEGORIES.map((category, idx) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.06, ease: "easeOut" }}
+                className="space-y-1"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground">{category.name}</span>
+                  <span className="text-muted-foreground">${category.value}</span>
+                </div>
+                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${category.percentage}%` }}
+                    transition={{ duration: 0.6, delay: idx * 0.06 + 0.2, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full"
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground">{category.percentage}%</div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </Card>
     </div>
@@ -329,52 +566,90 @@ function InsightsVisual() {
 
 function SubscriptionsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+    <div className="w-full max-w-md mx-auto space-y-3">
+      
         {DEMO_SUBSCRIPTIONS.map((subscription, idx) => (
           <motion.div
             key={subscription.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.15 }}
+            transition={{ duration: 0.2, delay: idx * 0.1, ease: "easeOut" }}
           >
             <SubscriptionCard subscription={subscription as any} />
           </motion.div>
         ))}
-      </Card>
+      
     </div>
   );
 }
 
 function GoalsVisual() {
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="relative border border-border/50 shadow-xs p-4 space-y-3 overflow-hidden">
+    <div className="w-full max-w-md mx-auto space-y-3">
+   
         {DEMO_GOALS.map((goal, idx) => (
           <motion.div
             key={goal.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.15 }}
+            transition={{ duration: 0.2, delay: idx * 0.1, ease: "easeOut" }}
           >
-            <GoalCard goal={goal as any} />
+            <GoalCard goal={goal as any} className="opacity-100"/>
           </motion.div>
         ))}
-      </Card>
+      
     </div>
   );
 }
 
 function AlertsVisual() {
+  const totalUpcoming = DEMO_UPCOMING_BILLS.reduce((sum, bill) => sum + bill.amount, 0);
+
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="relative border border-border/50 shadow-xs p-4 overflow-hidden">
+      <Card className="relative border border-border/50 shadow-xs p-6 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="space-y-4"
         >
-          <UpcomingBillsWidget />
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">Upcoming Bills</h3>
+            <div className="text-3xl font-bold text-foreground">${totalUpcoming.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Next 30 days</p>
+          </div>
+
+          <div className="space-y-2 pt-4">
+            {DEMO_UPCOMING_BILLS.map((bill, idx) => {
+              const daysUntilDue = Math.ceil(
+                (new Date(bill.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+              );
+
+              return (
+                <motion.div
+                  key={bill.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.08, ease: "easeOut" }}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-sm text-foreground">{bill.name}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                        {daysUntilDue}d
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{bill.category}</p>
+                  </div>
+                  <div className="text-right ml-2">
+                    <div className="font-semibold text-sm text-foreground">${bill.amount.toFixed(2)}</div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </motion.div>
       </Card>
     </div>
@@ -440,10 +715,10 @@ export default function MoneyMapprFeatureSection() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeFeature.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.1 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.15, ease: "easeInOut" }}
                 className="w-full"
               >
                 <CenterVisual type={activeFeature.visual} />

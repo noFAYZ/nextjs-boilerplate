@@ -6,13 +6,14 @@ import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useBankingStore } from "@/lib/stores/banking-store"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { cn } from "@/lib/utils"
+import { CRYPTO_SYNC_ACTIVE_STATUSES, BANKING_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status"
 import { SolarRefreshSquareLinear, SolarCheckCircleBoldDuotone, SolarRefreshCircleBoldDuotone } from "../icons/icons"
 import { SyncPanel } from "./sync-panel"
 import { SyncItemRow } from "./sync-item-row"
 
 const SYNC_CONSTANTS = {
-  AUTO_COLLAPSE_DELAY: 5000,
-  MAX_RETRIES: 3,
+  AUTO_COLLAPSE_DELAY: 4000,
+  SYNC_ITEM_CACHE_SIZE: 100,
 }
 
 interface ExtendedSyncState {
@@ -26,215 +27,218 @@ interface ExtendedSyncState {
   accountNumber?: string
 }
 
-// Get status config
-function getStatusConfig(status: string, isConnected: boolean) {
-  if (!isConnected) {
-    return {
-      icon: <WifiOff className="w-5 h-5" />,
-      dockStatus: 'idle' as const,
-      textColor: 'text-gray-600 dark:text-gray-400',
-      bgColor: 'bg-gray-50 dark:bg-gray-900/50',
-      borderColor: 'border-gray-200 dark:border-gray-800',
-      label: 'Offline'
-    }
-  }
+interface StatusConfig {
+  icon: React.ReactNode
+  textColor: string
+  bgColor: string
+  borderColor: string
+  label: string
+}
 
-  switch (status) {
-    case 'queued':
-    case 'processing':
-      return {
-        icon: <Clock className="w-5 h-5" />,
-        dockStatus: 'warning' as const,
-        textColor: 'text-amber-600 dark:text-amber-500',
-        bgColor: 'bg-amber-50 dark:bg-amber-950/40',
-        borderColor: 'border-amber-200 dark:border-amber-900/40',
-        label: 'Queued'
-      }
-    case 'syncing':
-    case 'syncing_assets':
-    case 'syncing_transactions':
-    case 'syncing_nfts':
-    case 'syncing_defi':
-    case 'syncing_balance':
-      return {
-        icon: <RefreshCw className="w-6 h-6 animate-spin" />,
-        dockStatus: 'loading' as const,
-        textColor: 'text-blue-600 dark:text-blue-500',
-        bgColor: 'bg-blue-50 dark:bg-blue-950/40',
-        borderColor: 'border-blue-200 dark:border-blue-900/40',
-        label: 'Syncing'
-      }
-    case 'completed':
-      return {
-        icon: <SolarCheckCircleBoldDuotone className="w-6 h-6" />,
-        dockStatus: 'success' as const,
-        textColor: 'text-green-600 dark:text-green-500',
-        bgColor: 'bg-green-50 dark:bg-green-950/40',
-        borderColor: 'border-green-200 dark:border-green-900/40',
-        label: 'Completed'
-      }
-    case 'failed':
-      return {
-        icon: <AlertCircle className="w-6 h-6" />,
-        dockStatus: 'error' as const,
-        textColor: 'text-red-600 dark:text-red-500',
-        bgColor: 'bg-red-50 dark:bg-red-950/40',
-        borderColor: 'border-red-200 dark:border-red-900/40',
-        label: 'Failed'
-      }
-    default:
-      return {
-        icon: <SolarRefreshCircleBoldDuotone className="w-8 h-8" />,
-        dockStatus: 'idle' as const,
-        textColor: 'text-slate-600 dark:text-slate-400',
-        bgColor: 'bg-slate-50 dark:bg-slate-900/50',
-        borderColor: 'border-slate-200 dark:border-slate-800',
-        label: 'Unknown'
-      }
+// Memoized status config map to prevent recreations
+const STATUS_CONFIG_MAP: Record<string, StatusConfig> = {
+  offline: {
+    icon: <WifiOff className="w-5 h-5" />,
+    textColor: 'text-gray-600 dark:text-gray-400',
+    bgColor: 'bg-gray-50 dark:bg-gray-900/50',
+    borderColor: 'border-gray-200 dark:border-gray-800',
+    label: 'Offline'
+  },
+  queued: {
+    icon: <Clock className="w-5 h-5" />,
+    textColor: 'text-amber-600 dark:text-amber-500',
+    bgColor: 'bg-amber-50 dark:bg-amber-950/40',
+    borderColor: 'border-amber-200 dark:border-amber-900/40',
+    label: 'Queued'
+  },
+  processing: {
+    icon: <Clock className="w-5 h-5" />,
+    textColor: 'text-amber-600 dark:text-amber-500',
+    bgColor: 'bg-amber-50 dark:bg-amber-950/40',
+    borderColor: 'border-amber-200 dark:border-amber-900/40',
+    label: 'Processing'
+  },
+  syncing: {
+    icon: <RefreshCw className="w-6 h-6 animate-spin" />,
+    textColor: 'text-blue-600 dark:text-blue-500',
+    bgColor: 'bg-blue-50 dark:bg-blue-950/40',
+    borderColor: 'border-blue-200 dark:border-blue-900/40',
+    label: 'Syncing'
+  },
+  completed: {
+    icon: <SolarCheckCircleBoldDuotone className="w-6 h-6" />,
+    textColor: 'text-green-600 dark:text-green-500',
+    bgColor: 'bg-green-50 dark:bg-green-950/40',
+    borderColor: 'border-green-200 dark:border-green-900/40',
+    label: 'Completed'
+  },
+  failed: {
+    icon: <AlertCircle className="w-6 h-6" />,
+    textColor: 'text-red-600 dark:text-red-500',
+    bgColor: 'bg-red-50 dark:bg-red-950/40',
+    borderColor: 'border-red-200 dark:border-red-900/40',
+    label: 'Failed'
+  },
+  idle: {
+    icon: <SolarRefreshCircleBoldDuotone className="w-8 h-8" />,
+    textColor: 'text-slate-600 dark:text-slate-400',
+    bgColor: 'bg-slate-50 dark:bg-slate-900/50',
+    borderColor: 'border-slate-200 dark:border-slate-800',
+    label: 'Unknown'
   }
 }
 
-function getReadableStatus(status: string): string {
-  const map: Record<string, string> = {
-    'queued': 'Queued',
-    'processing': 'Processing',
-    'syncing': 'Syncing',
-    'syncing_assets': 'Syncing Assets',
-    'syncing_transactions': 'Syncing Transactions',
-    'syncing_nfts': 'Syncing NFTs',
-    'syncing_defi': 'Syncing DeFi',
-    'syncing_balance': 'Syncing Balance',
-    'completed': 'Completed',
-    'failed': 'Failed'
-  }
-  return map[status] || 'Unknown'
+// Get status config efficiently
+function getStatusConfig(status: string, isConnected: boolean): StatusConfig {
+  if (!isConnected) return STATUS_CONFIG_MAP.offline
+
+  // Check for syncing states first (most common during active syncs)
+  if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(status as any)) return STATUS_CONFIG_MAP.syncing
+  if (BANKING_SYNC_ACTIVE_STATUSES.includes(status as any)) return STATUS_CONFIG_MAP.syncing
+
+  return STATUS_CONFIG_MAP[status] || STATUS_CONFIG_MAP.idle
 }
 
 
 export function SyncIndicator() {
   const [isExpanded, setIsExpanded] = React.useState(false)
-  const [autoCollapseTimer, setAutoCollapseTimer] = React.useState<NodeJS.Timeout | null>(null)
-  const [syncItems, setSyncItems] = React.useState<React.ReactNode[]>([])
-  const { user } = useAuth()
+  const autoCollapseTimerRef = React.useRef<NodeJS.Timeout | null>(null)
   const prevSyncingCountRef = React.useRef(0)
 
+  const { user } = useAuth()
   const { realtimeSyncStates: cryptoSyncStates, realtimeSyncConnected: cryptoConnected } = useCryptoStore()
-  const { realtimeSyncStates: bankingSyncStates, realtimeSyncConnected: bankingConnected } = useBankingStore()
+  const { realtimeSyncStates: bankingSyncStates, realtimeSyncConnected: bankingConnected,clearAllRealtimeSyncStates } = useBankingStore()
 
   if (!user) {
     return null
   }
 
+  // Compute sync stats with optimized filtering
   const syncStats = React.useMemo(() => {
-    const cryptoSyncing = Object.values(cryptoSyncStates).filter(
-      state => ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(state.status)
-    )
-    const cryptoCompleted = Object.values(cryptoSyncStates).filter(s => s.status === 'completed')
-    const cryptoFailed = Object.values(cryptoSyncStates).filter(s => s.status === 'failed')
+    let cryptoSyncingCount = 0
+    let cryptoFailedCount = 0
+    let bankingSyncingCount = 0
+    let bankingFailedCount = 0
+    let totalProgress = 0
+    let syncingItemsCount = 0
 
-    const bankingSyncing = Object.values(bankingSyncStates).filter(
-      state => ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(state.status)
-    )
-    const bankingCompleted = Object.values(bankingSyncStates).filter(s => s.status === 'completed')
-    const bankingFailed = Object.values(bankingSyncStates).filter(s => s.status === 'failed')
+    // Process crypto states
+    Object.values(cryptoSyncStates).forEach(state => {
+      if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status as any)) {
+        cryptoSyncingCount++
+        totalProgress += state.progress || 0
+        syncingItemsCount++
+      } else if (state.status === 'failed') {
+        cryptoFailedCount++
+      }
+    })
 
-    const totalSyncing = cryptoSyncing.length + bankingSyncing.length
-    const totalCompleted = cryptoCompleted.length + bankingCompleted.length
-    const totalFailed = cryptoFailed.length + bankingFailed.length
+    // Process banking states
+    Object.values(bankingSyncStates).forEach(state => {
+      if (BANKING_SYNC_ACTIVE_STATUSES.includes(state.status as any)) {
+        bankingSyncingCount++
+        totalProgress += state.progress || 0
+        syncingItemsCount++
+      } else if (state.status === 'failed') {
+        bankingFailedCount++
+      }
+    })
+
+    const totalSyncing = cryptoSyncingCount + bankingSyncingCount
+    const totalFailed = cryptoFailedCount + bankingFailedCount
     const isConnected = cryptoConnected || bankingConnected
-
-    const allSyncingStates = [...cryptoSyncing, ...bankingSyncing]
-    const averageProgress = totalSyncing > 0 && allSyncingStates.length > 0
-      ? Math.round(allSyncingStates.reduce((sum, s) => sum + (s.progress || 0), 0) / allSyncingStates.length)
-      : 0
+    const averageProgress = syncingItemsCount > 0 ? Math.round(totalProgress / syncingItemsCount) : 0
 
     return {
-      cryptoSyncing,
-      cryptoCompleted,
-      cryptoFailed,
-      bankingSyncing,
-      bankingCompleted,
-      bankingFailed,
       totalSyncing,
-      totalCompleted,
       totalFailed,
       isConnected,
       averageProgress,
-      totalItems: Object.keys(cryptoSyncStates).length + Object.keys(bankingSyncStates).length
+      cryptoSyncingCount,
+      bankingSyncingCount
     }
   }, [cryptoSyncStates, bankingSyncStates, cryptoConnected, bankingConnected])
 
-  React.useEffect(() => {
+
+  // Generate sync items efficiently
+  const syncItems = React.useMemo(() => {
     const items: React.ReactNode[] = []
-    
-    Object.entries(cryptoSyncStates).forEach(([id, state]: [string, unknown], index) => {
+
+    Object.entries(cryptoSyncStates).forEach(([id, state]) => {
       items.push(
         <SyncItemRow
-          key={`crypto-${id}-${index}`}
+          key={`crypto-${id}`}
           id={id}
           state={state as ExtendedSyncState}
           type="crypto"
-
-          onRetry={() => console.log(`Retrying sync for crypto ${id}`)}
-          isExpanded={true}
+          isExpanded={false}
         />
       )
     })
 
-    Object.entries(bankingSyncStates).forEach(([id, state]: [string, unknown], index) => {
+    Object.entries(bankingSyncStates).forEach(([id, state]) => {
       items.push(
         <SyncItemRow
-          key={`banking-${id}-${index}`}
+          key={`banking-${id}`}
           id={id}
           state={state as ExtendedSyncState}
           type="banking"
-          onRetry={() => console.log(`Retrying sync for banking ${id}`)}
-          isExpanded={true}
+          isExpanded={false}
         />
       )
     })
 
-    setSyncItems(items)
-  }, [cryptoSyncStates, bankingSyncStates, isExpanded])
+    return items
+  }, [cryptoSyncStates, bankingSyncStates])
 
+  // Auto-expand on new syncs
   React.useEffect(() => {
     if (syncStats.totalSyncing > 0 && prevSyncingCountRef.current === 0) {
       setIsExpanded(true)
     }
+   
     prevSyncingCountRef.current = syncStats.totalSyncing
   }, [syncStats.totalSyncing])
 
+  // Auto-collapse when syncing completes
   React.useEffect(() => {
     if (syncStats.totalSyncing === 0 && prevSyncingCountRef.current > 0 && isExpanded) {
-      const timer = setTimeout(() => {
+      if (autoCollapseTimerRef.current) {
+        clearTimeout(autoCollapseTimerRef.current)
+      }
+
+      autoCollapseTimerRef.current = setTimeout(() => {
         setIsExpanded(false)
       }, SYNC_CONSTANTS.AUTO_COLLAPSE_DELAY)
+    }
 
-      setAutoCollapseTimer(timer)
-      return () => clearTimeout(timer)
+    return () => {
+      if (autoCollapseTimerRef.current) {
+        clearTimeout(autoCollapseTimerRef.current)
+      }
     }
   }, [syncStats.totalSyncing, isExpanded])
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded)
-    if (autoCollapseTimer) {
-      clearTimeout(autoCollapseTimer)
-      setAutoCollapseTimer(null)
+  const toggleExpanded = React.useCallback(() => {
+    setIsExpanded(prev => !prev)
+    if (autoCollapseTimerRef.current) {
+      clearTimeout(autoCollapseTimerRef.current)
+      autoCollapseTimerRef.current = null
     }
-  }
+  }, [])
 
   const overallStatus = React.useMemo(() => {
     if (!syncStats.isConnected) return 'offline'
     if (syncStats.totalSyncing > 0) return 'syncing'
     if (syncStats.totalFailed > 0) return 'failed'
-    if (syncStats.totalCompleted > 0) return 'completed'
     return 'idle'
-  }, [syncStats])
+  }, [syncStats.isConnected, syncStats.totalSyncing, syncStats.totalFailed])
 
   const statusConfig = getStatusConfig(overallStatus === 'offline' ? 'offline' : overallStatus, syncStats.isConnected)
   const badge = syncStats.totalSyncing > 0 ? syncStats.totalSyncing : (syncStats.totalFailed > 0 ? syncStats.totalFailed : undefined)
 
-  const panelTitle = (
+  // Memoized panel title to prevent unnecessary re-renders
+  const panelTitle = React.useMemo(() => (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -242,14 +246,14 @@ export function SyncIndicator() {
           <span className="font-semibold text-sm">Sync Status</span>
         </div>
         <div className={cn(
-          "flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-lg",
+          "flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors",
           syncStats.isConnected
             ? "text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/40"
             : "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/40"
         )}>
           {syncStats.isConnected ? (
             <>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-green-500" />
+              <div className="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-green-500 animate-pulse" />
               Connected
             </>
           ) : (
@@ -261,23 +265,27 @@ export function SyncIndicator() {
         </div>
       </div>
 
-      {/* Overall Progress */}
+      {/* Summary Stats */}
       {syncStats.totalSyncing > 0 && (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-muted-foreground font-medium">Overall Progress</span>
-            <span className="text-xs font-semibold text-foreground">{syncStats.averageProgress}%</span>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground font-medium">
+              {syncStats.cryptoSyncingCount > 0 && `${syncStats.cryptoSyncingCount} wallet${syncStats.cryptoSyncingCount !== 1 ? 's' : ''}`}
+              {syncStats.cryptoSyncingCount > 0 && syncStats.bankingSyncingCount > 0 && ' • '}
+              {syncStats.bankingSyncingCount > 0 && `${syncStats.bankingSyncingCount} account${syncStats.bankingSyncingCount !== 1 ? 's' : ''}`}
+            </span>
+            <span className="font-semibold text-[11px] text-foreground">{syncStats.averageProgress}%</span>
           </div>
-          <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden border border-border/30">
+          <div className="w-full h-2 bg-accent rounded-xs overflow-hidden  ">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-orange-300 to-orange-600 dark:from-orange-300 dark:to-orange-700  transition-all duration-200 rounded-xs"
               style={{ width: `${syncStats.averageProgress}%` }}
             />
           </div>
         </div>
       )}
     </div>
-  )
+  ), [syncStats.isConnected, syncStats.totalSyncing, syncStats.averageProgress, syncStats.cryptoSyncingCount, syncStats.bankingSyncingCount])
 
   return (
     <SyncPanel

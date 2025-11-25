@@ -75,6 +75,8 @@ interface BankingActions {
   completeRealtimeSync: (accountId: string, syncedData?: string[]) => void;
   failRealtimeSync: (accountId: string, error: string) => void;
   clearRealtimeSyncState: (accountId: string) => void;
+  clearAllRealtimeSyncStates: () => void;
+  cleanupStuckSyncs: () => void;
   setRealtimeSyncConnected: (connected: boolean) => void;
   setRealtimeSyncError: (error: string | null) => void;
 
@@ -177,7 +179,7 @@ export const useBankingStore = create<BankingStore>()(
 
         // Real-time sync actions (UI progress tracking)
         setRealtimeSyncState: (accountId, syncState) =>
-          set((state) => {
+          set((state) => {  
             state.realtimeSyncStates[accountId] = syncState;
           }, false, 'setRealtimeSyncState'),
 
@@ -209,6 +211,16 @@ export const useBankingStore = create<BankingStore>()(
                 state.realtimeSyncStates[accountId].syncedData = syncedData;
               }
             }
+
+            // Auto-cleanup completed sync state after 5 seconds
+            // This prevents the UI from showing "completed" as still active
+            setTimeout(() => {
+              useBankingStore.setState((s) => {
+                if (s.realtimeSyncStates[accountId]?.status === 'completed') {
+                  delete s.realtimeSyncStates[accountId];
+                }
+              });
+            }, 5000);
           }, false, 'completeRealtimeSync'),
 
         failRealtimeSync: (accountId, error) =>
@@ -218,6 +230,15 @@ export const useBankingStore = create<BankingStore>()(
               state.realtimeSyncStates[accountId].error = error;
               state.realtimeSyncStates[accountId].completedAt = new Date();
             }
+
+            // Auto-cleanup failed sync state after 5 seconds
+            setTimeout(() => {
+              useBankingStore.setState((s) => {
+                if (s.realtimeSyncStates[accountId]?.status === 'failed') {
+                  delete s.realtimeSyncStates[accountId];
+                }
+              });
+            }, 5000);
           }, false, 'failRealtimeSync'),
 
         clearRealtimeSyncState: (accountId) =>
@@ -225,8 +246,35 @@ export const useBankingStore = create<BankingStore>()(
             delete state.realtimeSyncStates[accountId];
           }, false, 'clearRealtimeSyncState'),
 
+        clearAllRealtimeSyncStates: () =>
+          set((state) => {
+            state.realtimeSyncStates = {};
+          }, false, 'clearAllRealtimeSyncStates'),
+
+        cleanupStuckSyncs: () =>
+          set((state) => {
+            const now = Date.now();
+            const twoMinutesMs = 2 * 60 * 1000;
+
+            Object.keys(state.realtimeSyncStates).forEach(accountId => {
+              const syncState = state.realtimeSyncStates[accountId];
+              if (syncState.startedAt) {
+                const elapsedMs = now - new Date(syncState.startedAt).getTime();
+                // Remove any sync stuck for more than 2 minutes in active status
+                if (
+                  elapsedMs > twoMinutesMs &&
+                  ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(syncState.status as any)
+                ) {
+                  console.warn(`[Banking Store] Removing stuck sync for ${accountId} (${Math.round(elapsedMs / 1000)}s old, status: ${syncState.status})`);
+                  delete state.realtimeSyncStates[accountId];
+                }
+              }
+            });
+          }, false, 'cleanupStuckSyncs'),
+
         setRealtimeSyncConnected: (connected) =>
           set((state) => {
+
             state.realtimeSyncConnected = connected;
             if (connected) {
               state.realtimeSyncError = null;

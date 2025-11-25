@@ -30,7 +30,7 @@ const cardVariants = cva(
         xl: "p-6 gap-3",
       },
       interactive: {
-        true: "cursor-pointer hover:scale-[1.01] active:scale-[1]  outline-none",
+        true: "cursor-pointer hover:translate-y-[-2px] transition-all duration-75 outline-none",
         false: "",
       },
       loading: {

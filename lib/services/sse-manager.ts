@@ -151,10 +151,9 @@ class SSEManager {
         }
       }
 
-      // Auto-disconnect when last subscriber is removed
-      if (this.getTotalSubscriberCount() === 0) {
-        this.disconnect();
-      }
+      // NOTE: Connection is NOT auto-disconnected when subscribers drop to 0
+      // This keeps the SSE connection alive for the entire user session
+      // Explicit disconnect() must be called to close the connection (on logout)
     };
   }
 

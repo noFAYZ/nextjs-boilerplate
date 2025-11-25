@@ -97,17 +97,17 @@ export function SyncPanel({
         {isExpanded && (
           <motion.div
             className={cn(
-              'absolute w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-background backdrop-blur-2xl shadow-2xl overflow-hidden',
+              'absolute w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card backdrop-blur-2xl shadow-2xl overflow-hidden',
               posClass.panel
             )}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            transition={{ duration: 0.1, ease: 'easeOut' }}
           >
             {/* Panel Header */}
             {panelTitle && (
-              <div className="px-4 py-3 border-b border-border bg-muted/70 backdrop-blur-sm">
+              <div className="px-4 py-3 border-b border-border bg-muted backdrop-blur-sm">
                 {typeof panelTitle === 'string' ? (
                   <h3 className="font-semibold text-sm flex items-center gap-2">
                     <SolarRefreshSquareLinear className="w-4.5 h-4.5" stroke="2" />
@@ -133,7 +133,7 @@ export function SyncPanel({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
                         delay: index * 0.05,
-                        duration: 0.15,
+                        duration: 0.1,
                       }}
                     >
                       {item}
@@ -154,47 +154,37 @@ export function SyncPanel({
       </AnimatePresence>
 
       {/* Trigger Button */}
-      <motion.button
+      <button
         className={cn(
           'relative flex items-center justify-center rounded-full',
-          'bg-card backdrop-blur-xl border border-border shadow-xl',
-          'hover:bg-accent hover:border-border transition-all duration-100',
-          'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer',
+          'bg-card backdrop-blur-xl border border-border shadow-lg',
+          'hover:bg-muted hover:border-border transition-all duration-100',
+          'cursor-pointer',
           'w-12 h-12 flex-shrink-0',
           isExpanded && 'bg-muted border-border'
         )}
         onClick={onToggle}
         aria-label={trigger.label}
         aria-expanded={isExpanded}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+     
+       
       >
         <div className="relative flex items-center justify-center">
           {trigger.icon}
 
+        </div>
+        
+      </button>
           {/* Badge */}
           {trigger.badge !== undefined && (
-            <motion.div
-              className="absolute -top-1 -right-1 min-w-6 h-6 rounded-full bg-red-500 dark:bg-red-600 text-white text-xs font-bold flex items-center justify-center shadow-lg border border-background"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            <div
+              className="absolute -top-2 -right-1 min-w-6 h-6 rounded-full bg-red-500 dark:bg-red-600 text-white text-xs font-bold flex items-center justify-center shadow-lg border border-background"
+          
             >
               {typeof trigger.badge === 'number' && trigger.badge > 99 ? '99+' : trigger.badge}
-            </motion.div>
+            </div>
           )}
 
-          {/* Offline indicator */}
-          {!isConnected && (
-            <motion.div
-              className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-600 border border-background"
-              animate={{ opacity: [1, 0.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          )}
-        </div>
-      </motion.button>
     </div>
   )
 }

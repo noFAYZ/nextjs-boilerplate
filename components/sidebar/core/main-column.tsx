@@ -78,7 +78,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-card border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
       {/* Sidebar Header - Logo */}
       <div className="flex h-14 md:h-16 items-center justify-center px-3 md:px-4">
