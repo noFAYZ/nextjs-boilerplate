@@ -15,13 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useQuery } from '@tanstack/react-query'
+import { budgetQueries } from '@/lib/queries/budget-queries'
 import { BudgetList } from "@/components/budgets/budget-list"
 import { BudgetFormModal } from "@/components/budgets/budget-form-modal"
 import { useBudgetUIStore } from "@/lib/stores/ui-stores"
+import { useAuthStore } from '@/lib/stores/auth-store'
 import {
-  useBudgets,
-  useActiveBudgets,
-  useExceededBudgets,
   useDeleteBudget,
   usePauseBudget,
   useResumeBudget,
@@ -39,11 +39,23 @@ export default function BudgetsPage() {
   const [budgetToDelete, setBudgetToDelete] = React.useState<Budget | null>(null)
 
   const { setActiveTab, ui, viewPreferences, setBudgetsView } = useBudgetUIStore()
+  const user = useAuthStore((state) => state.user)
+  const isInitialized = useAuthStore((state) => state.isInitialized)
+  const isAuthReady = !!user && isInitialized
 
-  // Queries
-  const { data: allBudgetsData = { data: [] }, isLoading: isLoadingBudgets, error: budgetsError } = useBudgets()
-  const { data: activeBudgetsData = { data: [] } } = useActiveBudgets()
-  const { data: exceededBudgetsData = { data: [] } } = useExceededBudgets()
+  // Queries - only load the data for the currently active tab
+  const { data: allBudgetsData = { data: [] }, isLoading: isLoadingBudgets, error: budgetsError } = useQuery({
+    ...budgetQueries.budgets(),
+    enabled: isAuthReady && ui.activeTab === 'all',
+  })
+  const { data: activeBudgetsData = { data: [] } } = useQuery({
+    ...budgetQueries.budgets({ isActive: true, includeArchived: false }),
+    enabled: isAuthReady && ui.activeTab === 'active',
+  })
+  const { data: exceededBudgetsData = { data: [] } } = useQuery({
+    ...budgetQueries.budgets({ isExceeded: true, isActive: true }),
+    enabled: isAuthReady && ui.activeTab === 'exceeded',
+  })
 
   // Mutations
   const { mutate: deleteBudget, isPending: isDeleting } = useDeleteBudget()
