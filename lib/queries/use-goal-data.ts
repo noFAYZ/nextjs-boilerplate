@@ -70,7 +70,7 @@ export function useGoals(params: GetGoalsParams = {}) {
     queryKey: goalKeys.list(params),
     queryFn: () => goalsApi.getGoals(params),
     enabled: isAuthReady,
-    staleTime: 30_000, // 30 seconds
+    staleTime: 1000 * 60 * 2, // 2 minutes - goals don't change that frequently
   });
 }
 
@@ -89,7 +89,7 @@ export function useGoal(goalId: string | null) {
       return response.data; // Return just the Goal object, not the full response
     },
     enabled: isAuthReady && !!goalId,
-    staleTime: 30_000,
+    staleTime: 1000 * 60 * 2, // 2 minutes - goals don't change that frequently
   });
 }
 
