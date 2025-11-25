@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Inbox } from "lucide-react";
 import { SubscriptionCard } from "./subscription-card";
 import { SubscriptionsDataTable } from "./subscriptions-data-table";
+import { SubscriptionCardSkeleton } from "./subscription-card-skeleton";
 import { useSubscriptions } from "@/lib/queries/use-subscription-data";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import type { UserSubscription } from "@/lib/types/subscription";
@@ -51,11 +52,7 @@ export function SubscriptionList({
 
   // NOW WE CAN DO CONDITIONAL RETURNS
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <SubscriptionListSkeleton view={viewPreferences.subscriptionsView} />;
   }
 
   if (error) {
@@ -114,6 +111,28 @@ export function SubscriptionList({
           onDelete={onDelete}
           onClick={onSelect}
         />
+      ))}
+    </div>
+  );
+}
+
+function SubscriptionListSkeleton({
+  view,
+}: {
+  view: 'grid' | 'list' | 'compact';
+}) {
+  const gridClasses = {
+    grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
+    list: 'flex flex-col gap-3',
+    compact: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3',
+  };
+
+  const count = view === 'compact' ? 8 : view === 'grid' ? 6 : 4;
+
+  return (
+    <div className={gridClasses[view]}>
+      {Array.from({ length: count }).map((_, i) => (
+        <SubscriptionCardSkeleton key={i} />
       ))}
     </div>
   );

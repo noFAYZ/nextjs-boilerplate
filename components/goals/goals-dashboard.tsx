@@ -16,7 +16,7 @@ import { DeleteGoalDialog } from './delete-goal-dialog';
 import { AddContributionDialog } from './add-contribution-dialog';
 import Link from 'next/link';
 import { GoalFiltersSheet } from './goal-filters-sheet';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { GoalCardSkeleton } from './goal-card-skeleton';
 import { toast } from 'sonner';
 import type { Goal } from '@/lib/types/goals';
 import { GoalCardList } from './GoalList';
@@ -315,9 +315,7 @@ export function GoalsDashboard() {
 
         <TabsContent value={activeTab} className="mt-6">
           {goalsLoading && allGoals.length === 0 ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <LoadingSpinner size="lg" />
-            </div>
+            <GoalListSkeleton view={viewPreferences.viewMode} />
           ) : tabGoals.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
               <MageGoals className="h-12 w-12 text-muted-foreground mb-4" />
@@ -407,6 +405,24 @@ export function GoalsDashboard() {
         open={isFiltersOpen}
         onOpenChange={setIsFiltersOpen}
       />
+    </div>
+  );
+}
+
+function GoalListSkeleton({ view }: { view: 'grid' | 'list' | 'table' }) {
+  const gridClasses = {
+    grid: 'grid gap-4 md:grid-cols-2 lg:grid-cols-3',
+    list: 'flex flex-col gap-3',
+    table: 'space-y-2',
+  };
+
+  const count = view === 'grid' ? 6 : 4;
+
+  return (
+    <div className={gridClasses[view]}>
+      {Array.from({ length: count }).map((_, i) => (
+        <GoalCardSkeleton key={i} />
+      ))}
     </div>
   );
 }
