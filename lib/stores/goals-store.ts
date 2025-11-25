@@ -2,8 +2,6 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type {
-  Goal,
-  GoalAnalytics,
   GoalFilters,
   GoalViewPreferences,
   GoalType,
@@ -13,71 +11,31 @@ import type {
 } from '@/lib/types/goals';
 
 interface GoalsState {
-  // Goals data
-  goals: Goal[];
-  selectedGoal: Goal | null;
-  goalsLoading: boolean;
-  goalsError: string | null;
+  // UI Selection State
+  selectedGoalId: string | null;
 
-  // Analytics
-  analytics: GoalAnalytics | null;
-  analyticsLoading: boolean;
-  analyticsError: string | null;
-
-  // Pagination
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  } | null;
-
-  // Filters
+  // Filters (UI state)
   filters: GoalFilters;
 
-  // View preferences
+  // View preferences (UI state)
   viewPreferences: GoalViewPreferences;
 
-  // UI state
+  // UI state for operations
   isCreatingGoal: boolean;
   isUpdatingGoal: boolean;
   isDeletingGoal: boolean;
-  isCalculatingProgress: boolean;
   isAddingContribution: boolean;
 
-  // Bulk operations state
+  // Bulk operations state (UI)
   selectedGoalIds: string[];
   isBulkOperating: boolean;
 }
 
 interface GoalsActions {
-  // Goal CRUD actions
-  setGoals: (goals: Goal[]) => void;
-  addGoal: (goal: Goal) => void;
-  updateGoal: (id: string, updates: Partial<Goal>) => void;
-  removeGoal: (id: string) => void;
-  selectGoal: (goal: Goal | null) => void;
+  // Selection actions (UI state)
+  selectGoal: (goalId: string | null) => void;
 
-  // Loading states
-  setGoalsLoading: (loading: boolean) => void;
-  setGoalsError: (error: string | null) => void;
-  setIsCreatingGoal: (isCreating: boolean) => void;
-  setIsUpdatingGoal: (isUpdating: boolean) => void;
-  setIsDeletingGoal: (isDeleting: boolean) => void;
-  setIsCalculatingProgress: (isCalculating: boolean) => void;
-  setIsAddingContribution: (isAdding: boolean) => void;
-
-  // Analytics actions
-  setAnalytics: (analytics: GoalAnalytics) => void;
-  setAnalyticsLoading: (loading: boolean) => void;
-  setAnalyticsError: (error: string | null) => void;
-
-  // Pagination actions
-  setPagination: (pagination: GoalsState['pagination']) => void;
-
-  // Filter actions
+  // Filter actions (UI state)
   setTypeFilter: (types: GoalType[]) => void;
   setCategoryFilter: (categories: GoalCategory[]) => void;
   setPriorityFilter: (priorities: GoalPriority[]) => void;
@@ -91,7 +49,7 @@ interface GoalsActions {
   setDateRangeFilter: (from: Date | null, to: Date | null) => void;
   clearFilters: () => void;
 
-  // View preference actions
+  // View preference actions (UI state)
   setViewMode: (mode: 'grid' | 'list' | 'table') => void;
   setSortBy: (sortBy: GoalViewPreferences['sortBy']) => void;
   setSortOrder: (sortOrder: 'asc' | 'desc') => void;
@@ -101,16 +59,20 @@ interface GoalsActions {
   setCardsPerRow: (cards: 2 | 3 | 4) => void;
   setCompactMode: (compact: boolean) => void;
 
-  // Bulk operations
+  // Operation state actions (UI)
+  setIsCreatingGoal: (isCreating: boolean) => void;
+  setIsUpdatingGoal: (isUpdating: boolean) => void;
+  setIsDeletingGoal: (isDeleting: boolean) => void;
+  setIsAddingContribution: (isAdding: boolean) => void;
+
+  // Bulk operations (UI)
   toggleGoalSelection: (goalId: string) => void;
-  selectAllGoals: () => void;
+  selectAllGoals: (totalCount: number) => void;
   clearGoalSelection: () => void;
   setIsBulkOperating: (isOperating: boolean) => void;
 
   // Utility actions
   resetState: () => void;
-  clearErrors: () => void;
-  clearAllData: () => void;
 }
 
 type GoalsStore = GoalsState & GoalsActions;
@@ -144,34 +106,22 @@ const initialViewPreferences: GoalViewPreferences = {
 };
 
 const initialState: GoalsState = {
-  // Goals data
-  goals: [],
-  selectedGoal: null,
-  goalsLoading: false,
-  goalsError: null,
+  // UI Selection State
+  selectedGoalId: null,
 
-  // Analytics
-  analytics: null,
-  analyticsLoading: false,
-  analyticsError: null,
-
-  // Pagination
-  pagination: null,
-
-  // Filters
+  // Filters (UI state)
   filters: initialFilters,
 
-  // View preferences
+  // View preferences (UI state)
   viewPreferences: initialViewPreferences,
 
-  // UI state
+  // UI state for operations
   isCreatingGoal: false,
   isUpdatingGoal: false,
   isDeletingGoal: false,
-  isCalculatingProgress: false,
   isAddingContribution: false,
 
-  // Bulk operations state
+  // Bulk operations state (UI)
   selectedGoalIds: [],
   isBulkOperating: false,
 };
@@ -182,100 +132,13 @@ export const useGoalsStore = create<GoalsStore>()(
       immer((set) => ({
         ...initialState,
 
-        // Goal CRUD actions
-        setGoals: (goals) =>
+        // Selection actions (UI state)
+        selectGoal: (goalId) =>
           set((state) => {
-            state.goals = goals;
-          }, false, 'setGoals'),
-
-        addGoal: (goal) =>
-          set((state) => {
-            state.goals.unshift(goal);
-          }, false, 'addGoal'),
-
-        updateGoal: (id, updates) =>
-          set((state) => {
-            const index = state.goals.findIndex((g) => g.id === id);
-            if (index !== -1) {
-              Object.assign(state.goals[index], updates);
-            }
-            if (state.selectedGoal?.id === id) {
-              Object.assign(state.selectedGoal, updates);
-            }
-          }, false, 'updateGoal'),
-
-        removeGoal: (id) =>
-          set((state) => {
-            state.goals = state.goals.filter((g) => g.id !== id);
-            if (state.selectedGoal?.id === id) {
-              state.selectedGoal = null;
-            }
-          }, false, 'removeGoal'),
-
-        selectGoal: (goal) =>
-          set((state) => {
-            state.selectedGoal = goal;
+            state.selectedGoalId = goalId;
           }, false, 'selectGoal'),
 
-        // Loading states
-        setGoalsLoading: (loading) =>
-          set((state) => {
-            state.goalsLoading = loading;
-          }, false, 'setGoalsLoading'),
-
-        setGoalsError: (error) =>
-          set((state) => {
-            state.goalsError = error;
-          }, false, 'setGoalsError'),
-
-        setIsCreatingGoal: (isCreating) =>
-          set((state) => {
-            state.isCreatingGoal = isCreating;
-          }, false, 'setIsCreatingGoal'),
-
-        setIsUpdatingGoal: (isUpdating) =>
-          set((state) => {
-            state.isUpdatingGoal = isUpdating;
-          }, false, 'setIsUpdatingGoal'),
-
-        setIsDeletingGoal: (isDeleting) =>
-          set((state) => {
-            state.isDeletingGoal = isDeleting;
-          }, false, 'setIsDeletingGoal'),
-
-        setIsCalculatingProgress: (isCalculating) =>
-          set((state) => {
-            state.isCalculatingProgress = isCalculating;
-          }, false, 'setIsCalculatingProgress'),
-
-        setIsAddingContribution: (isAdding) =>
-          set((state) => {
-            state.isAddingContribution = isAdding;
-          }, false, 'setIsAddingContribution'),
-
-        // Analytics actions
-        setAnalytics: (analytics) =>
-          set((state) => {
-            state.analytics = analytics;
-          }, false, 'setAnalytics'),
-
-        setAnalyticsLoading: (loading) =>
-          set((state) => {
-            state.analyticsLoading = loading;
-          }, false, 'setAnalyticsLoading'),
-
-        setAnalyticsError: (error) =>
-          set((state) => {
-            state.analyticsError = error;
-          }, false, 'setAnalyticsError'),
-
-        // Pagination actions
-        setPagination: (pagination) =>
-          set((state) => {
-            state.pagination = pagination;
-          }, false, 'setPagination'),
-
-        // Filter actions
+        // Filter actions (UI state)
         setTypeFilter: (types) =>
           set((state) => {
             state.filters.types = types;
@@ -334,10 +197,10 @@ export const useGoalsStore = create<GoalsStore>()(
 
         clearFilters: () =>
           set((state) => {
-            state.filters = { ...initialFilters };
+            state.filters = initialFilters;
           }, false, 'clearFilters'),
 
-        // View preference actions
+        // View preference actions (UI state)
         setViewMode: (mode) =>
           set((state) => {
             state.viewPreferences.viewMode = mode;
@@ -378,20 +241,44 @@ export const useGoalsStore = create<GoalsStore>()(
             state.viewPreferences.compactMode = compact;
           }, false, 'setCompactMode'),
 
-        // Bulk operations
+        // Operation state actions (UI)
+        setIsCreatingGoal: (isCreating) =>
+          set((state) => {
+            state.isCreatingGoal = isCreating;
+          }, false, 'setIsCreatingGoal'),
+
+        setIsUpdatingGoal: (isUpdating) =>
+          set((state) => {
+            state.isUpdatingGoal = isUpdating;
+          }, false, 'setIsUpdatingGoal'),
+
+        setIsDeletingGoal: (isDeleting) =>
+          set((state) => {
+            state.isDeletingGoal = isDeleting;
+          }, false, 'setIsDeletingGoal'),
+
+        setIsAddingContribution: (isAdding) =>
+          set((state) => {
+            state.isAddingContribution = isAdding;
+          }, false, 'setIsAddingContribution'),
+
+        // Bulk operations (UI)
         toggleGoalSelection: (goalId) =>
           set((state) => {
             const index = state.selectedGoalIds.indexOf(goalId);
-            if (index === -1) {
-              state.selectedGoalIds.push(goalId);
-            } else {
+            if (index > -1) {
               state.selectedGoalIds.splice(index, 1);
+            } else {
+              state.selectedGoalIds.push(goalId);
             }
           }, false, 'toggleGoalSelection'),
 
-        selectAllGoals: () =>
+        selectAllGoals: (totalCount) =>
           set((state) => {
-            state.selectedGoalIds = state.goals.map((g) => g.id);
+            state.selectedGoalIds = Array.from(
+              { length: totalCount },
+              (_, i) => i.toString()
+            );
           }, false, 'selectAllGoals'),
 
         clearGoalSelection: () =>
@@ -409,25 +296,9 @@ export const useGoalsStore = create<GoalsStore>()(
           set((state) => {
             Object.assign(state, initialState);
           }, false, 'resetState'),
-
-        clearErrors: () =>
-          set((state) => {
-            state.goalsError = null;
-            state.analyticsError = null;
-          }, false, 'clearErrors'),
-
-        clearAllData: () =>
-          set((state) => {
-            Object.assign(state, initialState);
-          }, false, 'clearAllData'),
       })),
       {
-        name: 'goals-store',
-        partialize: (state) => ({
-          // Only persist view preferences and filters
-          filters: state.filters,
-          viewPreferences: state.viewPreferences,
-        }),
+        name: 'goals-ui-store',
       }
     ),
     {
@@ -437,117 +308,13 @@ export const useGoalsStore = create<GoalsStore>()(
 );
 
 // Selectors
-export const selectFilteredGoals = (state: GoalsStore) => {
-  const { goals, filters } = state;
+export const selectSelectedGoal = (state: GoalsStore) => state.selectedGoalId;
 
-  return goals.filter((goal) => {
-    // Filter by type
-    if (filters.types.length > 0 && !filters.types.includes(goal.type)) {
-      return false;
-    }
+export const selectFilters = (state: GoalsStore) => state.filters;
 
-    // Filter by category
-    if (filters.categories.length > 0 && goal.category && !filters.categories.includes(goal.category)) {
-      return false;
-    }
+export const selectViewPreferences = (state: GoalsStore) => state.viewPreferences;
 
-    // Filter by priority
-    if (filters.priorities.length > 0 && !filters.priorities.includes(goal.priority)) {
-      return false;
-    }
+export const selectSelectedGoalIds = (state: GoalsStore) => state.selectedGoalIds;
 
-    // Filter by source type
-    if (filters.sourceTypes.length > 0 && !filters.sourceTypes.includes(goal.sourceType)) {
-      return false;
-    }
-
-    // Filter by achieved status
-    if (!filters.showAchieved && goal.isAchieved) {
-      return false;
-    }
-
-    // Filter by active status
-    if (!filters.showInactive && !goal.isActive) {
-      return false;
-    }
-
-    // Filter by archived status
-    if (!filters.showArchived && goal.isArchived) {
-      return false;
-    }
-
-    // Filter by on-track status
-    if (filters.onTrackOnly && !goal.onTrack) {
-      return false;
-    }
-
-    // Filter by search query
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
-      const matchesName = goal.name.toLowerCase().includes(query);
-      const matchesDescription = goal.description?.toLowerCase().includes(query);
-      if (!matchesName && !matchesDescription) {
-        return false;
-      }
-    }
-
-    // Filter by tags
-    if (filters.selectedTags.length > 0) {
-      const hasTag = filters.selectedTags.some(tag => goal.tags.includes(tag));
-      if (!hasTag) {
-        return false;
-      }
-    }
-
-    // Filter by date range
-    if (filters.dateRange.from) {
-      const targetDate = new Date(goal.targetDate);
-      if (targetDate < filters.dateRange.from) {
-        return false;
-      }
-    }
-
-    if (filters.dateRange.to) {
-      const targetDate = new Date(goal.targetDate);
-      if (targetDate > filters.dateRange.to) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-};
-
-export const selectGoalsByPriority = (state: GoalsStore, priority: GoalPriority) => {
-  return state.goals.filter((g) => g.priority === priority && g.isActive && !g.isArchived);
-};
-
-export const selectActiveGoals = (state: GoalsStore) => {
-  return state.goals.filter((g) => g.isActive && !g.isArchived);
-};
-
-export const selectCompletedGoals = (state: GoalsStore) => {
-  return state.goals.filter((g) => g.isAchieved);
-};
-
-export const selectOffTrackGoals = (state: GoalsStore) => {
-  return state.goals.filter((g) => !g.onTrack && g.isActive && !g.isAchieved);
-};
-
-export const selectGoalById = (state: GoalsStore, goalId: string) => {
-  return state.goals.find((g) => g.id === goalId);
-};
-
-export const selectTotalProgress = (state: GoalsStore) => {
-  const activeGoals = selectActiveGoals(state);
-  if (activeGoals.length === 0) return 0;
-  return activeGoals.reduce((sum, g) => sum + g.progress, 0) / activeGoals.length;
-};
-
-export const selectTotalTargetAmount = (state: GoalsStore) => {
-  return selectActiveGoals(state).reduce((sum, g) => sum + g.targetAmount, 0);
-};
-
-export const selectTotalCurrentAmount = (state: GoalsStore) => {
-  return selectActiveGoals(state).reduce((sum, g) => sum + g.currentAmount, 0);
-};
+export const selectIsOperating = (state: GoalsStore) =>
+  state.isCreatingGoal || state.isUpdatingGoal || state.isDeletingGoal || state.isAddingContribution;

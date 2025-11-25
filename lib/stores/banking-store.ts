@@ -2,70 +2,14 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type {
-  BankAccount,
-  BankTransaction,
-  BankingOverview,
   BankAccountType,
-  TellerEnrollment
 } from '@/lib/types/banking';
-import type { PaginationInfo } from '@/lib/types/crypto';
 
 interface BankingState {
-  // Bank Accounts
-  accounts: BankAccount[];
-  selectedAccount: BankAccount | null;
-  accountsLoading: boolean;
-  accountsError: string | null;
+  // UI Selection State
+  selectedAccountId: string | null;
 
-  // Banking Overview
-  overview: BankingOverview | null;
-  overviewLoading: boolean;
-  overviewError: string | null;
-
-  // Transactions
-  transactions: BankTransaction[];
-  transactionsLoading: boolean;
-  transactionsError: string | null;
-  transactionsPagination: PaginationInfo | null;
-
-  // Teller Enrollments
-  enrollments: TellerEnrollment[];
-  enrollmentsLoading: boolean;
-  enrollmentsError: string | null;
-
-  // Analytics
-  spendingCategories: Array<{
-    category: string;
-    totalSpending: number;
-    transactionCount: number;
-    avgTransaction: number;
-    percentOfTotal: number;
-  }>;
-  spendingCategoriesLoading: boolean;
-  spendingCategoriesError: string | null;
-
-  monthlyTrend: Array<{
-    month: string;
-    totalSpending: number;
-    totalIncome: number;
-    netAmount: number;
-    transactionCount: number;
-    categories: Record<string, number>;
-  }>;
-  monthlyTrendLoading: boolean;
-  monthlyTrendError: string | null;
-
-  accountComparison: Array<{
-    accountId: string;
-    totalSpending: number;
-    totalIncome: number;
-    transactionCount: number;
-    topCategory: string | null;
-  }>;
-  accountComparisonLoading: boolean;
-  accountComparisonError: string | null;
-
-  // Real-time sync state
+  // Real-time sync state (UI progress tracking)
   realtimeSyncStates: Record<string, {
     progress: number;
     status: 'queued' | 'processing' | 'syncing' | 'syncing_balance' | 'syncing_transactions' | 'completed' | 'failed';
@@ -79,7 +23,7 @@ interface BankingState {
   realtimeSyncConnected: boolean;
   realtimeSyncError: string | null;
 
-  // Filters and UI state
+  // Filters (UI state)
   filters: {
     accountTypes: BankAccountType[];
     institutions: string[];
@@ -95,7 +39,7 @@ interface BankingState {
     };
   };
 
-  // View preferences
+  // View preferences (UI state)
   viewPreferences: {
     accountsView: 'grid' | 'list';
     transactionsView: 'detailed' | 'compact';
@@ -106,14 +50,14 @@ interface BankingState {
     defaultCurrency: string;
   };
 
-  // Teller Connect state
+  // Teller Connect modal state (UI)
   tellerConnect: {
     isOpen: boolean;
     isLoading: boolean;
     error: string | null;
   };
 
-  // Stripe Connect state
+  // Stripe Connect modal state (UI)
   stripeConnect: {
     isOpen: boolean;
     isLoading: boolean;
@@ -122,47 +66,10 @@ interface BankingState {
 }
 
 interface BankingActions {
-  // Account actions
-  setAccounts: (accounts: BankAccount[]) => void;
-  addAccount: (account: BankAccount) => void;
-  updateAccount: (id: string, updates: Partial<BankAccount>) => void;
-  removeAccount: (id: string) => void;
-  selectAccount: (account: BankAccount | null) => void;
-  setAccountsLoading: (loading: boolean) => void;
-  setAccountsError: (error: string | null) => void;
+  // Selection actions (UI state)
+  selectAccount: (accountId: string | null) => void;
 
-  // Overview actions
-  setOverview: (overview: BankingOverview) => void;
-  setOverviewLoading: (loading: boolean) => void;
-  setOverviewError: (error: string | null) => void;
-
-  // Transaction actions
-  setTransactions: (transactions: BankTransaction[]) => void;
-  addTransaction: (transaction: BankTransaction) => void;
-  updateTransaction: (id: string, updates: Partial<BankTransaction>) => void;
-  setTransactionsLoading: (loading: boolean) => void;
-  setTransactionsError: (error: string | null) => void;
-  setTransactionsPagination: (pagination: PaginationInfo | null) => void;
-
-  // Enrollment actions
-  setEnrollments: (enrollments: TellerEnrollment[]) => void;
-  addEnrollment: (enrollment: TellerEnrollment) => void;
-  updateEnrollment: (id: string, updates: Partial<TellerEnrollment>) => void;
-  setEnrollmentsLoading: (loading: boolean) => void;
-  setEnrollmentsError: (error: string | null) => void;
-
-  // Analytics actions
-  setSpendingCategories: (categories: BankingState['spendingCategories']) => void;
-  setSpendingCategoriesLoading: (loading: boolean) => void;
-  setSpendingCategoriesError: (error: string | null) => void;
-  setMonthlyTrend: (trend: BankingState['monthlyTrend']) => void;
-  setMonthlyTrendLoading: (loading: boolean) => void;
-  setMonthlyTrendError: (error: string | null) => void;
-  setAccountComparison: (comparison: BankingState['accountComparison']) => void;
-  setAccountComparisonLoading: (loading: boolean) => void;
-  setAccountComparisonError: (error: string | null) => void;
-
-  // Real-time sync actions
+  // Real-time sync actions (UI progress tracking)
   setRealtimeSyncState: (accountId: string, state: BankingState['realtimeSyncStates'][string]) => void;
   updateRealtimeSyncProgress: (accountId: string, progress: number, status: BankingState['realtimeSyncStates'][string]['status'], message?: string) => void;
   completeRealtimeSync: (accountId: string, syncedData?: string[]) => void;
@@ -171,7 +78,7 @@ interface BankingActions {
   setRealtimeSyncConnected: (connected: boolean) => void;
   setRealtimeSyncError: (error: string | null) => void;
 
-  // Filter actions
+  // Filter actions (UI state)
   setAccountTypeFilter: (types: BankAccountType[]) => void;
   setInstitutionFilter: (institutions: string[]) => void;
   setTransactionTypeFilter: (types: ('debit' | 'credit')[]) => void;
@@ -180,7 +87,7 @@ interface BankingActions {
   setAmountRangeFilter: (min: number | null, max: number | null) => void;
   clearFilters: () => void;
 
-  // View preference actions
+  // View preference actions (UI state)
   setAccountsView: (view: 'grid' | 'list') => void;
   setTransactionsView: (view: 'detailed' | 'compact') => void;
   setDashboardChartType: (type: 'area' | 'line' | 'bar' | 'pie') => void;
@@ -189,64 +96,32 @@ interface BankingActions {
   setSmallAmountThreshold: (threshold: number) => void;
   setDefaultCurrency: (currency: string) => void;
 
-  // Teller Connect actions
+  // Teller Connect modal actions (UI)
   setTellerConnectOpen: (isOpen: boolean) => void;
   setTellerConnectLoading: (isLoading: boolean) => void;
   setTellerConnectError: (error: string | null) => void;
 
-  // Stripe Connect actions
+  // Stripe Connect modal actions (UI)
   setStripeConnectOpen: (isOpen: boolean) => void;
   setStripeConnectLoading: (isLoading: boolean) => void;
   setStripeConnectError: (error: string | null) => void;
 
   // Utility actions
   resetState: () => void;
-  clearErrors: () => void;
-  clearAllData: () => void;
 }
 
 type BankingStore = BankingState & BankingActions;
 
 const initialState: BankingState = {
-  // Bank Accounts
-  accounts: [],
-  selectedAccount: null,
-  accountsLoading: false,
-  accountsError: null,
+  // UI Selection State
+  selectedAccountId: null,
 
-  // Banking Overview
-  overview: null,
-  overviewLoading: false,
-  overviewError: null,
-
-  // Transactions
-  transactions: [],
-  transactionsLoading: false,
-  transactionsError: null,
-  transactionsPagination: null,
-
-  // Teller Enrollments
-  enrollments: [],
-  enrollmentsLoading: false,
-  enrollmentsError: null,
-
-  // Analytics
-  spendingCategories: [],
-  spendingCategoriesLoading: false,
-  spendingCategoriesError: null,
-  monthlyTrend: [],
-  monthlyTrendLoading: false,
-  monthlyTrendError: null,
-  accountComparison: [],
-  accountComparisonLoading: false,
-  accountComparisonError: null,
-
-  // Real-time sync state
+  // Real-time sync state (UI progress tracking)
   realtimeSyncStates: {},
   realtimeSyncConnected: false,
   realtimeSyncError: null,
 
-  // Filters
+  // Filters (UI state)
   filters: {
     accountTypes: [],
     institutions: [],
@@ -262,7 +137,7 @@ const initialState: BankingState = {
     },
   },
 
-  // View preferences
+  // View preferences (UI state)
   viewPreferences: {
     accountsView: 'list',
     transactionsView: 'detailed',
@@ -273,14 +148,14 @@ const initialState: BankingState = {
     defaultCurrency: 'USD',
   },
 
-  // Teller Connect state
+  // Teller Connect modal state (UI)
   tellerConnect: {
     isOpen: false,
     isLoading: false,
     error: null,
   },
 
-  // Stripe Connect state
+  // Stripe Connect modal state (UI)
   stripeConnect: {
     isOpen: false,
     isLoading: false,
@@ -294,182 +169,13 @@ export const useBankingStore = create<BankingStore>()(
       immer((set) => ({
         ...initialState,
 
-        // Account actions
-        setAccounts: (accounts) =>
+        // Selection actions (UI state)
+        selectAccount: (accountId) =>
           set((state) => {
-            state.accounts = accounts;
-          }, false, 'setAccounts'),
-
-        addAccount: (account) =>
-          set((state) => {
-            state.accounts.push(account);
-          }, false, 'addAccount'),
-
-            // Account actions
-        setGroupedAccounts: (accounts) =>
-          set((state) => {
-            state.accounts = accounts;
-          }, false, 'setGroupedAccounts'),
-
-        updateAccount: (id, updates) =>
-          set((state) => {
-            const index = state.accounts.findIndex((a) => a.id === id);
-            if (index !== -1) {
-              Object.assign(state.accounts[index], updates);
-            }
-          }, false, 'updateAccount'),
-
-        removeAccount: (id) =>
-          set((state) => {
-            state.accounts = state.accounts.filter((a) => a.id !== id);
-            if (state.selectedAccount?.id === id) {
-              state.selectedAccount = null;
-            }
-            // Clear sync state for removed account
-            delete state.realtimeSyncStates[id];
-          }, false, 'removeAccount'),
-
-        selectAccount: (account) =>
-          set((state) => {
-            state.selectedAccount = account;
+            state.selectedAccountId = accountId;
           }, false, 'selectAccount'),
 
-        setAccountsLoading: (loading) =>
-          set((state) => {
-            state.accountsLoading = loading;
-          }, false, 'setAccountsLoading'),
-
-        setAccountsError: (error) =>
-          set((state) => {
-            state.accountsError = error;
-          }, false, 'setAccountsError'),
-
-        // Overview actions
-        setOverview: (overview) =>
-          set((state) => {
-            state.overview = overview;
-          }, false, 'setOverview'),
-
-        setOverviewLoading: (loading) =>
-          set((state) => {
-            state.overviewLoading = loading;
-          }, false, 'setOverviewLoading'),
-
-        setOverviewError: (error) =>
-          set((state) => {
-            state.overviewError = error;
-          }, false, 'setOverviewError'),
-
-        // Transaction actions
-        setTransactions: (transactions) =>
-          set((state) => {
-            state.transactions = transactions;
-          }, false, 'setTransactions'),
-
-        addTransaction: (transaction) =>
-          set((state) => {
-            state.transactions.unshift(transaction);
-          }, false, 'addTransaction'),
-
-        updateTransaction: (id, updates) =>
-          set((state) => {
-            const index = state.transactions.findIndex((t) => t.id === id);
-            if (index !== -1) {
-              Object.assign(state.transactions[index], updates);
-            }
-          }, false, 'updateTransaction'),
-
-        setTransactionsLoading: (loading) =>
-          set((state) => {
-            state.transactionsLoading = loading;
-          }, false, 'setTransactionsLoading'),
-
-        setTransactionsError: (error) =>
-          set((state) => {
-            state.transactionsError = error;
-          }, false, 'setTransactionsError'),
-
-        setTransactionsPagination: (pagination) =>
-          set((state) => {
-            state.transactionsPagination = pagination;
-          }, false, 'setTransactionsPagination'),
-
-        // Enrollment actions
-        setEnrollments: (enrollments) =>
-          set((state) => {
-            state.enrollments = enrollments;
-          }, false, 'setEnrollments'),
-
-        addEnrollment: (enrollment) =>
-          set((state) => {
-            state.enrollments.push(enrollment);
-          }, false, 'addEnrollment'),
-
-        updateEnrollment: (id, updates) =>
-          set((state) => {
-            const index = state.enrollments.findIndex((e) => e.id === id);
-            if (index !== -1) {
-              Object.assign(state.enrollments[index], updates);
-            }
-          }, false, 'updateEnrollment'),
-
-        setEnrollmentsLoading: (loading) =>
-          set((state) => {
-            state.enrollmentsLoading = loading;
-          }, false, 'setEnrollmentsLoading'),
-
-        setEnrollmentsError: (error) =>
-          set((state) => {
-            state.enrollmentsError = error;
-          }, false, 'setEnrollmentsError'),
-
-        // Analytics actions
-        setSpendingCategories: (categories) =>
-          set((state) => {
-            state.spendingCategories = categories;
-          }, false, 'setSpendingCategories'),
-
-        setSpendingCategoriesLoading: (loading) =>
-          set((state) => {
-            state.spendingCategoriesLoading = loading;
-          }, false, 'setSpendingCategoriesLoading'),
-
-        setSpendingCategoriesError: (error) =>
-          set((state) => {
-            state.spendingCategoriesError = error;
-          }, false, 'setSpendingCategoriesError'),
-
-        setMonthlyTrend: (trend) =>
-          set((state) => {
-            state.monthlyTrend = trend;
-          }, false, 'setMonthlyTrend'),
-
-        setMonthlyTrendLoading: (loading) =>
-          set((state) => {
-            state.monthlyTrendLoading = loading;
-          }, false, 'setMonthlyTrendLoading'),
-
-        setMonthlyTrendError: (error) =>
-          set((state) => {
-            state.monthlyTrendError = error;
-          }, false, 'setMonthlyTrendError'),
-
-        setAccountComparison: (comparison) =>
-          set((state) => {
-            state.accountComparison = comparison;
-          }, false, 'setAccountComparison'),
-
-        setAccountComparisonLoading: (loading) =>
-          set((state) => {
-            state.accountComparisonLoading = loading;
-          }, false, 'setAccountComparisonLoading'),
-
-        setAccountComparisonError: (error) =>
-          set((state) => {
-            state.accountComparisonError = error;
-          }, false, 'setAccountComparisonError'),
-
-        // Real-time sync actions
+        // Real-time sync actions (UI progress tracking)
         setRealtimeSyncState: (accountId, syncState) =>
           set((state) => {
             state.realtimeSyncStates[accountId] = syncState;
@@ -480,7 +186,7 @@ export const useBankingStore = create<BankingStore>()(
             if (!state.realtimeSyncStates[accountId]) {
               state.realtimeSyncStates[accountId] = {
                 progress: 0,
-                status: 'queued'
+                status: 'queued',
               };
             }
             state.realtimeSyncStates[accountId].progress = progress;
@@ -535,7 +241,7 @@ export const useBankingStore = create<BankingStore>()(
             }
           }, false, 'setRealtimeSyncError'),
 
-        // Filter actions
+        // Filter actions (UI state)
         setAccountTypeFilter: (types) =>
           set((state) => {
             state.filters.accountTypes = types;
@@ -580,7 +286,7 @@ export const useBankingStore = create<BankingStore>()(
             };
           }, false, 'clearFilters'),
 
-        // View preference actions
+        // View preference actions (UI state)
         setAccountsView: (view) =>
           set((state) => {
             state.viewPreferences.accountsView = view;
@@ -616,13 +322,10 @@ export const useBankingStore = create<BankingStore>()(
             state.viewPreferences.defaultCurrency = currency;
           }, false, 'setDefaultCurrency'),
 
-        // Teller Connect actions
+        // Teller Connect modal actions (UI)
         setTellerConnectOpen: (isOpen) =>
           set((state) => {
             state.tellerConnect.isOpen = isOpen;
-            if (!isOpen) {
-              state.tellerConnect.error = null;
-            }
           }, false, 'setTellerConnectOpen'),
 
         setTellerConnectLoading: (isLoading) =>
@@ -633,18 +336,12 @@ export const useBankingStore = create<BankingStore>()(
         setTellerConnectError: (error) =>
           set((state) => {
             state.tellerConnect.error = error;
-            if (error) {
-              state.tellerConnect.isLoading = false;
-            }
           }, false, 'setTellerConnectError'),
 
-        // Stripe Connect actions
+        // Stripe Connect modal actions (UI)
         setStripeConnectOpen: (isOpen) =>
           set((state) => {
             state.stripeConnect.isOpen = isOpen;
-            if (!isOpen) {
-              state.stripeConnect.error = null;
-            }
           }, false, 'setStripeConnectOpen'),
 
         setStripeConnectLoading: (isLoading) =>
@@ -655,9 +352,6 @@ export const useBankingStore = create<BankingStore>()(
         setStripeConnectError: (error) =>
           set((state) => {
             state.stripeConnect.error = error;
-            if (error) {
-              state.stripeConnect.isLoading = false;
-            }
           }, false, 'setStripeConnectError'),
 
         // Utility actions
@@ -665,30 +359,9 @@ export const useBankingStore = create<BankingStore>()(
           set((state) => {
             Object.assign(state, initialState);
           }, false, 'resetState'),
-
-        clearErrors: () =>
-          set((state) => {
-            state.accountsError = null;
-            state.overviewError = null;
-            state.transactionsError = null;
-            state.enrollmentsError = null;
-            state.realtimeSyncError = null;
-            state.tellerConnect.error = null;
-            state.stripeConnect.error = null;
-          }, false, 'clearErrors'),
-
-        clearAllData: () =>
-          set((state) => {
-            Object.assign(state, initialState);
-          }, false, 'clearAllData'),
       })),
       {
-        name: 'banking-store',
-        partialize: (state) => ({
-          // Persist only view preferences and filters
-          viewPreferences: state.viewPreferences,
-          filters: state.filters,
-        }),
+        name: 'banking-ui-store',
       }
     ),
     {
@@ -697,114 +370,18 @@ export const useBankingStore = create<BankingStore>()(
   )
 );
 
-// Selectors for filtered data
-export const selectFilteredAccounts = (state: BankingStore) => {
-  const { accounts, filters, viewPreferences } = state;
-
-  return accounts.filter((account) => {
-    // Filter by account types
-    if (filters.accountTypes.length > 0 && !filters.accountTypes.includes(account.type)) {
-      return false;
-    }
-
-    // Filter by institutions
-    if (filters.institutions.length > 0 && !filters.institutions.includes(account.institutionName)) {
-      return false;
-    }
-
-    // Hide inactive accounts if preference is set
-    if (!viewPreferences.showInactiveAccounts && !account.isActive) {
-      return false;
-    }
-
-    // Hide small amounts if preference is set
-    if (viewPreferences.hideSmallAmounts &&
-        Math.abs(account.balance) < viewPreferences.smallAmountThreshold) {
-      return false;
-    }
-
-    return true;
-  });
-};
-
-export const selectFilteredTransactions = (state: BankingStore) => {
-  const { transactions, filters } = state;
-
-  return transactions.filter((transaction) => {
-    // Filter by transaction type
-    if (filters.transactionTypes.length > 0 && !filters.transactionTypes.includes(transaction.type)) {
-      return false;
-    }
-
-    // Filter by categories
-    if (filters.categories.length > 0 && transaction.category &&
-        !filters.categories.includes(transaction.category)) {
-      return false;
-    }
-
-    // Filter by date range
-    if (filters.dateRange.from || filters.dateRange.to) {
-      const transactionDate = new Date(transaction.date);
-      if (filters.dateRange.from && transactionDate < filters.dateRange.from) {
-        return false;
-      }
-      if (filters.dateRange.to && transactionDate > filters.dateRange.to) {
-        return false;
-      }
-    }
-
-    // Filter by amount range
-    if (filters.amountRange.min !== null && Math.abs(transaction.amount) < filters.amountRange.min) {
-      return false;
-    }
-    if (filters.amountRange.max !== null && Math.abs(transaction.amount) > filters.amountRange.max) {
-      return false;
-    }
-
-    return true;
-  });
-};
-
-export const selectTotalBankingValue = (state: BankingStore) => {
-  return state.overview?.totalBalance || 0;
-};
-
+// Selectors
 export const selectActiveRealtimeSyncCount = (state: BankingStore) => {
   return Object.values(state.realtimeSyncStates).filter(
-    (syncState) => syncState.status === 'processing' ||
-                   syncState.status === 'syncing' ||
-                   syncState.status === 'syncing_balance' ||
-                   syncState.status === 'syncing_transactions' ||
-                   syncState.status === 'queued'
+    (syncState) =>
+      syncState.status === 'syncing' ||
+      syncState.status === 'syncing_balance' ||
+      syncState.status === 'syncing_transactions' ||
+      syncState.status === 'processing' ||
+      syncState.status === 'queued'
   ).length;
 };
 
 export const selectAccountSyncState = (state: BankingStore, accountId: string) => {
   return state.realtimeSyncStates[accountId];
-};
-
-export const selectAccountsByInstitution = (state: BankingStore) => {
-  const accounts = selectFilteredAccounts(state);
-
-  return accounts.reduce((acc, account) => {
-    const institution = account.institutionName;
-    if (!acc[institution]) {
-      acc[institution] = [];
-    }
-    acc[institution].push(account);
-    return acc;
-  }, {} as Record<string, BankAccount[]>);
-};
-
-export const selectAccountsByType = (state: BankingStore) => {
-  const accounts = selectFilteredAccounts(state);
-
-  return accounts.reduce((acc, account) => {
-    const type = account.type;
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(account);
-    return acc;
-  }, {} as Record<BankAccountType, BankAccount[]>);
 };
