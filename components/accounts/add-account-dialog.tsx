@@ -80,6 +80,21 @@ const CURRENCIES = [
   { value: 'JPY', label: 'JPY (¥)' },
 ];
 
+const POPULAR_CONNECTIONS = [
+  { name: 'Chase', category: 'Bank' },
+  { name: 'Bank of America', category: 'Bank' },
+  { name: 'Wells Fargo', category: 'Bank' },
+  { name: 'Fidelity', category: 'Brokerage' },
+  { name: 'Vanguard', category: 'Brokerage' },
+  { name: 'Charles Schwab', category: 'Brokerage' },
+  { name: 'American Express', category: 'Credit Card' },
+  { name: 'Discover', category: 'Credit Card' },
+  { name: 'Stripe', category: 'Payment' },
+  { name: 'PayPal', category: 'Payment' },
+  { name: 'Coinbase', category: 'Crypto' },
+  { name: 'Kraken', category: 'Crypto' },
+];
+
 // Comprehensive subtype mappings
 const ACCOUNT_TYPE_SUBTYPES: Record<string, { label: string; subtypes: string[] }> = {
   CHECKING: {
@@ -192,6 +207,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   const [step, setStep] = useState<'selection' | 'accountType' | 'form'>('selection');
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof ACCOUNT_TYPES_BY_CATEGORY | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { mutate: createAccount, isPending } = useCreateManualAccount();
 
@@ -294,24 +310,76 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
               <DialogTitle className="text-lg font-semibold">Add an Account</DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-1.5">
-              {/* CONNECT ACCOUNT OPTION */}
-              <button
-                onClick={() => {}}
-                className={cn(
-                  'w-full flex items-center gap-3 p-3 rounded-lg border border-border/80',
-                  'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left'
-                )}
-              >
-                <div className="flex-shrink-0 h-5 w-5 text-foreground/50">
-                  <Building2 className="h-5 w-5" />
+            <div className="space-y-4">
+              {/* SEARCH BAR */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                <Input
+                  placeholder="Search banks, brokerages, cards..."
+                  className="pl-9 h-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              {/* POPULAR CONNECTIONS */}
+              {searchQuery === '' && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground px-1">Popular Connections</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {POPULAR_CONNECTIONS.map((connection) => (
+                      <button
+                        key={connection.name}
+                        onClick={() => {}}
+                        className={cn(
+                          'flex items-center justify-between p-2.5 rounded-lg border border-border/80',
+                          'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left text-sm'
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <div className="font-medium text-foreground truncate">{connection.name}</div>
+                          <div className="text-xs text-muted-foreground">{connection.category}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-sm text-foreground">Connect Account</h3>
-                  <p className="text-xs text-muted-foreground">Link your existing accounts securely</p>
+              )}
+
+              {/* SEARCH RESULTS */}
+              {searchQuery !== '' && (
+                <div className="space-y-2">
+                  {POPULAR_CONNECTIONS.filter(
+                    (conn) =>
+                      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      conn.category.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map((connection) => (
+                    <button
+                      key={connection.name}
+                      onClick={() => {}}
+                      className={cn(
+                        'w-full flex items-center justify-between p-3 rounded-lg border border-border/80',
+                        'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left'
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-foreground">{connection.name}</div>
+                        <div className="text-xs text-muted-foreground">{connection.category}</div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/70 flex-shrink-0 ml-2" />
+                    </button>
+                  ))}
+                  {POPULAR_CONNECTIONS.filter(
+                    (conn) =>
+                      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      conn.category.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).length === 0 && (
+                    <p className="text-center text-sm text-muted-foreground py-4">No connections found</p>
+                  )}
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
-              </button>
+              )}
+
+              <Separator />
 
               {/* IMPORT OPTION */}
               <button
@@ -374,13 +442,13 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   <Badge className="bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300">ASSETS</Badge>
                   <p className="text-sm text-muted-foreground">Money and valuables you own</p>
                 </div>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {ACCOUNT_TYPES_BY_CATEGORY.ASSETS.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => handleDirectTypeSelect(category.type, 'ASSETS')}
                       className={cn(
-                        'flex items-center justify-between p-2 bg-muted/50 rounded-lg border border-border/80 shadow',
+                        'flex items-center justify-between p-2 bg-card rounded-lg border border-border/80 shadow',
                         'hover:translate-y-[-1px] hover:border-border/60 cursor-pointer'
                       )}
                     >
