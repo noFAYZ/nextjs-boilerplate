@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import {
   Search,
   Building2,
@@ -28,6 +29,11 @@ import {
   Loader2,
   PlusIcon,
   ArrowLeft,
+  AlertCircle,
+  DollarSign,
+  Zap,
+  PoundSterling,
+  Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -35,22 +41,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCreateManualAccount } from '@/lib/queries';
+import { useCategoriesByType } from '@/lib/queries/use-categories-data';
 import type { AccountType } from '@/lib/types/unified-accounts';
 
 interface AddAccountDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-interface AccountCategory {
-  id: string;
-  title: string;
-  subtitle: string;
-  addedCount: number;
-  icons: string[];
-  iconColors: string[];
-  path?: string;
-  isManual?: boolean;
 }
 
 // Form validation schema
@@ -61,7 +57,7 @@ const accountSchema = z.object({
   currency: z.string().min(1, 'Currency is required'),
   institutionName: z.string().max(100, 'Institution name too long').optional(),
   accountNumber: z.string().max(50, 'Account number too long').optional(),
-  // Asset-specific fields
+  subtype: z.string().optional(),
   assetDescription: z.string().max(500, 'Description too long').optional(),
   originalValue: z.number().min(0).optional(),
   purchaseDate: z.string().optional(),
@@ -75,19 +71,6 @@ const accountSchema = z.object({
 
 type AccountFormData = z.infer<typeof accountSchema>;
 
-const ACCOUNT_TYPES = [
-  { value: 'CHECKING', label: 'Checking Account', icon: Building2, description: 'Everyday banking account' },
-  { value: 'SAVINGS', label: 'Savings Account', icon: Wallet, description: 'Savings and high-yield accounts' },
-  { value: 'CREDIT_CARD', label: 'Credit Card', icon: CreditCard, description: 'Credit card accounts' },
-  { value: 'INVESTMENT', label: 'Investment', icon: TrendingUp, description: 'Stocks, bonds, retirement accounts' },
-  { value: 'LOAN', label: 'Loan', icon: CreditCard, description: 'Personal loans and lines of credit' },
-  { value: 'MORTGAGE', label: 'Mortgage', icon: Home, description: 'Home mortgages and property loans' },
-  { value: 'CRYPTO', label: 'Cryptocurrency', icon: Coins, description: 'Bitcoin, Ethereum, and other crypto' },
-  { value: 'REAL_ESTATE', label: 'Real Estate', icon: Home, description: 'Properties and land' },
-  { value: 'VEHICLE', label: 'Vehicle', icon: Wallet, description: 'Cars, boats, and other vehicles' },
-  { value: 'OTHER_ASSET', label: 'Other Asset', icon: Wallet, description: 'Other financial assets' },
-] as const;
-
 const CURRENCIES = [
   { value: 'USD', label: 'USD ($)' },
   { value: 'EUR', label: 'EUR (€)' },
@@ -97,10 +80,118 @@ const CURRENCIES = [
   { value: 'JPY', label: 'JPY (¥)' },
 ];
 
+// Comprehensive subtype mappings
+const ACCOUNT_TYPE_SUBTYPES: Record<string, { label: string; subtypes: string[] }> = {
+  CHECKING: {
+    label: 'Cash Account',
+    subtypes: ['STANDARD', 'INTEREST_BEARING', 'STUDENT', 'HIGH_YIELD', 'MONEY_MARKET', 'GIFT_CARD', 'TRAVEL', 'RELOADABLE', 'SWEEP', 'TREASURY', 'LIQUIDITY_POOL'],
+  },
+  SAVINGS: {
+    label: 'Cash Account',
+    subtypes: ['STANDARD', 'INTEREST_BEARING', 'STUDENT', 'HIGH_YIELD', 'MONEY_MARKET', 'GIFT_CARD', 'TRAVEL', 'RELOADABLE', 'SWEEP', 'TREASURY', 'LIQUIDITY_POOL'],
+  },
+  INVESTMENT: {
+    label: 'Investment Account',
+    subtypes: ['STANDARD', 'MARGIN', 'COMMISSION_FREE', 'TAXABLE', 'CUSTODIAL', 'TRADITIONAL', 'ROTH', 'SAFE_HARBOR', 'SEP', 'ROLLOVER', 'INHERITED', 'ACTIVE', 'INDEX', 'TARGET_DATE', 'GOVERNMENT', 'MUNICIPAL', 'ZERO_COUPON', 'HEDGE_FUND', 'PRIVATE_EQUITY', 'PRIVATE_CREDIT', 'VESTED', 'UNVESTED'],
+  },
+  CRYPTO: {
+    label: 'Crypto Account',
+    subtypes: ['ETHEREUM', 'BITCOIN', 'SOLANA', 'POLYGON', 'AVALANCHE', 'OPTIMISM', 'ARBITRUM', 'BASE', 'ZKSYNC', 'SCROLL', 'LINEA', 'AAVE', 'CURVE', 'UNISWAP', 'BALANCER', 'COMPOUND', 'MAKERDAO'],
+  },
+  REAL_ESTATE: {
+    label: 'Asset Account',
+    subtypes: ['PRIMARY_RESIDENCE', 'RENTAL', 'COMMERCIAL', 'LAND', 'VACATION_HOME', 'AUTO', 'MOTORCYCLE', 'BOAT', 'RV', 'AIRCRAFT', 'EQUIPMENT', 'FINE_ART', 'VINTAGE_ART', 'SCULPTURES', 'ANTIQUES', 'MEMORABILIA', 'WINE', 'SPORTS_MEMORABILIA', 'COMIC_BOOKS', 'TRADING_CARDS', 'WATCHES', 'JEWELRY', 'STAMPS', 'GOLD_BULLION', 'GOLD_COINS', 'SILVER_BULLION', 'SILVER_COINS', 'PLATINUM', 'PALLADIUM', 'PATENT', 'TRADEMARK', 'COPYRIGHT', 'TRADE_SECRET', 'DOMAIN_NAME', 'BRAND', 'SOLE_PROPRIETOR', 'LLC', 'S_CORP', 'C_CORP', 'PARTNERSHIP', 'STARTUP_EQUITY', 'WHOLE_LIFE', 'UNIVERSAL_LIFE', 'VARIABLE_LIFE', 'INDEXED_LIFE', 'PENSION', 'ANNUITY', 'IMMEDIATE_ANNUITY', 'DEFERRED_ANNUITY'],
+  },
+  VEHICLE: {
+    label: 'Asset Account',
+    subtypes: ['AUTO', 'MOTORCYCLE', 'BOAT', 'RV', 'AIRCRAFT'],
+  },
+  OTHER_ASSET: {
+    label: 'Asset Account',
+    subtypes: ['EQUIPMENT', 'FINE_ART', 'VINTAGE_ART', 'SCULPTURES', 'ANTIQUES', 'MEMORABILIA', 'WINE', 'SPORTS_MEMORABILIA', 'COMIC_BOOKS', 'TRADING_CARDS', 'WATCHES', 'JEWELRY', 'STAMPS', 'GOLD_BULLION', 'GOLD_COINS', 'SILVER_BULLION', 'SILVER_COINS', 'PLATINUM', 'PALLADIUM'],
+  },
+  CREDIT_CARD: {
+    label: 'Credit Account',
+    subtypes: ['PERSONAL', 'BUSINESS', 'CORPORATE', 'NO_ANNUAL_FEE', 'HELOC', 'PERSONAL_LOC', 'BUSINESS_LOC', 'FEDERAL', 'PRIVATE', 'PARENT_PLUS', 'CONSOLIDATION', 'INCOME', 'PROPERTY', 'CORPORATE_TAX', 'QUARTERLY_EST', 'MONTHLY', 'ANNUAL', 'PROFESSIONAL'],
+  },
+  LOAN: {
+    label: 'Loan Account',
+    subtypes: ['PRIMARY_RESIDENCE_MORTGAGE', 'INVESTMENT_PROPERTY', 'CONSTRUCTION_LOAN', 'ARM', 'FIXED_RATE', 'AUTO', 'MOTORCYCLE', 'BOAT', 'RV', 'UNSECURED', 'SECURED', 'DEBT_CONSOLIDATION', 'PAYDAY', 'FEDERAL', 'PRIVATE', 'PARENT_PLUS', 'PERKINS', 'STAFFORD', 'CONSOLIDATION', 'INCOME_TAX', 'PROPERTY_TAX', 'CORPORATE_TAX', 'SALES_TAX', 'PAYROLL_TAX', 'QUARTERLY_EST', 'MONTHLY', 'ANNUAL', 'QUARTERLY', 'PROFESSIONAL_SERVICE', 'MEMBERSHIP', 'SETTLEMENT', 'JUDGMENT', 'CHILD_SUPPORT', 'ALIMONY', 'CONTRACT_OBLIGATION', 'BOND_ISSUANCE', 'NOTE', 'DEBENTURE', 'CONVERTIBLE_DEBT'],
+  },
+  MORTGAGE: {
+    label: 'Loan Account',
+    subtypes: ['PRIMARY_RESIDENCE_MORTGAGE', 'INVESTMENT_PROPERTY', 'CONSTRUCTION_LOAN', 'ARM', 'FIXED_RATE'],
+  },
+};
+
+// Account type categories
+const ACCOUNT_TYPES_BY_CATEGORY = {
+  ASSETS: [
+    {
+      id: 'cash',
+      type: 'CHECKING',
+      name: 'Cash Account',
+      description: 'Checking, savings, high-yield accounts',
+      icon: DollarSign,
+      color: 'from-blue-500 to-blue-600',
+      label: 'Cash',
+    },
+    {
+      id: 'investments',
+      type: 'INVESTMENT',
+      name: 'Investments',
+      description: 'Stocks, bonds, retirement accounts',
+      icon: TrendingUp,
+      color: 'from-green-500 to-green-600',
+      label: 'Investments',
+    },
+    {
+      id: 'crypto',
+      type: 'CRYPTO',
+      name: 'Cryptocurrency',
+      description: 'Bitcoin, Ethereum, and other crypto',
+      icon: Coins,
+      color: 'from-violet-500 to-violet-600',
+      label: 'Crypto',
+    },
+    {
+      id: 'assets',
+      type: 'REAL_ESTATE',
+      name: 'Assets',
+      description: 'Real estate, vehicles, collections',
+      icon: Home,
+      color: 'from-orange-500 to-orange-600',
+      label: 'Assets',
+    },
+  ],
+  LIABILITIES: [
+    {
+      id: 'creditcard',
+      type: 'CREDIT_CARD',
+      name: 'Credit Card',
+      description: 'Personal & business credit cards',
+      icon: CreditCard,
+      color: 'from-red-500 to-red-600',
+      label: 'Credit Card',
+    },
+    {
+      id: 'loans',
+      type: 'LOAN',
+      name: 'Loans',
+      description: 'Personal loans, mortgages, auto loans',
+      icon: Building2,
+      color: 'from-pink-500 to-pink-600',
+      label: 'Loans',
+    },
+  ],
+};
+
 export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) {
   const router = useRouter();
-  const [step, setStep] = useState<'selection' | 'form'>('selection');
-  const [selectedType, setSelectedType] = useState<AccountType | null>(null);
+  const [view, setView] = useState<'initial' | 'manual'>('initial');
+  const [step, setStep] = useState<'selection' | 'accountType' | 'form'>('selection');
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<keyof typeof ACCOUNT_TYPES_BY_CATEGORY | null>(null);
 
   const { mutate: createAccount, isPending } = useCreateManualAccount();
 
@@ -122,68 +213,35 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   });
 
   const watchedType = watch('type');
+  const { data: availableCategories = [] } = useCategoriesByType(watchedType as AccountType, undefined);
 
-  // Account categories configuration
-  const categories: AccountCategory[] = [
-    {
-      id: 'banks',
-      title: 'Banks & credit cards',
-      subtitle: 'Connect your bank accounts and credit cards',
-      addedCount: 0,
-      icons: ['💳', '🏦', '💰'],
-      iconColors: ['bg-blue-500', 'bg-indigo-500', 'bg-red-500'],
-      path: '/accounts/connection?type=bank&integration=stripe',
-    },
-    {
-      id: 'investments',
-      title: 'Investments & loans',
-      subtitle: 'Track investment accounts and loans',
-      addedCount: 0,
-      icons: ['📈', '💼', '🏛️'],
-      iconColors: ['bg-green-500', 'bg-cyan-500', 'bg-purple-500'],
-      path: '/accounts/connection?type=bank&integration=stripe',
-    },
-    {
-      id: 'crypto',
-      title: 'Real estate, crypto, and more',
-      subtitle: 'Add crypto wallets, real estate, and other assets',
-      addedCount: 0,
-      icons: ['₿', '🏠'],
-      iconColors: ['bg-violet-500', 'bg-orange-500'],
-      path: '/accounts/wallet/manage',
-    },
-    {
-      id: 'import',
-      title: 'Import transaction & balance history',
-      subtitle: 'Import from CSV',
-      addedCount: 0,
-      icons: [],
-      iconColors: [],
-      path: '/accounts/connection?type=bank&integration=stripe',
-    },
-    {
-      id: 'manual',
-      title: 'Add manual account',
-      subtitle: 'Manually track any account',
-      addedCount: 0,
-      icons: [],
-      iconColors: [],
-      isManual: true,
-    },
-  ];
-
-  const handleCategoryClick = (category: AccountCategory) => {
-    if (category.isManual) {
-      setStep('form');
-    } else if (category.path) {
-      onOpenChange(false);
-      router.push(category.path);
-    }
+  const handleSelectAccountType = (type: string, category: keyof typeof ACCOUNT_TYPES_BY_CATEGORY) => {
+    setSelectedType(type as any);
+    setSelectedCategory(category);
+    setValue('type', type as any);
+    setStep('form');
   };
 
   const handleBack = () => {
-    setStep('selection');
+    if (step === 'form') {
+      setStep('accountType');
+    } else if (step === 'accountType') {
+      setStep('selection');
+    } else if (step === 'selection' && view === 'manual') {
+      setView('initial');
+      setStep('selection');
+    }
     reset();
+  };
+
+  const handleCategorySelect = (category: keyof typeof ACCOUNT_TYPES_BY_CATEGORY) => {
+    setSelectedCategory(category);
+    setStep('accountType');
+  };
+
+  const handleManualAccountClick = () => {
+    setView('manual');
+    setStep('selection');
   };
 
   const onSubmit = async (data: AccountFormData) => {
@@ -192,6 +250,9 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         toast.success('Account created successfully!');
         reset();
         setStep('selection');
+        setSelectedType(null);
+        setSelectedCategory(null);
+        setView('initial');
         onOpenChange(false);
       },
       onError: (error: any) => {
@@ -202,7 +263,10 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   };
 
   const handleClose = () => {
+    setView('initial');
     setStep('selection');
+    setSelectedType(null);
+    setSelectedCategory(null);
     reset();
     onOpenChange(false);
   };
@@ -210,103 +274,278 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        {step === 'selection' ? (
+        {/* INITIAL VIEW - Connect accounts or manual */}
+        {view === 'initial' && step === 'selection' && (
           <>
-            {/* Selection View */}
             <DialogHeader className="pb-4">
               <DialogTitle className="text-xl font-semibold">Add an account</DialogTitle>
             </DialogHeader>
 
-            {/* Search Bar */}
-            <div className="pb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                <Input
-                  placeholder="Search 13,000 institutions..."
-                  className="pl-10 h-10 "
-                />
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryClick(category)}
-                  className={cn(
-                    'w-full flex items-center justify-between p-4 bg-card rounded-lg border shadow-xs border-border cursor-pointer',
-                    'hover:bg-muted/30 hover:border-border',
-                    'group focus:outline-none focus:ring-0'
-                  )}
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex-1 text-left">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-semibold text-sm text-foreground">{category.title}</h3>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{category.subtitle}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {category.id === 'import' || category.id === 'manual' ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-muted border border-bordder/80 flex items-center justify-center">
-                            {category.id === 'import' ? (
-                              <Upload className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <PlusIcon className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center -space-x-2">
-                            {category.icons.map((icon, idx) => (
-                              <div
-                                key={idx}
-                                className={cn(
-                                  'h-8 w-8 rounded-full flex items-center justify-center text-sm ring-2 ring-background',
-                                  category.iconColors[idx] || 'bg-muted'
-                                )}
-                              >
-                                <span className="text-white">{icon}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </>
-                      )}
-                    </div>
+            <div className="space-y-3">
+              {/* Banks & Credit Cards */}
+              <button
+                onClick={() => {}}
+                className={cn(
+                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                )}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-blue-500">
+                    <Building2 className="h-5 w-5" />
                   </div>
-                </button>
-              ))}
+                  <div className="text-left">
+                    <h3 className="font-semibold text-sm">Banks & credit cards</h3>
+                    <p className="text-xs text-muted-foreground">Connect your bank accounts</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+
+              {/* Investments & Loans */}
+              <button
+                onClick={() => {}}
+                className={cn(
+                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                )}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-green-500">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-sm">Investments & loans</h3>
+                    <p className="text-xs text-muted-foreground">Brokerages, retirement accounts, mortgages</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+
+              {/* Crypto & Real Estate */}
+              <button
+                onClick={() => {}}
+                className={cn(
+                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                )}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-purple-500">
+                    <Coins className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-sm">Real estate, crypto, and more</h3>
+                    <p className="text-xs text-muted-foreground">Properties, cryptocurrencies, collectibles</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+
+              <Separator className="my-2" />
+
+              {/* Import from CSV */}
+              <button
+                onClick={() => {}}
+                className={cn(
+                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                )}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground flex-shrink-0 bg-muted">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-sm">Import from CSV</h3>
+                    <p className="text-xs text-muted-foreground">Bulk import account data</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+
+              <Separator className="my-2" />
+
+              {/* Add Manual Account */}
+              <button
+                onClick={handleManualAccountClick}
+                className={cn(
+                  'flex items-center justify-between p-4 bg-card rounded-lg border-2 border-orange-200 dark:border-orange-900/30',
+                  'hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:border-orange-300 dark:hover:border-orange-800/50 transition-colors cursor-pointer'
+                )}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0 bg-orange-100 dark:bg-orange-950/40">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-sm">Add manual account</h3>
+                    <p className="text-xs text-muted-foreground">Create a custom account entry</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
             </div>
           </>
-        ) : (
+        )}
+
+        {/* MANUAL ACCOUNT FLOW - Choose Assets or Liabilities */}
+        {view === 'manual' && step === 'selection' && (
           <>
-            {/* Form View */}
+            <DialogHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" onClick={handleBack} className="h-8 w-8 p-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <DialogTitle className="text-lg">Add manual account</DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">Select account category</p>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Assets */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge className="bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300">ASSETS</Badge>
+                  <p className="text-sm text-muted-foreground">Money and valuables you own</p>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {ACCOUNT_TYPES_BY_CATEGORY.ASSETS.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategorySelect('ASSETS')}
+                      className={cn(
+                        'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                        'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                      )}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-blue-500">
+                          <category.icon className="h-5 w-5" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-sm">{category.name}</h3>
+                          <p className="text-xs text-muted-foreground">{category.description}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Liabilities */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge className="bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300">LIABILITIES</Badge>
+                  <p className="text-sm text-muted-foreground">Money and obligations you owe</p>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {ACCOUNT_TYPES_BY_CATEGORY.LIABILITIES.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategorySelect('LIABILITIES')}
+                      className={cn(
+                        'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                        'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                      )}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-red-500">
+                          <category.icon className="h-5 w-5" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-sm">{category.name}</h3>
+                          <p className="text-xs text-muted-foreground">{category.description}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ACCOUNT TYPE VIEW - Select specific type */}
+        {step === 'accountType' && selectedCategory && (
+          <>
+            <DialogHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" onClick={handleBack} className="h-8 w-8 p-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <DialogTitle className="text-lg">
+                    {selectedCategory === 'ASSETS' ? 'Select Asset Type' : 'Select Liability Type'}
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">Choose the specific account type</p>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-2">
+              {ACCOUNT_TYPES_BY_CATEGORY[selectedCategory].map((category) => {
+                // Map color names to solid colors
+                const colorMap: Record<string, string> = {
+                  'from-blue-500': 'bg-blue-500',
+                  'from-green-500': 'bg-green-500',
+                  'from-violet-500': 'bg-violet-500',
+                  'from-orange-500': 'bg-orange-500',
+                  'from-red-500': 'bg-red-500',
+                  'from-pink-500': 'bg-pink-500',
+                };
+                const baseColor = category.color.split(' ')[0];
+                const solidColor = colorMap[baseColor] || 'bg-gray-500';
+
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => handleSelectAccountType(category.type, selectedCategory)}
+                    className={cn(
+                      'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
+                      'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                    )}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={cn(
+                        'h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0',
+                        solidColor
+                      )}>
+                        <category.icon className="h-5 w-5" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-sm">{category.name}</h3>
+                        <p className="text-xs text-muted-foreground">{category.description}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* FORM VIEW */}
+        {step === 'form' && (
+          <>
             <DialogHeader className="pb-4">
               <div className="flex gap-3 items-start">
-                <div className="h-10 w-10 bg-gradient-to-br from-blue-500/70 to-indigo-600/70 rounded-xl flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-white" />
-                </div>
+                <Button variant="ghost" size="sm" onClick={handleBack} className="h-8 w-8 p-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
                 <div className="flex-1">
                   <DialogTitle className="text-sm">Add Manual Account</DialogTitle>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Manually track any financial account
+                    {ACCOUNT_TYPE_SUBTYPES[watchedType]?.label}
                   </p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBack}
-                  className="h-8"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  Back
-                </Button>
               </div>
             </DialogHeader>
 
@@ -315,72 +554,17 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Basic Information</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Account Name *</Label>
-                    <Input
-                      id="name"
-                      placeholder="My Savings Account"
-                      {...register('name')}
-                      className={errors.name ? 'border-red-500' : ''}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-red-600">{errors.name.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Account Type *</Label>
-                    <Controller
-                      name="type"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger size="sm">
-                            <SelectValue placeholder="Select account type">
-                              {field.value && (
-                                <div className="flex items-center gap-3 cursor-pointer">
-                                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                                    {(() => {
-                                      const accountType = ACCOUNT_TYPES.find(
-                                        (type) => type.value === field.value
-                                      );
-                                      return accountType ? (
-                                        <accountType.icon className="h-4 w-4" />
-                                      ) : null;
-                                    })()}
-                                  </div>
-                                  <span className="font-semibold text-xs">
-                                    {ACCOUNT_TYPES.find((type) => type.value === field.value)?.label}
-                                  </span>
-                                </div>
-                              )}
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ACCOUNT_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value} className="cursor-pointer">
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                                    <type.icon className="h-5 w-5" />
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <span className="font-medium text-xs">{type.label}</span>
-                                    <p className="text-[11px] text-muted-foreground">
-                                      {type.description}
-                                    </p>
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.type && (
-                      <p className="text-sm text-red-600">{errors.type.message}</p>
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Account Name *</Label>
+                  <Input
+                    id="name"
+                    placeholder="e.g., My Savings Account"
+                    {...register('name')}
+                    className={errors.name ? 'border-red-500' : ''}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-red-600">{errors.name.message}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -423,6 +607,39 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                 </div>
               </div>
 
+              {/* Subtype/Classification */}
+              <div className="space-y-2">
+                <Label htmlFor="subtype">Account Classification (Optional)</Label>
+                <Controller
+                  name="subtype"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
+                        <SelectTrigger size="sm" className="w-full">
+                          <SelectValue placeholder="Select a subtype (optional)" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          {ACCOUNT_TYPE_SUBTYPES[watchedType]?.subtypes.map((subtype) => (
+                            <SelectItem key={subtype} value={subtype}>
+                              {subtype.replace(/_/g, ' ')}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {field.value && (
+                        <Badge variant="secondary" className="w-fit text-xs">
+                          {field.value.replace(/_/g, ' ')}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Specific account subtype for better categorization
+                </p>
+              </div>
+
               <Separator />
 
               {/* Optional Information */}
@@ -434,13 +651,9 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                     <Label htmlFor="institutionName">Institution Name</Label>
                     <Input
                       id="institutionName"
-                      placeholder="Bank of America"
+                      placeholder="e.g., Bank of America"
                       {...register('institutionName')}
-                      className={errors.institutionName ? 'border-red-500' : ''}
                     />
-                    {errors.institutionName && (
-                      <p className="text-sm text-red-600">{errors.institutionName.message}</p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -449,11 +662,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                       id="accountNumber"
                       placeholder="****1234"
                       {...register('accountNumber')}
-                      className={errors.accountNumber ? 'border-red-500' : ''}
                     />
-                    {errors.accountNumber && (
-                      <p className="text-sm text-red-600">{errors.accountNumber.message}</p>
-                    )}
                   </div>
                 </div>
 
@@ -466,11 +675,8 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                         id="assetDescription"
                         placeholder="Describe the asset..."
                         {...register('assetDescription')}
-                        className={errors.assetDescription ? 'border-red-500' : ''}
+                        rows={3}
                       />
-                      {errors.assetDescription && (
-                        <p className="text-sm text-red-600">{errors.assetDescription.message}</p>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -538,7 +744,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   disabled={isPending}
                   size="sm"
                 >
-                  Cancel
+                  Back
                 </Button>
                 <Button
                   type="submit"
