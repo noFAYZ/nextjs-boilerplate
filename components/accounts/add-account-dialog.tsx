@@ -290,146 +290,63 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         {/* INITIAL VIEW - Connect accounts, Import, or Add Manual */}
         {view === 'initial' && step === 'selection' && (
           <>
-            <DialogHeader className="pb-6">
-              <DialogTitle className="text-2xl font-bold">Add an Account</DialogTitle>
-              <p className="text-sm text-muted-foreground mt-2">Choose how you want to add your account</p>
+            <DialogHeader className="pb-3">
+              <DialogTitle className="text-lg font-semibold">Add an Account</DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {/* CONNECT ACCOUNT OPTION */}
               <button
                 onClick={() => {}}
                 className={cn(
-                  'group relative w-full p-5 rounded-xl border-2 border-border transition-all duration-200',
-                  'hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg hover:shadow-blue-500/10',
-                  'bg-card hover:bg-blue-50 dark:hover:bg-blue-950/20 cursor-pointer'
+                  'w-full flex items-center gap-3 p-3 rounded-lg border border-border/80',
+                  'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left'
                 )}
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon Container */}
-                  <div className="flex-shrink-0">
-                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-                      <Building2 className="h-6 w-6" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 text-left">
-                    <h3 className="font-semibold text-base text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      Connect Account
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
-                      Link your bank, investment, or credit accounts securely
-                    </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
-                        Banks
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
-                        Investments
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
-                        More
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex-shrink-0 pt-2">
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                  </div>
+                <div className="flex-shrink-0 h-5 w-5 text-foreground/50">
+                  <Building2 className="h-5 w-5" />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm text-foreground">Connect Account</h3>
+                  <p className="text-xs text-muted-foreground">Link your existing accounts securely</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
               </button>
 
               {/* IMPORT OPTION */}
               <button
                 onClick={() => {}}
                 className={cn(
-                  'group relative w-full p-5 rounded-xl border-2 border-border transition-all duration-200',
-                  'hover:border-green-400 dark:hover:border-green-600 hover:shadow-lg hover:shadow-green-500/10',
-                  'bg-card hover:bg-green-50 dark:hover:bg-green-950/20 cursor-pointer'
+                  'w-full flex items-center gap-3 p-3 rounded-lg border border-border/80',
+                  'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left'
                 )}
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon Container */}
-                  <div className="flex-shrink-0">
-                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-shadow">
-                      <Upload className="h-6 w-6" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 text-left">
-                    <h3 className="font-semibold text-base text-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                      Import from File
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
-                      Bulk import accounts from CSV or spreadsheet files
-                    </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
-                        CSV
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
-                        Excel
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
-                        Quick
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex-shrink-0 pt-2">
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" />
-                  </div>
+                <div className="flex-shrink-0 h-5 w-5 text-foreground/50">
+                  <Upload className="h-5 w-5" />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm text-foreground">Import from File</h3>
+                  <p className="text-xs text-muted-foreground">Bulk import accounts from CSV or Excel</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
               </button>
 
               {/* ADD MANUAL ACCOUNT OPTION */}
               <button
                 onClick={handleManualAccountClick}
                 className={cn(
-                  'group relative w-full p-5 rounded-xl border-2 transition-all duration-200',
-                  'border-orange-300 dark:border-orange-700/50 hover:border-orange-400 dark:hover:border-orange-500',
-                  'bg-orange-50/50 dark:bg-orange-950/20 hover:bg-orange-100/70 dark:hover:bg-orange-950/40',
-                  'hover:shadow-lg hover:shadow-orange-500/15 cursor-pointer'
+                  'w-full flex items-center gap-3 p-3 rounded-lg border border-border/80',
+                  'bg-card hover:bg-muted/40 transition-colors duration-100 cursor-pointer text-left'
                 )}
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon Container */}
-                  <div className="flex-shrink-0">
-                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-                      <Plus className="h-6 w-6" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 text-left">
-                    <h3 className="font-semibold text-base text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                      Add Manually
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
-                      Create a custom account entry for any financial account type
-                    </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
-                        Cash
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
-                        Assets
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
-                        Loans
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex-shrink-0 pt-2">
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors" />
-                  </div>
+                <div className="flex-shrink-0 h-5 w-5 text-foreground/50">
+                  <Plus className="h-5 w-5" />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm text-foreground">Add Manually</h3>
+                  <p className="text-xs text-muted-foreground">Create a custom account entry</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
               </button>
             </div>
           </>
@@ -457,18 +374,18 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   <Badge className="bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300">ASSETS</Badge>
                   <p className="text-sm text-muted-foreground">Money and valuables you own</p>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-3">
                   {ACCOUNT_TYPES_BY_CATEGORY.ASSETS.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => handleDirectTypeSelect(category.type, 'ASSETS')}
                       className={cn(
-                        'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
-                        'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                        'flex items-center justify-between p-2 bg-muted/50 rounded-lg border border-border/80 shadow',
+                        'hover:translate-y-[-1px] hover:border-border/60 cursor-pointer'
                       )}
                     >
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-blue-500">
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center border shadow flex-shrink-0 bg-muted">
                           <category.icon className="h-5 w-5" />
                         </div>
                         <div className="text-left">
