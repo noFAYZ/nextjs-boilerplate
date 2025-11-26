@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { MageCalendar2 } from '@/components/icons/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 // Helper to get days in a month
 function getDaysInMonth(year: number, month: number): Date[] {
@@ -330,13 +331,7 @@ export function CalendarSubscriptionWidget() {
 
   // Loading State
   if (isLoading) {
-    return (
-      <div className="relative rounded-2xl border border-border bg-gradient-to-br from-background to-muted/20 p-6">
-        <div className="h-8 w-40 bg-muted/50 rounded-lg animate-pulse mb-6" />
-        <div className="aspect-[16/9] bg-muted/50 rounded-xl animate-pulse" />
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
-    );
+    return <CardSkeleton variant="chart" />;
   }
 
   return (

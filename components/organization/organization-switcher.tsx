@@ -33,6 +33,7 @@ import { PhUsersDuotone } from '../icons/icons';
 interface OrganizationSwitcherProps {
   className?: string;
   onOrgSelect?: (org: Organization) => void;
+  compact?: boolean
 }
 
 function OrgAvatar({ org, size = 'default' }: { org: Organization; size?: 'sm' | 'default' | 'lg' }) {
@@ -53,7 +54,7 @@ function OrgAvatar({ org, size = 'default' }: { org: Organization; size?: 'sm' |
   );
 }
 
-export function OrganizationSwitcher({ className = '', onOrgSelect }: OrganizationSwitcherProps) {
+export function OrganizationSwitcher({ className = '', onOrgSelect, compact }: OrganizationSwitcherProps) {
   const router = useRouter();
 
   // Data hooks
@@ -96,7 +97,7 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
   // Show loading state
   if (isLoading && !currentOrg) {
     return (
-      <div className={`flex items-center gap-3 px-3 py-2 rounded-md bg-muted ${className}`}>
+      <div className={`flex items-center gap-3 px-3 py-2 rounded-md border border-border/50  bg-muted ${className}`}>
         <div className="h-2 w-2 rounded-full animate-pulse bg-muted-foreground/50" />
         <span className="text-sm text-muted-foreground">Loading...</span>
       </div>
@@ -131,15 +132,23 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            'flex items-center  justify-between gap-3 w-full px-3 rounded-none shadow ',
+            'flex items-center  ',
             'group',
+            compact ? ' rounded-full w-full  ' : ' shadow-xs justify-between gap-3 w-full px-3 rounded-lg',
             className
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}
-          variant='outline2'
-       size='xl'
+          variant={compact ? 'outline' :'outline2'}
+       size={compact ? 'icon-lg' : 'xl'}
         >
-          <div className="flex items-center text-start gap-2 flex-1 min-w-0">
+          {compact? <>
+          
+            <OrgAvatar org={currentOrg} size="sm" />
+         
+        
+      
+          
+          </> : <>   <div className="flex items-center text-start gap-2 flex-1 min-w-0">
             <OrgAvatar org={currentOrg} size="sm" />
             <div className="flex-1 min-w-0">
              
@@ -151,7 +160,8 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
           <ChevronsUpDownIcon
             size={16}
             className="flex-shrink-0 text-muted-foreground  "
-          />
+          /></>}
+       
         </Button>
       </DropdownMenuTrigger>
 
@@ -175,6 +185,7 @@ export function OrganizationSwitcher({ className = '', onOrgSelect }: Organizati
                 )}
               >
                 <OrgAvatar org={org}   />
+                
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{org.name}</p>
                   {org.isPersonal && (

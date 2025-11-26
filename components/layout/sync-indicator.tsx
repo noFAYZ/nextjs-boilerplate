@@ -136,6 +136,7 @@ export function SyncIndicator() {
     // Process banking states
     Object.values(bankingSyncStates).forEach(state => {
       if (BANKING_SYNC_ACTIVE_STATUSES.includes(state.status as any)) {
+        console.log("sync stats", state.status)
         bankingSyncingCount++
         totalProgress += state.progress || 0
         syncingItemsCount++

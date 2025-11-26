@@ -143,8 +143,8 @@ export function useRealtimeSyncConnection(options: RealtimeSyncConnectionOptions
         const statusMap: Record<string, string> = {
           syncing_bank: 'syncing',
           syncing_balance: 'syncing_balance',
-          syncing_transactions: 'syncing_transactions',
-          completed_bank: 'completed',
+          syncing_transactions: 'syncing_transactions',  
+          sync_completed: 'completed',
           failed_bank: 'failed',
         };
 
@@ -208,7 +208,7 @@ export function useRealtimeSyncConnection(options: RealtimeSyncConnectionOptions
             }
             break;
 
-          case 'completed_bank':
+          case 'sync_completed':
             if (data.accountId) {
               bankingStore.completeRealtimeSync(data.accountId, data.syncedData);
 
@@ -222,7 +222,7 @@ export function useRealtimeSyncConnection(options: RealtimeSyncConnectionOptions
               queryClient.refetchQueries({ queryKey: bankingKeys.accounts() });
               queryClient.refetchQueries({ queryKey: bankingKeys.overview() });
 
-              toast.success('Bank account sync completed successfully');
+       
             }
             break;
 

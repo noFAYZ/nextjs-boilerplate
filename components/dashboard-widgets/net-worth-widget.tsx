@@ -27,6 +27,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { RefetchLoadingOverlay } from "../ui/refetch-loading-overlay";
+import { CardSkeleton } from "../ui/card-skeleton";
 
 // Account category configuration - same as /accounts page
 const categoryConfig = {
@@ -146,22 +147,7 @@ export function NetWorthWidget() {
 
   // Show skeleton when initially loading
   if (isLoading) {
-    return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-4">
-        <div className="space-y-3">
-          <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
-          <div className="h-8 w-48 bg-muted/50 rounded animate-pulse" />
-          <div className="space-y-2 pt-4">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="h-12 bg-muted/50 rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <CardSkeleton lines={4} />;
   }
   // Orange monotone color palette for all allocation types
   const colorMap: Record<string, { bar: string; dot: string; rgbBar: string }> = {

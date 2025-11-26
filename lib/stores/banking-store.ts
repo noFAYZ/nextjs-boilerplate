@@ -214,13 +214,12 @@ export const useBankingStore = create<BankingStore>()(
 
             // Auto-cleanup completed sync state after 5 seconds
             // This prevents the UI from showing "completed" as still active
-            setTimeout(() => {
+ 
               useBankingStore.setState((s) => {
                 if (s.realtimeSyncStates[accountId]?.status === 'completed') {
                   delete s.realtimeSyncStates[accountId];
-                }
-              });
-            }, 5000);
+                }})
+             
           }, false, 'completeRealtimeSync'),
 
         failRealtimeSync: (accountId, error) =>

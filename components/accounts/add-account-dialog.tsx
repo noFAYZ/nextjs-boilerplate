@@ -222,9 +222,22 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
     setStep('form');
   };
 
+  const handleDirectTypeSelect = (type: string, category: 'ASSETS' | 'LIABILITIES') => {
+    setSelectedType(type);
+    setSelectedCategory(category);
+    setValue('type', type as any);
+    setStep('form');
+  };
+
   const handleBack = () => {
     if (step === 'form') {
-      setStep('accountType');
+      if (view === 'manual') {
+        // In manual mode, go back to account type selection
+        setStep('selection');
+      } else {
+        // In initial mode, go back through accountType step
+        setStep('accountType');
+      }
     } else if (step === 'accountType') {
       setStep('selection');
     } else if (step === 'selection' && view === 'manual') {
@@ -389,7 +402,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
           </>
         )}
 
-        {/* MANUAL ACCOUNT FLOW - Choose Assets or Liabilities */}
+        {/* MANUAL ACCOUNT FLOW - Choose Account Type Directly */}
         {view === 'manual' && step === 'selection' && (
           <>
             <DialogHeader className="pb-4">
@@ -399,7 +412,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                 </Button>
                 <div>
                   <DialogTitle className="text-lg">Add manual account</DialogTitle>
-                  <p className="text-xs text-muted-foreground mt-1">Select account category</p>
+                  <p className="text-xs text-muted-foreground mt-1">Select account type</p>
                 </div>
               </div>
             </DialogHeader>
@@ -415,7 +428,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   {ACCOUNT_TYPES_BY_CATEGORY.ASSETS.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => handleCategorySelect('ASSETS')}
+                      onClick={() => handleDirectTypeSelect(category.type, 'ASSETS')}
                       className={cn(
                         'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
                         'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
@@ -448,7 +461,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   {ACCOUNT_TYPES_BY_CATEGORY.LIABILITIES.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => handleCategorySelect('LIABILITIES')}
+                      onClick={() => handleDirectTypeSelect(category.type, 'LIABILITIES')}
                       className={cn(
                         'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
                         'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'

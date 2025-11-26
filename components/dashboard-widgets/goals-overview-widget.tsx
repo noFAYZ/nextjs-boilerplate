@@ -21,6 +21,7 @@ import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '../ui/card';
 import { MageGoals, SolarCheckCircleBoldDuotone } from '../icons/icons';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 // Goal Item Component - Similar to Subscription List
 function GoalItem({ goal }: { goal: any }) {
@@ -243,20 +244,7 @@ export function GoalsOverviewWidget() {
 
   // Loading State
   if (goalsLoading) {
-    return (
-      <Card className="relative rounded-xl border border-border/50  ">
-        <div className="space-y-3">
-          <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
-          <div className="h-20 bg-muted/50 rounded-lg animate-pulse" />
-          <div className="space-y-1.5">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-12 bg-muted/50 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </Card>
-    );
+    return <CardSkeleton variant="list" itemsCount={3} />;
   }
 
   // Empty State

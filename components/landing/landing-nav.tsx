@@ -117,6 +117,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
           <div className="relative ">
             <div className="flex h-16 sm:h-14 items-center justify-between px-4">
 
+              
+
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 -ml-1 group" onClick={handleLinkClick}>
                 <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-11 h-11 object-contain transition-transform group-hover:scale-102" priority />

@@ -34,6 +34,16 @@ export interface UnifiedAccount {
   createdAt: string;
   updatedAt?: string;
 
+  // NEW FIELDS - Account Subtypes and Categorization
+  subtype?: string;
+  groupId?: string | null;
+  groupName?: string | null;
+  customCategories?: Array<{
+    id: string;
+    name: string;
+    priority: number; // 1=primary, 2=secondary
+  }>;
+
   // Optional fields for different account types
   assetDescription?: string | null;
   originalValue?: number | null;
@@ -44,7 +54,16 @@ export interface UnifiedAccount {
   state?: string | null;
   country?: string | null;
   postalCode?: string | null;
-  groupId?: string | null;
+
+  // Enhanced metadata
+  metadata?: {
+    appreciationRate?: number;
+    originalValue?: number;
+    protocol?: string; // For DeFi
+    stakedAmount?: number;
+    linkedAssetId?: string;
+    [key: string]: unknown;
+  };
 }
 
 // Account Group by Category
@@ -137,6 +156,10 @@ export interface CreateManualAccountRequest {
   accountNumber?: string;
   groupId?: string;
 
+  // NEW FIELDS
+  subtype?: string; // Fine-grained account classification
+  customCategoryIds?: string[]; // Map to custom categories
+
   // For asset accounts
   assetDescription?: string;
   originalValue?: number;
@@ -154,4 +177,9 @@ export interface UpdateAccountRequest {
   balance?: number;
   isActive?: boolean;
   institutionName?: string;
+
+  // NEW FIELDS
+  subtype?: string;
+  customCategoryIds?: string[];
+  groupId?: string | null;
 }

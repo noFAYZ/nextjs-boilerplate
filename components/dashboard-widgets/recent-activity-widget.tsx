@@ -14,6 +14,7 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { categoryIcons, type Category } from '@/lib/constants/transaction-categories';
 import { SolarBillListBoldDuotone, SolarClipboardListBoldDuotone } from '@/components/icons/icons';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export function RecentActivityWidget() {
   const { data: transactionsResponse, isLoading } = useOrganizationBankingTransactions({
@@ -39,24 +40,7 @@ export function RecentActivityWidget() {
 
   // Loading State
   if (isLoading) {
-    return (
-      <Card className="relative h-full w-full flex flex-col border border-border/50">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-xl bg-green-300 flex items-center justify-center">
-              <SolarClipboardListBoldDuotone className="h-4 w-4 text-green-900" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 bg-muted/50 rounded-lg animate-pulse" />
-          ))}
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </Card>
-    );
+    return <CardSkeleton variant="list" itemsCount={6} />;
   }
 
   // Empty State

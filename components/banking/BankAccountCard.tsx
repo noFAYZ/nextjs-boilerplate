@@ -34,6 +34,7 @@ import { format } from 'date-fns';
 
 import type { BankAccount, BankingSyncStatus } from '@/lib/types/banking';
 import { useBankingStore } from '@/lib/stores/banking-store';
+import { AccountCategoryBadges } from './AccountCategoryBadges';
 
 interface BankAccountCardProps {
   account: BankAccount;
@@ -302,12 +303,26 @@ export function BankAccountCard({
             </div>
           )}
 
-          {/* Account Type Badge */}
-          <div className="pt-2 border-t">
-            <Badge variant="outline" className="text-xs">
-              <DollarSign className="h-3 w-3 mr-1" />
-              {accountConfig.description}
-            </Badge>
+          {/* Account Type and Categories */}
+          <div className="pt-2 border-t space-y-2">
+            <div className="flex flex-wrap gap-1">
+              <Badge variant="outline" className="text-xs">
+                <DollarSign className="h-3 w-3 mr-1" />
+                {accountConfig.description}
+              </Badge>
+              {account.subtype && (
+                <Badge variant="secondary" className="text-xs">
+                  {account.subtype.replace(/_/g, ' ')}
+                </Badge>
+              )}
+            </div>
+            {account.customCategories && account.customCategories.length > 0 && (
+              <AccountCategoryBadges
+                categories={account.customCategories}
+                maxDisplay={2}
+                showPriority={true}
+              />
+            )}
           </div>
         </div>
       </CardContent>

@@ -31,7 +31,6 @@ import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
 
-
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
   activeMenuItem: string | null;
@@ -81,7 +80,7 @@ export function SidebarMainColumn({
       <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
       {/* Sidebar Header - Logo */}
-      <div className="flex h-14 md:h-16 items-center justify-center px-3 md:px-4">
+      <div className="flex h-14 md:h-16 items-center  px-3 md:px-4">
         {!mainColumnExpanded ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -108,10 +107,30 @@ export function SidebarMainColumn({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <OrganizationSwitcher />
+      
+          <Link href="/"
+          className="flex items-center gap-2 group relative   ">
+            <Image
+            src="/logo/mappr.svg"
+            alt="MoneyMappr logo"
+            width={48}
+            height={48}
+            className="object-contain w-11 h-11   "
+            priority
+          />
+       {/*  <LogoMappr className='w-10 h-10 antialiased'/> */}
+          <div className="flex flex-col">
+            <span className="text-base sm:text-base font-bold ">
+              MoneyMappr
+            </span>
+            <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
+              Financial Intelligence
+            </span>
+          </div>
+        </Link>
         )}
       </div>
-
+    {/* <OrganizationSwitcher /> */}
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
@@ -197,11 +216,11 @@ export function SidebarMainColumn({
       </div>
 
       {/* Footer Actions */}
-      <div className={cn("pb-2 md:pb-3 space-y-2", mainColumnExpanded ? "px-2 md:px-2" : "px-1 md:px-1")}>
+      <div className={cn("pb-2 md:pb-3 space-y-6", mainColumnExpanded ? "px-2 md:px-2" : "px-1 md:px-1")}>
 
         {mainColumnExpanded && (
           <div className="px-2">
-            <div className="space-y-2 rounded-lg bg-gradient-to-br from-muted/90 via-muted/30 to-muted border border-border p-2 shadow-sm">
+            <div className="space-y-2 rounded-lg bg-gradient-to-br from-muted/90 via-muted/30 to-muted border border-border/80 p-2 shadow-sm">
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-lg md:rounded-xl bg-background border border-border/80 shadow-sm flex-shrink-0">
                   <Crown className="h-4 md:h-5 w-4 md:w-5" />
@@ -213,10 +232,10 @@ export function SidebarMainColumn({
               </div>
 
               <div className="flex items-center justify-between pt-2">
-                <span className="text-[9px] md:text-[10px] text-muted-foreground font-medium">14-day free trial</span>
+                <span className="text-[11px] text-muted-foreground font-medium">14-day free trial</span>
                 <Button
-                  size="sm"
-                  className="h-6 md:h-7 text-[10px] md:text-[11px] px-2 md:px-3 font-medium"
+                  size="xs"
+                  className=" h-6  md:text-[11px]  font-semibold"
                   onClick={() => router.push("/subscription")}
                 >
                   Upgrade
@@ -229,7 +248,11 @@ export function SidebarMainColumn({
 
         {/* Profile Dropdown */}
         <div className={cn("px-2  ", !mainColumnExpanded && "flex justify-center")}>
-          <Tooltip>
+
+          {mainColumnExpanded ? <OrganizationSwitcher  /> : <OrganizationSwitcher compact /> }
+
+
+        {/*   <Tooltip>
             <DropdownMenu>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
@@ -314,7 +337,7 @@ export function SidebarMainColumn({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       </div>
       </div>

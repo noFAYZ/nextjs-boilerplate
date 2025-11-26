@@ -7,6 +7,7 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '../ui/currency-display';
 import SpendingIncomeChart from './SpendingIncomeChart';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 export function MonthlySpendingTrendWidget() {
   // Fetch monthly trend data (last 6 months)
@@ -60,15 +61,7 @@ export function MonthlySpendingTrendWidget() {
 
   // Show skeleton when initially loading
   if (monthlyTrendLoading) {
-    return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
-        <h3 className="text-xs font-medium text-muted-foreground mb-4">Monthly trend</h3>
-        <div className="space-y-3">
-          <div className="h-48 bg-muted/50 rounded animate-pulse" />
-          <div className="h-16 bg-muted/50 rounded animate-pulse" />
-        </div>
-      </div>
-    );
+    return <CardSkeleton variant="chart" />;
   }
 
   if (!trendSummary) {

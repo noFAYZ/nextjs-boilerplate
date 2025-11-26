@@ -21,8 +21,18 @@ export interface BankAccount {
   lastTellerSync: string;
   syncStatus: BankingSyncStatus;
   groupId?: string;
+  groupName?: string;
   ledgerBalance?: string;
   availableBalance?: string;
+
+  // NEW FIELDS - Enhanced account classification
+  subtype?: string;
+  customCategories?: Array<{
+    id: string;
+    name: string;
+    priority: number; // 1=primary, 2=secondary
+  }>;
+
   createdAt: string;
   updatedAt: string;
   tellerEnrollment: TellerEnrollment;
@@ -48,6 +58,10 @@ export interface UpdateBankAccountRequest {
   name?: string;
   isActive?: boolean;
   groupId?: string | null;
+
+  // NEW FIELDS
+  subtype?: string;
+  customCategoryIds?: string[];
 }
 
 // Bank Transaction Types

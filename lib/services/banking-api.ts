@@ -574,6 +574,53 @@ class BankingApiService {
     throw new Error('Banking sync now uses unified crypto SSE stream. Use the crypto sync stream instead.');
   }
 
+  // ============================================================================
+  // ACCOUNT CATEGORY MAPPING
+  // ============================================================================
+
+  /**
+   * Map a bank account to a custom category
+   */
+  async mapAccountToCategory(
+    accountId: string,
+    categoryId: string,
+    priority: number = 1,
+    organizationId?: string
+  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    return apiClient.post(
+      `${this.basePath}/accounts/${accountId}/categories/${categoryId}`,
+      { priority },
+      organizationId
+    );
+  }
+
+  /**
+   * Unmap a bank account from a custom category
+   */
+  async unmapAccountFromCategory(
+    accountId: string,
+    categoryId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    return apiClient.delete(
+      `${this.basePath}/accounts/${accountId}/categories/${categoryId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Get accounts in a category (including nested categories)
+   */
+  async getAccountsByCategory(
+    categoryId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<BankAccount[]>> {
+    return apiClient.get(
+      `/accounts/categories/${categoryId}/accounts`,
+      organizationId
+    );
+  }
+
   // Account status helpers
   async checkAccountsHealth(organizationId?: string): Promise<ApiResponse<{
     totalAccounts: number;

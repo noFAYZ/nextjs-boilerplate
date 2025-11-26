@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
+import { CardSkeleton } from '../ui/card-skeleton';
 import type { LucideIcon } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -109,29 +110,7 @@ export function SpendingCategoriesWidget() {
 
   // Show skeleton when initially loading
   if (spendingCategoriesLoading) {
-    return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
-          <TimePeriodSelector
-            value={period}
-            onChange={setPeriod}
-            size="xs"
-            variant="ghost"
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center h-60">
-          <div className="relative w-40 h-40 mb-4">
-            <div className="absolute inset-0 rounded-full bg-muted/50 animate-pulse" />
-          </div>
-          <div className="grid grid-cols-2 gap-2 w-full">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <CardSkeleton variant="chart" />;
   }
 
   if (categoryData.length === 0) {

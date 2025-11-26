@@ -7,6 +7,7 @@ import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-d
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '../ui/currency-display';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 interface TokenAllocation {
   symbol: string;
@@ -51,23 +52,7 @@ export function CryptoAllocationWidget() {
 
   // Show skeleton when initially loading
   if (portfolioLoading) {
-    return (
-      <div className="rounded-xl border border-border bg-card p-3">
-        <h3 className="text-xs font-medium text-muted-foreground mb-3">Token allocation</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className={`rounded-lg p-3 bg-muted/50 ${i === 0 ? 'row-span-2' : ''}`}
-              style={{ minHeight: i === 0 ? '140px' : '68px' }}
-            >
-              <div className="h-3 w-10 bg-muted rounded mb-2 animate-pulse" />
-              <div className="h-5 w-16 bg-muted rounded mt-auto animate-pulse" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <CardSkeleton variant="grid" itemsCount={6} />;
   }
 
   if (topTokens.length === 0) {

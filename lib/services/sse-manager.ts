@@ -271,8 +271,8 @@ class SSEManager {
         // Banking events
         case 'sync_progress':
         case 'syncing_bank':
+        case 'sync_completed':
         case 'syncing_transactions_bank':
-        case 'completed_bank':
         case 'failed_bank':
           this.notifySubscribers('banking_sync', data);
           break;

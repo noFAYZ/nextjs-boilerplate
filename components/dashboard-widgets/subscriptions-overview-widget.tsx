@@ -25,6 +25,7 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 // Compact Subscription List Item
 function SubscriptionItem({ subscription }: { subscription: UserSubscription }) {
@@ -239,24 +240,7 @@ export function SubscriptionsOverviewWidget() {
  
   // Loading State
   if (subscriptionsLoading) {
-    return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 lg:col-span-2">
-        <div className="space-y-2.5">
-          <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
-          <div className="grid grid-cols-2 gap-2">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
-            ))}
-          </div>
-          <div className="space-y-1.5 mt-3">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-12 bg-muted/50 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
-    );
+    return <CardSkeleton variant="list" itemsCount={4} />;
   }
 
   // Empty State

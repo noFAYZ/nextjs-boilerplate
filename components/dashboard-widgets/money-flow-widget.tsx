@@ -23,6 +23,7 @@ import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-dat
 import { useSubscriptions } from '@/lib/queries';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 /* ------------------------ Types ------------------------ */
 export interface FlowNodeBase {
@@ -250,12 +251,7 @@ export default function MoneyFlowWidget() {
   const clearHover = () => setHoverInfo(null);
 
   if (loading) {
-    return (
-      <div className="relative rounded-2xl border border-border bg-background p-4 animate-pulse">
-        <div className="h-72 bg-muted/60 rounded-lg" />
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
-    );
+    return <CardSkeleton variant="chart" />;
   }
 
   const sourceCount = nodes.filter(n => n.level === 'source').length;

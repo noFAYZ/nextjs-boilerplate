@@ -7,6 +7,7 @@ import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 export function AccountSpendingComparisonWidget() {
   const [period, setPeriod] = useState<TimePeriod>('this_month');
@@ -49,28 +50,7 @@ export function AccountSpendingComparisonWidget() {
   };
 
   if (isLoading) {
-    return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-medium text-muted-foreground">Account spendings</h3>
-          <TimePeriodSelector
-            value={period}
-            onChange={setPeriod}
-            size="xs"
-            variant="ghost"
-          />
-        </div>
-        <div className="space-y-3">
-          <div className="h-32 bg-muted/50 rounded-lg animate-pulse" />
-          <div className="grid grid-cols-2 gap-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-20 bg-muted/50 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
-    );
+    return <CardSkeleton variant="chart" />;
   }
 
   if (sortedAccounts.length === 0) {

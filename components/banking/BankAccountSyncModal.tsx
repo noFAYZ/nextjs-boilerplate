@@ -34,18 +34,17 @@ export function BankAccountSyncModal({
   const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [isAutoClosing, setIsAutoClosing] = useState(false);
   const syncState = useBankingStore(state => selectAccountSyncState(state, accountId));
-  const { realtimeSyncConnected, realtimeSyncError } = useBankingStore();
+  const { realtimeSyncConnected, realtimeSyncError, clearRealtimeSyncState } = useBankingStore();
 
   // Auto-close modal 3 seconds after completion
   useEffect(() => {
     if (syncState?.status === 'completed' && !isAutoClosing) {
       setIsAutoClosing(true);
-      autoCloseTimerRef.current = setTimeout(() => {
-        onClose();
+      onClose();
         if (onSyncComplete) {
           onSyncComplete();
         }
-      }, 3000);
+  
     } else if (syncState?.status !== 'completed' && isAutoClosing) {
       setIsAutoClosing(false);
       if (autoCloseTimerRef.current) {
@@ -53,6 +52,7 @@ export function BankAccountSyncModal({
         autoCloseTimerRef.current = null;
       }
     }
+
   }, [syncState?.status, onClose, onSyncComplete, isAutoClosing]);
 
   // Clean up timer on unmount
@@ -137,10 +137,12 @@ export function BankAccountSyncModal({
     onClose();
   }, [onClose, accountId, accountName, syncState]);
 
+
+
   // Show default initializing state if no sync state exists yet
   const progress = syncState?.progress || 0;
-  const status = syncState?.status || 'queued';
-  const message = syncState?.message || 'Initializing sync...';
+  const status = syncState?.status  ;
+  const message = syncState?.message  ;
   const error = syncState?.error;
   const isActive = ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(status);
   const isCompleted = status === 'completed';
@@ -205,13 +207,13 @@ export function BankAccountSyncModal({
             {/* Sync Details */}
             {syncState?.startedAt && isActive && (
               <div className="text-xs text-muted-foreground">
-                Started: {syncState.startedAt.toLocaleTimeString()}
+                Started: {new Date(syncState?.startedAt)?.toLocaleTimeString()}
               </div>
             )}
 
             {syncState?.completedAt && (isCompleted || isFailed) && (
               <div className="text-xs text-muted-foreground">
-                {isCompleted ? 'Completed' : 'Failed'}: {syncState.completedAt.toLocaleTimeString()}
+                {isCompleted ? 'Completed' : 'Failed'}: {new Date(syncState.completedAt)?.toLocaleTimeString()}
               </div>
             )}
 

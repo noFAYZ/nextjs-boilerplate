@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export function UpcomingBillsWidget() {
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({
@@ -72,18 +73,7 @@ export function UpcomingBillsWidget() {
   };
 
   if (subscriptionsLoading) {
-    return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <h3 className="text-xs font-medium text-muted-foreground mb-3">Upcoming bills</h3>
-        <div className="space-y-2">
-          <div className="h-16 bg-muted/50 rounded-lg animate-pulse" />
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-14 bg-muted/50 rounded-lg animate-pulse" />
-          ))}
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
-    );
+    return <CardSkeleton variant="list" itemsCount={6} />;
   }
 
   if (upcomingBills.length === 0) {

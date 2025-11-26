@@ -51,7 +51,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(npm install:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(dir \"F:\\moneymappr\\frontend\\components\\landing\" /s /b *.tsx)"
     ],
     "deny": [],
     "ask": []

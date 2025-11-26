@@ -479,6 +479,87 @@ export function useDisconnectBankAccount(accountId?: string, organizationId?: st
 }
 
 // ============================================================================
+// CATEGORY MAPPING MUTATIONS
+// ============================================================================
+
+/**
+ * Map a bank account to a custom category
+ * @param organizationId - Optional organization ID to scope data
+ * @returns Mutation hook with cache invalidation
+ */
+export function useMapAccountToCategory(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      accountId,
+      categoryId,
+      priority,
+    }: {
+      accountId: string;
+      categoryId: string;
+      priority?: number;
+    }) => {
+      const response = await bankingApi.mapAccountToCategory(
+        accountId,
+        categoryId,
+        priority || 1,
+        organizationId
+      );
+      if (response.success) {
+        return response.data;
+      }
+      throw new Error(response.error?.message || 'Failed to map account to category');
+    },
+    onSuccess: (_data, variables) => {
+      // Invalidate account queries to update customCategories
+      queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+      queryClient.invalidateQueries({ queryKey: bankingKeys.account(variables.accountId) });
+
+      // Invalidate category queries
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+/**
+ * Unmap a bank account from a custom category
+ * @param organizationId - Optional organization ID to scope data
+ * @returns Mutation hook with cache invalidation
+ */
+export function useUnmapAccountFromCategory(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      accountId,
+      categoryId,
+    }: {
+      accountId: string;
+      categoryId: string;
+    }) => {
+      const response = await bankingApi.unmapAccountFromCategory(
+        accountId,
+        categoryId,
+        organizationId
+      );
+      if (response.success) {
+        return response.data;
+      }
+      throw new Error(response.error?.message || 'Failed to unmap account from category');
+    },
+    onSuccess: (_data, variables) => {
+      // Invalidate account queries to update customCategories
+      queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+      queryClient.invalidateQueries({ queryKey: bankingKeys.account(variables.accountId) });
+
+      // Invalidate category queries
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+// ============================================================================
 // SYNC MUTATIONS
 // ============================================================================
 

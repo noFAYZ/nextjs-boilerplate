@@ -19,6 +19,7 @@ import MoneyMapprFeatureSection from '@/components/landing/subscription-manageme
 import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
 
 import { TestimonialsDemo } from '@/components/landing/subscription-management/testimonials-section';
+import Skiper16 from '@/components/landing/subscription-management/skiper-feature';
 
 
 export default function LandingPage() {
@@ -32,7 +33,7 @@ export default function LandingPage() {
       <LandingHero />
 <FinanceHeroDubStyle />
    <MoneyMapprFeatureSection />
-
+<Skiper16 />
    
     {/*   <Header /> < FeaturesSectionWithHoverEffects />
   

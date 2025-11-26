@@ -80,6 +80,7 @@ import {
 } from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
 import { TransactionsDataTable, UnifiedTransaction } from "@/components/transactions/transactions-data-table";
+import { AccountSubtypeAndCategoryForm } from "@/components/banking";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -134,6 +135,7 @@ export default function BankAccountDetailsPage() {
   const [transactionView, setTransactionView] = useState<"list" | "table">(
     "table"
   );
+  const [editingCategories, setEditingCategories] = useState(false);
   const { pageClass } = useViewModeClasses();
   // Currency context
   useCurrency();
@@ -698,6 +700,82 @@ export default function BankAccountDetailsPage() {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-4">
+          {/* Account Categories & Subtype Section */}
+          {editingCategories ? (
+            <Card variant="outlined">
+              <CardHeader className="p-4">
+                <CardTitle className="text-base">Categories & Subtype</CardTitle>
+                <CardDescription className="text-xs">
+                  Edit account classification
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <AccountSubtypeAndCategoryForm
+                  account={account}
+                  onSuccess={() => setEditingCategories(false)}
+                  onCancel={() => setEditingCategories(false)}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card variant="outlined">
+              <CardHeader className="p-4">
+                <CardTitle className="text-base">Categories & Subtype</CardTitle>
+                <CardDescription className="text-xs">
+                  Organize account with categories
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="space-y-3">
+                  {account.subtype && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Account Subtype
+                      </p>
+                      <Badge variant="secondary">
+                        {account.subtype.replace(/_/g, ' ')}
+                      </Badge>
+                    </div>
+                  )}
+                  {account.customCategories && account.customCategories.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Categories
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {account.customCategories.map((cat) => (
+                          <Badge
+                            key={cat.id}
+                            variant={cat.priority === 1 ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {cat.name}
+                            {cat.priority === 1 && ' ★'}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!account.subtype && (!account.customCategories || account.customCategories.length === 0) && (
+                    <p className="text-xs text-muted-foreground">
+                      No categories or subtype assigned
+                    </p>
+                  )}
+                </div>
+                <Separator className="my-3" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setEditingCategories(true)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Edit Categories & Subtype
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card variant="outlined">
               <CardHeader className="p-4">

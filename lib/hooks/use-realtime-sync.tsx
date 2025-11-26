@@ -382,7 +382,7 @@ export class MultiWalletSyncTracker {
           }
           break;
 
-        case 'completed_bank':
+        case 'sync_completed':
           if (data.accountId && this.onBankingComplete) {
             try {
               this.onBankingComplete(data.accountId, {

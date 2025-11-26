@@ -159,7 +159,7 @@ export function useUnifiedAutoSync() {
         bankingSuccess = true;
         bankingJobsCount = bankingResult.value.data.syncJobs.length;
 
-        // Initialize sync states for bank accounts
+  /*       // Initialize sync states for bank accounts
         bankingResult.value.data.syncJobs.forEach(job => {
           useBankingStore.setState((state) => {
             state.realtimeSyncStates[job.accountId] = {
@@ -168,7 +168,7 @@ export function useUnifiedAutoSync() {
               message: 'Starting account sync...'
             };
           });
-        });
+        }); */
 
         console.log(`✅ Banking auto-sync initiated for ${bankingJobsCount} accounts`);
       } else {

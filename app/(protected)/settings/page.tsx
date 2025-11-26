@@ -36,6 +36,7 @@ import {
   getWithTimestamp,
 } from '@/lib/utils';
 import { CreateOrganizationModal, OrganizationSettings } from '@/components/organization';
+import { CategoryManagementModal } from '@/components/banking';
 
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
@@ -46,6 +47,7 @@ export default function SettingsPage() {
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   // ✅ Load preferences using centralized utilities
   useEffect(() => {
@@ -457,6 +459,25 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Account Categories Section */}
+        <Card className="border shadow-none">
+          <CardContent className="p-3 space-y-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-8 w-8 bg-muted rounded-lg flex items-center justify-center">
+                <Wallet className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold">Account Categories</h2>
+                <p className="text-xs text-muted-foreground">Organize accounts with custom categories</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Create hierarchical categories to organize and group your accounts by type, purpose, or any custom classification.</p>
+            <Button onClick={() => setCategoryModalOpen(true)} className="w-full">
+              Manage Categories
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Crypto Section */}
         <Card className="border shadow-none">
           <CardContent className="p-3 space-y-4">
@@ -560,6 +581,11 @@ export default function SettingsPage() {
 
 
         </Tabs>
+
+        <CategoryManagementModal
+          open={categoryModalOpen}
+          onOpenChange={setCategoryModalOpen}
+        />
       </div>
     </div>
   );

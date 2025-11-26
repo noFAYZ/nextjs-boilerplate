@@ -8,6 +8,7 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
+import { CardSkeleton } from '../ui/card-skeleton';
 
 const NETWORK_COLORS: Record<string, string> = {
   ETHEREUM: 'bg-blue-100 dark:bg-blue-950/40',
@@ -75,23 +76,7 @@ export function NetworkDistributionWidget() {
 
   // Show skeleton when initially loading
   if (portfolioLoading) {
-    return (
-      <div className="rounded-xl border border-border bg-background dark:bg-card p-3">
-        <h3 className="text-xs font-medium text-muted-foreground mb-3">Network distribution</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className={`rounded-lg p-3 bg-muted/50 ${i === 0 ? 'row-span-2' : ''}`}
-              style={{ minHeight: i === 0 ? '140px' : '68px' }}
-            >
-              <div className="h-3 w-10 bg-muted rounded mb-2 animate-pulse" />
-              <div className="h-5 w-16 bg-muted rounded mt-auto animate-pulse" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <CardSkeleton variant="grid" itemsCount={6} />;
   }
 
   if (networkData.length === 0) {
