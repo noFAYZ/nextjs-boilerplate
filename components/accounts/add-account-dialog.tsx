@@ -287,116 +287,149 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        {/* INITIAL VIEW - Connect accounts or manual */}
+        {/* INITIAL VIEW - Connect accounts, Import, or Add Manual */}
         {view === 'initial' && step === 'selection' && (
           <>
-            <DialogHeader className="pb-4">
-              <DialogTitle className="text-xl font-semibold">Add an account</DialogTitle>
+            <DialogHeader className="pb-6">
+              <DialogTitle className="text-2xl font-bold">Add an Account</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-2">Choose how you want to add your account</p>
             </DialogHeader>
 
             <div className="space-y-3">
-              {/* Banks & Credit Cards */}
+              {/* CONNECT ACCOUNT OPTION */}
               <button
                 onClick={() => {}}
                 className={cn(
-                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
-                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                  'group relative w-full p-5 rounded-xl border-2 border-border transition-all duration-200',
+                  'hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg hover:shadow-blue-500/10',
+                  'bg-card hover:bg-blue-50 dark:hover:bg-blue-950/20 cursor-pointer'
                 )}
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-blue-500">
-                    <Building2 className="h-5 w-5" />
+                <div className="flex items-start gap-4">
+                  {/* Icon Container */}
+                  <div className="flex-shrink-0">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                      <Building2 className="h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-sm">Banks & credit cards</h3>
-                    <p className="text-xs text-muted-foreground">Connect your bank accounts</p>
+
+                  {/* Content */}
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-base text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      Connect Account
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
+                      Link your bank, investment, or credit accounts securely
+                    </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
+                        Banks
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
+                        Investments
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
+                        More
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex-shrink-0 pt-2">
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
 
-              {/* Investments & Loans */}
+              {/* IMPORT OPTION */}
               <button
                 onClick={() => {}}
                 className={cn(
-                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
-                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
+                  'group relative w-full p-5 rounded-xl border-2 border-border transition-all duration-200',
+                  'hover:border-green-400 dark:hover:border-green-600 hover:shadow-lg hover:shadow-green-500/10',
+                  'bg-card hover:bg-green-50 dark:hover:bg-green-950/20 cursor-pointer'
                 )}
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-green-500">
-                    <TrendingUp className="h-5 w-5" />
+                <div className="flex items-start gap-4">
+                  {/* Icon Container */}
+                  <div className="flex-shrink-0">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-shadow">
+                      <Upload className="h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-sm">Investments & loans</h3>
-                    <p className="text-xs text-muted-foreground">Brokerages, retirement accounts, mortgages</p>
+
+                  {/* Content */}
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-base text-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                      Import from File
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
+                      Bulk import accounts from CSV or spreadsheet files
+                    </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                        CSV
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                        Excel
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                        Quick
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex-shrink-0 pt-2">
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" />
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
 
-              {/* Crypto & Real Estate */}
-              <button
-                onClick={() => {}}
-                className={cn(
-                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
-                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
-                )}
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white flex-shrink-0 bg-purple-500">
-                    <Coins className="h-5 w-5" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-sm">Real estate, crypto, and more</h3>
-                    <p className="text-xs text-muted-foreground">Properties, cryptocurrencies, collectibles</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-
-              <Separator className="my-2" />
-
-              {/* Import from CSV */}
-              <button
-                onClick={() => {}}
-                className={cn(
-                  'flex items-center justify-between p-4 bg-card rounded-lg border border-border',
-                  'hover:bg-muted/40 hover:border-border/60 transition-colors cursor-pointer'
-                )}
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-muted-foreground flex-shrink-0 bg-muted">
-                    <Upload className="h-5 w-5" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-sm">Import from CSV</h3>
-                    <p className="text-xs text-muted-foreground">Bulk import account data</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-
-              <Separator className="my-2" />
-
-              {/* Add Manual Account */}
+              {/* ADD MANUAL ACCOUNT OPTION */}
               <button
                 onClick={handleManualAccountClick}
                 className={cn(
-                  'flex items-center justify-between p-4 bg-card rounded-lg border-2 border-orange-200 dark:border-orange-900/30',
-                  'hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:border-orange-300 dark:hover:border-orange-800/50 transition-colors cursor-pointer'
+                  'group relative w-full p-5 rounded-xl border-2 transition-all duration-200',
+                  'border-orange-300 dark:border-orange-700/50 hover:border-orange-400 dark:hover:border-orange-500',
+                  'bg-orange-50/50 dark:bg-orange-950/20 hover:bg-orange-100/70 dark:hover:bg-orange-950/40',
+                  'hover:shadow-lg hover:shadow-orange-500/15 cursor-pointer'
                 )}
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0 bg-orange-100 dark:bg-orange-950/40">
-                    <Plus className="h-5 w-5" />
+                <div className="flex items-start gap-4">
+                  {/* Icon Container */}
+                  <div className="flex-shrink-0">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                      <Plus className="h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-sm">Add manual account</h3>
-                    <p className="text-xs text-muted-foreground">Create a custom account entry</p>
+
+                  {/* Content */}
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-base text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                      Add Manually
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
+                      Create a custom account entry for any financial account type
+                    </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
+                        Cash
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
+                        Assets
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-orange-100 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300">
+                        Loans
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex-shrink-0 pt-2">
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors" />
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
             </div>
           </>
