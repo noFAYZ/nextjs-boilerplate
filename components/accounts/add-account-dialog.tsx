@@ -571,7 +571,17 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                   <Label htmlFor="name">Account Name *</Label>
                   <Input
                     id="name"
-                    placeholder="e.g., My Savings Account"
+                    placeholder={
+                      watchedType === 'CHECKING' ? 'e.g., My Checking Account' :
+                      watchedType === 'SAVINGS' ? 'e.g., Emergency Fund' :
+                      watchedType === 'INVESTMENT' ? 'e.g., Fidelity Brokerage' :
+                      watchedType === 'CRYPTO' ? 'e.g., Bitcoin Wallet' :
+                      watchedType === 'CREDIT_CARD' ? 'e.g., Chase Sapphire' :
+                      watchedType === 'LOAN' || watchedType === 'MORTGAGE' ? 'e.g., Home Mortgage' :
+                      watchedType === 'REAL_ESTATE' ? 'e.g., Primary Residence' :
+                      watchedType === 'VEHICLE' ? 'e.g., 2022 Tesla Model 3' :
+                      'e.g., My Account'
+                    }
                     {...register('name')}
                     className={errors.name ? 'border-red-500' : ''}
                   />
@@ -582,7 +592,12 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="balance">Initial Balance *</Label>
+                    <Label htmlFor="balance">
+                      {watchedType === 'CREDIT_CARD' ? 'Current Balance *' :
+                       watchedType === 'LOAN' || watchedType === 'MORTGAGE' ? 'Loan Balance *' :
+                       watchedType === 'CRYPTO' ? 'Wallet Balance *' :
+                       'Current Balance *'}
+                    </Label>
                     <Input
                       id="balance"
                       type="number"
@@ -622,7 +637,14 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
               {/* Subtype/Classification */}
               <div className="space-y-2">
-                <Label htmlFor="subtype">Account Classification (Optional)</Label>
+                <Label htmlFor="subtype">
+                  {watchedType === 'CHECKING' || watchedType === 'SAVINGS' ? 'Account Type (Optional)' :
+                   watchedType === 'INVESTMENT' ? 'Investment Type (Optional)' :
+                   watchedType === 'CRYPTO' ? 'Blockchain/Chain (Optional)' :
+                   watchedType === 'CREDIT_CARD' ? 'Card Type (Optional)' :
+                   watchedType === 'LOAN' || watchedType === 'MORTGAGE' ? 'Loan Type (Optional)' :
+                   'Account Classification (Optional)'}
+                </Label>
                 <Controller
                   name="subtype"
                   control={control}
@@ -630,7 +652,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                     <div className="space-y-2">
                       <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <SelectTrigger size="sm" className="w-full">
-                          <SelectValue placeholder="Select a subtype (optional)" />
+                          <SelectValue placeholder="Select type (optional)" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
                           {ACCOUNT_TYPE_SUBTYPES[watchedType]?.subtypes.map((subtype) => (
@@ -648,45 +670,157 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                     </div>
                   )}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Specific account subtype for better categorization
-                </p>
               </div>
 
               <Separator />
 
-              {/* Optional Information */}
+              {/* Account Type Specific Fields */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Optional Information</h3>
+                <h3 className="text-lg font-semibold">
+                  {watchedType === 'CHECKING' || watchedType === 'SAVINGS' ? 'Bank Account Details' :
+                   watchedType === 'INVESTMENT' ? 'Investment Account Details' :
+                   watchedType === 'CRYPTO' ? 'Wallet Details' :
+                   watchedType === 'CREDIT_CARD' ? 'Credit Card Details' :
+                   watchedType === 'LOAN' || watchedType === 'MORTGAGE' ? 'Loan Details' :
+                   'Asset Details'}
+                </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="institutionName">Institution Name</Label>
-                    <Input
-                      id="institutionName"
-                      placeholder="e.g., Bank of America"
-                      {...register('institutionName')}
-                    />
-                  </div>
+                {/* CHECKING/SAVINGS Fields */}
+                {(watchedType === 'CHECKING' || watchedType === 'SAVINGS') && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionName">Bank Name</Label>
+                        <Input
+                          id="institutionName"
+                          placeholder="e.g., Chase, Bank of America"
+                          {...register('institutionName')}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Account Number</Label>
+                        <Input
+                          id="accountNumber"
+                          placeholder="Last 4 digits: ****1234"
+                          {...register('accountNumber')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="accountNumber">Account Number</Label>
-                    <Input
-                      id="accountNumber"
-                      placeholder="****1234"
-                      {...register('accountNumber')}
-                    />
-                  </div>
-                </div>
+                {/* INVESTMENT Fields */}
+                {watchedType === 'INVESTMENT' && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionName">Broker/Firm Name</Label>
+                        <Input
+                          id="institutionName"
+                          placeholder="e.g., Fidelity, Vanguard, Charles Schwab"
+                          {...register('institutionName')}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Account Number</Label>
+                        <Input
+                          id="accountNumber"
+                          placeholder="e.g., ACC-12345678"
+                          {...register('accountNumber')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
-                {/* Asset-specific fields */}
+                {/* CRYPTO Fields */}
+                {watchedType === 'CRYPTO' && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionName">Exchange/Wallet Provider</Label>
+                        <Input
+                          id="institutionName"
+                          placeholder="e.g., Coinbase, Metamask, Kraken"
+                          {...register('institutionName')}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Wallet Address</Label>
+                        <Input
+                          id="accountNumber"
+                          placeholder="e.g., 0x742d35Cc6634C0532925a3b844Bc..."
+                          {...register('accountNumber')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* CREDIT_CARD Fields */}
+                {watchedType === 'CREDIT_CARD' && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionName">Card Issuer</Label>
+                        <Input
+                          id="institutionName"
+                          placeholder="e.g., Chase, American Express, Visa"
+                          {...register('institutionName')}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Card Last 4 Digits</Label>
+                        <Input
+                          id="accountNumber"
+                          placeholder="e.g., 4242"
+                          {...register('accountNumber')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* LOAN/MORTGAGE Fields */}
+                {(watchedType === 'LOAN' || watchedType === 'MORTGAGE') && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionName">Lender Name</Label>
+                        <Input
+                          id="institutionName"
+                          placeholder={watchedType === 'MORTGAGE' ? 'e.g., Wells Fargo Mortgage' : 'e.g., SoFi, LendingClub'}
+                          {...register('institutionName')}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Loan Number</Label>
+                        <Input
+                          id="accountNumber"
+                          placeholder="e.g., LOAN-123456"
+                          {...register('accountNumber')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* REAL_ESTATE/VEHICLE/OTHER_ASSET Fields */}
                 {(watchedType === 'REAL_ESTATE' || watchedType === 'VEHICLE' || watchedType === 'OTHER_ASSET') && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="assetDescription">Asset Description</Label>
+                      <Label htmlFor="assetDescription">
+                        {watchedType === 'REAL_ESTATE' ? 'Property Description' :
+                         watchedType === 'VEHICLE' ? 'Vehicle Details' :
+                         'Asset Description'}
+                      </Label>
                       <Textarea
                         id="assetDescription"
-                        placeholder="Describe the asset..."
+                        placeholder={
+                          watchedType === 'REAL_ESTATE' ? 'e.g., 3-bedroom house with 2-car garage' :
+                          watchedType === 'VEHICLE' ? 'e.g., 2022 Tesla Model 3, Black, Excellent condition' :
+                          'Describe the asset...'
+                        }
                         {...register('assetDescription')}
                         rows={3}
                       />
@@ -694,7 +828,11 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="originalValue">Original Value</Label>
+                        <Label htmlFor="originalValue">
+                          {watchedType === 'REAL_ESTATE' ? 'Purchase Price' :
+                           watchedType === 'VEHICLE' ? 'Original Cost' :
+                           'Original Value'}
+                        </Label>
                         <Input
                           id="originalValue"
                           type="number"
@@ -705,7 +843,9 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="purchaseDate">Purchase Date</Label>
+                        <Label htmlFor="purchaseDate">
+                          {watchedType === 'VEHICLE' ? 'Purchase Date' : 'Acquired Date'}
+                        </Label>
                         <Input
                           id="purchaseDate"
                           type="date"
@@ -714,36 +854,63 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Address</Label>
-                      <Input
-                        id="address"
-                        placeholder="123 Main St"
-                        {...register('address')}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {watchedType === 'REAL_ESTATE' && (
                       <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
-                        <Input id="city" {...register('city')} />
+                        <Label htmlFor="address">Property Address</Label>
+                        <Input
+                          id="address"
+                          placeholder="123 Main Street"
+                          {...register('address')}
+                        />
                       </div>
+                    )}
 
-                      <div className="space-y-2">
-                        <Label htmlFor="state">State</Label>
-                        <Input id="state" {...register('state')} />
-                      </div>
+                    {watchedType === 'VEHICLE' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="institutionName">Make & Model</Label>
+                            <Input
+                              id="institutionName"
+                              placeholder="e.g., Tesla Model 3"
+                              {...register('institutionName')}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="accountNumber">VIN (Optional)</Label>
+                            <Input
+                              id="accountNumber"
+                              placeholder="Vehicle Identification Number"
+                              {...register('accountNumber')}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
 
-                      <div className="space-y-2">
-                        <Label htmlFor="country">Country</Label>
-                        <Input id="country" {...register('country')} />
-                      </div>
+                    {(watchedType === 'REAL_ESTATE' || watchedType === 'VEHICLE') && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input id="city" placeholder="City" {...register('city')} />
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="postalCode">Postal Code</Label>
-                        <Input id="postalCode" {...register('postalCode')} />
+                        <div className="space-y-2">
+                          <Label htmlFor="state">State</Label>
+                          <Input id="state" placeholder="State" {...register('state')} />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="country">Country</Label>
+                          <Input id="country" {...register('country')} />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="postalCode">Postal Code</Label>
+                          <Input id="postalCode" {...register('postalCode')} />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </>
                 )}
               </div>
