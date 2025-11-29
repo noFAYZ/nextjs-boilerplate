@@ -68,6 +68,7 @@ interface BankAccountsDataTableProps {
   isLoading?: boolean;
   hideFilters?: boolean;
   selectedIds?: string[];
+  operatingIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
   onDisconnect?: (account: BankAccount) => void;
   onDelete?: (account: BankAccount) => void;
@@ -104,6 +105,7 @@ export function BankAccountsDataTable({
   isLoading,
   hideFilters = false,
   selectedIds: externalSelectedIds = EMPTY_ARRAY,
+  operatingIds = EMPTY_ARRAY,
   onSelectionChange,
   onDisconnect,
   onDelete,
@@ -338,22 +340,25 @@ export function BankAccountsDataTable({
             {paginatedAccounts.map((account) => {
               const gradient = bankTypeGradients[account.type] || bankTypeGradients.DEFAULT;
               const accountLabel = accountTypeLabels[account.type] || account.type;
-              const lastFour = account.accountNumber.slice(-4);
+              const lastFour = account.accountNumber?.slice(-4);
               const balance = parseFloat(account.availableBalance || account.balance.toString() || "0");
               const isCreditCard = account.type === "CREDIT_CARD";
               const creditLimit = isCreditCard ? parseFloat(account.ledgerBalance || "0") : 0;
               const creditUsed = isCreditCard && creditLimit > 0 ? creditLimit - balance : 0;
-              
+
               const isSelected = selectedIds.includes(account.id);
+              const isOperating = operatingIds.includes(account.id);
 
               return (
                 <TableRow
                   key={account.id}
                   className={cn(
-                    "group border-b border-border/30 hover:bg-muted/30 transition-colors py-2 cursor-pointer",
-                    isSelected && "bg-primary/5"
+                    "group border-b border-border/30 hover:bg-muted/30 transition-colors py-2",
+                    !isOperating && "cursor-pointer",
+                    isSelected && "bg-primary/5",
+                    isOperating && "bg-primary/10 opacity-70 cursor-not-allowed"
                   )}
-                  onClick={() => handleRowClick(account.id)}
+                  onClick={() => !isOperating && handleRowClick(account.id)}
                 >
                   <TableCell className="px-2 sm:px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -366,55 +371,76 @@ export function BankAccountsDataTable({
 
                   <TableCell className="px-2 sm:px-4 py-3 group-hover:text-primary transition-colors">
                     <div className="flex items-center gap-2 sm:gap-3">
-                   
-
-                      <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted   text-foreground flex items-center justify-center flex-shrink-0">
-                      {getAccountIcon(account.type)}
-                        </div>
+                      <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted text-foreground flex items-center justify-center flex-shrink-0">
+                        {isOperating ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        ) : (
+                          getAccountIcon(account.type)
+                        )}
+                      </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <p className="font-semibold text-xs sm:text-sm truncate">
-                            {account.name}
-                          </p>
-                          <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
-                            {accountLabel}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate hidden sm:block">
-                          {account.institutionName} • ****{lastFour}
-                        </p>
+                        {isOperating ? (
+                          <div className="space-y-2">
+                            <div className="h-4 bg-muted animate-pulse rounded w-32" />
+                            <div className="h-3 bg-muted animate-pulse rounded w-48" />
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <p className="font-semibold text-xs sm:text-sm truncate">
+                                {account.name}
+                              </p>
+                              <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
+                                {accountLabel}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate hidden sm:block">
+                              {account.institutionName} • ****{lastFour}
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </TableCell>
 
                   <TableCell className="hidden sm:table-cell text-right px-4 py-3">
-                    {getSyncStatusBadge(account.syncStatus)}
+                    {isOperating ? (
+                      <div className="h-6 bg-muted animate-pulse rounded w-20 ml-auto" />
+                    ) : (
+                      getSyncStatusBadge(account.syncStatus)
+                    )}
                   </TableCell>
 
                   <TableCell className="hidden lg:table-cell text-right px-4 py-3">
-                    <p className="text-sm font-semibold">
-                      <CurrencyDisplay
-                        amountUSD={balance}
-                        variant="small"
-                        isLoading={isLoading}
-                      />
-                    </p>
+                    {isOperating ? (
+                      <div className="h-5 bg-muted animate-pulse rounded w-24 ml-auto" />
+                    ) : (
+                      <p className="text-sm font-semibold">
+                        <CurrencyDisplay
+                          amountUSD={balance}
+                          variant="small"
+                          isLoading={isLoading}
+                        />
+                      </p>
+                    )}
                   </TableCell>
 
                   <TableCell className="hidden xl:table-cell text-right px-4 py-3">
-                    {isCreditCard && creditLimit > 0 ? (
+                    {isOperating ? (
+                      <div className="h-5 bg-muted animate-pulse rounded w-28 ml-auto" />
+                    ) : isCreditCard && creditLimit > 0 ? (
                       <div className="flex flex-col items-end gap-0.5">
-                         <p className="text-sm font-medium">
-                            <CurrencyDisplay
-                              amountUSD={creditLimit}
-                              variant="small"
-                              formatOptions={{ notation: "compact" }}
-                            />
-                          </p>
-                          <span className="text-xs text-muted-foreground">
-                            {Math.round((creditUsed / creditLimit) * 100)}% used
-                          </span>
+                        <p className="text-sm font-medium">
+                          <CurrencyDisplay
+                            amountUSD={creditLimit}
+                            variant="small"
+                            formatOptions={{ notation: "compact" }}
+                          />
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {Math.round((creditUsed / creditLimit) * 100)}% used
+                        </span>
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-sm">—</span>
@@ -422,64 +448,74 @@ export function BankAccountsDataTable({
                   </TableCell>
 
                   <TableCell className="hidden lg:table-cell text-right px-4 py-3">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <SolarClockCircleBoldDuotone className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(account.lastTellerSync), { addSuffix: true })}
-                      </span>
-                    </div>
+                    {isOperating ? (
+                      <div className="h-5 bg-muted animate-pulse rounded w-32 ml-auto" />
+                    ) : (
+                      <div className="flex items-center justify-end gap-1.5">
+                        <SolarClockCircleBoldDuotone className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(account.lastTellerSync), { addSuffix: true })}
+                        </span>
+                      </div>
+                    )}
                   </TableCell>
 
                   <TableCell
                     className="text-center px-2 sm:px-4 py-3"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleRowClick(account.id)}>
-                            <Edit3 className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            onSync?.(account);
-                          }}>
-                            <SolarRefreshCircleBoldDuotone className="mr-2 h-4 w-4" />
-                            Sync Account
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDisconnect?.(account);
-                            }}
-                          >
-                            <StreamlineUltimatePowerPlugDisconnected className="mr-2 h-4 w-4" />
-                            Disconnect
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete?.(account);
-                            }}
-                          >
-                            <SolarTrashBinTrashOutline className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                    {isOperating ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              className="h-8 w-8"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleRowClick(account.id)}>
+                              <Edit3 className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              onSync?.(account);
+                            }}>
+                              <SolarRefreshCircleBoldDuotone className="mr-2 h-4 w-4" />
+                              Sync Account
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDisconnect?.(account);
+                              }}
+                            >
+                              <StreamlineUltimatePowerPlugDisconnected className="mr-2 h-4 w-4" />
+                              Disconnect
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDelete?.(account);
+                              }}
+                            >
+                              <SolarTrashBinTrashOutline className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               );

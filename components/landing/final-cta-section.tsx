@@ -9,7 +9,7 @@ export function FinalCTASection() {
     <section className="py-16 ">
       <div className="container mx-auto px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-lg  bg-muted/70 p-12 text-center">
+          <div className="rounded-[2rem]  bg-card p-12 text-center">
             <h2 className="text-2xl font-semibold mb-3">
               Ready to get started?
             </h2>
@@ -17,14 +17,14 @@ export function FinalCTASection() {
               Start tracking your complete financial picture in minutes. No credit card required.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/auth/signup">
-                <Button size="default">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 h-4 w-4" />
+              <Link href="/#hero">
+                <Button size="sm">
+                  Join Wsitlist Now
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="#pricing">
-                <Button variant="outline" size="default">
+                <Button variant="outline" size="sm">
                   View Pricing
                 </Button>
               </Link>

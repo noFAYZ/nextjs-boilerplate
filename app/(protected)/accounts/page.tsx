@@ -22,6 +22,8 @@ import {
   Home,
   Package,
   ArrowRight,
+  Dot,
+  PenIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -52,6 +54,12 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
 // Unified accounts API
@@ -62,12 +70,19 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { NetWorthChart } from '@/components/networth/networth-chart';
 import {
   DuoIconsCreditCard,
+  FluentPlugConnectedCheckmark20Filled,
+  FluentPlugDisconnected20Filled,
   HeroiconsWallet,
   MdiDollar,
   MdiDragVertical,
+  MdiPen,
+  SolarPenNewSquareBoldDuotone,
   StreamlineFreehandMoneyCashBill,
+  StreamlineUltimatePaperWrite,
 } from '@/components/icons/icons';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
+import { getAccountTypeDisplayName } from '@/lib/types/unified-accounts';
+import { AccountType } from '@/lib/types';
 
 /* -------------------------------------------------------------------------- */
 /*                         CATEGORY CONFIGURATION                             */
@@ -80,11 +95,30 @@ interface DraggableAccountItemProps {
     id: string;
     name: string;
     balance: number;
-    status?: string;
-    category?: string;
-    type?: string;
-    source?: string;
-    metadata?: Record<string, string>;
+    category: string; // e.g., "CASH"
+    type: string; // e.g., "CHECKING"
+    source: string; // e.g., "financial"
+  
+    currency: string; // e.g., "USD"
+    provider: string; // e.g., "PLAID"
+    providerAccountId: string; // e.g., plaid account ID
+  
+    institutionName: string | null; // nullable
+    isActive: boolean;
+  
+    createdAt: string; // ISO date
+    lastSyncAt: string; // ISO date
+  
+    metadata: {
+      assetDescription: string | null;
+      purchaseDate: string | null;
+      plaidAccountId?: string | null;
+      plaidMask?: string | null;
+      tellerAccountId?: string | null;
+      [key: string]: any;
+    };
+  
+    // Optional — only if present from other data sources
     institution?: string;
     accountNumber?: string;
   };
@@ -106,7 +140,7 @@ function DraggableAccountItem({
     transition,
     opacity: isSortableDragging ? 0.4 : 1,
   };
-
+ 
   return (
     <div
       ref={setNodeRef}
@@ -127,22 +161,59 @@ function DraggableAccountItem({
       </div>
 
       {/* Icon */}
-      <div className="h-10 w-10 rounded-full bg-muted flex items-center border justify-center flex-shrink-0">
+      <div className=" relative h-10 w-10 rounded-full bg-muted flex items-center border justify-center flex-shrink-0">
         {isCrypto ? (
           <HeroiconsWallet className="h-6 w-6" />
         ) : (
           <MdiDollar className="h-6 w-6" />
         )}
+
+<div className='absolute -bottom-2 bg-muted  rounded-full -right-1 flex p-0.5 items-center ring-1 ring-background'>
+          {account.source && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild >
+                  {account.source === 'manual' ? (
+                    <div className='cursor-help'>
+                      <MdiPen className='text-yellow-700 w-4 h-4' />
+                    </div>
+                  ) : (
+                    <div className='cursor-help'>
+                      {account.isActive ? (
+                        <FluentPlugConnectedCheckmark20Filled className='text-lime-700 w-4.5 h-4.5' />
+                      ) : (
+                        <FluentPlugDisconnected20Filled className='text-amber-700 w-4.5 h-4.5' />
+                      )}
+                    </div>
+                  )}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {account.source === 'manual' ? (
+                    'Manual Account'
+                  ) : account.isActive ? (
+                    'Connected (Active)'
+                  ) : (
+                    'Connected (Inactive)'
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-md font-medium text-foreground truncate transition-colors group-hover:text-primary">
-          {account.name}
-        </p>
+        <div className="text-md font-medium text-foreground truncate transition-colors group-hover:text-primary flex items-center gap-2">
+          {account.name} 
+       
+        </div>
         <div className="flex items-center gap-1.5 mt-0.5">
           <p className="text-[11px] text-muted-foreground truncate">
-            {isCrypto ? `${account.metadata?.network || 'Crypto'} Wallet` : account.institution || 'Bank Account'}
+            {isCrypto ? 
+            `${account.metadata?.network || 'Crypto'} ${getAccountTypeDisplayName(account.metadata.walletType as AccountType )}` 
+            : 
+            account.institution || getAccountTypeDisplayName(account.type as AccountType ) || 'Bank Account'}
           </p>
           {account.accountNumber && (
             <>
@@ -150,7 +221,10 @@ function DraggableAccountItem({
               <p className="text-[10px] text-muted-foreground">••{account.accountNumber?.slice(-4)}</p>
             </>
           )}
+
+
         </div>
+       
       </div>
 
       {/* Amount & Status */}
@@ -162,19 +236,9 @@ function DraggableAccountItem({
             <span className="text-muted-foreground font-bold text-xs">••••••</span>
           )}
         </div>
-        {account.status && (
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[9px] font-medium flex-shrink-0",
-              account.status === 'ACTIVE'
-                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
-                : "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/30"
-            )}
-          >
-            {account.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-          </Badge>
-        )}
+
+      
+         
       </div>
 
       {/* Hover Indicator */}
@@ -184,10 +248,23 @@ function DraggableAccountItem({
 }
 
 const categoryConfig = {
-  CASH: { label: 'Cash', icon: <StreamlineFreehandMoneyCashBill className="h-6 w-6" /> },
-  CREDIT: { label: 'Credit Cards', icon: <DuoIconsCreditCard className="h-6 w-6" /> },
+  // Assets
+  CASH: { label: 'Cash & Equivalents', icon: <StreamlineFreehandMoneyCashBill className="h-6 w-6" /> },
   INVESTMENTS: { label: 'Investments', icon: <TrendingUp className="h-6 w-6" /> },
-  CRYPTO: { label: 'Crypto', icon: <HeroiconsWallet className="h-6 w-6" /> },
+  REAL_ESTATE: { label: 'Real Estate', icon: <Home className="h-6 w-6" /> },
+  VEHICLE: { label: 'Vehicles', icon: <Wallet className="h-6 w-6" /> },
+  VALUABLES: { label: 'Valuables', icon: <Package className="h-6 w-6" /> },
+  CRYPTO: { label: 'Cryptocurrency', icon: <HeroiconsWallet className="h-6 w-6" /> },
+  OTHER_ASSET: { label: 'Other Assets', icon: <Package className="h-6 w-6" /> },
+
+  // Liabilities
+  CREDIT_CARD: { label: 'Credit Cards', icon: <DuoIconsCreditCard className="h-6 w-6" /> },
+  MORTGAGE: { label: 'Mortgages', icon: <Home className="h-6 w-6" /> },
+  LOAN: { label: 'Loans', icon: <TrendingDown className="h-6 w-6" /> },
+  OTHER_LIABILITY: { label: 'Other Liabilities', icon: <Package className="h-6 w-6" /> },
+
+  // Legacy/Fallback
+  CREDIT: { label: 'Credit Cards', icon: <DuoIconsCreditCard className="h-6 w-6" /> },
   ASSETS: { label: 'Assets', icon: <Home className="h-6 w-6" /> },
   LIABILITIES: { label: 'Liabilities', icon: <TrendingDown className="h-6 w-6" /> },
   OTHER: { label: 'Other Accounts', icon: <Package className="h-6 w-6" /> },
@@ -527,7 +604,7 @@ export default function AccountsPage() {
 
   // Handle account click - navigate to account details
   const handleAccountClick = (accountId: string) => {
-    router.push(`/accounts/bank/${accountId}`);
+    router.push(`/accounts/${accountId}`);
   };
 
   // Handle drag end for reordering
@@ -556,6 +633,7 @@ export default function AccountsPage() {
     }
   };
 
+console.log(accountsData)
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
@@ -581,14 +659,14 @@ export default function AccountsPage() {
  
 
       {/* Body Layout */}
-      <div className="flex-1 overflow-auto  ">
+      <div className="">
 
-        {/* Full-width Chart */}
+        {/* Full-width Chart
         {showNetWorth && (
           <div className="mb-8">
-            <NetWorthChart mode="demo"   height={250}  />
+            <NetWorthChart mode="live"   height={250}  />
           </div>
-        )}
+        )} */}
 
 
 
@@ -597,6 +675,8 @@ export default function AccountsPage() {
 
           {/* Accordions Column */}
           <div className="lg:col-span-8">
+     
+
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <Accordion type="multiple" defaultValue={categoriesWithAccounts.map(c => c.key)} className='space-y-2'>
                 {categoriesWithAccounts.map(group => {
@@ -613,9 +693,9 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden border border-border/50   "
+                      className="overflow-hidden rounded-xl border border-border/50  "
                     >
-                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-lg cursor-pointer ">
+                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card  rouneded-lg cursor-pointer hover:bg-card/80">
                         {/* Icon */}
                         <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
                           {config.icon}
@@ -624,7 +704,7 @@ export default function AccountsPage() {
                         {/* Info */}
                         <div className="flex-1 min-w-0 text-left">
                           <div className="flex items-center">
-                            <h3 className="font-semibold text-base text-foreground truncate">
+                            <h3 className="font-medium text-[15px] text-foreground truncate">
                               {config.label}
                             </h3>
                           </div>
@@ -675,6 +755,11 @@ export default function AccountsPage() {
 
           {/* Right Sidebar Summary */}
           <div className="lg:col-span-4">
+          {showNetWorth && (
+          <div className="mb-3">
+            <NetWorthChart mode="live"   height={250}  />
+          </div>
+        )}
             <SummarySidebar summary={summaryData} />
           </div>
         </div>

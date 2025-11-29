@@ -84,18 +84,9 @@ export function SidebarMainColumn({
         {!mainColumnExpanded ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link
-                href="/dashboard"
-                className="flex items-center justify-center hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/logo/mappr.svg"
-                  alt="MoneyMappr logo"
-                  width={62}
-                  height={62}
-                  className="object-contain w-10 md:w-12 h-10 md:h-12"
-                  priority
-                />
+            <Link href="/" className="flex items-center gap-2 -ml-1 group text-[40px] font-bold text-orange-500" >
+             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
+             𒀭
               </Link>
             </TooltipTrigger>
             <TooltipContent
@@ -110,7 +101,11 @@ export function SidebarMainColumn({
       
           <Link href="/"
           className="flex items-center gap-2 group relative   ">
-            <Image
+               <span  className="flex  group text-[42px] font-bold text-orange-500">
+             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
+             𒀭
+              </span>
+            {/*     <Image
             src="/logo/mappr.svg"
             alt="MoneyMappr logo"
             width={48}
@@ -118,7 +113,19 @@ export function SidebarMainColumn({
             className="object-contain w-11 h-11   "
             priority
           />
-       {/*  <LogoMappr className='w-10 h-10 antialiased'/> */}
+     <Link
+                href="/dashboard"
+                className="flex items-center justify-center hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/logo/mappr.svg"
+                  alt="MoneyMappr logo"
+                  width={62}
+                  height={62}
+                  className="object-contain w-10 md:w-12 h-10 md:h-12"
+                  priority
+                />
+              </Link> <LogoMappr className='w-10 h-10 antialiased'/> */}
           <div className="flex flex-col">
             <span className="text-base sm:text-base font-bold ">
               MoneyMappr
@@ -128,13 +135,19 @@ export function SidebarMainColumn({
             </span>
           </div>
         </Link>
+
+
         )}
       </div>
-    {/* <OrganizationSwitcher /> */}
+
+
+    {/* <OrganizationSwitcher />
+    
+    */}
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1.5 px-2 ")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 md:px-4" : "space-y-1 px-3 ")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -156,18 +169,18 @@ export function SidebarMainColumn({
                     size="lg"
                     className={cn(
                       "w-full h-auto shadow-none rounded-sm",
-                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5 md:p-2" : "justify-center p-1.5 md:p-2 border-r border-border/50  ",
+                      mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5  " : "justify-center p-1.5   border-r border-border/50  ",
                       isHighlighted
                         ? "dark:bg-muted/60 bg-accent/50 hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-6 w-4 md:w-6" : "h-5  w-5 md:h-6 md:w-6 ")}  />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5  w-5  ")}  />}
                   >
 
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-normal text-xs md:text-sm truncate",
+                        "font-medium text-[13px] truncate",
                         isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}

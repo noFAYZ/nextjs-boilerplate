@@ -26,10 +26,19 @@ interface BankingUIState {
 
   // Filter State
   filters: {
-    accountTypes: string[]; // 'checking', 'savings', 'credit', etc.
+    // Account classification filters (NEW: supports 128+ types and 13 categories)
+    accountCategories: string[]; // CASH, INVESTMENTS, REAL_ESTATE, CREDIT_CARD, MORTGAGE, LOAN, etc.
+    accountTypes: string[]; // CHECKING, SAVINGS, RETIREMENT_401K, PERSONAL_CREDIT_CARD, etc.
+
+    // Provider and institution filters
+    providers: string[]; // TELLER, PLAID, STRIPE, MANUAL
     institutions: string[];
+
+    // Transaction filters
     transactionCategories: string[];
     transactionTypes: string[]; // 'debit', 'credit'
+
+    // Date and amount range filters
     dateRange: {
       from: Date | null;
       to: Date | null;
@@ -38,6 +47,8 @@ interface BankingUIState {
       min: number | null;
       max: number | null;
     };
+
+    // Search
     searchQuery: string;
   };
 
@@ -79,8 +90,12 @@ interface BankingUIActions {
   selectAccount: (accountId: string | null) => void;
   selectEnrollment: (enrollmentId: string | null) => void;
 
-  // Filter Actions
+  // Filter Actions - Account Classification (NEW)
+  setAccountCategoryFilter: (categories: string[]) => void;
   setAccountTypeFilter: (types: string[]) => void;
+  setProviderFilter: (providers: string[]) => void;
+
+  // Filter Actions - Other
   setInstitutionFilter: (institutions: string[]) => void;
   setTransactionCategoryFilter: (categories: string[]) => void;
   setTransactionTypeFilter: (types: string[]) => void;
@@ -88,6 +103,13 @@ interface BankingUIActions {
   setAmountRangeFilter: (min: number | null, max: number | null) => void;
   setSearchQuery: (query: string) => void;
   clearFilters: () => void;
+
+  // Derived filter helpers
+  filterAccountsByCategory: (accounts: any[], category: string) => any[];
+  filterAccountsByType: (accounts: any[], type: string) => any[];
+  filterAccountsByProvider: (accounts: any[], provider: string) => any[];
+  filterAssetAccounts: (accounts: any[]) => any[];
+  filterLiabilityAccounts: (accounts: any[]) => any[];
 
   // View Preference Actions
   setAccountsView: (view: 'grid' | 'list' | 'grouped') => void;
@@ -139,7 +161,9 @@ const initialState: BankingUIState = {
 
   // Filters
   filters: {
+    accountCategories: [],
     accountTypes: [],
+    providers: [],
     institutions: [],
     transactionCategories: [],
     transactionTypes: [],
@@ -204,13 +228,26 @@ export const useBankingUIStore = create<BankingUIStore>()(
           }, false, 'banking-ui/selectEnrollment'),
 
         // ================================================================
-        // FILTER ACTIONS
+        // FILTER ACTIONS - Account Classification
         // ================================================================
+        setAccountCategoryFilter: (categories) =>
+          set((state) => {
+            state.filters.accountCategories = categories;
+          }, false, 'banking-ui/setAccountCategoryFilter'),
+
         setAccountTypeFilter: (types) =>
           set((state) => {
             state.filters.accountTypes = types;
           }, false, 'banking-ui/setAccountTypeFilter'),
 
+        setProviderFilter: (providers) =>
+          set((state) => {
+            state.filters.providers = providers;
+          }, false, 'banking-ui/setProviderFilter'),
+
+        // ================================================================
+        // FILTER ACTIONS - Other
+        // ================================================================
         setInstitutionFilter: (institutions) =>
           set((state) => {
             state.filters.institutions = institutions;
@@ -247,6 +284,29 @@ export const useBankingUIStore = create<BankingUIStore>()(
           set((state) => {
             state.filters = initialState.filters;
           }, false, 'banking-ui/clearFilters'),
+
+        // ================================================================
+        // FILTER HELPER ACTIONS (Derived filters for accounts)
+        // ================================================================
+        filterAccountsByCategory: (accounts, category) => {
+          return accounts.filter((acc) => acc.category === category);
+        },
+
+        filterAccountsByType: (accounts, type) => {
+          return accounts.filter((acc) => acc.type === type);
+        },
+
+        filterAccountsByProvider: (accounts, provider) => {
+          return accounts.filter((acc) => acc.provider === provider);
+        },
+
+        filterAssetAccounts: (accounts) => {
+          return accounts.filter((acc) => acc.isAsset === true);
+        },
+
+        filterLiabilityAccounts: (accounts) => {
+          return accounts.filter((acc) => acc.isLiability === true);
+        },
 
         // ================================================================
         // VIEW PREFERENCE ACTIONS
@@ -436,7 +496,9 @@ export const bankingUISelectors = {
   hasActiveFilters: (state: BankingUIStore) => {
     const { filters } = state;
     return (
+      filters.accountCategories.length > 0 ||
       filters.accountTypes.length > 0 ||
+      filters.providers.length > 0 ||
       filters.institutions.length > 0 ||
       filters.transactionCategories.length > 0 ||
       filters.transactionTypes.length > 0 ||

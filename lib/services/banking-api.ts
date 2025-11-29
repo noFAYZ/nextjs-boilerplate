@@ -141,6 +141,31 @@ class BankingApiService {
     return apiClient.post(`${this.basePath}/stripe/accounts/${accountId}/sync`, {}, organizationId);
   }
 
+  // Plaid Integration
+  async getPlaidLinkToken(organizationId?: string): Promise<ApiResponse<{ linkToken: string }>> {
+    return apiClient.get(`${this.basePath}/plaid/link-token`, organizationId);
+  }
+
+  async addPlaidAccount(publicToken: string, organizationId?: string): Promise<ApiResponse<{ itemId: string; accountsCreated: number; accounts: BankAccount[] }>> {
+    return apiClient.post(`${this.basePath}/plaid/add-account`, { publicToken }, organizationId);
+  }
+
+  async syncPlaidAccounts(organizationId?: string): Promise<ApiResponse<{ synced: number; errors: number; lastSync: string }>> {
+    return apiClient.post(`${this.basePath}/plaid/sync-accounts`, {}, organizationId);
+  }
+
+  async syncPlaidTransactions(
+    startDate: string,
+    endDate: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ transactionsImported: number; accountsSynced: number; dateRange: { start: string; end: string }; lastSync: string }>> {
+    return apiClient.post(
+      `${this.basePath}/plaid/sync-transactions`,
+      { startDate, endDate },
+      organizationId
+    );
+  }
+
   // Transaction Sync
   async syncAccountTransactions(
     accountId: string,

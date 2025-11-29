@@ -25,11 +25,14 @@ import {
   accountsMutations,
   useUnifiedAccounts as useBaseUnifiedAccounts,
   useAccountDetails as useBaseAccountDetails,
+  useAccountTransactions as useBaseAccountTransactions,
 } from './accounts-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import type {
   CreateManualAccountRequest,
   UpdateAccountRequest,
+  AddTransactionRequest,
+  GetAccountTransactionsParams,
 } from '@/lib/types/unified-accounts';
 
 // ============================================================================
@@ -61,6 +64,16 @@ export function useAllAccounts() {
  */
 export function useAccountDetails(accountId: string | null) {
   return useBaseAccountDetails(accountId);
+}
+
+/**
+ * Get transactions for a specific account
+ * @param accountId - Account ID to fetch transactions for
+ * @param params - Optional query parameters for filtering and pagination
+ * @returns Paginated list of transactions
+ */
+export function useAccountTransactions(accountId: string | null, params?: GetAccountTransactionsParams) {
+  return useBaseAccountTransactions(accountId, params);
 }
 
 // ============================================================================
@@ -122,6 +135,27 @@ export function useUpdateAccount() {
  */
 export function useDeleteAccount() {
   return accountsMutations.deleteAccount();
+}
+
+/**
+ * Add a manual transaction to an account
+ * @returns Mutation hook with automatic cache invalidation
+ * @example
+ * ```ts
+ * const { mutate: addTransaction } = useAddTransaction();
+ *
+ * addTransaction({
+ *   accountId: 'acc-123',
+ *   data: {
+ *     amount: -50.00,
+ *     description: 'Coffee',
+ *     date: '2024-01-15'
+ *   }
+ * });
+ * ```
+ */
+export function useAddTransaction() {
+  return accountsMutations.addTransaction();
 }
 
 // ============================================================================

@@ -141,7 +141,7 @@ export function LandingHero() {
           Take Control of Your{" "}
 
          
-          <span className="inline-block relative mt-4">
+          <span className="inline-block relative ">
           <TextRotate
             texts={[ 
               "Finances ✽",
@@ -151,7 +151,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-white px-2 sm:px-2 md:px-6  bg-gradient-to-br from-[#FFB347] via-[#FF7A00] to-[#E66A00] overflow-hidden  justify-center rounded-lg py-0 "
+            mainClassName="text-orange-500 px-2 sm:px-2 md:px-6  bg-none overflow-hidden  justify-center rounded-lg py-0 "
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -170,8 +170,8 @@ export function LandingHero() {
           transition={{ delay: 0.4 }}
           className="mx-auto mt-6 max-w-xl text-sm sm:text-sm md:text-md lg:text-lg text-muted-foreground"
         >
-          Track, manage and predict every recurring payment — with AI-powered
-          alerts, smart insights, and real-time spend forecasting.
+          Track, budget and plan every trasaction — with AI-powered
+          alerts, smart insights, and real-time forecasting.
         </motion.p>
 
                {/* CTA */}
@@ -219,7 +219,7 @@ export function LandingHero() {
       {/*        BACKGROUND ONLY BEHIND THE DASHBOARD PREVIEW           */}
       {/* ============================================================= */}
 
-      <div className="relative pt-10">
+      <div className="relative pt-24">
         {/* FULL-WIDTH BACKGROUND JUST FOR DASHBOARD 
      
          
@@ -277,7 +277,7 @@ export function LandingHero() {
           </div>
           </motion.div>
  */}
-  <Example/>
+  <Example bg={false} />
 
         </ScrollReveal>
 

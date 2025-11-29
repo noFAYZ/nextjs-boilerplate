@@ -189,10 +189,21 @@ const formatCurrency = (
 ): string => {
   try {
     if (!isValidNumber(value)) return '$0.00';
+
+    // Default format options - allow overrides but ensure max >= min
+    const minFractionDigits = options?.minimumFractionDigits ?? 2;
+    const maxFractionDigits = options?.maximumFractionDigits ?? 2;
+
+    // Ensure maximumFractionDigits >= minimumFractionDigits
+    const safeMaxFractionDigits = Math.max(maxFractionDigits, minFractionDigits);
+
     return `$${value.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: minFractionDigits,
+      maximumFractionDigits: safeMaxFractionDigits,
       ...options,
+      // Override with our validated values to prevent conflicts
+      minimumFractionDigits: minFractionDigits,
+      maximumFractionDigits: safeMaxFractionDigits,
     })}`;
   } catch (error) {
     console.warn('[NetWorthChart] Currency formatting error:', error);

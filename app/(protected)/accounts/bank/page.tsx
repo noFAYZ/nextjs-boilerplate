@@ -80,7 +80,7 @@ export default function BankAccountsPage() {
     await Promise.all(selectedIds.map(id => syncAccount({ accountId: id })));
     setSelectedIds([]);
   };
-
+  console.log(accounts)
   return (
     <div className="max-w-7xl mx-auto  space-y-6">
       {/* Header Section */}

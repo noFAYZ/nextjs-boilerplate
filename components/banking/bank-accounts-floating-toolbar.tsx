@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { BankAccount } from "@/lib/types/banking";
 import { 
@@ -15,9 +15,9 @@ interface BankAccountsFloatingToolbarProps {
   totalBalance: number;
   selectedAccounts: BankAccount[];
   onClearSelection: () => void;
-  onDisconnect: (account: BankAccount) => void;
-  onDelete: (account: BankAccount) => void;
-  onSync: (account: BankAccount) => void;
+  onDisconnect: () => void;
+  onDelete: () => void;
+  onSync: () => void;
   isLoading?: boolean;
 }
 
@@ -67,50 +67,69 @@ export function BankAccountsFloatingToolbar({
             <Button
               variant="outline"
               size="xs"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onSync(acc));
-                onClearSelection();
-              }}
+              onClick={() => onSync()}
               disabled={isLoading}
               className="gap-2"
             >
-              <SolarRefreshCircleBoldDuotone className="h-4.5 w-4.5" />
-              Sync
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Syncing...
+                </>
+              ) : (
+                <>
+                  <SolarRefreshCircleBoldDuotone className="h-4.5 w-4.5" />
+                  Sync
+                </>
+              )}
             </Button>
             <Button
               variant="secondary"
               size="xs"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onDisconnect(acc));
-                onClearSelection();
-              }}
+              onClick={() => onDisconnect()}
               disabled={isLoading}
               className="gap-2"
             >
-              <StreamlineUltimatePowerPlugDisconnected className="h-4.5 w-4.5" />
-              Disconnect
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Disconnecting...
+                </>
+              ) : (
+                <>
+                  <StreamlineUltimatePowerPlugDisconnected className="h-4.5 w-4.5" />
+                  Disconnect
+                </>
+              )}
             </Button>
             <Button
               variant="delete"
               size="xs"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onDelete(acc));
-                onClearSelection();
-              }}
+              onClick={() => onDelete()}
               disabled={isLoading}
               className="gap-2"
             >
-              <SolarTrashBinTrashOutline className="h-4 w-4" />
-              Delete
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <SolarTrashBinTrashOutline className="h-4 w-4" />
+                  Delete
+                </>
+              )}
             </Button>
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={onClearSelection}
-              disabled={isLoading}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {!isLoading && (
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={onClearSelection}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -155,41 +174,59 @@ export function BankAccountsFloatingToolbar({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onSync(acc));
-                onClearSelection();
-              }}
+              onClick={() => onSync()}
               disabled={isLoading}
               className="text-xs gap-2"
             >
-              <SolarRefreshCircleBoldDuotone className="h-4 w-4" />
-              Sync
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Syncing
+                </>
+              ) : (
+                <>
+                  <SolarRefreshCircleBoldDuotone className="h-4 w-4" />
+                  Sync
+                </>
+              )}
             </Button>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onDisconnect(acc));
-                onClearSelection();
-              }}
+              onClick={() => onDisconnect()}
               disabled={isLoading}
               className="text-xs gap-2"
             >
-              <StreamlineUltimatePowerPlugDisconnected className="h-4 w-4" />
-              Disconnect
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Disconnecting
+                </>
+              ) : (
+                <>
+                  <StreamlineUltimatePowerPlugDisconnected className="h-4 w-4" />
+                  Disconnect
+                </>
+              )}
             </Button>
             <Button
               variant="delete"
               size="sm"
-              onClick={() => {
-                selectedAccounts.forEach((acc) => onDelete(acc));
-                onClearSelection();
-              }}
+              onClick={() => onDelete()}
               disabled={isLoading}
               className="col-span-2 text-xs gap-2"
             >
-              <SolarTrashBinTrashOutline className="h-4 w-4" />
-              Delete Selected
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting Selected
+                </>
+              ) : (
+                <>
+                  <SolarTrashBinTrashOutline className="h-4 w-4" />
+                  Delete Selected
+                </>
+              )}
             </Button>
           </div>
         </div>

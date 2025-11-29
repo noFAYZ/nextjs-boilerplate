@@ -10,6 +10,10 @@ import type {
   UnifiedAccountDetails,
   CreateManualAccountRequest,
   UpdateAccountRequest,
+  AddTransactionRequest,
+  GetAccountTransactionsParams,
+  AccountTransactionsResponse,
+  Transaction,
 } from '@/lib/types/unified-accounts';
 import type { ApiResponse } from '@/lib/types/crypto';
 
@@ -18,6 +22,8 @@ export const accountsKeys = {
   all: ['unified-accounts'] as const,
   list: () => [...accountsKeys.all, 'list'] as const,
   account: (id: string) => [...accountsKeys.all, 'account', id] as const,
+  transactions: (accountId: string) => [...accountsKeys.all, 'transactions', accountId] as const,
+  transaction: (accountId: string, transactionId: string) => [...accountsKeys.transactions(accountId), transactionId] as const,
 };
 
 // Helper function for error handling
@@ -101,6 +107,40 @@ export const accountsQueries = {
       return null;
     },
   }),
+
+  /**
+   * Get transactions for a specific account
+   */
+  accountTransactions: (accountId: string, params?: GetAccountTransactionsParams) => ({
+    queryKey: accountsKeys.transactions(accountId),
+    queryFn: async () => {
+      try {
+        return await accountsApi.getAccountTransactions(accountId, params);
+      } catch (error: unknown) {
+        throw error;
+      }
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    enabled: !!accountId,
+    select: (data: ApiResponse<AccountTransactionsResponse>) => {
+      if (data.success && data.data) {
+        return data.data;
+      }
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 50,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+        timestamp: new Date().toISOString(),
+      };
+    },
+  }),
 };
 
 // Mutations Factory
@@ -156,6 +196,24 @@ export const accountsMutations = {
       },
     });
   },
+
+  /**
+   * Add a transaction to an account
+   */
+  addTransaction: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async ({ accountId, data }: { accountId: string; data: AddTransactionRequest }) => {
+        return await accountsApi.addTransaction(accountId, data);
+      },
+      onSuccess: (_, variables) => {
+        // Invalidate the account's transactions and account details
+        queryClient.invalidateQueries({ queryKey: accountsKeys.transactions(variables.accountId) });
+        queryClient.invalidateQueries({ queryKey: accountsKeys.account(variables.accountId) });
+      },
+    });
+  },
 };
 
 // Pre-configured hooks for common queries
@@ -177,6 +235,17 @@ export function useAccountDetails(accountId: string | null) {
 
   return useQuery({
     ...accountsQueries.accountDetails(accountId!),
+    enabled: isAuthReady && !!accountId,
+  });
+}
+
+export function useAccountTransactions(accountId: string | null, params?: GetAccountTransactionsParams) {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...accountsQueries.accountTransactions(accountId!, params),
     enabled: isAuthReady && !!accountId,
   });
 }

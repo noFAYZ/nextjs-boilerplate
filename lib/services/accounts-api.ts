@@ -4,6 +4,10 @@ import type {
   UnifiedAccountDetails,
   CreateManualAccountRequest,
   UpdateAccountRequest,
+  AddTransactionRequest,
+  GetAccountTransactionsParams,
+  AccountTransactionsResponse,
+  Transaction,
 } from '@/lib/types/unified-accounts';
 import type { ApiResponse } from '@/lib/types/crypto';
 
@@ -53,6 +57,32 @@ class AccountsApiService {
    */
   async deleteAccount(accountId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
     return apiClient.delete(`${this.basePath}/${accountId}`);
+  }
+
+  /**
+   * Get transactions for a specific account
+   * @param accountId - The account ID
+   * @param params - Query parameters for filtering and pagination
+   * @returns Paginated list of transactions
+   */
+  async getAccountTransactions(
+    accountId: string,
+    params?: GetAccountTransactionsParams
+  ): Promise<ApiResponse<AccountTransactionsResponse>> {
+    return apiClient.get(`${this.basePath}/${accountId}/transactions`, { params });
+  }
+
+  /**
+   * Add a new transaction to an account (manual transaction)
+   * @param accountId - The account ID
+   * @param data - Transaction data
+   * @returns Created transaction details
+   */
+  async addTransaction(
+    accountId: string,
+    data: AddTransactionRequest
+  ): Promise<ApiResponse<Transaction>> {
+    return apiClient.post(`${this.basePath}/${accountId}/transactions`, data);
   }
 }
 

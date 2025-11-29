@@ -33,13 +33,13 @@ const repeatedIcons = (icons: string[], repeat = 4) =>
 export default function IntegrationHero() {
   return (
     <section className="relative py-32 space-y-3 overflow-hidden ">
-   
-   <BgGradient   position="center" blur="blur(140px)" size="180% 180%" />
+{/*    
+   <BgGradient   position="bottom"  size="280% 280%" /> */}
       {/* Content */}
-      <div className="relative max-w-2xl mx-auto  mb-8 text-center">
+      <div className="relative max-w-lg mx-auto  mb-8 text-center">
         <div className="mx-auto  text-center ">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Connect all your financial accounts in one place
+            Connect all your financial accounts
           </h2>
           <p className="text-sm md:text-base text-muted-foreground">
             Link your banks, crypto wallets, and exchanges to get a complete view of your finances.

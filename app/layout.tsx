@@ -14,9 +14,11 @@ import "@/lib/config/env";
 const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
 
-
-  
+ const parkinsans = Parkinsans({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {

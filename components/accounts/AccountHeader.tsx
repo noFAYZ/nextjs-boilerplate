@@ -51,7 +51,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="truncate">{account.institutionName}</span>
                   <span className="text-muted-foreground/40">•</span>
-                  <span className="font-mono">•••• {account.accountNumber.slice(-4)}</span>
+                  <span className="font-mono">•••• {account.accountNumber?.slice(-4)}</span>
                 </div>
               </div>
             </div>

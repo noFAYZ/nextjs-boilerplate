@@ -340,7 +340,7 @@ export default function BankAccountDetailsPage() {
       </div>
     );
   }
-
+console.log(account)
   const accountConfig = ACCOUNT_TYPE_CONFIG[account.type];
   const IconComponent = accountConfig.icon;
   const syncState = realtimeSyncStates[account.id];
@@ -854,7 +854,7 @@ export default function BankAccountDetailsPage() {
                       Account Number
                     </p>
                     <p className="text-sm font-mono">
-                      ****{account.accountNumber.slice(-4)}
+                      ****{account.accountNumber?.slice(-4)}
                     </p>
                   </div>
                   <Separator />

@@ -13,13 +13,13 @@ import { TablerPlant2 } from "@/components/icons/icons";
  * - Accepts dynamic tab definitions
  */
 
-export function FeatureTabs({ tabs }) {
+export function FeatureTabs({ tabs, bg }) {
   const [active, setActive] = useState(0);
 
   return (
     <div className="relative z-0 mx-auto max-w-grid-width border-grid-border border-x ">
 
-<div
+{bg && <div
   className="absolute inset-0 pointer-events-none"
   style={{
     WebkitMaskImage:
@@ -30,7 +30,7 @@ export function FeatureTabs({ tabs }) {
     maskSize: "100% 100%",
   }}
 >
-  <FlickeringGrid
+   <FlickeringGrid
     className="absolute inset-0 opacity-50"
     squareSize={8}
     gridGap={10}
@@ -38,15 +38,15 @@ export function FeatureTabs({ tabs }) {
     maxOpacity={0.5}
     flickerChance={0.1}
   />
-</div>
+ 
+</div>}
       {/* Tabs Container */}
       <div className="relative top-0 z-0 mx-auto mt-0 flex h-16 max-w-[min(700px,calc(100vw-2rem))] items-start justify-center  max-md:h-auto">
         {/* Left Decorative SVG */}
-        <SVGDecorative reversed={undefined} />
+        {bg &&  <SVGDecorative reversed={undefined} />} 
 
         {/* Tabs */}
-        <div className="relative z-10 h-[calc(100%)] min-w-0 grow  bg-background shadow-[0_6px_12px_-6px_rgba(0,0,0,0.12)]
-      dark:shadow-[0_6px_12px_-6px_rgba(0,0,0,0.3)] ">
+        <div className={cn(`relative z-10 h-[calc(100%)] min-w-0 grow   `, bg && 'bg-background shadow-[0_6px_12px_-6px_rgba(0,0,0,0.12)] dark:shadow-[0_6px_12px_-6px_rgba(0,0,0,0.3)] ')}>
           <div className="flex size-full flex-wrap  items-center justify-center gap-2.5 max-md:pt-4" role="tablist">
             {tabs.map((t, i) => (
               <Button
@@ -56,11 +56,11 @@ export function FeatureTabs({ tabs }) {
                 role="tab"
                 variant={active === i  ? 'outlinepressed' : 'outline'}
                 aria-selected={active === i}
-                size="sm"
+                size={bg ? 'sm' :"xs"}
                 aria-controls={`panel-${i}`}
                 className={cn(
                   "group flex items-center  gap-2 transition-colors duration-100 border",
-                  
+                  bg ? '' : 'rounded-md'
                 )}
                 icon={ <span
                     className="flex size-5 items-center justify-center rounded border border-black/5 drop-shadow-md transition-transform group-hover:scale-102"
@@ -77,11 +77,11 @@ export function FeatureTabs({ tabs }) {
         </div>
 
         {/* Right Decorative SVG */}
-        <SVGDecorative reversed />
+        {bg && <SVGDecorative reversed />}
       </div>
 
       {/* Panels */}
-      <div className="mx-auto mt-6 container sm:max-w-6xl px-2 sm:px-4 [perspective:1000px]">
+      <div className="mx-auto mt-6 container sm:max-w-5xl px-2 sm:px-4 [perspective:1000px]">
         <div className="relative h-[300px] md:h-[680px]">
           {tabs.map((t, i) => (
             <div
@@ -222,7 +222,7 @@ function SVGDecorative({ reversed }) {
 /*                             Example Usage (Optional)                        */
 /* -------------------------------------------------------------------------- */
 
-export function Example() {
+export function Example({bg}) {
     const { resolvedTheme } = useTheme();
 
     const theme = resolvedTheme?.startsWith("dark") ? "dark" : "light";
@@ -290,6 +290,7 @@ export function Example() {
             content: <div className="flex items-center justify-center h-full text-neutral-700">Affiliate Preview</div>
           }
       ]}
+      bg={bg}
     />
   );
 }

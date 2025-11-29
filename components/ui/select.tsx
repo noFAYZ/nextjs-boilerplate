@@ -99,7 +99,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-md border shadow-md animate-in data-[side=bottom]:slide-in-from-top-2",
+          "bg-popover text-popover-foreground z-50 max-h-(--radix-select-content-available-height) min-w-[12rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-md border shadow-md animate-in data-[side=bottom]:slide-in-from-top-2",
           position === "popper" && "translate-y-1",
           className
         )}

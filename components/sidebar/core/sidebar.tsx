@@ -218,7 +218,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'transaction-rules', label: 'Auto-Rules', icon: Settings, action: () => {}, }
     ]
   },
-  {
+ /*  {
     id: 'portfolio',
     label: 'Portfolio',
     icon: SolarPieChart2BoldDuotone,
@@ -265,7 +265,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'portfolio-alerts', label: 'Set Alerts', icon: Bell, action: () => {}, },
       { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
     ]
-  },
+  }, */
 
   {
     id: 'goals',
@@ -377,7 +377,7 @@ const MENU_ITEMS: MenuItem[] = [
     href: '/investments',
 
   },
-  {
+/*   {
     id: 'insights',
     label: 'Insights',
     icon: SolarChartSquareBoldDuotone,
@@ -427,8 +427,8 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'insight-history', label: 'Insight History', icon: Calendar, action: () => {}, },
       { id: 'share-insights', label: 'Share Insights', icon: Share, action: () => {}, }
     ]
-  },
-  {
+  }, */
+ /*  {
     id: 'integrations',
     label: 'Integrations',
     icon: SolarWidgetAddBoldDuotone,
@@ -438,7 +438,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
       { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
     ]
-  },
+  }, */
   {
     id: 'ai',
     label: 'MapprAI',

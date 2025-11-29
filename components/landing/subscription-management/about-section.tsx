@@ -30,7 +30,7 @@ export default function FinanceHero() {
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Hero Text */}
         <motion.div style={{ maskImage, y }} className="mx-auto max-w-xl space-y-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-bold text-foreground">
+          <h1 className="max-w-md mx-auto text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-4xl font-semibold text-foreground">
             Finance isn’t about{" "}
             <span className="bg-gradient-to-r from-orange-500 to-pink-600 bg-clip-text text-transparent">
               tracking money
@@ -46,7 +46,7 @@ export default function FinanceHero() {
             .
           </h2>
 
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-4xl mx-auto tracking-tight space-y-1">
+          <p className="text-lg sm:text-xl md:text-2xl   text-muted-foreground max-w-3xl mx-auto tracking-tight space-y-1">
             One dashboard for{" "}
             <FeatureBadge
               icon={Bitcoin}
@@ -79,7 +79,7 @@ export default function FinanceHero() {
             .
           </p>
 
-          <p className="mt-2 text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground/80 leading-relaxed sm:leading-loose">
+          <p className="mt-2 text-base sm:text-lg md:text-xl lg:text-xl text-muted-foreground/80 leading-relaxed sm:leading-normal">
             Track. Optimize. Grow. <br />
             Real-time insights. Crypto-native intelligence. <br />
             Make smarter decisions. Take control. Stay ahead.
@@ -137,16 +137,15 @@ export function FeatureBadge({
     <motion.span
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      whileHover={{ rotate: random(-2, 2) }}
-      initial={{ rotate: random(-3, 3) }}
-      className="group relative inline-flex items-center gap-2 px-3 py-2 rounded-full font-semibold cursor-pointer border border-border/60 bg-card dark:bg-muted/80 text-foreground/80 shadow-md transition-all duration-0 focus:outline-none focus:ring-0"
+  
+      className="group relative inline-flex items-center gap-1 text-xl px-1 py-0.5 pr-2 rounded-full font-medium cursor-pointer border border-border/60 bg-card dark:bg-muted/80 text-foreground/80 shadow-md transition-all duration-0 focus:outline-none focus:ring-0"
       role="button"
       tabIndex={0}
       aria-label={label}
       title={tooltip}
     >
       <motion.span
-        className={`inline-flex items-center justify-center p-2 rounded-full ${bg}`}
+        className={`inline-flex items-center justify-center p-1 rounded-full ${bg}`}
         whileHover={{ rotate: 15 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >

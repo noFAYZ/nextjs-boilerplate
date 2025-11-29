@@ -1,11 +1,11 @@
 'use client'
 import {
-  LandingNav,
   PricingSection,
   FAQSection,
   FinalCTASection,
   LandingFooter,
   ScrollProgress,
+  StickyCTA,
 
 } from '@/components/landing';
 
@@ -20,40 +20,88 @@ import { LandingHero,  } from '@/components/landing/subscription-management/land
 
 import { TestimonialsDemo } from '@/components/landing/subscription-management/testimonials-section';
 import Skiper16 from '@/components/landing/subscription-management/skiper-feature';
+import { LandingNav } from '@/components/landing-v2/landing-nav';
+import { Footer } from '@/components/landing-v2/animated-footer';
+import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Parkinsans, Funnel_Display } from 'next/font/google';
 
-
+  const parkinsans = Funnel_Display({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
+  });
 export default function LandingPage() {
+  const socialLinks = [
+    {
+      icon: <Twitter className="w-6 h-6" />,
+      href: "https://twitter.com",
+      label: "Twitter",
+    },
+    {
+      icon: <Linkedin className="w-6 h-6" />,
+      href: "https://linkedin.com",
+      label: "LinkedIn",
+    },
+    {
+      icon: <Github className="w-6 h-6" />,
+      href: "https://github.com",
+      label: "GitHub",
+    },
+    {
+      icon: <Mail className="w-6 h-6" />,
+      href: "mailto:contact@resumegpt.com",
+      label: "Email",
+    },
+  ];
+
+  const navLinks = [
+    { label: "Pricing", href: "/" },
+    { label: "Templates", href: "/" },
+    { label: "About", href: "/" },
+    { label: "Contact", href: "/" },
+  ];
 
   return (
-    <div className=''>
+    <div className={cn('',parkinsans.className)}>
   
-      <ScrollProgress />
+    {/*   <ScrollProgress /> */}
       
     <LandingNav />
       <LandingHero />
 <FinanceHeroDubStyle />
    <MoneyMapprFeatureSection />
-<Skiper16 />
+
    
-    {/*   <Header /> < FeaturesSectionWithHoverEffects />
+    {/*  <Skiper16 /> <Header /> < FeaturesSectionWithHoverEffects />
   
       <FeatureGrid /><SubscriptionsShowcase />
      <RealtimeTracking /> 
         <PortfolioShowcase />
        <CryptoShowcase />
-      <HowItWorks />*/}
-<IntegrationHero />
-     <TestimonialsDemo />
+      <HowItWorks />
+    
+     <TestimonialsDemo />  
+      */}
+
     {/*   
-      
+      <IntegrationHero />
       <ComparisonSection />
-      <SecuritySection /> */}
-      <PricingSection />
+      <SecuritySection /> 
+      <PricingSection />*/}
       <FAQSection />
       {/* */}<FinalCTASection /> 
  
-      <LandingFooter />
-     {/*  <StickyCTA /> */}
+    
+      <Footer
+      brandName="MoneyMappr"
+      brandDescription="Personal Finance Management System"
+      socialLinks={socialLinks}
+      navLinks={navLinks}
+      creatorName="FAYZ"
+      creatorUrl="https://faizanasad.com"
+
+    />
+     {/*  <StickyCTA /> <LandingFooter />  */}
     </div>
   );
 }

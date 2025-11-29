@@ -2089,3 +2089,68 @@ export function GgArrowsExchange(props: SVGProps<SVGSVGElement>) {
 export function SolarLockKeyholeBoldDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16" opacity={0.5}></path><path fill="currentColor" d="M12 18a2 2 0 1 0 0-4a2 2 0 0 0 0 4M6.75 8a5.25 5.25 0 0 1 10.5 0v2.004c.567.005 1.064.018 1.5.05V8a6.75 6.75 0 0 0-13.5 0v2.055a24 24 0 0 1 1.5-.051z"></path></svg>);
 } 
+
+
+export function FluentPlugConnectedCheckmark20Filled(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" {...props}><path fill="currentColor" d="M17.78 3.28a.75.75 0 0 0-1.06-1.06l-2.446 2.445a4.04 4.04 0 0 0-5.128.481l-.3.3a1.49 1.49 0 0 0 0 2.108l2.465 2.464a5.51 5.51 0 0 1 4.552-.848a4.04 4.04 0 0 0-.528-3.444zM7.554 8.846l2.464 2.465a5.51 5.51 0 0 0-.848 4.552a4.04 4.04 0 0 1-3.444-.528L3.28 17.78a.75.75 0 0 1-1.06-1.06l2.446-2.446a4.04 4.04 0 0 1 .48-5.128l.3-.3a1.49 1.49 0 0 1 2.108 0M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-2.146-1.854a.5.5 0 0 0-.708 0L13.5 15.293l-.646-.647a.5.5 0 0 0-.708.708l1 1a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0 0-.708"></path></svg>);
+}
+
+
+export function FluentPlugDisconnected20Filled(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" {...props}><path fill="currentColor" d="M17.78 2.22a.75.75 0 0 1 0 1.06l-1.445 1.446a4.04 4.04 0 0 1-.481 5.127l-.3.3l-.003.003l-.309.309a1.05 1.05 0 0 1-1.484 0L9.535 6.242a1.05 1.05 0 0 1 0-1.485l.611-.61q.263-.262.557-.466a4.04 4.04 0 0 1 4.571-.016L16.72 2.22a.75.75 0 0 1 1.06 0m-9 6.25a.75.75 0 0 1 0 1.06l-1.27 1.272l1.69 1.69l1.27-1.272a.75.75 0 1 1 1.061 1.06l-1.276 1.277a1.49 1.49 0 0 1-.1 1.997l-.3.3a4.04 4.04 0 0 1-5.128.48L3.28 17.78a.75.75 0 0 1-1.06-1.06l1.445-1.446a4.04 4.04 0 0 1 .481-5.127l.3-.3a1.49 1.49 0 0 1 1.997-.1L7.72 8.47a.75.75 0 0 1 1.06 0"></path></svg>);
+}
+
+
+export function StreamlineUltimatePaperWrite(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}><path d="m13.05 19.14l-3.72.53l.53-3.67l9.55-9.54a2.25 2.25 0 0 1 3.18 3.18zM5.5.75h7s.75 0 .75.75V4s0 .75-.75.75h-7s-.75 0-.75-.75V1.5s0-.75.75-.75m7.75 2h2.5a1.5 1.5 0 0 1 1.5 1.5"></path><path d="M17.25 18.75v3a1.5 1.5 0 0 1-1.5 1.5H2.25a1.5 1.5 0 0 1-1.5-1.5V4.25a1.5 1.5 0 0 1 1.5-1.5h2.5m.5 6h7m-7 4.5h2.5"></path></g></svg>);
+}
+
+export function SolarPenNewSquareBoldDuotone(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M1 12c0-5.185 0-7.778 1.61-9.39C4.223 1 6.816 1 12 1s7.778 0 9.39 1.61C23 4.223 23 6.816 23 12s0 7.778-1.61 9.39C19.777 23 17.184 23 12 23s-7.778 0-9.39-1.61C1 19.777 1 17.184 1 12" opacity={0.5}></path><path fill="currentColor" d="M13.926 14.302c.245-.191.467-.413.912-.858l5.54-5.54c.134-.134.073-.365-.106-.427a6.1 6.1 0 0 1-2.3-1.449a6.1 6.1 0 0 1-1.45-2.3c-.061-.18-.292-.24-.426-.106l-5.54 5.54c-.445.444-.667.667-.858.912a5 5 0 0 0-.577.932c-.133.28-.233.579-.431 1.175l-.257.77l-.409 1.226l-.382 1.148a.817.817 0 0 0 1.032 1.033l1.15-.383l1.224-.408l.77-.257c.597-.199.895-.298 1.175-.432q.498-.237.933-.576m8.187-8.132a3.028 3.028 0 0 0-4.282-4.283l-.179.178a.73.73 0 0 0-.206.651c.027.15.077.37.168.633a4.9 4.9 0 0 0 1.174 1.863a4.9 4.9 0 0 0 1.862 1.174c.263.09.483.141.633.168c.24.043.48-.035.652-.207z"></path></svg>);
+}
+
+
+export function CashCategory(props: SVGProps<SVGSVGElement>) {
+	return (<svg
+		viewBox="0 0 36 36"
+		xmlns="http://www.w3.org/2000/svg"
+		xmlnsXlink="http://www.w3.org/1999/xlink"
+		aria-hidden="true"
+		role="img"
+		className="iconify iconify--twemoji"
+		preserveAspectRatio="xMidYMid meet"
+		fill="#000000"
+		width={26} height={26} {...props}
+	  >
+		<g id="SVGRepo_bgCarrier" strokeWidth={0} />
+		<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+		<g id="SVGRepo_iconCarrier">
+		  <path
+			fill="#5C913B"
+			d="M2 11c-2 0-2 2-2 2v21s0 2 2 2h32c2 0 2-2 2-2V13s0-2-2-2H2z"
+		  />
+		  <path
+			fill="#A7D28B"
+			d="M2 6C0 6 0 8 0 8v20s0 2 2 2h32c2 0 2-2 2-2V8s0-2-2-2H2z"
+		  />
+		  <circle fill="#77B255" cx={25} cy={18} r="6.5" />
+		  <path
+			fill="#5C913B"
+			d="M33 28.5H3c-.827 0-1.5-.673-1.5-1.5V9c0-.827.673-1.5 1.5-1.5h30c.827 0 1.5.673 1.5 1.5v18c0 .827-.673 1.5-1.5 1.5zM3 8.5a.5.5 0 0 0-.5.5v18c0 .275.225.5.5.5h30c.275 0 .5-.225.5-.5V9a.5.5 0 0 0-.5-.5H3z"
+		  />
+		  <path fill="#FFE8B6" d="M14 6h8v24.062h-8z" />
+		  <path fill="#5C913B" d="M14 30h8v6h-8z" />
+		  <path
+			fill="#5C913B"
+			d="M11.81 20.023c0-2.979-5.493-2.785-5.493-4.584c0-.871.833-1.296 1.799-1.296c1.625 0 1.914 1.044 2.65 1.044c.521 0 .772-.328.772-.696c0-.856-1.296-1.502-2.539-1.726v-.825a.932.932 0 1 0-1.864 0v.853c-1.354.31-2.521 1.25-2.521 2.781c0 2.862 5.493 2.746 5.493 4.758c0 .695-.754 1.391-1.992 1.391c-1.857 0-2.476-1.257-3.229-1.257c-.368 0-.696.309-.696.775c0 .741 1.24 1.631 2.947 1.881l-.001.004v.934a.933.933 0 0 0 1.864 0v-.934c0-.01-.005-.019-.006-.028c1.535-.287 2.816-1.286 2.816-3.075z"
+		  />
+		</g>
+	  </svg>
+	  );
+}
+
+
+
+export function MdiPen(props: SVGProps<SVGSVGElement>) {
+	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M20.71 7.04c-.34.34-.67.67-.68 1c-.03.32.31.65.63.96c.48.5.95.95.93 1.44s-.53 1-1.04 1.5l-4.13 4.14L15 14.66l4.25-4.24l-.96-.96l-1.42 1.41l-3.75-3.75l3.84-3.83c.39-.39 1.04-.39 1.41 0l2.34 2.34c.39.37.39 1.02 0 1.41M3 17.25l9.56-9.57l3.75 3.75L6.75 21H3z"></path></svg>);
+}

@@ -105,7 +105,7 @@ export function MainHeader({
     radius: 100,
   }).toDataUri();
 
-console.log(user?.image)
+
   return (
     <TooltipProvider delayDuration={200}>
       <header className="sticky top-0 z-40  bg-background">

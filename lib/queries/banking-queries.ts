@@ -537,7 +537,6 @@ export const bankingMutations = {
   // Account mutations
   useConnectAccount: () => {
     const queryClient = useQueryClient();
-    const { addAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: async (data: CreateBankAccountRequest) => {
@@ -551,9 +550,6 @@ export const bankingMutations = {
       },
       onSuccess: (response) => {
         if (response.success) {
-          // Add all connected accounts to store
-          response.data.forEach(account => addAccount(account));
-
           // Comprehensive cache invalidation for account connection
           queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
@@ -569,7 +565,6 @@ export const bankingMutations = {
 
   useConnectStripeAccount: () => {
     const queryClient = useQueryClient();
-    const { addAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: async (data: { sessionId: string; selectedAccountIds?: string[] }) => {
@@ -583,9 +578,6 @@ export const bankingMutations = {
       },
       onSuccess: (response) => {
         if (response.success) {
-          // Add all connected accounts to store
-          response.data.forEach(account => addAccount(account));
-
           // Comprehensive cache invalidation for account connection
           queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
@@ -600,16 +592,12 @@ export const bankingMutations = {
 
   useUpdateAccount: () => {
     const queryClient = useQueryClient();
-    const { updateAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: ({ id, updates }: { id: string; updates: UpdateBankAccountRequest }) =>
         bankingApi.updateAccount(id, updates),
       onSuccess: (response, variables) => {
         if (response.success) {
-          // Update Zustand store
-          updateAccount(variables.id, response.data);
-
           // Cache invalidation for account update
           queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
           queryClient.invalidateQueries({ queryKey: bankingKeys.account(variables.id) });
@@ -625,15 +613,11 @@ export const bankingMutations = {
 
   useDisconnectAccount: () => {
     const queryClient = useQueryClient();
-    const { removeAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: (accountId: string) => bankingApi.disconnectAccount(accountId),
       onSuccess: (response, accountId) => {
         if (response.success) {
-          // Update Zustand store
-          removeAccount(accountId);
-
           // Remove all account-specific queries from cache
           queryClient.removeQueries({ queryKey: bankingKeys.account(accountId) });
           queryClient.removeQueries({ queryKey: bankingKeys.accountTransactions(accountId) });
@@ -655,12 +639,11 @@ export const bankingMutations = {
   // Sync mutations
   useSyncAccount: () => {
     const queryClient = useQueryClient();
-    const bankingStore = useBankingStore();
 
     return useMutation({
-      mutationFn: ({ accountId, syncData }: { accountId: string; syncData?: BankSyncRequest }) => 
+      mutationFn: ({ accountId, syncData }: { accountId: string; syncData?: BankSyncRequest }) =>
         bankingApi.syncAccount(accountId, syncData)
-      
+
         ,
       onSuccess: (response, variables) => {
         if (response.success) {
@@ -669,8 +652,6 @@ export const bankingMutations = {
 
           console.log(`[Banking Sync] Mutation succeeded for account ${accountId}, jobId: ${jobId}`);
 
-          bankingStore?.clearRealtimeSyncState(accountId)
-         
           queryClient.invalidateQueries({ queryKey: bankingKeys.account(accountId) });
         }
       },
@@ -682,22 +663,13 @@ export const bankingMutations = {
 
   useSyncAllAccounts: () => {
     const queryClient = useQueryClient();
-    const bankingStore = useBankingStore();
 
     return useMutation({
       mutationFn: () => bankingApi.refreshAllAccounts(),
-    
+
       onSuccess: (response) => {
         if (response.success && response.data.syncJobs) {
           console.log(`[Banking Sync] Sync all mutation succeeded, initializing ${response.data.syncJobs.length} syncs`);
-
-          // Initialize sync state for each account being synced
-          response.data.syncJobs.forEach(job => {
-            console.log(`[Banking Sync] Initializing sync for account ${job.accountId}, jobId: ${job.jobId}`);
-
-            bankingStore.clearAllRealtimeSyncStates();
-
-              });
 
           // Comprehensive cache invalidation for all account sync
           queryClient.invalidateQueries({ queryKey: bankingKeys.all });
@@ -768,7 +740,6 @@ export const bankingMutations = {
   // Enrollment mutations
   useDeleteEnrollment: () => {
     const queryClient = useQueryClient();
-    const { removeAccount } = useBankingStore();
 
     return useMutation({
       mutationFn: (enrollmentId: string) => bankingApi.deleteEnrollment(enrollmentId),
@@ -776,12 +747,6 @@ export const bankingMutations = {
         if (response.success) {
           // Remove enrollment-specific queries from cache
           queryClient.removeQueries({ queryKey: bankingKeys.enrollment(enrollmentId) });
-
-          // Remove all accounts associated with this enrollment from the store
-          const accounts = useBankingStore.getState().accounts;
-          accounts
-            .filter(account => account.tellerEnrollmentId === enrollmentId)
-            .forEach(account => removeAccount(account.id));
 
           // Invalidate global queries that depend on enrollment data
           queryClient.invalidateQueries({ queryKey: bankingKeys.enrollments() });

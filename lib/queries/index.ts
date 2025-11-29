@@ -148,6 +148,20 @@ export {
 } from './use-banking-data';
 
 // ============================================================================
+// PLAID DATA HOOKS
+// ============================================================================
+
+export {
+  // Plaid Queries
+  usePlaidLinkToken,
+
+  // Plaid Mutations
+  useAddPlaidAccount,
+  useSyncPlaidAccounts,
+  useSyncPlaidTransactions,
+} from './plaid-queries';
+
+// ============================================================================
 // UNIFIED ACCOUNTS DATA HOOKS
 // ============================================================================
 
