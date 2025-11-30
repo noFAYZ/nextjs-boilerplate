@@ -126,8 +126,8 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
         <div className="flex flex-col items-end flex-shrink-0">
           <CurrencyDisplay
             amountUSD={subscription.amount}
-            variant="compact"
-            className="text-md font-semibold text-foreground"
+            variant="small"
+            className="font-semibold text-foreground"
           />
           <span className="text-[10px] text-muted-foreground uppercase">
             /{subscription.billingCycle === 'MONTHLY' ? 'mo' : subscription.billingCycle === 'YEARLY' ? 'yr' : 'bill'}
@@ -329,8 +329,8 @@ export function SubscriptionsOverviewWidget() {
                     <div className="flex items-baseline gap-2">
                     <CurrencyDisplay
                           amountUSD={summary.totalMonthlySpend}
-                          variant="large"
-                          className="text-4xl font-semibold "
+                          variant="xl"
+                          className=" font-semibold "
 
                         />
                       <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">

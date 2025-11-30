@@ -25,7 +25,7 @@ export default function FinanceHero() {
       ref={containerRef}
       className="relative overflow-hidden bg-gradient-to-b from-background to-background/95 px-6 sm:px-12 lg:px-24 py-24 sm:py-32 lg:py-40 xl:py-48"
     >
-      <BackgroundDots />
+    
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Hero Text */}

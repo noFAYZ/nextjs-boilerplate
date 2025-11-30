@@ -108,6 +108,7 @@ export function LandingHero() {
   ];
   return (
     <section className="relative overflow-hidden pt-32 md:pt-40 ">
+      
       {/* ============================================================= */}
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
@@ -131,12 +132,12 @@ export function LandingHero() {
             </FloatingCard>
           </div>*/}
 
-      <div className="relative z-10 mx-auto px-6 max-w-2xl lg:max-w-3xl text-center">
+      <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-2xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-semibold tracking-tight leading-snug text-4xl md:text-4xl lg:text-5xl xl:text-6xl"
+          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-5xl"
         >
           Take Control of Your{" "}
 
@@ -159,7 +160,7 @@ export function LandingHero() {
             staggerDuration={0.025}
             splitLevelClassName="overflow-hidden "
             transition={{ type: "spring", damping: 30, stiffness: 400 }}
-            rotationInterval={3000}
+            rotationInterval={2200}
           />
           </span>
         </motion.h1>
@@ -168,7 +169,7 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-6 max-w-xl text-sm sm:text-sm md:text-md lg:text-lg text-muted-foreground"
+          className="mx-auto mt-6 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-muted-foreground"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
@@ -219,7 +220,7 @@ export function LandingHero() {
       {/*        BACKGROUND ONLY BEHIND THE DASHBOARD PREVIEW           */}
       {/* ============================================================= */}
 
-      <div className="relative pt-24">
+      <div className="relative pt-20">
         {/* FULL-WIDTH BACKGROUND JUST FOR DASHBOARD 
      
          

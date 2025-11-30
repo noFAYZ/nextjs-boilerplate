@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import {  Readex_Pro, Georama,Andika
-  , Space_Grotesk,Noto_Sans,Funnel_Display,Parkinsans,Geist } from "next/font/google";
+  , Space_Grotesk,Sora,Funnel_Display,Parkinsans,Geist } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";

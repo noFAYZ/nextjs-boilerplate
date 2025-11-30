@@ -18,7 +18,7 @@ interface CurrencyDisplayProps {
   /** Color coding based on positive/negative values */
   colorCoded?: boolean;
   /** Variant styling */
-  variant?: 'default' | 'large' | 'small' | 'compact';
+  variant?: 'default' | 'large' | 'small' | 'compact' |'xl';
 }
 
 export function CurrencyDisplay({
@@ -37,6 +37,7 @@ export function CurrencyDisplay({
     const skeletonClass = cn(
       'inline-block',
       {
+        'h-10 w-28': variant === 'xl',
         'h-8 w-24': variant === 'large',
         'h-6 w-20': variant === 'default',
         'h-4 w-16': variant === 'small',
@@ -74,9 +75,10 @@ export function CurrencyDisplay({
     'font-medium',
     {
       // Variant styles
+      'text-3xl font-bold': variant === 'xl',
       'text-2xl font-bold': variant === 'large',
       'text-base': variant === 'default',
-      'text-sm': variant === 'small',
+      'text-md': variant === 'small',
       'text-xs': variant === 'compact',
 
       // Color coding
@@ -91,10 +93,11 @@ export function CurrencyDisplay({
     'font-medium',
     {
       // Variant styles
-      'text-xl font-bold': variant === 'large',
-      'text-sm': variant === 'default',
-      'text-xs': variant === 'small',
-      'text-[11px]': variant === 'compact',
+      'text-xl font-bold': variant === 'xl',
+      'text-lg font-bold': variant === 'large',
+      'text-xs': variant === 'default',
+      'text-[11px]': variant === 'small',
+      'text-[10px]': variant === 'compact',
 
       // Color coding
       'text-green-600 dark:text-green-400': colorCoded && amountUSD > 0,

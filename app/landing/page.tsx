@@ -24,9 +24,9 @@ import { LandingNav } from '@/components/landing-v2/landing-nav';
 import { Footer } from '@/components/landing-v2/animated-footer';
 import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Parkinsans, Funnel_Display } from 'next/font/google';
+import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/font/google';
 
-  const parkinsans = Funnel_Display({
+  const parkinsans = Sora({
     variable: "--font-geist-sans",
     subsets: ["latin"],
   });
@@ -89,7 +89,7 @@ export default function LandingPage() {
       <SecuritySection /> 
       <PricingSection />*/}
       <FAQSection />
-      {/* */}<FinalCTASection /> 
+      {/* <FinalCTASection /> */}
  
     
       <Footer
