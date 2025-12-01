@@ -78,7 +78,7 @@ export function CurrencyDisplay({
       'text-3xl font-bold': variant === 'xl',
       'text-2xl font-bold': variant === 'large',
       'text-base': variant === 'default',
-      'text-md': variant === 'small',
+      'text-[14px]': variant === 'small',
       'text-xs': variant === 'compact',
 
       // Color coding

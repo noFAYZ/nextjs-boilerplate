@@ -56,11 +56,12 @@ export function Combobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="outline2"
           role="combobox"
           aria-expanded={open}
           className={cn(width, "justify-between", className)}
           disabled={disabled}
+          
         >
           {selectedOption ? selectedOption.label : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

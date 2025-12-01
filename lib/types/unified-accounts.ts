@@ -253,6 +253,100 @@ export interface UpdateAccountRequest {
 }
 
 // ========================================================
+// TRANSACTION CATEGORY TYPES (from CATEGORIES.md)
+// ========================================================
+
+// Transaction Category within a group
+export interface TransactionCategory {
+  id: string;
+  name: string;
+  displayName?: string;
+  description?: string;
+  icon?: string;                    // Icon identifier
+  color?: string;                   // Hex color for UI
+  emoji?: string;                   // Unicode emoji
+  parentCategoryId?: string;
+  sortOrder: number;
+  isActive: boolean;
+  isExpanded?: boolean;
+  transactionCount: number;
+  monthlySpending?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Category Group for organizing categories (for envelope budgeting)
+export interface TransactionCategoryGroup {
+  id: string;
+  userId: string;
+  organizationId?: string | null;
+  name: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  parentGroupId?: string | null;
+  sortOrder: number;
+  isDefault: boolean;
+  isExpanded: boolean;
+  categories?: TransactionCategory[];    // When includeCategories=true
+  children?: TransactionCategoryGroup[]; // For hierarchy
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Response for fetching category groups with categories
+export interface CategoryGroupsResponse {
+  success: boolean;
+  data: TransactionCategoryGroup[];
+}
+
+// Flat categories response
+export interface CategoriesResponse {
+  success: boolean;
+  data: TransactionCategory[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+// Legacy account category type (keeping for backwards compatibility)
+export interface CustomAccountCategory {
+  id: string;
+  organizationId?: string | null;
+  userId: string;
+
+  // Category Definition
+  name: string;                    // e.g., "Real Estate Portfolio"
+  slug: string;                    // URL-friendly: "real-estate-portfolio"
+  description?: string | null;
+  color?: string | null;           // Hex color for UI
+  icon?: string | null;            // Icon identifier
+
+  // Hierarchy Support
+  parentId?: string | null;        // Parent category (self-referencing)
+  depth: number;                   // Cached depth level (1, 2, 3, etc.)
+  path: string;                    // Path-based: "assets/realestate/rental"
+
+  // Configuration
+  appliedToTypes: string[];        // Which account types this applies to
+  isDefault: boolean;              // System-defined vs user-created
+  sortOrder: number;
+
+  // Relations
+  children?: CustomAccountCategory[];
+  parent?: CustomAccountCategory;
+
+  // Metadata
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ========================================================
 // TRANSACTION TYPES
 // ========================================================
 export interface Transaction {
@@ -312,16 +406,35 @@ export interface Transaction {
   updatedAt: string;
 }
 
+export interface TransactionSplit {
+  customCategoryId: string; // Required - must reference existing category
+  amount: number; // Required (must be > 0)
+  description?: string; // Optional
+  tags?: string[]; // Optional metadata
+}
+
 export interface AddTransactionRequest {
-  amount: number; // Required
+  // Required fields
+  amount: number; // Required - always positive (>0)
   description: string; // Required
-  date: string; // Required - ISO 8601 format
+  date: string; // Required - ISO 8601 format (e.g., "2025-11-21")
+
+  // Transaction direction
+  type?: 'INCOME' | 'EXPENSE' | 'TRANSFER'; // Default: "EXPENSE"
 
   // Optional fields
-  categoryId?: string;
-  merchantName?: string;
+  categoryId?: string; // Link to existing category (must exist!)
+  merchantId?: string; // Link to existing merchant (must exist!)
   pending?: boolean; // Default: false
   notes?: string;
+  provider?: string; // "TELLER", "PLAID", etc.
+  providerTransactionId?: string;
+
+  // NEW: Optional splits
+  splits?: TransactionSplit[];
+
+  // Validation
+  ensureTotalMatches?: boolean; // Validate splits sum (default: true)
 }
 
 export interface GetAccountTransactionsParams {

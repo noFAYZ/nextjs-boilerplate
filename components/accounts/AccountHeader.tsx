@@ -161,10 +161,10 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                       utilization > 75 ? "text-red-600" : utilization > 50 ? "text-orange-600" : "text-emerald-600"
                     )}>{utilization}%</span>
                   </div>
-                  <div className="h-4 bg-accent rounded-sm overflow-hidden relative">
+                  <div className="h-4 bg-accent shadow-inner rounded-xs overflow-hidden relative">
                      <div
                       className={cn(
-                        "h-full rounded-sm transition-all duration-500 relative overflow-hidden",
+                        "h-full rounded-xs transition-all duration-300 relative overflow-hidden",
                         utilization > 75 ? "bg-red-500" : utilization > 50 ? "bg-orange-500" : "bg-emerald-500"
                       )}
                       style={{ 

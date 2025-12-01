@@ -8,6 +8,9 @@ import type {
   GetAccountTransactionsParams,
   AccountTransactionsResponse,
   Transaction,
+  CategoriesResponse,
+  CategoryGroupsResponse,
+  TransactionCategoryGroup,
 } from '@/lib/types/unified-accounts';
 import type { ApiResponse } from '@/lib/types/crypto';
 
@@ -83,6 +86,51 @@ class AccountsApiService {
     data: AddTransactionRequest
   ): Promise<ApiResponse<Transaction>> {
     return apiClient.post(`${this.basePath}/${accountId}/transactions`, data);
+  }
+
+  /**
+   * Get all transaction category groups with categories (for envelope budgeting and transaction forms)
+   * @param organizationId - Optional organization ID filter
+   * @returns Hierarchical list of category groups with categories
+   */
+  async getCategoryGroups(organizationId?: string): Promise<ApiResponse<CategoryGroupsResponse>> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('includeCategories', 'true');
+    queryParams.append('hierarchy', 'false');
+    if (organizationId) {
+      queryParams.append('organizationId', organizationId);
+    }
+    const queryString = queryParams.toString();
+    const endpoint = `/accounts/transactions/category-groups${queryString ? `?${queryString}` : ''}`;
+    return apiClient.get<CategoryGroupsResponse>(endpoint);
+  }
+
+  /**
+   * Get flat list of all transaction categories
+   * @param params - Query parameters for filtering and pagination
+   * @returns Paginated list of all available categories
+   */
+  async getCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }): Promise<ApiResponse<CategoriesResponse>> {
+    const queryParams = new URLSearchParams();
+    if (params?.groupId) queryParams.append('groupId', params.groupId);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.activeOnly !== undefined) queryParams.append('activeOnly', params.activeOnly.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const queryString = queryParams.toString();
+    const endpoint = `/accounts/transactions/categories${queryString ? `?${queryString}` : ''}`;
+    return apiClient.get<CategoriesResponse>(endpoint);
+  }
+
+  /**
+   * Search categories by name
+   * @param query - Search query string
+   * @returns List of matching categories
+   */
+  async searchCategories(query: string): Promise<ApiResponse<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>> {
+    const endpoint = `/accounts/transactions/categories/search?q=${encodeURIComponent(query)}`;
+    return apiClient.get<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>(endpoint);
   }
 }
 

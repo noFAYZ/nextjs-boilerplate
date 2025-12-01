@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,31 +15,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Plus, X } from 'lucide-react';
-import { useAddTransaction } from '@/lib/queries/use-accounts-data';
+import { useAddTransaction, useCategoryGroups } from '@/lib/queries/use-accounts-data';
 import { toast } from 'sonner';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
-import type { AddTransactionRequest } from '@/lib/types/unified-accounts';
-
-interface TransactionSplit {
-  customCategoryId: string;
-  amount: number;
-  description?: string;
-}
-
-// Default transaction categories
-const DEFAULT_CATEGORIES = [
-  { value: 'MEALS_AND_DINING', label: 'Meals & Dining' },
-  { value: 'SHOPPING', label: 'Shopping' },
-  { value: 'TRANSPORTATION', label: 'Transportation' },
-  { value: 'ENTERTAINMENT', label: 'Entertainment' },
-  { value: 'GROCERIES', label: 'Groceries' },
-  { value: 'UTILITIES', label: 'Utilities' },
-  { value: 'TRANSFER', label: 'Transfer' },
-  { value: 'PAYMENT', label: 'Payment' },
-  { value: 'FEES', label: 'Fees' },
-  { value: 'OTHER', label: 'Other' },
-];
+import type { AddTransactionRequest, TransactionSplit as TransactionSplitType, TransactionCategory } from '@/lib/types/unified-accounts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface ManualTransactionFormProps {
   isOpen: boolean;
@@ -53,25 +34,62 @@ export function ManualTransactionForm({
   accountId,
 }: ManualTransactionFormProps) {
   const { mutate: addTransaction, isPending } = useAddTransaction();
+  const { data: categoryGroupsData, isLoading: categoryGroupsLoading } = useCategoryGroups();
 
-  const [formData, setFormData] = useState<AddTransactionRequest & { pending?: boolean; inflow: number; outflow: number }>({
+  const [formData, setFormData] = useState<AddTransactionRequest>({
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
-    merchantName: '',
+    type: 'EXPENSE',
+    merchantId: '',
     categoryId: '',
     pending: false,
     notes: '',
-    inflow: 0,
-    outflow: 0,
   });
 
-  const [splits, setSplits] = useState<TransactionSplit[]>([]);
+  const [splits, setSplits] = useState<TransactionSplitType[]>([]);
   const [useSplits, setUseSplits] = useState(false);
 
-  const [customCategories, setCustomCategories] = useState<ComboboxOption[]>(DEFAULT_CATEGORIES);
+  // Transform fetched category groups into flat ComboboxOption format with emoji, color, and icon
+  const fetchedCategories = useMemo<ComboboxOption[]>(() => {
+    if (!categoryGroupsData?.data) return [];
+
+    const allCategories: ComboboxOption[] = [];
+
+    categoryGroupsData.data.forEach((group) => {
+      if (group.categories && group.categories.length > 0) {
+        group.categories.forEach((cat: TransactionCategory) => {
+          const label = [
+            cat.emoji || '📁',
+            cat.displayName || cat.name,
+          ]
+            .filter(Boolean)
+            .join(' ');
+
+          allCategories.push({
+            value: cat.id,
+            label,
+            // Store additional metadata for styling
+            ...(cat.color && { color: cat.color }),
+            ...(cat.icon && { icon: cat.icon }),
+          });
+        });
+      }
+    });
+
+    return allCategories;
+  }, [categoryGroupsData]);
+
+  const [customCategories, setCustomCategories] = useState<ComboboxOption[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+
+  // Update custom categories when fetched categories change
+  useEffect(() => {
+    if (fetchedCategories.length > 0) {
+      setCustomCategories(fetchedCategories);
+    }
+  }, [fetchedCategories]);
 
   const [customMerchants, setCustomMerchants] = useState<ComboboxOption[]>([]);
   const [newMerchantName, setNewMerchantName] = useState('');
@@ -87,7 +105,7 @@ export function ManualTransactionForm({
     return splits.reduce((sum, split) => sum + split.amount, 0);
   }, [splits]);
 
-  const totalAmount = formData.inflow - formData.outflow;
+  const totalAmount = formData.amount || 0;
   const remainingBalance = totalAmount - splitTotal;
   const isBalanced = Math.abs(remainingBalance) < 0.01;
 
@@ -123,7 +141,7 @@ export function ManualTransactionForm({
     };
 
     setCustomMerchants([...customMerchants, newMerchant]);
-    setFormData({ ...formData, merchantName: newMerchantName });
+    setFormData({ ...formData, merchantId: newMerchantName });
     setNewMerchantName('');
     setShowNewMerchantInput(false);
     toast.success('Merchant added');
@@ -137,7 +155,7 @@ export function ManualTransactionForm({
     setSplits(splits.filter((_, i) => i !== index));
   };
 
-  const handleSplitChange = (index: number, field: keyof TransactionSplit, value: any) => {
+  const handleSplitChange = (index: number, field: keyof TransactionSplitType, value: any) => {
     const newSplits = [...splits];
     newSplits[index] = { ...newSplits[index], [field]: value };
     setSplits(newSplits);
@@ -146,10 +164,9 @@ export function ManualTransactionForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const amount = formData.inflow - formData.outflow;
-
-    if (!formData.description || !formData.date || (formData.inflow === 0 && formData.outflow === 0)) {
-      toast.error('Please fill in all required fields (description, date, and either inflow or outflow)');
+    // Validate required fields
+    if (!formData.description || !formData.date || !formData.amount || formData.amount <= 0) {
+      toast.error('Description, date, and positive amount are required');
       return;
     }
 
@@ -163,11 +180,12 @@ export function ManualTransactionForm({
     }
 
     try {
-      const submitData: any = {
-        amount,
+      const submitData: AddTransactionRequest = {
+        amount: formData.amount,
         description: formData.description,
         date: formData.date,
-        ...(formData.merchantName && { merchantName: formData.merchantName }),
+        type: formData.type || 'EXPENSE',
+        ...(formData.merchantId && { merchantId: formData.merchantId }),
         ...(formData.categoryId && { categoryId: formData.categoryId }),
         ...(formData.pending !== undefined && { pending: formData.pending }),
         ...(formData.notes && { notes: formData.notes }),
@@ -206,12 +224,11 @@ export function ManualTransactionForm({
       amount: 0,
       description: '',
       date: new Date().toISOString().split('T')[0],
-      merchantName: '',
+      type: 'EXPENSE',
+      merchantId: '',
       categoryId: '',
       pending: false,
       notes: '',
-      inflow: 0,
-      outflow: 0,
     });
     setSplits([]);
     setUseSplits(false);
@@ -253,7 +270,7 @@ export function ManualTransactionForm({
           </div>
 
           {/* Date & Amount in 2 columns */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex gap-2">
             <div className="space-y-1">
               <Label htmlFor="date" className="text-sm font-medium">
                 Date <span className="text-red-500">*</span>
@@ -270,40 +287,88 @@ export function ManualTransactionForm({
               />
             </div>
 
-            {/* Inflow and Outflow */}
+            {/* Amount & Type 
             <div className="space-y-1">
               <Label className="text-sm font-medium">Amount</Label>
               <div className="grid grid-cols-2 gap-1">
-                <div>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="In"
-                    title="Inflow (Income/Deposit)"
-                    value={formData.inflow || ''}
-                    onChange={(e) =>
-                      setFormData({ ...formData, inflow: parseFloat(e.target.value) || 0 })
-                    }
-                    className="h-8 text-xs"
-                  />
-                </div>
-                <div>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Out"
-                    title="Outflow (Expense)"
-                    value={formData.outflow || ''}
-                    onChange={(e) =>
-                      setFormData({ ...formData, outflow: parseFloat(e.target.value) || 0 })
-                    }
-                    className="h-8 text-xs"
-                  />
-                </div>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={formData.amount || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })
+                  }
+                  className="h-8"
+                  required
+                />
+                <select
+                  value={formData.type || 'EXPENSE'}
+                  onChange={(e) =>
+                    setFormData({ ...formData, type: e.target.value as 'INCOME' | 'EXPENSE' | 'TRANSFER' })
+                  }
+                  className="h-8 px-2 text-xs border rounded-md bg-background"
+                >
+                  <option value="EXPENSE">Expense</option>
+                  <option value="INCOME">Income</option>
+                  <option value="TRANSFER">Transfer</option>
+                </select>
               </div>
-            </div>
+            </div>*/}
+
+
+            {/* Amount & Type */}
+<div className="space-y-1">
+  <Label className="text-sm font-medium">Amount</Label>
+
+  <div className="grid grid-cols-2 gap-1">
+    {/* Amount Input */}
+    <Input
+      type="number"
+      step="0.01"
+      min="0"
+      placeholder="0.00"
+      value={formData.amount || ''}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          amount: parseFloat(e.target.value) || 0,
+        })
+      }
+      className="h-8"
+      required
+    />
+
+    {/* ShadCN Select for Type */}
+    <Select
+      value={formData.type || 'EXPENSE'}
+      onValueChange={(value) =>
+        setFormData({
+          ...formData,
+          type: value as 'INCOME' | 'EXPENSE' | 'TRANSFER',
+        })
+      }
+    >
+      <SelectTrigger size='sm' variant='outline2'>
+        <SelectValue placeholder="Select type" />
+      </SelectTrigger>
+
+      <SelectContent>
+        <SelectItem value="EXPENSE" className="text-xs">
+          Expense
+        </SelectItem>
+        <SelectItem value="INCOME" className="text-xs">
+          Income
+        </SelectItem>
+        <SelectItem value="TRANSFER" className="text-xs">
+          Transfer
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+</div>
+
           </div>
 
           {/* Merchant Name with Combobox */}
@@ -331,9 +396,9 @@ export function ManualTransactionForm({
                 {allMerchants.length > 0 && (
                   <Combobox
                     options={allMerchants}
-                    value={formData.merchantName}
+                    value={formData.merchantId || ''}
                     onSelect={(value) =>
-                      setFormData({ ...formData, merchantName: value })
+                      setFormData({ ...formData, merchantId: value })
                     }
                     placeholder="Select merchant"
                     width="w-full"
@@ -341,9 +406,9 @@ export function ManualTransactionForm({
                 )}
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="outline2"
                   size="xs"
-                  className="w-full h-7 gap-1"
+                  className="w-full  gap-1"
                   onClick={() => setShowNewMerchantInput(true)}
                 >
                   <Plus className="h-3 w-3" />
@@ -426,12 +491,13 @@ export function ManualTransactionForm({
                         setFormData({ ...formData, categoryId: value })
                       }
                       placeholder="Select category"
+                      
                       width="w-fit"
                       
                     />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="outline2"
                       size="sm"
                       className="w-fit ml-1 gap-1"
                       onClick={() => setShowNewCategoryInput(true)}
@@ -625,7 +691,7 @@ export function ManualTransactionForm({
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-2 pt-3">
+          <div className="flex justify-end gap-2 pt-3">
             <Button
               type="button"
               variant="outline"
@@ -635,7 +701,7 @@ export function ManualTransactionForm({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending} className="flex-1" size="sm">
+            <Button type="submit" disabled={isPending} size="sm">
               {isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
               {isPending ? 'Adding...' : 'Add'}
             </Button>

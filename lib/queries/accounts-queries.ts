@@ -14,6 +14,10 @@ import type {
   GetAccountTransactionsParams,
   AccountTransactionsResponse,
   Transaction,
+  CategoriesResponse,
+  CategoryGroupsResponse,
+  TransactionCategoryGroup,
+  TransactionCategory,
 } from '@/lib/types/unified-accounts';
 import type { ApiResponse } from '@/lib/types/crypto';
 
@@ -24,6 +28,8 @@ export const accountsKeys = {
   account: (id: string) => [...accountsKeys.all, 'account', id] as const,
   transactions: (accountId: string) => [...accountsKeys.all, 'transactions', accountId] as const,
   transaction: (accountId: string, transactionId: string) => [...accountsKeys.transactions(accountId), transactionId] as const,
+  categories: () => [...accountsKeys.all, 'categories'] as const,
+  categoryGroups: (organizationId?: string) => [...accountsKeys.all, 'category-groups', organizationId || 'default'] as const,
 };
 
 // Helper function for error handling
@@ -141,6 +147,48 @@ export const accountsQueries = {
       };
     },
   }),
+
+  /**
+   * Get all transaction categories (flat list)
+   */
+  categories: (params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }) => ({
+    queryKey: accountsKeys.categories(),
+    queryFn: async () => {
+      try {
+        return await accountsApi.getCategories(params);
+      } catch (error: unknown) {
+        throw error;
+      }
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
+    select: (data: ApiResponse<CategoriesResponse>) => {
+      if (data.success && data.data) {
+        return data.data;
+      }
+      return { data: [] };
+    },
+  }),
+
+  /**
+   * Get category groups with nested categories (for envelope budgeting and better organization)
+   */
+  categoryGroups: (organizationId?: string) => ({
+    queryKey: accountsKeys.categoryGroups(organizationId),
+    queryFn: async () => {
+      try {
+        return await accountsApi.getCategoryGroups(organizationId);
+      } catch (error: unknown) {
+        throw error;
+      }
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
+    select: (data: ApiResponse<CategoryGroupsResponse>) => {
+      if (data.success && data.data) {
+        return data.data;
+      }
+      return { data: [] };
+    },
+  }),
 };
 
 // Mutations Factory
@@ -247,5 +295,27 @@ export function useAccountTransactions(accountId: string | null, params?: GetAcc
   return useQuery({
     ...accountsQueries.accountTransactions(accountId!, params),
     enabled: isAuthReady && !!accountId,
+  });
+}
+
+export function useCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }) {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...accountsQueries.categories(params),
+    enabled: isAuthReady,
+  });
+}
+
+export function useCategoryGroups(organizationId?: string) {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...accountsQueries.categoryGroups(organizationId),
+    enabled: isAuthReady,
   });
 }

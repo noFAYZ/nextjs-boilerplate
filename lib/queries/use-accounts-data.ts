@@ -26,6 +26,8 @@ import {
   useUnifiedAccounts as useBaseUnifiedAccounts,
   useAccountDetails as useBaseAccountDetails,
   useAccountTransactions as useBaseAccountTransactions,
+  useCategories as useBaseCategoriesQuery,
+  useCategoryGroups as useBaseCategoryGroupsQuery,
 } from './accounts-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import type {
@@ -74,6 +76,24 @@ export function useAccountDetails(accountId: string | null) {
  */
 export function useAccountTransactions(accountId: string | null, params?: GetAccountTransactionsParams) {
   return useBaseAccountTransactions(accountId, params);
+}
+
+/**
+ * Get flat list of all transaction categories
+ * @param params - Query parameters for filtering and pagination
+ * @returns List of available transaction categories
+ */
+export function useCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }) {
+  return useBaseCategoriesQuery(params);
+}
+
+/**
+ * Get category groups with nested categories (for envelope budgeting and better organization)
+ * @param organizationId - Optional organization ID to filter category groups by
+ * @returns Hierarchical list of category groups with categories
+ */
+export function useCategoryGroups(organizationId?: string) {
+  return useBaseCategoryGroupsQuery(organizationId);
 }
 
 // ============================================================================

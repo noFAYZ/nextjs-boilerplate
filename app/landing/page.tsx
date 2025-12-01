@@ -49,14 +49,14 @@ export default function LandingPage() {
     },
     {
       icon: <Mail className="w-6 h-6" />,
-      href: "mailto:contact@resumegpt.com",
+      href: "mailto:contact@moneymappr.com",
       label: "Email",
     },
   ];
 
   const navLinks = [
     { label: "Pricing", href: "/" },
-    { label: "Templates", href: "/" },
+    { label: "Features", href: "/" },
     { label: "About", href: "/" },
     { label: "Contact", href: "/" },
   ];
@@ -82,9 +82,9 @@ export default function LandingPage() {
     
      <TestimonialsDemo />  
       */}
-
+ <IntegrationHero />
     {/*   
-      <IntegrationHero />
+     
       <ComparisonSection />
       <SecuritySection /> 
       <PricingSection />*/}

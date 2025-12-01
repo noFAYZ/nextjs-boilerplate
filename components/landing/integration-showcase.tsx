@@ -39,7 +39,7 @@ export default function IntegrationHero() {
       <div className="relative max-w-lg mx-auto  mb-8 text-center">
         <div className="mx-auto  text-center ">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Connect all your financial accounts
+            Connect all accounts
           </h2>
           <p className="text-sm md:text-base text-muted-foreground">
             Link your banks, crypto wallets, and exchanges to get a complete view of your finances.

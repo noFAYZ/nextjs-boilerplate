@@ -350,7 +350,7 @@ export default function UnifiedAccountDetailsPage() {
   const syncState = realtimeSyncStates[account.id];
 
   return (
-    <div className={` max-w-3xl mx-auto space-y-3`}>
+    <div className={` max-w-5xl mx-auto space-y-3`}>
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
