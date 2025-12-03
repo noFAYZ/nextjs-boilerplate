@@ -19,7 +19,7 @@ export function FinalCTASection() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/#hero">
                 <Button size="sm">
-                  Join Wsitlist Now
+                  Join Wsitlist
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>

@@ -11,6 +11,7 @@ import {
   HowItWorks,
   RealtimeTracking,
   FeatureGrid,
+  SubscriptionsShowcase,
 
 } from '@/components/landing';
 
@@ -31,6 +32,7 @@ import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react
 import { cn } from '@/lib/utils';
 import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/font/google';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
+import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
 
   const parkinsans = Sora({
     variable: "--font-geist-sans",
@@ -77,16 +79,18 @@ export default function LandingPage() {
 <FinanceHeroDubStyle />
    <MoneyMapprFeatureSection />
 
-   
-    {/*  <Skiper16 /> <Header /> < FeaturesSectionWithHoverEffects />
-  
+
+    {/*  <Header /> 
+     < FeaturesSectionWithHoverEffects />
      <SubscriptionsShowcase />
      <RealtimeTracking /> 
        <PortfolioShowcase />
        <CryptoShowcase />
       <HowItWorks />
+ <Skiper16 />
+     <FeatureGrid /> 
       */}
- <FeatureGrid />
+ 
    
  <IntegrationHero /> 
  <TestimonialsDemo />  
