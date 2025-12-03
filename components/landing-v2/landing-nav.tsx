@@ -164,8 +164,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
               {/* Desktop CTA */}
               <div className="hidden lg:flex items-center gap-3">
-                 <ThemeSwitcher />
-              {/*   
+                
+              {/*    <ThemeSwitcher />
               <Link href="/#hero"><Button size="xs" variant='steel' className="group rounded-full" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
                       </Button></Link>*/}
@@ -185,7 +185,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
               {/* Mobile Toggle */}
               <div className="flex lg:hidden items-center  gap-2">
-                {/* */}<ThemeSwitcher /> 
+                {/* <ThemeSwitcher /> */}
 
                 <button
                 onClick={() => setIsMobileMenuOpen(v => !v)}
