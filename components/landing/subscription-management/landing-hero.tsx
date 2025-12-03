@@ -169,13 +169,13 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-6 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-muted-foreground"
+          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-muted-foreground"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
         </motion.p>
 
-               {/* CTA */}
+               {/* CTA 
                <motion.div
           {...fadeUp}
           transition={{ delay: 0.5 }}
@@ -188,15 +188,15 @@ export function LandingHero() {
   "https://avatars.githubusercontent.com/u/59228569",
 ]} />
        
-        </motion.div>
+        </motion.div>*/}
 
         {/* CTA */}
         <motion.div
           {...fadeUp}
           transition={{ delay: 0.6 }}
-          className="mt-8 flex justify-center gap-4 flex-wrap"
+          className="mt-16 flex justify-center gap-3 flex-wrap"
         >
-        {/*   <Button  >
+          <Button  >
             Get Started
           </Button>
 
@@ -207,8 +207,8 @@ export function LandingHero() {
             icon={<SolarPlayCircleBoldDuotone className="w-5 h-5" />}
           >
             See Demo
-          </Button> */}
-          <WaitlistFormCompact />
+          </Button> 
+         {/*  <WaitlistFormCompact />*/}
         </motion.div>
 
 

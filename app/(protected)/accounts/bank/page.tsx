@@ -186,7 +186,7 @@ export default function BankAccountsPage() {
       <BankAccountsFloatingToolbar
         selectedCount={selectedIds.length}
         selectedAccounts={selectedAccounts}
-        totalBalance={selectedAccounts.reduce((sum, acc) => sum + acc.balance, 0)}
+        totalBalance={selectedAccounts.reduce((sum, acc) => sum + Number(acc.balance), 0)}
         onClearSelection={() => setSelectedIds([])}
         onDisconnect={handleBulkDisconnect}
         onDelete={handleBulkDelete}
