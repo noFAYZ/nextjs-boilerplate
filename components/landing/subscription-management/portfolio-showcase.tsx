@@ -14,7 +14,7 @@ import { ScrollReveal } from '../scroll-reveal';
 
 export function PortfolioShowcase() {
   return (
-    <section id="subscriptions" className="pt-10 flex items-center justify-center container mx-auto">
+    <section id="subscriptions" className="py-10 flex items-center justify-center  mx-auto bg-card">
       <div className=" mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
         {/* Left: Visual Preview */}
@@ -22,7 +22,7 @@ export function PortfolioShowcase() {
           <div className="relative flex items-start justify-start overflow-hidden  bg-gradient-to-br from-orange-100 via-orange-500/80 to-pink-600/80 
           h-[280px] w-[380px]  lg:h-[500px] lg:w-[700px] md:h-[400px] md:w-[600px] pr-10 pl-10 pt-10 shadow-lg drop-shadow-xl border-0">
             <Image
-              src="/landing/subscription-management.PNG" // replace with your preview image
+              src="/landing/hero-light3.JPG" // replace with your preview image
               alt="Subscription Management Dashboard"
               width={1700}
               height={1200}
@@ -34,7 +34,7 @@ export function PortfolioShowcase() {
 
         {/* Right: Content */}
         <ScrollReveal delay={200}>
-        <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60 border p-6 ">
+        <div className="max-w-md space-y-6 text-center lg:text-left bg-muted/60  p-6 ">
      
             <h1 className='text-4xl sm:text-4xl font-bold tracking-tight drop-shadow-lg'>Manage Subscriptions</h1>
 

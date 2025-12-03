@@ -6,6 +6,11 @@ import {
   LandingFooter,
   ScrollProgress,
   StickyCTA,
+  ComparisonSection,
+  SecuritySection,
+  HowItWorks,
+  RealtimeTracking,
+  FeatureGrid,
 
 } from '@/components/landing';
 
@@ -25,6 +30,7 @@ import { Footer } from '@/components/landing-v2/animated-footer';
 import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/font/google';
+import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
 
   const parkinsans = Sora({
     variable: "--font-geist-sans",
@@ -74,22 +80,23 @@ export default function LandingPage() {
    
     {/*  <Skiper16 /> <Header /> < FeaturesSectionWithHoverEffects />
   
-      <FeatureGrid /><SubscriptionsShowcase />
+     <SubscriptionsShowcase />
      <RealtimeTracking /> 
-        <PortfolioShowcase />
+       <PortfolioShowcase />
        <CryptoShowcase />
       <HowItWorks />
-    
-     <TestimonialsDemo />  
       */}
- <IntegrationHero />
-    {/*   
-     
-      <ComparisonSection />
-      <SecuritySection /> 
-      <PricingSection />*/}
+ <FeatureGrid />
+   
+ <IntegrationHero /> 
+ <TestimonialsDemo />  
+    <PricingSection />
       <FAQSection />
-      {/* <FinalCTASection /> */}
+      <FinalCTASection />
+       {/* <ComparisonSection /> 
+      <SecuritySection /> 
+     
+      {/*  */}
  
     
       <Footer

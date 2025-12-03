@@ -70,14 +70,14 @@ export function PricingSection() {
               key={plan.name}
               className={`relative rounded-2xl border p-8 h-fit ${
                 plan.highlighted
-                  ? 'bg-gradient-to-br from-muted/40 to-muted/95   shadow-2xl scale-105'
-                  : 'bg-card shadow-sm hover:shadow-xl transition-shadow'
+                  ? 'bg-gradient-to-br from-accent/40 to-muted/95   shadow-lg scale-105'
+                  : 'bg-card shadow-xs hover:shadow-xl transition-shadow'
               }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                  <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-1 rounded-xl text-xs font-bold shadow-lg">
                     MOST POPULAR
                   </div>
                 </div>
