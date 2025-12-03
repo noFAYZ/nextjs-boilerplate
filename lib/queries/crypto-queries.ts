@@ -323,6 +323,7 @@ export const cryptoMutations = {
     const { addWallet } = useCryptoStore();
 
     return useMutation({
+      mutationKey: ['createWallet'],
       mutationFn: async (data: CreateWalletRequest) => {
         const response = await cryptoApi.createWallet(data);
 
@@ -358,6 +359,7 @@ export const cryptoMutations = {
     const { updateWallet } = useCryptoStore();
 
     return useMutation({
+      mutationKey: ['updateWallet'],
       mutationFn: ({ id, updates }: { id: string; updates: UpdateWalletRequest }) =>
         cryptoApi.updateWallet(id, updates),
       onSuccess: (response, variables) => {
@@ -386,6 +388,7 @@ export const cryptoMutations = {
     const { removeWallet } = useCryptoStore();
 
     return useMutation({
+      mutationKey: ['deleteWallet'],
       mutationFn: (walletId: string) => cryptoApi.deleteWallet(walletId),
       onSuccess: (response, walletId) => {
         if (response.success) {
@@ -419,6 +422,7 @@ export const cryptoMutations = {
     const cryptoStore = useCryptoStore();
 
     return useMutation({
+      mutationKey: ['syncWallet'],
       mutationFn: ({ walletId, syncData }: { walletId: string; syncData?: SyncRequest }) =>
         cryptoApi.syncWallet(walletId, syncData),
       onSuccess: (response, variables) => {
@@ -464,6 +468,7 @@ export const cryptoMutations = {
     const cryptoStore = useCryptoStore();
 
     return useMutation({
+      mutationKey: ['syncAllWallets'],
       mutationFn: () => cryptoApi.refreshAllWallets(),
       onSuccess: (response) => {
         if (response.success && response.data?.wallets) {

@@ -207,7 +207,14 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <AuthGuard>
-        <PageLoader message="Loading your profile..." />
+<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
+<Card className="px-5 border-border shadow-none " >
+  <div className="flex items-center space-x-3">
+    <LogoLoader className="w-8 h-8" />
+    <span className="text-sm font-medium">Loading your wallet portfolio....</span>
+  </div>
+</Card>
+</div>
       </AuthGuard>
     );
   }
@@ -255,28 +262,12 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <Breadcrumb className="mb-2">
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href="/">Home</Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Profile</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-              <p className="text-muted-foreground text-sm">
-                Manage your account settings and preferences
-              </p>
-            </div>
+          <div className="flex items-center justify-end">
+      
             <Button 
               onClick={handleEditToggle}
               variant={isEditing ? "outline" : "default"}
+              size='xs'
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </Button>
@@ -289,9 +280,9 @@ export default function ProfilePage() {
                 <CardHeader className="text-center">
                   <div className="relative mx-auto w-24 h-24">
                     <Avatar className="w-24 h-24">
-                      <AvatarImage src={profile.profilePicture} />
+                      <AvatarImage src={profile.profilePicture || profile.image} />
                       <AvatarFallback className="text-2xl">
-                        {profile?.firstName?.[0] }
+                        {profile?.name?.[0] }
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-2 -right-2">
@@ -339,7 +330,7 @@ export default function ProfilePage() {
                   <CardHeader>
                     <CardTitle>Account Statistics</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 text-sm">
                     <div className="flex justify-between">
                       <span>Accounts</span>
                       <span className="font-medium">{stats.accounts}</span>
@@ -568,19 +559,20 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium">Delete Account</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Permanently delete your account and all associated data
                       </p>
                     </div>
                     <Button
-                      variant="destructive"
+                      variant="delete"
                       onClick={handleDeleteAccount}
                       disabled={isDeleting}
+                      size='xs'
                     >
                       {isDeleting ? (
-                        <LoadingSpinner size="sm" className="mr-2" />
+                        <LoadingSpinner size="sm" className="mr-1" />
                       ) : (
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className="w-4 h-4 mr-1" />
                       )}
                       Delete Account
                     </Button>

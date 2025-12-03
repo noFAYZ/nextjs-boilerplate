@@ -17,6 +17,7 @@ import {
   Plus,
   ArrowRight,
   AlertCircle,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SolarLockKeyholeBoldDuotone } from '../../icons/icons';
@@ -32,6 +33,7 @@ interface InitialViewProps {
   plaidLoading: boolean;
   openPlaidLink: () => void;
   handleManualAccountClick: () => void;
+  handleAddCryptoWallet: () => void;
 }
 
 export function InitialView({
@@ -43,6 +45,7 @@ export function InitialView({
   plaidLoading,
   openPlaidLink,
   handleManualAccountClick,
+  handleAddCryptoWallet,
 }: InitialViewProps) {
   return (
     <>
@@ -165,6 +168,24 @@ export function InitialView({
         )}
 
         <Separator />
+
+        {/* ADD CRYPTO WALLET OPTION */}
+        <button
+          onClick={handleAddCryptoWallet}
+          className={cn(
+            'w-full flex items-center gap-3 p-3 shadow-sm rounded-lg border border-border/80 group',
+            'bg-card hover:bg-card/20 transition-colors duration-100 cursor-pointer text-left'
+          )}
+        >
+          <div className="flex h-10 w-10 shadow border items-center justify-center bg-muted text-foreground/50 rounded-full ">
+            <Wallet className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-sm text-foreground">Add Crypto Wallet</h3>
+            <p className="text-xs text-muted-foreground">Connect a blockchain wallet to track crypto</p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground/70 flex-shrink-0" />
+        </button>
 
         {/* IMPORT OPTION */}
         <button

@@ -18,7 +18,7 @@ import { getLogoUrl } from '@/lib/services/logo-service';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
 import Link from 'next/link';
-import { MageCalendar2 } from '@/components/icons/icons';
+import { MageCalendar2, SolarCalendarBoldDuotone } from '@/components/icons/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { CardSkeleton } from '../ui/card-skeleton';
@@ -123,11 +123,11 @@ function DateDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Modern Header with Gradient */}
-        <div className="relative px-6 pt-6 pb-5 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border-b border-border/50">
+        <div className="relative px-4 pt-4 bg-card border-b border-border/80">
           <DialogHeader>
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-1 ring-primary/20">
-                <MageCalendar2 className="h-5 w-5 text-primary" />
+              <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ">
+                <SolarCalendarBoldDuotone className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
                 <DialogTitle className="text-base font-semibold text-foreground">
@@ -156,28 +156,28 @@ function DateDetailModal({
         </div>
 
         {/* Subscription List with Custom Scrollbar */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
           {subscriptions.map((subscription, index) => (
             <Link
               key={subscription.id}
               href={`/subscriptions/${subscription.id}`}
               onClick={onClose}
             >
-              <div
-                className="group relative flex items-center gap-3 p-3.5 rounded-xl border border-border/60 bg-background hover:bg-muted/40 cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-sm"
+              <Card
+                className="group relative flex-row items-center gap-3 mb-2  "
                 style={{
-                  animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`
+                  animation: `fadeInUp 0.2s ease-out ${index * 0.05}s both`
                 }}
+                interactive
               >
-                {/* Hover Gradient Effect */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-transparent transition-all duration-200" />
+             
 
-                <Avatar className="h-11 w-11 rounded-xl shadow-sm ring-1 ring-border/50 group-hover:ring-primary/20 transition-all relative z-10">
+                <Avatar className="h-10 w-10 rounded-full shadow-sm ring-1 ring-border/50 group-hover:ring-primary/20 transition-all relative z-10">
                   {subscription.websiteUrl ? (
                     <AvatarImage
                       src={getLogoUrl(subscription.websiteUrl) || ''}
                       alt={subscription.name}
-                      className="object-contain bg-background rounded-xl p-1"
+                      className="object-contain bg-background rounded-full "
                     />
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-xs font-bold text-primary rounded-xl">
@@ -211,10 +211,10 @@ function DateDetailModal({
 
                 <CurrencyDisplay
                   amountUSD={subscription.amount}
-                  variant="compact"
-                  className="text-sm font-bold text-foreground relative z-10"
+          
+                  className="text-foreground relative z-10"
                 />
-              </div>
+              </Card>
             </Link>
           ))}
         </div>

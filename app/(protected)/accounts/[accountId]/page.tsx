@@ -74,6 +74,7 @@ import { TransactionsDataTable, UnifiedTransaction } from "@/components/transact
 import { TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer";
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
+import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -385,6 +386,14 @@ export default function UnifiedAccountDetailsPage() {
         </Card>
       </div>
     );
+  }
+
+  // Check if this is a crypto account
+  const isCryptoAccount = account.category === 'CRYPTO';
+
+  // If it's a crypto account, render the crypto detail component
+  if (isCryptoAccount) {
+    return <CryptoAccountDetail accountId={accountId} />;
   }
 
   const accountConfig = ACCOUNT_TYPE_CONFIG[account.type as keyof typeof ACCOUNT_TYPE_CONFIG] || ACCOUNT_TYPE_CONFIG.CHECKING;

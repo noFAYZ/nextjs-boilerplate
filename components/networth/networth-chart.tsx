@@ -661,7 +661,7 @@ export function NetWorthChart({
   height: rawHeight,
   compact = false,
   showPeriodFilter = true,
-  showComparison = true,
+  showComparison = false,
   defaultPeriod = '1m',
   onPeriodChange,
   mode = 'live',

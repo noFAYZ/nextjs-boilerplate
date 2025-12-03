@@ -37,6 +37,7 @@ import {
 } from '@/lib/utils';
 import { CreateOrganizationModal, OrganizationSettings } from '@/components/organization';
 import { CategoryManagementModal } from '@/components/banking';
+import { HeroiconsWallet16Solid } from '@/components/icons/icons';
 
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
@@ -120,29 +121,14 @@ export default function SettingsPage() {
   };
 
   if (!isInitialized || isLoading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+    return <div className="min-h-[80vh] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-background">
+
       <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/">Home</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Settings</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            <p className="text-xs text-muted-foreground mt-1">Manage your preferences and account</p>
-          </div>
+        <div className="flex items-center justify-end">
+ 
           <div className="flex items-center gap-2">
             {hasUnsavedChanges && <Badge variant="secondary" className="gap-1 text-xs"><AlertCircle className="h-3 w-3" />Unsaved</Badge>}
             <Button variant="outline" size="sm" onClick={handleReset} disabled={isUpdating}><RotateCcw className="h-4 w-4" /></Button>
@@ -151,28 +137,29 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="">
-          <TabsList variant="card" size={'sm'} >
-            <TabsTrigger value="general" className="gap-2" variant="card" size={'sm'}>
+          <TabsList variant="pill" size={'sm'} className='
+          flex flex-wrap' >
+            <TabsTrigger value="general" className="gap-2" variant="pill" size={'sm'}>
               <Settings className="h-4 w-4" />
               General
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="gap-2" variant="card" size={'sm'}>
+            <TabsTrigger value="appearance" className="gap-2" variant="pill" size={'sm'}>
               <Palette className="h-4 w-4" />
               Appearance
             </TabsTrigger>
-            <TabsTrigger value="security" className="gap-2" variant="card" size={'sm'}>
+            <TabsTrigger value="security" className="gap-2" variant="pill" size={'sm'}>
               <Shield className="h-4 w-4" />
               Security & Privacy
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2" variant="card" size={'sm'}>
+            <TabsTrigger value="notifications" className="gap-2" variant="pill" size={'sm'}>
               <Bell className="h-4 w-4" />
               Notifications
             </TabsTrigger>
-            <TabsTrigger value="accounts" className="gap-2" variant="card" size={'sm'}>
-              <Wallet className="h-4 w-4" />
+            <TabsTrigger value="accounts" className="gap-2" variant="pill" size={'sm'}>
+              <HeroiconsWallet16Solid className="h-4 w-4" />
               Accounts
             </TabsTrigger>
-            <TabsTrigger value="advanced" className="gap-2" variant="card" size={'sm'}>
+            <TabsTrigger value="advanced" className="gap-2" variant="pill" size={'sm'}>
               <Database className="h-4 w-4" />
               Advanced
             </TabsTrigger>
@@ -192,7 +179,7 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1">Select your preferred language</p>
                     </div>
                     <Select value={preferences.language} onValueChange={(v) => updatePreference('language', v)}>
-                      <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="en">English</SelectItem>
                         <SelectItem value="es">Español</SelectItem>
@@ -206,7 +193,7 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1">Default currency display</p>
                     </div>
                     <Select value={preferences.currency} onValueChange={(v) => updatePreference('currency', v)}>
-                      <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="USD">USD</SelectItem>
                         <SelectItem value="EUR">EUR</SelectItem>
@@ -221,7 +208,7 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1">How dates are displayed</p>
                     </div>
                     <Select value={preferences.dateFormat} onValueChange={(v: any) => updatePreference('dateFormat', v)}>
-                      <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                         <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
@@ -235,7 +222,7 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1">12-hour or 24-hour clock</p>
                     </div>
                     <Select value={preferences.timeFormat} onValueChange={(v) => updatePreference('timeFormat', v as UserPreferences['timeFormat'])}>
-                      <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="12h">12 Hour</SelectItem>
                         <SelectItem value="24h">24 Hour</SelectItem>
@@ -292,7 +279,7 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1">Adjust text size</p>
                     </div>
                     <Select value={preferences.fontSize} onValueChange={(v) => updatePreference('fontSize', v as UserPreferences['fontSize'])}>
-                      <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="small">Small</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
@@ -363,7 +350,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-muted-foreground">Auto-logout after inactivity (minutes)</p>
                 </div>
                 <Select value={preferences.sessionTimeout.toString()} onValueChange={(v) => updatePreference('sessionTimeout', parseInt(v))}>
-                  <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-32 h-8 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="15">15 min</SelectItem>
                     <SelectItem value="30">30 min</SelectItem>
@@ -587,6 +574,6 @@ export default function SettingsPage() {
           onOpenChange={setCategoryModalOpen}
         />
       </div>
-    </div>
+ 
   );
 }

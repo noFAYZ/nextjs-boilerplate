@@ -37,7 +37,7 @@ export function MainLayout({
      
           <div className={cn(
             "h-full",
-            isProMode ? "container mx-auto py-10" : "max-w-3xl mx-auto"
+            isProMode ? "max-w-7xl mx-auto py-4" : "max-w-3xl mx-auto"
           )}>
             {children}
           </div>

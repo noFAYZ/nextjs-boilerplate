@@ -153,7 +153,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
                         <Link href="/login" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80 rounded-full transition-colors">
-                          Login
+                          FAQs
                         </Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>
@@ -164,22 +164,22 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
               {/* Desktop CTA */}
               <div className="hidden lg:flex items-center gap-3">
-              {/*    <ThemeSwitcher />*/}
+              {/*    <ThemeSwitcher />
               <Link href="/#hero"><Button size="xs" variant='steel' className="group rounded-full" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
-                      </Button></Link>
-              {/*   {user ? (
-                  <Link href="/app"><Button size="sm">Dashboard</Button></Link>
+                      </Button></Link>*/}
+              {/*  */} {user ? (
+                  <Link href="/dashboard"><Button size="xs" variant='steel' className='rounded-full'>Dashboard</Button></Link>
                 ) : (
                   <>
-                    <Link href="/auth/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
-                    <Link href="/auth/signup">
-                      <Button size="sm" className="group">
-                        Get Started <ChevronRight className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition" />
+                
+                    <Link href="/auth/login">
+                      <Button size="xs" variant='steel' className='rounded-full'>
+                        Sign in <ChevronRight className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition" />
                       </Button>
                     </Link>
                   </>
-                )} */}
+                )} 
               </div>
 
               {/* Mobile Toggle */}

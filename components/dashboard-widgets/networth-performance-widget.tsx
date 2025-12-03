@@ -42,8 +42,9 @@ export function NetWorthPerformanceWidget() {
       </div>
 
       {/* Chart Container - Flex grow to fill available space */}
-      <div className="flex-1 flex items-center justify-center min-h-0 w-full">
-        <NetWorthChart mode="demo" height={300} />
+      <div className="flex-1 flex items-center justify-center min-h-0 w-full 
+     ">
+        <NetWorthChart mode="demo" height={320} className="border-0  " />
       </div>
     </Card>
   );

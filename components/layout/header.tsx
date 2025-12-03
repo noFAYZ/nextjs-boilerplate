@@ -112,7 +112,7 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          ' bg-card border-b border-border/80',
+          ' bg-card ',
           isScrolled && sticky && '  shadow-sm',
           className
         )}
@@ -120,7 +120,7 @@ export function Header({
         aria-label="Main navigation"
       >
         {/* Simplified Header */}
-        <div className="flex items-center justify-between h-14 px-4 lg:px-6">
+        <div className="flex items-center justify-between h-14 md:h-16 px-4 lg:px-6">
           {/* Left Section - Logo, Organization Switcher, & Search */}
             <div className='flex items-center gap-8'>
           <div className="flex items-center">
@@ -187,70 +187,77 @@ export function Header({
               <HelpCircle className="h-4 w-4" />
             </Button> */}
 
-            {/* User Profile */}
-            <DropdownMenu>
+              {/* User Profile Dropdown */}
+              <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary"  className="rounded-full p-1 p pr-2 border ">
-                  {profileLoading && !user ? (
-                    <Skeleton className="h-8 w-8 rounded-full" />
+                <Button
+                  variant="outline"
+                  className="rounded-full p-1 pr-2 h-9 gap-2 hover:bg-muted"
+                >
+                  {profileLoading || !user.id? (
+                    <Skeleton className="h-7 w-7 rounded-full" />
                   ) : (
-                    <div className='flex gap-1 items-center rounded-full'>
-               
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={ avatar}
-                        alt={`${user?.name || 'User'}'s avatar`}
-                      />
-                      <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                        {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    {String(user?.name)?.split(' ')[0] || 'User'}
-                    
-                    </div>
+                    <>
+                      <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
+                        <AvatarImage
+                          src={user?.image ?? avatar}
+                          alt={`${user?.name || 'User'}'s avatar`}
+                          className='rounded-full'
+                        />
+                        <AvatarFallback className="text-xs bg-primary text-primary-foreground font-semibold">
+                          {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden sm:inline text-sm font-medium truncate max-w-[100px]">
+                        {String(user?.name)?.split(' ')[0] || 'User'}
+                      </span>
+                    </>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-                <div className="p-3 border-b">
-                  <div className="text-sm font-medium">{user?.name || 'User'}</div>
-                  <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
-                  {/*  <GlobalViewSwitcher size='sm' className='hidden sm:flex' /> */}
+                {/* User Header */}
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-semibold">{user?.name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
 
-               
+                <DropdownMenuSeparator />
+
+                {/* Menu Items */}
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
+                    <User className="h-4 w-4" />
+                    <span>Profile Settings</span>
+                  </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Profile Settings
-                  </Link>
-                </DropdownMenuItem>
-               
-                <DropdownMenuItem asChild>
-                  <Link href="/subscription" className="flex items-center gap-2">
+                  <Link href="/subscription" className="flex items-center gap-2 cursor-pointer">
                     <Crown className="h-4 w-4" />
-                    Subscription
+                    <span>Subscription</span>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link href="/settings" className="flex items-center gap-2">
+                  <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
                     <Settings className="h-4 w-4" />
-                    Settings
+                    <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+
+                {/* Sign Out */}
+                <DropdownMenuItem
                   onClick={handleSignOut}
+                  className="text-destructive focus:text-destructive cursor-pointer gap-2"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign Out
+                  <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"

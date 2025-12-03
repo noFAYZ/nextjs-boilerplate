@@ -347,9 +347,9 @@ export default function AuthForm({
 
   return (
     <Card className="w-full max-w-sm mx-auto border-2 shadow-lg">
-      <CardHeader className="text-center space-y-2 px-4 sm:px-6 pt-6">
-        <CardTitle className="text-2xl sm:text-3xl font-bold">{title}</CardTitle>
-        <p className="text-sm sm:text-base text-muted-foreground">{description}</p>
+      <CardHeader className="text-center space-y-1 px-4 sm:px-6 pt-6">
+        <CardTitle className="text-xl sm:text-xl font-bold">{title}</CardTitle>
+        <p className="text-xs sm:text-xs text-muted-foreground">{description}</p>
       </CardHeader>
 
       <CardContent className="px-4 sm:px-6 pb-6">
@@ -384,9 +384,9 @@ export default function AuthForm({
                 <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-6">
                   <Button
                     variant="outline"
-                    className="w-full sm:w-1/2 items-center gap-2"
-                    size="lg"
-                    disabled={oauthLoading !== null}
+                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible"
+                    size="sm"
+                    disabled={true} //{oauthLoading !== null}
                     onClick={() => handleOAuthLogin('github')}
                   >
                     {oauthLoading === 'github' ? (
@@ -394,15 +394,18 @@ export default function AuthForm({
                     ) : (
                       <>
                         <Fa7BrandsGithub className="w-5 h-5" />
-                        <span className="hidden sm:inline">Github</span>
+                        <span className="">Github</span>
                       </>
                     )}
+                    <span className="absolute -top-2 -right-0 flex h-4 w-fit px-2 items-center justify-center rounded-full bg-red-500 z-40 text-[9px] font-bold text-white border border-[#1a1a1a]">
+                        soon
+                      </span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full sm:w-1/2 items-center gap-2"
-                    size="lg"
-                    disabled={oauthLoading !== null}
+                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible"
+                    size="sm"
+                    disabled={true} //{oauthLoading !== null}
                     onClick={() => handleOAuthLogin('google')}
                   >
                     {oauthLoading === 'google' ? (
@@ -410,9 +413,14 @@ export default function AuthForm({
                     ) : (
                       <>
                         <LogosGoogleIcon className="w-5 h-5" />
-                        <span className="hidden sm:inline">Google</span>
+                        <span className="">Google</span>
                       </>
                     )}
+                     
+                      <span className="absolute -top-2 -right-0 flex h-4 w-fit px-2 items-center justify-center rounded-full bg-red-500 z-40 text-[9px] font-bold text-white border border-[#1a1a1a]">
+                        soon
+                      </span>
+                   
                   </Button>
                 </div>
                 <div className="after:border-border relative text-center text-xs sm:text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t mb-4">
@@ -588,7 +596,7 @@ export default function AuthForm({
         </Form>
       </CardContent>
 
-      <CardFooter className="flex flex-col space-y-3 px-4 sm:px-6 pb-6">
+      <CardFooter className="flex flex-col space-y-1 px-4 sm:px-6 pb-6">
         {links.map((link, index: number) => (
           <div key={index} className="text-center text-xs sm:text-sm">
             <span className="text-muted-foreground">{link.text}</span>{' '}

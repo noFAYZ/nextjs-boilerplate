@@ -41,6 +41,11 @@ const nextConfig: NextConfig = {
         hostname: 'i.imgur.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'token-icons.s3.us-east-1.amazonaws.com',
+        pathname: '/**',
+      },
     ]
   },
   eslint: {

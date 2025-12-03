@@ -8,6 +8,8 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { CardSkeleton } from '../ui/card-skeleton';
+import { Card } from '../ui/card';
+import { SolarPieChart2BoldDuotone } from '../icons/icons';
 
 interface TokenAllocation {
   symbol: string;
@@ -70,9 +72,19 @@ export function CryptoAllocationWidget() {
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 h-full w-full flex flex-col">
-      <h3 className="text-xs font-medium text-muted-foreground mb-3">Token allocation</h3>
-
+    <Card className="relative rounded-xl border border-border/50 gap-4 flex flex-col">
+    
+      <div className="flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-xl bg-amber-400 flex items-center justify-center">
+            <SolarPieChart2BoldDuotone className="h-4.5 w-4.5 text-amber-900" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">
+          Token allocation
+          </h3>
+        </div>
+        
+      </div>
       <div className="grid grid-cols-2 gap-2">
         {topTokens.map((token, index) => {
           const isPositive = token.change24h >= 0;
@@ -127,6 +139,6 @@ export function CryptoAllocationWidget() {
         })}
       </div>
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+    </Card>
   );
 }

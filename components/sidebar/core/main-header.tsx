@@ -108,8 +108,8 @@ export function MainHeader({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <header className="sticky top-0 z-40  bg-sidebar">
-        <div className="h-14 md:h-16 relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex items-center">
+      <header className="sticky top-0 z-40  ">
+        <div className="h-14 md:h-16 relative mx-auto px-3 sm:px-4  flex items-center">
           {/* Left Section - Mobile Menu & Desktop Collapse/Expand + Breadcrumbs */}
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {/* Mobile Menu Button - Visible only on mobile */}
@@ -162,7 +162,7 @@ export function MainHeader({
 
             {/* Breadcrumbs - Hidden on mobile */}
             {breadcrumbs.length > 0 && (
-              <div className="hidden md:flex items-center pl-2 border-l border-border">
+              <div className="hidden md:flex items-center   ">
                 <Breadcrumb>
                   <BreadcrumbList>
                     {breadcrumbs.map((crumb, index) => (
@@ -170,12 +170,12 @@ export function MainHeader({
                         {index > 0 && <BreadcrumbSeparator />}
                         <BreadcrumbItem>
                           {crumb.isLast ? (
-                            <BreadcrumbPage className="text-foreground font-medium">
+                            <BreadcrumbPage className=" text-md text-foreground font-medium">
                               {crumb.label}
                             </BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink asChild>
-                              <Link href={crumb.href} className="text-muted-foreground hover:text-foreground">
+                              <Link href={crumb.href} className="text-md text-muted-foreground hover:text-foreground">
                                 {crumb.label}
                               </Link>
                             </BreadcrumbLink>
@@ -196,12 +196,12 @@ export function MainHeader({
 
           {/* Right Section - Theme & Global Switcher & User Profile */}
           <div className="ml-auto flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* Hide global switcher on small mobile
-            <div className="hidden sm:block">
-              <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
-            </div>*/}
+            {/* Hide global switcher on small mobile*/}
+            
              <ThemeSwitcher />
-
+<div className="hidden sm:block">
+              <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
+            </div>
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

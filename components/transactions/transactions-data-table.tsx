@@ -44,7 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { GgArrowsExchange } from '../icons/icons';
+import { GgArrowsExchange, SolarCalendarBoldDuotone } from '../icons/icons';
 
 export interface UnifiedTransaction {
   id: string;
@@ -418,7 +418,7 @@ export function TransactionsDataTable({
     );
   }
 
-  console.log(transactions)
+  
 
   return (
     <div className="space-y-4">
@@ -444,10 +444,10 @@ export function TransactionsDataTable({
               return (
                 <Fragment key={date}>
                   {/* Date Separator */}
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="px-2    bg-muted/40">
-                      <p className="text-[10px] font-semibold  tracking-wider text-muted-foreground">
-                        {date}
+                  <TableRow className="hover:bg-transparent shadow-none border-0">
+                    <TableCell colSpan={6} className="px-2   py-0.5 bg-muted">
+                      <p className="text-[10px] font-semibold flex gap-1  tracking-wider text-muted-foreground">
+                        <SolarCalendarBoldDuotone className='w-3 h-3' />{date}
                       </p>
                     </TableCell>
                   </TableRow>
@@ -457,7 +457,7 @@ export function TransactionsDataTable({
                     <TableRow
                       key={tx.id}
                       className={cn(
-                        'group border-b border-border/30 hover:bg-muted/30 transition-colors cursor-pointer'
+                        'group border-b border-border/30 hover:bg-muted/50  cursor-pointer'
                       )}
                       onClick={() => onRowClick?.(tx)}
                     >
@@ -525,11 +525,11 @@ export function TransactionsDataTable({
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="h-8 w-8 sm:h-10 sm:w-10"
+                                variant="outline2"
+                                size="icon-xs"
+                                
                               >
-                                <MoreHorizontal className="h-4 w-4" />
+                                <ChevronDownIcon className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">

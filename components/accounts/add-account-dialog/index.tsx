@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useCreateManualAccount, useBankingAccounts } from '@/lib/queries';
+import { useCreateManualAccount, useBankingAccounts, useCreateCryptoWallet } from '@/lib/queries';
 import { usePlaidIntegration } from '@/lib/hooks/use-plaid-integration';
 import { AccountForm } from './account-form';
 import { StatementUpload } from './statement-upload';
@@ -20,6 +20,7 @@ import { ManualAccountSelection } from './manual-account-selection';
 import { AccountTypeSelection } from './account-type-selection';
 import { shouldShowBankStatementUpload } from './utils';
 import { PlaidErrorScreen } from './plaid-error-screen';
+import { CryptoWalletForm } from './crypto-wallet-form';
 
 interface AddAccountDialogProps {
   open: boolean;
@@ -51,7 +52,7 @@ type AccountFormData = z.infer<typeof accountSchema>;
 export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) {
   const router = useRouter();
   const [view, setView] = useState<'initial' | 'manual'>('initial');
-  const [step, setStep] = useState<'selection' | 'accountType' | 'form' | 'statement-upload' | 'success' | 'plaid-success' | 'plaid-error'>('selection');
+  const [step, setStep] = useState<'selection' | 'accountType' | 'form' | 'statement-upload' | 'success' | 'plaid-success' | 'plaid-error' | 'crypto'>('selection');
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<'ASSETS' | 'LIABILITIES' | null>(null);
   const [selectedCategoryItem, setSelectedCategoryItem] = useState<string | null>(null);
@@ -138,6 +139,9 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
       setStep('selection');
     } else if (step === 'statement-upload') {
       setStep('success');
+    } else if (step === 'crypto') {
+      setView('initial');
+      setStep('selection');
     } else if (step === 'selection' && view === 'manual') {
       setView('initial');
       setStep('selection');
@@ -204,7 +208,8 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <>
+      <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* INITIAL VIEW */}
         {view === 'initial' && step === 'selection' && (
@@ -217,6 +222,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
             plaidLoading={plaidLoading}
             openPlaidLink={openPlaidLink}
             handleManualAccountClick={handleManualAccountClick}
+            handleAddCryptoWallet={() => setStep('crypto')}
           />
         )}
 
@@ -308,7 +314,21 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
             onDone={handlePlaidResultClose}
           />
         )}
+
+        {/* CRYPTO WALLET */}
+        {step === 'crypto' && (
+          <CryptoWalletForm
+            onSuccess={() => {
+              toast.success('Wallet added successfully!');
+              setStep('selection');
+              setView('initial');
+              refetchAccounts();
+            }}
+            onBack={handleBack}
+          />
+        )}
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 }

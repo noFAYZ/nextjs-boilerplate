@@ -39,15 +39,13 @@ export default function AuthGuard({
 
   // Show error state if there's an auth error
   if (error && requireAuth) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        
-        <div className="flex flex-col items-center gap-4 text-center">
-       <div className=" w-16 h-16"><FailLoader className=" w-12 h-12"/></div>
-          
-          <h1 className="text-lg font-medium ">Authentication Error</h1>
-          <p className=" max-w-md">{error}</p>
-<div className="flex gap-2 justify-center">
+    return (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
+      <Card className="px-5 border-border shadow-none " >
+        <div className="flex items-center space-x-3">
+        <FailLoader className=" w-8 h-8"/>
+          <span className="text-sm font-medium">Authentication Error!</span>
+        </div>
+        <div className="flex gap-2 justify-center">
           <Button className="flex gap-2" size={'sm'} variant={'outline'}>
            
            <span className="w-4 h-4"> <RefreshCcw  /></span> 
@@ -58,26 +56,21 @@ export default function AuthGuard({
            <span className="w-4 h-4"> <User2  /></span> 
            Login
           </Button></div>
-        </div>
-      </div>
-    );
+      </Card>
+      </div>);
   }
 
   // Show custom fallback or loading state
   if (loading) {
     return (
-      fallback || (
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm  z-10 flex items-center justify-center">
-        <Card className="px-6 shadow-none">
+      fallback || (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
+        <Card className="px-5 border-border shadow-none " >
           <div className="flex items-center space-x-3">
             <LogoLoader className="w-8 h-8" />
             <span className="text-sm font-medium">Authenticating....</span>
           </div>
         </Card>
-      </div>
-        
-
-      )
+        </div>)
     );
   }
 

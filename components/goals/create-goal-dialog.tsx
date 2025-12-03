@@ -48,10 +48,7 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useBankingAccounts, useCryptoWallets } from "@/lib/queries"
-import { goalsApi } from "@/lib/services/goals-api"
-import { useGoalsStore } from "@/lib/stores/goals-store"
-import { useBankingStore } from "@/lib/stores/banking-store"
-import { useCryptoStore } from "@/lib/stores/crypto-store"
+import { useCreateGoal, useUpdateGoal } from "@/lib/queries/use-goal-data"
 import { toast } from "sonner"
 import type {
   Goal,
@@ -207,14 +204,16 @@ export function CreateGoalDialog({
   onSuccess,
   goal,
 }: CreateGoalDialogProps) {
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [milestones, setMilestones] = React.useState<Milestone[]>([])
   const [currentTag, setCurrentTag] = React.useState("")
   const [currentStep, setCurrentStep] = React.useState(0)
-  const { addGoal, updateGoal, setIsCreatingGoal } = useGoalsStore()
   const { data: bankAccounts = [] } = useBankingAccounts()
   const { data: cryptoWallets = [] } = useCryptoWallets()
   const isEditing = !!goal
+
+  // TanStack Query mutations
+  const { mutate: createGoal, isPending: isCreatingGoal } = useCreateGoal()
+  const { mutate: updateGoal, isPending: isUpdatingGoal } = useUpdateGoal()
 
   const {currencySymbol} = useCurrency()
 
@@ -381,89 +380,71 @@ export function CreateGoalDialog({
     }
   }
 
-  const onSubmit = async (data: GoalFormValues) => {
-    setIsSubmitting(true)
-    setIsCreatingGoal(true)
+  const onSubmit = (data: GoalFormValues) => {
+    const cleanedData = cleanData(data)
 
-    try {
-      const cleanedData = cleanData(data)
-
-      if (isEditing && goal) {
-        // Update existing goal
-        const updateData = {
-          ...cleanedData,
-          targetDate: cleanedData.targetDate.toISOString(),
-          startDate: cleanedData.startDate?.toISOString(),
-        }
-
-        const response = await goalsApi.updateGoal(goal.id, updateData)
-
-        if (response.success && response.data) {
-          posthog.capture('goal_updated', {
-            goal_id: goal.id,
-            goal_type: cleanedData.type,
-            goal_category: cleanedData.category,
-            priority: cleanedData.priority,
-            source_type: cleanedData.sourceType,
-            has_recurring_contribution: !!cleanedData.recurringAmount,
-            milestone_count: milestones.length,
-            tag_count: cleanedData.tags?.length || 0,
-          })
-          updateGoal(response.data)
-          toast.success("Goal updated successfully!", {
-            description: `${response.data.name} has been updated.`,
-          })
-          onOpenChange(false)
-          form.reset()
-          setMilestones([])
-          onSuccess?.()
-        } else {
-          throw new Error("Failed to update goal")
-        }
-      } else {
-        // Create new goal
-        const requestData: CreateGoalRequest = {
-          ...cleanedData,
-          targetDate: cleanedData.targetDate.toISOString(),
-          startDate: cleanedData.startDate?.toISOString(),
-          milestones: milestones.map((m, index) => ({
-            ...m,
-            sortOrder: index,
-          })),
-        }
-
-        const response = await goalsApi.createGoal(requestData)
-
-        if (response.success && response.data) {
-          posthog.capture('goal_created', {
-            goal_type: cleanedData.type,
-            goal_category: cleanedData.category,
-            priority: cleanedData.priority,
-            source_type: cleanedData.sourceType,
-            has_recurring_contribution: !!cleanedData.recurringAmount,
-            milestone_count: milestones.length,
-            tag_count: cleanedData.tags?.length || 0,
-          })
-          addGoal(response.data)
-          toast.success("Goal created successfully!", {
-            description: `${response.data.name} has been added to your goals.`,
-          })
-          onOpenChange(false)
-          form.reset()
-          setMilestones([])
-          onSuccess?.()
-        } else {
-          throw new Error("Failed to create goal")
-        }
+    if (isEditing && goal) {
+      // Update existing goal
+      const updateData = {
+        ...cleanedData,
+        targetDate: cleanedData.targetDate.toISOString(),
+        startDate: cleanedData.startDate?.toISOString(),
       }
-    } catch (error) {
-      console.error(`Error ${isEditing ? 'updating' : 'creating'} goal:`, error)
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} goal`, {
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+
+      posthog.capture('goal_updated', {
+        goal_id: goal.id,
+        goal_type: cleanedData.type,
+        goal_category: cleanedData.category,
+        priority: cleanedData.priority,
+        source_type: cleanedData.sourceType,
+        has_recurring_contribution: !!cleanedData.recurringAmount,
+        milestone_count: milestones.length,
+        tag_count: cleanedData.tags?.length || 0,
       })
-    } finally {
-      setIsSubmitting(false)
-      setIsCreatingGoal(false)
+
+      updateGoal(
+        { id: goal.id, updates: updateData },
+        {
+          onSuccess: () => {
+            onOpenChange(false)
+            form.reset()
+            setMilestones([])
+            setCurrentStep(0)
+            onSuccess?.()
+          },
+        }
+      )
+    } else {
+      // Create new goal
+      const requestData: CreateGoalRequest = {
+        ...cleanedData,
+        targetDate: cleanedData.targetDate.toISOString(),
+        startDate: cleanedData.startDate?.toISOString(),
+        milestones: milestones.map((m, index) => ({
+          ...m,
+          sortOrder: index,
+        })),
+      }
+
+      posthog.capture('goal_created', {
+        goal_type: cleanedData.type,
+        goal_category: cleanedData.category,
+        priority: cleanedData.priority,
+        source_type: cleanedData.sourceType,
+        has_recurring_contribution: !!cleanedData.recurringAmount,
+        milestone_count: milestones.length,
+        tag_count: cleanedData.tags?.length || 0,
+      })
+
+      createGoal(requestData, {
+        onSuccess: () => {
+          onOpenChange(false)
+          form.reset()
+          setMilestones([])
+          setCurrentStep(0)
+          onSuccess?.()
+        },
+      })
     }
   }
 
@@ -492,7 +473,7 @@ export function CreateGoalDialog({
                     <button
                       type="button"
                       onClick={() => setCurrentStep(index)}
-                      disabled={isSubmitting}
+                      disabled={isCreatingGoal || isUpdatingGoal}
                       className={cn(
                         "relative size-10 rounded-2xl flex items-center justify-center transition-all duration-200 ease-in-out cursor-pointer",
                         isActive && "bg-primary text-primary-foreground shadow-lg scale-110 ring-4 ring-primary/20",
@@ -1091,7 +1072,7 @@ export function CreateGoalDialog({
                   variant="outline"
                   size={'sm'}
                   onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
+                  disabled={isCreatingGoal || isUpdatingGoal}
                 >
                   Cancel
                 </Button>
@@ -1103,7 +1084,7 @@ export function CreateGoalDialog({
                       variant="outline"
                       size={'sm'}
                       onClick={(e) => handleBack(e as any)}
-                      disabled={isSubmitting}
+                      disabled={isCreatingGoal || isUpdatingGoal}
                     >
                       Back
                     </Button>
@@ -1114,13 +1095,13 @@ export function CreateGoalDialog({
                     size={'sm'}
                       type="button"
                       onClick={(e) => handleNext(e as any)}
-                      disabled={isSubmitting}
+                      disabled={isCreatingGoal || isUpdatingGoal}
                     >
                       Next
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isSubmitting} size={'sm'}>
-                      {isSubmitting ? (
+                    <Button type="submit" disabled={isCreatingGoal || isUpdatingGoal} size={'sm'}>
+                      {isCreatingGoal || isUpdatingGoal ? (
                         <>
                           <Loader2 className="size-4 mr-1 animate-spin" />
                           {isEditing ? 'Updating...' : 'Creating...'}

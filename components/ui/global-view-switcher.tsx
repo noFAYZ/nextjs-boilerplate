@@ -61,9 +61,7 @@ function GlobalViewSwitcher({
             >
               <PhUser className={cn(iconSizes[size], "mr-1")} />
               {showLabels && "Lite"}
-              {isBeginnerMode && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              )}
+              
             </Button>
           </TooltipTrigger>
           <TooltipContent className="bg-background outline shadow-md">
@@ -92,9 +90,7 @@ function GlobalViewSwitcher({
               <GameIconsUpgrade className={cn(iconSizes[size], "mr-1")} />
               {showLabels && "Pro"}
         
-              {isProMode && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              )}
+             
             </Button>
           </TooltipTrigger>
           <TooltipContent className="bg-background outline shadow-md">
