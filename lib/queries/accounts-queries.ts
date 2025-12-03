@@ -28,6 +28,7 @@ export const accountsKeys = {
   account: (id: string) => [...accountsKeys.all, 'account', id] as const,
   transactions: (accountId: string) => [...accountsKeys.all, 'transactions', accountId] as const,
   transaction: (accountId: string, transactionId: string) => [...accountsKeys.transactions(accountId), transactionId] as const,
+  allTransactions: () => [...accountsKeys.all, 'all-transactions'] as const,
   categories: () => [...accountsKeys.all, 'categories'] as const,
   categoryGroups: (organizationId?: string) => [...accountsKeys.all, 'category-groups', organizationId || 'default'] as const,
 };
@@ -187,6 +188,69 @@ export const accountsQueries = {
         return data.data;
       }
       return { data: [] };
+    },
+  }),
+
+  /**
+   * Get all transactions across all accounts (global transactions)
+   */
+  allTransactions: (params?: {
+    page?: number;
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+    merchantId?: string;
+    categoryId?: string;
+    type?: string;
+    source?: string;
+    search?: string;
+  }) => ({
+    queryKey: accountsKeys.allTransactions(),
+    queryFn: async () => {
+      try {
+        return await accountsApi.getAllTransactions(params);
+      } catch (error: unknown) {
+        throw error;
+      }
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes - transactions change frequently
+    select: (data: ApiResponse<AccountTransactionsResponse>) => {
+      // Handle different response structures
+      if (data.success && data.data) {
+        const responseData = data.data;
+        // If data.data is already the full response with pagination
+        if (responseData.data && Array.isArray(responseData.data)) {
+          return responseData;
+        }
+        // If data.data is just the array
+        if (Array.isArray(responseData)) {
+          return {
+            data: responseData,
+            pagination: {
+              page: 1,
+              limit: 50,
+              total: responseData.length,
+              totalPages: 1,
+              hasNext: false,
+              hasPrev: false,
+            },
+          };
+        }
+        return responseData;
+      }
+
+      // Default empty response
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 50,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
     },
   }),
 };

@@ -71,6 +71,7 @@ import {
 } from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
 import { TransactionsDataTable, UnifiedTransaction } from "@/components/transactions/transactions-data-table";
+import { TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer";
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 
@@ -128,6 +129,8 @@ export default function UnifiedAccountDetailsPage() {
     "table"
   );
   const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
   const { pageClass } = useViewModeClasses();
 
   // Currency context
@@ -150,18 +153,28 @@ export default function UnifiedAccountDetailsPage() {
     limit: 100, // Fetch up to 100 transactions
   });
 
-  const transactionsData = transactionsResponse?.data || [];
+  // Handle both response structures: direct array or wrapped in .data
+  const transactionsData = Array.isArray(transactionsResponse)
+    ? transactionsResponse
+    : (transactionsResponse?.data || []);
 
   // Transform unified transactions to match the filter/analytics function interface
   const transactions = useMemo(() => {
-    return (transactionsData || []).map((tx) => {
+    const transformed = (transactionsData || []).map((tx: any) => {
       const { category: categoryObj, ...rest } = tx;
+
+      // Parse amount as string to number for proper amount handling
+      const amount = typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
+
       return {
         ...rest,
+        amount: amount,
         // Convert category object to string for filter/analytics functions
         category: typeof categoryObj === 'object' && categoryObj ? categoryObj.name : (typeof categoryObj === 'string' ? categoryObj : undefined),
       };
     });
+
+    return transformed;
   }, [transactionsData]);
 
   // Sync state management
@@ -205,6 +218,16 @@ export default function UnifiedAccountDetailsPage() {
         console.error("Failed to disconnect account:", error);
       }
     }
+  };
+
+  const handleRowClick = (transaction: UnifiedTransaction) => {
+    setSelectedTransaction(transaction);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedTransaction(null);
   };
 
   // Helper functions
@@ -271,31 +294,50 @@ export default function UnifiedAccountDetailsPage() {
       dateRange: dateRange as any,
     });
 
-    return sortTransactions(filtered, sortOrder);
+    const sorted = sortTransactions(filtered, sortOrder);
+    return sorted;
   }, [transactions, searchQuery, selectedFilter, dateRange, sortOrder]);
 
   // Transform transactions to unified format
   const unifiedTransactions = useMemo(() => {
-    return filteredTransactions.map((tx: any) => ({
-      id: tx.id,
-      type: parseFloat(tx.amount.toString()) > 0 ? 'DEPOSIT' : 'WITHDRAWAL',
-      status: 'COMPLETED' as const,
-      timestamp: tx.date,
-      amount: Math.abs(parseFloat(tx.amount.toString())),
-      currency: 'USD',
-      description: tx.description || tx.merchantName || 'Transaction',
-      hash: tx.id,
-      merchent: tx.merchantName,
-      account: {
-        id: account?.id || '',
-        name: account?.name || 'Unknown Account',
-        type: 'BANKING' as const,
-        institute: account?.institutionName || '',
-      },
-      category: tx.category,
-      tags: [],
-      source: 'BANKING' as const,
-    })) as UnifiedTransaction[];
+    const unified = filteredTransactions.map((tx: any) => {
+      // Parse amount properly - handle both string and number
+      const amount = parseFloat(tx.amount.toString());
+      const absAmount = Math.abs(amount);
+
+      // Determine transaction type - prefer tx.type field if available
+      let txType: 'DEPOSIT' | 'WITHDRAWAL';
+      if (tx.type && typeof tx.type === 'string') {
+        // New schema: use the type field directly
+        txType = tx.type === 'INCOME' || tx.type === 'DEPOSIT' ? 'DEPOSIT' : 'WITHDRAWAL';
+      } else {
+        // Old schema: determine from amount sign
+        txType = amount > 0 ? 'DEPOSIT' : 'WITHDRAWAL';
+      }
+
+      return {
+        id: tx.id,
+        type: txType,
+        status: 'COMPLETED' as const,
+        timestamp: tx.date,
+        amount: absAmount,
+        currency: 'USD',
+        description: tx.description || tx.merchantName || 'Transaction',
+        hash: tx.id,
+        merchent: tx.merchantName,
+        account: {
+          id: account?.id || '',
+          name: account?.name || 'Unknown Account',
+          type: 'BANKING' as const,
+          institute: account?.institutionName || '',
+        },
+        category: tx.category,
+        tags: [],
+        source: 'BANKING' as const,
+      };
+    }) as UnifiedTransaction[];
+
+    return unified;
   }, [filteredTransactions, account]);
 
   // Analytics
@@ -350,7 +392,7 @@ export default function UnifiedAccountDetailsPage() {
   const syncState = realtimeSyncStates[account.id];
 
   return (
-    <div className={` max-w-5xl mx-auto space-y-3`}>
+    <div className={` max-w-3xl mx-auto space-y-3`}>
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -456,6 +498,7 @@ export default function UnifiedAccountDetailsPage() {
             <TransactionsDataTable
               transactions={unifiedTransactions}
               isLoading={transactionsLoading}
+              onRowClick={handleRowClick}
             />
           )}
 
@@ -463,8 +506,14 @@ export default function UnifiedAccountDetailsPage() {
           {transactionView === "table" && filteredTransactions.length > 0 ? (
             <div className="space-y-1.5">
               {filteredTransactions.slice(0, 20).map((transaction) => {
-                const isIncome =
-                  parseFloat(transaction.amount.toString()) > 0;
+                // Determine if income based on type field first, then amount
+                let isIncome = false;
+                if (transaction.type && typeof transaction.type === 'string') {
+                  isIncome = transaction.type === 'INCOME' || transaction.type === 'DEPOSIT';
+                } else {
+                  isIncome = parseFloat(transaction.amount.toString()) > 0;
+                }
+
                 const categoryConfig =
                   categoryIcons[transaction.category as Category] ||
                   categoryIcons.general;
@@ -474,7 +523,8 @@ export default function UnifiedAccountDetailsPage() {
                   <Card
                     key={transaction.id}
                     interactive
-                    className="shadow-xs border-border/50 "
+                    className="shadow-xs border-border/50 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleRowClick(transaction as UnifiedTransaction)}
                   >
                     <div className="flex items-center gap-4">
                       {/* Category Icon */}
@@ -807,6 +857,13 @@ export default function UnifiedAccountDetailsPage() {
         isOpen={isAddTransactionModalOpen}
         onClose={() => setIsAddTransactionModalOpen(false)}
         accountId={accountId}
+      />
+
+      {/* Transaction Detail Drawer */}
+      <TransactionDetailDrawer
+        isOpen={isDrawerOpen}
+        transaction={selectedTransaction}
+        onClose={handleCloseDrawer}
       />
     </div>
   );

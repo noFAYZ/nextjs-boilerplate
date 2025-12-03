@@ -1,10 +1,23 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { useBudgetDialogs } from '@/lib/hooks/use-budget-dialogs';
+import { useBudgetSelection } from '@/lib/hooks/use-budget-selection';
+import { useBudgetFilters } from '@/lib/hooks/use-budget-filters';
+import { useBudgetPopovers } from '@/lib/hooks/use-budget-popovers';
+import { useBudgetGroups } from '@/lib/hooks/use-budget-groups';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
 import {
   ChevronDown,
   ChevronRight,
@@ -18,84 +31,79 @@ import {
   ArrowUpDown,
   FolderPlus,
   X,
+  Trash2,
+  Edit,
+  MoreVertical,
+  ChevronsDown,
+  ChevronsUp,
+  Calendar,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   useCategoryGroups,
-  useAllocateFunds,
   useRecordSpending,
+  useDeleteCategory,
+  useDeleteCategoryGroup,
 } from '@/lib/queries/use-category-groups-data';
+import { CategoryTemplatesStep } from '@/components/onboarding/category-templates-step';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEnvelopeUIStore } from '@/lib/stores/envelope-ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import { categoryGroupsApi } from '@/lib/services/category-groups-api';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
-// ============================================================================
-// SWITCH COMPONENT
-// ============================================================================
+// UI Components
+import { Switch } from '@/components/budgets/ui/switch';
+import { Popover } from '@/components/budgets/ui/popover';
 
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label?: string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative h-5 w-9 rounded-full transition-colors',
-          checked ? 'bg-primary' : 'bg-muted'
-        )}
-      >
-        <div
-          className={cn(
-            'absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform',
-            checked ? 'translate-x-4' : 'translate-x-0.5'
-          )}
-        />
-      </button>
-      {label && <span className="text-xs font-medium">{label}</span>}
-    </div>
-  );
-}
+// Modals
+import { SpendModal } from '@/components/budgets/modals/spend-modal';
 
-// ============================================================================
-// POPOVER COMPONENT
-// ============================================================================
+// Dialogs
+import { TransferCategoriesDialog } from '@/components/budgets/dialogs/transfer-categories-dialog';
 
-function Popover({
-  open,
-  onOpenChange,
-  trigger,
-  children,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  trigger: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="relative">
-      {trigger}
-      {open && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => onOpenChange(false)}
-          />
-          <div className="absolute right-0 top-full mt-2 z-50 bg-card border border-border/40 rounded-lg shadow-lg min-w-max">
-            {children}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
+// Popovers
+import { AddGroupPopover } from '@/components/budgets/popovers/add-group-popover';
+import { AssignAmountPopover } from '@/components/budgets/popovers/assign-amount-popover';
+import { EditGroupPopover } from '@/components/budgets/popovers/edit-group-popover';
+
+// Forms
+import { AddCategoryForm } from '@/components/budgets/forms/add-category-form';
+
+// Rows
+import { CategoryRow } from '@/components/budgets/rows/category-row';
+
+// Sections
+import { BudgetsToolbar } from '@/components/budgets/sections/toolbar';
+import { BudgetsSidebar } from '@/components/budgets/sections/sidebar';
+import { TableHeaderControls } from '@/components/budgets/sections/table-header-controls';
+import { FloatingToolbar } from '@/components/budgets/sections/floating-toolbar';
+import { TableContent } from '@/components/budgets/sections/table-content';
 
 // ============================================================================
 // MAIN PAGE COMPONENT
@@ -104,44 +112,36 @@ function Popover({
 export default function BudgetsV2Page() {
   usePostHogPageView('budgets-v2');
 
-  // Auth
+  // ============================================================================
+  // INITIALIZATION & CONTEXT
+  // ============================================================================
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const { showBalances } = useEnvelopeUIStore();
 
-  // UI State
-  const { showBalances, setShowBalances } = useEnvelopeUIStore();
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  // ============================================================================
+  // CUSTOM HOOKS - STATE MANAGEMENT
+  // ============================================================================
+  const dialogs = useBudgetDialogs();
+  const filters = useBudgetFilters();
+  const popovers = useBudgetPopovers();
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
-  const [spendModalOpen, setSpendModalOpen] = useState(false);
-  const [selectedEnvelope, setSelectedEnvelope] = useState<any>(null);
-  const [addCategoryPopover, setAddCategoryPopover] = useState<string | null>(null);
-  const [addGroupModalOpen, setAddGroupModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Popovers
-  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
-  const [sortPopoverOpen, setSortPopoverOpen] = useState(false);
-  const [columnPopoverOpen, setColumnPopoverOpen] = useState(false);
-
-  // Filters & Sort
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'zero'>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'allocated' | 'spent'>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [visibleColumns, setVisibleColumns] = useState({
-    leftover: true,
-    assigned: true,
-    activity: true,
-    available: true,
-    actions: true,
-  });
-
-  // Queries
+  // Queries first
   const { data: rawData, isLoading: groupsLoading } = useCategoryGroups({
     includeCategories: true,
     activeOnly: false,
   });
 
   const groups = rawData?.data || [];
+
+  // Selection & Groups hooks depend on groups data
+  const selection = useBudgetSelection(0, groups.length); // Will update after computing envelopes
+  const groupsHook = useBudgetGroups(groups.length);
 
   // Flatten all categories
   const allEnvelopes = useMemo(() => {
@@ -155,6 +155,10 @@ export default function BudgetsV2Page() {
     return envelopes;
   }, [groups]);
 
+  // ============================================================================
+  // COMPUTED STATE - FILTERING & GROUPING
+  // ============================================================================
+
   // Filter by search
   const filteredEnvelopes = useMemo(() => {
     let filtered = allEnvelopes;
@@ -165,14 +169,14 @@ export default function BudgetsV2Page() {
       );
     }
 
-    if (filterStatus === 'active') {
+    if (filters.filterStatus === 'active') {
       filtered = filtered.filter((env) => env.isActive);
-    } else if (filterStatus === 'zero') {
+    } else if (filters.filterStatus === 'zero') {
       filtered = filtered.filter((env) => (env.allocatedAmount || 0) === 0);
     }
 
     return filtered;
-  }, [allEnvelopes, searchQuery, filterStatus]);
+  }, [allEnvelopes, searchQuery, filters.filterStatus]);
 
   // Group envelopes by their group
   const groupedEnvelopes = useMemo(() => {
@@ -186,36 +190,34 @@ export default function BudgetsV2Page() {
     return grouped;
   }, [filteredEnvelopes]);
 
-  // Sort and group
+  // Sort and group (including empty groups)
   const sortedGroups = useMemo(() => {
-    return groups
-      .map((group: any) => {
-        let categories = groupedEnvelopes.get(group.id) || [];
-  
-        categories = categories.sort((a, b) => {
-          const aAllocated = Number(a.allocatedAmount) || 0;
-          const bAllocated = Number(b.allocatedAmount) || 0;
-  
-          const aSpent = Number(a.totalSpent) || 0;
-          const bSpent = Number(b.totalSpent) || 0;
-  
-          let comparison = 0;
-  
-          if (sortBy === 'name') {
-            comparison = (a.name || '').localeCompare(b.name || '');
-          } else if (sortBy === 'allocated') {
-            comparison = bAllocated - aAllocated; // desc base
-          } else if (sortBy === 'spent') {
-            comparison = bSpent - aSpent; // desc base
-          }
-  
-          return sortOrder === 'asc' ? comparison : -comparison;
-        });
-  
-        return { ...group, categories };
-      })
-      .filter((group) => group.categories.length > 0);
-  }, [groups, groupedEnvelopes, sortBy, sortOrder]);
+    return groups.map((group: any) => {
+      let categories = groupedEnvelopes.get(group.id) || [];
+
+      categories = categories.sort((a, b) => {
+        const aAllocated = Number(a.allocatedAmount) || 0;
+        const bAllocated = Number(b.allocatedAmount) || 0;
+
+        const aSpent = Number(a.totalSpent) || 0;
+        const bSpent = Number(b.totalSpent) || 0;
+
+        let comparison = 0;
+
+        if (filters.sortBy === 'name') {
+          comparison = (a.name || '').localeCompare(b.name || '');
+        } else if (filters.sortBy === 'allocated') {
+          comparison = bAllocated - aAllocated; // desc base
+        } else if (filters.sortBy === 'spent') {
+          comparison = bSpent - aSpent; // desc base
+        }
+
+        return filters.sortOrder === 'asc' ? comparison : -comparison;
+      });
+
+      return { ...group, categories };
+    });
+  }, [groups, groupedEnvelopes, filters.sortBy, filters.sortOrder]);
   
   // Calculate totals
   const totals = useMemo(() => {
@@ -237,33 +239,49 @@ export default function BudgetsV2Page() {
       }
     );
   }, [allEnvelopes]);
-  
+
   const isLoading = !isAuthReady || groupsLoading;
 
-  const toggleGroup = (groupId: string) => {
-    const newExpanded = new Set(expandedGroups);
-    if (newExpanded.has(groupId)) {
-      newExpanded.delete(groupId);
-    } else {
-      newExpanded.add(groupId);
+  // ============================================================================
+  // MUTATION HANDLERS
+  // ============================================================================
+
+  // Delete mutations (must be called unconditionally, but use with null checks)
+  const deleteCategoryMutation = useDeleteCategory(dialogs.deleteTarget?.id || '');
+  const deleteGroupMutation = useDeleteCategoryGroup(dialogs.deleteTarget?.id || '');
+
+  // Check if any mutation is in progress
+  const isAnyMutationLoading = useMemo(() => {
+    return (
+      isRefreshing ||
+      (dialogs.deleteTarget?.id && (deleteCategoryMutation?.isPending || deleteGroupMutation?.isPending))
+    );
+  }, [isRefreshing, dialogs.deleteTarget?.id, deleteCategoryMutation?.isPending, deleteGroupMutation?.isPending]);
+
+  // Refresh handler
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['category-groups'] });
+      toast.success('Data refreshed');
+    } catch (error) {
+      toast.error('Failed to refresh');
+    } finally {
+      setIsRefreshing(false);
     }
-    setExpandedGroups(newExpanded);
   };
 
-  const toggleColumn = (column: string) => {
-    setVisibleColumns((prev) => ({
-      ...prev,
-      [column]: !prev[column as keyof typeof prev],
-    }));
-  };
+  const spendMutation = useRecordSpending(dialogs.selectedEnvelope?.id);
 
-  const spendMutation = useRecordSpending(selectedEnvelope?.id);
-
-  const handleRecordSpending = (amount: number) => {
+  const handleRecordSpending = useCallback((amount: number) => {
     if (amount <= 0) {
       toast.error('Amount must be greater than 0');
       return;
     }
+
+    // Close modal immediately for instant feedback
+    dialogs.setSpendModalOpen(false);
+    dialogs.setSelectedEnvelope(null);
 
     spendMutation.mutate(
       {
@@ -273,699 +291,397 @@ export default function BudgetsV2Page() {
       {
         onSuccess: () => {
           toast.success('Spending recorded');
-          setSpendModalOpen(false);
-          setSelectedEnvelope(null);
         },
         onError: (error: any) => {
           toast.error(error?.response?.data?.message || 'Failed to record spending');
         },
       }
     );
-  };
+  }, [spendMutation, dialogs]);
+
+  // Delete handler
+  const handleConfirmDelete = useCallback(() => {
+    if (!dialogs.deleteTarget?.id) return;
+
+    if (dialogs.deleteTarget.type === 'category') {
+      // Close dialog immediately for instant feedback
+      dialogs.setDeleteConfirmOpen(false);
+      dialogs.setDeleteTarget(null);
+
+      deleteCategoryMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success('Category deleted successfully');
+          selection.clearSelection();
+        },
+        onError: (error: any) => {
+          toast.error(error?.message || 'Failed to delete category');
+        },
+      });
+    } else if (dialogs.deleteTarget.type === 'group') {
+      // Close dialog immediately for instant feedback
+      dialogs.setDeleteConfirmOpen(false);
+      dialogs.setDeleteTarget(null);
+
+      deleteGroupMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success('Group deleted successfully');
+          selection.clearSelection();
+        },
+        onError: (error: any) => {
+          toast.error(error?.message || 'Failed to delete group');
+        },
+      });
+    }
+  }, [dialogs, deleteCategoryMutation, deleteGroupMutation, selection]);
+
+  const handleApplyTemplate = useCallback(async () => {
+    if (!popovers.selectedTemplate) return;
+
+    popovers.setIsApplyingTemplate(true);
+    try {
+      await categoryGroupsApi.applyTemplate(popovers.selectedTemplate);
+      toast.success('Template applied successfully! Categories have been created.');
+      popovers.setSelectedTemplate(null);
+
+      // Invalidate and refetch category groups
+      await queryClient.invalidateQueries({
+        queryKey: ['category-groups'],
+      });
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to apply template');
+    } finally {
+      popovers.setIsApplyingTemplate(false);
+    }
+  }, [popovers, queryClient]);
+
+  // Show template selection when no categories exist
+  if (!groupsLoading && allEnvelopes.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-end">
+          <Button
+            onClick={handleApplyTemplate}
+            disabled={!popovers.selectedTemplate || popovers.isApplyingTemplate}
+            size="xs"
+          >
+            {popovers.isApplyingTemplate ? 'Applying...' : 'Apply Template'}
+          </Button>
+        </div>
+
+        <CategoryTemplatesStep
+          selectedTemplate={popovers.selectedTemplate}
+          onSelectTemplate={popovers.setSelectedTemplate}
+        />
+
+        {/* Loading Dialog */}
+        {popovers.isApplyingTemplate && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="p-8 w-full max-w-sm">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-foreground">Applying Template</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Creating budget categories from template...
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className=" space-y-4">
- 
+    <div className="space-y-4">
+      {/* Top Toolbar - Month Selector & Ready to Assign */}
+      <BudgetsToolbar
+        selectedMonth={selectedMonth}
+        onMonthChange={setSelectedMonth}
+        totalBalance={totals.totalBalance}
+        showBalances={showBalances}
+        onAssignClick={(e) => {
+          popovers.setAssignPopoverTrigger(e.currentTarget);
+          popovers.setAssignPopoverOpen(true);
+        }}
+      />
+
       {/* Main Content */}
-   
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
           {/* Table */}
-          <div className="lg:col-span-5">
-            <Card className="border border-border/80 overflow-visible p-0 rounded-xs shadow">
+          <div className="lg:col-span-5 relative overflow-visible">
+            <Card className="border border-border/60 p-0 rounded-lg shadow-sm overflow-visible">
+              {/* Loading Overlay */}
+              {groupsLoading && (
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm rounded-lg z-20 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                    <p className="text-xs text-muted-foreground">Loading...</p>
+                  </div>
+                </div>
+              )}
+              <TableHeaderControls
+                allGroupsExpanded={groupsHook.allGroupsExpanded}
+                onExpandAllToggle={() => groupsHook.toggleExpandAll(sortedGroups.map(g => g.id))}
+                onCreateGroupClick={(e) => {
+                  popovers.setAddGroupTrigger(e.currentTarget);
+                  popovers.setAddGroupPopoverOpen(true);
+                }}
+                filterPopoverOpen={popovers.filterPopoverOpen}
+                onFilterPopoverChange={popovers.setFilterPopoverOpen}
+                filterStatus={filters.filterStatus}
+                onFilterStatusChange={filters.setFilterStatus}
+                sortPopoverOpen={popovers.sortPopoverOpen}
+                onSortPopoverChange={popovers.setSortPopoverOpen}
+                sortBy={filters.sortBy}
+                onSortByChange={filters.setSortBy}
+                sortOrder={filters.sortOrder}
+                onSortOrderChange={filters.setSortOrder}
+                columnPopoverOpen={popovers.columnPopoverOpen}
+                onColumnPopoverChange={popovers.setColumnPopoverOpen}
+                visibleColumns={filters.visibleColumns}
+                onToggleColumn={filters.toggleColumn}
+                isRefreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                groupsLoading={groupsLoading}
+              />
 
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted border-b border-border/60">
-                      <th className="px-4  text-left font-semibold text-foreground h-9">
-                      <div className="flex items-center gap-1">
-                      
-  {/* Create Group */}
-  <Button
-              variant="outlinemuted"
-              size="xs"
-              onClick={() => setAddGroupModalOpen(true)}
-        icon={ <FolderPlus className="h-4 w-4" />}
-            >
-             
-          
-            </Button>
-            {/* Toolbar Buttons */}
-            <Popover
-              open={filterPopoverOpen}
-              onOpenChange={setFilterPopoverOpen}
-              trigger={
-                <Button
-                  variant="outlinemuted"
-                  size="xs"
-              
-                  onClick={() => setFilterPopoverOpen(!filterPopoverOpen)}
-                  icon={ <Filter className="h-4 w-4" />}
-                  
-                >   
-                </Button>
-              }
-            >
-              <div className="p-2 space-y-3 w-40 z-50">
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">Status</p>
-                  <div className="space-y-0">
-                    {(['all', 'active', 'zero'] as const).map((status) => (
-                      <label
-                        key={status}
-                        className="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-muted/50 transition-colors"
-                      >
+              <div className="w-full overflow-x-auto overflow-y-visible">
+                <Table>
+                  <TableHeader className="bg-muted/80">
+                    <TableRow className="border-border/60 hover:bg-transparent">
+                      <TableHead className="px-4 text-left font-semibold w-12">
                         <input
-                          type="radio"
-                          name="status"
-                          value={status}
-                          checked={filterStatus === status}
-                          onChange={(e) => setFilterStatus(e.target.value as typeof status)}
-                          className="h-4 w-4"
+                          type="checkbox"
+                          checked={selection.allVisibleRowsSelected}
+                          ref={(el) => {
+                            if (el && selection.someVisibleRowsSelected && !selection.allVisibleRowsSelected) {
+                              el.indeterminate = true;
+                            }
+                          }}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              const allRowIds = new Set<string>();
+                              filteredEnvelopes.forEach((env) => {
+                                allRowIds.add(env.id);
+                              });
+                              selection.setSelectedRows(allRowIds);
+                            } else {
+                              selection.clearSelection();
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-border cursor-pointer"
                         />
-                        <span className="text-xs capitalize">{status}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Popover>
-
-            {/* Sort Popover */}
-            <Popover
-              open={sortPopoverOpen}
-              onOpenChange={setSortPopoverOpen}
-              trigger={
-                <Button
-                  variant="outlinemuted"
-                  size="xs"
-            icon={ <ArrowUpDown className="h-4 w-4" />}
-                  onClick={() => setSortPopoverOpen(!sortPopoverOpen)}
-                >
-                 
-           
-                </Button>
-              }
-            >
-              <div className="p-3 space-y-1 w-40">
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">Sort By</p>
-                  <div className="space-y-0">
-                    {(['name', 'allocated', 'spent'] as const).map((option) => (
-                      <label
-                        key={option}
-                        className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-muted/50 transition-colors"
-                      >
-                        <input
-                          type="radio"
-                          name="sort"
-                          value={option}
-                          checked={sortBy === option}
-                          onChange={(e) => setSortBy(e.target.value as typeof option)}
-                          className="h-4 w-4"
-                        />
-                        <span className="text-xs capitalize">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="pt-2 border-t border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground">Order</span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                      className="h-7 text-xs"
-                    >
-                      {sortOrder === 'asc' ? '↑ Asc' : '↓ Desc'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Popover>
-
-            {/* Columns Popover */}
-            <Popover
-              open={columnPopoverOpen}
-              onOpenChange={setColumnPopoverOpen}
-              trigger={
-                <Button
-                 variant="outlinemuted"
-              size="xs"
-              className=''
-                  onClick={() => setColumnPopoverOpen(!columnPopoverOpen)}
-                >
-                  <Settings className="h-4 w-4" />
-                
-                </Button>
-              }
-            >
-              <div className="p-3 space-y-2 w-40">
-                {Object.entries(visibleColumns).map(([key, visible]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-xs capitalize">{key}</span>
-                    <Switch
-                      checked={visible}
-                      onChange={() => toggleColumn(key)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Popover>
-
-        
-          
-          </div>
-                      </th>
-                      {visibleColumns.leftover && (
-                        <th className="px-4  text-right font-semibold text-foreground">
-                          Leftover
-                        </th>
-                      )}
-                      {visibleColumns.assigned && (
-                        <th className="px-4 text-right font-semibold text-foreground">
-                          Assigned
-                        </th>
-                      )}
-                      {visibleColumns.activity && (
-                        <th className="px-4  text-right font-semibold text-foreground">
-                          Activity
-                        </th>
-                      )}
-                      {visibleColumns.available && (
-                        <th className="px-4 text-right font-semibold text-foreground">
-                          Available
-                        </th>
-                      )}
-                      {visibleColumns.actions && (
-                        <th className="px-4  text-center font-semibold text-foreground">
-                          Actions
-                        </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center">
-                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                        </td>
-                      </tr>
-                    ) : sortedGroups.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">
-                          No categories found
-                        </td>
-                      </tr>
-                    ) : (
-                      sortedGroups.map((group: any) => {
-                        const groupEnvelopes = group.categories || [];
-                        const isExpanded = expandedGroups.has(group.id);
-
-                        return (
-                          <React.Fragment key={group.id}>
-                            {/* Group Header */}
-                            <tr
-                              className="border-b border-border/50 hover:bg-background cursor-pointer transition-colors bg-muted/25"
-                              onClick={() => toggleGroup(group.id)}
-                            >
-                              <td className="px-4  font-semibold flex items-center gap-1 h-8">
-                                {isExpanded ? (
-                                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
-                                ) : (
-                                  <ChevronRight className="h-4 w-4 flex-shrink-0" />
-                                )}
-                                {group.icon && <span className="text-lg">{group.icon}</span>}
-                                <span className="truncate">{group.name}</span>
-                                <span className="ml-auto text-xs text-muted-foreground font-normal">
-                                  {groupEnvelopes.length}
-                                </span>
-                              </td>
-                              <td colSpan={5}>
-                                <div className="flex items-center justify-end gap-1 px-4  h-8">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAddCategoryPopover(
-                                        addCategoryPopover === group.id ? null : group.id
-                                      );
-                                    }}
-                                    className="h-6 w-6 p-0 rounded-full bg-primary/10"
-                                    title="Add category"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* Add Category Form */}
-                            {addCategoryPopover === group.id && (
-                              <tr className="border-b border-border/40 bg-muted/50">
-                                <td colSpan={6} className="px-4 py-3">
-                                  <AddCategoryForm
-                                    groupId={group.id}
-                                    onClose={() => setAddCategoryPopover(null)}
-                                  />
-                                </td>
-                              </tr>
-                            )}
-
-                            {/* Category Rows */}
-                            {isExpanded &&
-                              groupEnvelopes.map((envelope: any, idx: number) => (
-                                <CategoryRow
-                                  key={envelope.id}
-                                  envelope={envelope}
-                                  showBalances={showBalances}
-                                  visibleColumns={visibleColumns}
-                                  isLast={idx === groupEnvelopes.length - 1}
-                                  onSpendClick={(env) => {
-                                    setSelectedEnvelope(env);
-                                    setSpendModalOpen(true);
-                                  }}
-                                />
-                              ))}
-                          </React.Fragment>
-                        );
-                      })
+                      </TableHead>
+                      <TableHead className="px-4 text-left font-semibold">
+                        Category
+                      </TableHead>
+                    {filters.visibleColumns.leftover && (
+                      <TableHead className="px-4 text-right font-semibold">
+                        Leftover
+                      </TableHead>
                     )}
-                  </tbody>
-                </table>
-        
+                    {filters.visibleColumns.assigned && (
+                      <TableHead className="px-4 text-right font-semibold">
+                        Assigned
+                      </TableHead>
+                    )}
+                    {filters.visibleColumns.activity && (
+                      <TableHead className="px-4 text-right font-semibold">
+                        Activity
+                      </TableHead>
+                    )}
+                    {filters.visibleColumns.available && (
+                      <TableHead className="px-4 text-right font-semibold">
+                        Available
+                      </TableHead>
+                    )}
+                    {filters.visibleColumns.actions && (
+                      <TableHead className="px-4 text-center font-semibold">
+                        Actions
+                      </TableHead>
+                    )}
+                  </TableRow>
+                </TableHeader>
+
+                <TableContent
+                  isLoading={isLoading}
+                  sortedGroups={sortedGroups}
+                  expandedGroups={groupsHook.expandedGroups}
+                  onToggleGroup={groupsHook.toggleGroup}
+                  selectedGroups={selection.selectedGroups}
+                  selectedRows={selection.selectedRows}
+                  onSelectGroup={selection.toggleGroupSelection}
+                  onSelectRow={selection.toggleRowSelection}
+                  visibleColumns={filters.visibleColumns}
+                  showBalances={showBalances}
+                  onAddCategoryClick={(groupId) => {
+                    dialogs.setSelectedGroupForCategory(groupId);
+                    dialogs.setAddCategoryDialogOpen(true);
+                  }}
+                  onSpendClick={(envelope) => {
+                    dialogs.setSelectedEnvelope(envelope);
+                    dialogs.setSpendModalOpen(true);
+                  }}
+                  onDeleteClick={(envelope) => {
+                    dialogs.setDeleteTarget({ type: 'category', id: envelope.id, name: envelope.name });
+                    dialogs.setDeleteConfirmOpen(true);
+                  }}
+                  editGroupPopover={popovers.editGroupPopover}
+                  editGroupId={popovers.editGroupId}
+                  editGroupName={popovers.editGroupName}
+                  setEditGroupName={popovers.setEditGroupName}
+                  setEditGroupPopover={popovers.setEditGroupPopover}
+                  groupPopoverTrigger={popovers.groupPopoverTrigger}
+                  setGroupPopoverTrigger={popovers.setGroupPopoverTrigger}
+                  onGroupDelete={(groupId) => {
+                    dialogs.setTransferGroupId(groupId);
+                    popovers.setEditGroupPopover(null);
+                    dialogs.setTransferGroupOpen(true);
+                  }}
+                />
+                </Table>
+              </div>
             </Card>
+
+            {/* Floating Toolbar */}
+            <FloatingToolbar
+              selectedRowsCount={selection.selectedRows.size}
+              selectedGroupsCount={selection.selectedGroups.size}
+              onSpendClick={() => {
+                if (selection.selectedRows.size > 0) {
+                  const firstSelected = Array.from(selection.selectedRows)[0];
+                  const env = filteredEnvelopes.find(e => e.id === firstSelected);
+                  if (env) {
+                    dialogs.setSelectedEnvelope(env);
+                    dialogs.setSpendModalOpen(true);
+                  }
+                }
+              }}
+              onTransferClick={() => {
+                // Handle transfer
+              }}
+              onDeleteClick={() => {
+                if (selection.selectedRows.size > 0) {
+                  const firstSelected = Array.from(selection.selectedRows)[0];
+                  const env = filteredEnvelopes.find(e => e.id === firstSelected);
+                  if (env) {
+                    dialogs.setDeleteTarget({ type: 'category', id: env.id, name: env.name });
+                    dialogs.setDeleteConfirmOpen(true);
+                  }
+                }
+              }}
+              onClearSelection={selection.clearSelection}
+            />
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            {/* Summary */}
-            <Card className="border border-border/40 p-3">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Summary</CardTitle>
-              </CardHeader>
-        
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">Income</div>
-                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {showBalances ? (
-                      <CurrencyDisplay amountUSD={totals.totalAllocated} />
-                    ) : (
-                      '••••'
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">Expenses</div>
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    -{showBalances ? <CurrencyDisplay amountUSD={totals.totalSpent} /> : '••••'}
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-border/40">
-                  <div className="text-xs text-muted-foreground mb-1">Net</div>
-                  <div
-                    className={cn(
-                      'text-2xl font-bold',
-                      totals.totalBalance < 0
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-emerald-600 dark:text-emerald-400'
-                    )}
-                  >
-                    {showBalances ? (
-                      <CurrencyDisplay amountUSD={totals.totalBalance} />
-                    ) : (
-                      '••••'
-                    )}
-                  </div>
-                </div>
-       
-            </Card>
-
-            {/* Status */}
-            <Card className="border border-border/40">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-semibold">
-                      {totals.totalAllocated > 0
-                        ? ((totals.totalSpent / totals.totalAllocated) * 100).toFixed(0)
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full transition-all',
-                        (totals.totalSpent / totals.totalAllocated) * 100 > 100
-                          ? 'bg-red-500'
-                          : (totals.totalSpent / totals.totalAllocated) * 100 >= 80
-                          ? 'bg-amber-500'
-                          : 'bg-emerald-500'
-                      )}
-                      style={{
-                        width: `${Math.min(
-                          (totals.totalSpent / totals.totalAllocated) * 100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-2 border-t border-border/40">
-                  {[
-                    { label: 'Allocated', value: totals.totalAllocated },
-                    { label: 'Spent', value: totals.totalSpent },
-                    { label: 'Available', value: Math.max(0, totals.totalBalance) },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-semibold">
-                        {showBalances ? (
-                          <CurrencyDisplay amountUSD={value} />
-                        ) : (
-                          '••••'
-                        )}
-                      </span>
-                    </div>
-                  ))}
-                  <div className="flex justify-between text-xs pt-2 border-t border-border/40">
-                    <span className="text-muted-foreground">At Risk</span>
-                    <span className="font-semibold text-amber-600">
-                      {totals.exceededCount}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <BudgetsSidebar
+            totals={totals}
+            showBalances={showBalances}
+            filteredEnvelopesLength={filteredEnvelopes.length}
+          />
         </div>
  
 
       {/* Spend Modal */}
-      {spendModalOpen && selectedEnvelope && (
+      {dialogs.spendModalOpen && dialogs.selectedEnvelope && (
         <SpendModal
-          envelope={selectedEnvelope}
+          envelope={dialogs.selectedEnvelope}
           onClose={() => {
-            setSpendModalOpen(false);
-            setSelectedEnvelope(null);
+            dialogs.setSpendModalOpen(false);
+            dialogs.setSelectedEnvelope(null);
           }}
           onSubmit={handleRecordSpending}
           isLoading={spendMutation.isPending}
         />
       )}
-    </div>
-  );
-}
 
-// ============================================================================
-// ADD CATEGORY FORM
-// ============================================================================
-
-function AddCategoryForm({
-  groupId,
-  onClose,
-}: {
-  groupId: string;
-  onClose: () => void;
-}) {
-  const [categoryName, setCategoryName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!categoryName.trim()) {
-      toast.error('Category name required');
-      return;
-    }
-    setIsLoading(true);
-    // TODO: Call API to create category
-    setTimeout(() => {
-      toast.success(`Category created`);
-      setCategoryName('');
-      onClose();
-      setIsLoading(false);
-    }, 500);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
-        placeholder="Category name..."
-        value={categoryName}
-        onChange={(e) => setCategoryName(e.target.value)}
-        className="h-8 text-sm flex-1"
-        autoFocus
-      />
-      <Button size="sm" type="submit" disabled={isLoading} className="h-8">
-        {isLoading ? '...' : 'Add'}
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        type="button"
-        onClick={onClose}
-        className="h-8"
-      >
-        Cancel
-      </Button>
-    </form>
-  );
-}
-
-// ============================================================================
-// CATEGORY ROW
-// ============================================================================
-
-function CategoryRow({
-  envelope,
-  showBalances,
-  visibleColumns,
-  isLast,
-  onSpendClick,
-}: {
-  envelope: any;
-  showBalances: boolean;
-  visibleColumns: Record<string, boolean>;
-  isLast: boolean;
-  onSpendClick: (envelope: any) => void;
-}) {
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
-
-  const allocateMutation = useAllocateFunds(envelope.id);
-
-  const allocated = Number(envelope.allocatedAmount) || 0;
-  const spent = Number(envelope.totalSpent) || 0;
-  const balance = Number(envelope.currentBalance) || 0;
-  const percentage = Number(envelope.percentageUsed) || 0;
-
-  const handleEditAllocation = (value: string) => {
-    const amount = parseFloat(value);
-    if (isNaN(amount) || amount < 0) {
-      toast.error('Invalid amount');
-      return;
-    }
-
-    allocateMutation.mutate(
-      { amount, description: 'Allocation adjustment' },
-      {
-        onSuccess: () => {
-          toast.success('Allocation updated');
-          setEditingField(null);
-        },
-        onError: (error: any) => {
-          toast.error(error?.response?.data?.message || 'Failed to update');
-        },
-      }
-    );
-  };
-
-  return (
-    <tr className="border-b border-border/40 hover:bg-muted/50 transition-colors">
-      <td className="px-4 py-1 h-8">
-        <div className="flex items-center gap-2">
-          {envelope.icon && <span className="text-xl">{envelope.icon}</span>}
-          <div className="flex-1 min-w-0">
-            <div className="text-[13px] font-semibold truncate ">{envelope.name}
-              <span className='ml-2 text-muted-foreground bg-muted rounded-full shadow text-[11px] border px-1'>{percentage.toFixed(0)}%</span>
-            </div>
-            
-          </div>
-        </div>
-      </td>
-
-      {visibleColumns.leftover && (
-        <td className="px-4 py-1 text-right h-8">
-          <div
-            className={cn(
-              'text-xs font-semibold',
-              balance < 0
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-emerald-600 dark:text-emerald-400'
-            )}
-          >
-            {showBalances ? (
-              <CurrencyDisplay amountUSD={Math.abs(balance)} variant='small' />
-            ) : (
-              '••••'
-            )}
-          </div>
-        {/*   <div className="text-[11px] text-muted-foreground">
-            {balance < 0 ? 'Over' : 'Left'}
-          </div> */}
-        </td>
+      {/* Add Group Popover */}
+      {popovers.addGroupPopoverOpen && (
+        <AddGroupPopover
+          onClose={() => popovers.setAddGroupPopoverOpen(false)}
+          triggerElement={popovers.addGroupTrigger}
+        />
       )}
 
-      {visibleColumns.assigned && (
-        <td className=" py-1 text-right h-8">
-          {editingField === 'assigned' ? (
-            <input
-              type="number"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onBlur={() => {
-                handleEditAllocation(editValue);
-                setEditingField(null);
+      {/* Assign Amount Popover */}
+      {popovers.assignPopoverOpen && (
+        <AssignAmountPopover
+          onClose={() => popovers.setAssignPopoverOpen(false)}
+          triggerElement={popovers.assignPopoverTrigger}
+          totalBalance={totals.totalBalance}
+          groups={sortedGroups}
+          onAssign={async (groupId, amount) => {
+            // Handle assign logic here
+            toast.success(`Assigned ${amount} to group`);
+            popovers.setAssignPopoverOpen(false);
+          }}
+        />
+      )}
+
+      {/* Add Category Dialog */}
+      <Dialog open={dialogs.addCategoryDialogOpen} onOpenChange={dialogs.setAddCategoryDialogOpen}>
+        <DialogContent className="w-full max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Category</DialogTitle>
+          </DialogHeader>
+          {dialogs.selectedGroupForCategory && (
+            <AddCategoryForm
+              groupId={dialogs.selectedGroupForCategory}
+              onClose={() => {
+                dialogs.setAddCategoryDialogOpen(false);
+                dialogs.setSelectedGroupForCategory(null);
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleEditAllocation(editValue);
-                  setEditingField(null);
-                }
-                if (e.key === 'Escape') setEditingField(null);
-              }}
-              autoFocus
-              className="w-24 px-2 py-1 text-sm text-right border border-primary rounded bg-background"
-              placeholder="0.00"
             />
-          ) : (
-            <button
-              onClick={() => {
-                setEditValue(allocated.toString());
-                setEditingField('assigned');
-              }}
-              className="text-sm font-semibold cursor-pointer hover:text-primary transition-colors"
-            >
-              {showBalances ? (
-                <CurrencyDisplay amountUSD={allocated} variant='small'  />
-              ) : (
-                '••••'
-              )}
-            </button>
           )}
-        </td>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {visibleColumns.activity && (
-        <td className="px-4 py-1 text-right h-8">
-          <button
-            onClick={() => onSpendClick(envelope)}
-            className="text-sm font-semibold cursor-pointer hover:text-primary transition-colors"
-            title="Record spending"
-          >
-            {showBalances ? (
-              <CurrencyDisplay amountUSD={spent} variant='small'  />
-            ) : (
-              '••••'
-            )}
-          </button>
-        </td>
-      )}
-
-      {visibleColumns.available && (
-        <td className="px-4 py-1 h-8">
-          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className={cn(
-                'h-full transition-all',
-                percentage > 100
-                  ? 'bg-red-500'
-                  : percentage >= 80
-                  ? 'bg-amber-500'
-                  : 'bg-emerald-500'
-              )}
-              style={{ width: `${Math.min(percentage, 100)}%` }}
-            />
-          </div>
-        </td>
-      )}
-
-      {visibleColumns.actions && (
-        <td className="px-4 py-1 text-center h-8">
-          <button
-            title="Transfer funds"
-            className="inline-flex items-center justify-center h-7 w-7 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowRightLeft className="h-4 w-4" />
-          </button>
-        </td>
-      )}
-    </tr>
-  );
-}
-
-// ============================================================================
-// SPEND MODAL
-// ============================================================================
-
-function SpendModal({
-  envelope,
-  onClose,
-  onSubmit,
-  isLoading,
-}: {
-  envelope: any;
-  onClose: () => void;
-  onSubmit: (amount: number) => void;
-  isLoading: boolean;
-}) {
-  const [amount, setAmount] = useState('');
-
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Record Spending</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Category</p>
-            <p className="font-semibold">{envelope.name}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground">Amount</label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              className="mt-1"
-              step="0.01"
-              autoFocus
-            />
-          </div>
-          <div className="flex gap-2 justify-end pt-2">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => onSubmit(parseFloat(amount))}
-              disabled={isLoading || !amount}
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={dialogs.deleteConfirmOpen} onOpenChange={dialogs.setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {dialogs.deleteTarget?.type === 'group' ? 'Group' : 'Category'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{dialogs.deleteTarget?.name}</strong>? This action cannot be undone.
+              {dialogs.deleteTarget?.type === 'group' && ' All categories in this group will also be deleted.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 text-white hover:bg-red-700"
+              disabled={deleteCategoryMutation?.isPending || deleteGroupMutation?.isPending}
             >
-              {isLoading ? 'Recording...' : 'Record'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {deleteCategoryMutation?.isPending || deleteGroupMutation?.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Transfer Categories Dialog */}
+      <Dialog open={dialogs.transferGroupOpen} onOpenChange={dialogs.setTransferGroupOpen}>
+        <DialogContent className="w-full max-w-md">
+          <DialogHeader>
+            <DialogTitle>Transfer Categories</DialogTitle>
+          </DialogHeader>
+          {dialogs.transferGroupId && (
+            <TransferCategoriesDialog
+              sourceGroupId={dialogs.transferGroupId}
+              sourceGroup={sortedGroups.find(g => g.id === dialogs.transferGroupId)}
+              allGroups={sortedGroups}
+              onClose={() => {
+                dialogs.setTransferGroupOpen(false);
+                dialogs.setTransferGroupId(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

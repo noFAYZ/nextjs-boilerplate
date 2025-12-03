@@ -52,8 +52,8 @@ function SelectTrigger({
       data-slot="select-trigger"
       className={cn(
         buttonVariants({ variant, size }),
-        "flex w-fit items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
-        className
+        "flex  items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
+        className, variant == 'outlinemuted2' && 'justify-center'
       )}
       aria-label={!label ? props.placeholder || "select" : undefined}
       {...props}
@@ -66,9 +66,10 @@ function SelectTrigger({
       ) : (
         <>
           {children || <SelectValue placeholder={props.placeholder} />}
-          <SelectPrimitive.Icon asChild>
+          {variant != 'outlinemuted2' && (  <SelectPrimitive.Icon asChild>
             <ChevronDownIcon className="size-4 opacity-60" />
-          </SelectPrimitive.Icon>
+          </SelectPrimitive.Icon>)}
+        
         </>
       )}
     </SelectPrimitive.Trigger>

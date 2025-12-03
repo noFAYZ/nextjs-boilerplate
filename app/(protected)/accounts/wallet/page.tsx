@@ -71,15 +71,14 @@ import { LetsIconsSettingLineDuotone, LogoLoader } from "@/components/icons";
 import { CryptoAllocationWidget, NetworkDistributionWidget } from "@/components/dashboard-widgets";
 
 function WalletLoadingState() {
-  return (
-    <div className="relative h-screen bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-      <Card className="px-5 border-border shadow-none">
-        <div className="flex items-center space-x-3">
-          <LogoLoader className="w-8 h-8" />
-          <span className="text-sm font-medium">Loading your portfolio...</span>
-        </div>
-      </Card>
-    </div>
+  return (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
+<Card className="px-5 border-border shadow-none " >
+  <div className="flex items-center space-x-3">
+    <LogoLoader className="w-8 h-8" />
+    <span className="text-sm font-medium">Loading your wallet portfolio....</span>
+  </div>
+</Card>
+</div>
   );
 }
 

@@ -73,6 +73,7 @@ import {
   FluentPlugConnectedCheckmark20Filled,
   FluentPlugDisconnected20Filled,
   HeroiconsWallet,
+  HeroiconsWallet16Solid,
   MdiDollar,
   MdiDragVertical,
   MdiPen,
@@ -83,6 +84,37 @@ import {
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
 import { getAccountTypeDisplayName } from '@/lib/types/unified-accounts';
 import { AccountType } from '@/lib/types';
+
+/* -------------------------------------------------------------------------- */
+/*                        TYPE DEFINITIONS                                    */
+/* -------------------------------------------------------------------------- */
+interface AssetBreakdown {
+  cash: number;
+  investments: number;
+  realEstate: number;
+  vehicle: number;
+  valuables: number;
+  crypto: number;
+  otherAsset: number;
+}
+
+interface LiabilityBreakdown {
+  creditCard: number;
+  mortgage: number;
+  loan: number;
+  otherLiability: number;
+}
+
+interface SummaryData {
+  totalNetWorth: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  accountCount: number;
+  currency: string;
+  lastUpdated: string;
+  assetBreakdown: AssetBreakdown;
+  liabilityBreakdown: LiabilityBreakdown;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                         CATEGORY CONFIGURATION                             */
@@ -231,7 +263,7 @@ function DraggableAccountItem({
       <div className="flex flex-col items-end flex-shrink-0 gap-1">
         <div className="text-right">
           {balanceVisible ? (
-            <CurrencyDisplay amountUSD={account.balance} className="text-sm font-medium text-foreground/90" />
+            <CurrencyDisplay amountUSD={account.balance} variant='small' className="text-foreground/90" />
           ) : (
             <span className="text-muted-foreground font-bold text-xs">••••••</span>
           )}
@@ -273,7 +305,11 @@ const categoryConfig = {
 /* -------------------------------------------------------------------------- */
 /*                     RIGHT SIDEBAR SUMMARY WIDGET                           */
 /* -------------------------------------------------------------------------- */
-function SummarySidebar({ summary }) {
+interface SummarySidebarProps {
+  summary?: SummaryData | null;
+}
+
+function SummarySidebar({ summary }: SummarySidebarProps) {
   if (!summary) return null;
 
   const netWorthStatus = summary.totalAssets > summary.totalLiabilities ? 'positive' : 'negative';
@@ -286,20 +322,6 @@ function SummarySidebar({ summary }) {
     <div className="sticky top-4">
       <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-xl bg-[rgb(251,146,60)] shadow-inner flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-[rgb(124,45,18)]" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
-          </div>
-          <Link href="/networth">
-            <Button variant="link" className="text-[11px] cursor-pointer transition-colors h-7" size="sm">
-              View All
-              <ArrowRight className="h-3 w-3" />
-            </Button>
-          </Link>
-        </div>
 
         {/* Glassmorphic Main Card */}
         <div className="relative">
@@ -321,8 +343,8 @@ function SummarySidebar({ summary }) {
                     {summary.totalNetWorth > 0 ? (
                       <CurrencyDisplay
                         amountUSD={summary.totalNetWorth}
-                        variant="large"
-                        className="text-4xl font-semibold"
+                        variant="2xl"
+                     
                       />
                     ) : (
                       "—"
@@ -471,7 +493,7 @@ function SummarySidebar({ summary }) {
         {/* Stats Grid - Simplified */}
         <div className="space-y-1.5">
           {/* Total Assets */}
-          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+          <div className="group relative border border-border/80 flex bg-sidebar items-center gap-3  rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default pr-4">
             <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/15 transition-colors">
               <TrendingUp className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
             </div>
@@ -483,13 +505,13 @@ function SummarySidebar({ summary }) {
             </div>
             <CurrencyDisplay
               amountUSD={summary.totalAssets}
-              variant="compact"
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex-shrink-0"
+              variant="small"
+              className=" text-lime-700 dark:text-lime-400 flex-shrink-0"
             />
           </div>
 
           {/* Total Liabilities */}
-          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+          <div className="group relative border border-border/80 flex items-center gap-3   rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default pr-4">
             <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/15 transition-colors">
               <TrendingDown className="h-4.5 w-4.5 text-red-600 dark:text-red-400" />
             </div>
@@ -501,15 +523,15 @@ function SummarySidebar({ summary }) {
             </div>
             <CurrencyDisplay
               amountUSD={summary.totalLiabilities}
-              variant="compact"
-              className="text-xs font-bold text-red-600 dark:text-red-400 flex-shrink-0"
+              variant="small"
+              className=" text-rose-700 dark:text-red-400 flex-shrink-0"
             />
           </div>
 
           {/* Account Count */}
-          <div className="group relative border border-border/80 flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default">
+          <div className="group relative border border-border/80 flex items-center gap-3   rounded-xl transition-all hover:bg-muted/50 hover:border-border/60 cursor-default pr-4">
             <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/15 transition-colors">
-              <Wallet className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
+              <HeroiconsWallet16Solid className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-foreground">Total Accounts</p>
@@ -517,7 +539,7 @@ function SummarySidebar({ summary }) {
                 {summary.accountCount} {summary.accountCount === 1 ? 'account' : 'accounts'} connected
               </p>
             </div>
-            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">{summary.accountCount}</span>
+            <span className="text-sm  font-medium text-blue-600 dark:text-blue-400 flex-shrink-0">{summary.accountCount}</span>
           </div>
         </div>
       </Card>
@@ -551,45 +573,19 @@ export default function AccountsPage() {
   const { data: accountsData, isLoading, refetch } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Calculate summary data from actual accounts
+  /**
+   * Use summary data from API response
+   * The backend pre-calculates:
+   * - totalNetWorth: assets - liabilities
+   * - totalAssets: sum of all assets
+   * - totalLiabilities: sum of all liabilities
+   * - assetBreakdown: breakdown by category (cash, investments, etc.)
+   * - liabilityBreakdown: breakdown by type (creditCard, mortgage, loan, etc.)
+   * - lastUpdated: timestamp of last calculation
+   */
   const summaryData = useMemo(() => {
-    if (!accountsData?.groups) {
-      return {
-        totalNetWorth: 0,
-        totalAssets: 0,
-        totalLiabilities: 0,
-        accountCount: 0,
-        currency: 'USD',
-        lastUpdated: new Date().toISOString(),
-      };
-    }
-
-    let totalAssets = 0;
-    let totalLiabilities = 0;
-    let accountCount = 0;
-
-    // Sum all accounts by category
-    Object.entries(accountsData.groups).forEach(([, group]) => {
-      group.accounts.forEach(account => {
-        accountCount++;
-        const balance = account.balance || 0;
-        if (account.category === 'LIABILITIES') {
-          totalLiabilities += Math.abs(balance);
-        } else {
-          totalAssets += balance;
-        }
-      });
-    });
-
-    return {
-      totalNetWorth: totalAssets - totalLiabilities,
-      totalAssets,
-      totalLiabilities,
-      accountCount,
-      currency: 'USD',
-      lastUpdated: new Date().toISOString(),
-    };
-  }, [accountsData]);
+    return accountsData?.summary || null;
+  }, [accountsData?.summary]);
 
   // Categories with accounts
   const categoriesWithAccounts = useMemo(() => {
@@ -633,7 +629,6 @@ export default function AccountsPage() {
     }
   };
 
-console.log(accountsData)
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
@@ -661,20 +656,20 @@ console.log(accountsData)
       {/* Body Layout */}
       <div className="">
 
-        {/* Full-width Chart
+        {/* Full-width Chart*/}
         {showNetWorth && (
-          <div className="mb-8">
-            <NetWorthChart mode="live"   height={250}  />
+          <div className="mb-4">
+            <NetWorthChart mode="demo"   height={300}  />
           </div>
-        )} */}
+        )} 
 
 
 
         {/* Two-column layout: Accordions left, Summary right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-8 gap-4">
 
           {/* Accordions Column */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-6">
      
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -719,7 +714,8 @@ console.log(accountsData)
                         <div className="flex flex-col items-end flex-shrink-0 gap-1">
                           <div className="text-right">
                             {balanceVisible ? (
-                              <CurrencyDisplay amountUSD={group.totalBalance} className="font-medium text-lg text-foreground" />
+                              <CurrencyDisplay amountUSD={group.totalBalance}
+                              variant='lg' className=" text-foreground" />
                             ) : (
                               <span className="text-muted-foreground font-bold text-sm">••••••</span>
                             )}
@@ -754,12 +750,8 @@ console.log(accountsData)
           </div>
 
           {/* Right Sidebar Summary */}
-          <div className="lg:col-span-4">
-          {showNetWorth && (
-          <div className="mb-3">
-            <NetWorthChart mode="live"   height={250}  />
-          </div>
-        )}
+          <div className="lg:col-span-2">
+      
             <SummarySidebar summary={summaryData} />
           </div>
         </div>

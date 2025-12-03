@@ -50,6 +50,11 @@ const categoryGroupsKeys = {
     [...categoryGroupsKeys.history(id), 'spending', params] as const,
   monthlySpending: (id: string, params?: { year?: number; month?: number }) =>
     [...categoryGroupsKeys.history(id), 'monthly', params] as const,
+
+  // Templates
+  templates: () => [...categoryGroupsKeys.all, 'templates'] as const,
+  templatesList: () => [...categoryGroupsKeys.templates(), 'list'] as const,
+  templateDetail: (id: string) => [...categoryGroupsKeys.templates(), 'detail', id] as const,
 };
 
 // ============================================================================
@@ -63,7 +68,7 @@ function useAuthReady() {
 }
 
 // ============================================================================
-// CATEGORY GROUPS QUERIES
+// CATEGORY GROUPS QUERIES & MUTATIONS
 // ============================================================================
 
 /**
@@ -164,10 +169,37 @@ export function useDeleteCategoryGroup(
 
   return useMutation({
     mutationFn: () => categoryGroupsApi.deleteGroup(groupId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
         queryKey: categoryGroupsKeys.lists(),
       });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData(categoryGroupsKeys.lists());
+
+      // Optimistically update by filtering out the deleted group
+      queryClient.setQueriesData(
+        { queryKey: categoryGroupsKeys.lists() },
+        (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.filter((g: any) => g.id !== groupId),
+          };
+        }
+      );
+
+      return { previousData };
+    },
+    onError: (err, variables, context: any) => {
+      // Revert to previous value on error
+      if (context?.previousData) {
+        queryClient.setQueryData(categoryGroupsKeys.lists(), context.previousData);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate detail queries
       queryClient.invalidateQueries({
         queryKey: categoryGroupsKeys.detail(groupId),
       });
@@ -312,10 +344,40 @@ export function useDeleteCategory(
 
   return useMutation({
     mutationFn: () => categoryGroupsApi.deleteCategory(categoryId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: categoryGroupsKeys.categoriesList(),
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: categoryGroupsKeys.lists(),
       });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData(categoryGroupsKeys.lists());
+
+      // Optimistically update by filtering out the deleted category from all groups
+      queryClient.setQueriesData(
+        { queryKey: categoryGroupsKeys.lists() },
+        (old: any) => {
+          if (!old || !old.data) return old;
+          return {
+            ...old,
+            data: old.data.map((group: any) => ({
+              ...group,
+              categories: (group.categories || []).filter((cat: any) => cat.id !== categoryId),
+            })),
+          };
+        }
+      );
+
+      return { previousData };
+    },
+    onError: (err, variables, context: any) => {
+      // Revert to previous value on error
+      if (context?.previousData) {
+        queryClient.setQueryData(categoryGroupsKeys.lists(), context.previousData);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate detail queries
       queryClient.invalidateQueries({
         queryKey: categoryGroupsKeys.detail(categoryId),
       });
@@ -632,5 +694,64 @@ export function useMonthlySpending(
     queryFn: () => categoryGroupsApi.getMonthlySpending(categoryId || '', params),
     enabled: isAuthReady && !!categoryId,
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ============================================================================
+// CATEGORY TEMPLATES QUERIES & MUTATIONS
+// ============================================================================
+
+/**
+ * Get all available category templates for onboarding
+ */
+export function useCategoryTemplates(): UseQueryResult<any, unknown> {
+  const { isAuthReady } = useAuthReady();
+
+  return useQuery({
+    queryKey: categoryGroupsKeys.templatesList(),
+    queryFn: () => categoryGroupsApi.getTemplates(),
+    enabled: isAuthReady,
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
+/**
+ * Get detailed template information with all categories and groups
+ */
+export function useCategoryTemplate(templateId: string): UseQueryResult<any, unknown> {
+  const { isAuthReady } = useAuthReady();
+
+  return useQuery({
+    queryKey: categoryGroupsKeys.templateDetail(templateId),
+    queryFn: () => categoryGroupsApi.getTemplate(templateId),
+    enabled: isAuthReady && !!templateId,
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
+/**
+ * Apply a category template to user's account
+ */
+export function useApplyCategoryTemplate(
+  templateId: string
+): UseMutationResult<any, unknown, void, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => categoryGroupsApi.applyTemplate(templateId),
+    onSuccess: () => {
+      // Invalidate category groups list to refetch with new template data
+      queryClient.invalidateQueries({
+        queryKey: categoryGroupsKeys.lists(),
+      });
+      // Invalidate categories list
+      queryClient.invalidateQueries({
+        queryKey: categoryGroupsKeys.categoriesList(),
+      });
+      // Invalidate categorized data
+      queryClient.invalidateQueries({
+        queryKey: categoryGroupsKeys.categoriesGrouped(),
+      });
+    },
   });
 }

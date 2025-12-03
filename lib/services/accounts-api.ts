@@ -132,6 +132,38 @@ class AccountsApiService {
     const endpoint = `/accounts/transactions/categories/search?q=${encodeURIComponent(query)}`;
     return apiClient.get<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>(endpoint);
   }
+
+  /**
+   * Get all transactions across all accounts (global transactions)
+   * @param params - Query parameters for filtering, pagination, and date range
+   * @returns Paginated list of all transactions from all accounts
+   */
+  async getAllTransactions(params?: {
+    page?: number;
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+    merchantId?: string;
+    categoryId?: string;
+    type?: string;
+    source?: string;
+    search?: string;
+  }): Promise<ApiResponse<AccountTransactionsResponse>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.merchantId) queryParams.append('merchantId', params.merchantId);
+    if (params?.categoryId) queryParams.append('categoryId', params.categoryId);
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.source) queryParams.append('source', params.source);
+    if (params?.search) queryParams.append('search', params.search);
+
+    const queryString = queryParams.toString();
+    const endpoint = `/accounts/transactions${queryString ? `?${queryString}` : ''}`;
+    return apiClient.get<AccountTransactionsResponse>(endpoint);
+  }
 }
 
 export const accountsApi = new AccountsApiService();

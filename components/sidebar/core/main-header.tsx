@@ -108,7 +108,7 @@ export function MainHeader({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <header className="sticky top-0 z-40  bg-background">
+      <header className="sticky top-0 z-40  bg-sidebar">
         <div className="h-14 md:h-16 relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex items-center">
           {/* Left Section - Mobile Menu & Desktop Collapse/Expand + Breadcrumbs */}
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
@@ -191,7 +191,7 @@ export function MainHeader({
 
           {/* Center Section - Action Search Bar (Always Centered) */}
           <div className="absolute left-1/2  -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full md:max-w-md px-3 sm:px-4 md:px-6">
-            <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
+            <ActionSearchBar onOpenCommandPalette={openCommandPalette}  />
           </div>
 
           {/* Right Section - Theme & Global Switcher & User Profile */}

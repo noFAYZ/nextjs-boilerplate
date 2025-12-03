@@ -307,7 +307,7 @@ export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) 
     >
       {/* Input Container */}
       <div className="relative">
-        <div className="flex items-center h-9 sm:h-10 px-2 sm:px-3 bg-card border border-border/50 rounded-lg hover:bg-card shadow-sm ">
+        <div className="flex items-center h-9 sm:h-10 px-2 sm:px-3 bg-muted border border-border/50 rounded-lg hover:bg-muted/80 shadow-sm ">
           <Search className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-muted-foreground flex-shrink-0" />
           <input
             ref={inputRef}

@@ -42,6 +42,7 @@ import { WidgetSettingsModal } from "@/components/dashboard/widget-settings-moda
 
 import {
   DuoIconsBank,
+  HeroiconsWallet16Solid,
   SolarInboxInBoldDuotone,
   SolarWalletMoneyBoldDuotone,
 } from "@/components/icons/icons";
@@ -138,23 +139,23 @@ export default function DashboardPage() {
       <Link href={href} className="min-w-[160px]">
         <Card
           className={cn(
-            "group relative flex flex-row items-center gap-3 rounded-full border border-border/80 bg-card p-2 pr-3 shadow-sm",
+            "group relative flex flex-row items-center gap-2 rounded-full border border-border/80 bg-card p-1.5 pr-4 shadow-sm",
             "cursor-pointer"
           )}
           interactive
         >
           <div
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-inner  ",
+              "w-8 h-8 rounded-full flex items-center justify-center shadow-inner  ",
               iconWrapperClass
             )}
           >
             {icon}
           </div>
   
-          <div className="flex flex-col">
+          <div className="flex flex-col leading-tight">
             <h3 className="font-semibold text-xs">{title}</h3>
-            <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+            <p className="text-[10px] text-muted-foreground">{subtitle}</p>
           </div>
         </Card>
       </Link>
@@ -169,14 +170,14 @@ export default function DashboardPage() {
       className={cn(
         "grid ",
         "grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row lg:justify-end",
-        "lg:gap-3"
+        "lg:gap-2"
       )}
     >
       <AccountItem
         href="/accounts/bank"
         title="Bank Accounts"
         subtitle="Manage your banks"
-        icon={<DuoIconsBank className="w-6 h-6 text-foreground/70" />}
+        icon={<DuoIconsBank className="w-5 h-5 text-foreground/70" />}
         iconWrapperClass="bg-accent dark:bg-muted"
       />
 
@@ -184,7 +185,7 @@ export default function DashboardPage() {
         href="/accounts/wallet"
         title="Crypto Wallets"
         subtitle="Track your crypto"
-        icon={<SolarWalletMoneyBoldDuotone stroke="2" className="w-6 h-6 text-foreground/70" />}
+        icon={<HeroiconsWallet16Solid stroke="2" className="w-5 h-5 text-foreground/70" />}
         iconWrapperClass="bg-accent dark:bg-muted"
       />
 
@@ -192,7 +193,7 @@ export default function DashboardPage() {
         href="/subscriptions"
         title="Subscriptions"
         subtitle="Manage subscriptions"
-        icon={<SolarInboxInBoldDuotone stroke="2" className="w-6 h-6 text-foreground/70" />}
+        icon={<SolarInboxInBoldDuotone stroke="2" className="w-5 h-5 text-foreground/70" />}
         iconWrapperClass="bg-accent dark:bg-muted"
       />
 

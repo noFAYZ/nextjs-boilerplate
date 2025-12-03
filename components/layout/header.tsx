@@ -112,34 +112,29 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          'bg-background dark:bg-card  ',
-          isScrolled && sticky && 'shadow-sm',
+          ' bg-card border-b border-border/80',
+          isScrolled && sticky && '  shadow-sm',
           className
         )}
         role="banner"
         aria-label="Main navigation"
       >
         {/* Simplified Header */}
-        <div className="flex items-center justify-between h-16 px-4 lg:px-6">
+        <div className="flex items-center justify-between h-14 px-4 lg:px-6">
           {/* Left Section - Logo, Organization Switcher, & Search */}
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-8'>
           <div className="flex items-center">
           <Link
                 href="/"
                 className="flex items-center gap-2 group relative   "
 
               >
-                  <Image
-                  src="/logo/mappr.svg"
-                  alt="MoneyMappr logo"
-                  width={52}
-                  height={52}
-                  className="object-contain w-12 h-12  transition-transform group-hover:scale-102"
-                  priority
-                />
-             {/*  <LogoMappr className='w-10 h-10 antialiased'/> */}
+               <span  className="flex  group text-[42px] font-bold text-orange-500">
+             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
+             𒀭
+              </span>
                 <div className="flex flex-col">
-                  <span className="text-base sm:text-base font-bold tracking-tight">
+                  <span className="text-base sm:text-base font-bold ">
                     MoneyMappr
                   </span>
                   <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
@@ -147,6 +142,11 @@ export function Header({
                   </span>
                 </div>
               </Link>
+
+    
+
+
+
           </div>
 
         

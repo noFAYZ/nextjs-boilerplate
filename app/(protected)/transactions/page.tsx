@@ -30,8 +30,9 @@ import {
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBankingTransactions, useCryptoTransactions } from '@/lib/queries';
+import { useAllTransactions } from '@/lib/queries/use-accounts-data';
 import { TransactionsDataTable, UnifiedTransaction } from '@/components/transactions/transactions-data-table';
+import { TransactionDetailDrawer } from '@/components/transactions/transaction-detail-drawer';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 
@@ -41,77 +42,77 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
 
-  // Fetch transactions from both sources
-  const { data: bankingTxData, isLoading: isBankingLoading, refetch: refetchBanking } = useBankingTransactions({
-    limit: 1000,
-  });
-
-  const { data: cryptoTxData, isLoading: isCryptoLoading, refetch: refetchCrypto } = useCryptoTransactions({
-    limit: 1000,
+  // Fetch all transactions from global endpoint
+  const {
+    data: transactionsResponse,
+    isLoading,
+    refetch,
+  } = useAllTransactions({
+    page,
+    limit,
+    type: typeFilter !== 'all' ? typeFilter : undefined,
+    source: sourceFilter !== 'all' ? sourceFilter : undefined,
+    search: searchTerm || undefined,
   });
 
   const { isRefetching } = useOrganizationRefetchState();
-  console.log(cryptoTxData)
-  // Combine and normalize transactions
+
+  // Transform global transactions to UnifiedTransaction format
   const allTransactions = useMemo(() => {
     const combined: UnifiedTransaction[] = [];
 
-    // Add banking transactions
-    if (bankingTxData) {
-      bankingTxData?.forEach((tx: any) => {
-        combined.push({
-          id: tx.id,
-          type: tx.type  ,
-          status: 'COMPLETED',
-          timestamp: tx.date || new Date().toISOString(),
-          amount: tx.amount || 0,
-          currency: 'USD',
-          merchent: tx.merchant ,
-          description: tx.description || 'Bank Transaction',
-          account: {
-            id: tx.accountId,
-            name: tx.account?.name || 'Bank Account',
-            type: tx.accountTellerType ||'BANKING' as const,
-            institute: tx.account?.institutionName,
-          },
-          category: tx.category,
-          source: 'BANKING' as const,
-        });
-      });
-    }
 
-    // Add crypto transactions
-    if (cryptoTxData?.data) {
-      cryptoTxData?.data?.forEach((tx: any) => {
+    // Handle transactions from global endpoint
+    const transactions = Array.isArray(transactionsResponse)
+      ? transactionsResponse
+      : transactionsResponse?.data;
+
+    if (transactions && transactions.length > 0) {
+      transactions.forEach((tx: any) => {
+        // Parse amount and handle string/number types
+        const amount = typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
+
         combined.push({
           id: tx.id,
-          type: tx.type || 'OTHER',
-          status: tx.status || 'CONFIRMED',
-          timestamp: tx.timestamp || new Date().toISOString(),
-          amount: tx.valueUsd || 0,
+          type: tx.type || 'EXPENSE',
+          status: tx.pending ? 'PENDING' : 'COMPLETED',
+          timestamp: tx.date || new Date().toISOString(),
+          amount: Math.abs(amount),
           currency: 'USD',
-          description: tx.description || `${tx.type} Transaction`,
-          hash: tx.hash,
-          fromAddress: tx.fromAddress,
-          toAddress: tx.toAddress,
+          merchent: tx.merchant?.name || tx.merchantName,
+          description: tx.description || 'Transaction',
           account: {
-            id: tx.walletId,
-            name: tx.walletName || 'Crypto Wallet',
-            type: 'CRYPTO' as const,
+            id: tx.accountId || tx.account?.id,
+            name: tx.account?.name || 'Unknown Account',
+            type: (tx.account?.type || 'CASH') as const,
+            institute: tx.account?.institute,
           },
-          source: 'CRYPTO' as const,
+          category: tx.category?.name || tx.category,
+          source: (tx.source === 'bank' ? 'BANKING' : tx.source || 'BANKING') as const,
         });
       });
     }
 
     return combined;
-  }, [bankingTxData, cryptoTxData]);
-
-  const isLoading = isBankingLoading || isCryptoLoading;
+  }, [transactionsResponse?.data]);
 
   const handleRefresh = async () => {
-    await Promise.all([refetchBanking(), refetchCrypto()]);
+    await refetch();
+  };
+
+  const handleRowClick = (transaction: UnifiedTransaction) => {
+    setSelectedTransaction(transaction);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedTransaction(null);
   };
 
   const activeFilters = useMemo(() => {
@@ -128,18 +129,17 @@ export default function TransactionsPage() {
     setTypeFilter('all');
     setStatusFilter('all');
     setSourceFilter('all');
+    setPage(1);
   };
 
-console.log(bankingTxData)
-
   return (
-    <div className="h-full flex flex-col relative space-y-4 ">
+    <div className="h-full flex flex-col relative space-y-2 ">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
 
       {/* Toolbar */}
 
-        <Card className="p-3 border-border/50 space-y-4">
+        <div  >
           {/* Filter Row 1: Search and Quick Actions */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             {/* Search Input */}
@@ -158,29 +158,30 @@ console.log(bankingTxData)
             {/* Quick Actions */}
             <div className="flex gap-2">
               <Button
-                variant="outline"
-                size="xs"
+                variant="outlinemuted2"
+                size="icon-xs"
                 onClick={handleRefresh}
                 disabled={isLoading}
                 title={isLoading ? "Refreshing..." : "Refresh transactions"}
               >
-                <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-                <span className="hidden sm:inline">Refresh</span>
+                <RefreshCw className={cn("h-4 w-4 ", isLoading && "animate-spin")} />
+                
               </Button>
 
               <Button
-                variant="outline"
-                size="xs"
+                 variant="outlinemuted2"
+                size="icon-xs"
                 title="Export transactions"
               >
-                <Download className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Export</span>
+                <Download className="h-4 w-4 " />
+          
               </Button>
             </div>
   <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger size='xs' className='text-xs'>
-                <Filter className="h-4 w-4 mr-1" />
-                <SelectValue placeholder="Transaction Type" />
+              <SelectTrigger   variant="outlinemuted2"
+                size="icon-xs" >
+                <Filter className="h-4 w-4 " />
+              
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
@@ -195,9 +196,10 @@ console.log(bankingTxData)
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger size='xs' className='text-xs'>
-                <Zap className="h-4 w-4 mr-1" />
-                <SelectValue placeholder="Status" />
+              <SelectTrigger   variant="outlinemuted2"
+                size="icon-xs">
+                <Zap className="h-4 w-4" />
+            
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
@@ -211,9 +213,9 @@ console.log(bankingTxData)
 
             {/* Source Filter */}
             <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger size='xs' className='text-xs'>
-                <Filter className="h-4 w-4 mr-1" />
-                <SelectValue placeholder="Source" />
+              <SelectTrigger   variant="outlinemuted2"
+                size="icon-xs">
+                <Filter className="h-4 w-4" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Sources</SelectItem>
@@ -257,21 +259,57 @@ console.log(bankingTxData)
               </Button>
             </div>
           )}
-        </Card>
+        </div>
 
+ 
 
       {/* Content */}
-      <div className="flex-1 overflow-auto   pb-10">
+      <div className="flex-1 overflow-auto ">
         <TransactionsDataTable
           transactions={allTransactions}
           isLoading={isLoading}
           onRefresh={handleRefresh}
+          onRowClick={handleRowClick}
           searchTerm={searchTerm}
           typeFilter={typeFilter}
           statusFilter={statusFilter}
           sourceFilter={sourceFilter}
         />
       </div>
+
+           {/* Pagination */}
+           {transactionsResponse && typeof transactionsResponse === 'object' && 'pagination' in transactionsResponse && (
+        <div className="flex items-center justify-between    ">
+          <div className="text-xs text-muted-foreground">
+            Page {(transactionsResponse as any).pagination.page} of {(transactionsResponse as any).pagination.totalPages} • {(transactionsResponse as any).pagination.total} total transactions
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="xs"
+              disabled={!(transactionsResponse as any).pagination.hasPrev || isLoading}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              disabled={!(transactionsResponse as any).pagination.hasNext || isLoading}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Detail Drawer */}
+      <TransactionDetailDrawer
+        isOpen={isDrawerOpen}
+        transaction={selectedTransaction}
+        onClose={handleCloseDrawer}
+      />
     </div>
   );
 }

@@ -45,9 +45,11 @@ import { cn } from '@/lib/utils';
 import { useAuthStore, selectUser } from '@/lib/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/onboarding/skip-onboarding-button';
+import { CategoryTemplatesStep } from '@/components/onboarding/category-templates-step';
 import { LogoMappr } from '@/components/icons';
 import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone, PhPiggyBankDuotone, CircumBank, DuoIconsBank, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { categoryGroupsApi } from '@/lib/services/category-groups-api';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -64,6 +66,7 @@ interface UserPreferences {
   investmentTypes: string[];
   riskTolerance: 'conservative' | 'moderate' | 'aggressive';
   monthlyIncome: string;
+  selectedCategoryTemplate: string | null;
   profileInfo: {
     firstName: string;
     lastName: string;
@@ -101,6 +104,12 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     id: 'investments',
     title: 'Account Types',
     description: 'What you want to track',
+    icon: PieChart
+  },
+  {
+    id: 'category-templates',
+    title: 'Budget Templates',
+    description: 'Choose how to organize',
     icon: PieChart
   }
 ];
@@ -159,6 +168,7 @@ export default function OnboardingPage() {
     investmentTypes: [],
     riskTolerance: 'moderate',
     monthlyIncome: '',
+    selectedCategoryTemplate: null,
     profileInfo: {
       firstName: '',
       lastName: '',
@@ -200,6 +210,9 @@ export default function OnboardingPage() {
       case 'investments':
         stepData = { investment_types: preferences.investmentTypes, type_count: preferences.investmentTypes.length };
         break;
+      case 'category-templates':
+        stepData = { selected_template: preferences.selectedCategoryTemplate };
+        break;
     }
 
     posthog.capture('onboarding_step_completed', {
@@ -228,19 +241,27 @@ export default function OnboardingPage() {
       primary_goals: preferences.primaryGoals,
       investment_types: preferences.investmentTypes,
       monthly_income: preferences.monthlyIncome,
+      selected_template: preferences.selectedCategoryTemplate,
     });
     const viewMode = preferences.experienceLevel === 'beginner' ? 'beginner' : 'pro';
     setViewMode(viewMode);
     localStorage.setItem('onboarding-completed', 'true');
     localStorage.setItem('onboarding-just-completed', 'true');
     localStorage.setItem('onboarding-preferences', JSON.stringify(preferences));
-    posthog.capture('onboarding_completed', {
-      experience_level: preferences.experienceLevel,
-      primary_goals: preferences.primaryGoals,
-      investment_types: preferences.investmentTypes,
-      risk_tolerance: preferences.riskTolerance,
-      monthly_income: preferences.monthlyIncome,
-    });
+
+    // Apply the selected category template if one was chosen
+    if (preferences.selectedCategoryTemplate) {
+      try {
+        await categoryGroupsApi.applyTemplate(preferences.selectedCategoryTemplate);
+        posthog.capture('category_template_applied', {
+          template_id: preferences.selectedCategoryTemplate,
+        });
+      } catch (error) {
+        console.error('Failed to apply category template:', error);
+        // Continue with onboarding completion even if template application fails
+      }
+    }
+
     router.push('/dashboard');
   };
 
@@ -650,6 +671,19 @@ export default function OnboardingPage() {
           </div>
         );
 
+      case 'category-templates':
+        return (
+          <CategoryTemplatesStep
+            selectedTemplate={preferences.selectedCategoryTemplate}
+            onSelectTemplate={(templateId) =>
+              setPreferences(prev => ({
+                ...prev,
+                selectedCategoryTemplate: templateId
+              }))
+            }
+          />
+        );
+
       default:
         return null;
     }
@@ -758,7 +792,8 @@ export default function OnboardingPage() {
               disabled={
                 (currentStep === 1 && !preferences.profileInfo.firstName) ||
                 (currentStep === 3 && preferences.primaryGoals.length === 0) ||
-                (currentStep === 4 && preferences.investmentTypes.length === 0)
+                (currentStep === 4 && preferences.investmentTypes.length === 0) ||
+                (currentStep === 5 && !preferences.selectedCategoryTemplate)
               }
               className="w-full"
             >
@@ -798,7 +833,8 @@ export default function OnboardingPage() {
             disabled={
               (currentStep === 1 && !preferences.profileInfo.firstName) ||
               (currentStep === 3 && preferences.primaryGoals.length === 0) ||
-              (currentStep === 4 && preferences.investmentTypes.length === 0)
+              (currentStep === 4 && preferences.investmentTypes.length === 0) ||
+              (currentStep === 5 && !preferences.selectedCategoryTemplate)
             }
             className="w-full"
             size="lg"

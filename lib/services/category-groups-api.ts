@@ -735,4 +735,72 @@ export const categoryGroupsApi = {
 
     return apiClient.get<CategoryAnalytics>(endpoint);
   },
+
+  /**
+   * Get available category templates for onboarding
+   */
+  getTemplates: async () => {
+    return apiClient.get<{
+      success: boolean;
+      data: Array<{
+        id: string;
+        name: string;
+        description: string;
+        icon: string;
+        groupCount: number;
+        categoryCount: number;
+      }>;
+      meta: {
+        timestamp: string;
+        count: number;
+      };
+    }>('/accounts/templates/categories');
+  },
+
+  /**
+   * Get detailed template with categories and groups
+   */
+  getTemplate: async (templateId: string) => {
+    return apiClient.get<{
+      success: boolean;
+      data: {
+        id: string;
+        name: string;
+        description: string;
+        icon: string;
+        groups: Array<{
+          name: string;
+          description: string;
+          sortOrder: number;
+          categories: Array<{
+            name: string;
+            description?: string;
+            icon?: string;
+            color?: string;
+            categoryType: 'ENVELOPE' | 'TRANSACTION';
+            cycleType?: string;
+            purpose?: string[];
+          }>;
+        }>;
+      };
+    }>(`/accounts/templates/categories/${templateId}`);
+  },
+
+  /**
+   * Apply a category template to the user's account
+   */
+  applyTemplate: async (templateId: string) => {
+    return apiClient.post<{
+      success: boolean;
+      data: {
+        templateId: string;
+        groupsCreated: number;
+        categoriesCreated: number;
+        message: string;
+      };
+      meta: {
+        timestamp: string;
+      };
+    }>(`/accounts/templates/categories/${templateId}/apply`, {});
+  },
 };

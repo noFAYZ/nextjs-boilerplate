@@ -73,6 +73,7 @@ interface TransactionsDataTableProps {
   transactions: UnifiedTransaction[];
   isLoading?: boolean;
   onRefresh?: () => void;
+  onRowClick?: (transaction: UnifiedTransaction) => void;
   searchTerm?: string;
   typeFilter?: string;
   statusFilter?: string;
@@ -120,13 +121,15 @@ const getTypseColor = (type: string) => {
   switch (type) {
     case 'SEND':
     case 'WITHDRAWAL':
-      return 'text-red-600 dark:text-red-400';
+    case 'EXPENSE':
+      return 'text-red-800 dark:text-red-500';
     case 'RECEIVE':
     case 'DEPOSIT':
-      return 'text-emerald-600 dark:text-emerald-400';
+    case 'INCOME':
+      return 'text-lime-800 dark:text-lime-800';
     case 'SWAP':
     case 'TRANSFER':
-      return 'text-blue-600 dark:text-blue-400';
+      return 'text-blue-800 dark:text-blue-800';
     default:
       return 'text-muted-foreground';
   }
@@ -166,13 +169,15 @@ const getTyqpeBgColor = (type: string) => {
   switch (type) {
     case 'SEND':
     case 'WITHDRAWAL':
-      return 'bg-red-100 dark:bg-red-900/30';
+    case 'EXPENSE':
+      return 'bg-rose-300 dark:bg-red-300';
     case 'RECEIVE':
     case 'DEPOSIT':
-      return 'bg-emerald-100 dark:bg-emerald-900/30';
+    case 'INCOME':
+      return 'bg-lime-400 dark:bg-lime-300';
     case 'SWAP':
     case 'TRANSFER':
-      return 'bg-blue-100 dark:bg-blue-900/30';
+      return 'bg-blue-300 dark:bg-blue-300';
     default:
       return 'bg-muted';
   }
@@ -182,23 +187,28 @@ const getTypeBgColor = (type: string) => {
 
   switch (normalized) {
     // Money Out
+   
     case 'send':
     case 'withdrawal':
     case 'card_payment':
     case 'atm':
     case 'payment':
     case 'digital_payment':
-      return 'bg-red-300 dark:bg-red-300';
+    
+      return 'bg-rose-400 dark:bg-red-300';
 
     // Money In
     case 'receive':
     case 'deposit':
+  
+
       return 'bg-lime-300 dark:bg-lime-300';
 
     // Transfers / Neutral
     case 'swap':
     case 'transfer':
     case 'ach':
+    case 'TRANSFER':
       return 'bg-blue-300 dark:bg-blue-300';
 
     // Default fallback
@@ -209,15 +219,17 @@ const getTypeBgColor = (type: string) => {
 
 const getT2ypeIcon = (type: string) => {
   switch (type) {
+    case 'EXPENSE':
     case 'SEND':
     case 'WITHDRAWAL':
-      return <ArrowUp className={cn('h-4 w-4', getTypeColor(type))} />;
+      return <ArrowUp className={cn('h-4 w-4', getTypseColor(type))} />;
     case 'RECEIVE':
     case 'DEPOSIT':
-      return <ArrowDown className={cn('h-4 w-4', getTypeColor(type))} />;
+    case 'INCOME':  
+      return <ArrowDown className={cn('h-4 w-4', getTypseColor(type))} />;
     case 'SWAP':
     case 'TRANSFER':
-      return <ArrowUpDown className={cn('h-4 w-4', getTypeColor(type))} />;
+      return <ArrowUpDown className={cn('h-4 w-4', getTypseColor(type))} />;
     default:
       return null;
   }
@@ -255,6 +267,7 @@ export function TransactionsDataTable({
   transactions,
   isLoading,
   onRefresh,
+  onRowClick,
   searchTerm: externalSearchTerm = '',
   typeFilter: externalTypeFilter = 'all',
   statusFilter: externalStatusFilter = 'all',
@@ -350,12 +363,12 @@ export function TransactionsDataTable({
           <Table>
             <TableHeader className="bg-muted/80 border-b border-border/50">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-10 px-4 py-3"></TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-3 min-w-[250px]">Transaction</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Account</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-3">Category</TableHead>
-                <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Amount</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3 w-10"></TableHead>
+                <TableHead className="w-10 px-4 py-1"></TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-1 min-w-[250px]">Transaction</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Account</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Category</TableHead>
+                <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-1">Amount</TableHead>
+                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-1 w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -405,6 +418,8 @@ export function TransactionsDataTable({
     );
   }
 
+  console.log(transactions)
+
   return (
     <div className="space-y-4">
       {/* Data Table */}
@@ -413,12 +428,12 @@ export function TransactionsDataTable({
           <Table>
             <TableHeader className="bg-muted/80 border-b border-border/50">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-8 sm:w-10 px-2 sm:px-4 py-2 sm:py-3"></TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[200px] sm:min-w-[250px]">Transaction</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[150px]">Account</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3">Category</TableHead>
-                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3 min-w-[80px]">Amount</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"></TableHead>
+                <TableHead className="w-8 sm:w-10 px-2 sm:px-4  "></TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[200px] sm:min-w-[250px]">Transaction</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[150px]">Account</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4  ">Category</TableHead>
+                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[80px]">Amount</TableHead>
+                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4   w-8 sm:w-10"></TableHead>
               </TableRow>
             </TableHeader>
           <TableBody>
@@ -430,8 +445,8 @@ export function TransactionsDataTable({
                 <Fragment key={date}>
                   {/* Date Separator */}
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="px-2 sm:px-4 py-2 sm:py-3 bg-muted/40">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <TableCell colSpan={6} className="px-2    bg-muted/40">
+                      <p className="text-[10px] font-semibold  tracking-wider text-muted-foreground">
                         {date}
                       </p>
                     </TableCell>
@@ -442,18 +457,20 @@ export function TransactionsDataTable({
                     <TableRow
                       key={tx.id}
                       className={cn(
-                        'group border-b border-border/30 hover:bg-muted/30 transition-colors py-2'
+                        'group border-b border-border/30 hover:bg-muted/30 transition-colors cursor-pointer'
                       )}
+                      onClick={() => onRowClick?.(tx)}
                     >
                       {/* Type Icon */}
-                      <TableCell className="px-2 sm:px-4 py-2 sm:py-3">
-                        <div className={`flex justify-center h-8 sm:h-10 w-8 sm:w-10 rounded-full items-center ${getTypeBgColor(tx.type)}`}>
-                          {getTypeIcon(tx.type)}
+                      <TableCell className="px-2 sm:px-4  ">
+                        <div className={`flex justify-center h-8  w-8 rounded-full items-center ${getTyqpeBgColor(tx.type)} `}>
+                        
+                          {getT2ypeIcon(tx.type)}
                         </div>
                       </TableCell>
 
                       {/* Description */}
-                      <TableCell className="px-2 sm:px-4 py-2 sm:py-3 cursor-pointer group-hover:text-primary transition-colors">
+                      <TableCell className="px-2 sm:px-4  cursor-pointer group-hover:text-primary transition-colors">
                         <div className="flex flex-col gap-1">
                           <p className="text-sm font-semibold text-foreground truncate">
                             {tx.description}
@@ -467,7 +484,7 @@ export function TransactionsDataTable({
                       </TableCell>
 
                       {/* Account */}
-                      <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3">
+                      <TableCell className="hidden sm:table-cell px-2 sm:px-4  ">
                         <div className="flex items-center gap-2">
                           <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
                             {tx.account?.name.charAt(0).toUpperCase() || 'A'}
@@ -484,7 +501,7 @@ export function TransactionsDataTable({
                       </TableCell>
 
                       {/* Category */}
-                      <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3">
+                      <TableCell className="hidden md:table-cell px-2 sm:px-4  ">
                         {tx.category ? (
                           <Badge variant="outline" className="text-xs">
                             {tx.category}
@@ -495,7 +512,7 @@ export function TransactionsDataTable({
                       </TableCell>
 
                       {/* Amount */}
-                      <TableCell className="text-right px-2 sm:px-4 py-2 sm:py-3 min-w-[80px]">
+                      <TableCell className="text-right px-2 sm:px-4  min-w-[80px]">
                         <div className={cn('font-semibold text-sm', getTypeColor(tx.type))}>
                           <span>{tx.type === 'SEND' || tx.type === 'WITHDRAWAL' ? '-' : '+'}</span>
                           <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline" />
@@ -503,7 +520,7 @@ export function TransactionsDataTable({
                       </TableCell>
 
                       {/* Actions */}
-                      <TableCell className="text-center px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10">
+                      <TableCell className="text-center px-1 sm:px-4  w-8 sm:w-10">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -543,7 +560,7 @@ export function TransactionsDataTable({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-4">
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground order-2 sm:order-1">
+          <p className="text-xs  text-muted-foreground order-2 sm:order-1">
             Showing <span className="text-foreground">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–
             {Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)}</span> of{" "}
             <span className="text-foreground">{filteredTransactions.length}</span>
@@ -562,10 +579,10 @@ export function TransactionsDataTable({
             </Button>
 
             <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3">
-              <span className="text-xs sm:text-sm font-semibold text-foreground">
+              <span className="text-[10px]  font-semibold text-foreground">
                 {currentPage}
               </span>
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground">
                 / {totalPages}
               </span>
             </div>

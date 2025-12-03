@@ -147,7 +147,7 @@ export function SidebarMainColumn({
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 md:px-4" : "space-y-1 px-3 ")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1 px-3 ")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -168,13 +168,13 @@ export function SidebarMainColumn({
                     variant="ghost"
                     size="lg"
                     className={cn(
-                      "w-full h-auto shadow-none rounded-sm",
+                      "w-full h-auto shadow-none rounded-sm overflow-visible",
                       mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5  " : "justify-center p-1.5   border-r border-border/50  ",
                       isHighlighted
                         ? "dark:bg-muted/60 bg-accent/50 hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5  w-5  ")}  />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-6 w-4 md:w-6" : "h-6  w-6  ")}  />}
                   >
 
 
@@ -194,11 +194,13 @@ export function SidebarMainColumn({
                     )}
 
                     {/* Badge */}
-                    {item.badge && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[#1a1a1a]">
+                    {  item.badge && (
+                      <span className="absolute top-0.5 -right-8 flex h-4 w-fit px-2 items-center justify-center rounded-full bg-red-500 z-40 text-[9px] font-bold text-white border border-[#1a1a1a]">
                         {item.badge}
                       </span>
                     )}
+
+
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent

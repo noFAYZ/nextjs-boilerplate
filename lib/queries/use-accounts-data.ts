@@ -96,6 +96,32 @@ export function useCategoryGroups(organizationId?: string) {
   return useBaseCategoryGroupsQuery(organizationId);
 }
 
+/**
+ * Get all transactions across all accounts (global transactions)
+ * @param params - Query parameters for filtering, pagination, and date range
+ * @returns Paginated list of all transactions from all accounts
+ */
+export function useAllTransactions(params?: {
+  page?: number;
+  limit?: number;
+  startDate?: string;
+  endDate?: string;
+  merchantId?: string;
+  categoryId?: string;
+  type?: string;
+  source?: string;
+  search?: string;
+}) {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...accountsQueries.allTransactions(params),
+    enabled: isAuthReady,
+  });
+}
+
 // ============================================================================
 // ACCOUNT MUTATIONS
 // ============================================================================

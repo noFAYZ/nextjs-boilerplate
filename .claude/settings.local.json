@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(wc:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

@@ -422,18 +422,14 @@ export default function WalletsPage() {
     });
 
   if (isLoading) {
-    return (
-
-
-<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
-<Card className="px-5 border-border shadow-none " >
-  <div className="flex items-center space-x-3">
-   
-    <span className="text-sm font-medium">Loading your wallets....</span>
-  </div>
-</Card>
-</div>
-    );
+    return (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
+      <Card className="px-5 border-border shadow-none " >
+        <div className="flex items-center space-x-3">
+          <LogoLoader className="w-8 h-8" />
+          <span className="text-sm font-medium">Loading your wallet portfolio....</span>
+        </div>
+      </Card>
+      </div>);
   }
 
   return (

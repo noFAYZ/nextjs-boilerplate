@@ -36,6 +36,7 @@ export default function RootLayout({
       <head>
         <GoogleTagManager />
         <GoogleAnalytics4 />
+        
       </head>
       <body
         className={`${geistSans.className}   antialiased`}

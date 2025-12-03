@@ -14,13 +14,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Plus, X } from 'lucide-react';
-import { useAddTransaction, useCategoryGroups } from '@/lib/queries/use-accounts-data';
+import { Plus, X, Loader2, icons } from 'lucide-react';
+import { useAddTransaction } from '@/lib/queries/use-accounts-data';
 import { toast } from 'sonner';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
-import type { AddTransactionRequest, TransactionSplit as TransactionSplitType, TransactionCategory } from '@/lib/types/unified-accounts';
+import type { AddTransactionRequest, TransactionSplit as TransactionSplitType } from '@/lib/types/unified-accounts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { SolarCheckCircleBoldDuotone, SolarShieldCrossBoldDuotone } from '../icons/icons';
+import { useCategories } from '@/lib/queries/accounts-queries';
 
 interface ManualTransactionFormProps {
   isOpen: boolean;
@@ -34,7 +36,7 @@ export function ManualTransactionForm({
   accountId,
 }: ManualTransactionFormProps) {
   const { mutate: addTransaction, isPending } = useAddTransaction();
-  const { data: categoryGroupsData, isLoading: categoryGroupsLoading } = useCategoryGroups();
+  const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
   const [formData, setFormData] = useState<AddTransactionRequest>({
     amount: 0,
@@ -50,46 +52,16 @@ export function ManualTransactionForm({
   const [splits, setSplits] = useState<TransactionSplitType[]>([]);
   const [useSplits, setUseSplits] = useState(false);
 
-  // Transform fetched category groups into flat ComboboxOption format with emoji, color, and icon
-  const fetchedCategories = useMemo<ComboboxOption[]>(() => {
-    if (!categoryGroupsData?.data) return [];
+  // Transform API categories into ComboboxOption format
+  const customCategories = useMemo<ComboboxOption[]>(() => {
+    if (!apiCategories || !apiCategories) return [];
 
-    const allCategories: ComboboxOption[] = [];
-
-    categoryGroupsData.data.forEach((group) => {
-      if (group.categories && group.categories.length > 0) {
-        group.categories.forEach((cat: TransactionCategory) => {
-          const label = [
-            cat.emoji || '📁',
-            cat.displayName || cat.name,
-          ]
-            .filter(Boolean)
-            .join(' ');
-
-          allCategories.push({
-            value: cat.id,
-            label,
-            // Store additional metadata for styling
-            ...(cat.color && { color: cat.color }),
-            ...(cat.icon && { icon: cat.icon }),
-          });
-        });
-      }
-    });
-
-    return allCategories;
-  }, [categoryGroupsData]);
-
-  const [customCategories, setCustomCategories] = useState<ComboboxOption[]>([]);
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
-
-  // Update custom categories when fetched categories change
-  useEffect(() => {
-    if (fetchedCategories.length > 0) {
-      setCustomCategories(fetchedCategories);
-    }
-  }, [fetchedCategories]);
+    return apiCategories?.map((cat) => ({
+      value: cat.id,
+      label: cat.icon +' ' + cat.name,
+      icon:cat.icon
+    }));
+  }, [apiCategories]);
 
   const [customMerchants, setCustomMerchants] = useState<ComboboxOption[]>([]);
   const [newMerchantName, setNewMerchantName] = useState('');
@@ -109,24 +81,6 @@ export function ManualTransactionForm({
   const remainingBalance = totalAmount - splitTotal;
   const isBalanced = Math.abs(remainingBalance) < 0.01;
 
-  const handleAddCategory = () => {
-    if (!newCategoryName.trim()) {
-      toast.error('Please enter a category name');
-      return;
-    }
-
-    const categoryId = `CUSTOM_${Date.now()}`;
-    const newCategory: ComboboxOption = {
-      value: categoryId,
-      label: newCategoryName,
-    };
-
-    setCustomCategories([...customCategories, newCategory]);
-    setFormData({ ...formData, categoryId });
-    setNewCategoryName('');
-    setShowNewCategoryInput(false);
-    toast.success('Category created');
-  };
 
   const handleAddMerchant = () => {
     if (!newMerchantName.trim()) {
@@ -236,22 +190,21 @@ export function ManualTransactionForm({
 
   const handleClose = () => {
     resetForm();
-    setShowNewCategoryInput(false);
     setShowNewMerchantInput(false);
-    setNewCategoryName('');
     setNewMerchantName('');
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-2">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b border-border/40 flex-shrink-0">
           <DialogTitle className="text-lg">Add Transaction</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Description */}
+        <div className="flex-1 overflow-y-auto">
+          <form id="add-transaction-form" onSubmit={handleSubmit} className="space-y-3 px-6 py-4">
+            {/* Description */}
           <div className="space-y-1">
             <Label htmlFor="description" className="text-sm font-medium">
               Description <span className="text-red-500">*</span>
@@ -372,7 +325,7 @@ export function ManualTransactionForm({
           </div>
 
           {/* Merchant Name with Combobox */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label className="text-sm font-medium">Merchant</Label>
             {showNewMerchantInput ? (
               <div className="flex gap-2">
@@ -381,7 +334,8 @@ export function ManualTransactionForm({
                   placeholder="Merchant name"
                   value={newMerchantName}
                   onChange={(e) => setNewMerchantName(e.target.value)}
-                  className="h-8"
+                  className="h-8 flex-1"
+                  autoFocus
                 />
                 <Button
                   type="button"
@@ -390,30 +344,57 @@ export function ManualTransactionForm({
                 >
                   Add
                 </Button>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {allMerchants.length > 0 && (
-                  <Combobox
-                    options={allMerchants}
-                    value={formData.merchantId || ''}
-                    onSelect={(value) =>
-                      setFormData({ ...formData, merchantId: value })
-                    }
-                    placeholder="Select merchant"
-                    width="w-full"
-                  />
-                )}
                 <Button
                   type="button"
-                  variant="outline2"
+                  variant="ghost"
                   size="xs"
-                  className="w-full  gap-1"
-                  onClick={() => setShowNewMerchantInput(true)}
+                  onClick={() => {
+                    setShowNewMerchantInput(false);
+                    setNewMerchantName('');
+                  }}
                 >
-                  <Plus className="h-3 w-3" />
-                  New
+                  Cancel
                 </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                {allMerchants.length > 0 ? (
+                  <>
+                    <div className="flex-1">
+                      <Combobox
+                        options={allMerchants}
+                        value={formData.merchantId || ''}
+                        onSelect={(value) =>
+                          setFormData({ ...formData, merchantId: value })
+                        }
+                        placeholder="Select a merchant"
+                        width="w-full"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline2"
+                      size="xs"
+                      className="gap-1"
+                      onClick={() => setShowNewMerchantInput(true)}
+                      title="Add a new merchant"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline2"
+                    size="xs"
+                    className="w-full gap-1"
+                    onClick={() => setShowNewMerchantInput(true)}
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add Merchant
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -432,21 +413,7 @@ export function ManualTransactionForm({
             />
           </div>
 
-          {/* Notes */}
-          <div className="space-y-1">
-            <Label htmlFor="notes" className="text-sm font-medium">
-              Notes
-            </Label>
-            <Textarea
-              id="notes"
-              placeholder="Additional details"
-              value={formData.notes || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-              className="min-h-12 text-sm"
-            />
-          </div>
+       
 
           {/* Unified Category / Split Categories Section */}
           <Separator className="my-2" />
@@ -464,52 +431,18 @@ export function ManualTransactionForm({
             </div>
 
             {!useSplits ? (
-              <div className="space-y-1">
-                {showNewCategoryInput ? (
-                  <div className="flex gap-1">
-                    <Input
-                      type="text"
-                      placeholder="Category name"
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="h-8"
-                    />
-                    <Button
-                      type="button"
-                      size="xs"
-                      onClick={handleAddCategory}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <Combobox
-                      options={customCategories}
-                      value={formData.categoryId}
-                      onSelect={(value) =>
-                        setFormData({ ...formData, categoryId: value })
-                      }
-                      placeholder="Select category"
-                      
-                      width="w-fit"
-                      
-                    />
-                    <Button
-                      type="button"
-                      variant="outline2"
-                      size="sm"
-                      className="w-fit ml-1 gap-1"
-                      onClick={() => setShowNewCategoryInput(true)}
-                    >
-                      <Plus className="h-3 w-3" />
-                      New
-                    </Button>
-                  </>
-                )}
-              </div>
+              <Combobox
+                options={customCategories}
+                value={formData.categoryId}
+                onSelect={(value) =>
+                  setFormData({ ...formData, categoryId: value })
+                }
+                placeholder={isCategoriesLoading ? "Loading categories..." : "Select a category"}
+                width="w-full"
+                disabled={isCategoriesLoading}
+              />
             ) : (
-              <div className="space-y-1 bg-muted/30 p-2 rounded-lg border border-muted">
+              <div className="space-y-1 bg-muted/30 p-2 rounded-lg border border-muted z-40">
                 {/* Split Items */}
                 {splits.length > 0 && (
                   <div className="space-y-2">
@@ -547,38 +480,40 @@ export function ManualTransactionForm({
                             )}
                           </div>
 
-                          {/* Category Selection */}
-                          <div className="flex mb-3">
-                            <Combobox
-                              options={customCategories}
-                              value={split.customCategoryId}
-                              onSelect={(value) =>
-                                handleSplitChange(idx, 'customCategoryId', value)
-                              }
-                              placeholder="Category"
-                              className='max-w-xs'
-                            />
-                            <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                placeholder="0.00"
-                                value={split.amount || ''}
-                                onChange={(e) =>
-                                  handleSplitChange(
-                                    idx,
-                                    'amount',
-                                    parseFloat(e.target.value) || 0
-                                  )
+                          {/* Category Selection & Amount */}
+                          <div className="flex gap-2 mb-2 items-start">
+                            <div className="flex-1">
+                              <Combobox
+                                options={customCategories}
+                                value={split.customCategoryId}
+                                onSelect={(value) =>
+                                  handleSplitChange(idx, 'customCategoryId', value)
                                 }
-                                className=" ml-3 text-xs flex-1"
+                                placeholder={isCategoriesLoading ? "Loading..." : "Select category"}
+                                width="w-full"
+                                disabled={isCategoriesLoading}
                               />
-                              {split.amount > 0 && (
-                                <span className="text-xs font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded whitespace-nowrap">
-                                  {percentage}%
-                                </span>
-                              )}
-                               
+                            </div>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={split.amount || ''}
+                              onChange={(e) =>
+                                handleSplitChange(
+                                  idx,
+                                  'amount',
+                                  parseFloat(e.target.value) || 0
+                                )
+                              }
+                              className="text-xs w-20"
+                            />
+                            {split.amount > 0 && (
+                              <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1.5 rounded whitespace-nowrap">
+                                {percentage}%
+                              </span>
+                            )}
                           </div>
 
                           {/* Amount & Description */}
@@ -615,8 +550,8 @@ export function ManualTransactionForm({
                 <Button
                   type="button"
                   variant="outline"
-                  size="xs"
-                  className="w-full h-7 gap-1"
+                  size="sm"
+                  className="w-full  gap-1"
                   onClick={handleAddSplit}
                 >
                   <Plus className="h-3 w-3" />
@@ -625,12 +560,12 @@ export function ManualTransactionForm({
 
                 {/* Split Summary */}
                 {splits.some((s) => s.customCategoryId) && (
-                  <div className={`p-2 rounded border-2 space-y-1 text-xs ${
+                  <div className={`p-2 mt-2 rounded border space-y-1 text-xs ${
                     isBalanced
-                      ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900/50'
+                      ? 'bg-lime-50  dark:bg-green-950/20 '
                       : remainingBalance > 0
-                      ? 'bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900/50'
-                      : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900/50'
+                      ? 'bg-amber-50  dark:bg-amber-950/20 '
+                      : 'bg-red-50  dark:bg-red-950/20 '
                   }`}>
                     {/* Progress bar */}
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -650,36 +585,38 @@ export function ManualTransactionForm({
 
                     {/* Summary row */}
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Allocated</span>
+                      <span className="text-muted-foreground">Allocated
+                        
+                      </span>
                       <span className="font-semibold">${splitTotal.toFixed(2)}</span>
                       <span className="text-muted-foreground">Total</span>
                       <span className="font-semibold">${totalAmount.toFixed(2)}</span>
                       <span className="text-muted-foreground">Left</span>
                       <span className={`font-semibold ${
                         isBalanced
-                          ? 'text-green-600'
+                          ? 'text-lime-700'
                           : remainingBalance > 0
-                          ? 'text-amber-600'
-                          : 'text-red-600'
+                          ? 'text-amber-700'
+                          : 'text-rose-700'
                       }`}>
                         ${remainingBalance.toFixed(2)}
                       </span>
                     </div>
 
                     {/* Status */}
-                    <div className="text-center">
+                    <div className="text-center items-center justify-center flex">
                       {isBalanced && (
-                        <span className="text-green-700 dark:text-green-400 text-xs font-semibold">
-                          ✅ Balanced
+                        <span className="text-lime-700 dark:text-lime-400 text-xs font-semibold flex gap-1 ">
+                          <SolarCheckCircleBoldDuotone className='w-4 h-4' /> Balanced
                         </span>
                       )}
                       {!isBalanced && remainingBalance > 0 && (
-                        <span className="text-amber-700 dark:text-amber-400 text-xs">
-                          ⚠️ ${remainingBalance.toFixed(2)} unallocated
+                        <span className="text-amber-700 dark:text-amber-400 text-xs flex gap-1">
+                             <SolarShieldCrossBoldDuotone className='w-4 h-4' />  ${remainingBalance.toFixed(2)} unallocated
                         </span>
                       )}
                       {remainingBalance < 0 && (
-                        <span className="text-red-700 dark:text-red-400 text-xs">
+                        <span className="text-rose-700 dark:text-rose-400 text-xs">
                           ❌ ${Math.abs(remainingBalance).toFixed(2)} over
                         </span>
                       )}
@@ -690,23 +627,46 @@ export function ManualTransactionForm({
             )}
           </div>
 
-          {/* Submit Buttons */}
-          <div className="flex justify-end gap-2 pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isPending}
-              size="sm"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending} size="sm">
-              {isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
-              {isPending ? 'Adding...' : 'Add'}
-            </Button>
+             {/* Notes */}
+             <div className="space-y-1">
+            <Label htmlFor="notes" className="text-sm font-medium">
+              Notes
+            </Label>
+            <Textarea
+              id="notes"
+              placeholder="Additional details"
+              value={formData.notes || ''}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              className="min-h-12 text-sm border-border/80"
+            />
           </div>
-        </form>
+
+          </form>
+        </div>
+
+        {/* Submit Buttons - Fixed at bottom */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-border/40 flex-shrink-0 bg-background">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isPending}
+            size="sm"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="add-transaction-form"
+            disabled={isPending}
+            size="sm"
+          >
+            {isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+            {isPending ? 'Adding...' : 'Add'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

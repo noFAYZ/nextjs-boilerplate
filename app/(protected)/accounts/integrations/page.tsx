@@ -80,7 +80,7 @@ const INTEGRATION_DATA = {
     },
   ],
   exchanges: [
-    {
+ /*    {
       id: "coinbase",
       name: "Coinbase",
       description: "Leading US exchange",
@@ -141,10 +141,10 @@ const INTEGRATION_DATA = {
       icon: <ExchangeCryptoCom variant="branded" size="44" />,
       status: "available",
       category: "exchange",
-    },
+    }, */
   ],
-  wallets: [
-    {
+   wallets: [
+  /*  {
       id: "metamask",
       name: "MetaMask",
       description: "Ethereum wallet",
@@ -191,7 +191,7 @@ const INTEGRATION_DATA = {
       icon: <WalletRabby variant="branded" size="44" />,
       status: "available",
       category: "wallet",
-    },
+    }, */
   ],
   services: [
     {
@@ -202,7 +202,7 @@ const INTEGRATION_DATA = {
       status: "available",
       category: "accounting",
     },
-    {
+ /*    {
       id: "xero",
       name: "Xero",
       description: "Cloud accounting",
@@ -217,7 +217,7 @@ const INTEGRATION_DATA = {
       icon: <PayPalLogo className="w-10 h-10" />,
       status: "available",
       category: "payments",
-    },
+    }, */
   ],
 };
 
@@ -315,7 +315,7 @@ export default function IntegrationsPage() {
             placeholder="Search integrations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/40 border border-border shadow-none hover:border-foreground/30 hover:bg-muted/60 focus:outline-none focus:ring-0 focus:ring-ring transition-colors text-left pl-9 h-11"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-card border border-border shadow-none  hover:bg-card/60 focus:outline-none focus:ring-0 focus:ring-ring transition-colors text-left pl-9 h-11"
               >
                
               </Input>

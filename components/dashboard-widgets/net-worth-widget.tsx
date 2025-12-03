@@ -29,6 +29,107 @@ import { Card } from "../ui/card";
 import { RefetchLoadingOverlay } from "../ui/refetch-loading-overlay";
 import { CardSkeleton } from "../ui/card-skeleton";
 
+// Type definitions for accounts API response
+interface AccountMetadata {
+  assetDescription?: string | null;
+  purchaseDate?: string | null;
+  plaidAccountId?: string | null;
+  plaidMask?: string | null;
+  tellerAccountId?: string | null;
+  tellerLastFour?: string | null;
+  tellerType?: string | null;
+  tellerSubtype?: string | null;
+  accountSubtype?: string | null;
+}
+
+interface AccountItem {
+  id: string;
+  name: string;
+  type: string;
+  category: string;
+  balance: number;
+  currency: string;
+  isActive: boolean;
+  lastSyncAt?: string | null;
+  institutionName?: string | null;
+  source: string;
+  provider?: string | null;
+  providerAccountId?: string | null;
+  metadata?: AccountMetadata;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Pagination {
+  offset: number;
+  limit: number;
+  total: number;
+  returned: number;
+  hasMore: boolean;
+}
+
+interface AccountGroup {
+  category: string;
+  displayName: string;
+  icon: string;
+  totalBalance: number;
+  accountCount: number;
+  accounts: AccountItem[];
+  pagination?: Pagination;
+}
+
+interface AssetBreakdown {
+  cash: number;
+  investments: number;
+  realEstate: number;
+  vehicle: number;
+  valuables: number;
+  crypto: number;
+  otherAsset: number;
+}
+
+interface LiabilityBreakdown {
+  creditCard: number;
+  mortgage: number;
+  loan: number;
+  otherLiability: number;
+}
+
+interface SummaryData {
+  totalNetWorth: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  accountCount: number;
+  currency: string;
+  lastUpdated: string;
+  assetBreakdown: AssetBreakdown;
+  liabilityBreakdown: LiabilityBreakdown;
+}
+
+interface AccountsResponse {
+  summary: SummaryData;
+  groups: Record<string, AccountGroup>;
+}
+
+/**
+ * NetWorthWidget Component
+ *
+ * Displays financial summary with net worth, asset/liability breakdown, and account hierarchy.
+ * Uses pre-calculated values from the API for accuracy and performance.
+ *
+ * Data Source: useAllAccounts() hook
+ * API Response: GET /api/v1/accounts/summary
+ * Schema: AccountsResponse with:
+ *   - summary: totalNetWorth, totalAssets, totalLiabilities, asset/liability breakdown, lastUpdated
+ *   - groups: Accounts grouped by category with pagination support
+ *
+ * Key Values Used:
+ *   - summary.totalNetWorth: Pre-calculated by backend (assets - liabilities)
+ *   - summary.assetBreakdown: Breakdown of assets by category
+ *   - summary.liabilityBreakdown: Breakdown of liabilities by type
+ *   - groups: Account categories for hierarchy and detail display
+ */
+
 // Account category configuration - same as /accounts page
 const categoryConfig = {
   CASH: {
@@ -36,7 +137,7 @@ const categoryConfig = {
     icon: <MdiDollar className="h-5 w-5" />,
     color: "bg-blue-500",
   },
-  CREDIT: {
+  CREDITCARD: {
     label: "Credit",
     icon: <DuoIconsCreditCard className="h-5 w-5" />,
     color: "bg-orange-500",
@@ -69,37 +170,50 @@ const categoryConfig = {
 };
 
 // Main 5 categories to show
-const MAIN_CATEGORIES = ["CASH", "CREDIT", "INVESTMENTS", "CRYPTO", "ASSETS"];
+const MAIN_CATEGORIES = ["CASH", "CREDITCARD", "INVESTMENTS", "CRYPTO", "ASSETS"];
 // Categories for "+More"
 const MORE_CATEGORIES = ["LIABILITIES", "OTHER"];
 
 export function NetWorthWidget() {
-  // Fetch all accounts grouped by category
-  const { data: accountsData, isLoading } = useAllAccounts();
+  // Fetch all accounts grouped by category with summary data
+  const { data: accountsData, isLoading, refetch } = useAllAccounts();
 
   // Check if organization data is being refetched
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Organize accounts by category
-  const { netWorth, categoriesData } = useMemo(() => {
-    if (!accountsData?.groups) {
-      return { netWorth: 0, categoriesData: {} };
+  /**
+   * Get net worth from API summary (pre-calculated by backend)
+   * Summary includes:
+   * - totalNetWorth: assets - liabilities
+   * - totalAssets, totalLiabilities
+   * - assetBreakdown, liabilityBreakdown
+   * - lastUpdated timestamp
+   */
+  const netWorth = useMemo(() => {
+    const typedData = accountsData as AccountsResponse | undefined;
+    return typedData?.summary?.totalNetWorth ?? 0;
+  }, [accountsData?.summary?.totalNetWorth]);
+
+  // Organize accounts by category for accordion display
+  const categoriesData = useMemo(() => {
+    const typedData = accountsData as AccountsResponse | undefined;
+
+    if (!typedData?.groups) {
+      return {};
     }
 
-    let totalNetWorth = 0;
     const categories: { [key: string]: { accounts: any[]; total: number } } =
       {};
 
-    // Process all categories
-    Object.entries(accountsData.groups).forEach(
-      ([categoryKey, group]: [string, any]) => {
+    // Process all categories from groups
+    Object.entries(typedData.groups).forEach(
+      ([categoryKey, group]: [string, AccountGroup]) => {
         if (
           group?.accounts &&
           Array.isArray(group.accounts) &&
           group.accounts.length > 0
         ) {
           const categoryTotal = group.totalBalance || 0;
-          totalNetWorth += categoryTotal;
 
           categories[categoryKey.toUpperCase()] = {
             accounts: group.accounts,
@@ -109,8 +223,8 @@ export function NetWorthWidget() {
       }
     );
 
-    return { netWorth: totalNetWorth, categoriesData: categories };
-  }, [accountsData]);
+    return categories;
+  }, [accountsData?.groups]);
 
   const [expandedGroups, setExpandedGroups] = useState<{
     [key: string]: boolean;
@@ -126,19 +240,28 @@ export function NetWorthWidget() {
  
   
 
-  // Calculate allocation percentages
-  const allocationData = useMemo(() => {
-    if (netWorth <= 0) return [];
+  /**
+   * Get summary data with asset and liability breakdown
+   * This provides the same calculation as the sidebar
+   */
+  const summaryData = useMemo(() => {
+    const typedData = accountsData as AccountsResponse | undefined;
+    return typedData?.summary || null;
+  }, [accountsData?.summary]);
 
-    return MAIN_CATEGORIES.filter((cat) => categoriesData[cat])
-      .map((cat) => ({
-        category: cat,
-        total: categoriesData[cat].total,
-        percent: Math.round((categoriesData[cat].total / netWorth) * 100),
-        color: categoryConfig[cat as keyof typeof categoryConfig].color,
-      }))
-      .sort((a, b) => b.total - a.total);
-  }, [categoriesData, netWorth]);
+  // Calculate assets and liabilities percentages (same as sidebar)
+  const { assetsPercent, liabilitiesPercent } = useMemo(() => {
+    if (!summaryData) return { assetsPercent: 0, liabilitiesPercent: 0 };
+
+    const totalAssets = summaryData.totalAssets || 0;
+    const totalLiabilities = Math.abs(summaryData.totalLiabilities || 0);
+    const total = totalAssets + totalLiabilities;
+
+    const assetsPercent = total > 0 ? Math.round((totalAssets / total) * 100) : 0;
+    const liabilitiesPercent = 100 - assetsPercent;
+
+    return { assetsPercent, liabilitiesPercent };
+  }, [summaryData]);
 
   // Check if there are more categories
   const hasMore = useMemo(() => {
@@ -149,35 +272,35 @@ export function NetWorthWidget() {
   if (isLoading) {
     return <CardSkeleton lines={4} />;
   }
-  // Orange monotone color palette for all allocation types
+  // Color palette for allocation bar segments
   const colorMap: Record<string, { bar: string; dot: string; rgbBar: string }> = {
     CASH: {
       bar: "bg-green-600/70",
-      dot: "bg-orange-600",
-      rgbBar: "rgb(194, 65, 12)", // orange-700
+      dot: "bg-green-600",
+      rgbBar: "rgb(22, 163, 74)", // green-600
     },
-    CREDIT: {
+    CREDITCARD: {
       bar: "bg-orange-600/70",
-      dot: "bg-orange-500",
+      dot: "bg-orange-600",
       rgbBar: "rgb(234, 88, 12)", // orange-600
     },
     INVESTMENTS: {
       bar: "bg-lime-600/60",
-      dot: "bg-orange-400",
-      rgbBar: "rgb(251, 146, 60)", // orange-400
+      dot: "bg-lime-600",
+      rgbBar: "rgb(101, 163, 13)", // lime-600
     },
     CRYPTO: {
-      bar: "bg-orange-50",
-      dot: "bg-orange-300",
-      rgbBar: "rgb(253, 186, 116)", // orange-300
+      bar: "bg-violet-600/70",
+      dot: "bg-violet-600",
+      rgbBar: "rgb(139, 92, 246)", // violet-600
     },
     ASSETS: {
-      bar: "bg-l-200/85",
-      dot: "bg-orange-200",
-      rgbBar: "rgb(254, 215, 170)", // orange-200
+      bar: "bg-purple-600/70",
+      dot: "bg-purple-600",
+      rgbBar: "rgb(147, 51, 234)", // purple-600
     },
   };
-  
+
   return (
     <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col">
       {/* Header */}
@@ -223,8 +346,8 @@ export function NetWorthWidget() {
             {netWorth > 0 ? (
               <CurrencyDisplay
                 amountUSD={netWorth}
-                variant="large"
-                className="text-4xl font-semibold"
+                variant="2xl"
+                className=" font-medium"
               />
             ) : (
               "—"
@@ -244,8 +367,8 @@ export function NetWorthWidget() {
         )}
       </div>
 
- {/* Allocation Section with SVG Patterns */}
-{allocationData.length > 0 && (
+{/* Allocation Section - Assets vs Liabilities */}
+{(summaryData?.totalAssets ?? 0) > 0 || (summaryData?.totalLiabilities ?? 0) > 0 ? (
   <div className="space-y-3">
     {/* Allocation bar with SVG pattern overlays */}
     <div className="relative w-full h-8 rounded-lg overflow-hidden bg-black/5 dark:bg-white/5 backdrop-blur-md shadow-inner border border-black/5 dark:border-white/10">
@@ -255,90 +378,102 @@ export function NetWorthWidget() {
       {/* SVG Patterns Definition */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
         <defs>
-          {/* CASH: Diagonal lines pattern */}
-          <pattern id="pattern-CASH" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          {/* Assets: Diagonal lines pattern */}
+          <pattern id="pattern-ASSETS-BAR" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1.2" strokeOpacity="0.2" />
           </pattern>
 
-          {/* CREDIT: Dots pattern */}
-          <pattern id="pattern-CREDIT" width="6" height="6" patternUnits="userSpaceOnUse">
+          {/* Liabilities: Dots pattern */}
+          <pattern id="pattern-LIABILITIES-BAR" width="6" height="6" patternUnits="userSpaceOnUse">
             <circle cx="3" cy="3" r="1.2" fill="white" fillOpacity="0.18" />
-          </pattern>
-
-          {/* INVESTMENTS: Horizontal lines pattern */}
-          <pattern id="pattern-INVESTMENTS" width="8" height="4" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="2" x2="8" y2="2" stroke="white" strokeWidth="1" strokeOpacity="0.15" />
-          </pattern>
-
-          {/* CRYPTO: Checkerboard pattern */}
-          <pattern id="pattern-CRYPTO" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="3" height="3" fill="white" fillOpacity="0.12" />
-            <rect x="3" y="3" width="3" height="3" fill="white" fillOpacity="0.12" />
-          </pattern>
-
-          {/* ASSETS: Cross-hatch pattern */}
-          <pattern id="pattern-ASSETS" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="0.8" strokeOpacity="0.1" />
           </pattern>
         </defs>
       </svg>
 
-      {/* Allocation bars with patterns */}
-      {allocationData.map((item) => {
-        const cfg = colorMap[item.category];
-        if (!cfg) return null;
+      {/* Assets bar */}
+      {assetsPercent > 0 && (
+        <div
+          style={{ width: `${assetsPercent}%` }}
+          className="h-full relative inline-block transition-all duration-500 ease-out group"
+        >
+          {/* Base color */}
+          <div className="h-full w-full bg-green-600/70" />
 
-        return (
-          <div
-            key={item.category}
-            style={{ width: `${item.percent}%` }}
-            className="h-full relative inline-block transition-all duration-500 ease-out group"
+          {/* Pattern overlay */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
           >
-            {/* Base color */}
-            <div className={cn("h-full w-full", cfg.bar)} />
+            <rect width="100" height="100" fill="url(#pattern-ASSETS-BAR)" />
+          </svg>
 
-            {/* Pattern overlay */}
-            <svg
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 100"
-            >
-              <rect width="100" height="100" fill={`url(#pattern-${item.category})`} />
-            </svg>
+          {/* Hover highlight */}
+          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+        </div>
+      )}
 
-            {/* Hover highlight */}
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-          </div>
-        );
-      })}
+      {/* Liabilities bar */}
+      {liabilitiesPercent > 0 && (
+        <div
+          style={{ width: `${liabilitiesPercent}%` }}
+          className="h-full relative inline-block transition-all duration-500 ease-out group"
+        >
+          {/* Base color */}
+          <div className="h-full w-full bg-orange-600/70" />
+
+          {/* Pattern overlay */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            <rect width="100" height="100" fill="url(#pattern-LIABILITIES-BAR)" />
+          </svg>
+
+          {/* Hover highlight */}
+          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+        </div>
+      )}
     </div>
 
     {/* Legend */}
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-      {allocationData.map((item) => {
-        const cfg = colorMap[item.category];
-        if (!cfg) return null;
+    <div className="grid grid-cols-2 gap-2.5">
+      {assetsPercent > 0 && (
+        <div className="flex items-center gap-2">
+          {/* Color dot */}
+          <div className="w-3 h-3 rounded-full shadow-sm bg-green-600" />
 
-        return (
-          <div key={item.category} className="flex items-center gap-2">
-            {/* Color dot */}
-            <div className={cn("w-3 h-3 rounded-full shadow-sm", cfg.dot)} />
-
-            {/* Text */}
-            <div className="flex items-baseline gap-1">
-              <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
-                {categoryConfig[item.category]?.label || item.category}
-              </span>
-              <span className="text-[12px] font-semibold text-black dark:text-white">
-                {item.percent}%
-              </span>
-            </div>
+          {/* Text */}
+          <div className="flex items-baseline gap-1">
+            <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
+              Assets
+            </span>
+            <span className="text-[12px] font-semibold text-black dark:text-white">
+              {assetsPercent}%
+            </span>
           </div>
-        );
-      })}
+        </div>
+      )}
+      {liabilitiesPercent > 0 && (
+        <div className="flex items-center gap-2">
+          {/* Color dot */}
+          <div className="w-3 h-3 rounded-full shadow-sm bg-orange-600" />
+
+          {/* Text */}
+          <div className="flex items-baseline gap-1">
+            <span className="text-[12px] font-medium text-black/70 dark:text-white/70">
+              Liabilities
+            </span>
+            <span className="text-[12px] font-semibold text-black dark:text-white">
+              {liabilitiesPercent}%
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   </div>
-)}
+) : null}
 
 
   
@@ -381,7 +516,7 @@ export function NetWorthWidget() {
                   {/* Icon */}
                   <div
                     className={cn(
-                      "h-10 w-10 rounded-3xl flex items-center justify-center flex-shrink-0  bg-accent"
+                      "h-10 w-10 rounded-full shadow border border-border/80 flex items-center justify-center flex-shrink-0  bg-accent"
                     )}
                   >
                     {categoryInfo.icon}
@@ -406,8 +541,8 @@ export function NetWorthWidget() {
                   <div className="flex flex-col items-end flex-shrink-0 gap-1">
                     <CurrencyDisplay
                       amountUSD={categoryTotal}
-                      variant="compact"
-                      className="font-semibold text-sm text-foreground"
+                      variant="small"
+                      className="text-foreground"
                     />
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />

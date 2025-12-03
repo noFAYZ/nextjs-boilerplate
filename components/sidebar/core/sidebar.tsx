@@ -73,6 +73,7 @@ import {
   TablerEyeDollar
 } from '@/components/icons/icons';
 import { LetsIconsSettingLineDuotone } from '@/components/icons';
+import { Badge } from '@/components/ui/badge';
 
 const MENU_ITEMS: MenuItem[] = [
   {
@@ -266,7 +267,53 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
     ]
   }, */
-
+ {
+    id: 'budgets',
+    label: 'Budgets',
+    icon: SolarCalculatorBoldDuotone,
+    href: '/budgets-v2',
+    submenu: [
+      {
+        id: 'all-budgets',
+        label: 'All Budgets',
+        href: '/budgets',
+        icon: SolarCalculatorBoldDuotone,
+        description: 'View and manage all your budgets',
+        tooltip: 'Track spending against your budgets'
+      },
+      {
+        id: 'active-budgets',
+        label: 'Active Budgets',
+        href: '/budgets',
+        icon: TrendingUp,
+        description: 'Currently active budgets',
+        tooltip: 'Your active budget plans'
+      },
+      {
+        id: 'exceeded-budgets',
+        label: 'Exceeded',
+        href: '/budgets',
+        icon: TrendingUp,
+        description: 'Over-budget alerts',
+        tooltip: 'Budgets you have exceeded',
+        iconColor: '#ef4444'
+      },
+      {
+        id: 'create-budget',
+        label: 'Create Budget',
+        href: '/budgets',
+        icon: Plus,
+        description: 'Create a new budget',
+        tooltip: 'Set up a new spending budget',
+        iconColor: '#10b981'
+      }
+    ],
+    quickActions: [
+      { id: 'create-budget', label: 'Create Budget', icon: Plus, action: () => {}, shortcut: '⌘U' },
+      { id: 'budget-alerts', label: 'Budget Alerts', icon: Bell, action: () => {}, },
+      { id: 'budget-insights', label: 'Budget Insights', icon: Lightbulb, action: () => {}, }
+    ]
+  },
   {
     id: 'goals',
     label: 'Goals',
@@ -316,53 +363,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'goal-reminders', label: 'Set Reminders', icon: Bell, action: () => {}, }
     ]
   },
-  {
-    id: 'budgets',
-    label: 'Budgets',
-    icon: SolarCalculatorBoldDuotone,
-    href: '/budgets',
-    submenu: [
-      {
-        id: 'all-budgets',
-        label: 'All Budgets',
-        href: '/budgets',
-        icon: SolarCalculatorBoldDuotone,
-        description: 'View and manage all your budgets',
-        tooltip: 'Track spending against your budgets'
-      },
-      {
-        id: 'active-budgets',
-        label: 'Active Budgets',
-        href: '/budgets',
-        icon: TrendingUp,
-        description: 'Currently active budgets',
-        tooltip: 'Your active budget plans'
-      },
-      {
-        id: 'exceeded-budgets',
-        label: 'Exceeded',
-        href: '/budgets',
-        icon: TrendingUp,
-        description: 'Over-budget alerts',
-        tooltip: 'Budgets you have exceeded',
-        iconColor: '#ef4444'
-      },
-      {
-        id: 'create-budget',
-        label: 'Create Budget',
-        href: '/budgets',
-        icon: Plus,
-        description: 'Create a new budget',
-        tooltip: 'Set up a new spending budget',
-        iconColor: '#10b981'
-      }
-    ],
-    quickActions: [
-      { id: 'create-budget', label: 'Create Budget', icon: Plus, action: () => {}, shortcut: '⌘U' },
-      { id: 'budget-alerts', label: 'Budget Alerts', icon: Bell, action: () => {}, },
-      { id: 'budget-insights', label: 'Budget Insights', icon: Lightbulb, action: () => {}, }
-    ]
-  },
+ 
   {
     id: 'subscriptions',
     label: 'Subscriptions',
@@ -370,13 +371,9 @@ const MENU_ITEMS: MenuItem[] = [
     href: '/subscriptions',
 
   },
-  {
-    id: 'investments',
-    label: 'Investments',
-    icon: SolarGraphUpBoldDuotone,
-    href: '/investments',
+  
 
-  },
+
 /*   {
     id: 'insights',
     label: 'Insights',
@@ -428,7 +425,8 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'share-insights', label: 'Share Insights', icon: Share, action: () => {}, }
     ]
   }, */
- /*  {
+ /* */ 
+ {
     id: 'integrations',
     label: 'Integrations',
     icon: SolarWidgetAddBoldDuotone,
@@ -438,12 +436,22 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'sync-integrations', label: 'Sync All', icon: RefreshCw, action: () => {}, },
       { id: 'integration-settings', label: 'Settings', icon: Settings, action: () => {}, }
     ]
-  }, */
+  }, 
+
+    {
+    id: 'investments',
+    label: 'Investments',
+    icon: SolarGraphUpBoldDuotone,
+    href: '#',
+    badge: 'soon'
+
+  },
   {
     id: 'ai',
     label: 'MapprAI',
     icon: PhBrainDuotone,
     href: '/ai',
+     badge: 'soon',
     submenu: [
       {
         id: 'chat',

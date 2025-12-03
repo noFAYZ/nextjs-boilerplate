@@ -82,19 +82,19 @@ type DashboardLayoutStore = DashboardLayoutState & DashboardLayoutActions;
 // ============================================================================
 
 const DEFAULT_WIDGETS: Record<WidgetId, WidgetLayout> = {
-  'net-worth': { id: 'net-worth', visible: true, order: 0, size: 'medium' },
-  'networth-performance': { id: 'networth-performance', visible: true, order: 1, size: 'large' },
-  'monthly-spending': { id: 'monthly-spending', visible: true, order: 2, size: 'large' },
-  'spending-categories': { id: 'spending-categories', visible: true, order: 3, size: 'large' },
-  'crypto-allocation': { id: 'crypto-allocation', visible: true, order: 4, size: 'medium' },
-  'network-distribution': { id: 'network-distribution', visible: true, order: 5, size: 'medium' },
-  'account-comparison': { id: 'account-comparison', visible: true, order: 6, size: 'large' },
-  'subscriptions': { id: 'subscriptions', visible: true, order: 7, size: 'medium' },
-  'calendar-subscriptions': { id: 'calendar-subscriptions', visible: true, order: 8, size: 'large' },
+  'net-worth': { id: 'net-worth', visible: true, order: 0, size: 'small' },
+  'networth-performance': { id: 'networth-performance', visible: true, order: 1, size: 'medium' },
+  'monthly-spending': { id: 'monthly-spending', visible: false, order: 2, size: 'small' },
+  'spending-categories': { id: 'spending-categories', visible: false, order: 3, size: 'small' },
+  'crypto-allocation': { id: 'crypto-allocation', visible: true, order: 4, size: 'small' },
+  'network-distribution': { id: 'network-distribution', visible: false, order: 5, size: 'medium' },
+  'account-comparison': { id: 'account-comparison', visible: false, order: 6, size: 'large' },
+  'subscriptions': { id: 'subscriptions', visible: true, order: 7, size: 'small' },
+  'calendar-subscriptions': { id: 'calendar-subscriptions', visible: true, order: 8, size: 'small' },
   'upcoming-bills': { id: 'upcoming-bills', visible: false, order: 9, size: 'medium' },
-  'recent-activity': { id: 'recent-activity', visible: false, order: 10, size: 'large' },
-  'goals': { id: 'goals', visible: false, order: 11, size: 'medium' },
-  'budgets': { id: 'budgets', visible: false, order: 12, size: 'medium' },
+  'recent-activity': { id: 'recent-activity', visible: true, order: 10, size: 'small' },
+  'goals': { id: 'goals', visible: true, order: 11, size: 'small' },
+  'budgets': { id: 'budgets', visible: true, order: 12, size: 'small' },
   'money-flow': { id: 'money-flow', visible: false, order: 13, size: 'full' },
 };
 

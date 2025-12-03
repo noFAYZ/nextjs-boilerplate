@@ -121,10 +121,10 @@ export function LogoLoader({
               }
               
               :root {
-                --animation-duration: 2.2s;
+                --animation-duration: 1.7s;
               }
               
-              .container {
+              .load-container {
                 animation: restart var(--animation-duration) infinite;
                 filter: url(#gooey);
               }
@@ -171,7 +171,7 @@ export function LogoLoader({
         }}
       />
       {/* Main container with gooey filter */}
-      <g className="container">
+      <g className="load-container">
         {/* Morphing square */}
         <path className="square" d="M7,7 h10 v10 h-10 z" />
         {/* Liquid blobs appearing as corners */}
