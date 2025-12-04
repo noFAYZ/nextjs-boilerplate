@@ -31,6 +31,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             Financial Intelligence
           </p>
         </Link>
+
+        
       </div>
 
       {/* RIGHT PANEL — login/register */}

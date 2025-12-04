@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { Card } from '@/components/ui/card';
 
 export default function PortfolioPage() {
   usePostHogPageView('portfolio');
@@ -170,25 +171,7 @@ export default function PortfolioPage() {
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Portfolio</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <p className="text-xs text-muted-foreground mt-1">
-            {stats.totalAccounts} accounts across all asset types
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
 
         <Button
           variant="outline"
@@ -207,7 +190,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Total Net Worth */}
-      <div className="group border bg-muted/60 rounded-xl p-4 hover:bg-muted transition-colors">
+      <Card className="group border-border/80   p-4   ">
         <p className="text-xs text-muted-foreground uppercase font-medium mb-1">Total Net Worth</p>
         <div className="flex items-baseline gap-3 mb-2">
           <CurrencyDisplay
@@ -260,7 +243,7 @@ export default function PortfolioPage() {
             />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Portfolio Categories */}
       <div className="space-y-2">

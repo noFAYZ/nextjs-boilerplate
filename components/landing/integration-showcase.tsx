@@ -32,7 +32,7 @@ const repeatedIcons = (icons: string[], repeat = 4) =>
 
 export default function IntegrationHero() {
   return (
-    <section className="relative py-32 space-y-3 overflow-hidden ">
+    <section className="relative py-32 space-y-3 overflow-hidden bg-card">
 {/*    
    <BgGradient   position="bottom"  size="280% 280%" /> */}
       {/* Content */}
@@ -46,18 +46,11 @@ export default function IntegrationHero() {
           </p>
         </div>
       </div>
-      <Card className="mx-auto max-w-5xl  bg-card flex-row items-center border border-border/80 rounded-lg p-6">
+      <div className="mx-auto max-w-7xl flex flex-row items-center  p-6">
         <div className="flex-1 text-center">
           <span className="text-7xl font-bold">13k+</span>
           <p className="text-lg font-semibold">Supported Institutions</p>
-          <Button
-            variant="link"
-            icon={<ArrowRight className="w-4 h-4" />}
-            iconPosition="right"
-            className="text-md"
-          >
-            Explore all institutions{" "}
-          </Button>
+ 
         </div>
         {/* Carousel */}
         <div className=" overflow-hidden  relative ">
@@ -94,54 +87,11 @@ export default function IntegrationHero() {
           </div>
 
           {/* Fade overlays */}
-          <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-card dark:from-card to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-card dark:from-card to-transparent pointer-events-none" />
+          <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-background dark:from-card to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-background dark:from-card to-transparent pointer-events-none" />
         </div>
-      </Card>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-5xl mx-auto ">
-        {/* Card 1 */}
-        <Card className="relative overflow-hidden rounded-lg border border-border/80 ">
-          <div className="relative p-3 text-start">
-            <span className="text-4xl font-black  ">1000+</span>
-            <p className="mt-3 text-lg font-semibold text-muted-foreground">
-              Supported Institutions
-            </p>
-            <Button variant="link" size="sm" className="mt-4 pl-0  font-medium">
-              Explore
-              <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </div>
-        </Card>
-
-        {/* Card 2 */}
-        <Card className="relative overflow-hidden rounded-lg border border-border/80   ">
-          <div className="relative p-3 text-start">
-            <span className="text-4xl font-black ">13k+</span>
-            <p className="mt-3 text-lg font-semibold text-muted-foreground">
-              Supported Tokens
-            </p>
-            <Button variant="link" size="sm" className="mt-4 pl-0 font-medium">
-              View Full List
-              <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </div>
-        </Card>
-
-        {/* Card 3 */}
-        <Card className="relative overflow-hidden rounded-lg border border-border/80 ">
-          <div className="relative p-3 text-start">
-            <span className="text-4xl font-black ">99.9%</span>
-            <p className="mt-3 text-lg font-semibold text-muted-foreground">
-              Uptime Guarantee
-            </p>
-            <Button variant="link" size="sm" className="mt-4 pl-0  font-medium">
-              View Status Page
-              <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </div>
-        </Card>
       </div>
-
+  
       <style jsx>{`
         @keyframes scroll-left {
           0% {

@@ -219,7 +219,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'transaction-rules', label: 'Auto-Rules', icon: Settings, action: () => {}, }
     ]
   },
- /*  {
+ /* */ {
     id: 'portfolio',
     label: 'Portfolio',
     icon: SolarPieChart2BoldDuotone,
@@ -266,7 +266,7 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'portfolio-alerts', label: 'Set Alerts', icon: Bell, action: () => {}, },
       { id: 'compare-benchmarks', label: 'Compare Benchmarks', icon: BarChart3, action: () => {}, }
     ]
-  }, */
+  }, 
  {
     id: 'budgets',
     label: 'Budgets',

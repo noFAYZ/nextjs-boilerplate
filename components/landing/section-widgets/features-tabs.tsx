@@ -222,18 +222,33 @@ function SVGDecorative({ reversed }) {
 /*                             Example Usage (Optional)                        */
 /* -------------------------------------------------------------------------- */
 
-export function Example({bg}) {
-    const { resolvedTheme } = useTheme();
+export function Example({ bg }) {
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme?.startsWith("dark") ? "dark" : "light";
 
-    const theme = resolvedTheme?.startsWith("dark") ? "dark" : "light";
-
-    const DASHBOARD_IMAGES = {
-        light: "/landing/hero-light2.JPG",
-        dark: "/landing/hero-dark2.JPG",
-        alt: "Financial dashboard with predictive insights",
-      } as const;
-      type Item = { label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> };
-      const imageSrc = DASHBOARD_IMAGES[theme];
+  // Each tab index corresponds to the same index inside tabs[]
+  const DASHBOARD_IMAGES = [
+    {
+      light: "/landing/hero-light2.JPG", 
+      dark: "/landing/hero-dark2.JPG",
+      alt: "Track your finances visually",
+    },
+    {
+      light: "/landing/budgets-light.png",
+      dark: "/landing/budgets-dark.png",
+      alt: "Budgeting dashboard preview",
+    },
+    {
+      light: "/landing/plan-light.png",
+      dark: "/landing/plan-dark.png",
+      alt: "Planning tools preview",
+    },
+    {
+      light: "/landing/hero-collaborate-light.jpg",
+      dark: "/landing/hero-collaborate-dark.jpg",
+      alt: "Collaboration features preview",
+    },
+  ] as const;
 
   return (
     <FeatureTabs
@@ -247,16 +262,19 @@ export function Example({bg}) {
               <path stroke="currentColor" strokeWidth="3.333" strokeLinecap="round" d="M5.5 5.667v-4M5.5 5.667l-3.333 2M5.5 5.667l3.333 2" />
             </svg>
           ),
-          content:   <Image
-          src={imageSrc}
-          alt={DASHBOARD_IMAGES.alt}
-          width={1920}
-          height={1200}
-          quality={100}
-          className="w-full rounded-2xl"
-          priority
-        />
+          content: (
+            <Image
+              src={DASHBOARD_IMAGES[0][theme]}
+              alt={DASHBOARD_IMAGES[0].alt}
+              width={1920}
+              height={1200}
+              quality={100}
+              className="w-full rounded-2xl"
+              priority
+            />
+          ),
         },
+
         {
           label: "Budget",
           iconBg: "#4ade80",
@@ -266,29 +284,66 @@ export function Example({bg}) {
               <path stroke="currentColor" strokeWidth="3.333" strokeLinecap="round" d="M2.333 6.333v2M7.667 1.667v6.666" />
             </svg>
           ),
-          content: <div className="flex items-center justify-center h-full text-neutral-700">Analytics Preview</div>
+          content: (
+            <Image
+              src={DASHBOARD_IMAGES[1][theme]}
+              alt={DASHBOARD_IMAGES[1].alt}
+              width={1920}
+              height={1200}
+              quality={100}
+              className="w-full rounded-2xl"
+            />
+          ),
         },
+
         {
           label: "Plan",
           iconBg: "#7ABB08",
           iconColor: "#085F46",
-          icon: (<svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24"  ><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}><path d="M2 9a10 10 0 1 0 20 0"></path><path d="M12 19A10 10 0 0 1 22 9M2 9a10 10 0 0 1 10 10"></path><path d="M12 4a9.7 9.7 0 0 1 2.99 7.5m-5.98 0A9.7 9.7 0 0 1 12 4"></path></g></svg>),
-          content: <div className="flex items-center justify-center h-full text-neutral-700">Affiliate Preview</div>
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}>
+                <path d="M2 9a10 10 0 1 0 20 0" />
+                <path d="M12 19A10 10 0 0 1 22 9M2 9a10 10 0 0 1 10 10" />
+                <path d="M12 4a9.7 9.7 0 0 1 2.99 7.5m-5.98 0A9.7 9.7 0 0 1 12 4" />
+              </g>
+            </svg>
+          ),
+          content: (
+            <Image
+              src={DASHBOARD_IMAGES[2][theme]}
+              alt={DASHBOARD_IMAGES[2].alt}
+              width={1920}
+              height={1200}
+              quality={100}
+              className="w-full rounded-2xl"
+            />
+          ),
         },
+
         {
-            label: "Collaborate",
-            iconBg: "#c084fc",
-            iconColor: "#581c87",
-            icon: (
-              <svg width={32} height={32} viewBox="0 0 32 32" fill="none" className="size-2.5">
-                <circle cx={27} cy={16} r={5} fill="currentColor" />
-                <circle cx={5} cy={16} r={5} fill="currentColor" />
-                <circle cx={16} cy={27} r={5} fill="currentColor" />
-                <circle cx={16} cy={5} r={5} fill="currentColor" />
-              </svg>
-            ),
-            content: <div className="flex items-center justify-center h-full text-neutral-700">Affiliate Preview</div>
-          }
+          label: "Collaborate",
+          iconBg: "#c084fc",
+          iconColor: "#581c87",
+          icon: (
+            <svg width={32} height={32} viewBox="0 0 32 32" fill="none" className="size-2.5">
+              <circle cx={27} cy={16} r={5} fill="currentColor" />
+              <circle cx={5} cy={16} r={5} fill="currentColor" />
+              <circle cx={16} cy={27} r={5} fill="currentColor" />
+              <circle cx={16} cy={5} r={5} fill="currentColor" />
+            </svg>
+          ),
+          content: (
+            <Image
+              src={DASHBOARD_IMAGES[3][theme]}
+              alt={DASHBOARD_IMAGES[3].alt}
+              width={1920}
+              height={1200}
+              quality={100}
+              className="w-full rounded-2xl"
+            />
+          ),
+        },
       ]}
       bg={bg}
     />

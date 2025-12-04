@@ -35,6 +35,7 @@ import { avataaarsNeutral } from '@dicebear/collection';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores';
 import { authClient } from '@/lib/auth-client';
+import { signOut } from '@/lib/auth-client';
 
 interface MainHeaderProps {
   mainColumnExpanded: boolean;
@@ -75,6 +76,7 @@ export function MainHeader({
 
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const logout = useAuthStore((state) => state.logout);
   const profileLoading = !isInitialized;
 
   const pathname = usePathname();
@@ -84,20 +86,26 @@ export function MainHeader({
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Navigate to logout loading screen
+      // Show loading state first
       router.push('/auth/logout-loading');
-      
-      // Perform logout
-      await authClient.signOut();
-      
-      // Navigate directly to login (no success screen)
+
+      // Call auth store's logout which handles both session clearing and state reset
+      await logout();
+
+      // Navigate to login after logout is fully complete
+      // Middleware will recognize missing session and allow navigation to login
       router.push('/auth/login');
     } catch (error) {
       console.error('Sign out failed:', error);
-      // On error, redirect to login
+      // Force redirect to login on error and ensure local state is cleared
+      useAuthStore.setState({
+        user: null,
+        session: null,
+        isAuthenticated: false,
+      });
       router.push('/auth/login');
     }
-  }, [router]);
+  }, [router, logout]);
 
   const avatar = createAvatar(avataaarsNeutral, {
     size: 128,

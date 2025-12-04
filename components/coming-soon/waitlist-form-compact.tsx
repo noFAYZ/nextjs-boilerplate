@@ -119,7 +119,8 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
           <Button
             type="submit"
             size={'sm'}
-            className="w-fit h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm   hover:shadow-lg "
+         
+            className="w-fit h-9  "
             disabled={isPending}
           >
             {isPending ? (

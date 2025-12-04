@@ -196,7 +196,7 @@ export function LandingHero() {
           className="mt-8 flex justify-center gap-3 flex-wrap "
           
         >
-          <Button variant={'steel'} >
+       {/*    <Button variant={'steel'} >
             Get Started
           </Button>
 
@@ -207,8 +207,8 @@ export function LandingHero() {
             icon={<SolarPlayCircleBoldDuotone className="w-5 h-5" />}
           >
             See Demo
-          </Button> 
-        {/*   <WaitlistFormCompact />*/}
+          </Button> */}
+          <WaitlistFormCompact />
         </motion.div>
 
 

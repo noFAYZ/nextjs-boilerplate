@@ -343,9 +343,7 @@ function SummarySidebar({ summary }: SummarySidebarProps) {
                     {summary.totalNetWorth > 0 ? (
                       <CurrencyDisplay
                         amountUSD={summary.totalNetWorth}
-                        variant="2xl"
-                     
-                      />
+                        variant="2xl"   />
                     ) : (
                       "—"
                     )}
@@ -629,6 +627,7 @@ export default function AccountsPage() {
     }
   };
 
+  console.log(summaryData)
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />

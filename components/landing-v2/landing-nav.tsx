@@ -165,11 +165,11 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               {/* Desktop CTA */}
               <div className="hidden lg:flex items-center gap-3">
                 
-              {/*    <ThemeSwitcher />
+              {/*    <ThemeSwitcher />*/}
               <Link href="/#hero"><Button size="xs" variant='steel' className="group rounded-full" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
-                      </Button></Link>*/}
-              {/*  */} {user ? (
+                      </Button></Link>
+              {/*  {user ? (
                   <Link href="/dashboard"><Button size="xs" variant='steel' className='rounded-full'>Dashboard</Button></Link>
                 ) : (
                   <>
@@ -180,7 +180,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                       </Button>
                     </Link>
                   </>
-                )} 
+                )}  */}
               </div>
 
               {/* Mobile Toggle */}
