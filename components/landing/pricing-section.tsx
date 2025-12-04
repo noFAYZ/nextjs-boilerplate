@@ -15,7 +15,7 @@ export function PricingSection() {
       period: 'forever',
       description: 'Perfect for getting started with basic tracking',
       features: [
-        'Up to 3 connected accounts',
+        'Up to 5 manual accounts',
         'Basic portfolio analytics',
         'Manual sync only',
         'Email support',
@@ -29,7 +29,7 @@ export function PricingSection() {
     {
       name: 'Pro',
       icon: GameIconsUpgrade,
-      price: '$12',
+      price: '$14.99',
       period: 'per month',
       description: 'For serious financial tracking and optimization',
       features: [
@@ -43,7 +43,7 @@ export function PricingSection() {
         'Portfolio allocation tracking',
         'Multi-currency support',
       ],
-      cta: 'Start Free Trial',
+      cta: 'coming soon',
       popular: true,
       highlighted: true,
     },
@@ -139,7 +139,7 @@ export function PricingSection() {
               </div>
 
               {/* CTA Button */}
-              <Link href={plan.name === 'Enterprise' ? '#' : '/auth/signup'}>
+              <Link href={plan.name === 'Enterprise' ? '#' : '#'} >
                 <Button
                   className={`w-full mb-8 ${
                     !plan.highlighted
@@ -147,6 +147,7 @@ export function PricingSection() {
                       : ''
                   }`}
                   variant={!plan.highlighted ? 'outline2' : 'default'}
+                  disabled
                   size="lg"
                 >
                   {plan.cta}
