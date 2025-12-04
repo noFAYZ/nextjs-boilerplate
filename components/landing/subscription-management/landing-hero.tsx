@@ -174,7 +174,6 @@ export function LandingHero() {
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
         </motion.p>
-
                {/* CTA 
                <motion.div
           {...fadeUp}
