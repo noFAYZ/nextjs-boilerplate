@@ -115,7 +115,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
           
           )}>
         
-            <div className="relative flex h-16 sm:h-13 items-center justify-arround px-4">
+            <div className="relative flex h-16 sm:h-13 items-center justify-between sm:justify-arround px-4">
 
               
 
@@ -123,6 +123,14 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               <Link href="/" className="flex items-center gap-2 -ml-1 group text-[40px] font-bold text-orange-500" onClick={handleLinkClick}>
              {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
              𒀭
+             <div className="sm:hidden flex flex-col ">
+            <span className="text-base sm:text-base font-bold text-background ">
+              MoneyMappr
+            </span>
+            <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5">
+              Financial Intelligence
+            </span>
+          </div>
               </Link>
 
               <div className="hidden lg:flex items-center justify-center flex-1 text-background" >
@@ -152,7 +160,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
-                        <Link href="/login" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80 rounded-full transition-colors">
+                        <Link href="#faq" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80 rounded-full transition-colors">
                           FAQs
                         </Link>
                       </NavigationMenuLink>
@@ -163,13 +171,13 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
 
               {/* Desktop CTA */}
-              <div className="hidden lg:flex items-center gap-3">
+              <div className="hidden lg:flex items-center  gap-3">
                 
-              {/*    <ThemeSwitcher />
+              {/*    <ThemeSwitcher />*/}
               <Link href="/#hero"><Button size="xs" variant='steel' className="group rounded-full" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
-                      </Button></Link>*/}
-              {/* */} {user ? (
+                      </Button></Link>
+              {/*  {user ? (
                   <Link href="/dashboard"><Button size="xs" variant='steel' className='rounded-full'>Dashboard</Button></Link>
                 ) : (
                   <>
@@ -180,72 +188,14 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                       </Button>
                     </Link>
                   </>
-                )}  
+                )}  */}
               </div>
 
               {/* Mobile Toggle */}
-              <div className="flex lg:hidden items-center  gap-2">
+              <div className="flex lg:hidden items-center justify-between gap-2">
                 {/* <ThemeSwitcher /> */}
 
-                <button
-                onClick={() => setIsMobileMenuOpen(v => !v)}
-                aria-label={open ? "Close menu" : "Open menu"}
-                className="p-2 rounded-xl hover:bg-muted/80 transition-colors"
-              >
-                <svg width="28" height="28" viewBox="0 0 24 24">
-                  {/* Top Line */}
-                  <motion.line
-                    x1="4"
-                    y1="7"
-                    x2="20"
-                    y2="7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    animate={
-                      open
-                        ? { y1: 12, y2: 12, rotate: 45, x1: 6, x2: 18 }
-                        : { y1: 7, y2: 7, rotate: 0, x1: 4, x2: 20 }
-                    }
-                    transition={{ duration: 0.25, ease: "easeInOut" }}
-                  />
-
-                  {/* Middle Line */}
-                  <motion.line
-                    x1="4"
-                    y1="12"
-                    x2="20"
-                    y2="12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    animate={{
-                      opacity: open ? 0 : 1,
-                      scaleX: open ? 0.2 : 1,
-                    }}
-                    transform="translate(0,0)"
-                    transition={{ duration: 0.2 }}
-                  />
-
-                  {/* Bottom Line */}
-                  <motion.line
-                    x1="4"
-                    y1="17"
-                    x2="20"
-                    y2="17"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    animate={
-                      open
-                        ? { y1: 12, y2: 12, rotate: -45, x1: 6, x2: 18 }
-                        : { y1: 17, y2: 17, rotate: 0, x1: 4, x2: 20 }
-                    }
-                    transition={{ duration: 0.25, ease: "easeInOut" }}
-                  />
-                </svg>
-              </button>
-
+            
                 <button onClick={() => setIsMobileMenuOpen(v => !v)} className="p-1 rounded-lg hover:bg-muted/70 transition">
                   <div className="relative w-8 h-8">
                     <span className={cn("absolute top-1 left-0 w-7 h-1 bg-background rounded-full transition-all duration-300", isMobileMenuOpen && "rotate-45 top-2")} />

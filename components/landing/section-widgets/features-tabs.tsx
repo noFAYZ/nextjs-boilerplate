@@ -46,7 +46,7 @@ export function FeatureTabs({ tabs, bg }) {
         {bg &&  <SVGDecorative reversed={undefined} />} 
 
         {/* Tabs */}
-        <div className={cn(`relative z-10 h-[calc(100%)] min-w-0 grow  `, bg && 'bg-background shadow-[0_6px_12px_-6px_rgba(0,0,0,0.12)] dark:shadow-[0_6px_12px_-6px_rgba(0,0,0,0.3)] ')}>
+        <div className={cn(`relative z-10 h-[calc(100%)] min-w-0 grow  `, bg && 'bg-background py-2 sm:py-1 shadow-[0_6px_12px_-6px_rgba(0,0,0,0.12)] dark:shadow-[0_6px_12px_-6px_rgba(0,0,0,0.3)] ')}>
           <div className="flex size-full flex-wrap  items-center justify-center gap-2.5 max-md:pt-4" role="tablist">
             {tabs.map((t, i) => (
               <Button
@@ -81,7 +81,7 @@ export function FeatureTabs({ tabs, bg }) {
       </div>
 
       {/* Panels */}
-      <div className="mx-auto mt-0 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px]">
+      <div className="mx-auto mt-10 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px]">
         <div className="relative h-[300px] md:h-[680px]">
           {tabs.map((t, i) => (
             <div

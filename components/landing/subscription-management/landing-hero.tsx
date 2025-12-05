@@ -195,7 +195,7 @@ export function LandingHero() {
           transition={{ delay: 0.6 }}
           className="mt-16 flex justify-center gap-3 flex-wrap"
         >
-          <Button  >
+      {/*    <Button  >
             Get Started
           </Button>
 
@@ -206,8 +206,8 @@ export function LandingHero() {
             icon={<SolarPlayCircleBoldDuotone className="w-5 h-5" />}
           >
             See Demo
-          </Button> 
-          {/* <WaitlistFormCompact />*/}
+          </Button> */}
+           <WaitlistFormCompact />
         </motion.div>
 
 
@@ -277,7 +277,7 @@ export function LandingHero() {
           </div>
           </motion.div>
  */}
-  <Example bg={false} />
+  <Example bg />
 
         </ScrollReveal>
 

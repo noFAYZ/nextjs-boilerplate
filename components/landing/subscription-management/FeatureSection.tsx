@@ -1,8 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+
+// CSS animations for fast, efficient performance
+const animationStyles = `
+  @keyframes expand {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width, 100%);
+    }
+  }
+`;
 import {
   ArrowRight,
   Wallet,
@@ -364,11 +375,8 @@ function WalletsStackVisual() {
           <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.1, ease: "easeIn" }}
-          className="px-4 pb-4"
+        <div
+          className="px-4 pb-4 animate-in fade-in duration-100"
         >
           <div className="space-y-6">
             {/* Net Worth Header */}
@@ -490,7 +498,7 @@ function WalletsStackVisual() {
               })}
             </div>
           </div>
-        </motion.div>
+        </div>
       </Card>
     </div>
   );
@@ -499,18 +507,17 @@ function WalletsStackVisual() {
 function BudgetsVisual() {
   return (
     <div className="w-full max-w-md mx-auto space-y-3">
-      
+
         {DEMO_BUDGETS.map((budget, idx) => (
-          <motion.div
+          <div
             key={budget.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: idx * 0.08, ease: "easeOut" }}
+            className="animate-in fade-in slide-in-from-bottom-2 duration-200"
+            style={{ animationDelay: `${idx * 0.05}s` }}
           >
             <BudgetCard budget={budget as any} />
-          </motion.div>
+          </div>
         ))}
-     
+
     </div>
   );
 }
@@ -521,11 +528,8 @@ function InsightsVisual() {
   return (
     <div className="w-full max-w-md mx-auto">
       <Card className="relative border border-border/50 shadow-xs p-6 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="space-y-4"
+        <div
+          className="space-y-4 animate-in fade-in zoom-in duration-300"
         >
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-1">Monthly Spending</h3>
@@ -535,30 +539,28 @@ function InsightsVisual() {
 
           <div className="space-y-3 pt-4">
             {DEMO_SPENDING_CATEGORIES.map((category, idx) => (
-              <motion.div
+              <div
                 key={category.name}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.06, ease: "easeOut" }}
-                className="space-y-1"
+                className="space-y-1 animate-in fade-in slide-in-from-left-3 duration-300"
+                style={{ animationDelay: `${idx * 0.04}s` }}
               >
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-foreground">{category.name}</span>
                   <span className="text-muted-foreground">${category.value}</span>
                 </div>
                 <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${category.percentage}%` }}
-                    transition={{ duration: 0.6, delay: idx * 0.06 + 0.2, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full"
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full animate-in"
+                    style={{
+                      animation: `expand ${0.4 + idx * 0.02}s ease-out ${idx * 0.04}s both`,
+                    }}
                   />
                 </div>
                 <div className="text-xs text-muted-foreground">{category.percentage}%</div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </Card>
     </div>
   );
@@ -567,18 +569,17 @@ function InsightsVisual() {
 function SubscriptionsVisual() {
   return (
     <div className="w-full max-w-md mx-auto space-y-3">
-      
+
         {DEMO_SUBSCRIPTIONS.map((subscription, idx) => (
-          <motion.div
+          <div
             key={subscription.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: idx * 0.1, ease: "easeOut" }}
+            className="animate-in fade-in slide-in-from-bottom-2 duration-200"
+            style={{ animationDelay: `${idx * 0.06}s` }}
           >
             <SubscriptionCard subscription={subscription as any} />
-          </motion.div>
+          </div>
         ))}
-      
+
     </div>
   );
 }
@@ -586,18 +587,17 @@ function SubscriptionsVisual() {
 function GoalsVisual() {
   return (
     <div className="w-full max-w-md mx-auto space-y-3">
-   
+
         {DEMO_GOALS.map((goal, idx) => (
-          <motion.div
+          <div
             key={goal.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: idx * 0.1, ease: "easeOut" }}
+            className="animate-in fade-in slide-in-from-bottom-2 duration-200"
+            style={{ animationDelay: `${idx * 0.06}s` }}
           >
             <GoalCard goal={goal as any} className="opacity-100"/>
-          </motion.div>
+          </div>
         ))}
-      
+
     </div>
   );
 }
@@ -608,11 +608,8 @@ function AlertsVisual() {
   return (
     <div className="w-full max-w-md mx-auto">
       <Card className="relative border border-border/50 shadow-xs p-6 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="space-y-4"
+        <div
+          className="space-y-4 animate-in fade-in zoom-in duration-300"
         >
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-1">Upcoming Bills</h3>
@@ -627,12 +624,10 @@ function AlertsVisual() {
               );
 
               return (
-                <motion.div
+                <div
                   key={bill.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: idx * 0.08, ease: "easeOut" }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200"
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200 animate-in fade-in slide-in-from-left-3 duration-300"
+                  style={{ animationDelay: `${idx * 0.05}s` }}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -646,11 +641,11 @@ function AlertsVisual() {
                   <div className="text-right ml-2">
                     <div className="font-semibold text-sm text-foreground">${bill.amount.toFixed(2)}</div>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </Card>
     </div>
   );
@@ -682,7 +677,9 @@ export default function MoneyMapprFeatureSection() {
   const rightFeatures = FEATURES.filter((f) => f.position === "right");
 
   return (
-    <section className="relative w-full py-16 md:py-50  ">
+    <>
+      <style>{animationStyles}</style>
+      <section className="relative w-full py-16 md:py-50  ">
       <div className="container  mx-auto px-6 ">
         {/* Header */}
         <div className="text-center mb-12 max-w-3xl mx-auto">
@@ -695,11 +692,26 @@ export default function MoneyMapprFeatureSection() {
             collaborate, and set goals specific to you.
           </p>
         </div>
-
+    {/* Mobile Feature Selector */}
+    <div className="lg:hidden my-8 overflow-x-auto pb-2">
+          <div className="flex gap-2 justify-center flex-wrap">
+            {FEATURES.map((feature) => (
+              <Button
+                key={feature.id}
+                onClick={() => setActiveFeature(feature)}
+                variant={activeFeature.id === feature.id ? "steel" : "outline2"}
+                className="duration-150 transition-all flex-shrink-0 whitespace-nowrap"
+                size="sm"
+              >
+                {feature.tag}
+              </Button>
+            ))}
+          </div>
+        </div>
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center  rounded-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center rounded-2xl">
           {/* Left Features */}
-          <div className="lg:col-span-4 space-y-12">
+          <div className="hidden sm:block lg:col-span-4 space-y-12">
             {leftFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}
@@ -712,22 +724,16 @@ export default function MoneyMapprFeatureSection() {
 
           {/* Center Visual */}
           <div className="lg:col-span-4 flex items-center justify-center min-h-[500px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeFeature.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.15, ease: "easeInOut" }}
-                className="w-full"
-              >
-                <CenterVisual type={activeFeature.visual} />
-              </motion.div>
-            </AnimatePresence>
+            <div
+              key={activeFeature.id}
+              className="w-full animate-in fade-in duration-150"
+            >
+              <CenterVisual type={activeFeature.visual} />
+            </div>
           </div>
 
           {/* Right Features */}
-          <div className="lg:col-span-4 space-y-12">
+          <div className="hidden sm:block lg:col-span-4 space-y-12">
             {rightFeatures.map((feature) => (
               <FeatureButton
                 key={feature.id}
@@ -739,24 +745,9 @@ export default function MoneyMapprFeatureSection() {
           </div>
         </div>
 
-        {/* Mobile Feature Selector */}
-        <div className="lg:hidden mt-8 flex flex-wrap justify-center gap-2">
-          {FEATURES.map((feature) => (
-            <button
-              key={feature.id}
-              onClick={() => setActiveFeature(feature)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
-                activeFeature.id === feature.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {feature.tag}
-            </button>
-          ))}
-        </div>
+
       </div>
     </section>
+    </>
   );
 }

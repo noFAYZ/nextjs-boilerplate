@@ -68,7 +68,7 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 h-fit ${
+              className={`relative rounded-2xl border p-6 h-fit ${
                 plan.highlighted
                   ? 'bg-gradient-to-br from-accent/40 to-muted/95   shadow-lg scale-105'
                   : 'bg-card shadow-xs hover:shadow-xl transition-shadow'
@@ -121,7 +121,7 @@ export function PricingSection() {
                   </span>
                   {plan.price !== 'Custom' && (
                     <span
-                      className={`text-sm ${
+                      className={`text-xs ${
                         plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >
@@ -155,7 +155,7 @@ export function PricingSection() {
               </Link>
     
               {/* Features List */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <p
                   className={`text-xs font-semibold uppercase tracking-wider mb-4 ${
                     plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
@@ -164,14 +164,14 @@ export function PricingSection() {
                   What's included:
                 </p>
                 {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-start gap-3">
+                  <div key={feature} className="flex items-center  gap-3">
                     <SolarCheckCircleBoldDuotone
-                      className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                      className={`h-4.5 w-4.5 mt-0.5 flex-shrink-0 ${
                         plan.highlighted ? 'text-orange-500' : 'text-muted-foreground'
                       }`}
                     />
                     <span
-                      className={`text-sm ${
+                      className={`text-xs ${
                         plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >

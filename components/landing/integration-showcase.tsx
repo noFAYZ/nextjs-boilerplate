@@ -46,7 +46,7 @@ export default function IntegrationHero() {
           </p>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl flex flex-row items-center  p-6">
+      <div className="mx-auto max-w-7xl flex flex-col gap-4 sm:gap-2 sm:flex-row items-center  p-6">
         <div className="flex-1 text-center">
           <span className="text-7xl font-bold">13k+</span>
           <p className="text-lg font-semibold">Supported Institutions</p>
@@ -59,12 +59,12 @@ export default function IntegrationHero() {
             {repeatedIcons(ICONS_ROW1, 4).map((src, i) => (
               <div
                 key={i}
-                className="h-16 w-16 flex-shrink-0 rounded-full bg-accent dark:bg-gray-200 shadow-md border border-border/80 flex items-center justify-center"
+                className="w-13 h-13 sm:h-16 sm:w-16 flex-shrink-0 rounded-full bg-accent dark:bg-gray-200 shadow-md border border-border/80 flex items-center justify-center"
               >
                 <img
                   src={src}
                   alt="icon"
-                  className="h-10 w-10 object-contain"
+                  className="h-8 w-8 sm:w-10 sm:h-10 object-contain"
                 />
               </div>
             ))}
@@ -75,12 +75,12 @@ export default function IntegrationHero() {
             {repeatedIcons(ICONS_ROW2, 4).map((src, i) => (
               <div
                 key={i}
-                className="h-16 w-16 flex-shrink-0 border border-border/80 rounded-full bg-accent dark:bg-gray-200 shadow-md flex items-center justify-center"
+                className="w-13 h-13 sm:h-16 sm:w-16  flex-shrink-0 border border-border/80 rounded-full bg-accent dark:bg-gray-200 shadow-md flex items-center justify-center"
               >
                 <img
                   src={src}
                   alt="icon"
-                  className="h-10 w-10 object-contain"
+                  className="h-8 w-8 sm:w-10 sm:h-10 object-contain"
                 />
               </div>
             ))}
