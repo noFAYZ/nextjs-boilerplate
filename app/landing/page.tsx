@@ -88,13 +88,13 @@ export default function LandingPage() {
        <CryptoShowcase />
       <HowItWorks />
  <Skiper16 />
-     <FeatureGrid /> 
+     <FeatureGrid />   <PricingSection />
       */}
  
    
  <IntegrationHero /> 
  <TestimonialsDemo />  
-    <PricingSection />
+  
       <FAQSection />
       <FinalCTASection />
        {/* <ComparisonSection /> 

@@ -627,7 +627,7 @@ export default function AccountsPage() {
     }
   };
 
-  console.log(summaryData)
+ 
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
@@ -687,9 +687,9 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden rounded-xl border border-border/50  "
+                      className="overflow-hidden rounded-xl   border"
                     >
-                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card  rouneded-lg cursor-pointer hover:bg-card/80">
+                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-b-none cursor-pointer hover:bg-card/80">
                         {/* Icon */}
                         <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
                           {config.icon}
@@ -702,11 +702,11 @@ export default function AccountsPage() {
                               {config.label}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                        {/*   <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                             <span>{group.accounts.length} {group.accounts.length === 1 ? 'account' : 'accounts'}</span>
                             <span>•</span>
                             <span>{Math.round(progress)}% of total</span>
-                          </div>
+                          </div> */}
                         </div>
 
                         {/* Amount and Chevron */}
