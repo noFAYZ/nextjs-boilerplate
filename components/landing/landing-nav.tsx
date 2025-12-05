@@ -89,7 +89,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a href={href} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+        <a href={href} className="block select-none space-y-1 rounded-md px-2 py-0 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-background/50">
               <Icon className="h-5 w-5" />

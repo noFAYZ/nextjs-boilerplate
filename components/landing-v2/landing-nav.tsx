@@ -89,7 +89,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a href={href} className="block select-none space-y-1 rounded-xl p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+        <a href={href} className="block select-none rounded-xl p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow border bg-muted">
               <Icon className="h-5 w-5 text-muted-foreground" />
@@ -152,7 +152,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
-                        <Link href="/#pricing" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80  rounded-full transition-colors">
+                        <Link href="/#pricing" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80  rounded-full transition-colors py-1">
                           Pricing
                         </Link>
                       </NavigationMenuLink>
@@ -160,7 +160,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
-                        <Link href="#faq" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80 rounded-full transition-colors">
+                        <Link href="#faq" className=" text-[13px] font-medium hover:bg-accent/0 py-1 hover:text-background/80 rounded-full transition-colors">
                           FAQs
                         </Link>
                       </NavigationMenuLink>
