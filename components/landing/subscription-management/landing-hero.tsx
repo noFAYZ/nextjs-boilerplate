@@ -144,7 +144,7 @@ export function LandingHero() {
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-normal text-4xl md:text-4xl lg:text-4xl xl:text-5xl text-black"
+          className="font-bold tracking-tight leading-normal text-4xl md:text-4xl lg:text-4xl xl:text-5xl text-black/80"
         >
           Take Control of Your{" "}
 

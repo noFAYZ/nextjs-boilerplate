@@ -207,9 +207,9 @@ export function MainHeader({
             {/* Hide global switcher on small mobile*/}
             
              <ThemeSwitcher />
-<div className="hidden sm:block">
+{/* <div className="hidden sm:block">
               <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
-            </div>
+            </div> */}
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
