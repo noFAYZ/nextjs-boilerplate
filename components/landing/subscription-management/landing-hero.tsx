@@ -284,7 +284,7 @@ export function LandingHero() {
           </div>
           </motion.div>
  */}
-  <Example />
+  <Example bg={false} />
 
         </ScrollReveal>
 
