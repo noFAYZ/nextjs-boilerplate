@@ -159,7 +159,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-orange-500 px-2 sm:px-2 md:px-6   overflow-hidden  justify-center rounded-lg py-0 antialiased bg-black/80"
+            mainClassName="text-orange-500 px-2 sm:px-2 md:px-6   overflow-hidden  justify-center rounded-2xl py-0 antialiased bg-black/80"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
