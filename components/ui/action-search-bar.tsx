@@ -41,6 +41,8 @@ interface ActionItem {
 
 interface ActionSearchBarProps {
   onOpenCommandPalette?: () => void;
+ 
+  
 }
 
 export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) {
@@ -303,7 +305,7 @@ export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) 
   return (
     <div
       ref={containerRef}
-      className="w-full max-w-sm sm:max-w-md md:max-w-md relative"
+      className="w-full  relative"
     >
       {/* Input Container */}
       <div className="relative">

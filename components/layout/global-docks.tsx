@@ -13,7 +13,7 @@ import {
 import { ExpandableDock, ExpandableItem, Dock, useDock } from "@/components/ui/dock"
 import { useDockContext } from "@/components/providers/dock-provider"
 import { cn } from "@/lib/utils"
-import {   DuoIconsBank, HugeiconsPieChart01, PhBrainDuotone, SolarFolderBoldDuotone, SolarHomeSmileBoldDuotone, SolarPieChart2BoldDuotone, SolarWalletMoneyBoldDuotone, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
+import {   DuoIconsBank, HugeiconsPieChart01, PhBrainDuotone, SolarFolderBoldDuotone, SolarHomeSmileBoldDuotone, SolarInboxInBoldDuotone, SolarPieChart2BoldDuotone, SolarWalletMoneyBoldDuotone, StreamlineFlexHome2, StreamlineFlexLabelFolderTag,  StreamlineFlexPieChart, StreamlineFlexWallet, StreamlinePlumpBuildingOffice } from "../icons/icons"
 import { AddOptionsModal } from "./AddOptionsModal"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
@@ -376,21 +376,21 @@ export function BottomMenuDock() {
     {
       id: 'home',
       label: 'Dashboard',
-      icon: <SolarHomeSmileBoldDuotone className="w-6 h-6 text-accent-foreground/80"/>,
+      icon: <SolarHomeSmileBoldDuotone className="w-6 h-6 "/>,
       href: '/dashboard',
       hotkey: '⌘+1'
     },
     {
       id: 'wallets',
       label: 'Wallets',
-      icon: <SolarWalletMoneyBoldDuotone className="w-6 h-6 text-accent-foreground/80" />,
-      href: '/accounts/wallet',
+      icon: <SolarWalletMoneyBoldDuotone className="w-6 h-6  " />,
+      href: '/accounts/wallet/manage',
       hotkey: '⌘+1'
     },
     {
       id: 'banks',
       label: 'Banks',
-      icon: <DuoIconsBank className="w-6 h-6 text-accent-foreground/80"/>,
+      icon: <DuoIconsBank className="w-6 h-6  "/>,
       href: '/accounts/bank',
       hotkey: '⌘+2'
     },
@@ -406,20 +406,20 @@ export function BottomMenuDock() {
       id: 'portfolios',
       label: 'Portfolios',
       icon: <SolarPieChart2BoldDuotone className="w-6 h-6 " />,
-      href: '/portfolios',
+      href: '/portfolio',
       hotkey: '⌘+1'
     },
     {
       id: 'groups',
       label: 'Groups',
-      icon: <SolarFolderBoldDuotone className="w-6 h-6" />,
-      href: '/accounts/groups',
+      icon: <SolarInboxInBoldDuotone className="w-6 h-6" />,
+      href: '/subscriptions',
       hotkey: '⌘+1'
     },
     {
       id: 'settings',
       label: 'Settings',
-      icon: <LetsIconsSettingLineDuotone className="w-6 h-6 text-accent-foreground/80"/>,
+      icon: <LetsIconsSettingLineDuotone className="w-6 h-6 "/>,
       href: '/settings',
       badge: 2
     }
@@ -455,7 +455,7 @@ export function BottomMenuDock() {
             magnification={false}
             indicatorStyle="windows11"
             blur={false}
-            className="relative bg-card"
+            className="relative "
             showActiveIndicator={true}
             autoDetectActive={true}
           />

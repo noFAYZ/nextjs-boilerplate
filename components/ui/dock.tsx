@@ -55,247 +55,109 @@ interface DockProps {
 }
 
 const sizeClasses = {
-  sm: {
-    container: "h-14",
-    item: "w-10 h-10",
-    magnified: "w-12 h-12",
-    icon: "w-5 h-5",
-  },
-  md: {
-    container: "h-14",
-    item: "w-12 h-12",
-    magnified: "w-14 h-14",
-    icon: "w-9 h-9",
+  sm: { container: "h-14", item: "w-10 h-10", icon: "w-6 h-6" },
+  md: { container: "h-16", item: "w-12 h-12", icon: "w-7 h-7" },
+  lg: { container: "h-20", item: "w-14 h-14", icon: "w-9 h-9" },
+};
 
-  },
-  lg: {
-    container: "h-16",
-    item: "w-14 h-14",
-    magnified: "w-16 h-16",
-    icon: "w-7 h-7",
-  },
-}
+// Natural smooth falloff function (liquid dock)
+const falloff = (distance: number) => {
+  return Math.cos(Math.min(distance, 3) * Math.PI / 6);
+};
 
-const defaultSpringConfig = {
-  stiffness: 400,
-  damping: 25,
-}
+// ---------------------------------------------
+// Active Indicators (simple CSS)
+// ---------------------------------------------
+const Windows11Indicator = ({ active }: { active: boolean }) =>
+  active ? (
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1.5 bg-orange-600/60 rounded-full" />
+  ) : null;
 
-// Windows 11 Active Indicator Component
-const Windows11Indicator = React.memo<{ isActive: boolean; size: string }>(({ isActive, size }) => {
-  const sizeConfig = sizeClasses[size as keyof typeof sizeClasses]
-  
-  if (!isActive) return null
-  
-  return (
-    <motion.div
-      className="absolute -bottom-1 left-1/2 bg-orange-700/50 rounded-full"
-      initial={{ width: 0, opacity: 0 }}
-      animate={{ 
-        width: size === 'sm' ? 6 : size === 'md' ? 12 : 14,
-        height: size === 'sm' ? 6 : size === 'md' ? 6 : 8,
-        opacity: 1,
-        x: "-50%"
-      }}
-      exit={{ width: 0, opacity: 0 }}
-      transition={{ duration: 0.1, ease: "easeOut" }}
-    />
-  )
-})
-Windows11Indicator.displayName = "Windows11Indicator"
+const MacOSIndicator = ({ active }: { active: boolean }) =>
+  active ? (
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-foreground/60 rounded-full" />
+  ) : null;
 
-// macOS Active Indicator Component
-const MacOSIndicator = React.memo<{ isActive: boolean; size: string }>(({ isActive, size }) => {
-  if (!isActive) return null
-  
-  return (
-    <motion.div
-      className="absolute -bottom-1 left-1/2 w-1 h-1 bg-foreground/60 rounded-full"
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1, x: "-50%" }}
-      exit={{ opacity: 0, scale: 0 }}
-      transition={{ duration: 0.15 }}
-    />
-  )
-})
-MacOSIndicator.displayName = "MacOSIndicator"
+const MinimalIndicator = ({ active }: { active: boolean }) =>
+  active ? (
+    <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 w-5 h-[2px] bg-primary rounded-full" />
+  ) : null;
 
-// Enhanced Dock Item Component
-const DockItemComponent = React.memo<{
-  item: DockItem
-  index: number
-  hoveredIndex: number | null
-  tooltipVisible: number | null
-  onMouseEnter: () => void
-  onMouseLeave: () => void
-  onClick: (e: React.MouseEvent) => void
-  onKeyDown: (e: React.KeyboardEvent) => void
-  isActive: boolean
-  magnification: boolean
-  maxMagnification: number
-  size: string
-  orientation: string
-  position: string
-  indicatorStyle: string
-  springConfig: { stiffness: number; damping: number }
-  prefersReducedMotion: boolean
-}>(({
+// ---------------------------------------------
+// Item Component
+// ---------------------------------------------
+const DockItemComponent = React.memo(function DockItemComponent({
   item,
   index,
   hoveredIndex,
-  tooltipVisible,
-  onMouseEnter,
-  onMouseLeave,
+  onEnter,
+  onLeave,
   onClick,
   onKeyDown,
   isActive,
-  magnification,
   maxMagnification,
   size,
-  orientation,
-  position,
-  indicatorStyle,
-  springConfig,
-  prefersReducedMotion
-}) => {
-  const isHorizontal = orientation === "horizontal"
-  const sizeConfig = sizeClasses[size as keyof typeof sizeClasses]
-  
-  const getItemScale = React.useCallback(() => {
-    if (!magnification || hoveredIndex === null || prefersReducedMotion) return 1
-    
-    const distance = Math.abs(index - hoveredIndex)
-    if (distance === 0) return Math.min(maxMagnification, 1.2)
-    if (distance === 1) return Math.min(maxMagnification * 0.8, 1)
-    if (distance === 2) return Math.min(maxMagnification * 0.9, 1)
-    return 1
-  }, [magnification, hoveredIndex, index, maxMagnification, prefersReducedMotion])
+}) {
+  const sizeConfig = sizeClasses[size];
 
-  const getItemTransform = React.useCallback(() => {
-    if (!magnification || hoveredIndex === null || prefersReducedMotion) return 0
-    
-    const distance = Math.abs(index - hoveredIndex)
-    const direction = index < hoveredIndex ? -1 : 1
-    
-    if (distance === 0) return 0
-    if (distance === 1) return direction * 1.2
-    if (distance === 2) return direction * 0.8
-    return 0
-  }, [magnification, hoveredIndex, index, prefersReducedMotion])
+  // Calculate scale using cosine falloff
+  const scale = React.useMemo(() => {
+    if (hoveredIndex == null) return 1;
+    const dist = Math.abs(index - hoveredIndex);
+    const f = falloff(dist);
+    return 1 + (maxMagnification - 1.4) * f;
+  }, [index, hoveredIndex, maxMagnification]);
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <motion.button
-        className={cn(
-          "relative flex items-center justify-center rounded-xl transition-colors duration-0 outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 cursor-pointer",
-          "hover:bg-background ",
-          sizeConfig.item,
-          item.disabled && "opacity-50 cursor-not-allowed",
-          isActive && "bg-background "
-        )}
-        animate={{
-          scale: getItemScale(),
-          x: isHorizontal ? getItemTransform() : 0,
-          y: isHorizontal ? 0 : getItemTransform(),
-        }}
-        transition={{
-          type: "spring",
-          ...springConfig,
-          duration: prefersReducedMotion ? 0 : undefined
-        }}
+    <div className="relative cursor-pointer" onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <button
         onClick={onClick}
         onKeyDown={onKeyDown}
         disabled={item.disabled}
-        aria-label={item.label}
-        role="button"
-        tabIndex={0}
+        className={cn(
+          "relative flex items-center justify-center rounded-full transition-all duration-75 ease-out cursor-pointer hover:bg-accent/40 dark:hover:bg-background",
+          sizeConfig.item,
+          "backdrop-blur-md ",
+          item.disabled && "opacity-50"
+          
+        )}
+        style={{
+          transform: `scale(${scale}) translateZ(0)`,
+          transitionProperty: "transform, background-color, opacity",
+        }}
       >
-        <div className={cn("flex items-center justify-center text-foreground")}>
+        <div className={cn("flex items-center justify-center text-white")}>
           {item.icon}
         </div>
-        
-        {/* Badge */}
-        <AnimatePresence>
-          {item.badge && (
-            <motion.div
-              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 font-medium"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.1 }}
-            >
-              {item.badge}
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Active Indicators */}
-        <AnimatePresence>
-          {indicatorStyle === "windows11" && (
-            <Windows11Indicator isActive={isActive} size={size} />
-          )}
-          {indicatorStyle === "macos" && (
-            <MacOSIndicator isActive={isActive} size={size} />
-          )}
-          {indicatorStyle === "minimal" && isActive && (
-            <motion.div
-              className="absolute -bottom-0.5 left-1/2 w-6 h-0.5 bg-primary rounded-full"
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1, x: "-50%" }}
-              exit={{ opacity: 0, scaleX: 0 }}
-              transition={{ duration: 0.1 }}
-            />
-          )}
-        </AnimatePresence>
-      </motion.button>
-
-      {/* Enhanced Tooltip */}
- 
-        {tooltipVisible === index && (
-          <div
-            
-            className={cn(
-              "absolute whitespace-nowrap px-3 py-2 bg-popover text-popover-foreground text-sm rounded-lg shadow-lg border z-20 pointer-events-none duration-0 delay-0",
-              "backdrop-blur-sm",
-              position === "bottom" && "bottom-full mb-3 left-1/2 -translate-x-1/2",
-              position === "top" && "top-full mt-3 left-1/2 -translate-x-1/2",
-              position === "left" && "left-full ml-3 top-1/2 -translate-y-1/2",
-              position === "right" && "right-full mr-3 top-1/2 -translate-y-1/2",
-              position === "bottom-left" && "bottom-full mb-3 left-1/2 -translate-x-1/2",
-              position === "bottom-right" && "bottom-full mb-3 left-1/2 -translate-x-1/2"
-            )}
-          >
-            <div className="flex flex-col">
-              <span className="font-medium">{item.label}</span>
-              {item.hotkey && (
-                <span className="text-xs text-muted-foreground mt-1">
-                  {item.hotkey}
-                </span>
-              )}
-            </div>
-            
-            {/* Tooltip Arrow */}
-            <div className={cn(
-              "absolute w-2 h-2 bg-popover border rotate-45",
-              position === "bottom" && "top-full left-1/2 -translate-x-1/2 -translate-y-1/2 border-r-0 border-b-0",
-              position === "top" && "bottom-full left-1/2 -translate-x-1/2 translate-y-1/2 border-l-0 border-t-0",
-              position === "left" && "right-full top-1/2 translate-x-1/2 -translate-y-1/2 border-t-0 border-l-0",
-              position === "right" && "left-full top-1/2 -translate-x-1/2 -translate-y-1/2 border-b-0 border-r-0",
-              position === "bottom-left" && "top-full left-1/2 -translate-x-1/2 -translate-y-1/2 border-r-0 border-b-0",
-              position === "bottom-right" && "top-full left-1/2 -translate-x-1/2 -translate-y-1/2 border-r-0 border-b-0"
-            )} />
+        {item.badge && (
+          <div className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+            {item.badge}
           </div>
         )}
- 
-    </div>
-  )
-})
-DockItemComponent.displayName = "DockItemComponent"
 
+        {item.indicatorStyle === "windows11" && <Windows11Indicator active={isActive} />}
+        {item.indicatorStyle === "macos" && <MacOSIndicator active={isActive} />}
+        {item.indicatorStyle === "minimal" && <MinimalIndicator active={isActive} />}
+      </button>
+
+      {/* Tooltip */}
+      <div
+        className={cn(
+          "pointer-events-none absolute px-2 py-1.5 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 transition-opacity duration-100",
+          hoveredIndex === index && "opacity-100",
+          "bottom-full left-1/2 -translate-x-1/2 mb-3"
+        )}
+      >
+        {item.label}
+      </div>
+    </div>
+  );
+});
+
+// ---------------------------------------------
+// Main Dock Component
+// ---------------------------------------------
 export function Dock({
   items,
   orientation = "horizontal",
@@ -306,196 +168,73 @@ export function Dock({
   className,
   onItemClick,
   activeItems = [],
-  showActiveIndicator = true,
   indicatorStyle = "windows11",
   autoDetectActive = true,
-  maxMagnification = 1.4,
-  springConfig = defaultSpringConfig,
-}: DockProps) {
-  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
-  const [tooltipVisible, setTooltipVisible] = React.useState<number | null>(null)
-  const [focusedIndex, setFocusedIndex] = React.useState<number>(-1)
-  
-  const pathname = usePathname()
-  const router = useRouter()
-  const prefersReducedMotion = useReducedMotion()
-  
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const timeoutRef = React.useRef<NodeJS.Timeout>()
+  maxMagnification = 1.8,
+}: any) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
 
-  const isHorizontal = orientation === "horizontal"
-  const sizeConfig = sizeClasses[size]
-
-  // Auto-detect active items based on current pathname
+  // Auto-detect active item
   const activeItemIds = React.useMemo(() => {
-    if (!autoDetectActive) return activeItems
+    if (!autoDetectActive) return activeItems;
 
-    // Find items that match the current pathname
-    const matchingItems = items.filter(item => item.href && pathname.startsWith(item.href))
-
-    // If multiple items match, select the one with the longest matching path (most specific)
-    const bestMatch = matchingItems.reduce((prev, current) => {
-      if (!prev) return current
-      return (current.href?.length || 0) > (prev.href?.length || 0) ? current : prev
-    }, null as typeof items[0] | null)
-
-    const detectedActive = bestMatch ? [bestMatch.id] : []
-
-    return [...activeItems, ...detectedActive]
-  }, [items, pathname, activeItems, autoDetectActive])
-
-  // Enhanced item click handler with router navigation and button functionality
-  const handleItemClick = React.useCallback((item: DockItem, event: React.MouseEvent) => {
-    if (item.disabled) return
-    
-    // If item has both href and onClick, prefer onClick behavior
-    if (item.onClick) {
-      event.preventDefault()
-      item.onClick()
-      onItemClick?.(item)
-      return
-    }
-    
-    // If item has href, handle navigation
-    if (item.href) {
-      if (event.ctrlKey || event.metaKey) {
-        event.preventDefault()
-        window.open(item.href, '_blank')
-      } else {
-        event.preventDefault()
-        router.push(item.href)
-      }
-      onItemClick?.(item)
-      return
-    }
-    
-    // If neither href nor onClick, just call the global handler
-    event.preventDefault()
-    onItemClick?.(item)
-  }, [router, onItemClick])
-
-  // Keyboard navigation
-  const handleKeyDown = React.useCallback((event: React.KeyboardEvent, item: DockItem, index: number) => {
-    switch (event.key) {
-      case 'Enter':
-      case ' ':
-        event.preventDefault()
-        handleItemClick(item, event as any)
-        break
-      case 'ArrowRight':
-      case 'ArrowDown':
-        event.preventDefault()
-        setFocusedIndex(Math.min(index + 1, items.length - 1))
-        break
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        event.preventDefault()
-        setFocusedIndex(Math.max(index - 1, 0))
-        break
-      case 'Home':
-        event.preventDefault()
-        setFocusedIndex(0)
-        break
-      case 'End':
-        event.preventDefault()
-        setFocusedIndex(items.length - 1)
-        break
-    }
-  }, [items.length, handleItemClick])
-
-  // Focus management
-  React.useEffect(() => {
-    if (focusedIndex >= 0 && containerRef.current) {
-      const button = containerRef.current.querySelector(`button:nth-child(${focusedIndex + 1})`) as HTMLButtonElement
-      button?.focus()
-    }
-  }, [focusedIndex])
-
-  // Tooltip delay management
-  const handleMouseEnter = React.useCallback((index: number) => {
-    setHoveredIndex(index)
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setTooltipVisible(index)
-    }, 600)
-  }, [])
-
-  const handleMouseLeave = React.useCallback(() => {
-    setHoveredIndex(null)
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    setTooltipVisible(null)
-  }, [])
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [])
+    const matches = items.filter((i) => i.href && pathname.startsWith(i.href));
+    const best = matches.sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))[0];
+    return best ? [best.id, ...activeItems] : activeItems;
+  }, [pathname, items, activeItems]);
 
   const containerClasses = cn(
-    "flex items-center justify-center p-2 rounded-full border shadow-xl transition-all duration-0",
-    blur && "backdrop-blur-xl bg-background/80 supports-[backdrop-filter]:bg-background/60",
-  
-    isHorizontal ? "flex-row gap-2" : "flex-col gap-2",
-    isHorizontal ? sizeConfig.container : `w-16 min-h-[220px]`,
+    "flex items-center justify-center gap-2 p-3 rounded-full bg-black dark:bg-muted z-50",
+    blur && "backdrop-blur-xl bg-background/70",
+    orientation === "horizontal" ? "flex-row" : "flex-col",
+    sizeClasses[size].container,
     className
-  )
+  );
+
+  const positionClasses = cn(
+    "fixed",
+    position === "bottom" && "bottom-4 left-1/2 -translate-x-1/2",
+    position === "top" && "top-4 left-1/2 -translate-x-1/2",
+    position === "left" && "left-4 top-1/2 -translate-y-1/2",
+    position === "right" && "right-4 top-1/2 -translate-y-1/2",
+    position === "bottom-left" && "bottom-4 left-4",
+    position === "bottom-right" && "bottom-4 right-4"
+  );
 
   return (
-    <div
-      className={cn(
-        "fixed z-50",
-        position === "bottom" && "bottom-4 left-1/2 -translate-x-1/2",
-        position === "top" && "top-4 left-1/2 -translate-x-1/2",
-        position === "left" && "left-4 top-1/2 -translate-y-1/2",
-        position === "right" && "right-4 top-1/2 -translate-y-1/2",
-        position === "bottom-left" && "bottom-4 left-4",
-        position === "bottom-right" && "bottom-4 right-4"
-      )}
-    >
-      <motion.div 
-        className={containerClasses}
-        ref={containerRef}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.1 }}
-        role="navigation"
-        aria-label="Dock navigation"
-      >
+    <div className={positionClasses}>
+      <div className={containerClasses}>
         {items.map((item, index) => {
-          const isActive = showActiveIndicator && (
-            item.isActive || 
-            activeItemIds.includes(item.id)
-          )
-          
+          const isActive = activeItemIds.includes(item.id);
+
+          const clickHandler = (e: any) => {
+            if (item.disabled) return;
+            if (item.onClick) return item.onClick();
+            if (item.href) return router.push(item.href);
+            if (onItemClick) onItemClick(item);
+          };
+
           return (
             <DockItemComponent
               key={item.id}
-              item={item}
+              item={{ ...item, indicatorStyle }}
               index={index}
-              hoveredIndex={hoveredIndex}
-              tooltipVisible={tooltipVisible}
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
-              onClick={(e) => handleItemClick(item, e)}
-              onKeyDown={(e) => handleKeyDown(e, item, index)}
+              hoveredIndex={magnification ? hoveredIndex : null}
+              onEnter={() => setHoveredIndex(index)}
+              onLeave={() => setHoveredIndex(null)}
+              onClick={clickHandler}
+              onKeyDown={() => {}}
               isActive={isActive}
-              magnification={magnification}
               maxMagnification={maxMagnification}
               size={size}
-              orientation={orientation}
-              position={position}
-              indicatorStyle={indicatorStyle}
-              springConfig={springConfig}
-              prefersReducedMotion={prefersReducedMotion || false}
             />
-          )
+          );
         })}
-      </motion.div>
+      </div>
     </div>
-  )
+  );
 }
 
 // Enhanced FloatingDock with more configuration options

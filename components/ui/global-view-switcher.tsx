@@ -43,20 +43,20 @@ function GlobalViewSwitcher({
     <TooltipProvider>
       <div 
         data-slot="global-view-switcher"
-        className={cn("flex items-center w-fit mx-auto gap-1 bg-card p-0.5 rounded-lg border border-border", className)}
+        className={cn("flex items-center w-fit mx-auto gap-1 bg-card p-0.5 rounded-full border border-border", className)}
       >
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isBeginnerMode ? "outline2" : "ghost"}
+              variant={isBeginnerMode ? "steel" : "ghost"}
               size="sm"
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-2 font-medium transition-all text-xs relative overflow-visible",
+                "px-2 font-medium transition-all text-xs relative rounded-full overflow-visible",
                 isBeginnerMode 
                   ? " shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted bg-card"
               )}
             >
               <PhUser className={cn(iconSizes[size], "mr-1")} />
@@ -76,12 +76,12 @@ function GlobalViewSwitcher({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isProMode ? "outline2" : "ghost"}
+              variant={isProMode ? "steel" : "ghost"}
               size="sm"
               onClick={toggleViewMode}
               className={cn(
                 sizeClasses[size],
-                "px-2 font-medium transition-all relative text-xs",
+                "px-2 font-medium rounded-full transition-all relative text-xs",
                 isProMode 
                   ? " shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"

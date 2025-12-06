@@ -1,21 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { Crown, LogOut, Menu, Settings, User } from 'lucide-react';
+import {
+  Crown,
+  LogOut,
+  Menu,
+  Settings,
+  User
+} from 'lucide-react';
 import Link from 'next/link';
-import { TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
+import { createAvatar } from '@dicebear/core';
+import { avataaarsNeutral } from '@dicebear/collection';
+import { useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
-import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
-import { OrganizationSwitcher } from '@/components/organization';
 import { ActionSearchBar } from '@/components/ui/action-search-bar';
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider
-} from '@/components/ui/tooltip';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -24,18 +26,26 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useCommandPalette } from '@/components/command/command-palette';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider
+} from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
-import { useCallback } from 'react';
 
-import { createAvatar } from '@dicebear/core';
-import { avataaarsNeutral } from '@dicebear/collection';
-import { useRouter, usePathname } from 'next/navigation';
+import { useCommandPalette } from '@/components/command/command-palette';
 import { useAuthStore } from '@/lib/stores';
-import { authClient } from '@/lib/auth-client';
-import { signOut } from '@/lib/auth-client';
+import { LetsIconsAddDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
+import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 
 interface MainHeaderProps {
   mainColumnExpanded: boolean;
@@ -44,27 +54,24 @@ interface MainHeaderProps {
   isMobileMenuOpen?: boolean;
 }
 
-// Helper function to generate breadcrumb items from pathname
+// Breadcrumb generator
 function generateBreadcrumbs(pathname: string) {
   const segments = pathname.split('/').filter(Boolean);
-  const breadcrumbs: { label: string; href: string }[] = [];
 
-  let currentPath = '';
-  segments.forEach((segment, index) => {
-    currentPath += `/${segment}`;
+  return segments.map((segment, index) => {
     const label = segment
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
 
-    breadcrumbs.push({
-      label,
-      href: currentPath,
-      isLast: index === segments.length - 1
-    });
-  });
+    const href = '/' + segments.slice(0, index + 1).join('/');
 
-  return breadcrumbs;
+    return {
+      label,
+      href,
+      isLast: index === segments.length - 1
+    };
+  });
 }
 
 export function MainHeader({
@@ -74,9 +81,9 @@ export function MainHeader({
   isMobileMenuOpen = false
 }: MainHeaderProps) {
 
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((s) => s.user);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const logout = useAuthStore((s) => s.logout);
   const profileLoading = !isInitialized;
 
   const pathname = usePathname();
@@ -86,18 +93,11 @@ export function MainHeader({
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Show loading state first
       router.push('/auth/logout-loading');
-
-      // Call auth store's logout which handles both session clearing and state reset
       await logout();
-
-      // Navigate to login after logout is fully complete
-      // Middleware will recognize missing session and allow navigation to login
       router.push('/auth/login');
     } catch (error) {
       console.error('Sign out failed:', error);
-      // Force redirect to login on error and ensure local state is cleared
       useAuthStore.setState({
         user: null,
         session: null,
@@ -113,78 +113,65 @@ export function MainHeader({
     radius: 100,
   }).toDataUri();
 
-
   return (
-    <TooltipProvider delayDuration={200}>
-      <header className="sticky top-0 z-40  ">
-        <div className="h-14 md:h-16 relative mx-auto px-3 sm:px-4  flex items-center">
-          {/* Left Section - Mobile Menu & Desktop Collapse/Expand + Breadcrumbs */}
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            {/* Mobile Menu Button - Visible only on mobile */}
+    <TooltipProvider delayDuration={100}>
+      <header className="relative w-full z-40 bg-card sm:bg-background">
+        {/* Row 1 — Main Navigation */}
+        <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-4 relative">
+          
+          {/* LEFT GROUP */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Mobile menu */}
             <div className="md:hidden">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={onMobileMenuToggle}
-                  >
+                  <Button variant="ghost" size="icon-sm" onClick={onMobileMenuToggle}>
                     <Menu className="h-5 w-5 text-muted-foreground" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  sideOffset={8}
-                  className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
-                >
-                  Toggle menu
-                </TooltipContent>
+                <TooltipContent side="bottom">Toggle menu</TooltipContent>
               </Tooltip>
             </div>
 
-            {/* Desktop Expand/Collapse Icon - Hidden on mobile */}
+            {/* Sidebar toggler — desktop only 
             <div className="hidden md:block">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={onToggleMainColumn}
-                  >
+                  <Button variant="ghost" size="icon-sm" onClick={onToggleMainColumn}>
                     {mainColumnExpanded ? (
-                      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 transition-all duration-100 text-muted-foreground rotate-180" />
+                      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 rotate-180 text-muted-foreground" />
                     ) : (
-                      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 transition-all duration-100 text-muted-foreground" />
+                      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 text-muted-foreground" />
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  sideOffset={8}
-                  className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
-                >
+                <TooltipContent side="bottom">
                   {mainColumnExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
                 </TooltipContent>
               </Tooltip>
-            </div>
+            </div>*/}
 
-            {/* Breadcrumbs - Hidden on mobile */}
+            {/* Breadcrumbs — desktop only */}
             {breadcrumbs.length > 0 && (
-              <div className="hidden md:flex items-center   ">
+              <div className="hidden lg:flex">
                 <Breadcrumb>
                   <BreadcrumbList>
-                    {breadcrumbs.map((crumb, index) => (
-                      <React.Fragment key={crumb.href}>
-                        {index > 0 && <BreadcrumbSeparator />}
+                    {breadcrumbs.map((c, i) => (
+                      <React.Fragment key={c.href}>
+                        {i > 0 && <BreadcrumbSeparator />}
                         <BreadcrumbItem>
-                          {crumb.isLast ? (
-                            <BreadcrumbPage className=" text-md text-foreground font-medium">
-                              {crumb.label}
+                          {c.isLast ? (
+                            <BreadcrumbPage className="text-md font-medium">
+                              {c.label}
                             </BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink asChild>
-                              <Link href={crumb.href} className="text-md text-muted-foreground hover:text-foreground">
-                                {crumb.label}
+                              <Link
+                                href={c.href}
+                                className="text-md text-muted-foreground hover:text-foreground"
+                              >
+                                {c.label}
                               </Link>
                             </BreadcrumbLink>
                           )}
@@ -197,92 +184,85 @@ export function MainHeader({
             )}
           </div>
 
-          {/* Center Section - Action Search Bar (Always Centered) */}
-          <div className="absolute left-1/2  -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full md:max-w-md px-3 sm:px-4 md:px-6">
-            <ActionSearchBar onOpenCommandPalette={openCommandPalette}  />
+          {/* CENTER GROUP — Search Bar */}
+          <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
+            <ActionSearchBar onOpenCommandPalette={openCommandPalette} cla />
           </div>
 
-          {/* Right Section - Theme & Global Switcher & User Profile */}
-          <div className="ml-auto flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* Hide global switcher on small mobile*/}
-            
-             <ThemeSwitcher />
-{/* <div className="hidden sm:block">
-              <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" />
-            </div> */}
-            {/* User Profile Dropdown */}
+          {/* MOBILE SEARCH (Full width under navbar) */}
+          <div className="sm:hidden relative  px-3">
+            <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
+          </div>
+
+          {/* RIGHT GROUP */}
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          <div className="hidden sm:block"> <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" /> </div>
+            <ThemeSwitcher />
+
+            {/* User dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant="outline"
-                  className="rounded-full p-1 pr-2 h-9 gap-2 hover:bg-muted"
+                  variant="outline2"
+                  className="rounded-full h-9 w-9 flex items-center justify-center hover:bg-muted"
                 >
-                  {profileLoading || !user.id? (
+                  {profileLoading || !user.id ? (
                     <Skeleton className="h-7 w-7 rounded-full" />
                   ) : (
-                    <>
-                      <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
-                        <AvatarImage
-                          src={user?.image ?? avatar}
-                          alt={`${user?.name || 'User'}'s avatar`}
-                          className='rounded-full'
-                        />
-                        <AvatarFallback className="text-xs bg-primary text-primary-foreground font-semibold">
-                          {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="hidden sm:inline text-sm font-medium truncate max-w-[100px]">
-                        {String(user?.name)?.split(' ')[0] || 'User'}
-                      </span>
-                    </>
+                    <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
+                      <AvatarImage src={user?.image ?? avatar} className="rounded-full" />
+                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
                   )}
                 </Button>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-                {/* User Header */}
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-semibold">{user?.name || 'User'}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
-
                 <DropdownMenuSeparator />
 
-                {/* Menu Items */}
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                    <User className="h-4 w-4" />
-                    <span>Profile Settings</span>
+                  <Link href="/profile" className="flex items-center gap-2">
+                    <User className="h-4 w-4" /> Profile Settings
                   </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
-                  <Link href="/subscription" className="flex items-center gap-2 cursor-pointer">
-                    <Crown className="h-4 w-4" />
-                    <span>Subscription</span>
+                  <Link href="/subscription" className="flex items-center gap-2">
+                    <Crown className="h-4 w-4" /> Subscription
                   </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
-                  <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
+                  <Link href="/settings" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" /> Settings
                   </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
-                {/* Sign Out */}
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="text-destructive focus:text-destructive cursor-pointer gap-2"
+                  className="text-destructive gap-2"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
+                  <LogOut className="h-4 w-4" /> Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Add button */}
+            <Button variant="steel" size="icon-sm">
+              <LetsIconsAddDuotone className="h-6 w-6" />
+            </Button>
           </div>
         </div>
+
+
       </header>
     </TooltipProvider>
   );
