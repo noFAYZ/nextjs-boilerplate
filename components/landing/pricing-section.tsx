@@ -52,8 +52,8 @@ export function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="py-24 bg-background">
-      <div className=" mx-auto px-6">
+    <section id="pricing" className="py-20">
+      <div className=" mx-auto ">
  
 
         <ScrollReveal>
@@ -72,11 +72,11 @@ export function PricingSection() {
      </ScrollReveal>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto ">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-6 h-fit ${
+              className={`relative rounded-lg border p-6 h-fit ${
                 plan.highlighted
                   ? 'bg-gradient-to-br from-accent/40 to-muted/95   shadow-lg scale-105'
                   : 'bg-card shadow-xs hover:shadow-xl transition-shadow'

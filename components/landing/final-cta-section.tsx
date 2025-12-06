@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '../ui/card';
 
 export function FinalCTASection() {
   return (
     <section className="py-16 ">
       <div className="container mx-auto px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-[2rem]  bg-card p-12 text-center">
+          <Card className="p-12 text-center">
             <h2 className="text-2xl font-semibold mb-3">
               Ready to get started?
             </h2>
@@ -32,7 +33,7 @@ export function FinalCTASection() {
             <p className="mt-6 text-xs text-muted-foreground">
               Free plan available • No credit card required • Cancel anytime
             </p>
-          </div>
+          </Card>
         </div>
       </div>
     </section>

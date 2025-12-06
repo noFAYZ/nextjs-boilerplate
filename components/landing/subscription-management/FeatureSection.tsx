@@ -36,6 +36,7 @@ import { Card } from "@/components/ui/card";
 import { NetWorthWidget } from "@/components/dashboard-widgets";
 import { SpendingCategoriesWidget } from "@/components/dashboard-widgets";
 import { UpcomingBillsWidget } from "@/components/dashboard-widgets";
+import { ScrollReveal } from "../scroll-reveal";
 
 // Demo Data
 const DEMO_WALLETS = [
@@ -679,19 +680,31 @@ export default function MoneyMapprFeatureSection() {
   return (
     <>
       <style>{animationStyles}</style>
-      <section className="relative w-full py-16 md:py-50  ">
-      <div className="container  mx-auto px-6 ">
+      <section className="relative w-full py-20 md:py-50  ">
+      <div className="max-w-7xl   mx-auto  ">
         {/* Header */}
-        <div className="text-center mb-12 max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
-            Everything, in one app
-          </h2>
-          <p className="text-base   text-muted-foreground">
-            Connect your accounts and MoneyMappr will do the heavy lifting to
+   
+        <ScrollReveal>
+       
+          
+       <div className="relative max-w-lg mx-auto  mb-8 text-center">
+     <div className="mx-auto  text-center ">
+       <h2 className="text-3xl md:text-4xl font-bold mb-4">
+       Everything, in one app
+       </h2>
+       <p className="text-sm md:text-base text-muted-foreground">
+       Connect your accounts and MoneyMappr will do the heavy lifting to
             categorize your finances. From there, you can track, budget,
-            collaborate, and set goals specific to you.
-          </p>
-        </div>
+            collaborate, and set goals specific to you. </p>
+     </div>
+   </div>
+
+
+     </ScrollReveal>
+
+
+
+
     {/* Mobile Feature Selector */}
     <div className="lg:hidden my-8 overflow-x-auto pb-2">
           <div className="flex gap-2 justify-center flex-wrap">

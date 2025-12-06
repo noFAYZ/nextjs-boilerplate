@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getLogoUrl } from "@/lib/services/logo-service";
 import { DuoIconsBank, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, SolarChartSquareBoldDuotone, SolarWalletBoldDuotone } from "../icons/icons";
 import { BgGradient } from "../landing/bg/bg-gradient";
+import { ScrollReveal } from "../landing/scroll-reveal";
 
 interface DatabaseWithRestApiProps {
   className?: string;
@@ -205,16 +206,26 @@ export default function DatabaseWithRestApi({
     <div className={cn("relative flex flex-col justify-center items-center  py-20", className)}>
 <BgGradient  opacity="1"/>
 
-            <div className="relative max-w-lg mx-auto  mb-8 text-center">
-        <div className="mx-auto  text-center ">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Connect all accounts
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Link your banks, crypto wallets, and exchanges to get a complete view of your finances.
-          </p>
-        </div>
-      </div>
+ 
+
+      <ScrollReveal>
+       
+          
+       <div className="relative max-w-lg mx-auto  mb-8 text-center">
+     <div className="mx-auto  text-center ">
+       <h2 className="text-3xl md:text-4xl font-bold mb-4">
+       Connect all accounts
+       </h2>
+       <p className="text-sm md:text-base text-muted-foreground">
+       Link your banks, crypto wallets, and exchanges to get a complete view of your finances.       </p>
+     </div>
+   </div>
+
+
+     </ScrollReveal>
+
+
+
       <div className="relative w-full max-w-2xl">
         {/* Animated Network SVG */}
         <svg
@@ -318,7 +329,7 @@ export default function DatabaseWithRestApi({
             <motion.circle
               cx={centerX}
               cy={centerY}
-              r="8"
+              r="100"
               fill={lightColor}
               opacity="0.7"
               animate={{ r: [3, 5, 3] }}
@@ -330,7 +341,7 @@ export default function DatabaseWithRestApi({
         </svg>
 
         {/* Bottom Card */}
-        <div className="absolute bottom-10 flex w-full flex-col items-center">
+        <div className="absolute bottom-12 flex w-full flex-col items-center">
           <div className="absolute -top-3 z-20 flex items-center justify-center rounded-lg border bg-card px-2 py-1 sm:-top-4 sm:py-1.5">
             <SparklesIcon className="size-3" />
             <span className="ml-2 text-[10px]">
@@ -341,7 +352,7 @@ export default function DatabaseWithRestApi({
           {/* Logo circle */}
           <div
             className={cn(
-              "absolute z-30 grid place-items-center rounded-full border bg-card shadow font-bold text-orange-500",
+              "absolute z-30 grid place-items-center rounded-full border bg-muted shadow font-bold text-orange-500",
               config.logoSize,
               config.bottomOffset
             )}

@@ -27,7 +27,7 @@ export const BgGradient = ({
   size = "150% 150%",
   position = "top",
   from = "transparent",
-  to = "hsl(22.75,71.83%,58.24%)", // your orange: #E57B2A
+  to = "hsl(346.1,38.68%,41.57%)", // your orange: #E57B2A
   via,
   fromOpacity = "0%",
   opacity = "0.4",
