@@ -7,7 +7,6 @@ import { GlobalDocks } from "@/components/layout/global-docks";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
 import { GoogleAnalytics4 } from "@/components/analytics/google-analytics";
 import { ConsentBanner } from "@/components/consent/consent-banner";
-import localFont from 'next/font/local'
 // Import environment validation to ensure it runs at startup
 import "@/lib/config/env";
 
@@ -18,9 +17,7 @@ const geistSans = Readex_Pro({
 
 
 
-const myFont = localFont({
-  src: '../public/fonts/matter/Matter-Regular.otf',
-})
+
 
 export const metadata: Metadata = {
   title: "MoneyMappr - Coming Soon",
