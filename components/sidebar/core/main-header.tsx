@@ -115,7 +115,7 @@ export function MainHeader({
 
   return (
     <TooltipProvider delayDuration={100}>
-      <header className="relative w-full z-40 bg-card sm:bg-background">
+      <header className="relative w-full z-40 bg-sidebar ">
         {/* Row 1 — Main Navigation */}
         <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-4 relative">
           
@@ -162,14 +162,14 @@ export function MainHeader({
                         {i > 0 && <BreadcrumbSeparator />}
                         <BreadcrumbItem>
                           {c.isLast ? (
-                            <BreadcrumbPage className="text-md font-medium">
+                            <BreadcrumbPage className="text-base font-semibold">
                               {c.label}
                             </BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink asChild>
                               <Link
                                 href={c.href}
-                                className="text-md text-muted-foreground hover:text-foreground"
+                                className="text-base font-semibold text-muted-foreground hover:text-foreground"
                               >
                                 {c.label}
                               </Link>

@@ -627,7 +627,9 @@ export function Sidebar({
           activeMenuItem={activeMenuItem}
           selectedMenuItem={selectedMenuItem}
           onMenuItemClick={handleMenuItemClick}
+          onToggleMainColumn={onToggleMainColumn}
           mainColumnExpanded={mainColumnExpanded}
+
         />
        {/*  <SidebarSecondaryColumn
           isExpanded={isSecondaryExpanded}

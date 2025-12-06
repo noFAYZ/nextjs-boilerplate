@@ -30,12 +30,14 @@ import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
+import { TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
   activeMenuItem: string | null;
   selectedMenuItem: string | null;
   onMenuItemClick: (itemId: string) => void;
+  onToggleMainColumn?: () => void;
   mainColumnExpanded?: boolean;
 }
 
@@ -44,6 +46,7 @@ export function SidebarMainColumn({
   activeMenuItem,
   selectedMenuItem,
   onMenuItemClick,
+  onToggleMainColumn,
   mainColumnExpanded = true
 }: SidebarMainColumnProps) {
   const router = useRouter();
@@ -77,68 +80,68 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-60" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-75", mainColumnExpanded ? "w-60" : "w-16")}>
 
-      {/* Sidebar Header - Logo */}
-      <div className="flex h-14 md:h-16 items-center  px-3 md:px-4">
-        {!mainColumnExpanded ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-            <Link href="/" className="flex items-center gap-2 -ml-1 group text-[40px] font-bold text-orange-500" >
-             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
-             𒀭
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              sideOffset={12}
-              className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
-            >
-              MoneyMappr
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-      
-          <Link href="/"
-          className="flex items-center gap-2 group relative   ">
-               <span  className="flex  group text-[42px] font-bold text-orange-500">
-             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
-             𒀭
-              </span>
-            {/*     <Image
-            src="/logo/mappr.svg"
-            alt="MoneyMappr logo"
-            width={48}
-            height={48}
-            className="object-contain w-11 h-11   "
-            priority
-          />
-     <Link
-                href="/dashboard"
-                className="flex items-center justify-center hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/logo/mappr.svg"
-                  alt="MoneyMappr logo"
-                  width={62}
-                  height={62}
-                  className="object-contain w-10 md:w-12 h-10 md:h-12"
-                  priority
-                />
-              </Link> <LogoMappr className='w-10 h-10 antialiased'/> */}
-          <div className="flex flex-col">
-            <span className="text-base sm:text-base font-bold ">
-              MoneyMappr
-            </span>
-            <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
-              Financial Intelligence
-            </span>
-          </div>
-        </Link>
+   
+{/* Sidebar Header - Logo + Toggle */}
+<div
+  className={cn(
+    "relative flex h-14 md:h-16 items-center px-3 md:px-4",
+    !mainColumnExpanded && "group" // activates hover behavior
+  )}
+>
+  {!mainColumnExpanded ? (
+    <>
+      {/* Logo — visible normally, but disabled when hovered */}
+      <Link
+        href="/"
+        className="flex items-center gap-2 -ml-1 text-[40px] font-bold text-orange-500
+                   transition-opacity duration-150 
+                   group-hover:opacity-0 
+                   group-hover:pointer-events-none"    // <— prevents link click on hover
+      >
+        𒀭
+      </Link>
 
+      {/* Toggle — only visible and clickable on hover */}
+      <Button
+        onClick={onToggleMainColumn}
+        variant='ghost'
+        size='icon'
+        className="absolute left-3 opacity-0 group-hover:opacity-100 
+                   transition-opacity duration-150 
+                   pointer-events-none group-hover:pointer-events-auto cursor-pointer" // <— clickable only on hover
+      >
+        <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 text-muted-foreground" />
+      </Button>
+    </>
+  ) : (
+    <>
+      {/* Expanded State — logo + label */}
+      <Link href="/" className="flex items-center gap-2">
+        <span className="text-[42px] font-bold text-orange-500">𒀭</span>
+        <div className="flex flex-col">
+          <span className="text-base font-bold">MoneyMappr</span>
+          <span className="text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
+            Financial Intelligence
+          </span>
+        </div>
+      </Link>
 
-        )}
-      </div>
+      {/* Toggle always visible in expanded mode */}
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        onClick={onToggleMainColumn}
+        className="ml-auto"
+      >
+        <TablerLayoutSidebarLeftExpandFilled
+          className="h-6 w-6 rotate-180 text-muted-foreground"
+        />
+      </Button>
+    </>
+  )}
+</div>
 
 
     {/* <OrganizationSwitcher />

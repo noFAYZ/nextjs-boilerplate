@@ -46,7 +46,7 @@ export function SidebarLayout({
   );
 
   return (
-    <div className={cn("flex h-screen w-full bg-background", className)}>
+    <div className={cn("flex h-screen w-full bg-sidebar", className)}>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:flex-col">
         <Sidebar
@@ -79,7 +79,7 @@ export function SidebarLayout({
       </Sheet>
 
       {/* Main Area */}
-      <main className="flex flex-1 flex-col overflow-y-auto">
+      <main className="flex flex-1 flex-col overflow-y-auto ">
   {showHeader && (
     <div className="w-full">
       <MainHeader
@@ -87,14 +87,17 @@ export function SidebarLayout({
         onToggleMainColumn={toggleMainColumn}
         onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
         isMobileMenuOpen={mobileMenuOpen}
+        
       />
     </div>
   )}
 
-  <div className="container mx-auto p-3 md:p-6 flex-1">
-    {children}
-  </div>
+<div className="flex-1    bg-background rounded-tl-3xl border-border border">
+          <div className="container mx-auto p-3 md:p-6">{children}</div>
+        </div>
 </main>
+
+
     </div>
   );
 }
