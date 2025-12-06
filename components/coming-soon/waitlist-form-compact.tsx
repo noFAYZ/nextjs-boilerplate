@@ -14,6 +14,7 @@ import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/i
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
 import { toast } from 'sonner';
 import { useGTM } from '@/lib/hooks/use-gtm';
+import { Card } from '../ui/card';
 
 const waitlistSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -64,7 +65,7 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
 
   if (isSubmitted) {
     return (
-      <div className={cn("flex flex-col items-center space-y-2", className)}>
+      <Card className={cn("flex flex-col items-center space-y-2 p-6", className)}>
         <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full">
           <SolarCheckCircleBoldDuotone className="w-8 h-8 text-primary" />
         </div>
@@ -81,7 +82,7 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
         >
           Add another email
         </Button>
-      </div>
+      </Card>
     );
   }
 
