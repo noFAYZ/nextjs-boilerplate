@@ -77,7 +77,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/50 transition-all duration-100", mainColumnExpanded ? "w-60" : "w-16")}>
 
       {/* Sidebar Header - Logo */}
       <div className="flex h-14 md:h-16 items-center  px-3 md:px-4">
@@ -147,7 +147,7 @@ export function SidebarMainColumn({
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-1 px-3 md:px-4" : "space-y-1 px-3 ")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 " : "space-y-1 px-3 ")}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -174,13 +174,13 @@ export function SidebarMainColumn({
                         ? "dark:bg-muted/60 bg-accent/50 hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-6 w-4 md:w-6" : "h-6  w-6  ")}  />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5  w-5  ")}  />}
                   >
 
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-medium text-[13px] truncate",
+                        "font-normal text-sm truncate",
                         isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}

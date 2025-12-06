@@ -70,7 +70,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className={cn('',parkinsans.className)}>
+    <div >
   
     {/*   <ScrollProgress /> */}
       

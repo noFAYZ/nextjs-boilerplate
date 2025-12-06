@@ -108,8 +108,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
   return (
     <>
       <nav className={cn('fixed inset-x-0 top-0 z-50', 'py-4')}>
-        <div className={cn('mx-auto transition-all duration-200 border ',
-          '  rounded-full  dark:from-card shadow-sm dark:via-muted dark:to-card',
+        <div className={cn('mx-auto transition-all duration-100  ',
+          '  rounded-full  dark:from-card  dark:via-muted dark:to-card',
           
         /*  */ isScrolled ? 'max-w-sm   bg-gradient-to-br from-black/95 via-black to-black dark:from-foreground/95 dark:via-foreground dark:to-foreground rounded-full  border-border/50 ' : 'max-w-sm  rounded-full bg-gradient-to-r from-black/95 via-black to-black  border-border/50 dark:from-foreground/95 dark:via-foreground dark:to-foreground' 
           

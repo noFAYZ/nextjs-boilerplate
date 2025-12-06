@@ -108,7 +108,7 @@ export function LandingHero() {
   ];
   return (
     <section className="relative overflow-hidden pt-32 md:pt-40 ">
-      
+
       {/* ============================================================= */}
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
@@ -131,13 +131,20 @@ export function LandingHero() {
               <SpendingCard />
             </FloatingCard>
           </div>*/}
-
-      <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-2xl text-center">
+     <video
+    className="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none"
+    src="/landing/sunset.mp4"
+    autoPlay
+    loop
+    muted
+    playsInline
+  />
+      <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-5xl"
+          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-5xl text-white"
         >
           Take Control of Your{" "}
 
@@ -152,7 +159,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-orange-500 px-2 sm:px-2 md:px-6  bg-none overflow-hidden  justify-center rounded-lg py-0 "
+            mainClassName="text-white px-2 sm:px-2 md:px-6  bg-orange-500 overflow-hidden  justify-center rounded-lg py-0 "
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -169,7 +176,7 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-muted-foreground"
+          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-gray-300"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
@@ -214,7 +221,7 @@ export function LandingHero() {
         
        
       </div>
-
+ 
       {/* ============================================================= */}
       {/*        BACKGROUND ONLY BEHIND THE DASHBOARD PREVIEW           */}
       {/* ============================================================= */}
@@ -277,13 +284,15 @@ export function LandingHero() {
           </div>
           </motion.div>
  */}
-  <Example bg />
+  <Example />
 
         </ScrollReveal>
 
       </div>
 
-      {/* Features
+   
+      
+      {/* Features 
       <div className="mt-12 flex flex-wrap justify-center gap-4 ">
         {FEATURES.map(({ Icon, label }, i) => (
           <motion.div
@@ -297,7 +306,7 @@ export function LandingHero() {
             <span className="font-medium">{label}</span>
           </motion.div>
         ))}
-      </div> */}
+      </div>*/}
 
  {/*<section className="relative mx-auto container">
        <h2 className="mb-5 text-center font-semibold text-foreground text-xl tracking-tight md:text-3xl">
