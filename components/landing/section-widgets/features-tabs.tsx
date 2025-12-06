@@ -244,8 +244,8 @@ export function Example({ bg }) {
       alt: "Planning tools preview",
     },
     {
-      light: "/landing/hero-collaborate-light.jpg",
-      dark: "/landing/hero-collaborate-dark.jpg",
+      light: "/landing/plan-light.png",
+      dark: "/landing/plan-dark.png",
       alt: "Collaboration features preview",
     },
   ] as const;
