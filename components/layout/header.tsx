@@ -25,6 +25,7 @@ import { OrganizationSwitcher } from '@/components/organization';
 import { ActionSearchBar } from '../ui/action-search-bar';
 import { useCommandPalette } from '../command/command-palette';
 import { LetsIconsAddDuotone } from '../icons/icons';
+import { UserOrgSwitcher } from '../organization/user-org-switcher';
 
 interface HeaderProps {
   className?: string;
@@ -174,65 +175,9 @@ export function Header({
             <div className="hidden md:block">
               <CurrencySelector variant="compact" showRefresh />
             </div>*/}
-          <div className="hidden sm:block"> <GlobalViewSwitcher size="sm" className="items-start justify-start mx-0" /> </div>
-            <ThemeSwitcher />
 
-            {/* User dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline2"
-                  className="rounded-full h-9 w-9 flex items-center justify-center hover:bg-muted"
-                >
-                  {profileLoading || !user.id ? (
-                    <Skeleton className="h-7 w-7 rounded-full" />
-                  ) : (
-                    <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
-                      <AvatarImage src={user?.image ?? avatar} className="rounded-full" />
-                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-semibold">{user?.name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                </div>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center gap-2">
-                    <User className="h-4 w-4" /> Profile Settings
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link href="/subscription" className="flex items-center gap-2">
-                    <Crown className="h-4 w-4" /> Subscription
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" /> Settings
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="text-destructive gap-2"
-                >
-                  <LogOut className="h-4 w-4" /> Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+<UserOrgSwitcher compact /> 
+   
             {/* Add button */}
             <Button variant="steel" size="icon-sm">
               <LetsIconsAddDuotone className="h-6 w-6" />

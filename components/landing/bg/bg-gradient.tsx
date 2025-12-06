@@ -25,9 +25,9 @@ interface BgGradientProps extends HTMLAttributes<HTMLDivElement> {
 export const BgGradient = ({
   className,
   size = "150% 150%",
-  position = "center",
+  position = "top",
   from = "transparent",
-  to = "rgb(229, 123, 42)", // your orange: #E57B2A
+  to = "hsl(22.75,71.83%,58.24%)", // your orange: #E57B2A
   via,
   fromOpacity = "0%",
   opacity = "0.4",

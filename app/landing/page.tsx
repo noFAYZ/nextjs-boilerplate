@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/font/google';
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
 import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
+import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
 
   const parkinsans = Sora({
     variable: "--font-geist-sans",
@@ -88,13 +89,13 @@ export default function LandingPage() {
        <CryptoShowcase />
       <HowItWorks />
  <Skiper16 />
-     <FeatureGrid />   <PricingSection />
+     <FeatureGrid />   <IntegrationHero />  
       */}
  
-   
- <IntegrationHero /> 
+   <DatabaseWithRestApi />
+
  <TestimonialsDemo />  
-  
+  <PricingSection />
       <FAQSection />
       <FinalCTASection />
        {/* <ComparisonSection /> 

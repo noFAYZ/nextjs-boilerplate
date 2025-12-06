@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { TwitterIcon } from "lucide-react"
+import { ScrollReveal } from "../scroll-reveal"
 
 interface Testimonial {
   image: string
@@ -28,7 +29,7 @@ export function Testimonials({
   className,
   title = "Read what people are saying",
   description = "Dummy feedback from virtual customers using our component library.",
-  maxDisplayed = 6,
+  maxDisplayed = 5,
 }: TestimonialsProps) {
   const [showAll, setShowAll] = useState(false)
 
@@ -38,23 +39,27 @@ export function Testimonials({
 
   return (
     <div className={className}>
-      <div className="flex flex-col items-center justify-center pt-5">
-    
+   
 
-        <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          {title}
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-          {description.split("<br />").map((line, i) => (
+      <ScrollReveal>
+       
+          
+       <div className="relative max-w-xl mx-auto  mb-8 text-center">
+     <div className="mx-auto  text-center ">
+       <h2 className="text-3xl md:text-4xl font-bold mb-4">
+       {title}   </h2>
+       <p className="text-sm md:text-base text-muted-foreground">
+       {description.split("<br />").map((line, i) => (
               <span key={i}>
                 {line}
                 {i !== description.split("<br />").length - 1 && <br />}
               </span>
-            ))}
-          </p>
-        </div>
-      </div>
+            ))}    </p>
+     </div>
+   </div>
+
+
+     </ScrollReveal>
 
       <div className="relative">
         <div
@@ -208,7 +213,7 @@ const testimonials = [
   
   export function TestimonialsDemo() {
     return (
-      <div className="container mx-auto py-10">
+      <div className="max-w-7xl mx-auto py-10">
         <Testimonials testimonials={testimonials} />
       </div>
     )

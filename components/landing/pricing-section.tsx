@@ -5,6 +5,7 @@ import { Check, Sparkles, Zap, Crown, CrownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SolarCheckCircleBoldDuotone } from '../icons/icons';
 import { GameIconsUpgrade } from '../icons';
+import { ScrollReveal } from './scroll-reveal';
 
 export function PricingSection() {
   const plans = [
@@ -53,15 +54,22 @@ export function PricingSection() {
   return (
     <section id="pricing" className="py-24 bg-background">
       <div className=" mx-auto px-6">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Simple, transparent pricing
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Start free, upgrade when you need more. No hidden fees, cancel anytime.
-          </p>
-        </div>
+ 
+
+        <ScrollReveal>
+       
+          
+       <div className="relative max-w-lg mx-auto  mb-8 text-center">
+     <div className="mx-auto  text-center ">
+       <h2 className="text-3xl md:text-4xl font-bold mb-4">
+       Simple, transparent pricing       </h2>
+       <p className="text-sm md:text-base text-muted-foreground">
+       Start free, upgrade when you need more. No hidden fees, cancel anytime.       </p>
+     </div>
+   </div>
+
+
+     </ScrollReveal>
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">

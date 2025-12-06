@@ -29,7 +29,7 @@ import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
-import { OrganizationSwitcher } from '@/components/organization';
+import { UserOrgSwitcher } from '@/components/organization/user-org-switcher';
 import { TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 
 interface SidebarMainColumnProps {
@@ -198,7 +198,7 @@ export function SidebarMainColumn({
 
                     {/* Badge */}
                     {  item.badge && (
-                      <span className="absolute top-0.5 -right-8 flex h-4 w-fit px-2 items-center justify-center rounded-full bg-red-500 z-40 text-[9px] font-bold text-white border border-[#1a1a1a]">
+                      <span className="absolute top-0.5 -right-6 flex h-4 w-fit px-1 items-center justify-center rounded-full bg-red-500 z-40 text-[9px] font-bold text-white border border-[#1a1a1a]">
                         {item.badge}
                       </span>
                     )}
@@ -267,7 +267,7 @@ export function SidebarMainColumn({
         {/* Profile Dropdown */}
         <div className={cn("px-2  ", !mainColumnExpanded && "flex justify-center")}>
 
-          {mainColumnExpanded ? <OrganizationSwitcher  /> : <OrganizationSwitcher compact /> }
+          {mainColumnExpanded ? <UserOrgSwitcher /> : <UserOrgSwitcher compact /> }
 
 
         {/*   <Tooltip>

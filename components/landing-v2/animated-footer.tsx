@@ -114,7 +114,7 @@ export const Footer = ({
         </div>
 
         {/* Bottom logo */}
-        <div className="absolute hover:border-foreground duration-300 drop-shadow-[0_0px_20px_rgba(0,0,0,0.5)] dark:drop-shadow-[0_0px_20px_rgba(255,255,255,0.3)] bottom-24 md:bottom-20 backdrop-blur-sm rounded-[3rem] bg-background/60 left-1/2 border-2 border-border flex items-center justify-center p-3 -translate-x-1/2 z-10">
+        <div className="absolute  duration-300 drop-shadow-[0_0px_20px_rgba(0,0,0,0.5)] dark:drop-shadow-[0_0px_20px_rgba(255,255,255,0.3)] bottom-24 md:bottom-20 backdrop-blur-sm rounded-full bg-background/60 left-1/2  flex items-center justify-center p-3 -translate-x-1/2 z-10">
           <div className="w-12 sm:w-16 md:w-24 h-12 sm:h-16 md:h-24 bg-gradient-to-br from-foreground to-foreground/80 rounded-full flex items-center justify-center shadow-lg text-[70px] text-orange-500">
           𒀭
           </div>

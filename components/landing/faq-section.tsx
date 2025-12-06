@@ -38,12 +38,20 @@ export function FAQSection() {
     <section id="faq" className="py-16 bg-background scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6">
         <ScrollReveal>
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl font-semibold mb-2">Frequently Asked Questions</h2>
-            <p className="text-sm text-muted-foreground">
-              Everything you need to know about MoneyMappr
-            </p>
-          </div>
+       
+          
+          <div className="relative max-w-lg mx-auto  mb-8 text-center">
+        <div className="mx-auto  text-center ">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          Frequently Asked Questions
+          </h2>
+          <p className="text-sm md:text-base text-muted-foreground">
+          Everything you need to know about MoneyMappr
+          </p>
+        </div>
+      </div>
+
+
         </ScrollReveal>
 
         <div className="max-w-3xl mx-auto space-y-2">
