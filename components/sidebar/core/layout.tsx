@@ -93,7 +93,7 @@ export function SidebarLayout({
   )}
 
 <div className="flex-1    bg-background rounded-tl-3xl border-border border">
-          <div className=" mx-auto p-3 md:p-6">{children}</div>
+          <div className=" container mx-auto p-3 md:p-6">{children}</div>
         </div>
 </main>
 
