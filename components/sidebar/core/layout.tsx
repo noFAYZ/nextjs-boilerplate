@@ -80,7 +80,20 @@ export function SidebarLayout({
 
       {/* Main Area */}
       <main className="flex flex-1 flex-col overflow-y-auto ">
-  {showHeader && (
+{/*   {showHeader && (
+    <div className="w-full">
+      <MainHeader
+        mainColumnExpanded={mainColumnExpanded}
+        onToggleMainColumn={toggleMainColumn}
+        onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        isMobileMenuOpen={mobileMenuOpen}
+        
+      />
+    </div>
+  )} */}
+
+<div className="flex-1 shadow-xl mt-3 bg-background rounded-tl-3xl border-border border">
+{showHeader && (
     <div className="w-full">
       <MainHeader
         mainColumnExpanded={mainColumnExpanded}
@@ -92,7 +105,10 @@ export function SidebarLayout({
     </div>
   )}
 
+<<<<<<< Updated upstream
 <div className="flex-1    bg-background rounded-tl-3xl border-border border">
+=======
+>>>>>>> Stashed changes
           <div className=" container mx-auto p-3 md:p-6">{children}</div>
         </div>
 </main>

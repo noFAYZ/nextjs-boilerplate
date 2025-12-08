@@ -9,6 +9,8 @@ import {
   ArrowUp,
   ArrowDown,
   RefreshCcw,
+  Minus,
+  TrendingDown,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -43,6 +45,9 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import { MetricCard } from '../ui/metric-card';
+import { CurrencyDisplay } from '../ui/currency-display';
+import { Card } from '../ui/card';
 
 /**
  * Enterprise-grade NetWorth Chart Component
@@ -586,7 +591,7 @@ const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
 
   return (
     <g>
-      <circle cx={cx} cy={cy} r={3} fill="white" stroke="var(--chart-1)" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={2.5} fill="white" stroke="var(--chart-1)" strokeWidth={2} />
     </g>
   );
 };
@@ -1047,52 +1052,37 @@ export function NetWorthChart({
   // Full mode - enterprise-grade with accessibility
 
   return (
-    <section
+    <Card
       ref={chartContainerRef}
-      className={cn("w-full space-y-2  border border-border/80 rounded-none  bg-card shadow-xs pr-2 pt-2", className)}
+      className={cn("w-full space-y-2 shadow-none hover:shadow-none border-border/80 ", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
 
 
-      {/* Compact Metrics Cards 
-      {showMetrics && metrics && !isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+     
 
-          <MetricCard
-            label="Current Net Worth"
-            value={metrics.current}
-            change={metrics.change}
-            changePercent={metrics.changePercent}
-            trend={metrics.isPositive ? 'up' : metrics.isNeutral ? 'neutral' : 'down'}
-            icon={metrics.isPositive ? TrendingUp : metrics.isNeutral ? Minus : TrendingDown}
-          />
-          <MetricCard
-            label="Peak Value"
-            value={metrics.peak}
-            icon={TrendingUp}
-            trend="up"
-          />
-          <MetricCard
-            label="Lowest Value"
-            value={metrics.trough}
-            icon={TrendingDown}
-            trend="down"
-          />
+<div className='flex justify-between items-center gap-2 p-4'>
+
+   {/* Compact Metrics Cards */}
+   {  metrics && !isLoading && (
+        <div className="flex">
+          <CurrencyDisplay amountUSD={metrics.current} variant='xl' className='font-medium' />
+       
         </div>
-      )}*/}
+      )}
 
-<div className='flex justify-end gap-2'>
+<div className='flex items-center gap-2'>
       {/* Chart Type Selector */}
       <Select value={chartType} onValueChange={(v) => setChartType(v as 'performance' | 'breakdown')}>
-        <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none w-[120px]" size='xs' variant='outline2'>
+        <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none w-[120px]" size='xs' variant='outline2'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className='rounded-none shadow-none'>
-          <SelectItem value="performance" className='rounded-none'>
+        <SelectContent className=' shadow-none'>
+          <SelectItem value="performance" className=''>
             <span className="font-medium text-xs">Performance</span>
           </SelectItem>
-          <SelectItem value="breakdown" className='rounded-none'>
+          <SelectItem value="breakdown" className=''>
             <span className="font-medium text-xs">Breakdown</span>
           </SelectItem>
         </SelectContent>
@@ -1100,13 +1090,13 @@ export function NetWorthChart({
 
       {showPeriodFilter && chartType === 'performance' && (
         <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)} >
-          <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none" size='xs' variant='outline2'>
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none" size='xs' variant='outline2'>
             <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className='rounded-none shadow-none'>
+          <SelectContent className=' shadow-none'>
             {periods.map((period) => (
-              <SelectItem key={period.value} value={period.value} className='rounded-none'>
+              <SelectItem key={period.value} value={period.value} className=''>
                 <span className="font-medium text-xs">{period.label}</span>
               </SelectItem>
             ))}
@@ -1116,23 +1106,23 @@ export function NetWorthChart({
 
       {showPeriodFilter && chartType === 'breakdown' && (
         <Select value={breakdownPeriod} onValueChange={(v) => setBreakdownPeriod(v as 'monthly' | 'quarterly' | 'yearly')} >
-          <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none w-[110px]" size='xs' variant='outline2'>
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none w-[110px]" size='xs' variant='outline2'>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className='rounded-none shadow-none'>
+          <SelectContent className=' shadow-none'>
             {breakdownPeriods.map((period) => (
-              <SelectItem key={period.value} value={period.value} className='rounded-none'>
+              <SelectItem key={period.value} value={period.value} className=''>
                 <span className="font-medium text-xs">{period.label}</span>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-      )}
+      )}</div>
 </div>
 
       {/* Chart Container */}
       <div
-        className="relative "
+        className="relative -m-2 "
         style={{ height }}
       >
  
@@ -1165,40 +1155,23 @@ export function NetWorthChart({
               {chartType === 'performance' ? (
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 15, right: 20, left: 15, bottom: 10 }}
+                  margin={{  top:40 }}
                   role="img"
                   aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
                 >
                   <defs>
                     <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.5} />
-                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.33} />
                       <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
                     </linearGradient>
                   </defs>
 
-                  <CartesianGrid vertical={false} />
+                {/*   <CartesianGrid vertical={false} /> */}
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={8}
-                    interval="preserveStartEnd"
-                  />
+              
 
-                  <YAxis
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-8}
-                    domain={yAxisDomain as [number, number]}
-                    width={50}
-                    aria-label="Net worth value axis"
-                  />
-
+                 
                   <ReferenceLine
                     y={averageValue}
                     stroke="var(--muted-foreground)"
@@ -1226,7 +1199,7 @@ export function NetWorthChart({
                     isAnimationActive={true}
                     animationDuration={500}
                     dot={<CustomNetWorthDot />}
-                    activeDot={{ r: 5 }}
+                    activeDot={{ r: 3 }}
                   />
                 </AreaChart>
               ) : (
@@ -1329,6 +1302,6 @@ export function NetWorthChart({
         
       </div>
 
-    </section>
+    </Card>
   );
 }

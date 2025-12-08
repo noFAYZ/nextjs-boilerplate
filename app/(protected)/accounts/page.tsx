@@ -632,7 +632,7 @@ export default function AccountsPage() {
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
-      {/* Header */}
+      {/* Header
    
         <div className="flex items-center justify-end ">
         <div className="flex items-center gap-2">
@@ -650,17 +650,12 @@ export default function AccountsPage() {
     </div>
          
         </div>
- 
+  */}
 
       {/* Body Layout */}
       <div className="">
 
-        {/* Full-width Chart*/}
-        {showNetWorth && (
-          <div className="mb-4">
-            <NetWorthChart mode="demo"   height={300}  />
-          </div>
-        )} 
+    
 
 
 
@@ -669,7 +664,12 @@ export default function AccountsPage() {
 
           {/* Accordions Column */}
           <div className="lg:col-span-6">
-     
+         {/* Full-width Chart*/}
+        {showNetWorth && (
+          <div className="mb-4">
+            <NetWorthChart mode="demo"   height={300}  />
+          </div>
+        )} 
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <Accordion type="multiple" defaultValue={categoriesWithAccounts.map(c => c.key)} className='space-y-2'>
@@ -687,7 +687,7 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden rounded-xl   border"
+                      className="overflow-hidden rounded-xl shadow-sm"
                     >
                       <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-b-none cursor-pointer hover:bg-card/80">
                         {/* Icon */}

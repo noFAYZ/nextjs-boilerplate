@@ -80,7 +80,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-75", mainColumnExpanded ? "w-60" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-60" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}

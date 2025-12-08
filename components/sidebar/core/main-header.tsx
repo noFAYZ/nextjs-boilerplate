@@ -116,7 +116,7 @@ export function MainHeader({
 
   return (
     <TooltipProvider delayDuration={100}>
-      <header className="relative w-full z-40 bg-sidebar ">
+      <header className="relative w-full z-40  ">
         {/* Row 1 — Main Navigation */}
         <div className="flex items-center justify-between h-14  px-3 sm:px-4 relative">
           

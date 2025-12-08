@@ -10,12 +10,17 @@ import { ConsentBanner } from "@/components/consent/consent-banner";
 // Import environment validation to ensure it runs at startup
 import "@/lib/config/env";
 
+import localFont from 'next/font/local'
+
+
 const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-
+const myFont = localFont({
+  src: '../public/fonts/matter/Matter-Regular.otf',
+})
 
 
 
@@ -37,7 +42,7 @@ export default function RootLayout({
         
       </head>
       <body
-        className={`${geistSans.className}   `}
+        className={`${myFont.className}   `}
       >
         <GoogleTagManagerNoScript />
         <Providers>

@@ -34,6 +34,8 @@ import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/fon
 import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
 import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
 import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
+import IllustrationShowcase from '@/components/landing-v2/bento-section';
+import FeaturesGrid from '@/components/landing-v2/bento-section';
 
   const parkinsans = Sora({
     variable: "--font-geist-sans",
@@ -77,7 +79,8 @@ export default function LandingPage() {
       
     <LandingNav />
       <LandingHero />
-<FinanceHeroDubStyle />
+<FinanceHeroDubStyle /> 
+<FeaturesGrid />
    <MoneyMapprFeatureSection />
 
 
@@ -93,6 +96,8 @@ export default function LandingPage() {
       */}
  
    <DatabaseWithRestApi />
+
+  
 
  <TestimonialsDemo />  
   <PricingSection />
