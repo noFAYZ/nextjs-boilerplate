@@ -105,10 +105,6 @@ export function SidebarLayout({
     </div>
   )}
 
-<<<<<<< Updated upstream
-<div className="flex-1    bg-background rounded-tl-3xl border-border border">
-=======
->>>>>>> Stashed changes
           <div className=" container mx-auto p-3 md:p-6">{children}</div>
         </div>
 </main>
