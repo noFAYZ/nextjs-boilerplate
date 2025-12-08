@@ -30,7 +30,7 @@ export function PricingSection() {
     {
       name: 'Pro',
       icon: GameIconsUpgrade,
-      price: '$12.99',
+      price: '$14.99',
       period: 'per month',
       description: 'For serious financial tracking and optimization',
       features: [

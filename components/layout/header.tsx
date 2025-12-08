@@ -24,7 +24,7 @@ import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
 import { ActionSearchBar } from '../ui/action-search-bar';
 import { useCommandPalette } from '../command/command-palette';
-import { LetsIconsAddDuotone } from '../icons/icons';
+import { LetsIconsAddDuotone, TablerLayoutSidebarLeftExpandFilled } from '../icons/icons';
 import { UserOrgSwitcher } from '../organization/user-org-switcher';
 
 interface HeaderProps {
@@ -114,7 +114,7 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          ' border-b border-border/80  bg-sidebar ',
+          '  ',
           isScrolled && sticky && ' ',
           className
         )}
@@ -124,62 +124,62 @@ export function Header({
         {/* Simplified Header */}
         <div className="flex items-center justify-between h-14 md:h-16 px-4 lg:px-6">
           {/* Left Section - Logo, Organization Switcher, & Search */}
-            <div className='flex items-center gap-8'>
-          <div className="flex items-center">
-          <Link
-                href="/"
-                className="flex items-center gap-2 group relative   "
+ 
+          <div className="relative group">
+  {/* Circular Wrapper */}
+  <div className="flex items-center justify-center w-11 h-11 
+                  bg-card dark:bg-accent rounded-full shadow-lg border relative">
 
-              >
-               <span  className="flex  group text-[42px] font-bold text-orange-500">
-             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
-             𒀭
-              </span>
-                <div className="flex flex-col">
-                  <span className="text-base sm:text-base font-bold ">
-                    MoneyMappr
-                  </span>
-                  <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
-                    Financial Intelligence
-                  </span>
-                </div>
-              </Link>
+    {/* Logo link */}
+    <Link
+      href="/"
+      className="flex items-center justify-center text-[34px] font-bold text-orange-500
+                 transition-all duration-200
+                 group-hover:opacity-0 group-hover:pointer-events-none"
+    >
+      𒀭
+    </Link>
 
-    
+    {/* Toggle Button (only visible on hover) */}
+    <Button
+      variant="ghost"
+      size="icon"
+      className="absolute inset-0 m-auto flex items-center rounded-full justify-center
+                 opacity-0 group-hover:opacity-100 
+                 transition-opacity duration-200
+                 pointer-events-none group-hover:pointer-events-auto"
+    >
+      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 text-muted-foreground" />
+    </Button>
 
+  </div>
+</div>
 
-
-          </div>
-
-        
-
-
-{/* Product Popover (hover to open) */}
-<ProductPopover />
-
-          
-          </div>
 
           {/* Center Section - Command Palette Search */}
        
 
-             {/* Center Section - Action Search Bar (Always Centered) */}
+             {/* Center Section - Action Search Bar (Always Centered) 
              <div className="absolute left-1/2  -translate-x-1/2 top-1/2 transform -translate-y-1/2 w-full md:max-w-md px-3 sm:px-4 md:px-6">
             <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
-          </div>
+          </div>*/}
 
           {/* Right Section - Actions */}
 
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-2 ml-auto h-11 px-2 rounded-full bg-card dark:bg-accent border shadow-lg justify-evenly">
              {/* Currency Selector 
             <div className="hidden md:block">
               <CurrencySelector variant="compact" showRefresh />
             </div>*/}
-
+    
+  <ThemeSwitcher />
+             
+              
+        
 <UserOrgSwitcher compact /> 
    
             {/* Add button */}
-            <Button variant="steel" size="icon-sm">
+            <Button variant="steel" size="icon-sm" className='rounded-full'>
               <LetsIconsAddDuotone className="h-6 w-6" />
             </Button>
           </div>

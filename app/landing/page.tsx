@@ -75,12 +75,12 @@ export default function LandingPage() {
   return (
     <div >
   
-    {/*   <ScrollProgress /> */}
+    {/*   <ScrollProgress /> <FeaturesGrid />*/}
       
     <LandingNav />
       <LandingHero />
 <FinanceHeroDubStyle /> 
-<FeaturesGrid />
+
    <MoneyMapprFeatureSection />
 
 

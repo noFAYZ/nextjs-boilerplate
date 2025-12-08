@@ -145,12 +145,12 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
           <PopoverTrigger asChild>
             <Button
               variant="outline2"
-              size="icon"
-              className="rounded-full flex-shrink-0"
+              size="icon-sm"
+              className="rounded-full   border"
               aria-label={`Current workspace: ${currentOrg.name}`}
               title={user?.name || 'Profile'}
             >
-              <Avatar className="h-full w-full">
+              <Avatar className="h-full w-full border">
                 <AvatarImage
                   src={avatar}
                   alt={`${user?.name || "User"}'s avatar`}
@@ -312,13 +312,13 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
           {/* Divider */}
           <div className="border-t" />
 
-          {/* Global Controls */}
+          {/* Global Controls 
           <div className="flex flex-col flex-1 space-y-2">
             <div className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wide">
               Preferences
             </div>
 
-            {/* View Switcher */}
+   
             <div className="flex w-full">
   <ThemeSwitcher />
               <GlobalViewSwitcher
@@ -329,10 +329,10 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
               
             </div>
 
-            {/* Theme Switcher */}
+            <GlobalViewSwitcher   size="sm" />
           
-          </div>
-
+          </div>*/}
+ <GlobalViewSwitcher   size="sm" />
           {/* Divider */}
           <div className="border-t" />
 

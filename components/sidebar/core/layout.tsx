@@ -92,7 +92,7 @@ export function SidebarLayout({
     </div>
   )} */}
 
-<div className="flex-1 shadow-xl mt-3 bg-background rounded-tl-3xl border-border border">
+<div className="flex-1 shadow-xl mt-3 bg-background rounded-tl-xl border-border border">
 {showHeader && (
     <div className="w-full">
       <MainHeader

@@ -487,7 +487,7 @@ export function NetWorthWidget() {
 
       {/* Category Accordions - Main 5 + More */}
       {MAIN_CATEGORIES.some((cat) => categoriesData[cat]) || hasMore ? (
-        <div className="space-y-1.5">
+        <div className=" -mx-2">
           {/* Main 5 Categories */}
           {MAIN_CATEGORIES.map((categoryKey) => {
             if (!categoriesData[categoryKey]) return null;
@@ -508,15 +508,15 @@ export function NetWorthWidget() {
                 <button
                   onClick={() => toggleGroup(categoryKey)}
                   className={cn(
-                    "group relative border border-border/70 w-full flex items-center gap-2.5 p-2 rounded-lg transition-all duration-75 cursor-pointer bg-muted/50",
-                    "hover:bg-muted/50",
-                    isExpanded && "bg-muted/40"
+                    "group relative  w-full flex items-center gap-2.5  p-1 transition-all duration-75 cursor-pointer  ",
+                    "hover:bg-muted/80",
+                    isExpanded && "bg-muted"
                   )}
                 >
                   {/* Icon */}
                   <div
                     className={cn(
-                      "h-10 w-10 rounded-full shadow border border-border/80 flex items-center justify-center flex-shrink-0  bg-accent"
+                      "h-9 w-9 rounded-full shadow border border-border/80 flex items-center justify-center flex-shrink-0  bg-muted"
                     )}
                   >
                     {categoryInfo.icon}
@@ -563,7 +563,7 @@ export function NetWorthWidget() {
                       return (
                         <div
                           key={account.id}
-                          className="group relative border border-border/60 flex items-center gap-2 p-2 rounded-lg transition-all hover:bg-muted/40 cursor-pointer"
+                          className="group relative  flex items-center gap-2 p-1  transition-all hover:bg-muted/40 cursor-pointer"
                         >
                           <div className="h-8 w-8 rounded-md bg-muted/50 flex items-center justify-center flex-shrink-0 text-xs">
                             📊

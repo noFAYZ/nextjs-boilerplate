@@ -106,18 +106,18 @@ export function RecentActivityWidget() {
               href={`/accounts/bank/${transaction.accountId}`}
               className="block"
             >
-              <div className="group border border-border/80 rounded-lg  hover:bg-muted/40 transition-all cursor-pointer bg-muted/30">
+              <div className="group hover:-translate-y-1 hover:bg-muted/70 transition-all duration-75 cursor-pointer ">
                 <div className="flex items-center gap-3">
                   {/* Category Icon */}
                   <div
                     className={cn(
-                      "h-11 w-11 rounded-lg flex items-center border border-border/50 justify-center flex-shrink-0",
-                      transaction.category ? "bg-muted" : "bg-muted"
+                      "h-11 w-11 flex items-center justify-center flex-shrink-0",
+                      
                     )}
                   >
                     <Icon
                       className={cn(
-                        "h-8 w-8",
+                        "h-7 w-7",
                         transaction.category
                           ? ""
                           : isIncome
@@ -131,7 +131,7 @@ export function RecentActivityWidget() {
                   <div className="flex-1 min-w-0 pr-2">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm truncate">
+                        <h4 className="font-medium text-sm truncate">
                           {transaction.description || transaction.merchantName || "Transaction"}
                         </h4>
                         <div className="flex items-center gap-1.5 mt-0.5">

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -80,7 +80,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-60" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
@@ -150,7 +150,22 @@ export function SidebarMainColumn({
       {/* Main Menu */}
       <div className="flex-1 py-2 md:py-3 overflow-visible">
 
+          {/*   */} 
+
         <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 " : "space-y-1 px-3 ")}>
+
+<button
+               
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md bg-muted dark:bg-muted/70 border border-border hover:border-foreground/10 hover:bg-muted/60 focus:outline-none focus:ring-0 mb-8  transition-colors text-left cursor-text"
+              >
+                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+                {mainColumnExpanded && (<div className='flex w-full justify-between'><span className=" text-muted-foreground text-xs  ">Search...</span>
+                <kbd className=" sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground  md:flex">
+                  ⌘K
+                </kbd>
+                </div>)}
+              </button> 
+
           {menuItems.map((item) => {
             const Icon = item.icon;
             // Check if this item should be highlighted
@@ -236,11 +251,11 @@ export function SidebarMainColumn({
       {/* Footer Actions */}
       <div className={cn("pb-2 md:pb-3 space-y-6", mainColumnExpanded ? "px-2 md:px-2" : "px-1 md:px-1")}>
 
-        {mainColumnExpanded && (
+       {/*  {mainColumnExpanded && (
           <div className="px-2">
             <div className="space-y-2 rounded-lg bg-gradient-to-br from-muted/90 via-muted/30 to-muted border border-border/80 p-2 shadow-sm">
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-lg md:rounded-xl bg-background border border-border/80 shadow-sm flex-shrink-0">
+                <div className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-lg md:rounded-xl bg-accent border border-border/80 shadow-sm flex-shrink-0">
                   <Crown className="h-4 md:h-5 w-4 md:w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -261,11 +276,12 @@ export function SidebarMainColumn({
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
 
         {/* Profile Dropdown */}
-        <div className={cn("px-2  ", !mainColumnExpanded && "flex justify-center")}>
+        <div className={cn("px-2  space-y-4", !mainColumnExpanded && "flex justify-center")}>
+ 
 
           {mainColumnExpanded ? <UserOrgSwitcher /> : <UserOrgSwitcher compact /> }
 
