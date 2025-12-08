@@ -42,7 +42,7 @@ export default function RootLayout({
         
       </head>
       <body
-        className={`${myFont.className}   `}
+        className={`${geistSans.className}   `}
       >
         <GoogleTagManagerNoScript />
         <Providers>

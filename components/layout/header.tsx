@@ -114,8 +114,8 @@ export function Header({
         className={cn(
           'w-full z-50',
           sticky && 'sticky top-0',
-          '  ',
-          isScrolled && sticky && ' border-b border-border/80  bg-sidebar',
+          ' border-b border-border/80  bg-sidebar ',
+          isScrolled && sticky && ' ',
           className
         )}
         role="banner"
