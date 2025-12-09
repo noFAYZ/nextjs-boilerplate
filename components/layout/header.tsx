@@ -26,6 +26,7 @@ import { ActionSearchBar } from '../ui/action-search-bar';
 import { useCommandPalette } from '../command/command-palette';
 import { DuoIconsBank, HeroiconsWallet16Solid, LetsIconsAddDuotone, MageDashboard, SolarHomeSmileBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '../icons/icons';
 import { UserOrgSwitcher } from '../organization/user-org-switcher';
+import { useGlobalUIStore } from '@/lib/stores/global-ui-store';
 
 interface HeaderProps {
   className?: string;
@@ -46,7 +47,7 @@ export function Header({
   const { openCommandPalette } = useCommandPalette();
   const menuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
-
+  const openAddMenu = useGlobalUIStore((s) => s.openAddMenu);
   // PRODUCTION-GRADE: Use AuthStore directly instead of fetching profile
   // No API calls - just read from memory
   const user = useAuthStore((state) => state.user);
@@ -220,6 +221,7 @@ export function Header({
     {/* Add Button — animates in with stagger */}
     <Button
       variant="steel"
+      onClick={openAddMenu}
       size="icon-sm"
       className="
         rounded-full

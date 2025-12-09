@@ -332,13 +332,13 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
             <GlobalViewSwitcher   size="sm" />
           
           </div>*/}
- <GlobalViewSwitcher   size="sm" />
+ <GlobalViewSwitcher   size="sm" className='border-0'/>
           {/* Divider */}
           <div className="border-t" />
 
           {/* Sign Out */}
           <Button
-            variant="delete"
+            variant="steel"
             size="xs"
             className="w-full bg-red-400"
             onClick={handleSignOut}

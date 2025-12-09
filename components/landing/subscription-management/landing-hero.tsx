@@ -141,13 +141,13 @@ export function LandingHero() {
     playsInline
   />*/}
 
-<BgGradient patternType="wave" imageSrc={'/landing/bg3.jpg'} imageOpacity={0.9} />
+<BgGradient patternType="wave" imageSrc={'/landing/bg1.jpg'} imageOpacity={0.9} />
       <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-lg xl:max-w-2xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-[hsl(1.4,36.13%,23.33%)] "
+          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-white/90 "
         >
           Take Control of Your{" "}
 
@@ -162,7 +162,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-[hsl(38.69,83.56%,57.06%)] px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-[hsl(7.37,44.19%,25.29%)]/70 to-[hsl(7.37,44.19%,25.29%)]"
+            mainClassName="text-white/80 px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-[hsl(41.65,79.44%,79.02%)]/50 to-[hsl(41.65,79.44%,79.02%)]/30"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -179,7 +179,7 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-[hsl(9.47,45.89%,40.59%)]"
+          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-gray-200"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
