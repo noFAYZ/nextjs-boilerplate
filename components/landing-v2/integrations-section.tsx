@@ -164,21 +164,21 @@ export default function DatabaseWithRestApi({
       <div
         className="absolute top-0 left-0 right-0 w-full h-[303px]  "
         style={{
-          background: "linear-gradient(to bottom, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+          background: "linear-gradient(to bottom, var(--background) 20%, rgba(217, 217, 217, 0) 100%)",
           zIndex: 10,
         }}
       />
 
       {/* Bottom overlay */}
       <div
-        className="absolute bottom-0 left-0 right-0 w-full h-[253px] pointer-events-none z-100"
+        className="absolute bottom-0 left-0 right-0 w-full h-[120px] pointer-events-none z-100"
         style={{
-          background: "linear-gradient(to top, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+          background: "linear-gradient(to top, var(--background) 20%, rgba(217, 217, 217, 0) 100%)",
           zIndex: 10,
         }}
       />
 
-      <BgGradient pattern={false} imageSrc="/landing/bg1.jpg" opacity="0" imageOpacity={0.75} />
+      <BgGradient pattern={false} imageSrc="/landing/hero-bg.jpeg" opacity="0" imageOpacity={0.8} />
       <ScrollReveal className="z-20">
            {/* caption under center */}
     
@@ -201,7 +201,7 @@ export default function DatabaseWithRestApi({
       </ScrollReveal>
 
       <div
-        className="absolute top-0 left-0 right-0 w-full h-[303px]  "
+        className="absolute top-0 left-0 right-0 w-full h-[203px]  "
         style={{
           background: "linear-gradient(to bottom, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
           zIndex: 10,
