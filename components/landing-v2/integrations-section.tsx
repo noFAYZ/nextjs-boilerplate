@@ -178,7 +178,7 @@ export default function DatabaseWithRestApi({
         }}
       />
 
-      <BgGradient pattern={false} imageSrc="/landing/hero-bg.jpeg" opacity="0" imageOpacity={0.8} />
+      <BgGradient pattern={false} imageSrc="/landing/bg2.jpg" opacity="0" imageOpacity={0.8} />
       <ScrollReveal className="z-20">
            {/* caption under center */}
     

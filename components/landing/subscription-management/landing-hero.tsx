@@ -132,7 +132,7 @@ export function LandingHero() {
           zIndex: 10,
         }}
       />
-      <BgGradient pattern={false} imageSrc="/landing/bg3.jpg" opacity="0" imageOpacity={0.8} />
+      <BgGradient pattern={false} imageSrc="/landing/bg3.jpg" opacity="0" imageOpacity={0.78} />
        {/*    <div className="absolute  hidden lg:block mx-auto h-96 w-full">
             <FloatingCard delay={0} className="left-0 top-0 -rotate-12">
               <CryptoCard />
