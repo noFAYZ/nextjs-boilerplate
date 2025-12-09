@@ -1,10 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Core configuration */
   devIndicators: false,
+
+  /* Image Optimization */
   images: {
     dangerouslyAllowSVG: true,
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 365, // Cache images for 1 year
     remotePatterns: [
       {
         protocol: 'https',
@@ -46,16 +50,52 @@ const nextConfig: NextConfig = {
         hostname: 'token-icons.s3.us-east-1.amazonaws.com',
         pathname: '/**',
       },
-    ]
+      {
+        protocol: 'https',
+        hostname: 'moneymappr.com',
+        pathname: '/**',
+      },
+    ],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
+  /* TypeScript */
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
   },
+
+  /* Compression */
+  compress: true,
+
+  /* Headers for security and caching */
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+
+  /* Rewrites for PostHog */
   async rewrites() {
     return [
       {
@@ -68,8 +108,22 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Required to support PostHog trailing slash API requests
+
+  /* PostHog support */
   skipTrailingSlashRedirect: true,
+
+  /* Experimental Performance Optimizations */
+  // experimental: {
+  //   optimizePackageImports: [
+  //     'framer-motion',
+  //     '@radix-ui/react-dialog',
+  //     '@radix-ui/react-dropdown-menu',
+  //     '@radix-ui/react-tabs',
+  //     '@radix-ui/react-slot',
+  //     'lucide-react',
+  //     'recharts',
+  //   ],
+  // },
 };
 
 export default nextConfig;

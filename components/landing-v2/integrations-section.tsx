@@ -150,9 +150,9 @@ export default function DatabaseWithRestApi({
   const badges = [
     { icon: <HeroiconsWallet16Solid className="size-4" />, label: badgeTexts.first },
   
-    { icon: <SolarChartSquareBoldDuotone className="size-4" />, label: "Investment" },
+   
     { icon: <DuoIconsBank className="size-4" />, label: badgeTexts.second }, 
-    { icon: <SolarCalculatorBoldDuotone className="size-4" />, label: "Budgeting" },
+
   ];
 
   const badgeCoords = badgePositions(cfg.bigNode * 3.5, badges.length);

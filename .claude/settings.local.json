@@ -4,7 +4,9 @@
       "Bash(npm run build:*)",
       "Bash(tee:*)",
       "Bash(wc:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

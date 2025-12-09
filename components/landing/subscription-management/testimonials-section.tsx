@@ -125,14 +125,14 @@ export function Testimonials({
 }
 const testimonials = [
   {
-    image: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50"%3E%3Crect fill="%23e5e7eb" width="50" height="50"/%3E%3Ccircle cx="25" cy="25" r="20" fill="%239ca3af"/%3E%3C/svg%3E',
     text: 'This app finally gave me a single place to track both my traditional accounts and my crypto wallets. The clarity it brings to my finances is unmatched.',
     name: 'Alice Johnson',
     username: '@alicejohnson',
     social: 'https://i.imgur.com/VRtqhGC.png'
   },
   {
-    image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50"%3E%3Crect fill="%23d1d5db" width="50" height="50"/%3E%3Ccircle cx="25" cy="25" r="20" fill="%236b7280"/%3E%3C/svg%3E',
     text: 'Our team adopted this app internally, and the ability to link banks, exchanges, and cold wallets in one dashboard has transformed how we manage budgets.',
     name: 'David Smith',
     username: '@davidsmith',
