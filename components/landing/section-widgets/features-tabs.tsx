@@ -81,7 +81,7 @@ export function FeatureTabs({ tabs, bg }) {
       </div>
 
       {/* Panels */}
-      <div className="mx-auto mt-10 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px] ">
+      <div className="mx-auto mt-5 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px] ">
         <div className="relative h-[300px] md:h-[680px] ">
           {tabs.map((t, i) => (
             <div

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import {  Readex_Pro, Georama,Andika
-  , Space_Grotesk,Sora,Funnel_Display,Parkinsans,Raleway } from "next/font/google";
+  , Space_Grotesk,Sora,Funnel_Display,Parkinsans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
@@ -19,7 +19,7 @@ const geistSans = Sora({
 });
 
 const myFont = localFont({
-  src: '../public/fonts/matter/Matter-Regular.otf',
+  src: '../public/fonts/arch/archia-regular-webfont.ttf',
 })
 
 
@@ -42,7 +42,7 @@ export default function RootLayout({
         
       </head>
       <body
-        className={`${geistSans.className}   `}
+        className={`${myFont.className}   `}
       >
         <GoogleTagManagerNoScript />
         <Providers>

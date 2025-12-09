@@ -7,6 +7,8 @@ import { ScrollReveal } from "../scroll-reveal";
 import { RotatingHeadline } from "@/components/ui/RotatingWords";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 import {
   DuoIconsCreditCard,
@@ -32,6 +34,8 @@ import { AvatarCircles } from "../section-widgets/avatar-circles";
 import { Example } from "../section-widgets/features-tabs";
 import { LogoCloud } from "./logo-cld-section";
 import { BgGradient } from "../bg/bg-gradient";
+import { getLogoUrl } from "@/lib/services/logo-service";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },
@@ -113,26 +117,40 @@ export function LandingHero() {
       {/* ============================================================= */}
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
-
-       
-         {/* Floating Finance Cards - Ultra Premium   <div className="relative -z-40 hidden lg:block  mx-auto">
-            <FloatingCard delay={0} className="left-10 top-10 -rotate-12">
+      <div
+        className="absolute top-0 left-0 right-0 w-full h-[703px]"
+        style={{
+          background: "linear-gradient(to bottom, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+          zIndex: 0,
+        }}
+      />
+          {/* Bottom overlay */}
+          <div
+        className="absolute bottom-0 left-0 right-0 w-full h-[103px] pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+          zIndex: 10,
+        }}
+      />
+      <BgGradient pattern={false} imageSrc="/landing/bg3.jpg" opacity="0" imageOpacity={0.8} />
+       {/*    <div className="absolute  hidden lg:block mx-auto h-96 w-full">
+            <FloatingCard delay={0} className="left-0 top-0 -rotate-12">
               <CryptoCard />
             </FloatingCard>
 
-            <FloatingCard delay={0.5} className="left-left-4 top-64 rotate-6">
+            <FloatingCard delay={0.5} className="left-12 top-56 rotate-6">
               <SubscriptionCard />
             </FloatingCard>
 
-            <FloatingCard delay={1} className="right-20 top-20 rotate-12">
+            <FloatingCard delay={1} className="right-0 top-0 rotate-12">
               <NetWorthCard />
             </FloatingCard>
 
-            <FloatingCard delay={1.5} className="right-10 top-80 -rotate-6">
+            <FloatingCard delay={1} className="right-20 top-54 -rotate-6">
               <SpendingCard />
             </FloatingCard>
           </div>
-     <video
+  Floating Finance Cards - Ultra Premium     <video
     className="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none"
     src="/landing/sunset.mp4"
     autoPlay
@@ -141,13 +159,13 @@ export function LandingHero() {
     playsInline
   />*/}
 
-<BgGradient patternType="wave" imageSrc={'/landing/bg3.jpg'} imageOpacity={0.9} />
+
       <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-lg xl:max-w-2xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-semibold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-[hsl(1.4,36.13%,23.33%)] "
+          className="font-semibold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl  "
         >
           Take Control of Your{" "}
 
@@ -162,7 +180,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-[hsl(1.4,36.13%,23.33%)] opacity-90 backdrop-blur-2xl px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-white/40 to-[hsl(28.8,100%,55.88%)]/75"
+            mainClassName="text-white opacity-90 backdrop-blur-2xl px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-orange-600/40 to-[hsl(24.86,71.54%,49.61%)]/95"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -179,12 +197,12 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-[hsl(9.47,45.89%,40.59%)]"
+          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-muted-foreground"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
         </motion.p>
-               {/* CTA 
+               {/* CTA */}
                <motion.div
           {...fadeUp}
           transition={{ delay: 0.5 }}
@@ -197,7 +215,7 @@ export function LandingHero() {
   "https://avatars.githubusercontent.com/u/59228569",
 ]} />
        
-        </motion.div>*/}
+        </motion.div>
 
         {/* CTA */}
         <motion.div
@@ -252,8 +270,26 @@ export function LandingHero() {
     maxOpacity={0.5}
     flickerChance={0.1}
   />
-</div>*/}
+</div>
      
+     <Image
+              src={'/landing/globe.avif'}
+              alt={'askd'}
+              width={1920}
+              height={1200}
+              quality={100}
+              className="w-full rounded-2xl absolute bottom-0 left-0 right-0"
+              priority
+            />
+<div
+              className="absolute bottom-0 left-0 right-0 w-full h-[403px]"
+              style={{
+                background: "linear-gradient(to top, var(--background) 0%, rgba(217, 217, 217, 0) 100%)",
+                zIndex: 10,
+              }}
+            />*/}
+
+
 
         {/* Dashboard Preview */}
         <ScrollReveal>
@@ -284,11 +320,11 @@ export function LandingHero() {
                 zIndex: 10,
               }}
             />
-          </div>
+          </div> 
           </motion.div>
  */}
-  <Example bg={false} />
 
+<Example bg={false} />
         </ScrollReveal>
 
       </div>
@@ -309,20 +345,22 @@ export function LandingHero() {
             <span className="font-medium">{label}</span>
           </motion.div>
         ))}
-      </div>*/}
+      </div>
 
- {/*<section className="relative mx-auto container">
+<section className="relative mx-auto container">
        <h2 className="mb-5 text-center font-semibold text-foreground text-xl tracking-tight md:text-3xl">
           <span className="text-muted-foreground">Trusted by experts.</span>
           <br />
        
         </h2>
-        <div className="mx-auto my-5 h-px max-w-lg bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" />
+        <div className="mx-auto my-5 h-px max-w-lg bg-border [mask-image:linear-gradient(to_right,white,white,white)]" />
 
         <LogoCloud logos={logos} />
 
-       <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" /> 
-      </section> */} 
+      <div className="mt-5 h-px bg-border [mask-image:linear-gradient(to_right,white,white,white)]" />
+      </section>  */}
+
+ {/* */}
     </section>
   );
 }
@@ -330,10 +368,20 @@ export function LandingHero() {
 function FloatingCard({ children, delay = 0, className = "" }: any) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 100, rotate: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 1, type: "spring", stiffness: 80 }}
-      whileHover={{ y: -10, rotate: 0 }}
+
+      transition={{
+        delay,
+        duration: 0.4,
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }}
+      whileHover={{
+        y: -12,
+        scale: 1.02,
+        transition: { duration: 0.1 }
+      }}
+      whileTap={{ scale: 1 }}
       className={`absolute ${className}`}
     >
       {children}
@@ -341,185 +389,246 @@ function FloatingCard({ children, delay = 0, className = "" }: any) {
   );
 }
 
-// Mini live cards matching actual dashboard widgets
+// Crypto Allocation Widget - matches dashboard styling
 function CryptoCard() {
-  return (
-    <div className="w-80 overflow-hidden rounded-xl border border-border/50 bg-card shadow-2xl backdrop-blur-xl">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-xl bg-purple-300 flex items-center justify-center">
-            <SolarWalletMoneyBoldDuotone className="h-4 w-4 text-purple-900" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground">Crypto Portfolio</h3>
-        </div>
-        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">+12.4%</span>
-      </div>
-      
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              <span className="text-lg font-bold">₿</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Bitcoin</p>
-              <p className="text-xs text-muted-foreground">2.45 BTC</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">+$4,231</p>
-            <p className="text-xs text-muted-foreground">$89,450</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <span className="text-lg font-bold">Ξ</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Ethereum</p>
-              <p className="text-xs text-muted-foreground">15.8 ETH</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">+$892</p>
-            <p className="text-xs text-muted-foreground">$38,033</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+  const TOKEN_COLORS = [
+    'bg-orange-100 dark:bg-orange-600/5',
+    'bg-blue-100 dark:bg-blue-600/25',
+    'bg-green-100 dark:bg-green-600/25',
+  ];
 
-function NetWorthCard() {
-  return (
-    <div className="w-80 rounded-xl border border-border/50 bg-card/95 p-5 shadow-2xl backdrop-blur-xl">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="h-6 w-6 rounded-xl bg-blue-300 flex items-center justify-center">
-          <SolarChartSquareBoldDuotone className="h-4 w-4 text-blue-900" />
-        </div>
-        <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
-      </div>
-      
-      {/* Main Value */}
-      <div className="mb-4">
-        <p className="text-4xl font-bold">$1,284,921</p>
-        <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-          +$142,831 (+42.8%) all time
-        </p>
-      </div>
-      
-      {/* Mini Chart */}
-      <div className="h-20 rounded-lg bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent relative overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-full flex items-end justify-around gap-1 px-2 pb-2">
-          <div className="w-full h-[40%] bg-emerald-500/30 rounded-t"></div>
-          <div className="w-full h-[55%] bg-emerald-500/40 rounded-t"></div>
-          <div className="w-full h-[70%] bg-emerald-500/50 rounded-t"></div>
-          <div className="w-full h-[85%] bg-emerald-500/60 rounded-t"></div>
-          <div className="w-full h-[100%] bg-emerald-500/70 rounded-t"></div>
-        </div>
-      </div>
-    </div>
-  );
-}
+  const topTokens = [
+    { symbol: 'BTC', name: 'Bitcoin', value: 89450, change24h: 12.4, logo: '₿' },
+    { symbol: 'ETH', name: 'Ethereum', value: 38033, change24h: 8.2, logo: 'Ξ' },
+    { symbol: 'SOL', name: 'Solana', value: 32875, change24h: 15.7, logo: 'S' },
+  ];
 
-function SubscriptionCard() {
   return (
-    <div className="w-72 rounded-xl border border-border/50 bg-card shadow-2xl backdrop-blur-xl">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-xl bg-violet-300 flex items-center justify-center">
-            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
-        </div>
-        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">3 upcoming</span>
-      </div>
-      
-      {/* Content */}
-      <div className="p-4 space-y-2">
-        <div className="flex items-center justify-between py-1 px-2 rounded-lg bg-muted/30 border border-border/80 hover:bg-muted/40 transition-all">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-border/50">
-              <span className="text-lg font-bold text-red-600">N</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Netflix</p>
-              <p className="text-xs text-orange-600 dark:text-orange-400">Renews in 3 days</p>
-            </div>
-          </div>
-          <p className="text-sm font-bold">$15.99</p>
-        </div>
-        
-        <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-muted/30 border border-border/80 hover:bg-muted/40 transition-all">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center border border-border/50">
-              <span className="text-lg font-bold text-green-600">S</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Spotify</p>
-              <p className="text-xs text-muted-foreground">Monthly</p>
-            </div>
-          </div>
-          <p className="text-sm font-bold">$9.99</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SpendingCard() {
-  return (
-    <div className="w-80 rounded-xl border border-border/50 bg-card/95 shadow-2xl backdrop-blur-xl">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
+    <Card className="w-80 rounded-xl border border-border/50 gap-4 flex flex-col p-3">
+      <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-xl bg-amber-400 flex items-center justify-center">
-            <SolarClipboardListBoldDuotone className="h-4.5 w-4.5 text-amber-900" />
+            <SolarPieChart2BoldDuotone className="h-4.5 w-4.5 text-amber-900" />
           </div>
-          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+          <h3 className="text-sm font-semibold text-foreground">Crypto Allocation</h3>
         </div>
       </div>
-      
-      {/* Content */}
-      <div className="p-4 space-y-2">
-        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/80">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border/50">
-              <span className="text-xl">🛒</span>
+      <div className="grid grid-cols-2 gap-2">
+        {topTokens.map((token, index) => {
+          const isPositive = token.change24h >= 0;
+          const isFirstToken = index === 0;
+          return (
+            <div
+              key={token.symbol}
+              className={`rounded-lg p-3 cursor-pointer transition-all hover:shadow-sm ${TOKEN_COLORS[index % TOKEN_COLORS.length]} ${isFirstToken ? 'row-span-2' : ''}`}
+              style={{
+                minHeight: isFirstToken ? '140px' : '68px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-foreground">{token.symbol}</span>
+                </div>
+                {isPositive ? (
+                  <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-400" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400" />
+                )}
+              </div>
+              <div>
+                <p className={`font-bold text-foreground ${isFirstToken ? 'text-base' : 'text-sm'}`}>
+                  ${token.value.toLocaleString()}
+                </p>
+                <p className={`${isFirstToken ? 'text-xs' : 'text-[10px]'} text-muted-foreground mt-1`}>
+                  {token.change24h > 0 ? '+' : ''}{token.change24h}%
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold">Amazon Purchase</p>
-              <p className="text-xs text-muted-foreground">Today • Shopping</p>
-            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+// Net Worth Widget - matches dashboard styling
+function NetWorthCard() {
+  const assets = 1650000;
+  const liabilities = 365079;
+  const netWorth = assets - liabilities;
+
+  return (
+    <Card className="w-80 rounded-xl border border-border/50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b border-border/40 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-lg bg-blue-500 flex items-center justify-center">
+            <SolarChartSquareBoldDuotone className="h-4 w-4 text-white" />
           </div>
-          <p className="text-sm font-bold text-red-700 dark:text-red-500">-$127.50</p>
-        </div>
-        
-        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/80">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border/50">
-              <span className="text-xl">💰</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Salary Deposit</p>
-              <p className="text-xs text-muted-foreground">Yesterday • Income</p>
-            </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Net Worth</h3>
+            <p className="text-[10px] text-muted-foreground">Total balance</p>
           </div>
-          <p className="text-sm font-bold text-green-700 dark:text-green-500">+$4,500</p>
         </div>
-        
-        <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-            ↓ 18% less spending vs last month
+      </div>
+
+      <div className="px-3 pb-3 space-y-3">
+        {/* Main Value */}
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">Current Net Worth</p>
+          <p className="text-2xl font-bold text-foreground">${netWorth.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+            +$142,831 (+12.4% YTD)
           </p>
         </div>
+
+        {/* Breakdown Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2">
+            <p className="text-[10px] text-muted-foreground font-medium">Total Assets</p>
+            <p className="text-sm font-bold text-foreground">${assets.toLocaleString()}</p>
+          </div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+            <p className="text-[10px] text-muted-foreground font-medium">Liabilities</p>
+            <p className="text-sm font-bold text-red-600 dark:text-red-400">-${liabilities.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Mini Chart */}
+        <div className="h-12 rounded-lg bg-gradient-to-r from-blue-500/10 via-emerald-500/10 to-transparent flex items-end justify-around gap-1 px-2 pb-1">
+          {[35, 48, 62, 78, 68, 90, 100, 85].map((height, i) => (
+            <div
+              key={i}
+              className="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-sm"
+              style={{ height: `${height}%`, minHeight: '2px' }}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </Card>
+  );
+}
+
+// Subscriptions Widget - matches dashboard styling
+function SubscriptionCard() {
+  const subscriptions = [
+    { name: 'Netflix', cost: 15.99, date: 'Renews in 2 days', status: 'upcoming', logo: getLogoUrl('netflix.com') },
+    { name: 'Canva', cost: 9.99, date: 'Monthly plan', status: 'active',logo: getLogoUrl('canva.com') },
+    { name: 'Adobe Cloud', cost: 54.99, date: 'Renews in 5 days', status: 'upcoming',logo: getLogoUrl('adobe.com') },
+  ];
+
+  const monthlySpend = subscriptions.reduce((sum, sub) => sum + sub.cost, 0);
+
+  return (
+    <Card className="w-80 rounded-xl border border-border/50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between  border-b border-border/40 mb-2">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-lg bg-violet-500 flex items-center justify-center">
+            <SolarInboxInBoldDuotone className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
+            <p className="text-[10px] text-muted-foreground">3 active</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Subscriptions List */}
+      <div className=" space-y-1.5">
+        {subscriptions.map((sub) => (
+          <div
+            key={sub.name}
+            className="group flex items-center justify-between p-1  rounded-lg hover:bg-muted/60 cursor-pointer transition-all duration-75"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                <Avatar>
+                  <AvatarImage
+                  src={sub.logo}
+                  ></AvatarImage>
+
+                </Avatar>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground">{sub.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{sub.date}</p>
+              </div>
+            </div>
+            <p className="text-sm font-semibold text-foreground flex-shrink-0">${sub.cost.toFixed(2)}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer - Monthly Total */}
+      <div className="py-2 bg-muted/20 border-t border-border/40 flex items-center justify-between">
+        <p className="text-xs text-muted-foreground font-medium">Monthly spend</p>
+        <p className="text-sm font-bold text-foreground">${monthlySpend.toFixed(2)}</p>
+      </div>
+    </Card>
+  );
+}
+
+// Recent Activity Widget - matches dashboard styling
+function SpendingCard() {
+  const transactions = [
+
+    { emoji: '☕', name: 'Starbucks', date: 'Today', amount: 6.49, isIncome: false, category: 'Food' },
+    { emoji: '💰', name: 'Salary Deposit', date: 'Yesterday', amount: 4500, isIncome: true, category: 'Income' },
+    { emoji: '🍕', name: 'Pizza Hut', date: '2 days ago', amount: 23.99, isIncome: false, category: 'Food' },
+  ];
+
+  return (
+    <Card className="w-80 rounded-xl border border-border/50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b border-border/40 mb-2">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-lg bg-amber-500 flex items-center justify-center">
+            <SolarClipboardListBoldDuotone className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+            <p className="text-[10px] text-muted-foreground">Latest transactions</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Transactions */}
+      <div className="px-3 pb-3 space-y-1.5">
+        {transactions.map((tx, i) => (
+          <div
+            key={i}
+            className="group flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/60 cursor-pointer transition-all duration-75"
+          >
+            <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 text-2xl">
+              {tx.emoji}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{tx.name}</p>
+              <p className="text-[10px] text-muted-foreground">{tx.date} • {tx.category}</p>
+            </div>
+            <p
+              className={`text-sm font-semibold flex-shrink-0 ${
+                tx.isIncome
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
+              {tx.isIncome ? '+' : '-'}${tx.amount.toFixed(2)}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Insight Footer */}
+      <div className="px-3 py-2 bg-emerald-500/10 border-t border-emerald-500/20">
+        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+          ↓ 22% less spending vs last month
+        </p>
+      </div>
+    </Card>
   );
 }
