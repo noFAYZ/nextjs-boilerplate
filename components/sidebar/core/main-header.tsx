@@ -154,7 +154,7 @@ export function MainHeader({
               </Tooltip>
             </div>*/}
 
-            {/* Breadcrumbs — desktop only */}
+            {/* Breadcrumbs — desktop only 
             {breadcrumbs.length > 0 && (
               <div className="hidden lg:flex">
                 <Breadcrumb>
@@ -183,7 +183,7 @@ export function MainHeader({
                   </BreadcrumbList>
                 </Breadcrumb>
               </div>
-            )}
+            )}*/}
           </div>
 
           {/* CENTER GROUP — Search Bar 
@@ -202,20 +202,17 @@ export function MainHeader({
         
             <ThemeSwitcher />
  {/* Add button */}
- <Button variant="outline2" size='sm' className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
+ <Button variant="outline2"   className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
              
               Sync
             </Button>
       
             {/* Add button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="steel" size="icon-sm" className='rounded-[0.9rem]' onClick={openAddMenu}>
+       
+                <Button variant="steel" size='icon'  className='rounded-[0.9rem]' onClick={openAddMenu}>
                   <LetsIconsAddDuotone className="h-6 w-6" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Add account, subscription, goal, or crypto</TooltipContent>
-            </Tooltip>
+             
           </div>
         </div>
 

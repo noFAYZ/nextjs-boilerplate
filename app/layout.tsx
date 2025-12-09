@@ -13,7 +13,7 @@ import "@/lib/config/env";
 import localFont from 'next/font/local'
 
 
-const geistSans = Readex_Pro({
+const geistSans = Sora({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });

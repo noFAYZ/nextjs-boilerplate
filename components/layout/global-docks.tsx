@@ -434,24 +434,24 @@ export function BottomMenuDock() {
           <div className="flex justify-center ">
             <Dock
               items={dock.items}
-              position="bottom"
-              size="sm"
+              position="bottom-left"
+              size="xs"
               magnification={false}
               indicatorStyle="windows11"
               blur={false}
               showActiveIndicator={true}
               autoDetectActive={true}
-              className="bg-transparent border-none shadow-none"
+              className=""
             />
           </div>
         </div>
       ) : (
         // Desktop: Floating dock in bottom center
-        <div className="fixed bottom-0 left-1/2  z-40">
+        <div className="fixed bottom-0 left-1/2  z-50">
           <Dock
             items={dock.items}
-            position="bottom"
-            size="sm"
+            position="top"
+            size="xs"
             magnification={false}
             indicatorStyle="windows11"
             blur={false}

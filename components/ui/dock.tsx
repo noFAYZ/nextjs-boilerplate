@@ -60,6 +60,7 @@ interface DockProps {
 const falloff = (dist: number) => Math.cos((dist * Math.PI) / 3) * 0.5 + 0.5;
 
 const sizeClasses: any = {
+  xs: { item: "w-8 h-8", container: "gap-2 px-2.5 py-2" },
   sm: { item: "w-10 h-10", container: "gap-1.5 px-2.5 py-2" },
   md: { item: "w-12 h-12", container: "gap-2 px-3 py-2.5" },
   lg: { item: "w-14 h-14", container: "gap-3 px-4 py-3" },
@@ -188,7 +189,7 @@ export function Dock({
     "flex items-end justify-center rounded-full shadow-xl",
     blur && "backdrop-blur-2xl",
     // Light mode → black; Dark mode → muted
-    "bg-black/80 dark:bgaccent border border-white/10",
+    "bg-black/80 dark:bg-accent ",
     sizeClasses[size].container,
     "animate-[dock-pop-in_280ms_ease-out]",
     className

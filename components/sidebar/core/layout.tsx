@@ -87,12 +87,12 @@ export function SidebarLayout({
         onToggleMainColumn={toggleMainColumn}
         onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
         isMobileMenuOpen={mobileMenuOpen}
-        
+        mt-3 bg-background rounded-tl-xl border-border border
       />
     </div>
   )} */}
 
-<div className="flex-1 shadow-xl mt-3 bg-background rounded-tl-xl border-border border">
+<div className="flex-1 ">
 {showHeader && (
     <div className="w-full">
       <MainHeader

@@ -147,7 +147,7 @@ export function LandingHero() {
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-[hsl(1.4,36.13%,23.33%)] "
+          className="font-semibold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-[hsl(1.4,36.13%,23.33%)] "
         >
           Take Control of Your{" "}
 
@@ -162,7 +162,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-[hsl(1.4,36.13%,23.33%)] opacity-90 backdrop-blur-2xl px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-[hsl(28.8,100%,55.88%)]/40 to-[hsl(28.8,100%,55.88%)]/75"
+            mainClassName="text-[hsl(1.4,36.13%,23.33%)] opacity-90 backdrop-blur-2xl px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-white/40 to-[hsl(28.8,100%,55.88%)]/75"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
