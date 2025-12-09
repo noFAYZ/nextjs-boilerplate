@@ -162,7 +162,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-[hsl(38.69,83.56%,57.06%)] px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-[hsl(7.37,44.19%,25.29%)]/70 to-[hsl(7.37,44.19%,25.29%)]"
+            mainClassName="text-[hsl(1.4,36.13%,23.33%)] opacity-90 backdrop-blur-2xl px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-b from-white/10 to-amber-700/45"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
