@@ -166,7 +166,7 @@ export default function DashboardPage() {
  
       <div className="space-y-4 ">
 
-         <div
+   {/*       <div
       className={cn(
         "grid ",
         "grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row lg:justify-end",
@@ -204,7 +204,7 @@ export default function DashboardPage() {
         icon={<LetsIconsSettingLineDuotone stroke="2" className="w-6 h-6" />}
         iconWrapperClass="bg-accent dark:bg-muted"
       />
-    </div>
+    </div> */}
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <h1 className="text-lg font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">

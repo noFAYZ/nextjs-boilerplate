@@ -24,7 +24,7 @@ import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
 import { ActionSearchBar } from '../ui/action-search-bar';
 import { useCommandPalette } from '../command/command-palette';
-import { LetsIconsAddDuotone, TablerLayoutSidebarLeftExpandFilled } from '../icons/icons';
+import { DuoIconsBank, HeroiconsWallet16Solid, LetsIconsAddDuotone, MageDashboard, SolarHomeSmileBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '../icons/icons';
 import { UserOrgSwitcher } from '../organization/user-org-switcher';
 
 interface HeaderProps {
@@ -126,32 +126,64 @@ export function Header({
           {/* Left Section - Logo, Organization Switcher, & Search */}
  
           <div className="relative group">
-  {/* Circular Wrapper */}
-  <div className="flex items-center justify-center w-11 h-11 
-                  bg-card dark:bg-accent rounded-full shadow-lg border relative">
-
-    {/* Logo link */}
+  <div
+    className="
+      flex items-center justify-start gap-2
+      w-11 h-11 
+      bg-card dark:bg-accent rounded-full shadow-lg border
+      transition-all duration-200 overflow-hidden
+      group-hover:rounded-xl group-hover:w-60 
+    "
+  >
+    {/* Logo – stays visible always */}
     <Link
       href="/"
-      className="flex items-center justify-center text-[34px] font-bold text-orange-500
-                 transition-all duration-200
-                 group-hover:opacity-0 group-hover:pointer-events-none"
+      className="flex items-center justify-center min-w-11 h-11 
+                 text-[34px] font-bold text-orange-500"
     >
       𒀭
     </Link>
 
-    {/* Toggle Button (only visible on hover) */}
-    <Button
-      variant="ghost"
-      size="icon"
-      className="absolute inset-0 m-auto flex items-center rounded-full justify-center
-                 opacity-0 group-hover:opacity-100 
-                 transition-opacity duration-200
-                 pointer-events-none group-hover:pointer-events-auto"
-    >
-      <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 text-muted-foreground" />
-    </Button>
+    {/* Button 1 */}
 
+    {/* Button 2 */}
+    <Button
+      className="
+        opacity-0 translate-x-4 
+        group-hover:opacity-100 group-hover:translate-x-0 
+        transition-all duration-300 delay-150
+      "
+      variant="ghost"
+      size="icon-sm"
+      icon={<SolarHomeSmileBoldDuotone className='w-6 h-6' />}
+    >
+     
+    </Button>
+      {/* Button 2 */}
+      <Button
+      className="
+        opacity-0 translate-x-4 
+        group-hover:opacity-100 group-hover:translate-x-0 
+        transition-all duration-300 delay-150
+      "
+      variant="ghost"
+      size="icon-sm"
+      icon={<HeroiconsWallet16Solid className='w-6 h-6' />}
+    >
+      
+    </Button>
+    <Button
+      className="
+        opacity-0 translate-x-4 
+        group-hover:opacity-100 group-hover:translate-x-0 
+        transition-all duration-300 delay-150
+      "
+      variant="ghost"
+      size="icon-sm"
+      icon={<DuoIconsBank className='w-6 h-6' />}
+    >
+      
+    </Button>
   </div>
 </div>
 
@@ -166,23 +198,38 @@ export function Header({
 
           {/* Right Section - Actions */}
 
-          <div className="flex items-center gap-2 sm:gap-2 ml-auto h-11 px-2 rounded-full bg-card dark:bg-accent border shadow-lg justify-evenly">
-             {/* Currency Selector 
-            <div className="hidden md:block">
-              <CurrencySelector variant="compact" showRefresh />
-            </div>*/}
+          <div className="relative group ml-auto">
+  <div
+    className="
+      flex items-center gap-2
+      h-11 px-2
+      bg-card dark:bg-accent border shadow-lg rounded-full
+      transition-all duration-200 overflow-hidden
     
-  <ThemeSwitcher />
-             
-              
-        
-<UserOrgSwitcher compact /> 
-   
-            {/* Add button */}
-            <Button variant="steel" size="icon-sm" className='rounded-full'>
-              <LetsIconsAddDuotone className="h-6 w-6" />
-            </Button>
-          </div>
+    "
+  >
+    {/* Theme Switcher — always visible */}
+    <div className="flex items-center">
+      <ThemeSwitcher />
+    </div>
+
+    {/* UserOrgSwitcher — animates in */}
+
+      <UserOrgSwitcher compact />
+ 
+    {/* Add Button — animates in with stagger */}
+    <Button
+      variant="steel"
+      size="icon-sm"
+      className="
+        rounded-full
+      "
+    >
+      <LetsIconsAddDuotone className="h-6 w-6" />
+    </Button>
+  </div>
+</div>
+
 
 
         </div>

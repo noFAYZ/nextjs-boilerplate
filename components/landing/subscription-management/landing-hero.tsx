@@ -31,6 +31,7 @@ import { Mockup, MockupFrame } from "../section-widgets/hero-mockup";
 import { AvatarCircles } from "../section-widgets/avatar-circles";
 import { Example } from "../section-widgets/features-tabs";
 import { LogoCloud } from "./logo-cld-section";
+import { BgGradient } from "../bg/bg-gradient";
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },
@@ -113,8 +114,8 @@ export function LandingHero() {
       {/*                     TOP HEADLINE AREA (NO BG)                */}
       {/* ============================================================= */}
 
-         {/* Floating Finance Cards - Ultra Premium 
-         <div className="relative -z-40 hidden lg:block">
+       
+         {/* Floating Finance Cards - Ultra Premium   <div className="relative -z-40 hidden lg:block  mx-auto">
             <FloatingCard delay={0} className="left-10 top-10 -rotate-12">
               <CryptoCard />
             </FloatingCard>
@@ -130,7 +131,7 @@ export function LandingHero() {
             <FloatingCard delay={1.5} className="right-10 top-80 -rotate-6">
               <SpendingCard />
             </FloatingCard>
-          </div>*/}
+          </div>
      <video
     className="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none"
     src="/landing/sunset.mp4"
@@ -138,13 +139,15 @@ export function LandingHero() {
     loop
     muted
     playsInline
-  />
+  />*/}
+
+<BgGradient patternType="wave" imageSrc={'/landing/bg3.jpg'} imageOpacity={0.9} />
       <div className="relative z-10 mx-auto px-6 max-w-lg lg:max-w-lg xl:max-w-2xl text-center">
         {/* Heading */}
         <motion.h1
           {...fadeUp}
           transition={{ delay: 0.2 }}
-          className="font-bold tracking-tight leading-normal text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-white"
+          className="font-bold tracking-tight leading-tight text-4xl md:text-4xl lg:text-4xl xl:text-6xl text-[hsl(7.37,44.19%,25.29%)] "
         >
           Take Control of Your{" "}
 
@@ -159,7 +162,7 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="text-white px-2 sm:px-2 md:px-6   overflow-hidden  justify-center py-0 antialiased bg-gradient-to-br from-orange-400/40 to-pink-500/40"
+            mainClassName="text-[hsl(38.69,83.56%,57.06%)] px-2 sm:px-2 md:px-6  rounded-full overflow-hidden  justify-center py-0 antialiased bg-gradient-to-r from-[hsl(7.37,44.19%,25.29%)] to-[hsl(7.37,44.19%,25.29%)]"
             staggerFrom={"last"}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -176,7 +179,7 @@ export function LandingHero() {
         <motion.p
           {...fadeUp}
           transition={{ delay: 0.4 }}
-          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-gray-300"
+          className="mx-auto mt-4 max-w-lg text-sm sm:text-sm md:text-md lg:text-base text-[hsl(9.47,45.89%,40.59%)]"
         >
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.

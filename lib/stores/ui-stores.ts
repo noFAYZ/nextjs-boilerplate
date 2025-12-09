@@ -18,6 +18,7 @@ export { useSubscriptionUIStore, subscriptionUISelectors } from './subscription-
 export { useBudgetUIStore } from './budget-ui-store';
 export { useDashboardLayoutStore, dashboardLayoutSelectors, WIDGET_SIZE_CONFIG, type WidgetSize, type WidgetId } from './dashboard-layout-ui-store';
 export { useOrganizationUIStore, organizationUISelectors } from './organization-ui-store';
+export { useGlobalUIStore, globalUISelectors } from './global-ui-store';
 
 // Re-export auth store (unchanged - it manages session, not UI)
 export { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from './auth-store';

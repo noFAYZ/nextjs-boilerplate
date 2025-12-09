@@ -91,7 +91,7 @@ function GoalItem({ goal }: { goal: any }) {
     <Link href="/goals">
       <div
         className={cn(
-          'group relative border border-border/80 flex items-center gap-2.5 px-2 py-1 rounded-lg transition-all duration-75 bg-muted/30',
+          'group relative flex items-center gap-2.5 px-2 py-1 transition-all duration-75 hover:bg-muted/80',
           'cursor-pointer',
       
         )}
@@ -99,7 +99,7 @@ function GoalItem({ goal }: { goal: any }) {
         {/* Icon */}
 
       <div className="relative flex-shrink-0">
-        <div className="h-11 w-11 rounded-full bg-card border flex items-center justify-center shadow-sm">
+        <div className="h-10 w-10 rounded-full bg-card border flex items-center justify-center shadow-sm">
 
           {/* Replace icon with check mark when achieved or progress condition met */}
           {(goal.isAchieved || progress >= 100) ? (
@@ -109,7 +109,7 @@ function GoalItem({ goal }: { goal: any }) {
               {goal.icon && goal.icon !== "null" ? (
                 <span className="text-lg">{goal.icon}</span>
               ) : (
-                <MageGoals className="h-7 w-7 text-muted-foreground" />
+                <span className={cn('font-semibold text-xs rounded-full', getProgressTextColor(),getStatusBgColor())}>{Math.max(progress, 0).toFixed(0) }%</span>
               )}
             </>
           )}
@@ -123,12 +123,10 @@ function GoalItem({ goal }: { goal: any }) {
         {/* Info Section */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <h4 className="font-semibold text-sm truncate text-foreground">
+            <h4 className="font-medium text-sm truncate text-foreground">
               {goal.name}
             </h4>
-            <Badge size='sm' variant='soft' className={cn('font-semibold text-[10px] rounded-full', getProgressTextColor(),getStatusBgColor())}>
-                  {Math.max(progress, 0).toFixed(1)}%
-                </Badge>
+       
           </div>
 
           {/* Progress Bar and Info */}
@@ -308,8 +306,8 @@ export function GoalsOverviewWidget() {
           <div className="flex items-baseline gap-2">
             <CurrencyDisplay
               amountUSD={summary.totalTargetAmount}
-              variant="large"
-              className="text-3xl font-semibold"
+                  variant="xl"
+                          className=" font-semibold "
             />
             <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
               <TrendingUp className="h-3 w-3" />
@@ -386,7 +384,7 @@ export function GoalsOverviewWidget() {
             </span>
           </div> */}
 
-          <div className="flex flex-col space-y-1.5">
+          <div className="flex flex-col space-y-1 -mx-2">
             {goalsToShow.map((goal) => (
               <GoalItem key={goal.id} goal={goal} />
             ))}

@@ -56,14 +56,14 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
   return (
     <Link href={`/subscriptions/${subscription.id}`}>
       <div className={cn(
-        "group relative border border-border/80 flex items-center gap-2.5 p-2 rounded-xl transition-all duration-75",
+        "group relative  flex items-center gap-2.5 p-2  transition-all duration-75",
         "hover:bg-muted/60 cursor-pointer",
         isDueToday && "bg-destructive/5 hover:bg-destructive/10",
         isUrgent && !isDueToday && "bg-orange-500/5 hover:bg-orange-500/10"
       )}>
         {/* Logo */}
         <div className="relative flex-shrink-0">
-          <Avatar className="h-11 w-11 rounded-full">
+          <Avatar className="h-10 w-10 rounded-full">
             {subscription.websiteUrl ? (
               <AvatarImage
                 src={getLogoUrl(subscription.websiteUrl) || ""}
@@ -401,7 +401,7 @@ export function SubscriptionsOverviewWidget() {
             </span>
           </div>
 
-          <div className="flex flex-col space-y-1.5">
+          <div className="flex flex-col space-y-1 -mx-2">
             {subscriptionsToShow.map((subscription) => (
               <SubscriptionItem
                 key={subscription.id}

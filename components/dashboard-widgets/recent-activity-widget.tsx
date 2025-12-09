@@ -94,7 +94,7 @@ export function RecentActivityWidget() {
       </div>
 
       {/* Transaction Grid */}
-      <div className="space-y-2">
+      <div className="space-y-2 -mx-2">
         {transactions.map((transaction) => {
           const isIncome = parseFloat(transaction.amount.toString()) > 0;
           const categoryConfig = categoryIcons[transaction.category as Category] || categoryIcons.general;
@@ -106,7 +106,7 @@ export function RecentActivityWidget() {
               href={`/accounts/bank/${transaction.accountId}`}
               className="block"
             >
-              <div className="group hover:-translate-y-1 hover:bg-muted/70 transition-all duration-75 cursor-pointer ">
+              <div className="group hover:-translate-y-1 px-2 hover:bg-muted/70 transition-all duration-75 cursor-pointer ">
                 <div className="flex items-center gap-3">
                   {/* Category Icon */}
                   <div

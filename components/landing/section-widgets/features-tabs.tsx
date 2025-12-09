@@ -81,8 +81,8 @@ export function FeatureTabs({ tabs, bg }) {
       </div>
 
       {/* Panels */}
-      <div className="mx-auto mt-10 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px]">
-        <div className="relative h-[300px] md:h-[680px]">
+      <div className="mx-auto mt-10 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px] ">
+        <div className="relative h-[300px] md:h-[680px] ">
           {tabs.map((t, i) => (
             <div
               id={`panel-${i}`}
@@ -90,7 +90,7 @@ export function FeatureTabs({ tabs, bg }) {
               role="tabpanel"
               aria-hidden={active !== i}
               className={cn(
-                "absolute inset-0 transition-opacity duration-300",
+                "absolute inset-0 transition-opacity duration-300 ",
                 active === i ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
@@ -120,8 +120,8 @@ function PanelContainer({ children }) {
         className="
           size-full 
           rounded-t-xl 
-          border-x border-t border-border/80
-          bg-muted
+          
+          bg-white/25
           
           sm:rounded-t-[1.25rem] sm:px-2 sm:pt-2
           [mask-image:linear-gradient(to_bottom,black_95%,transparent_100%)]

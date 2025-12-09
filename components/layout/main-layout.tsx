@@ -6,6 +6,7 @@ import { Header } from './header';
 import { SidebarLayout } from '@/components/sidebar';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { useUnifiedAutoSync } from '@/lib/hooks/use-unified-auto-sync';
+import { AddMenuDialog } from '@/components/ui/add-menu-dialog';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -34,14 +35,15 @@ export function MainLayout({
     return (
       <div className={cn("min-h-screen ", className)}>
         {shouldShowHeader && <Header />}
-     
+
           <div className={cn(
             "h-full",
             isProMode ? "p-3 md:p-8 container mx-auto " : " p-3 md:p-8 mx-auto"
           )}>
             {children}
           </div>
-       
+
+        <AddMenuDialog />
       </div>
     );
   }
@@ -56,6 +58,8 @@ export function MainLayout({
           {children}
         </SidebarLayout>
       </div>
+
+      <AddMenuDialog />
     </div>
   );
 }

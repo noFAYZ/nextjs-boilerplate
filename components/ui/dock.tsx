@@ -54,28 +54,28 @@ interface DockProps {
   }
 }
 
-const sizeClasses = {
-  sm: { container: "h-14", item: "w-10 h-10", icon: "w-6 h-6" },
-  md: { container: "h-16", item: "w-12 h-12", icon: "w-7 h-7" },
-  lg: { container: "h-20", item: "w-14 h-14", icon: "w-9 h-9" },
+// ---------------------------
+// Dock Magnification helpers
+// ---------------------------
+const falloff = (dist: number) => Math.cos((dist * Math.PI) / 3) * 0.5 + 0.5;
+
+const sizeClasses: any = {
+  sm: { item: "w-10 h-10", container: "gap-1.5 px-2.5 py-2" },
+  md: { item: "w-12 h-12", container: "gap-2 px-3 py-2.5" },
+  lg: { item: "w-14 h-14", container: "gap-3 px-4 py-3" },
 };
 
-// Natural smooth falloff function (liquid dock)
-const falloff = (distance: number) => {
-  return Math.cos(Math.min(distance, 3) * Math.PI / 6);
-};
-
-// ---------------------------------------------
-// Active Indicators (simple CSS)
-// ---------------------------------------------
+// ---------------------------
+// Indicator Styles
+// ---------------------------
 const Windows11Indicator = ({ active }: { active: boolean }) =>
   active ? (
-    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1.5 bg-orange-600/60 rounded-full" />
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1.5 bg-orange-600/70 rounded-full" />
   ) : null;
 
 const MacOSIndicator = ({ active }: { active: boolean }) =>
   active ? (
-    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-foreground/60 rounded-full" />
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-foreground/70 rounded-full" />
   ) : null;
 
 const MinimalIndicator = ({ active }: { active: boolean }) =>
@@ -83,9 +83,10 @@ const MinimalIndicator = ({ active }: { active: boolean }) =>
     <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 w-5 h-[2px] bg-primary rounded-full" />
   ) : null;
 
-// ---------------------------------------------
-// Item Component
-// ---------------------------------------------
+
+// ---------------------------
+// Dock Item Component
+// ---------------------------
 const DockItemComponent = React.memo(function DockItemComponent({
   item,
   index,
@@ -93,42 +94,33 @@ const DockItemComponent = React.memo(function DockItemComponent({
   onEnter,
   onLeave,
   onClick,
-  onKeyDown,
   isActive,
   maxMagnification,
   size,
-}) {
+}: any) {
   const sizeConfig = sizeClasses[size];
 
-  // Calculate scale using cosine falloff
   const scale = React.useMemo(() => {
     if (hoveredIndex == null) return 1;
     const dist = Math.abs(index - hoveredIndex);
-    const f = falloff(dist);
-    return 1 + (maxMagnification - 1.4) * f;
+    return 1 + (maxMagnification - 1) * falloff(dist);
   }, [index, hoveredIndex, maxMagnification]);
 
   return (
     <div className="relative cursor-pointer" onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <button
         onClick={onClick}
-        onKeyDown={onKeyDown}
         disabled={item.disabled}
         className={cn(
-          "relative flex items-center justify-center rounded-full transition-all duration-75 ease-out cursor-pointer hover:bg-accent/40 dark:hover:bg-background",
+          "relative flex items-center justify-center rounded-full transition-all duration-100 ease-out",
+          "hover:bg-white/10 dark:hover:bg-white/5 backdrop-blur-md",
+          "shadow-lg dark:shadow-none cursor-pointer",
           sizeConfig.item,
-          "backdrop-blur-md ",
           item.disabled && "opacity-50"
-          
         )}
-        style={{
-          transform: `scale(${scale}) translateZ(0)`,
-          transitionProperty: "transform, background-color, opacity",
-        }}
+        style={{ transform: `scale(${scale})` }}
       >
-        <div className={cn("flex items-center justify-center text-white")}>
-          {item.icon}
-        </div>
+        <div className="flex items-center justify-center text-white">{item.icon}</div>
 
         {item.badge && (
           <div className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
@@ -142,33 +134,33 @@ const DockItemComponent = React.memo(function DockItemComponent({
       </button>
 
       {/* Tooltip */}
-      <div
-        className={cn(
-          "pointer-events-none absolute px-2 py-1.5 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 transition-opacity duration-100",
-          hoveredIndex === index && "opacity-100",
-          "bottom-full left-1/2 -translate-x-1/2 mb-3"
-        )}
-      >
-        {item.label}
-      </div>
+      {hoveredIndex === index && (
+        <div
+          className={cn(
+            "absolute bottom-full left-1/2 -translate-x-1/2 mb-3",
+            "px-2.5 py-1.5 bg-popover text-popover-foreground text-xs rounded-md shadow-lg",
+            "pointer-events-none animate-[tooltip-fade-up_120ms_ease-out]"
+          )}
+        >
+          {item.label}
+        </div>
+      )}
     </div>
   );
 });
 
-// ---------------------------------------------
+// ---------------------------
 // Main Dock Component
-// ---------------------------------------------
+// ---------------------------
 export function Dock({
   items,
-  orientation = "horizontal",
-  position = "bottom",
   size = "md",
   magnification = true,
   blur = true,
   className,
-  onItemClick,
+  position = "bottom",
   activeItems = [],
-  indicatorStyle = "windows11",
+  indicatorStyle = "macos",
   autoDetectActive = true,
   maxMagnification = 1.8,
 }: any) {
@@ -176,45 +168,37 @@ export function Dock({
   const pathname = usePathname();
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
 
-  // Auto-detect active item
   const activeItemIds = React.useMemo(() => {
     if (!autoDetectActive) return activeItems;
 
-    const matches = items.filter((i) => i.href && pathname.startsWith(i.href));
-    const best = matches.sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))[0];
+    const matches = items.filter((i: any) => i.href && pathname.startsWith(i.href));
+    const best = matches.sort((a: any, b: any) => (b.href?.length || 0) - (a.href?.length || 0))[0];
     return best ? [best.id, ...activeItems] : activeItems;
   }, [pathname, items, activeItems]);
 
-  const containerClasses = cn(
-    "flex items-center justify-center gap-2 p-3 rounded-full bg-black dark:bg-muted z-50",
-    blur && "backdrop-blur-xl bg-background/70",
-    orientation === "horizontal" ? "flex-row" : "flex-col",
-    sizeClasses[size].container,
-    className
-  );
-
   const positionClasses = cn(
     "fixed",
-    position === "bottom" && "bottom-4 left-1/2 -translate-x-1/2",
-    position === "top" && "top-4 left-1/2 -translate-x-1/2",
-    position === "left" && "left-4 top-1/2 -translate-y-1/2",
-    position === "right" && "right-4 top-1/2 -translate-y-1/2",
-    position === "bottom-left" && "bottom-4 left-4",
-    position === "bottom-right" && "bottom-4 right-4"
+    position === "bottom" && "bottom-5 left-1/2 -translate-x-1/2",
+    position === "top" && "top-5 left-1/2 -translate-x-1/2",
+    position === "bottom-left" && "bottom-5 left-5",
+    position === "bottom-right" && "bottom-5 right-5"
+  );
+
+  const containerClasses = cn(
+    "flex items-end justify-center rounded-full shadow-xl",
+    blur && "backdrop-blur-2xl",
+    // Light mode → black; Dark mode → muted
+    "bg-black/80 dark:bgaccent border border-white/10",
+    sizeClasses[size].container,
+    "animate-[dock-pop-in_280ms_ease-out]",
+    className
   );
 
   return (
     <div className={positionClasses}>
       <div className={containerClasses}>
-        {items.map((item, index) => {
+        {items.map((item: any, index: number) => {
           const isActive = activeItemIds.includes(item.id);
-
-          const clickHandler = (e: any) => {
-            if (item.disabled) return;
-            if (item.onClick) return item.onClick();
-            if (item.href) return router.push(item.href);
-            if (onItemClick) onItemClick(item);
-          };
 
           return (
             <DockItemComponent
@@ -224,11 +208,18 @@ export function Dock({
               hoveredIndex={magnification ? hoveredIndex : null}
               onEnter={() => setHoveredIndex(index)}
               onLeave={() => setHoveredIndex(null)}
-              onClick={clickHandler}
-              onKeyDown={() => {}}
-              isActive={isActive}
+              onClick={() =>
+                item.disabled
+                  ? null
+                  : item.onClick
+                    ? item.onClick()
+                    : item.href
+                      ? router.push(item.href)
+                      : null
+              }
               maxMagnification={maxMagnification}
               size={size}
+              isActive={isActive}
             />
           );
         })}
@@ -236,7 +227,6 @@ export function Dock({
     </div>
   );
 }
-
 // Enhanced FloatingDock with more configuration options
 interface FloatingDockProps {
   items: DockItem[]

@@ -44,7 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 
 import { useCommandPalette } from '@/components/command/command-palette';
-import { useAuthStore } from '@/lib/stores';
+import { useAuthStore, useGlobalUIStore } from '@/lib/stores';
 import { LetsIconsAddDuotone, SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 
@@ -90,6 +90,7 @@ export function MainHeader({
   const pathname = usePathname();
   const router = useRouter();
   const { openCommandPalette } = useCommandPalette();
+  const openAddMenu = useGlobalUIStore((s) => s.openAddMenu);
   const breadcrumbs = generateBreadcrumbs(pathname);
 
   const handleSignOut = useCallback(async () => {
@@ -196,20 +197,25 @@ export function MainHeader({
           </div>
 
           {/* RIGHT GROUP */}
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          <div className="flex items-center gap-2  ml-auto">
             
         
             <ThemeSwitcher />
  {/* Add button */}
- <Button variant="outline" size='sm' className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
+ <Button variant="outline2" size='sm' className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
              
               Sync
             </Button>
       
             {/* Add button */}
-            <Button variant="steel" size="icon" className='rounded-[0.9rem]'>
-              <LetsIconsAddDuotone className="h-6 w-6" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="steel" size="icon-sm" className='rounded-[0.9rem]' onClick={openAddMenu}>
+                  <LetsIconsAddDuotone className="h-6 w-6" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Add account, subscription, goal, or crypto</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 

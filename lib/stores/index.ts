@@ -42,15 +42,6 @@ export {
 
 export {
   useGoalsStore,
-  selectFilteredGoals,
-  selectGoalsByPriority,
-  selectActiveGoals,
-  selectCompletedGoals,
-  selectOffTrackGoals,
-  selectGoalById,
-  selectTotalProgress,
-  selectTotalTargetAmount,
-  selectTotalCurrentAmount,
 } from './goals-store';
 
 export {
@@ -62,6 +53,11 @@ export {
   useOrganizationStore,
   organizationSelectors,
 } from './organization-store';
+
+export {
+  useGlobalUIStore,
+  globalUISelectors,
+} from './global-ui-store';
 
 // Re-export types for convenience
 export type { CryptoWallet, PortfolioData, CryptoTransaction, CryptoNFT, DeFiPosition, SyncJobStatus, NetworkType, WalletType } from '../types/crypto';
