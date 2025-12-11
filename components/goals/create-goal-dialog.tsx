@@ -1083,7 +1083,7 @@ export function CreateGoalDialog({
                       type="button"
                       variant="outline"
                       size={'sm'}
-                      onClick={(e) => handleBack(e as any)}
+                      onClick={(e) => handleBack(e as React.MouseEvent<HTMLButtonElement>)}
                       disabled={isCreatingGoal || isUpdatingGoal}
                     >
                       Back
@@ -1094,7 +1094,7 @@ export function CreateGoalDialog({
                     <Button
                     size={'sm'}
                       type="button"
-                      onClick={(e) => handleNext(e as any)}
+                      onClick={(e) => handleNext(e as React.MouseEvent<HTMLButtonElement>)}
                       disabled={isCreatingGoal || isUpdatingGoal}
                     >
                       Next

@@ -107,7 +107,7 @@ export function AddAccountToGroupDialog({
   
   // Filter out wallets that are already in groups
   const availableWallets = useMemo(() => {
-    let filtered = wallets?.filter(wallet => !(wallet as any).groupId) || [];
+    let filtered = wallets?.filter(wallet => !(wallet as Record<string, unknown>).groupId) || [];
     
     // Apply search filter
     if (searchQuery) {
@@ -649,7 +649,7 @@ export function AddAccountToGroupDialog({
                 
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    💡 <strong>Tip:</strong> New accounts will be automatically added to this group after they're created.
+                    💡 <strong>Tip:</strong> New accounts will be automatically added to this group after they&apos;re created.
                     You can change their group assignment later if needed.
                   </p>
                 </div>

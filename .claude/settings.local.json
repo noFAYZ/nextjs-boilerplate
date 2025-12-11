@@ -6,7 +6,18 @@
       "Bash(wc:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run lint)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(npx eslint:*)",
+      "Bash(cat:*)",
+      "Bash(npm run lint:*)",
+      "Bash(for file in \"app/(protected)/budgets/[id]/page.tsx\" \"app/(protected)/budgets/page.tsx\" \"app/(protected)/goals/[id]/page.tsx\" \"app/(protected)/integrations/request/page.tsx\" \"app/(protected)/subscriptions/[id]/page.tsx\" \"app/(protected)/subscriptions/page.tsx\")",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(python:*)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

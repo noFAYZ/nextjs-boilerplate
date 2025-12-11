@@ -234,9 +234,24 @@ export {
 } from './banking-queries';
 
 export {
-  integrationsKeys,
-  integrationsQueries,
-  integrationsMutations,
+  integrationsQueryKeys,
+  useAvailableProviders,
+  useProvidersHealth,
+  useUserIntegrations,
+  useIntegrationsSummary,
+  useQuickBooksStatus,
+  useQuickBooksCompany,
+  useQuickBooksAccounts,
+  useQuickBooksTransactions,
+  useQuickBooksInvoices,
+  useQuickBooksSyncStatus,
+  useConnectQuickBooks,
+  useDisconnectQuickBooks,
+  useSyncQuickBooks,
+  useConnectProvider,
+  useDisconnectProvider,
+  useSyncProvider,
+  useRefreshAllIntegrations,
 } from './integrations-queries';
 
 // ============================================================================
@@ -399,3 +414,159 @@ export {
   networthQueries,
   networthMutations,
 } from './networth-queries';
+
+// ============================================================================
+// ENVELOPE DATA HOOKS
+// ============================================================================
+
+export {
+  // Envelope Queries
+  useEnvelopes,
+  useEnvelope,
+  useEnvelopePeriodAnalytics,
+  useEnvelopePeriodHistory,
+  useEnvelopeAllocationHistory,
+  useEnvelopeSpendingHistory,
+  useAllocationRules,
+  useEnvelopeRules,
+  useAllocationRule,
+  useAllEnvelopesWithStats,
+  useEnvelopeQuickStats,
+  useAvailableToAllocate,
+  useDashboardSummary,
+
+  // Envelope Mutations
+  useCreateEnvelope,
+  useUpdateEnvelope,
+  useDeleteEnvelope,
+  useAllocateToEnvelope,
+  useRecordEnvelopeSpending,
+  useCreateAllocationRule,
+  useUpdateAllocationRule,
+  useDeleteAllocationRule,
+  useSplitSpending,
+} from './use-envelope-data';
+
+// ============================================================================
+// BUDGET DATA HOOKS (Income Allocation, Forecasting, Analytics, etc.)
+// ============================================================================
+
+export {
+  // Budget Queries
+  useBudgets,
+  useBudget,
+  useBudgetAnalytics,
+  useBudgetSummary,
+  useCreateBudget,
+  useUpdateBudget,
+  useDeleteBudget,
+  useAddBudgetTransaction,
+} from './use-budget-data';
+
+export {
+  budgetKeys,
+  budgetQueries,
+  budgetMutations,
+} from './budget-queries';
+
+export {
+  // Income Allocation Queries & Mutations
+  useIncomeAllocationSuggestions,
+  useAllocateIncome,
+  useIncomeAllocationHistory,
+  useIncomeRecommendations,
+  useRecordAllocationFeedback,
+} from './use-income-allocation-data';
+
+export {
+  incomeAllocationKeys,
+  incomeAllocationQueries,
+  incomeAllocationMutations,
+} from './income-allocation-queries';
+
+export {
+  // Budget Forecasting Queries & Mutations
+  useEnvelopeForecast,
+  useBudgetForecast,
+  useSpendingInsights,
+  useForecastSpending,
+} from './use-budget-forecasting-data';
+
+export {
+  budgetForecastingKeys,
+  budgetForecastingQueries,
+  budgetForecastingMutations,
+} from './budget-forecasting-queries';
+
+export {
+  // Category Matching Queries & Mutations
+  useEnvelopeSuggestions,
+  useCategorySuggestions,
+  useMerchantMatches,
+  useGetBulkSuggestions,
+  useCreateCategoryMappingRule,
+  useApplyMappingRules,
+} from './use-category-matching-data';
+
+export {
+  categoryMatchingKeys,
+  categoryMatchingQueries,
+  categoryMatchingMutations,
+} from './category-matching-queries';
+
+export {
+  // Budget Alerts Queries & Mutations
+  usePendingAlerts,
+  useAlertHistory,
+  useProcessAlerts,
+  useDismissAlert,
+} from './use-budget-alerts-data';
+
+export {
+  budgetAlertsKeys,
+  budgetAlertsQueries,
+  budgetAlertsMutations,
+} from './budget-alerts-queries';
+
+export {
+  // Budget Analytics Queries
+  useDashboardMetrics,
+
+  usePeriodComparison,
+  useEnvelopeRanking,
+  useSpendingVelocity,
+  useFinancialHealthScore,
+} from './use-budget-analytics-data';
+
+export {
+  budgetAnalyticsKeys,
+  budgetAnalyticsQueries,
+} from './budget-analytics-queries';
+
+export {
+  // Budget Reports Mutations & Utilities
+  useGenerateEnvelopeReportCSV,
+  useGenerateTransactionReportCSV,
+  useGenerateAnalyticsReportJSON,
+  useGenerateBudgetComparisonReport,
+  useGenerateMonthlySummaryReport,
+} from './use-budget-reports-data';
+
+export {
+  budgetReportsKeys,
+  budgetReportsMutations,
+  downloadBlob,
+} from './budget-reports-queries';
+
+export {
+  // Budget Templates Queries & Mutations
+  useBudgetTemplates,
+  useBudgetTemplate,
+  useApplyBudgetTemplate,
+} from './use-budget-templates-data';
+
+export {
+  budgetTemplatesKeys,
+  budgetTemplatesQueries,
+  budgetTemplatesMutations,
+} from './budget-templates-queries';

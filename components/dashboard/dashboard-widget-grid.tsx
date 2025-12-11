@@ -85,7 +85,7 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
         const newOrder = arrayMove(orderedWidgets, oldIndex, newIndex);
         setWidgetOrder(
           newOrder.map((widget, index) => ({
-            id: widget.id as any,
+            id: widget.id as string,
             visible: layoutState[widget.id as keyof typeof layoutState]?.visible ?? true,
             order: index,
             width: layoutState[widget.id as keyof typeof layoutState]?.width,

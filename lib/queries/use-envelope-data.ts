@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { envelopeApi } from '@/lib/services/envelope-api';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import {
   envelopesQueryOptions,
   envelopeQueryOptions,
@@ -26,6 +27,14 @@ import type {
 } from '@/lib/services/envelope-api';
 
 /**
+ * Helper to get organization ID from context store or explicit parameter
+ */
+function useContextOrganizationId(organizationId?: string) {
+  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  return organizationId || contextOrgId;
+}
+
+/**
  * Hook to fetch all envelopes for the current user
  */
 export function useEnvelopes(params?: {
@@ -33,16 +42,18 @@ export function useEnvelopes(params?: {
   envelopeType?: string;
   skip?: number;
   take?: number;
-}) {
-  return useQuery(envelopesQueryOptions(params));
+}, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
+  return useQuery(envelopesQueryOptions(params, orgId));
 }
 
 /**
  * Hook to fetch a single envelope by ID
  */
-export function useEnvelope(envelopeId: string | null) {
+export function useEnvelope(envelopeId: string | null, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopeQueryOptions(envelopeId || ''),
+    ...envelopeQueryOptions(envelopeId || '', orgId),
     enabled: !!envelopeId,
   });
 }
@@ -50,9 +61,10 @@ export function useEnvelope(envelopeId: string | null) {
 /**
  * Hook to fetch period analytics for an envelope
  */
-export function useEnvelopePeriodAnalytics(envelopeId: string | null) {
+export function useEnvelopePeriodAnalytics(envelopeId: string | null, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopePeriodAnalyticsQueryOptions(envelopeId || ''),
+    ...envelopePeriodAnalyticsQueryOptions(envelopeId || '', orgId),
     enabled: !!envelopeId,
   });
 }
@@ -62,10 +74,12 @@ export function useEnvelopePeriodAnalytics(envelopeId: string | null) {
  */
 export function useEnvelopePeriodHistory(
   envelopeId: string | null,
-  params?: { limit?: number; offset?: number }
+  params?: { limit?: number; offset?: number },
+  organizationId?: string
 ) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopePeriodHistoryQueryOptions(envelopeId || '', params),
+    ...envelopePeriodHistoryQueryOptions(envelopeId || '', params, orgId),
     enabled: !!envelopeId,
   });
 }
@@ -75,10 +89,12 @@ export function useEnvelopePeriodHistory(
  */
 export function useEnvelopeAllocationHistory(
   envelopeId: string | null,
-  params?: { startDate?: string; endDate?: string }
+  params?: { startDate?: string; endDate?: string },
+  organizationId?: string
 ) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopeAllocationHistoryQueryOptions(envelopeId || '', params),
+    ...envelopeAllocationHistoryQueryOptions(envelopeId || '', params, orgId),
     enabled: !!envelopeId,
   });
 }
@@ -88,10 +104,12 @@ export function useEnvelopeAllocationHistory(
  */
 export function useEnvelopeSpendingHistory(
   envelopeId: string | null,
-  params?: { limit?: number; offset?: number; startDate?: string; endDate?: string }
+  params?: { limit?: number; offset?: number; startDate?: string; endDate?: string },
+  organizationId?: string
 ) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopeSpendingHistoryQueryOptions(envelopeId || '', params),
+    ...envelopeSpendingHistoryQueryOptions(envelopeId || '', params, orgId),
     enabled: !!envelopeId,
   });
 }
@@ -105,16 +123,18 @@ export function useAllocationRules(params?: {
   ruleType?: string;
   skip?: number;
   take?: number;
-}) {
-  return useQuery(allocationRulesQueryOptions(params));
+}, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
+  return useQuery(allocationRulesQueryOptions(params, orgId));
 }
 
 /**
  * Hook to fetch all rules for a specific envelope
  */
-export function useEnvelopeRules(envelopeId: string | null, onlyActive = true) {
+export function useEnvelopeRules(envelopeId: string | null, onlyActive = true, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...envelopeRulesQueryOptions(envelopeId || '', onlyActive),
+    ...envelopeRulesQueryOptions(envelopeId || '', onlyActive, orgId),
     enabled: !!envelopeId,
   });
 }
@@ -122,9 +142,10 @@ export function useEnvelopeRules(envelopeId: string | null, onlyActive = true) {
 /**
  * Hook to fetch a single allocation rule
  */
-export function useAllocationRule(ruleId: string | null) {
+export function useAllocationRule(ruleId: string | null, organizationId?: string) {
+  const orgId = useContextOrganizationId(organizationId);
   return useQuery({
-    ...allocationRuleQueryOptions(ruleId || ''),
+    ...allocationRuleQueryOptions(ruleId || '', orgId),
     enabled: !!ruleId,
   });
 }

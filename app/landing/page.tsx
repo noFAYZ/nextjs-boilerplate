@@ -3,44 +3,21 @@ import {
   PricingSection,
   FAQSection,
   FinalCTASection,
-  LandingFooter,
-  ScrollProgress,
-  StickyCTA,
-  ComparisonSection,
-  SecuritySection,
-  HowItWorks,
-  RealtimeTracking,
-  FeatureGrid,
-  SubscriptionsShowcase,
-
 } from '@/components/landing';
-
-import IntegrationHero from '@/components/landing/integration-showcase';
 
 import FinanceHeroDubStyle from '@/components/landing/subscription-management/about-section';
 import MoneyMapprFeatureSection from '@/components/landing/subscription-management/FeatureSection';
 
-
-
-import { LandingHero,  } from '@/components/landing/subscription-management/landing-hero';
-
 import { TestimonialsDemo } from '@/components/landing/subscription-management/testimonials-section';
-import Skiper16 from '@/components/landing/subscription-management/skiper-feature';
 import { LandingNav } from '@/components/landing-v2/landing-nav';
 import { Footer } from '@/components/landing-v2/animated-footer';
 import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Parkinsans, Funnel_Display, Newsreader,Urbanist ,Sora  } from 'next/font/google';
-import { PortfolioShowcase } from '@/components/landing/subscription-management/portfolio-showcase';
-import { FeaturesSectionWithHoverEffects } from '@/components/landing/subscription-management/feature-section2';
-import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
-import IllustrationShowcase from '@/components/landing-v2/bento-section';
-import FeaturesGrid from '@/components/landing-v2/bento-section';
 
-  const parkinsans = Sora({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-  });
+import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
+import { LandingHero } from '@/components/landing/subscription-management/landing-hero2';
+import { Example } from '@/components/landing/section-widgets/features-tabs';
+
+
 export default function LandingPage() {
   const socialLinks = [
     {
@@ -80,6 +57,10 @@ export default function LandingPage() {
     <LandingNav />
       <LandingHero />
 <FinanceHeroDubStyle /> 
+      <Example bg={false} />
+
+
+
 
    <MoneyMapprFeatureSection />
 
@@ -89,15 +70,16 @@ export default function LandingPage() {
      <SubscriptionsShowcase />
      <RealtimeTracking /> 
        <PortfolioShowcase />
-       <CryptoShowcase />
+       <CryptoShowcase />  <FeaturesGrid />
       <HowItWorks />
  <Skiper16 />
      <FeatureGrid />   <IntegrationHero />  
       */}
  
    <DatabaseWithRestApi />
+   
 
-  
+
 
  <TestimonialsDemo />  
   <PricingSection />

@@ -215,7 +215,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];
-  const isSyncingSSE = walletSyncState && CRYPTO_SYNC_ACTIVE_STATUSES.includes(walletSyncState.status as any);
+  const isSyncingSSE = walletSyncState && CRYPTO_SYNC_ACTIVE_STATUSES.includes(walletSyncState.status);
   const syncProgress = walletSyncState?.progress || 0;
   const syncMessage = walletSyncState?.message || '';
   const lastSyncAt = walletSyncState?.completedAt;

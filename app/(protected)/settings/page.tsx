@@ -207,7 +207,7 @@ export default function SettingsPage() {
                       <Label className="text-sm font-medium">Date Format</Label>
                       <p className="text-xs text-muted-foreground mt-1">How dates are displayed</p>
                     </div>
-                    <Select value={preferences.dateFormat} onValueChange={(v: any) => updatePreference('dateFormat', v)}>
+                    <Select value={preferences.dateFormat} onValueChange={(v: string) => updatePreference('dateFormat', v)}>
                       <SelectTrigger className="w-36 h-9 text-xs" variant='outline2'><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>

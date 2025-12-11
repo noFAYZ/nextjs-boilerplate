@@ -35,14 +35,14 @@ export function CategoryRow({
   onSpendClick,
   onDeleteClick,
 }: {
-  envelope: any;
+  envelope: Record<string, unknown>;
   showBalances: boolean;
   visibleColumns: Record<string, boolean>;
   isLast: boolean;
   isSelected: boolean;
   onSelect: () => void;
-  onSpendClick: (envelope: any) => void;
-  onDeleteClick: (envelope: any) => void;
+  onSpendClick: (envelope: Record<string, unknown>) => void;
+  onDeleteClick: (envelope: Record<string, unknown>) => void;
 }) {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -77,7 +77,7 @@ export function CategoryRow({
           toast.success('Allocation updated');
           setEditingField(null);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           toast.error(error?.response?.data?.message || 'Failed to update');
         },
       }

@@ -80,7 +80,7 @@ export function FeatureTabs({ tabs, bg }) {
         {bg && <SVGDecorative reversed />}
       </div>
 
-      {/* Panels */}
+      {/* Panels - Only render active to reduce DOM */}
       <div className="mx-auto mt-5 container sm:max-w-7xl px-2 sm:px-4 [perspective:1000px] ">
         <div className="relative h-[300px] md:h-[680px] ">
           {tabs.map((t, i) => (
@@ -94,7 +94,7 @@ export function FeatureTabs({ tabs, bg }) {
                 active === i ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
-              <PanelContainer>{t.content}</PanelContainer>
+              {active === i && <PanelContainer>{t.content}</PanelContainer>}
             </div>
           ))}
         </div>
@@ -268,7 +268,8 @@ export function Example({ bg }) {
               alt={DASHBOARD_IMAGES[0].alt}
               width={1920}
               height={1200}
-              quality={100}
+              quality={80}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
               className="w-full rounded-2xl"
               priority
             />
@@ -290,8 +291,10 @@ export function Example({ bg }) {
               alt={DASHBOARD_IMAGES[1].alt}
               width={1920}
               height={1200}
-              quality={100}
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
               className="w-full rounded-2xl"
+              loading="lazy"
             />
           ),
         },
@@ -315,8 +318,10 @@ export function Example({ bg }) {
               alt={DASHBOARD_IMAGES[2].alt}
               width={1920}
               height={1200}
-              quality={100}
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
               className="w-full rounded-2xl"
+              loading="lazy"
             />
           ),
         },
@@ -339,8 +344,10 @@ export function Example({ bg }) {
               alt={DASHBOARD_IMAGES[3].alt}
               width={1920}
               height={1200}
-              quality={100}
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
               className="w-full rounded-2xl"
+              loading="lazy"
             />
           ),
         },

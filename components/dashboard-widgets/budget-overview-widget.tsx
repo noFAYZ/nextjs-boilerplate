@@ -23,7 +23,7 @@ import { SolarCalculatorBoldDuotone } from '../icons/icons';
 import { CardSkeleton } from '../ui/card-skeleton';
 
 // Budget Item Component
-function BudgetItem({ budget }: { budget: any }) {
+function BudgetItem({ budget }: { budget: { spent?: number; limit?: number; name?: string } }) {
   // Calculate progress
   const spent = budget.spent || 0;
   const limit = budget.limit || 0;

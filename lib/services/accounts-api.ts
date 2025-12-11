@@ -21,8 +21,8 @@ class AccountsApiService {
    * Get all accounts grouped by category
    * @returns All accounts organized by category with summary statistics
    */
-  async getAllAccounts(): Promise<ApiResponse<UnifiedAccountsResponse>> {
-    return apiClient.get(this.basePath);
+  async getAllAccounts(organizationId?: string): Promise<ApiResponse<UnifiedAccountsResponse>> {
+    return apiClient.get(this.basePath, organizationId);
   }
 
   /**
@@ -30,8 +30,8 @@ class AccountsApiService {
    * @param accountId - The account ID
    * @returns Account details with performance data and transaction stats
    */
-  async getAccountDetails(accountId: string): Promise<ApiResponse<UnifiedAccountDetails>> {
-    return apiClient.get(`${this.basePath}/${accountId}`);
+  async getAccountDetails(accountId: string, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
+    return apiClient.get(`${this.basePath}/${accountId}`, organizationId);
   }
 
   /**
@@ -39,8 +39,8 @@ class AccountsApiService {
    * @param data - Account creation data
    * @returns Created account details
    */
-  async createManualAccount(data: CreateManualAccountRequest): Promise<ApiResponse<UnifiedAccountDetails>> {
-    return apiClient.post(`${this.basePath}/manual`, data);
+  async createManualAccount(data: CreateManualAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
+    return apiClient.post(`${this.basePath}/manual`, data, organizationId);
   }
 
   /**
@@ -49,8 +49,8 @@ class AccountsApiService {
    * @param updates - Fields to update
    * @returns Updated account details
    */
-  async updateAccount(accountId: string, updates: UpdateAccountRequest): Promise<ApiResponse<UnifiedAccountDetails>> {
-    return apiClient.put(`${this.basePath}/${accountId}`, updates);
+  async updateAccount(accountId: string, updates: UpdateAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
+    return apiClient.put(`${this.basePath}/${accountId}`, updates, organizationId);
   }
 
   /**
@@ -58,8 +58,8 @@ class AccountsApiService {
    * @param accountId - The account ID
    * @returns Success response
    */
-  async deleteAccount(accountId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
-    return apiClient.delete(`${this.basePath}/${accountId}`);
+  async deleteAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    return apiClient.delete(`${this.basePath}/${accountId}`, organizationId);
   }
 
   /**
@@ -70,9 +70,10 @@ class AccountsApiService {
    */
   async getAccountTransactions(
     accountId: string,
-    params?: GetAccountTransactionsParams
+    params?: GetAccountTransactionsParams,
+    organizationId?: string
   ): Promise<ApiResponse<AccountTransactionsResponse>> {
-    return apiClient.get(`${this.basePath}/${accountId}/transactions`, { params });
+    return apiClient.get(`${this.basePath}/${accountId}/transactions`, organizationId);
   }
 
   /**
@@ -83,9 +84,10 @@ class AccountsApiService {
    */
   async addTransaction(
     accountId: string,
-    data: AddTransactionRequest
+    data: AddTransactionRequest,
+    organizationId?: string
   ): Promise<ApiResponse<Transaction>> {
-    return apiClient.post(`${this.basePath}/${accountId}/transactions`, data);
+    return apiClient.post(`${this.basePath}/${accountId}/transactions`, data, organizationId);
   }
 
   /**
@@ -97,12 +99,9 @@ class AccountsApiService {
     const queryParams = new URLSearchParams();
     queryParams.append('includeCategories', 'true');
     queryParams.append('hierarchy', 'false');
-    if (organizationId) {
-      queryParams.append('organizationId', organizationId);
-    }
     const queryString = queryParams.toString();
     const endpoint = `/accounts/transactions/category-groups${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<CategoryGroupsResponse>(endpoint);
+    return apiClient.get<CategoryGroupsResponse>(endpoint, organizationId);
   }
 
   /**
@@ -110,7 +109,7 @@ class AccountsApiService {
    * @param params - Query parameters for filtering and pagination
    * @returns Paginated list of all available categories
    */
-  async getCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }): Promise<ApiResponse<CategoriesResponse>> {
+  async getCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }, organizationId?: string): Promise<ApiResponse<CategoriesResponse>> {
     const queryParams = new URLSearchParams();
     if (params?.groupId) queryParams.append('groupId', params.groupId);
     if (params?.page) queryParams.append('page', params.page.toString());
@@ -120,7 +119,7 @@ class AccountsApiService {
 
     const queryString = queryParams.toString();
     const endpoint = `/accounts/transactions/categories${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<CategoriesResponse>(endpoint);
+    return apiClient.get<CategoriesResponse>(endpoint, organizationId);
   }
 
   /**
@@ -128,9 +127,9 @@ class AccountsApiService {
    * @param query - Search query string
    * @returns List of matching categories
    */
-  async searchCategories(query: string): Promise<ApiResponse<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>> {
+  async searchCategories(query: string, organizationId?: string): Promise<ApiResponse<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>> {
     const endpoint = `/accounts/transactions/categories/search?q=${encodeURIComponent(query)}`;
-    return apiClient.get<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>(endpoint);
+    return apiClient.get<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>(endpoint, organizationId);
   }
 
   /**
@@ -148,7 +147,7 @@ class AccountsApiService {
     type?: string;
     source?: string;
     search?: string;
-  }): Promise<ApiResponse<AccountTransactionsResponse>> {
+  }, organizationId?: string): Promise<ApiResponse<AccountTransactionsResponse>> {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -162,7 +161,7 @@ class AccountsApiService {
 
     const queryString = queryParams.toString();
     const endpoint = `/accounts/transactions${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<AccountTransactionsResponse>(endpoint);
+    return apiClient.get<AccountTransactionsResponse>(endpoint, organizationId);
   }
 }
 

@@ -230,7 +230,7 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
   }, [bankingStore]);
 
   // Helper to set up sync timeout
-  const setupSyncTimeout = useCallback((syncKey: string, store: any, id: string, completeHandler: () => void) => {
+  const setupSyncTimeout = useCallback((syncKey: string, store: { getState?: () => { realtimeSyncStates?: Record<string, BankingSyncState> } }, id: string, completeHandler: () => void) => {
     // Clear existing timeout if any
     const existingTimeout = syncTimeoutRef.current.get(syncKey);
     if (existingTimeout) {
@@ -342,10 +342,10 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
         'sync_progress': 'syncing',
       };
 
-      let status = data.status || data.type;
-      let mappedStatus = statusMap[status] || status;
+      const status = data.status || data.type;
+      const mappedStatus = statusMap[status] || status;
       let progress = data.progress || 0;
-      let message = data.message || 'Syncing bank account...';
+      const message = data.message || 'Syncing bank account...';
 
       // Handle type-based progress estimation
       if (data.type === 'syncing_bank' && !data.progress) {

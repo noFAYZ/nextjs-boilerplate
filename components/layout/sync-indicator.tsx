@@ -93,8 +93,8 @@ function getStatusConfig(status: string, isConnected: boolean): StatusConfig {
   if (!isConnected) return STATUS_CONFIG_MAP.offline
 
   // Check for syncing states first (most common during active syncs)
-  if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(status as any)) return STATUS_CONFIG_MAP.syncing
-  if (BANKING_SYNC_ACTIVE_STATUSES.includes(status as any)) return STATUS_CONFIG_MAP.syncing
+  if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(status)) return STATUS_CONFIG_MAP.syncing
+  if (BANKING_SYNC_ACTIVE_STATUSES.includes(status)) return STATUS_CONFIG_MAP.syncing
 
   return STATUS_CONFIG_MAP[status] || STATUS_CONFIG_MAP.idle
 }
@@ -124,7 +124,7 @@ export function SyncIndicator() {
 
     // Process crypto states
     Object.values(cryptoSyncStates).forEach(state => {
-      if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status as any)) {
+      if (CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status)) {
         cryptoSyncingCount++
         totalProgress += state.progress || 0
         syncingItemsCount++
@@ -135,7 +135,7 @@ export function SyncIndicator() {
 
     // Process banking states
     Object.values(bankingSyncStates).forEach(state => {
-      if (BANKING_SYNC_ACTIVE_STATUSES.includes(state.status as any)) {
+      if (BANKING_SYNC_ACTIVE_STATUSES.includes(state.status)) {
         console.log("sync stats", state.status)
         bankingSyncingCount++
         totalProgress += state.progress || 0

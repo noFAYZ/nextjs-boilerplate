@@ -109,7 +109,7 @@ export function ManualTransactionForm({
     setSplits(splits.filter((_, i) => i !== index));
   };
 
-  const handleSplitChange = (index: number, field: keyof TransactionSplitType, value: any) => {
+  const handleSplitChange = (index: number, field: keyof TransactionSplitType, value: string | number) => {
     const newSplits = [...splits];
     newSplits[index] = { ...newSplits[index], [field]: value };
     setSplits(newSplits);

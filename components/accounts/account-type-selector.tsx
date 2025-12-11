@@ -206,7 +206,7 @@ export function AccountTypeSelector({
 
   // Group by category
   const groupedTypes = useMemo(() => {
-    const grouped: Record<AccountCategory, typeof filteredTypes> = {} as any;
+    const grouped: Record<AccountCategory, typeof filteredTypes> = {} as Record<AccountCategory, typeof filteredTypes>;
 
     filteredTypes.forEach(([type, info]) => {
       if (!grouped[info.category]) {

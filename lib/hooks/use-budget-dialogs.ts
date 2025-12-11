@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CustomCategory } from '@/lib/services/category-groups-api';
 
 export type DeleteTargetType = { type: 'category' | 'group'; id: string; name: string } | null;
 
@@ -17,7 +18,7 @@ export function useBudgetDialogs() {
 
   // Spend modal
   const [spendModalOpen, setSpendModalOpen] = useState(false);
-  const [selectedEnvelope, setSelectedEnvelope] = useState<any>(null);
+  const [selectedEnvelope, setSelectedEnvelope] = useState<CustomCategory | null>(null);
 
   return {
     // Add category

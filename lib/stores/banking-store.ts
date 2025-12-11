@@ -262,7 +262,7 @@ export const useBankingStore = create<BankingStore>()(
                 // Remove any sync stuck for more than 2 minutes in active status
                 if (
                   elapsedMs > twoMinutesMs &&
-                  ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(syncState.status as any)
+                  ['queued', 'processing', 'syncing', 'syncing_balance', 'syncing_transactions'].includes(syncState.status)
                 ) {
                   console.warn(`[Banking Store] Removing stuck sync for ${accountId} (${Math.round(elapsedMs / 1000)}s old, status: ${syncState.status})`);
                   delete state.realtimeSyncStates[accountId];

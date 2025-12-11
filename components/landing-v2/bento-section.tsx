@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "../ui/card";
+import { BgGradient } from "../landing/bg/bg-gradient";
 
 const features = [
   {
@@ -33,13 +34,14 @@ const features = [
 export default function FeaturesGrid() {
   return (
     <>
-      <section className="py-20 px-6 max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+      <section className="py-20 px-6  mx-auto relative">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 max-w-5xl mx-auto">
           {/* Top Row - 3 cards */}
           {features.slice(0, 3).map((feature, index) => (
             <Card
               key={index}
-              className="lg:col-span-4 group relative overflow-hidden rounded-3xl bg-white shadow-lg hover:shadow-2xl transition-all duration-400"
+              className="lg:col-span-4 group relative overflow-hidden border-border/50 rounded-3xl bg-white shadow-none hover:shadow-2xl transition-all duration-75"
             >
               <div className="aspect-[4/3.5] overflow-hidden rounded-2xl">
                 <img
@@ -61,7 +63,7 @@ export default function FeaturesGrid() {
 
           {/* Bottom Row - Large card + small card */}
           <div className="lg:col-span-7 lg:row-span-2">
-            <Card className="h-full group relative overflow-hidden rounded-3xl hover:shadow-2xl transition-all duration-400">
+            <Card className="h-full group relative overflow-hidden border-border/50 rounded-3xl shadow-none hover:shadow-2xl transition-all duration-100">
               <div className="aspect-[4/2]  rounded-2xl overflow-hidden">
                 <img
                   src={features[3].image}
@@ -81,7 +83,7 @@ export default function FeaturesGrid() {
           </div>
 
           <div className="lg:col-span-5 lg:row-span-2">
-            <Card className="h-full group relative overflow-hidden rounded-3xl   hover:shadow-lg transition-all duration-400">
+            <Card className="h-full group relative overflow-hidden rounded-3xl    transition-all duration-100 shadow-none border-border/50">
               <div className="aspect-[4/2] rounded-2xl overflow-hidden">
                 <img
                   src={features[4].image}

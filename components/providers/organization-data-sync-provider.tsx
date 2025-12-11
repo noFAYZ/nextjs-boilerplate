@@ -52,7 +52,7 @@ const REFETCH_TIMEOUTS = {
 // ============================================================================
 
 async function refetchWithTimeout(
-  promise: Promise<any>,
+  promise: Promise<unknown>,
   timeoutMs: number,
   label: string
 ): Promise<void> {

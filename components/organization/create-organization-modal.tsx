@@ -313,7 +313,7 @@ export function CreateOrganizationModal({
         }
       }
     } catch (err) {
-      setError((err as any)?.error?.message || 'Failed to save workspace');
+      setError((err as { error?: { message?: string } })?.error?.message || 'Failed to save workspace');
     }
   };
 

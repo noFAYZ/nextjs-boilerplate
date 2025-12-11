@@ -88,7 +88,7 @@ export default function GoalDetailPage() {
         });
         router.push("/goals");
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         const message = error?.message || "Failed to delete goal";
         toast({
           title: "Error",
@@ -506,7 +506,7 @@ export default function GoalDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Goal</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{goal.name}"? This action cannot be undone
+              Are you sure you want to delete &quot;{goal.name}&quot;? This action cannot be undone
               and will remove all associated milestones and contributions.
             </AlertDialogDescription>
           </AlertDialogHeader>

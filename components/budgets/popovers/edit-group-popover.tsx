@@ -12,7 +12,7 @@ export function EditGroupPopover({
   onDelete,
   triggerElement,
 }: {
-  group: any;
+  group: { id: string; name: string };
   editGroupName: string;
   setEditGroupName: (name: string) => void;
   onClose: () => void;
@@ -53,7 +53,7 @@ export function EditGroupPopover({
           toast.success('Group updated');
           onClose();
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           toast.error('Failed to update group');
         },
       }

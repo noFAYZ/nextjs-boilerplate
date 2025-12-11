@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { toast } from 'sonner';
+import { BudgetAccountGroup } from '@/lib/types/budget';
 
 export function AssignAmountPopover({
   onClose,
@@ -14,7 +15,7 @@ export function AssignAmountPopover({
   onClose: () => void;
   triggerElement?: HTMLElement | null;
   totalBalance: number;
-  groups: any[];
+  groups: BudgetAccountGroup[];
   onAssign: (groupId: string, amount: number) => Promise<void>;
 }) {
   const [selectedGroup, setSelectedGroup] = useState<string>('');

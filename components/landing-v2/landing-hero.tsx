@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -86,17 +87,7 @@ export function LandingHero() {
   const theme = resolvedTheme?.startsWith("dark") ? "dark" : "light";
   const imageSrc = DASHBOARD_IMAGES[theme];
 
-  const fadeUp = {
-    initial: { opacity: 0, y: reduceMotion ? 0 : 16 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeOut" },
-  };
-
-  const scaleIn = {
-    initial: { opacity: 0, scale: reduceMotion ? 1 : 0.96 },
-    animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.65, ease: "easeOut" },
-  };
+  // Animations removed for LCP performance - use static content instead
   const rotatingItems: Item[] = [
     { label: 'Finances', icon: FinancesIconDuotone },
     { label: 'Banks', icon: DuoIconsBank },
@@ -105,6 +96,7 @@ export function LandingHero() {
     { label: 'Budgets', icon: SolarPieChart2BoldDuotone },
     { label: 'Goals', icon: MageGoals },
   ];
+
   return (
     <section className="relative overflow-hidden pt-32 md:pt-40  " >
 
@@ -132,18 +124,14 @@ export function LandingHero() {
           </div>
  */}
       <div className="relative z-10 mx-auto px-6 max-w-lg text-center">
-        {/* Heading */}
-        <motion.h1
-          {...fadeUp}
-          transition={{ delay: 0.2 }}
-          className="font-semibold tracking-tight leading-snug text-2xl md:text-3xl lg:text-5xl xl:text-5xl"
-        >
+        {/* Heading - Static for LCP */}
+        <h1 className="font-semibold tracking-tight leading-snug text-2xl md:text-3xl lg:text-5xl xl:text-5xl">
           Take Control of Your{" "}
 
          
           <span className="inline-block relative ">
           <TextRotate
-            texts={[ 
+            texts={[
               "Finances ✽",
               "Banks",
               "Crypto",
@@ -151,28 +139,25 @@ export function LandingHero() {
               "Budgets",
               "Goals",
             ]}
-            mainClassName="   text-orange-500 rounded-2xl  overflow-hidden  justify-center  py-0 "
-            staggerFrom={"last"}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "-120%" }}
-            staggerDuration={0.025}
-            splitLevelClassName="overflow-hidden "
-            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            mainClassName="text-orange-500 rounded-2xl overflow-hidden justify-center py-0"
+            staggerFrom="first"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            staggerDuration={0}
+            splitLevelClassName="overflow-hidden"
+            transition={{ duration: 0.1, ease: "easeOut" }}
             rotationInterval={3000}
+            auto={true}
           />
           </span>
-        </motion.h1>
+        </h1>
 
-        {/* Subheadline */}
-        <motion.p
-          {...fadeUp}
-          transition={{ delay: 0.4 }}
-          className="mx-auto mt-6 max-w-xl text-sm sm:text-sm md:text-md lg:text-base  font-medium text-muted-foreground"
-        >
+        {/* Subheadline - Static for LCP */}
+        <p className="mx-auto mt-6 max-w-xl text-sm sm:text-sm md:text-md lg:text-base  font-medium text-muted-foreground">
           Track, budget and plan every trasaction — with AI-powered
           alerts, smart insights, and real-time forecasting.
-        </motion.p>
+        </p>
 
                {/* CTA 
                <motion.div
@@ -189,27 +174,10 @@ export function LandingHero() {
        
         </motion.div>*/}
 
-        {/* CTA */}
-        <motion.div
-          {...fadeUp}
-          transition={{ delay: 0.6 }}
-          className="mt-8 flex justify-center gap-3 flex-wrap "
-          
-        >
-       {/*    <Button variant={'steel'} >
-            Get Started
-          </Button>
-
-          <Button
-           
-            variant="outline2"
-  
-            icon={<SolarPlayCircleBoldDuotone className="w-5 h-5" />}
-          >
-            See Demo
-          </Button> */}
+        {/* CTA - Static for LCP */}
+        <div className="mt-8 flex justify-center gap-3 flex-wrap">
           <WaitlistFormCompact />
-        </motion.div>
+        </div>
 
 
         
@@ -317,7 +285,7 @@ export function LandingHero() {
 }
 
 // Reusable floating card with physics-like motion
-function FloatingCard({ children, delay = 0, className = "" }: any) {
+function FloatingCard({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 100, rotate: 0 }}

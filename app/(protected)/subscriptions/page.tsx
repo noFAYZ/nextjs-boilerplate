@@ -129,7 +129,7 @@ export default function SubscriptionsPage() {
       <UpcomingCharges /> */}
 
       {/* Tabs */}
-      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)} >
+      <Tabs value={ui.activeTab} onValueChange={(value: string) => setActiveTab(value)} >
         <TabsList variant={'pill'}   >
           <TabsTrigger value="all" variant={'pill'}  >All</TabsTrigger>
           <TabsTrigger value="active" variant={'pill'} >Active</TabsTrigger>
@@ -208,7 +208,7 @@ export default function SubscriptionsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{subscriptionToDelete?.name}"? This action cannot be
+              Are you sure you want to delete &quot;{subscriptionToDelete?.name}&quot;? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

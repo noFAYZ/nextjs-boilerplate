@@ -285,7 +285,7 @@ export default function IntegrationsPage() {
               </div>
 
               {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-fit lg:w-auto" >
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as string)} className="w-fit lg:w-auto" >
                 <TabsList className=" p-1  h-9" variant={'floating'} size={'sm'}>
                   <TabsTrigger value="all" variant="ghost" className="gap-2" size={'sm'}>
                     <Sparkles className="w-4 h-4" />

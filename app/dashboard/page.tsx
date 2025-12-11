@@ -206,16 +206,16 @@ export default function DashboardPage() {
       />
     </div> */}
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h1 className="text-lg font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+       {/*    <h1 className="text-lg font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
             {greeting}, {firstName}!  
-          </h1>
+          </h1> */}
 
-  {/* Dashboard Controls */}
+
           <div className="flex justify-end ">
             <Button
-              variant={isEditMode ? "default" : "outline"}
-              size="xs"
+              variant={isEditMode ? "brand" : "outline2"}
+              size="icon-xs"
               onClick={toggleEditMode}
               className="gap-1 border-r-0 rounded-r-none"
               title={
@@ -233,8 +233,8 @@ export default function DashboardPage() {
               </span>
             </Button>
             <Button
-              variant="outline"
-              size="xs"
+              variant="outline2"
+              size="icon-xs"
               onClick={() => setIsSettingsOpen(true)}
               className="gap-1  rounded-l-none "
               title="Manage widgets"
@@ -252,7 +252,7 @@ export default function DashboardPage() {
           <div className="p-3 rounded-lg bg-accent border border-border">
             <p className="text-xs font-semibold text-foreground">
               ✏️ Drag to reorder widgets • Drag the corner to resize • Use
-              "Widgets" button to show/hide
+              &quot;Widgets&quot; button to show/hide
             </p>
           </div>
         )}

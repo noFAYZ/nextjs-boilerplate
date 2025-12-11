@@ -202,7 +202,7 @@ export function IntegrationsDialog({
 
           {/* Tabs & Categories */}
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full sm:w-auto">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'all' | 'connected' | 'available')} className="w-full sm:w-auto">
               <TabsList className="grid w-full grid-cols-3 sm:w-auto">
                 <TabsTrigger value="all" className="text-xs">
                   All

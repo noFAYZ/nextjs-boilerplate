@@ -1285,7 +1285,7 @@ function ConnectionPageContent() {
                   <div className="text-center">
                     <h2 className="text-xl font-semibold mb-2">Authorize {getIntegrationName()}</h2>
                     <p className="text-sm text-muted-foreground">
-                      You'll be redirected to {getIntegrationName()} to grant access
+                      You&apos;ll be redirected to {getIntegrationName()} to grant access
                     </p>
                   </div>
 

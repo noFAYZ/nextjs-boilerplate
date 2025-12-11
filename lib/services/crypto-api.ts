@@ -204,7 +204,12 @@ class CryptoApiService {
       ]);
 
       if (!walletResponse.success) {
-        return walletResponse as any;
+        return walletResponse as ApiResponse<{
+          wallet: CryptoWallet;
+          transactions: CryptoTransaction[];
+          nfts: CryptoNFT[];
+          defiPositions: DeFiPosition[];
+        }>;
       }
 
       return {
@@ -279,7 +284,7 @@ class CryptoApiService {
         .filter((result): result is PromiseFulfilledResult<ApiResponse<CryptoWallet>> =>
           result.status === 'fulfilled' && result.value.success
         )
-        .map(result => (result.value as any).data);
+        .map(result => result.value.data);
 
       const failed = results.filter(result =>
         result.status === 'rejected' ||

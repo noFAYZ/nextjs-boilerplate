@@ -108,7 +108,7 @@ export function ComingSoonPage() {
                 </Button>
               </FeaturesModal>
               <p className="text-xs text-muted-foreground/80 mt-2">
-                See what's coming in MoneyMappr
+                See what&apos;s coming in MoneyMappr
               </p>
             </div>
           </div>

@@ -259,7 +259,7 @@ export function AddEnvelopeBudgetModal({
               {/* Help Text */}
               <Card className="p-3 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50">
                 <p className="text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
-                  💡 <strong>Tip:</strong> Set an amount you're comfortable spending on this category this month. You'll see real-time updates as transactions come in.
+                  💡 <strong>Tip:</strong> Set an amount you&apos;re comfortable spending on this category this month. You&apos;ll see real-time updates as transactions come in.
                 </p>
               </Card>
             </div>

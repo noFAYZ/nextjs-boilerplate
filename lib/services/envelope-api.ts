@@ -57,7 +57,12 @@ export interface UpdateEnvelopeRequest {
   color?: string;
   rolloverType?: string;
   rolloverPercentage?: number;
-  [key: string]: any;
+  status?: 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | 'CLOSED';
+  cycle?: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+  notes?: string;
+  tags?: string[];
+  autoAdjust?: boolean;
+  autoClose?: boolean;
 }
 
 export interface AllocateRequest {
@@ -200,14 +205,14 @@ class EnvelopeApiService {
   /**
    * Create a new envelope
    */
-  async createEnvelope(data: CreateEnvelopeRequest): Promise<ApiResponse<Envelope>> {
-    return apiClient.post(this.basePath, data);
+  async createEnvelope(data: CreateEnvelopeRequest, organizationId?: string): Promise<ApiResponse<Envelope>> {
+    return apiClient.post(this.basePath, data, organizationId);
   }
 
   /**
    * Get all envelopes for the user
    */
-  async getEnvelopes(params?: ListEnvelopesParams): Promise<ApiResponse<PaginatedResponse<Envelope>>> {
+  async getEnvelopes(params?: ListEnvelopesParams, organizationId?: string): Promise<ApiResponse<PaginatedResponse<Envelope>>> {
     const queryParams = new URLSearchParams();
     if (params?.status) queryParams.append('status', params.status);
     if (params?.envelopeType) queryParams.append('envelopeType', params.envelopeType);
@@ -215,35 +220,35 @@ class EnvelopeApiService {
     if (params?.take !== undefined) queryParams.append('take', params.take.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}${query}`);
+    return apiClient.get(`${this.basePath}${query}`, organizationId);
   }
 
   /**
    * Get a specific envelope by ID
    */
-  async getEnvelope(envelopeId: string): Promise<ApiResponse<Envelope>> {
-    return apiClient.get(`${this.basePath}/${envelopeId}`);
+  async getEnvelope(envelopeId: string, organizationId?: string): Promise<ApiResponse<Envelope>> {
+    return apiClient.get(`${this.basePath}/${envelopeId}`, organizationId);
   }
 
   /**
    * Update an envelope
    */
-  async updateEnvelope(envelopeId: string, data: UpdateEnvelopeRequest): Promise<ApiResponse<Envelope>> {
-    return apiClient.put(`${this.basePath}/${envelopeId}`, data);
+  async updateEnvelope(envelopeId: string, data: UpdateEnvelopeRequest, organizationId?: string): Promise<ApiResponse<Envelope>> {
+    return apiClient.put(`${this.basePath}/${envelopeId}`, data, organizationId);
   }
 
   /**
    * Delete an envelope
    */
-  async deleteEnvelope(envelopeId: string): Promise<ApiResponse<{ id: string }>> {
-    return apiClient.delete(`${this.basePath}/${envelopeId}`);
+  async deleteEnvelope(envelopeId: string, organizationId?: string): Promise<ApiResponse<{ id: string }>> {
+    return apiClient.delete(`${this.basePath}/${envelopeId}`, organizationId);
   }
 
   /**
    * Allocate funds to an envelope
    */
-  async allocateToEnvelope(envelopeId: string, data: AllocateRequest): Promise<ApiResponse<EnvelopeAllocation>> {
-    return apiClient.post(`${this.basePath}/${envelopeId}/allocate`, data);
+  async allocateToEnvelope(envelopeId: string, data: AllocateRequest, organizationId?: string): Promise<ApiResponse<EnvelopeAllocation>> {
+    return apiClient.post(`${this.basePath}/${envelopeId}/allocate`, data, organizationId);
   }
 
   /**
@@ -251,9 +256,10 @@ class EnvelopeApiService {
    */
   async recordSpending(
     envelopeId: string,
-    data: { amount: number; description?: string }
-  ): Promise<ApiResponse<any>> {
-    return apiClient.post(`${this.basePath}/${envelopeId}/spend`, data);
+    data: { amount: number; description?: string },
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; envelopeId: string; amount: number; description?: string; timestamp: string }>> {
+    return apiClient.post(`${this.basePath}/${envelopeId}/spend`, data, organizationId);
   }
 
   /**
@@ -261,14 +267,15 @@ class EnvelopeApiService {
    */
   async getAllocationHistory(
     envelopeId: string,
-    params?: { startDate?: string; endDate?: string }
+    params?: { startDate?: string; endDate?: string },
+    organizationId?: string
   ): Promise<ApiResponse<EnvelopeAllocation[]>> {
     const queryParams = new URLSearchParams();
     if (params?.startDate) queryParams.append('startDate', params.startDate);
     if (params?.endDate) queryParams.append('endDate', params.endDate);
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}/${envelopeId}/allocation-history${query}`);
+    return apiClient.get(`${this.basePath}/${envelopeId}/allocation-history${query}`, organizationId);
   }
 
   /**
@@ -276,8 +283,21 @@ class EnvelopeApiService {
    */
   async getSpendingHistory(
     envelopeId: string,
-    params?: { limit?: number; offset?: number; startDate?: string; endDate?: string }
-  ): Promise<ApiResponse<any>> {
+    params?: { limit?: number; offset?: number; startDate?: string; endDate?: string },
+    organizationId?: string
+  ): Promise<ApiResponse<{
+    spending: Array<{
+      id: string;
+      amount: number;
+      description?: string;
+      timestamp: string;
+    }>;
+    pagination: {
+      limit: number;
+      offset: number;
+      total: number;
+    };
+  }>> {
     const queryParams = new URLSearchParams();
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.offset) queryParams.append('offset', params.offset.toString());
@@ -285,21 +305,37 @@ class EnvelopeApiService {
     if (params?.endDate) queryParams.append('endDate', params.endDate);
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}/${envelopeId}/spending-history${query}`);
+    return apiClient.get(`${this.basePath}/${envelopeId}/spending-history${query}`, organizationId);
   }
 
   /**
    * Get period configuration
    */
-  async getPeriodConfig(envelopeId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`${this.basePath}/${envelopeId}/period-config`);
+  async getPeriodConfig(envelopeId: string, organizationId?: string): Promise<ApiResponse<{
+    cycle: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+    periodStart: string;
+    periodEnd: string;
+    rolloverType: string;
+    rolloverPercentage?: number;
+  }>> {
+    return apiClient.get(`${this.basePath}/${envelopeId}/period-config`, organizationId);
   }
 
   /**
    * Update period configuration
    */
-  async updatePeriodConfig(envelopeId: string, data: any): Promise<ApiResponse<any>> {
-    return apiClient.put(`${this.basePath}/${envelopeId}/period-config`, data);
+  async updatePeriodConfig(envelopeId: string, data: {
+    cycle?: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+    rolloverType?: string;
+    rolloverPercentage?: number;
+  }, organizationId?: string): Promise<ApiResponse<{
+    cycle: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+    periodStart: string;
+    periodEnd: string;
+    rolloverType: string;
+    rolloverPercentage?: number;
+  }>> {
+    return apiClient.put(`${this.basePath}/${envelopeId}/period-config`, data, organizationId);
   }
 
   /**
@@ -307,21 +343,22 @@ class EnvelopeApiService {
    */
   async getPeriodHistory(
     envelopeId: string,
-    params?: { limit?: number; offset?: number }
+    params?: { limit?: number; offset?: number },
+    organizationId?: string
   ): Promise<ApiResponse<PaginatedResponse<EnvelopePeriod>>> {
     const queryParams = new URLSearchParams();
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.offset) queryParams.append('offset', params.offset.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}/${envelopeId}/period-history${query}`);
+    return apiClient.get(`${this.basePath}/${envelopeId}/period-history${query}`, organizationId);
   }
 
   /**
    * Get period analytics for an envelope
    */
-  async getPeriodAnalytics(envelopeId: string): Promise<ApiResponse<PeriodAnalytics>> {
-    return apiClient.get(`${this.basePath}/${envelopeId}/period-analytics`);
+  async getPeriodAnalytics(envelopeId: string, organizationId?: string): Promise<ApiResponse<PeriodAnalytics>> {
+    return apiClient.get(`${this.basePath}/${envelopeId}/period-analytics`, organizationId);
   }
 
   /**
@@ -329,26 +366,27 @@ class EnvelopeApiService {
    */
   async getPeriodTrends(
     envelopeId: string,
-    params?: { periodCount?: number }
+    params?: { periodCount?: number },
+    organizationId?: string
   ): Promise<ApiResponse<PeriodTrendsResponse>> {
     const queryParams = new URLSearchParams();
     if (params?.periodCount) queryParams.append('periodCount', params.periodCount.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}/${envelopeId}/period-trends${query}`);
+    return apiClient.get(`${this.basePath}/${envelopeId}/period-trends${query}`, organizationId);
   }
 
   /**
    * Create an allocation rule
    */
-  async createAllocationRule(data: CreateAllocationRuleRequest): Promise<ApiResponse<AllocationRule>> {
-    return apiClient.post(this.rulesPath, data);
+  async createAllocationRule(data: CreateAllocationRuleRequest, organizationId?: string): Promise<ApiResponse<AllocationRule>> {
+    return apiClient.post(this.rulesPath, data, organizationId);
   }
 
   /**
    * Get allocation rules
    */
-  async getAllocationRules(params?: ListRulesParams): Promise<ApiResponse<PaginatedResponse<AllocationRule>>> {
+  async getAllocationRules(params?: ListRulesParams, organizationId?: string): Promise<ApiResponse<PaginatedResponse<AllocationRule>>> {
     const queryParams = new URLSearchParams();
     if (params?.envelopeId) queryParams.append('envelopeId', params.envelopeId);
     if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
@@ -357,39 +395,39 @@ class EnvelopeApiService {
     if (params?.take !== undefined) queryParams.append('take', params.take.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.rulesPath}${query}`);
+    return apiClient.get(`${this.rulesPath}${query}`, organizationId);
   }
 
   /**
    * Get a specific allocation rule
    */
-  async getAllocationRule(ruleId: string): Promise<ApiResponse<AllocationRule>> {
-    return apiClient.get(`${this.rulesPath}/${ruleId}`);
+  async getAllocationRule(ruleId: string, organizationId?: string): Promise<ApiResponse<AllocationRule>> {
+    return apiClient.get(`${this.rulesPath}/${ruleId}`, organizationId);
   }
 
   /**
    * Update an allocation rule
    */
-  async updateAllocationRule(ruleId: string, data: Partial<CreateAllocationRuleRequest>): Promise<ApiResponse<AllocationRule>> {
-    return apiClient.put(`${this.rulesPath}/${ruleId}`, data);
+  async updateAllocationRule(ruleId: string, data: Partial<CreateAllocationRuleRequest>, organizationId?: string): Promise<ApiResponse<AllocationRule>> {
+    return apiClient.put(`${this.rulesPath}/${ruleId}`, data, organizationId);
   }
 
   /**
    * Delete an allocation rule
    */
-  async deleteAllocationRule(ruleId: string): Promise<ApiResponse<{ id: string }>> {
-    return apiClient.delete(`${this.rulesPath}/${ruleId}`);
+  async deleteAllocationRule(ruleId: string, organizationId?: string): Promise<ApiResponse<{ id: string }>> {
+    return apiClient.delete(`${this.rulesPath}/${ruleId}`, organizationId);
   }
 
   /**
    * Get rules for a specific envelope
    */
-  async getRulesForEnvelope(envelopeId: string, params?: { onlyActive?: boolean }): Promise<ApiResponse<AllocationRule[]>> {
+  async getRulesForEnvelope(envelopeId: string, params?: { onlyActive?: boolean }, organizationId?: string): Promise<ApiResponse<AllocationRule[]>> {
     const queryParams = new URLSearchParams();
     if (params?.onlyActive !== undefined) queryParams.append('onlyActive', params.onlyActive.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.rulesPath}/envelope/${envelopeId}${query}`);
+    return apiClient.get(`${this.rulesPath}/envelope/${envelopeId}${query}`, organizationId);
   }
 
   /**
@@ -399,14 +437,14 @@ class EnvelopeApiService {
     envelopes: Array<{ envelopeId: string; amount: number }>;
     totalAmount: number;
     transactionId?: string;
-  }): Promise<ApiResponse<Array<{ id: string; envelopeId: string; amount: string }>>> {
-    return apiClient.post(`${this.basePath}/split-spending`, data);
+  }, organizationId?: string): Promise<ApiResponse<Array<{ id: string; envelopeId: string; amount: string }>>> {
+    return apiClient.post(`${this.basePath}/split-spending`, data, organizationId);
   }
 
   /**
    * Get available amount to allocate across all envelopes
    */
-  async getAvailableToAllocate(): Promise<
+  async getAvailableToAllocate(organizationId?: string): Promise<
     ApiResponse<{
       totalBudgeted: string;
       totalAllocated: string;
@@ -414,13 +452,13 @@ class EnvelopeApiService {
       availableToAllocate: string;
     }>
   > {
-    return apiClient.get(`${this.basePath}/available-to-allocate`);
+    return apiClient.get(`${this.basePath}/available-to-allocate`, organizationId);
   }
 
   /**
    * Get summary dashboard data
    */
-  async getDashboardSummary(): Promise<
+  async getDashboardSummary(organizationId?: string): Promise<
     ApiResponse<{
       totalEnvelopes: number;
       activeEnvelopes: number;
@@ -432,7 +470,7 @@ class EnvelopeApiService {
       envelopesOverBudget: number;
     }>
   > {
-    return apiClient.get(`${this.basePath}/dashboard-summary`);
+    return apiClient.get(`${this.basePath}/dashboard-summary`, organizationId);
   }
 
   /**
@@ -445,7 +483,7 @@ class EnvelopeApiService {
     sortOrder?: 'asc' | 'desc';
     skip?: number;
     take?: number;
-  }): Promise<ApiResponse<PaginatedResponse<Envelope>>> {
+  }, organizationId?: string): Promise<ApiResponse<PaginatedResponse<Envelope>>> {
     const queryParams = new URLSearchParams();
     if (params?.status) queryParams.append('status', params.status);
     if (params?.envelopeType) queryParams.append('envelopeType', params.envelopeType);
@@ -455,13 +493,13 @@ class EnvelopeApiService {
     if (params?.take !== undefined) queryParams.append('take', params.take.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get(`${this.basePath}${query}`);
+    return apiClient.get(`${this.basePath}${query}`, organizationId);
   }
 
   /**
    * Get quick stats for a specific envelope
    */
-  async getEnvelopeQuickStats(envelopeId: string): Promise<
+  async getEnvelopeQuickStats(envelopeId: string, organizationId?: string): Promise<
     ApiResponse<{
       name: string;
       allocatedAmount: string;
@@ -473,7 +511,7 @@ class EnvelopeApiService {
       lastUpdated: string;
     }>
   > {
-    return apiClient.get(`${this.basePath}/${envelopeId}/quick-stats`);
+    return apiClient.get(`${this.basePath}/${envelopeId}/quick-stats`, organizationId);
   }
 }
 

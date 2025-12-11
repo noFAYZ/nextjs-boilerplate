@@ -38,7 +38,7 @@ export function TestimonialsSection() {
             <ScrollReveal key={testimonial.author} delay={index * 100}>
               <div className="group rounded-lg border bg-card p-6 h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </p>
                 <div className="pt-4 border-t">
                   <div className="font-medium text-sm">{testimonial.author}</div>

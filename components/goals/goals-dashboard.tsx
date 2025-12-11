@@ -137,8 +137,8 @@ export function GoalsDashboard() {
           setIsDeleteDialogOpen(false);
           setDeletingGoal(null);
         },
-        onError: (error: any) => {
-          const message = error?.message || 'Failed to delete goal';
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : 'Failed to delete goal';
           toast.error('Failed to delete goal', { description: message });
         },
         onSettled: () => {
@@ -160,8 +160,8 @@ export function GoalsDashboard() {
         onSuccess: () => {
           toast.success('Progress updated successfully');
         },
-        onError: (error: any) => {
-          const message = error?.message || 'Failed to calculate progress';
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : 'Failed to calculate progress';
           toast.error('Failed to calculate progress', { description: message });
         },
       });
@@ -192,8 +192,8 @@ export function GoalsDashboard() {
             setIsContributionDialogOpen(false);
             setContributingGoal(null);
           },
-          onError: (error: any) => {
-            const message = error?.message || 'Failed to add contribution';
+          onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Failed to add contribution';
             toast.error('Failed to add contribution', { description: message });
             throw error;
           },

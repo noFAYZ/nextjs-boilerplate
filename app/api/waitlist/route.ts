@@ -78,13 +78,14 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle specific Resend errors
-    if (error.name === 'ResendError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ResendError') {
       console.error('Resend API error:', error);
 
       // Check for duplicate email error
-      if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
+      const errorMessage = 'message' in error && typeof error.message === 'string' ? error.message : '';
+      if (errorMessage.includes('already exists') || errorMessage.includes('duplicate')) {
         return NextResponse.json(
           {
             success: false,
@@ -97,7 +98,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Handle rate limiting
-      if (error.statusCode === 429) {
+      const statusCode = 'statusCode' in error && typeof error.statusCode === 'number' ? error.statusCode : 0;
+      if (statusCode === 429) {
         return NextResponse.json(
           {
             success: false,
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Handle invalid API key
-      if (error.statusCode === 401 || error.statusCode === 403) {
+      if (statusCode === 401 || statusCode === 403) {
         console.error('Invalid Resend API key');
         return NextResponse.json(
           {
@@ -128,11 +130,15 @@ export async function POST(request: NextRequest) {
     console.error('Waitlist API error:', error);
 
     // Generic error response
+    const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+      ? error.message
+      : 'Failed to join waitlist. Please try again later.';
+
     return NextResponse.json(
       {
         success: false,
         error: {
-          message: error.message || 'Failed to join waitlist. Please try again later.',
+          message: errorMessage,
         },
       },
       { status: 500 }

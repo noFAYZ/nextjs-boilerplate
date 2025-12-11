@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accessibility } from "lucide-react";
 
-export function AccessibilitySettings(props: any) {
+export function AccessibilitySettings() {
   return (
     <Card>
       <CardHeader>

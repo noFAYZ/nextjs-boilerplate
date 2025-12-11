@@ -264,7 +264,7 @@ export default function BankAccountDetailsPage() {
     const filtered = filterTransactions(transactions, {
       searchQuery,
       category: selectedFilter,
-      dateRange: dateRange as any,
+      dateRange: dateRange,
     });
 
     return sortTransactions(filtered, sortOrder);
@@ -272,7 +272,7 @@ export default function BankAccountDetailsPage() {
 
   // Transform banking transactions to UnifiedTransaction format
   const unifiedTransactions = useMemo(() => {
-    return filteredTransactions.map((tx: any) => ({
+    return filteredTransactions.map((tx: Record<string, unknown>) => ({
       id: tx.id,
       type: parseFloat(tx.amount.toString()) > 0 ? 'DEPOSIT' : 'WITHDRAWAL',
       status: 'COMPLETED' as const,

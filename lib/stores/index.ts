@@ -59,6 +59,22 @@ export {
   globalUISelectors,
 } from './global-ui-store';
 
+export {
+  useBudgetsV3UIStore,
+  type BudgetsV3Tab,
+  type AllocationStep,
+  type TemplateType,
+  type HybridView,
+  type ChartType,
+  type TimeRange,
+  type ViewPreferences,
+  type FilterState,
+  type ModalState,
+  type IncomeAllocationState,
+  type ForecastingState,
+  type BudgetsV3UIState,
+} from './budgets-v3-ui-store';
+
 // Re-export types for convenience
 export type { CryptoWallet, PortfolioData, CryptoTransaction, CryptoNFT, DeFiPosition, SyncJobStatus, NetworkType, WalletType } from '../types/crypto';
 export type { AccountGroup, AccountGroupHierarchy, CreateAccountGroupRequest, UpdateAccountGroupRequest, MoveAccountRequest, AccountGroupsQueryOptions, FinancialAccount } from '../types/account-groups';

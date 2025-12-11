@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {  Readex_Pro, Sora } from "next/font/google";
+import {  Readex_Pro, Sora, Bricolage_Grotesque, Newsreader,DM_Sans, Funnel_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
@@ -12,7 +12,7 @@ import "@/lib/config/env";
 import localFont from 'next/font/local'
 
 
-const geistSans = Sora({
+const geistSans = Readex_Pro({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: 'swap',
@@ -119,24 +119,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to external services */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://us.i.posthog.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://cdn.zerion.io" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://images.zapper.xyz" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://img.logo.dev" crossOrigin="anonymous" />
 
-        {/* DNS prefetch for slower connections */}
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
 
         {/* Analytics */}
         <GoogleTagManager />
         <GoogleAnalytics4 />
       </head>
       <body
-        className={`${myFont.className}`}
+        className={`${geistSans.className}`}
       >
         <GoogleTagManagerNoScript />
         <Providers>

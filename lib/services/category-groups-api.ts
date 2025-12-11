@@ -476,7 +476,11 @@ export const categoryGroupsApi = {
       currentBalance: number;
       percentageUsed: number;
       spending: SpendingRecord;
-      alerts: any[];
+      alerts: Array<{
+        type: string;
+        message: string;
+        threshold: number;
+      }>;
     }>(`/accounts/custom-categories/${categoryId}/spend`, data);
   },
 

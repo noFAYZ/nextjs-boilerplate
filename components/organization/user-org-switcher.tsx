@@ -164,9 +164,9 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
         ) : (
           <PopoverTrigger asChild>
             <Button
-              variant="outline2"
+              variant="outlinebrand"
               size="xl"
-              className="flex items-center justify-between gap-2 md:gap-3 w-full px-2 md:px-3"
+              className="flex items-center justify-between gap-2 md:gap-3 w-full px-2  "
               aria-label={`Current workspace: ${currentOrg.name}`}
             >
               <div className="flex items-center text-start gap-2 flex-1 min-w-0">
@@ -179,9 +179,9 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
                   <p className="text-[9px] md:text-[10px] text-muted-foreground truncate">{currentOrg.name}</p>
                 </div>
               </div>
-              <MenuIcon
-                size={14}
-                className="flex-shrink-0 text-muted-foreground hidden sm:block"
+              <ChevronsUpDownIcon
+                size={18}
+                className="flex-shrink-0  hidden sm:block"
               />
             </Button>
           </PopoverTrigger>

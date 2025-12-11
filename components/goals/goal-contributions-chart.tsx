@@ -79,7 +79,7 @@ const CustomContributionDot = ({ cx, cy }: CustomDotProps) => {
 };
 
 // Custom tooltip matching networth-chart style
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: ContributionData }> }) => {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as ContributionData;

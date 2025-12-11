@@ -304,7 +304,7 @@ export function PortfolioChart({
           currency: 'usd',
         });
         console.log(chartData)
-        const transformed = chartData.map((point: any) => {
+        const transformed = chartData.map((point: Record<string, unknown>) => {
           const date = new Date(point.date);
           return {
             ...point,

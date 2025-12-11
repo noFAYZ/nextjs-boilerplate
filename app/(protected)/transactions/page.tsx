@@ -73,7 +73,7 @@ export default function TransactionsPage() {
       : transactionsResponse?.data;
 
     if (transactions && transactions.length > 0) {
-      transactions.forEach((tx: any) => {
+      transactions.forEach((tx: Record<string, unknown>) => {
         // Parse amount and handle string/number types
         const amount = typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
 
@@ -281,13 +281,13 @@ export default function TransactionsPage() {
            {transactionsResponse && typeof transactionsResponse === 'object' && 'pagination' in transactionsResponse && (
         <div className="flex items-center justify-between    ">
           <div className="text-xs text-muted-foreground">
-            Page {(transactionsResponse as any).pagination.page} of {(transactionsResponse as any).pagination.totalPages} • {(transactionsResponse as any).pagination.total} total transactions
+            Page {(transactionsResponse as { pagination: { page: number; totalPages: number; total: number } }).pagination.page} of {(transactionsResponse as { pagination: { page: number; totalPages: number; total: number } }).pagination.totalPages} • {(transactionsResponse as { pagination: { page: number; totalPages: number; total: number } }).pagination.total} total transactions
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="xs"
-              disabled={!(transactionsResponse as any).pagination.hasPrev || isLoading}
+              disabled={!(transactionsResponse as { pagination: { hasPrev: boolean } }).pagination.hasPrev || isLoading}
               onClick={() => setPage(page - 1)}
             >
               Previous
@@ -295,7 +295,7 @@ export default function TransactionsPage() {
             <Button
               variant="outline"
               size="xs"
-              disabled={!(transactionsResponse as any).pagination.hasNext || isLoading}
+              disabled={!(transactionsResponse as { pagination: { hasNext: boolean } }).pagination.hasNext || isLoading}
               onClick={() => setPage(page + 1)}
             >
               Next

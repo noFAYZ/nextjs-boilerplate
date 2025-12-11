@@ -47,12 +47,12 @@ const shouldShowAccountDetails = (accountType: string): boolean => {
 };
 
 interface AccountFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   onBack: () => void;
   register: UseFormRegister<FieldValues>;
   watch: UseFormWatch<FieldValues>;
   control: Control<FieldValues>;
-  errors: any;
+  errors: Record<string, unknown>;
   isPending: boolean;
 }
 

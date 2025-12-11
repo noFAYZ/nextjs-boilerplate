@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet } from "lucide-react";
 
-export function BankingSettings(props: any) {
+export function BankingSettings() {
   return (
     <Card>
       <CardHeader>

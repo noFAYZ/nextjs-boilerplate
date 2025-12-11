@@ -119,7 +119,7 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
 
     const data: CreateAssetAccountRequest = {
       name: formData.name,
-      type: formData.type as any,
+      type: formData.type as 'REAL_ESTATE' | 'VEHICLE' | 'OTHER_ASSET',
       balance: Number(formData.balance),
       currency: formData.currency || 'USD',
       assetDescription: formData.assetDescription || undefined,
@@ -142,8 +142,11 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
           toast.success('Asset updated successfully');
           onClose();
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Failed to update asset');
+        onError: (error: unknown) => {
+          const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+            ? error.message
+            : 'Failed to update asset';
+          toast.error(errorMessage);
         },
       });
     } else {
@@ -152,8 +155,11 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
           toast.success('Asset created successfully');
           onClose();
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Failed to create asset');
+        onError: (error: unknown) => {
+          const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+            ? error.message
+            : 'Failed to create asset';
+          toast.error(errorMessage);
         },
       });
     }
@@ -215,7 +221,7 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
                 </Label>
                 <Select
                   value={formData.type}
-                  onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+                  onValueChange={(value) => setFormData({ ...formData, type: value as 'REAL_ESTATE' | 'VEHICLE' | 'OTHER_ASSET' })}
                 >
                   <SelectTrigger id="type">
                     <SelectValue />

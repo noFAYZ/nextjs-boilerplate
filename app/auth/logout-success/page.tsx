@@ -60,7 +60,7 @@ export default function LogoutSuccessPage() {
           {/* Message */}
           <div className="text-center space-y-2 animate-fade-in">
             <h2 className="text-2xl font-bold text-foreground">
-              You've been signed out
+              You&apos;ve been signed out
             </h2>
             <p className="text-sm text-muted-foreground">
               Your session has been securely ended.

@@ -16,3 +16,12 @@ export * from './account-groups';
 export * from './integrations';
 export * from './goals';
 export * from './progress';
+
+// Budget Advanced Features Types
+export * from './income-allocation';
+export * from './budget-forecasting';
+export * from './category-matching';
+export * from './budget-alerts';
+export * from './budget-analytics';
+export * from './budget-reports';
+export * from './budget-templates';

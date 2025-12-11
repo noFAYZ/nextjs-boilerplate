@@ -2,10 +2,12 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  keepPreviousData
+  keepPreviousData,
+  queryOptions,
 } from '@tanstack/react-query';
 import { networthApi } from '@/lib/services/networth-api';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   NetWorthAggregation,
   NetWorthSummary,
@@ -29,6 +31,20 @@ import type {
   PaginatedResponse,
 } from '@/lib/types/networth';
 import type { ApiResponse } from '@/lib/types/crypto';
+
+/**
+ * Helper to get current organization ID from store
+ * Uses .getState() to access state outside of React components
+ */
+function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+  if (explicitOrgId) return explicitOrgId;
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // ============================================================================
 // QUERY KEYS FACTORY
@@ -110,234 +126,245 @@ const mockNetWorthBreakdown: NetWorthBreakdown = {
 
 export const networthQueries = {
   // Net Worth Aggregation
-  networth: (params?: NetWorthQueryParams) => ({
-    queryKey: networthKeys.networth(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorth(params);
-      } catch (error: unknown) {
-        return handleApiError(error, {
+  networth: (params?: NetWorthQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.networth(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorth({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, {
+            summary: mockNetWorthSummary,
+            breakdown: mockNetWorthBreakdown,
+            performance: {},
+          });
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<NetWorthAggregation>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return {
           summary: mockNetWorthSummary,
           breakdown: mockNetWorthBreakdown,
           performance: {},
-        });
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<NetWorthAggregation>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return {
-        summary: mockNetWorthSummary,
-        breakdown: mockNetWorthBreakdown,
-        performance: {},
-      } as NetWorthAggregation;
-    },
-  }),
+        } as NetWorthAggregation;
+      },
+    }),
 
-  summary: (params?: NetWorthQueryParams) => ({
-    queryKey: networthKeys.summary(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorthSummary(params);
-      } catch (error: unknown) {
-        return handleApiError(error, mockNetWorthSummary);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<NetWorthSummary>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return mockNetWorthSummary;
-    },
-  }),
+  summary: (params?: NetWorthQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.summary(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorthSummary({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, mockNetWorthSummary);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<NetWorthSummary>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return mockNetWorthSummary;
+      },
+    }),
 
-  breakdown: (params?: NetWorthQueryParams) => ({
-    queryKey: networthKeys.breakdown(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorthBreakdown(params);
-      } catch (error: unknown) {
-        return handleApiError(error, mockNetWorthBreakdown);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<NetWorthBreakdown>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return mockNetWorthBreakdown;
-    },
-  }),
+  breakdown: (params?: NetWorthQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.breakdown(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorthBreakdown({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, mockNetWorthBreakdown);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<NetWorthBreakdown>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return mockNetWorthBreakdown;
+      },
+    }),
 
-  performance: (params: PerformanceQueryParams) => ({
-    queryKey: networthKeys.performance(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorthPerformance(params);
-      } catch (error: unknown) {
-        return handleApiError(error, { overall: {} });
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<PerformanceByType>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return { overall: {} } as PerformanceByType;
-    },
-  }),
+  performance: (params: PerformanceQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.performance(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorthPerformance({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, { overall: {} });
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<PerformanceByType>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return { overall: {} } as PerformanceByType;
+      },
+    }),
 
-  history: (params: HistoryQueryParams) => ({
-    queryKey: networthKeys.history(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorthHistory(params);
-      } catch (error: unknown) {
-        return handleApiError(error, {
+  history: (params: HistoryQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.history(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorthHistory({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, {
+            period: params.period,
+            granularity: params.granularity,
+            dataPoints: [],
+          });
+        }
+      },
+      staleTime: 1000 * 60 * 10, // 10 minutes (historical data changes less frequently)
+      retry: false,
+      select: (data: ApiResponse<NetWorthHistory>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return {
           period: params.period,
           granularity: params.granularity,
           dataPoints: [],
-        });
-      }
-    },
-    staleTime: 1000 * 60 * 10, // 10 minutes (historical data changes less frequently)
-    retry: false,
-    select: (data: ApiResponse<NetWorthHistory>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return {
-        period: params.period,
-        granularity: params.granularity,
-        dataPoints: [],
-      } as NetWorthHistory;
-    },
-  }),
+        } as NetWorthHistory;
+      },
+    }),
 
   // Asset Accounts
-  assetAccounts: (params?: AssetAccountsQueryParams) => ({
-    queryKey: networthKeys.assetAccounts(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getAssetAccounts(params);
-      } catch (error: unknown) {
-        return handleApiError(error, { data: [], pagination: { total: 0, page: 1, limit: 20, pages: 0 } });
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    placeholderData: keepPreviousData,
-    select: (data: ApiResponse<PaginatedResponse<AssetAccount>>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return { data: [], pagination: { total: 0, page: 1, limit: 20, pages: 0 } };
-    },
-  }),
+  assetAccounts: (params?: AssetAccountsQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.assetAccounts(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getAssetAccounts({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, { data: [], pagination: { total: 0, page: 1, limit: 20, pages: 0 } });
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      placeholderData: keepPreviousData,
+      select: (data: ApiResponse<PaginatedResponse<AssetAccount>>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return { data: [], pagination: { total: 0, page: 1, limit: 20, pages: 0 } };
+      },
+    }),
 
-  assetAccount: (id: string) => ({
-    queryKey: networthKeys.assetAccount(id),
-    queryFn: async () => {
-      try {
-        return await networthApi.getAssetAccount(id);
-      } catch (error: unknown) {
-        return handleApiError(error, null);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<AssetAccount>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return null;
-    },
-  }),
+  assetAccount: (id: string, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.assetAccount(id, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getAssetAccount(id, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          return handleApiError(error, null);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<AssetAccount>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return null;
+      },
+    }),
 
-  valuations: (accountId: string, limit?: number) => ({
-    queryKey: networthKeys.valuations(accountId, limit),
-    queryFn: async () => {
-      try {
-        return await networthApi.getValuationHistory(accountId, limit);
-      } catch (error: unknown) {
-        return handleApiError(error, []);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<AccountValuation[]>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return [];
-    },
-  }),
+  valuations: (accountId: string, limit?: number, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.valuations(accountId, limit, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getValuationHistory(accountId, limit, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          return handleApiError(error, []);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<AccountValuation[]>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return [];
+      },
+    }),
 
   // Asset Categories
-  categories: (params?: AssetCategoriesQueryParams) => ({
-    queryKey: networthKeys.categories(params),
-    queryFn: async () => {
-      try {
-        return await networthApi.getAssetCategories(params);
-      } catch (error: unknown) {
-        return handleApiError(error, []);
-      }
-    },
-    staleTime: 1000 * 60 * 10, // 10 minutes (categories change less frequently)
-    retry: false,
-    select: (data: ApiResponse<AssetCategory[]>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return [];
-    },
-  }),
+  categories: (params?: AssetCategoriesQueryParams, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.categories(params, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getAssetCategories({ ...params, organizationId: getCurrentOrganizationId(orgId) });
+        } catch (error: unknown) {
+          return handleApiError(error, []);
+        }
+      },
+      staleTime: 1000 * 60 * 10, // 10 minutes (categories change less frequently)
+      retry: false,
+      select: (data: ApiResponse<AssetCategory[]>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return [];
+      },
+    }),
 
-  category: (id: string) => ({
-    queryKey: networthKeys.category(id),
-    queryFn: async () => {
-      try {
-        return await networthApi.getAssetCategory(id);
-      } catch (error: unknown) {
-        return handleApiError(error, null);
-      }
-    },
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    retry: false,
-    select: (data: ApiResponse<AssetCategory>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return null;
-    },
-  }),
+  category: (id: string, orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.category(id, orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getAssetCategory(id, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          return handleApiError(error, null);
+        }
+      },
+      staleTime: 1000 * 60 * 10, // 10 minutes
+      retry: false,
+      select: (data: ApiResponse<AssetCategory>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return null;
+      },
+    }),
 
   // Goals
-  goals: () => ({
-    queryKey: networthKeys.goals(),
-    queryFn: async () => {
-      try {
-        return await networthApi.getNetWorthGoals();
-      } catch (error: unknown) {
-        return handleApiError(error, []);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false,
-    select: (data: ApiResponse<NetWorthGoal[]>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return [];
-    },
-  }),
+  goals: (orgId?: string) =>
+    queryOptions({
+      queryKey: networthKeys.goals(orgId),
+      queryFn: async () => {
+        try {
+          return await networthApi.getNetWorthGoals(getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          return handleApiError(error, []);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false,
+      select: (data: ApiResponse<NetWorthGoal[]>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return [];
+      },
+    }),
 };
 
 // ============================================================================
@@ -361,7 +388,7 @@ export const networthMutations = {
   updateAssetAccount: (id: string) => ({
     mutationFn: (data: UpdateAssetAccountRequest) => networthApi.updateAssetAccount(id, data),
     onSuccess: (data: ApiResponse<AssetAccount>, variables: UpdateAssetAccountRequest, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccount(id) });
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccounts() });
@@ -374,7 +401,7 @@ export const networthMutations = {
   deleteAssetAccount: (id: string) => ({
     mutationFn: () => networthApi.deleteAssetAccount(id),
     onSuccess: (data: unknown, variables: unknown, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccounts() });
       queryClient.invalidateQueries({ queryKey: networthKeys.networth() });
@@ -386,7 +413,7 @@ export const networthMutations = {
   createValuation: (accountId: string) => ({
     mutationFn: (data: CreateValuationRequest) => networthApi.createValuation(accountId, data),
     onSuccess: (data: ApiResponse<AccountValuation>, variables: CreateValuationRequest, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: networthKeys.valuations(accountId) });
       queryClient.invalidateQueries({ queryKey: networthKeys.assetAccount(accountId) });
@@ -399,7 +426,7 @@ export const networthMutations = {
   createAssetCategory: () => ({
     mutationFn: (data: CreateAssetCategoryRequest) => networthApi.createAssetCategory(data),
     onSuccess: (data: ApiResponse<AssetCategory>, variables: CreateAssetCategoryRequest, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
   }),
@@ -407,7 +434,7 @@ export const networthMutations = {
   updateAssetCategory: (id: string) => ({
     mutationFn: (data: UpdateAssetCategoryRequest) => networthApi.updateAssetCategory(id, data),
     onSuccess: (data: ApiResponse<AssetCategory>, variables: UpdateAssetCategoryRequest, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.category(id) });
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
@@ -416,7 +443,7 @@ export const networthMutations = {
   deleteAssetCategory: (id: string) => ({
     mutationFn: () => networthApi.deleteAssetCategory(id),
     onSuccess: (data: unknown, variables: unknown, context: unknown) => {
-      const queryClient = (context as any).queryClient;
+      const queryClient = (context as { queryClient: unknown }).queryClient;
       queryClient.invalidateQueries({ queryKey: networthKeys.categories() });
     },
   }),

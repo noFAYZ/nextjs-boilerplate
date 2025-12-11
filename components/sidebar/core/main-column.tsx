@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight, Search, RefreshCcw, RefreshCwIcon, SidebarClose, SidebarOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -30,7 +30,7 @@ import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { UserOrgSwitcher } from '@/components/organization/user-org-switcher';
-import { TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
+import { SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
@@ -80,13 +80,13 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/80  transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
 <div
   className={cn(
-    "relative flex h-14 md:h-16 items-center px-3 md:px-4",
+    "relative flex h-14 md:h-16 items-center justify-between px-3 md:px-4",
     !mainColumnExpanded && "group" // activates hover behavior
   )}
 >
@@ -112,7 +112,7 @@ export function SidebarMainColumn({
                    transition-opacity duration-150 
                    pointer-events-none group-hover:pointer-events-auto cursor-pointer" // <— clickable only on hover
       >
-        <TablerLayoutSidebarLeftExpandFilled className="h-6 w-6 text-muted-foreground" />
+        <SidebarOpen className="h-5 w-5  " />
       </Button>
     </>
   ) : (
@@ -120,25 +120,50 @@ export function SidebarMainColumn({
       {/* Expanded State — logo + label */}
       <Link href="/" className="flex items-center gap-2">
         <span className="text-[42px] font-bold text-orange-500">𒀭</span>
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <span className="text-base font-bold">MoneyMappr</span>
           <span className="text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
             Financial Intelligence
           </span>
-        </div>
+        </div> */}
       </Link>
 
       {/* Toggle always visible in expanded mode */}
-      <Button
+      <div className='flex items-center gap-3'>
+
+     
+        <Button
+        variant="outlinemuted2"
+        size="icon-sm"
+       
+        className="ml-auto rounded-full"
+      >
+        <Settings
+          className="h-5 w-5  "
+        />
+      </Button>
+        <Button
+        variant="outlinemuted2"
+        size="icon-sm"
+       
+        className="ml-auto rounded-full"
+      >
+        <RefreshCwIcon
+          className="h-4.5 w-4.5  "
+        />
+      </Button>
+{/* */}   <Button
         variant="ghost"
         size="icon-sm"
         onClick={onToggleMainColumn}
         className="ml-auto"
       >
-        <TablerLayoutSidebarLeftExpandFilled
-          className="h-6 w-6 rotate-180 text-muted-foreground"
+        <SidebarClose
+          className="h-5 w-5 "
         />
-      </Button>
+      </Button> 
+      </div>
+   
     </>
   )}
 </div>

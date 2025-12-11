@@ -76,9 +76,9 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
           <CheckCircle className="w-8 h-8 text-primary" />
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">You're on the list!</h3>
+          <h3 className="text-xl font-semibold text-foreground">You&apos;re on the list!</h3>
           <p className="text-muted-foreground max-w-sm">
-            Thanks for joining our waitlist. We'll notify you as soon as MoneyMappr launches.
+            Thanks for joining our waitlist. We&apos;ll notify you as soon as MoneyMappr launches.
           </p>
         </div>
         <Button
@@ -199,7 +199,7 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
       
       <div className="text-center space-y-2">
         <p className="text-xs text-muted-foreground">
-          No spam, ever. We'll only email you when MoneyMappr is ready to launch.
+          No spam, ever. We&apos;ll only email you when MoneyMappr is ready to launch.
         </p>
     
       </div>

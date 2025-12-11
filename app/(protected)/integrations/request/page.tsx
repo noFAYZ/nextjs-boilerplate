@@ -99,7 +99,7 @@ export default function RequestIntegrationPage() {
       setTimeout(() => {
         router.push('/accounts/integrations');
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Submission Failed',
         description: error?.message || 'Failed to submit request. Please try again.',
@@ -120,7 +120,7 @@ export default function RequestIntegrationPage() {
             </div>
             <h2 className="text-2xl font-bold mb-2">Request Submitted!</h2>
             <p className="text-muted-foreground mb-6">
-              Thank you for your integration request. We'll review it and get back to you soon.
+              Thank you for your integration request. We&apos;ll review it and get back to you soon.
             </p>
             <Button onClick={() => router.push('/accounts/integrations')}>
               Back to Integrations
@@ -145,7 +145,7 @@ export default function RequestIntegrationPage() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold">Request Integration</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Tell us which service you'd like to connect
+            Tell us which service you&apos;d like to connect
           </p>
         </div>
       </div>
@@ -158,9 +158,9 @@ export default function RequestIntegrationPage() {
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold mb-1">We're Always Expanding</h3>
+              <h3 className="font-semibold mb-1">We&apos;re Always Expanding</h3>
               <p className="text-sm text-muted-foreground">
-                Don't see the integration you need? Let us know! We prioritize integrations based on user requests.
+                Don&apos;t see the integration you need? Let us know! We prioritize integrations based on user requests.
               </p>
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function RequestIntegrationPage() {
           <CardHeader>
             <CardTitle>Integration Details</CardTitle>
             <CardDescription>
-              Provide information about the integration you'd like to request
+              Provide information about the integration you&apos;d like to request
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

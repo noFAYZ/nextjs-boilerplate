@@ -72,7 +72,7 @@ export function SkipOnboardingButton({ className }: SkipOnboardingButtonProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Skip onboarding?</AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
-              <p>You'll miss personalized recommendations and customizations.</p>
+              <p>You&apos;ll miss personalized recommendations and customizations.</p>
               <p className="text-xs">You can complete this later from settings.</p>
             </AlertDialogDescription>
           </AlertDialogHeader>

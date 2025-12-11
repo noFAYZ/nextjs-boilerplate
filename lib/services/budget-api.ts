@@ -24,7 +24,7 @@ class BudgetApiService {
   /**
    * Get all budgets with filtering, sorting, and pagination
    */
-  async getBudgets(params: GetBudgetsParams = {}): Promise<BudgetsResponse> {
+  async getBudgets(params: GetBudgetsParams = {}, organizationId?: string): Promise<BudgetsResponse> {
     const searchParams = new URLSearchParams();
 
     // Pagination
@@ -62,13 +62,13 @@ class BudgetApiService {
     }
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}${query ? `?${query}` : ''}`) as Promise<BudgetsResponse>;
+    return apiClient.get(`${this.basePath}${query ? `?${query}` : ''}`, organizationId) as Promise<BudgetsResponse>;
   }
 
   /**
    * Get a single budget by ID
    */
-  async getBudget(budgetId: string, params: GetBudgetParams = {}): Promise<BudgetResponse> {
+  async getBudget(budgetId: string, params: GetBudgetParams = {}, organizationId?: string): Promise<BudgetResponse> {
     const searchParams = new URLSearchParams();
 
     if (params.includePeriods !== undefined) {
@@ -83,29 +83,29 @@ class BudgetApiService {
 
     const query = searchParams.toString();
     return apiClient.get(
-      `${this.basePath}/${budgetId}${query ? `?${query}` : ''}`
+      `${this.basePath}/${budgetId}${query ? `?${query}` : ''}`, organizationId
     ) as Promise<BudgetResponse>;
   }
 
   /**
    * Create a new budget
    */
-  async createBudget(budgetData: CreateBudgetRequest): Promise<BudgetResponse> {
-    return apiClient.post(`${this.basePath}`, budgetData) as Promise<BudgetResponse>;
+  async createBudget(budgetData: CreateBudgetRequest, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.post(`${this.basePath}`, budgetData, organizationId) as Promise<BudgetResponse>;
   }
 
   /**
    * Update an existing budget
    */
-  async updateBudget(budgetId: string, updates: UpdateBudgetRequest): Promise<BudgetResponse> {
-    return apiClient.put(`${this.basePath}/${budgetId}`, updates) as Promise<BudgetResponse>;
+  async updateBudget(budgetId: string, updates: UpdateBudgetRequest, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.put(`${this.basePath}/${budgetId}`, updates, organizationId) as Promise<BudgetResponse>;
   }
 
   /**
    * Delete a budget permanently
    */
-  async deleteBudget(budgetId: string): Promise<DeleteBudgetResponse> {
-    return apiClient.delete(`${this.basePath}/${budgetId}`) as Promise<DeleteBudgetResponse>;
+  async deleteBudget(budgetId: string, organizationId?: string): Promise<DeleteBudgetResponse> {
+    return apiClient.delete(`${this.basePath}/${budgetId}`, organizationId) as Promise<DeleteBudgetResponse>;
   }
 
   // ============================================================================
@@ -115,36 +115,36 @@ class BudgetApiService {
   /**
    * Refresh budget spending from transactions
    */
-  async refreshBudget(budgetId: string): Promise<BudgetRefreshApiResponse> {
-    return apiClient.post(`${this.basePath}/${budgetId}/refresh`) as Promise<BudgetRefreshApiResponse>;
+  async refreshBudget(budgetId: string, organizationId?: string): Promise<BudgetRefreshApiResponse> {
+    return apiClient.post(`${this.basePath}/${budgetId}/refresh`, undefined, organizationId) as Promise<BudgetRefreshApiResponse>;
   }
 
   /**
    * Archive a budget
    */
-  async archiveBudget(budgetId: string): Promise<BudgetResponse> {
-    return apiClient.post(`${this.basePath}/${budgetId}/archive`) as Promise<BudgetResponse>;
+  async archiveBudget(budgetId: string, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.post(`${this.basePath}/${budgetId}/archive`, undefined, organizationId) as Promise<BudgetResponse>;
   }
 
   /**
    * Unarchive a budget
    */
-  async unarchiveBudget(budgetId: string): Promise<BudgetResponse> {
-    return apiClient.post(`${this.basePath}/${budgetId}/unarchive`) as Promise<BudgetResponse>;
+  async unarchiveBudget(budgetId: string, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.post(`${this.basePath}/${budgetId}/unarchive`, undefined, organizationId) as Promise<BudgetResponse>;
   }
 
   /**
    * Pause a budget
    */
-  async pauseBudget(budgetId: string): Promise<BudgetResponse> {
-    return apiClient.post(`${this.basePath}/${budgetId}/pause`) as Promise<BudgetResponse>;
+  async pauseBudget(budgetId: string, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.post(`${this.basePath}/${budgetId}/pause`, undefined, organizationId) as Promise<BudgetResponse>;
   }
 
   /**
    * Resume a paused budget
    */
-  async resumeBudget(budgetId: string): Promise<BudgetResponse> {
-    return apiClient.post(`${this.basePath}/${budgetId}/resume`) as Promise<BudgetResponse>;
+  async resumeBudget(budgetId: string, organizationId?: string): Promise<BudgetResponse> {
+    return apiClient.post(`${this.basePath}/${budgetId}/resume`, undefined, organizationId) as Promise<BudgetResponse>;
   }
 
   // ============================================================================
@@ -156,11 +156,13 @@ class BudgetApiService {
    */
   async addBudgetTransaction(
     budgetId: string,
-    transaction: AddBudgetTransactionRequest
+    transaction: AddBudgetTransactionRequest,
+    organizationId?: string
   ): Promise<BudgetTransactionResponse> {
     return apiClient.post(
       `${this.basePath}/${budgetId}/transactions`,
-      transaction
+      transaction,
+      organizationId
     ) as Promise<BudgetTransactionResponse>;
   }
 
@@ -171,15 +173,15 @@ class BudgetApiService {
   /**
    * Get comprehensive budget analytics
    */
-  async getBudgetAnalytics(): Promise<BudgetAnalyticsResponse> {
-    return apiClient.get(`${this.basePath}/analytics`) as Promise<BudgetAnalyticsResponse>;
+  async getBudgetAnalytics(organizationId?: string): Promise<BudgetAnalyticsResponse> {
+    return apiClient.get(`${this.basePath}/analytics`, organizationId) as Promise<BudgetAnalyticsResponse>;
   }
 
   /**
    * Get budget summary
    */
-  async getBudgetSummary(): Promise<BudgetSummaryResponse> {
-    return apiClient.get(`${this.basePath}/summary`) as Promise<BudgetSummaryResponse>;
+  async getBudgetSummary(organizationId?: string): Promise<BudgetSummaryResponse> {
+    return apiClient.get(`${this.basePath}/summary`, organizationId) as Promise<BudgetSummaryResponse>;
   }
 }
 

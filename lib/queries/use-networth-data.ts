@@ -25,6 +25,7 @@ import {
   networthMutations,
 } from './networth-queries';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   NetWorthAggregation,
   NetWorthSummary,
@@ -57,6 +58,14 @@ function useAuthReady() {
   return { isAuthReady: !!user && isInitialized };
 }
 
+/**
+ * Helper to get organization ID from context store or explicit parameter
+ */
+function useContextOrganizationId(organizationId?: string) {
+  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  return organizationId || contextOrgId;
+}
+
 // ============================================================================
 // NET WORTH QUERIES
 // ============================================================================
@@ -64,13 +73,15 @@ function useAuthReady() {
 /**
  * Get complete net worth aggregation with summary, breakdown, and performance
  * @param params - Query parameters (includeInactive, currency)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Net worth aggregation with loading/error states
  */
-export function useNetWorth(params?: NetWorthQueryParams) {
+export function useNetWorth(params?: NetWorthQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.networth(params),
+    ...networthQueries.networth(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -78,13 +89,15 @@ export function useNetWorth(params?: NetWorthQueryParams) {
 /**
  * Get net worth summary (totals only)
  * @param params - Query parameters (includeInactive, currency)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Net worth summary with loading/error states
  */
-export function useNetWorthSummary(params?: NetWorthQueryParams) {
+export function useNetWorthSummary(params?: NetWorthQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.summary(params),
+    ...networthQueries.summary(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -92,13 +105,15 @@ export function useNetWorthSummary(params?: NetWorthQueryParams) {
 /**
  * Get detailed net worth breakdown by account type
  * @param params - Query parameters (includeInactive, currency)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Net worth breakdown with loading/error states
  */
-export function useNetWorthBreakdown(params?: NetWorthQueryParams) {
+export function useNetWorthBreakdown(params?: NetWorthQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.breakdown(params),
+    ...networthQueries.breakdown(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -106,13 +121,15 @@ export function useNetWorthBreakdown(params?: NetWorthQueryParams) {
 /**
  * Get net worth performance for a specific period
  * @param params - Performance query parameters (period, accountType)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Performance metrics with loading/error states
  */
-export function useNetWorthPerformance(params: PerformanceQueryParams) {
+export function useNetWorthPerformance(params: PerformanceQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.performance(params),
+    ...networthQueries.performance(params, orgId),
     enabled: isAuthReady && !!params.period,
   });
 }
@@ -120,13 +137,15 @@ export function useNetWorthPerformance(params: PerformanceQueryParams) {
 /**
  * Get historical net worth data for charting
  * @param params - History query parameters (period, granularity)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Historical data points with loading/error states
  */
-export function useNetWorthHistory(params: HistoryQueryParams) {
+export function useNetWorthHistory(params: HistoryQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.history(params),
+    ...networthQueries.history(params, orgId),
     enabled: isAuthReady && !!params.period && !!params.granularity,
   });
 }
@@ -138,13 +157,15 @@ export function useNetWorthHistory(params: HistoryQueryParams) {
 /**
  * Get all asset accounts
  * @param params - Query parameters (type, includeInactive, page, limit)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Asset accounts with pagination and loading/error states
  */
-export function useAssetAccounts(params?: AssetAccountsQueryParams) {
+export function useAssetAccounts(params?: AssetAccountsQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.assetAccounts(params),
+    ...networthQueries.assetAccounts(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -152,13 +173,15 @@ export function useAssetAccounts(params?: AssetAccountsQueryParams) {
 /**
  * Get a single asset account by ID
  * @param id - Asset account ID
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Asset account data with loading/error states
  */
-export function useAssetAccount(id: string | null) {
+export function useAssetAccount(id: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.assetAccount(id!),
+    ...networthQueries.assetAccount(id!, orgId),
     enabled: isAuthReady && !!id,
   });
 }
@@ -167,13 +190,15 @@ export function useAssetAccount(id: string | null) {
  * Get valuation history for an asset account
  * @param accountId - Asset account ID
  * @param limit - Optional limit on number of valuations
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Valuation history with loading/error states
  */
-export function useAssetValuations(accountId: string | null, limit?: number) {
+export function useAssetValuations(accountId: string | null, limit?: number, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.valuations(accountId!, limit),
+    ...networthQueries.valuations(accountId!, limit, orgId),
     enabled: isAuthReady && !!accountId,
   });
 }
@@ -185,13 +210,15 @@ export function useAssetValuations(accountId: string | null, limit?: number) {
 /**
  * Get all asset categories
  * @param params - Query parameters (categoryType, includeInactive)
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Asset categories with loading/error states
  */
-export function useAssetCategories(params?: AssetCategoriesQueryParams) {
+export function useAssetCategories(params?: AssetCategoriesQueryParams, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.categories(params),
+    ...networthQueries.categories(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -199,13 +226,15 @@ export function useAssetCategories(params?: AssetCategoriesQueryParams) {
 /**
  * Get a single asset category by ID
  * @param id - Category ID
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Asset category data with loading/error states
  */
-export function useAssetCategory(id: string | null) {
+export function useAssetCategory(id: string | null, organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.category(id!),
+    ...networthQueries.category(id!, orgId),
     enabled: isAuthReady && !!id,
   });
 }
@@ -216,13 +245,15 @@ export function useAssetCategory(id: string | null) {
 
 /**
  * Get net worth goals with progress tracking
+ * @param organizationId - Optional organization ID (uses context if not provided)
  * @returns Net worth goals with loading/error states
  */
-export function useNetWorthGoals() {
+export function useNetWorthGoals(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...networthQueries.goals(),
+    ...networthQueries.goals(orgId),
     enabled: isAuthReady,
   });
 }

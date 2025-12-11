@@ -36,7 +36,7 @@ import { useState } from "react";
 import { Card } from "../ui/card";
 
 interface WalletCardProps {
-  wallet: CryptoWallet | any; // Allow any for unified accounts compatibility
+  wallet: CryptoWallet;
 }
 
 /**

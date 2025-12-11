@@ -146,9 +146,9 @@ export default function BudgetsV2Page() {
   // Flatten all categories
   const allEnvelopes = useMemo(() => {
     if (!groups) return [];
-    const envelopes: any[] = [];
-    groups.forEach((group: any) => {
-      (group.categories || []).forEach((cat: any) => {
+    const envelopes: Array<Record<string, unknown>> = [];
+    groups.forEach((group: Record<string, unknown>) => {
+      ((group.categories as Array<Record<string, unknown>>) || []).forEach((cat: Record<string, unknown>) => {
         envelopes.push({ ...cat, groupId: group.id, groupName: group.name });
       });
     });
@@ -180,20 +180,20 @@ export default function BudgetsV2Page() {
 
   // Group envelopes by their group
   const groupedEnvelopes = useMemo(() => {
-    const grouped = new Map<string, any[]>();
+    const grouped = new Map<string, Array<Record<string, unknown>>>();
     filteredEnvelopes.forEach((env) => {
-      if (!grouped.has(env.groupId)) {
-        grouped.set(env.groupId, []);
+      if (!grouped.has(env.groupId as string)) {
+        grouped.set(env.groupId as string, []);
       }
-      grouped.get(env.groupId)?.push(env);
+      grouped.get(env.groupId as string)?.push(env);
     });
     return grouped;
   }, [filteredEnvelopes]);
 
   // Sort and group (including empty groups)
   const sortedGroups = useMemo(() => {
-    return groups.map((group: any) => {
-      let categories = groupedEnvelopes.get(group.id) || [];
+    return groups.map((group: Record<string, unknown>) => {
+      let categories = groupedEnvelopes.get(group.id as string) || [];
 
       categories = categories.sort((a, b) => {
         const aAllocated = Number(a.allocatedAmount) || 0;
@@ -205,7 +205,7 @@ export default function BudgetsV2Page() {
         let comparison = 0;
 
         if (filters.sortBy === 'name') {
-          comparison = (a.name || '').localeCompare(b.name || '');
+          comparison = (String(a.name) || '').localeCompare(String(b.name) || '');
         } else if (filters.sortBy === 'allocated') {
           comparison = bAllocated - aAllocated; // desc base
         } else if (filters.sortBy === 'spent') {
@@ -292,8 +292,9 @@ export default function BudgetsV2Page() {
         onSuccess: () => {
           toast.success('Spending recorded');
         },
-        onError: (error: any) => {
-          toast.error(error?.response?.data?.message || 'Failed to record spending');
+        onError: (error: unknown) => {
+          const apiError = error as { response?: { data?: { message?: string } } };
+          toast.error(apiError?.response?.data?.message || 'Failed to record spending');
         },
       }
     );
@@ -313,8 +314,9 @@ export default function BudgetsV2Page() {
           toast.success('Category deleted successfully');
           selection.clearSelection();
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Failed to delete category');
+        onError: (error: unknown) => {
+          const apiError = error as { message?: string };
+          toast.error(apiError?.message || 'Failed to delete category');
         },
       });
     } else if (dialogs.deleteTarget.type === 'group') {
@@ -327,8 +329,9 @@ export default function BudgetsV2Page() {
           toast.success('Group deleted successfully');
           selection.clearSelection();
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Failed to delete group');
+        onError: (error: unknown) => {
+          const apiError = error as { message?: string };
+          toast.error(apiError?.message || 'Failed to delete group');
         },
       });
     }
@@ -347,8 +350,9 @@ export default function BudgetsV2Page() {
       await queryClient.invalidateQueries({
         queryKey: ['category-groups'],
       });
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to apply template');
+    } catch (error: unknown) {
+      const apiError = error as { message?: string };
+      toast.error(apiError?.message || 'Failed to apply template');
     } finally {
       popovers.setIsApplyingTemplate(false);
     }

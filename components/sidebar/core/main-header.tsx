@@ -5,6 +5,7 @@ import {
   Crown,
   LogOut,
   Menu,
+  PlusIcon,
   RefreshCcw,
   Settings,
   User
@@ -115,11 +116,21 @@ export function MainHeader({
     radius: 100,
   }).toDataUri();
 
+  const firstName =
+  user?.name?.split(" ")[0] || user?.email?.split("@")[0] || "User";
+const currentHour = new Date().getHours();
+const greeting =
+  currentHour < 12
+    ? "Good morning"
+    : currentHour < 18
+    ? "Good afternoon"
+    : "Good evening";
+
   return (
     <TooltipProvider delayDuration={100}>
       <header className="relative w-full z-40  ">
         {/* Row 1 — Main Navigation */}
-        <div className="flex items-center justify-between h-14  px-3 sm:px-4 relative">
+        <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-4 relative container mx-auto">
           
           {/* LEFT GROUP */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -135,6 +146,10 @@ export function MainHeader({
                 <TooltipContent side="bottom">Toggle menu</TooltipContent>
               </Tooltip>
             </div>
+
+            <h1 className="text-lg font-semibold mb-1  bg-clip-text">
+            {greeting}, {firstName}!  
+          </h1>
 
             {/* Sidebar toggler — desktop only 
             <div className="hidden md:block">
@@ -202,15 +217,15 @@ export function MainHeader({
         
             <ThemeSwitcher />
  {/* Add button */}
- <Button variant="outline2"   className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
+ <Button variant="outline2" size='sm'  className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
              
               Sync
             </Button>
       
             {/* Add button */}
        
-                <Button variant="steel" size='icon'  className='rounded-[0.9rem]' onClick={openAddMenu}>
-                  <LetsIconsAddDuotone className="h-6 w-6" />
+                <Button variant="brand" size='icon-sm'  className='rounded-[0.9rem]' onClick={openAddMenu}>
+                  <PlusIcon className="h-5 w-5" />
                 </Button>
              
           </div>

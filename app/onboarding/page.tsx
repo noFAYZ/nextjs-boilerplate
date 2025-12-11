@@ -319,7 +319,7 @@ export default function OnboardingPage() {
                   Welcome to MoneyMappr
                 </h2>
                 <p className="text-muted-foreground text-base sm:text-lg">
-                  Let's personalize your financial management experience
+                  Let&apos;s personalize your financial management experience
                 </p>
               </div>
             </div>
@@ -475,7 +475,7 @@ export default function OnboardingPage() {
         return (
           <div className="w-full max-w-2xl space-y-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground text-center lg:text-left">We'll customize the interface accordingly</p>
+              <p className="text-sm text-muted-foreground text-center lg:text-left">We&apos;ll customize the interface accordingly</p>
             </div>
 
             <div className="space-y-3">
@@ -490,7 +490,7 @@ export default function OnboardingPage() {
                       "cursor-pointer transition-all border-border/80  px-4 shadow-none ",
                       isSelected ? "  shadow-sm" : "hover:border-border/80 active:scale-[0.98]"
                     )}
-                    onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as any }))}
+                    onClick={() => setPreferences(prev => ({ ...prev, experienceLevel: level.id as 'beginner' | 'intermediate' | 'advanced' }))}
                   >
                    
                       <div className="flex items-center gap-3 sm:gap-4">

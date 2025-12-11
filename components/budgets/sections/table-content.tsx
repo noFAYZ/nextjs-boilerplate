@@ -34,7 +34,7 @@ export function TableContent({
   onGroupDelete,
 }: {
   isLoading: boolean;
-  sortedGroups: any[];
+  sortedGroups: Array<Record<string, unknown>>;
   expandedGroups: Set<string>;
   onToggleGroup: (id: string) => void;
   selectedGroups: Set<string>;
@@ -44,8 +44,8 @@ export function TableContent({
   visibleColumns: Record<string, boolean>;
   showBalances: boolean;
   onAddCategoryClick: (groupId: string) => void;
-  onSpendClick: (envelope: any) => void;
-  onDeleteClick: (envelope: any) => void;
+  onSpendClick: (envelope: Record<string, unknown>) => void;
+  onDeleteClick: (envelope: Record<string, unknown>) => void;
   editGroupPopover: string | null;
   editGroupId: string | null;
   editGroupName: string;
@@ -82,7 +82,7 @@ export function TableContent({
           </TableCell>
         </TableRow>
       ) : (
-        sortedGroups.map((group: any) => {
+        sortedGroups.map((group: Record<string, unknown>) => {
           const groupEnvelopes = group.categories || [];
           const isExpanded = expandedGroups.has(group.id);
 
@@ -183,7 +183,7 @@ export function TableContent({
 
               {/* Category Rows */}
               {isExpanded &&
-                groupEnvelopes.map((envelope: any, idx: number) => (
+                groupEnvelopes.map((envelope: Record<string, unknown>, idx: number) => (
                   <CategoryRow
                     key={envelope.id}
                     envelope={envelope}

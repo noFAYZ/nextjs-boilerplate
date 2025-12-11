@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import type { Envelope } from '@/lib/services/envelope-api';
 
 export function SpendModal({
   envelope,
@@ -9,7 +10,7 @@ export function SpendModal({
   onSubmit,
   isLoading,
 }: {
-  envelope: any;
+  envelope: Envelope;
   onClose: () => void;
   onSubmit: (amount: number) => void;
   isLoading: boolean;

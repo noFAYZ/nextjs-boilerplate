@@ -78,7 +78,7 @@ export function InviteUserModal({
       }
     } catch (err) {
       setError(
-        (err as any)?.error?.message || 'Failed to send invitation'
+        (err as { error?: { message?: string } })?.error?.message || 'Failed to send invitation'
       );
     }
   };

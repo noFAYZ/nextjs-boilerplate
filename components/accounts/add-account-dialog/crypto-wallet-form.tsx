@@ -139,7 +139,7 @@ export function CryptoWalletForm({ onSuccess, onBack }: CryptoWalletFormProps) {
         reset();
         onSuccess();
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         console.error('❌ Create wallet error:', error);
         console.log('Error type:', typeof error);
         console.log('Error keys:', Object.keys(error || {}));

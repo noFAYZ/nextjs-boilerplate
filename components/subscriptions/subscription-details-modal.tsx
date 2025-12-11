@@ -98,7 +98,7 @@ export function SubscriptionDetailsModal({
     }
   }
 
-  const hasValue = (v: any) =>
+  const hasValue = (v: unknown): v is string | number | boolean =>
     v !== null && v !== undefined && !(typeof v === "string" && v.trim() === "")
 
   return (

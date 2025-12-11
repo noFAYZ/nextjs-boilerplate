@@ -83,8 +83,8 @@ export function SubscriptionFormModal({
   const { mutate: updateSubscription, isPending: isUpdating } = useUpdateSubscription();
 
   const [step, setStep] = React.useState<FormStep>("selection");
-  const [selectedService, setSelectedService] = React.useState<any>(null);
-  const [selectedPlan, setSelectedPlan] = React.useState<any>(null);
+  const [selectedService, setSelectedService] = React.useState<Record<string, unknown> | null>(null);
+  const [selectedPlan, setSelectedPlan] = React.useState<Record<string, unknown> | null>(null);
   const [manualEntry, setManualEntry] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
@@ -138,7 +138,7 @@ export function SubscriptionFormModal({
   }, [open, subscription, reset]);
 
   // Handle service selection
-  const handleSelectService = (service: any) => {
+  const handleSelectService = (service: Record<string, unknown>) => {
     setSelectedService(service);
     setValue("name", service.name);
     setValue("merchantName", service.merchantName);
@@ -158,7 +158,7 @@ export function SubscriptionFormModal({
   };
 
   // Handle plan selection
-  const handleSelectPlan = (plan: any) => {
+  const handleSelectPlan = (plan: Record<string, unknown>) => {
     setSelectedPlan(plan);
     setValue("amount", plan.amount);
     setValue("currency", plan.currency);
@@ -190,7 +190,7 @@ export function SubscriptionFormModal({
     const action = subscription ? updateSubscription : createSubscription;
     const payload = subscription ? { id: subscription.id, updates: data } : data;
 
-    action(payload as any, {
+    action(payload as CreateSubscriptionRequest | { id: string; updates: CreateSubscriptionRequest }, {
       onSuccess: () => {
         toast({
           title: subscription ? "Subscription updated" : "Subscription created",
@@ -347,7 +347,7 @@ export function SubscriptionFormModal({
               <div>
                 <h3 className="text-sm font-medium mb-3">Choose your plan</h3>
                 <div className="grid gap-3">
-                  {selectedService.plans.map((plan: any) => (
+                  {selectedService.plans.map((plan: { name: string; billingCycle: string; amount: number; currency: string }) => (
                     <Card
                       key={plan.name}
                       className={cn(

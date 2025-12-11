@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Database } from "lucide-react";
 
-export function DataSettings(props: any) {
+export function DataSettings() {
   return (
     <Card>
       <CardHeader>

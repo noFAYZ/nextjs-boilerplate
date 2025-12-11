@@ -171,25 +171,43 @@ export function BudgetFormModal({
       });
     }
 
-    const action = budget ? updateBudget : createBudget
-    const payload = budget ? { id: budget.id, updates: data } : data
-
-    action(payload as any, {
-      onSuccess: () => {
-        toast({
-          title: budget ? "Budget updated" : "Budget created",
-          description: "Your budget has been saved successfully.",
-        })
-        onClose()
-      },
-      onError: (error: any) => {
-        toast({
-          title: "Error",
-          description: error?.error?.message || "Failed to save budget. Please try again.",
-          variant: "destructive",
-        })
-      },
-    })
+    if (budget) {
+      // Update existing budget
+      updateBudget({ id: budget.id, updates: data }, {
+        onSuccess: () => {
+          toast({
+            title: "Budget updated",
+            description: "Your budget has been saved successfully.",
+          })
+          onClose()
+        },
+        onError: (error: Error) => {
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to update budget. Please try again.",
+            variant: "destructive",
+          })
+        },
+      })
+    } else {
+      // Create new budget
+      createBudget(data, {
+        onSuccess: () => {
+          toast({
+            title: "Budget created",
+            description: "Your budget has been saved successfully.",
+          })
+          onClose()
+        },
+        onError: (error: Error) => {
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to create budget. Please try again.",
+            variant: "destructive",
+          })
+        },
+      })
+    }
   }
 
   return (
@@ -396,7 +414,7 @@ export function BudgetFormModal({
                   <div className="col-span-2">
                     <Select
                       value={watch("subscriptionCategory") as string}
-                      onValueChange={(value) => setValue("subscriptionCategory" as any, value)}
+                      onValueChange={(value) => setValue("subscriptionCategory", value)}
                     >
                       <SelectTrigger label="Subscription Category">
                         <SelectValue placeholder="Select category" />

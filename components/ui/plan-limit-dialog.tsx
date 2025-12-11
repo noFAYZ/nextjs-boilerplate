@@ -131,7 +131,7 @@ export function PlanLimitDialog({
               {featureLabel} Limit Reached
             </ModalTitle>
             <ModalDescription>
-              You've reached your {details.planType.toLowerCase()} plan limit
+              You&apos;ve reached your {details.planType.toLowerCase()} plan limit
             </ModalDescription>
           </div>
         </div>
@@ -165,7 +165,7 @@ export function PlanLimitDialog({
                 className="h-2 bg-red-100 dark:bg-red-900/20"
               />
               <p className="text-xs text-red-600 dark:text-red-400">
-                You're trying to add {featureLabel.toLowerCase()} #{details.currentCount + 1},
+                You&apos;re trying to add {featureLabel.toLowerCase()} #{details.currentCount + 1},
                 but your plan only allows {details.limit}.
               </p>
             </div>

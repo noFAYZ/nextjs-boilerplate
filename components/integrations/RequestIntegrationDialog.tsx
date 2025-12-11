@@ -161,7 +161,7 @@ export function RequestIntegrationDialog({
             </div>
             <h2 className="text-2xl font-bold mb-2">Request Submitted!</h2>
             <p className="text-muted-foreground">
-              Thank you for your integration request. We'll review it and get back to you soon.
+              Thank you for your integration request. We&apos;ll review it and get back to you soon.
             </p>
           </div>
         ) : (
@@ -172,7 +172,7 @@ export function RequestIntegrationDialog({
                 Request Integration
               </DialogTitle>
               <DialogDescription>
-                Tell us which service you'd like to connect. We prioritize integrations based on user requests.
+                Tell us which service you&apos;d like to connect. We prioritize integrations based on user requests.
               </DialogDescription>
             </DialogHeader>
 

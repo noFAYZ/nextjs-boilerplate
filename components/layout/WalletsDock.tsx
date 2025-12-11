@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 // Helper function to determine wallet status based on sync state and wallet data
 function getWalletStatus(
-  wallet: any,
+  wallet: { lastSyncedAt?: string | Date | null },
   syncState?: {
     progress: number;
     status: string;

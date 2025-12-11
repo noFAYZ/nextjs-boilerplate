@@ -161,7 +161,7 @@ export default function UnifiedAccountDetailsPage() {
 
   // Transform unified transactions to match the filter/analytics function interface
   const transactions = useMemo(() => {
-    const transformed = (transactionsData || []).map((tx: any) => {
+    const transformed = (transactionsData || []).map((tx: Record<string, unknown>) => {
       const { category: categoryObj, ...rest } = tx;
 
       // Parse amount as string to number for proper amount handling
@@ -232,14 +232,14 @@ export default function UnifiedAccountDetailsPage() {
   };
 
   // Helper functions
-  const getAccountBalanceColor = (account: any) => {
+  const getAccountBalanceColor = (account: Record<string, unknown>) => {
     const balance = parseFloat(
       account.availableBalance?.toString() || account.balance.toString()
     );
     return getBalanceColor(balance);
   };
 
-  const getSyncStatusBadge = (account: any) => {
+  const getSyncStatusBadge = (account: Record<string, unknown>) => {
     const syncState = realtimeSyncStates[account.id];
 
     if (!syncState) {
@@ -292,7 +292,7 @@ export default function UnifiedAccountDetailsPage() {
     const filtered = filterTransactions(transactions, {
       searchQuery,
       category: selectedFilter,
-      dateRange: dateRange as any,
+      dateRange: dateRange,
     });
 
     const sorted = sortTransactions(filtered, sortOrder);
@@ -301,7 +301,7 @@ export default function UnifiedAccountDetailsPage() {
 
   // Transform transactions to unified format
   const unifiedTransactions = useMemo(() => {
-    const unified = filteredTransactions.map((tx: any) => {
+    const unified = filteredTransactions.map((tx: Record<string, unknown>) => {
       // Parse amount properly - handle both string and number
       const amount = parseFloat(tx.amount.toString());
       const absAmount = Math.abs(amount);

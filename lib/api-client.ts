@@ -205,6 +205,7 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string, organizationId?: string): Promise<ApiResponse<T>> {
+    console.log("orgisdf ig iy gi ",organizationId)
     return this.request<T>(endpoint, { method: 'GET' }, organizationId);
   }
 

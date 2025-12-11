@@ -169,7 +169,7 @@ export function PricingSection() {
                     plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                   }`}
                 >
-                  What's included:
+                  What&apos;s included:
                 </p>
                 {plan.features.map((feature) => (
                   <div key={feature} className="flex items-center  gap-3">

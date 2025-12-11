@@ -113,7 +113,7 @@ export function AddContributionDialog({
             Add Contribution
           </DialogTitle>
           <DialogDescription>
-            Add a contribution to "{goal.name}"
+            Add a contribution to &quot;{goal.name}&quot;
           </DialogDescription>
         </DialogHeader>
 
@@ -181,7 +181,7 @@ export function AddContributionDialog({
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Enter the amount you're contributing
+                    Enter the amount you&apos;re contributing
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

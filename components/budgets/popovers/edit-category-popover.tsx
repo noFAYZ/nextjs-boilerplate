@@ -12,7 +12,7 @@ export function EditCategoryPopover({
   onDelete,
   triggerElement,
 }: {
-  category: any;
+  category: { id: string; name: string };
   newCategoryName: string;
   setNewCategoryName: (name: string) => void;
   onClose: () => void;
@@ -53,7 +53,7 @@ export function EditCategoryPopover({
           toast.success('Category updated');
           onClose();
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           toast.error('Failed to update category');
         },
       }

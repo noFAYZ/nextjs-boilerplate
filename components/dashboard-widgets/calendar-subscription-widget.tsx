@@ -254,7 +254,7 @@ export function CalendarSubscriptionWidget() {
     const map = new Map<string, UserSubscription[]>();
     
     // Extract the data array from the response object - handle both formats
-    let subscriptions: any[] = [];
+    let subscriptions: UserSubscription[] = [];
     if (Array.isArray(subscriptionsResponse)) {
       subscriptions = subscriptionsResponse;
     } else if (subscriptionsResponse.data && Array.isArray(subscriptionsResponse.data)) {

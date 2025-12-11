@@ -2,9 +2,11 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
+  queryOptions,
 } from '@tanstack/react-query';
 import { accountsApi } from '@/lib/services/accounts-api';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   UnifiedAccountsResponse,
   UnifiedAccountDetails,
@@ -21,15 +23,29 @@ import type {
 } from '@/lib/types/unified-accounts';
 import type { ApiResponse } from '@/lib/types/crypto';
 
+/**
+ * Helper to get current organization ID from store
+ * Uses .getState() to access state outside of React components
+ */
+function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+  if (explicitOrgId) return explicitOrgId;
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // Query Keys Factory
 export const accountsKeys = {
   all: ['unified-accounts'] as const,
-  list: () => [...accountsKeys.all, 'list'] as const,
-  account: (id: string) => [...accountsKeys.all, 'account', id] as const,
-  transactions: (accountId: string) => [...accountsKeys.all, 'transactions', accountId] as const,
-  transaction: (accountId: string, transactionId: string) => [...accountsKeys.transactions(accountId), transactionId] as const,
-  allTransactions: () => [...accountsKeys.all, 'all-transactions'] as const,
-  categories: () => [...accountsKeys.all, 'categories'] as const,
+  list: (orgId?: string) => [...accountsKeys.all, 'list', orgId] as const,
+  account: (id: string, orgId?: string) => [...accountsKeys.all, 'account', id, orgId] as const,
+  transactions: (accountId: string, orgId?: string) => [...accountsKeys.all, 'transactions', accountId, orgId] as const,
+  transaction: (accountId: string, transactionId: string, orgId?: string) => [...accountsKeys.transactions(accountId, orgId), transactionId] as const,
+  allTransactions: (orgId?: string) => [...accountsKeys.all, 'all-transactions', orgId] as const,
+  categories: (orgId?: string) => [...accountsKeys.all, 'categories', orgId] as const,
   categoryGroups: (organizationId?: string) => [...accountsKeys.all, 'category-groups', organizationId || 'default'] as const,
 };
 
@@ -74,122 +90,127 @@ export const accountsQueries = {
   /**
    * Get all accounts grouped by category
    */
-  allAccounts: () => ({
-    queryKey: accountsKeys.list(),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getAllAccounts();
-      } catch (error: unknown) {
-        return handleApiError(error, mockUnifiedAccounts);
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false, // Don't retry on 401/404 errors
-    select: (data: ApiResponse<UnifiedAccountsResponse>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return mockUnifiedAccounts;
-    },
-  }),
+  allAccounts: (orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.list(orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getAllAccounts(getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          return handleApiError(error, mockUnifiedAccounts);
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: false, // Don't retry on 401/404 errors
+      select: (data: ApiResponse<UnifiedAccountsResponse>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return mockUnifiedAccounts;
+      },
+    }),
 
   /**
    * Get account details by ID
    */
-  accountDetails: (accountId: string) => ({
-    queryKey: accountsKeys.account(accountId),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getAccountDetails(accountId);
-      } catch (error: unknown) {
-        throw error;
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    enabled: !!accountId,
-    select: (data: ApiResponse<UnifiedAccountDetails>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return null;
-    },
-  }),
+  accountDetails: (accountId: string, orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.account(accountId, orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getAccountDetails(accountId, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      enabled: !!accountId,
+      select: (data: ApiResponse<UnifiedAccountDetails>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return null;
+      },
+    }),
 
   /**
    * Get transactions for a specific account
    */
-  accountTransactions: (accountId: string, params?: GetAccountTransactionsParams) => ({
-    queryKey: accountsKeys.transactions(accountId),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getAccountTransactions(accountId, params);
-      } catch (error: unknown) {
-        throw error;
-      }
-    },
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    enabled: !!accountId,
-    select: (data: ApiResponse<AccountTransactionsResponse>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return {
-        success: true,
-        data: [],
-        pagination: {
-          page: 1,
-          limit: 50,
-          total: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
-        timestamp: new Date().toISOString(),
-      };
-    },
-  }),
+  accountTransactions: (accountId: string, params?: GetAccountTransactionsParams, orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.transactions(accountId, orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getAccountTransactions(accountId, params, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      enabled: !!accountId,
+      select: (data: ApiResponse<AccountTransactionsResponse>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return {
+          success: true,
+          data: [],
+          pagination: {
+            page: 1,
+            limit: 50,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+          timestamp: new Date().toISOString(),
+        };
+      },
+    }),
 
   /**
    * Get all transaction categories (flat list)
    */
-  categories: (params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }) => ({
-    queryKey: accountsKeys.categories(),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getCategories(params);
-      } catch (error: unknown) {
-        throw error;
-      }
-    },
-    staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
-    select: (data: ApiResponse<CategoriesResponse>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return { data: [] };
-    },
-  }),
+  categories: (params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }, orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.categories(orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getCategories(params, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
+      select: (data: ApiResponse<CategoriesResponse>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return { data: [] };
+      },
+    }),
 
   /**
    * Get category groups with nested categories (for envelope budgeting and better organization)
    */
-  categoryGroups: (organizationId?: string) => ({
-    queryKey: accountsKeys.categoryGroups(organizationId),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getCategoryGroups(organizationId);
-      } catch (error: unknown) {
-        throw error;
-      }
-    },
-    staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
-    select: (data: ApiResponse<CategoryGroupsResponse>) => {
-      if (data.success && data.data) {
-        return data.data;
-      }
-      return { data: [] };
-    },
-  }),
+  categoryGroups: (organizationId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.categoryGroups(organizationId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getCategoryGroups(getCurrentOrganizationId(organizationId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
+      select: (data: ApiResponse<CategoryGroupsResponse>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return { data: [] };
+      },
+    }),
 
   /**
    * Get all transactions across all accounts (global transactions)
@@ -204,55 +225,56 @@ export const accountsQueries = {
     type?: string;
     source?: string;
     search?: string;
-  }) => ({
-    queryKey: accountsKeys.allTransactions(),
-    queryFn: async () => {
-      try {
-        return await accountsApi.getAllTransactions(params);
-      } catch (error: unknown) {
-        throw error;
-      }
-    },
-    staleTime: 1000 * 60 * 2, // 2 minutes - transactions change frequently
-    select: (data: ApiResponse<AccountTransactionsResponse>) => {
-      // Handle different response structures
-      if (data.success && data.data) {
-        const responseData = data.data;
-        // If data.data is already the full response with pagination
-        if (responseData.data && Array.isArray(responseData.data)) {
+  }, orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.allTransactions(orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getAllTransactions(params, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 2, // 2 minutes - transactions change frequently
+      select: (data: ApiResponse<AccountTransactionsResponse>) => {
+        // Handle different response structures
+        if (data.success && data.data) {
+          const responseData = data.data;
+          // If data.data is already the full response with pagination
+          if (responseData.data && Array.isArray(responseData.data)) {
+            return responseData;
+          }
+          // If data.data is just the array
+          if (Array.isArray(responseData)) {
+            return {
+              data: responseData,
+              pagination: {
+                page: 1,
+                limit: 50,
+                total: responseData.length,
+                totalPages: 1,
+                hasNext: false,
+                hasPrev: false,
+              },
+            };
+          }
           return responseData;
         }
-        // If data.data is just the array
-        if (Array.isArray(responseData)) {
-          return {
-            data: responseData,
-            pagination: {
-              page: 1,
-              limit: 50,
-              total: responseData.length,
-              totalPages: 1,
-              hasNext: false,
-              hasPrev: false,
-            },
-          };
-        }
-        return responseData;
-      }
 
-      // Default empty response
-      return {
-        data: [],
-        pagination: {
-          page: 1,
-          limit: 50,
-          total: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
-      };
-    },
-  }),
+        // Default empty response
+        return {
+          data: [],
+          pagination: {
+            page: 1,
+            limit: 50,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      },
+    }),
 };
 
 // Mutations Factory
@@ -328,47 +350,59 @@ export const accountsMutations = {
   },
 };
 
+/**
+ * Helper to get organization ID from context store or explicit parameter
+ */
+function useContextOrganizationId(organizationId?: string) {
+  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
+  return organizationId || contextOrgId;
+}
+
 // Pre-configured hooks for common queries
-export function useUnifiedAccounts() {
+export function useUnifiedAccounts(organizationId?: string) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...accountsQueries.allAccounts(),
+    ...accountsQueries.allAccounts(orgId),
     enabled: isAuthReady,
   });
 }
 
-export function useAccountDetails(accountId: string | null) {
+export function useAccountDetails(accountId: string | null, organizationId?: string) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...accountsQueries.accountDetails(accountId!),
+    ...accountsQueries.accountDetails(accountId!, orgId),
     enabled: isAuthReady && !!accountId,
   });
 }
 
-export function useAccountTransactions(accountId: string | null, params?: GetAccountTransactionsParams) {
+export function useAccountTransactions(accountId: string | null, params?: GetAccountTransactionsParams, organizationId?: string) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...accountsQueries.accountTransactions(accountId!, params),
+    ...accountsQueries.accountTransactions(accountId!, params, orgId),
     enabled: isAuthReady && !!accountId,
   });
 }
 
-export function useCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }) {
+export function useCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }, organizationId?: string) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...accountsQueries.categories(params),
+    ...accountsQueries.categories(params, orgId),
     enabled: isAuthReady,
   });
 }
@@ -377,9 +411,32 @@ export function useCategoryGroups(organizationId?: string) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
 
   return useQuery({
-    ...accountsQueries.categoryGroups(organizationId),
+    ...accountsQueries.categoryGroups(orgId),
+    enabled: isAuthReady,
+  });
+}
+
+export function useAllTransactions(params?: {
+  page?: number;
+  limit?: number;
+  startDate?: string;
+  endDate?: string;
+  merchantId?: string;
+  categoryId?: string;
+  type?: string;
+  source?: string;
+  search?: string;
+}, organizationId?: string) {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+  const orgId = useContextOrganizationId(organizationId);
+
+  return useQuery({
+    ...accountsQueries.allTransactions(params, orgId),
     enabled: isAuthReady,
   });
 }

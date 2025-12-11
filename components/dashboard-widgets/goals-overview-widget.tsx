@@ -24,7 +24,7 @@ import { MageGoals, SolarCheckCircleBoldDuotone } from '../icons/icons';
 import { CardSkeleton } from '../ui/card-skeleton';
 
 // Goal Item Component - Similar to Subscription List
-function GoalItem({ goal }: { goal: any }) {
+function GoalItem({ goal }: { goal: { currentAmount?: number; targetAmount?: number; name?: string } }) {
   // Calculate progress with multiple fallback strategies
   let progress = 0;
 

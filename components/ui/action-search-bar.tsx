@@ -344,7 +344,7 @@ export function ActionSearchBar({ onOpenCommandPalette }: ActionSearchBarProps) 
                 <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                   <Search className="h-8 w-8 opacity-50 mb-2" />
                   <p className="text-sm">No actions found</p>
-                  <p className="text-xs">Try searching for "wallet", "dashboard", or other actions</p>
+                  <p className="text-xs">Try searching for &quot;wallet&quot;, &quot;dashboard&quot;, or other actions</p>
                 </div>
               ) : (
                 <div className="py-2">

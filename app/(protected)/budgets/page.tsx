@@ -191,7 +191,7 @@ export default function BudgetsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={ui.activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+      <Tabs value={ui.activeTab} onValueChange={(value: 'all' | 'active' | 'exceeded') => setActiveTab(value)}>
         <TabsList variant="pill">
           <TabsTrigger value="all" variant="pill">
             All
@@ -263,7 +263,7 @@ export default function BudgetsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the budget "{budgetToDelete?.name}". This action cannot be
+              This will permanently delete the budget &quot;{budgetToDelete?.name}&quot;. This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

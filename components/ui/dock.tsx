@@ -59,7 +59,7 @@ interface DockProps {
 // ---------------------------
 const falloff = (dist: number) => Math.cos((dist * Math.PI) / 3) * 0.5 + 0.5;
 
-const sizeClasses: any = {
+const sizeClasses: Record<string, { item: string; container: string }> = {
   xs: { item: "w-8 h-8", container: "gap-2 px-2.5 py-2" },
   sm: { item: "w-10 h-10", container: "gap-1.5 px-2.5 py-2" },
   md: { item: "w-12 h-12", container: "gap-2 px-3 py-2.5" },
@@ -88,6 +88,18 @@ const MinimalIndicator = ({ active }: { active: boolean }) =>
 // ---------------------------
 // Dock Item Component
 // ---------------------------
+interface DockItemComponentProps {
+  item: DockItem & { indicatorStyle?: "windows11" | "macos" | "minimal" };
+  index: number;
+  hoveredIndex: number | null;
+  onEnter: () => void;
+  onLeave: () => void;
+  onClick: () => void;
+  isActive: boolean;
+  maxMagnification: number;
+  size: string;
+}
+
 const DockItemComponent = React.memo(function DockItemComponent({
   item,
   index,
@@ -98,7 +110,7 @@ const DockItemComponent = React.memo(function DockItemComponent({
   isActive,
   maxMagnification,
   size,
-}: any) {
+}: DockItemComponentProps) {
   const sizeConfig = sizeClasses[size];
 
   const scale = React.useMemo(() => {
@@ -164,7 +176,7 @@ export function Dock({
   indicatorStyle = "macos",
   autoDetectActive = true,
   maxMagnification = 1.8,
-}: any) {
+}: DockProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
@@ -172,10 +184,10 @@ export function Dock({
   const activeItemIds = React.useMemo(() => {
     if (!autoDetectActive) return activeItems;
 
-    const matches = items.filter((i: any) => i.href && pathname.startsWith(i.href));
-    const best = matches.sort((a: any, b: any) => (b.href?.length || 0) - (a.href?.length || 0))[0];
+    const matches = items.filter((i) => i.href && pathname.startsWith(i.href));
+    const best = matches.sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))[0];
     return best ? [best.id, ...activeItems] : activeItems;
-  }, [pathname, items, activeItems]);
+  }, [pathname, items, activeItems, autoDetectActive]);
 
   const positionClasses = cn(
     "fixed",
@@ -198,7 +210,7 @@ export function Dock({
   return (
     <div className={positionClasses}>
       <div className={containerClasses}>
-        {items.map((item: any, index: number) => {
+        {items.map((item, index: number) => {
           const isActive = activeItemIds.includes(item.id);
 
           return (

@@ -70,9 +70,9 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
           <SolarCheckCircleBoldDuotone className="w-8 h-8 text-primary" />
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">Yay! You're on the list!</h3>
+          <h3 className="text-xl font-semibold text-foreground">Yay! You&apos;re on the list!</h3>
           <p className="text-muted-foreground max-w-sm text-sm">
-            Thanks for joining our waitlist. We'll notify you as soon as MoneyMappr launches.
+            Thanks for joining our waitlist. We&apos;ll notify you as soon as MoneyMappr launches.
           </p>
         </div>
         <Button
@@ -87,7 +87,7 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
   }
 
   return (
-    <div className={cn("mx-auto max-w-lg ", className)}>
+    <div className={cn("  max-w-lg ", className)}>
 
 
       <Form {...form} >

@@ -82,7 +82,7 @@ function WalletLoadingState() {
   );
 }
 
-function WalletErrorState({ error }: { error: any }) {
+function WalletErrorState({ error }: { error: unknown }) {
   return (
     <div className="max-w-7xl mx-auto p-4 lg:p-6">
       <Card>

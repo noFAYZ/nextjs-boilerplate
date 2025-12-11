@@ -460,7 +460,7 @@ export function AccountGroupsList({
           <AlertDescription className="text-orange-800 dark:text-orange-200">
             <div className="flex items-center justify-between">
               <div>
-                <strong>Delete Mode:</strong> Select the groups you want to delete, then click the "Delete" button. 
+                <strong>Delete Mode:</strong> Select the groups you want to delete, then click the &quot;Delete&quot; button. 
                 {selectedForDeletion.length > 0 && (
                   <span className="ml-2 font-medium">
                     {selectedForDeletion.length} group{selectedForDeletion.length > 1 ? 's' : ''} selected for deletion.

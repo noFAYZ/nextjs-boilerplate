@@ -42,13 +42,13 @@ export default function BankAccountsPage() {
   // Check if any accounts are actively syncing via SSE
   const hasActiveSyncs = () => {
     return Object.values(realtimeSyncStates).some(state =>
-      BANKING_SYNC_ACTIVE_STATUSES.includes(state.status as any)
+      BANKING_SYNC_ACTIVE_STATUSES.includes(state.status)
     );
   };
 
   const getActiveSyncs = () => {
     return Object.keys(realtimeSyncStates).filter(accountId =>
-      BANKING_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[accountId].status as any)
+      BANKING_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[accountId].status)
     );
   };
 

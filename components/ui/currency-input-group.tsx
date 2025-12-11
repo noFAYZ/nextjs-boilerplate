@@ -46,8 +46,8 @@ interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   onAmountChange?: (value: string) => void;
   currencyProps?: {
     disabled?: boolean;
-    setValue?: UseFormSetValue<any>;
-    watch?: UseFormWatch<any>;
+    setValue?: UseFormSetValue<Record<string, unknown>>;
+    watch?: UseFormWatch<Record<string, unknown>>;
     name?: string;
   };
   label?: string;
@@ -55,7 +55,7 @@ interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   errorMessage?: string;
   clearable?: boolean;
   onClear?: () => void;
-  register?: UseFormRegister<any>;
+  register?: UseFormRegister<Record<string, unknown>>;
   name?: string;
 }
 

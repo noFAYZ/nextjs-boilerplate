@@ -26,7 +26,7 @@ interface WalletChartProps {
 }
 
 // Minimal custom tooltip
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { formattedDate: string } }> }) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
     const data = payload[0].payload;

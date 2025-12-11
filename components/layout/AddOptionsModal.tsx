@@ -262,7 +262,7 @@ export function AddOptionsModal({ open, onOpenChange }: AddOptionsModalProps) {
             {filteredOptions.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <Globe className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No options found for "{searchQuery}"</p>
+                <p className="text-sm">No options found for &quot;{searchQuery}&quot;</p>
                 <p className="text-xs mt-1">Try searching for wallet, account, or exchange</p>
               </div>
             )}

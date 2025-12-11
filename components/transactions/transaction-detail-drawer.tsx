@@ -70,7 +70,7 @@ const getTypeColor = (type: string) => {
 
 const getTransactionDate = (transaction: UnifiedTransaction): Date => {
   // Try different date field names
-  const dateStr = transaction.timestamp || (transaction as any).date;
+  const dateStr = transaction.timestamp || (transaction as { date?: string }).date;
 
   if (!dateStr) {
     return new Date();
@@ -102,7 +102,7 @@ export function TransactionDetailDrawer({
       : categoriesResponse?.data;
 
     if (!cats) return [];
-    return cats.map((cat: any) => ({
+    return cats.map((cat: { id: string; name: string }) => ({
       value: cat.id,
       label: cat.name,
     }));
@@ -115,9 +115,9 @@ export function TransactionDetailDrawer({
 
     const allAccounts: ComboboxOption[] = [];
     if (accountsResponse.groups) {
-      Object.values(accountsResponse.groups).forEach((group: any) => {
+      Object.values(accountsResponse.groups).forEach((group: { accounts?: Array<{ id: string; name: string }> }) => {
         if (group.accounts) {
-          group.accounts.forEach((account: any) => {
+          group.accounts.forEach((account: { id: string; name: string }) => {
             allAccounts.push({
               value: account.id,
               label: account.name,
@@ -260,8 +260,8 @@ export function TransactionDetailDrawer({
                       account: {
                         id: value,
                         name: accounts.find((a) => a.value === value)?.label || '',
-                        type: 'BANKING',
-                      } as any,
+                        type: 'BANKING' as const,
+                      },
                     })
                   }
                   placeholder="Select account"

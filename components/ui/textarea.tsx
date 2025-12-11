@@ -8,7 +8,7 @@ interface TextareaProps extends React.ComponentProps<'textarea'> {
   label?: string;
   labelClassName?: string;
   errorMessage?: string;
-  register?: UseFormRegister<any>;
+  register?: UseFormRegister<Record<string, unknown>>;
   name?: string;
 }
 

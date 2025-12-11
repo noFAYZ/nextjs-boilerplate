@@ -5,12 +5,19 @@ import { usePlaidLink } from 'react-plaid-link';
 import { usePlaidLinkToken, useAddPlaidAccount } from '@/lib/queries/plaid-queries';
 import type { BankAccount } from '@/lib/types/banking';
 
+export interface PlaidError {
+  error_code?: string;
+  error_message?: string;
+  error_type?: string;
+  display_message?: string | null;
+}
+
 export interface UsePlaidIntegrationProps {
   onSuccess?: (accounts: BankAccount[]) => void;
-  onError?: (error: any) => void;
+  onError?: (error: PlaidError) => void;
   onExit?: () => void;
   onPlaidOpen?: () => void;
-  onPlaidClose?: (result: { success: boolean; accounts?: BankAccount[]; error?: any }) => void;
+  onPlaidClose?: (result: { success: boolean; accounts?: BankAccount[]; error?: PlaidError }) => void;
 }
 
 export interface PlaidIntegrationState {
@@ -68,7 +75,7 @@ export function usePlaidIntegration({
         },
       });
     },
-    onExit: (error) => {
+    onExit: (error: PlaidError | null) => {
       // Clean up injected styles
       if (styleRef.current && document.head.contains(styleRef.current)) {
         document.head.removeChild(styleRef.current);
@@ -104,8 +111,8 @@ export function usePlaidIntegration({
   const handleOpen = () => {
     if (!linkToken) {
       onError?.({
-        code: 'LINK_TOKEN_ERROR',
-        error: 'Failed to get link token. Please try again.',
+        error_code: 'LINK_TOKEN_ERROR',
+        error_message: 'Failed to get link token. Please try again.',
       });
       return;
     }

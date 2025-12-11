@@ -21,6 +21,7 @@ import {
   Globe,
   CreditCard,
   Tag,
+  Tags,
   FileText,
   RefreshCw,
   Copy,
@@ -136,7 +137,7 @@ export default function SubscriptionDetailPage() {
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
           <h2 className="mb-2 text-lg font-semibold">Subscription Not Found</h2>
           <p className="mb-4 text-sm text-muted-foreground">
-            The subscription you're looking for doesn't exist or has been deleted.
+            The subscription you&apos;re looking for doesn&apos;t exist or has been deleted.
           </p>
           <Button onClick={() => router.push("/subscriptions")} size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -933,7 +934,7 @@ export default function SubscriptionDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{subscription.name}"? This action cannot be undone
+              Are you sure you want to delete &quot;{subscription.name}&quot;? This action cannot be undone
               and will remove all associated charges and reminders.
             </AlertDialogDescription>
           </AlertDialogHeader>

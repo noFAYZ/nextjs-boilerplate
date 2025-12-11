@@ -264,13 +264,13 @@ export default function WalletsPage() {
   // Check if any wallets are actively syncing via SSE
   const hasActiveSyncs = () => {
     return Object.values(realtimeSyncStates).some(state =>
-      CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status as any)
+      CRYPTO_SYNC_ACTIVE_STATUSES.includes(state.status)
     );
   };
 
   const getActiveSyncs = () => {
     return Object.keys(realtimeSyncStates).filter(walletId =>
-      CRYPTO_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[walletId].status as any)
+      CRYPTO_SYNC_ACTIVE_STATUSES.includes(realtimeSyncStates[walletId].status)
     );
   };
 

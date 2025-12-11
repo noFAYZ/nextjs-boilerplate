@@ -169,7 +169,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
       toast.success('Bank accounts connected successfully!');
       onSuccess?.([]); // Will be populated with actual account data
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Connect Stripe error:', error);
 
       // Handle plan limit errors
@@ -177,7 +177,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
 
       if (!planLimitError) {
         // Only show toast for non-plan-limit errors
-        const errorMessage = error?.error?.message || error?.message || 'Failed to connect bank account';
+        const errorMessage = error instanceof Error ? error.message : 'Failed to connect bank account';
         toast.error(errorMessage);
         setStripeConnectError(errorMessage);
       }

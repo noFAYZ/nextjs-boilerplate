@@ -89,7 +89,7 @@ export default function AcceptInvitationPage({ params }: PageProps) {
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-green-600">Invitation Accepted!</h2>
               <p className="text-muted-foreground">
-                You've been added to <span className="font-semibold">{organizationName}</span>
+                You&apos;ve been added to <span className="font-semibold">{organizationName}</span>
               </p>
               <p className="text-sm text-muted-foreground">
                 Redirecting you to the dashboard...

@@ -105,11 +105,11 @@ interface BankingUIActions {
   clearFilters: () => void;
 
   // Derived filter helpers
-  filterAccountsByCategory: (accounts: any[], category: string) => any[];
-  filterAccountsByType: (accounts: any[], type: string) => any[];
-  filterAccountsByProvider: (accounts: any[], provider: string) => any[];
-  filterAssetAccounts: (accounts: any[]) => any[];
-  filterLiabilityAccounts: (accounts: any[]) => any[];
+  filterAccountsByCategory: (accounts: Array<{ category?: string }>, category: string) => Array<{ category?: string }>;
+  filterAccountsByType: (accounts: Array<{ type?: string }>, type: string) => Array<{ type?: string }>;
+  filterAccountsByProvider: (accounts: Array<{ provider?: string }>, provider: string) => Array<{ provider?: string }>;
+  filterAssetAccounts: (accounts: Array<{ isAsset?: boolean }>) => Array<{ isAsset?: boolean }>;
+  filterLiabilityAccounts: (accounts: Array<{ isLiability?: boolean }>) => Array<{ isLiability?: boolean }>;
 
   // View Preference Actions
   setAccountsView: (view: 'grid' | 'list' | 'grouped') => void;

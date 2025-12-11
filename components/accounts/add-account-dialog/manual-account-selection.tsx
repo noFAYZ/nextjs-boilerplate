@@ -12,10 +12,21 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { ACCOUNT_TYPES_BY_CATEGORY } from './account-types-by-category';
 
+type AccountCategoryItem = {
+  id: string;
+  type: string;
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  label: string;
+  subtypes: Array<{ value: string; label: string }>;
+};
+
 interface ManualAccountSelectionProps {
   selectedCategory: 'ASSETS' | 'LIABILITIES' | null;
   selectedCategoryItem: string | null;
-  handleSelectCategoryItem: (category: 'ASSETS' | 'LIABILITIES', item: any) => void;
+  handleSelectCategoryItem: (category: 'ASSETS' | 'LIABILITIES', item: AccountCategoryItem) => void;
   handleBack: () => void;
 }
 
@@ -79,7 +90,7 @@ export function ManualAccountSelection({
             {ACCOUNT_TYPES_BY_CATEGORY.LIABILITIES.map((category) => (
               <button
                 key={category.id}
-                onClick={() => handleSelectCategoryItem('LIABILITIES', category as any)}
+                onClick={() => handleSelectCategoryItem('LIABILITIES', category)}
                 className={cn(
                   'flex items-center justify-between p-2 bg-card rounded-lg border border-border/80 shadow-sm',
                   'hover:bg-card/80 hover:border-border/60 transition-colors cursor-pointer  '

@@ -127,7 +127,7 @@ export default function BudgetsV2Page() {
   // Extract envelopes
   const allEnvelopes = useMemo(() => {
     if (!envelopesResponse) return [];
-    let data = envelopesResponse?.data?.data || envelopesResponse?.data || [];
+    const data = envelopesResponse?.data?.data || envelopesResponse?.data || [];
     return Array.isArray(data) ? data : [];
   }, [envelopesResponse]);
 
@@ -191,7 +191,7 @@ export default function BudgetsV2Page() {
     : dashboardStats.totalRemaining;
 
   // Handlers
-  const handleCreateEnvelope = async (data: any) => {
+  const handleCreateEnvelope = async (data: Record<string, unknown>) => {
     try {
       await createEnvelopeMutation.mutateAsync(data);
       toast.success('Envelope created successfully');
@@ -495,7 +495,7 @@ function TableDataRow({
           toast.success(`Allocated $${newAmount.toFixed(2)} to ${envelope.name}`);
           setIsEditingAssigned(false);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           const errorMessage = error?.response?.data?.message || 'Failed to update allocation';
           toast.error(errorMessage);
         },
@@ -713,7 +713,7 @@ function TableGroupRow({
 
       toast.success(`Allocated $${newAmount.toFixed(2)} to ${getCategoryGroupLabel(groupType)}`);
       setIsEditingAssigned(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error?.response?.data?.message || 'Failed to update allocations';
       toast.error(errorMessage);
     } finally {
@@ -878,7 +878,7 @@ function GridCard({
           toast.success(`Allocated $${newAmount.toFixed(2)} to ${envelope.name}`);
           setIsEditingAssigned(false);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           const errorMessage = error?.response?.data?.message || 'Failed to update allocation';
           toast.error(errorMessage);
         },

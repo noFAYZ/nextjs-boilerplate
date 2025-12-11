@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCategoryGroup } from '@/lib/queries/use-category-groups-data';
 import { toast } from 'sonner';
+import type { CustomCategoryGroup } from '@/lib/services/category-groups-api';
 
 export function TransferCategoriesDialog({
   sourceGroupId,
@@ -10,8 +11,8 @@ export function TransferCategoriesDialog({
   onClose,
 }: {
   sourceGroupId: string;
-  sourceGroup: any;
-  allGroups: any[];
+  sourceGroup: CustomCategoryGroup;
+  allGroups: CustomCategoryGroup[];
   onClose: () => void;
 }) {
   const [destinationGroupId, setDestinationGroupId] = useState<string>('');
@@ -39,7 +40,7 @@ export function TransferCategoriesDialog({
       onSuccess: () => {
         toast.success('Group deleted successfully');
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast.error(error?.message || 'Failed to delete group');
       },
     });

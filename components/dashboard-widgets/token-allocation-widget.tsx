@@ -108,7 +108,7 @@ export function TokenAllocationWidget() {
   const portfolioData = useMemo(() => {
     if (!portfolioResponse) return null;
     if (portfolioResponse.data) return portfolioResponse.data;
-    return portfolioResponse as any;
+    return portfolioResponse as Record<string, unknown>;
   }, [portfolioResponse]);
 
   // Get tokens array

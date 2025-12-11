@@ -365,7 +365,7 @@ export function LandingHero() {
   );
 }
 // Reusable floating card with physics-like motion
-function FloatingCard({ children, delay = 0, className = "" }: any) {
+function FloatingCard({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div
 

@@ -445,7 +445,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             Privacy & Sharing
           </CardTitle>
           <CardDescription>
-            Control who can access this group's information
+            Control who can access this group&apos;s information
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -453,7 +453,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
             <div className="space-y-0.5">
               <Label>Share with Family</Label>
               <p className="text-sm text-muted-foreground">
-                Allow family members to view this group's summary
+                Allow family members to view this group&apos;s summary
               </p>
             </div>
             <Switch
@@ -575,7 +575,7 @@ export function GroupSettings({ group, onUpdate, onDelete }: GroupSettingsProps)
                     <AlertDialogTitle>Delete this group?</AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently delete the
-                      group "{group.name}" and remove all accounts from it. The accounts
+                      group &quot;{group.name}&quot; and remove all accounts from it. The accounts
                       themselves will not be deleted, just ungrouped.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

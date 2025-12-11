@@ -214,7 +214,7 @@ export const useCryptoStore = create<CryptoStore>()(
               // Remove any sync stuck for more than 2 minutes in active status
               if (
                 elapsedMs > twoMinutesMs &&
-                ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(syncState.status as any)
+                ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(syncState.status)
               ) {
                 console.warn(`[Crypto Store] Removing stuck sync for ${walletId} (${Math.round(elapsedMs / 1000)}s old, status: ${syncState.status})`);
                 delete state.realtimeSyncStates[walletId];

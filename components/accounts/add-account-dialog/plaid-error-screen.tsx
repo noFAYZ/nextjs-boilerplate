@@ -8,9 +8,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
+interface PlaidErrorResult {
+  success: boolean;
+  accounts?: Array<Record<string, unknown>>;
+  error?: {
+    error_message?: string;
+    error?: string;
+  };
+}
+
 interface PlaidErrorScreenProps {
   plaidError: string | null;
-  plaidResult: { success: boolean; accounts?: any[]; error?: any } | null;
+  plaidResult: PlaidErrorResult | null;
   onTryAgain: () => void;
   onDone: () => void;
 }

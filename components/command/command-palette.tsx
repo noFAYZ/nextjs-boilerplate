@@ -250,7 +250,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Search className="h-8 w-8 opacity-50" />
             <p>No results found.</p>
-            <p className="text-xs">Try searching for "wallet", "dashboard", or "settings"</p>
+            <p className="text-xs">Try searching for &quot;wallet&quot;, &quot;dashboard&quot;, or &quot;settings&quot;</p>
           </div>
         </CommandEmpty>
 

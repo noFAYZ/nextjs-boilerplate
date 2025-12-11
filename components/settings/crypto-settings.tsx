@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 
-export function CryptoSettings(props: any) {
+export function CryptoSettings() {
   return (
     <Card>
       <CardHeader>

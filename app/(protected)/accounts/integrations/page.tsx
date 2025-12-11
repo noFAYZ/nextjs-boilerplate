@@ -29,6 +29,15 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUserIntegrations } from "@/lib/queries/integrations-queries";
 import { RequestIntegrationDialog } from "@/components/integrations/RequestIntegrationDialog";
+
+type Integration = {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  status: string;
+  category: string;
+};
 import {
   ExchangeBinance,
   ExchangeCoinbase,
@@ -421,7 +430,7 @@ export default function IntegrationsPage() {
 }
 
 // Grid Card Component
-function IntegrationGridCard({ integration, isConnected }: { integration: any; isConnected?: boolean }) {
+function IntegrationGridCard({ integration, isConnected }: { integration: Integration; isConnected?: boolean }) {
   const getConnectionType = (category: string) => {
     if (category === 'banking') return 'bank';
     if (category === 'exchange') return 'exchange';

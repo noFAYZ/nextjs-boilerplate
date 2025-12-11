@@ -101,7 +101,7 @@ export function AddMenuDialog() {
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Add New Item</DialogTitle>
           <DialogDescription className="text-xs">
-            Choose what you'd like to add to your MoneyMappr account
+            Choose what you&apos;d like to add to your MoneyMappr account
           </DialogDescription>
         </DialogHeader>
 

@@ -202,7 +202,7 @@ export function NetWorthWidget() {
       return {};
     }
 
-    const categories: { [key: string]: { accounts: any[]; total: number } } =
+    const categories: { [key: string]: { accounts: Array<Record<string, unknown>>; total: number } } =
       {};
 
     // Process all categories from groups
@@ -347,7 +347,7 @@ export function NetWorthWidget() {
               <CurrencyDisplay
                 amountUSD={netWorth}
                 variant="2xl"
-                className=" font-medium"
+                className=" font-semibold"
               />
             ) : (
               "—"

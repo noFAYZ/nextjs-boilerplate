@@ -198,8 +198,9 @@ export const cryptoQueries = {
       cryptoApi.getTransactions({ ...params, page: pageParam }, orgId),
     initialPageParam: 1,
     getNextPageParam: (lastPage: ApiResponse<CryptoTransaction[]>) => {
-      if (lastPage.success && (lastPage as any).pagination?.hasNext) {
-        return (lastPage as any).pagination.page + 1;
+      const pageData = lastPage as ApiResponse<CryptoTransaction[]> & { pagination?: { hasNext: boolean; page: number } };
+      if (lastPage.success && pageData.pagination?.hasNext) {
+        return pageData.pagination.page + 1;
       }
       return undefined;
     },
@@ -447,7 +448,7 @@ export const cryptoMutations = {
           // Timeout: if no SSE message within 30s, auto-fail the sync
           const timeoutId = setTimeout(() => {
             const currentState = useCryptoStore.getState().realtimeSyncStates[walletId];
-            if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status as any)) {
+            if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status)) {
               console.warn(`[Crypto Sync] Timeout: No SSE messages for wallet ${walletId}, auto-failing`);
               useCryptoStore.getState().failRealtimeSync(walletId, 'Sync timeout - no response from server');
             }
@@ -473,7 +474,7 @@ export const cryptoMutations = {
       onSuccess: (response) => {
         if (response.success && response.data?.wallets) {
           // Initialize sync state for each wallet being synced
-          response.data.wallets.forEach((wallet: any) => {
+          response.data.wallets.forEach((wallet: { id: string }) => {
             cryptoStore.updateRealtimeSyncProgress(
               wallet.id,
               0,
@@ -484,7 +485,7 @@ export const cryptoMutations = {
             // Timeout: if no SSE message within 30s, auto-fail the sync
             const timeoutId = setTimeout(() => {
               const currentState = useCryptoStore.getState().realtimeSyncStates[wallet.id];
-              if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status as any)) {
+              if (currentState && ['queued', 'syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(currentState.status)) {
                 console.warn(`[Crypto Sync] Timeout: No SSE messages for wallet ${wallet.id}, auto-failing`);
                 useCryptoStore.getState().failRealtimeSync(wallet.id, 'Sync timeout - no response from server');
               }

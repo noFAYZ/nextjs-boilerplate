@@ -46,7 +46,7 @@ declare global {
 interface TellerConnectProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: (accounts: any[]) => void;
+  onSuccess?: (accounts: Array<Record<string, unknown>>) => void;
 }
 
 export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectProps) {

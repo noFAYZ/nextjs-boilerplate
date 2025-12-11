@@ -37,6 +37,7 @@ import { NetWorthWidget } from "@/components/dashboard-widgets";
 import { SpendingCategoriesWidget } from "@/components/dashboard-widgets";
 import { UpcomingBillsWidget } from "@/components/dashboard-widgets";
 import { ScrollReveal } from "../scroll-reveal";
+import { BgGradient } from "../bg/bg-gradient";
 
 // Demo Data
 const DEMO_WALLETS = [
@@ -515,7 +516,7 @@ function BudgetsVisual() {
             className="animate-in fade-in slide-in-from-bottom-2 duration-200"
             style={{ animationDelay: `${idx * 0.05}s` }}
           >
-            <BudgetCard budget={budget as any} />
+            <BudgetCard budget={budget as Record<string, unknown>} />
           </div>
         ))}
 
@@ -577,7 +578,7 @@ function SubscriptionsVisual() {
             className="animate-in fade-in slide-in-from-bottom-2 duration-200"
             style={{ animationDelay: `${idx * 0.06}s` }}
           >
-            <SubscriptionCard subscription={subscription as any} />
+            <SubscriptionCard subscription={subscription as UserSubscription} />
           </div>
         ))}
 
@@ -595,7 +596,7 @@ function GoalsVisual() {
             className="animate-in fade-in slide-in-from-bottom-2 duration-200"
             style={{ animationDelay: `${idx * 0.06}s` }}
           >
-            <GoalCard goal={goal as any} className="opacity-100"/>
+            <GoalCard goal={goal as Goal} className="opacity-100"/>
           </div>
         ))}
 
@@ -736,11 +737,13 @@ export default function MoneyMapprFeatureSection() {
           </div>
 
           {/* Center Visual */}
-          <div className="lg:col-span-4 flex items-center justify-center min-h-[500px]">
+          <div className="relative lg:col-span-4 flex items-center justify-center h-full w-full p-4">
+   <BgGradient  className=" rounded-xl border shadow over" from="hsl(8.18,25%,82.75%)" to="hsl(20.77,65%,68.63%)"  />
             <div
               key={activeFeature.id}
-              className="w-full animate-in fade-in duration-150"
-            >
+              className="w-full  animate-in fade-in duration-150"
+            >     
+                       
               <CenterVisual type={activeFeature.visual} />
             </div>
           </div>

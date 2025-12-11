@@ -285,7 +285,7 @@ export default function AuthForm({
       
       logger.error('Authentication attempt failed', error, {
         type,
-        email: (data as any)?.email,
+        email: (data as Record<string, unknown>)?.email,
       });
     }
   };

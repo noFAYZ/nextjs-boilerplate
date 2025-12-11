@@ -147,7 +147,7 @@ interface DraggableAccountItemProps {
       plaidAccountId?: string | null;
       plaidMask?: string | null;
       tellerAccountId?: string | null;
-      [key: string]: any;
+      [key: string]: unknown;
     };
   
     // Optional — only if present from other data sources
@@ -687,9 +687,9 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden rounded-xl shadow-sm"
+                      className="overflow-hidden rounded-xl "
                     >
-                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-b-none cursor-pointer hover:bg-card/80">
+                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-b-none cursor-pointer hover:bg-muted/50">
                         {/* Icon */}
                         <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
                           {config.icon}

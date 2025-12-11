@@ -171,7 +171,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
         // Incremented to force cache reset and widget state rebuild
         version: 4,
         // Migrate from old format if needed and merge with defaults
-        migrate: (persistedState: any, version: number) => {
+        migrate: (persistedState: { widgets?: Record<WidgetId, WidgetLayout> }, version: number) => {
           // Always merge persisted widgets with defaults to ensure all widgets exist
           const persistedWidgets = persistedState?.widgets || {};
           const mergedWidgets = {

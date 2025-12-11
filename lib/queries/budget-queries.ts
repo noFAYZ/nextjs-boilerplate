@@ -3,8 +3,10 @@ import {
   useMutation,
   useQueryClient,
   keepPreviousData,
+  queryOptions,
 } from '@tanstack/react-query';
 import { budgetApi } from '@/lib/services/budget-api';
+import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   Budget,
   BudgetAnalytics,
@@ -19,6 +21,20 @@ import type {
   BudgetAnalyticsResponse,
   BudgetSummaryResponse,
 } from '@/lib/types/budget';
+
+/**
+ * Helper to get current organization ID from store
+ * Uses .getState() to access state outside of React components
+ */
+function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+  if (explicitOrgId) return explicitOrgId;
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // ============================================================================
 // QUERY KEYS FACTORY
@@ -51,51 +67,61 @@ export const budgetKeys = {
 
 export const budgetQueries = {
   // Get all budgets
-  budgets: (params?: GetBudgetsParams, orgId?: string) => ({
-    queryKey: budgetKeys.list(params, orgId),
-    queryFn: () => budgetApi.getBudgets(params, orgId),
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 3, // 3 minutes
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
-    select: (data: BudgetsResponse) => data.success ? data : { data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } },
-  }),
+  budgets: (params?: GetBudgetsParams, orgId?: string) =>
+    queryOptions({
+      queryKey: budgetKeys.list(params, orgId),
+      queryFn: () =>
+        budgetApi.getBudgets(
+          { ...params, organizationId: getCurrentOrganizationId(orgId) },
+        ),
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 3, // 3 minutes
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      select: (data: BudgetsResponse) => data.success ? data : { data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } },
+    }),
 
   // Get single budget
-  budget: (id: string, params?: GetBudgetParams, orgId?: string) => ({
-    queryKey: budgetKeys.detail(id, params, orgId),
-    queryFn: () => budgetApi.getBudget(id, params, orgId),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    gcTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
-    select: (data: BudgetResponse) => data.success ? data.data : null,
-  }),
+  budget: (id: string, params?: GetBudgetParams, orgId?: string) =>
+    queryOptions({
+      queryKey: budgetKeys.detail(id, params, orgId),
+      queryFn: () =>
+        budgetApi.getBudget(id, { ...params, organizationId: getCurrentOrganizationId(orgId) }),
+      enabled: !!id,
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      gcTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      select: (data: BudgetResponse) => data.success ? data.data : null,
+    }),
 
   // Get budget analytics
-  analytics: (orgId?: string) => ({
-    queryKey: budgetKeys.analytics(orgId),
-    queryFn: () => budgetApi.getBudgetAnalytics(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
-    select: (data: BudgetAnalyticsResponse) => data.success ? data.data : null,
-  }),
+  analytics: (orgId?: string) =>
+    queryOptions({
+      queryKey: budgetKeys.analytics(orgId),
+      queryFn: () =>
+        budgetApi.getBudgetAnalytics(getCurrentOrganizationId(orgId)),
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      select: (data: BudgetAnalyticsResponse) => data.success ? data.data : null,
+    }),
 
   // Get budget summary
-  summary: () => ({
-    queryKey: budgetKeys.summary(),
-    queryFn: () => budgetApi.getBudgetSummary(),
-    staleTime: 1000 * 60 * 3, // 3 minutes
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
-    select: (data: BudgetSummaryResponse) => data.success ? data.data : null,
-  }),
+  summary: (orgId?: string) =>
+    queryOptions({
+      queryKey: budgetKeys.summary(orgId),
+      queryFn: () =>
+        budgetApi.getBudgetSummary(getCurrentOrganizationId(orgId)),
+      staleTime: 1000 * 60 * 3, // 3 minutes
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      select: (data: BudgetSummaryResponse) => data.success ? data.data : null,
+    }),
 };
 
 // ============================================================================

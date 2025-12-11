@@ -234,7 +234,7 @@ export default function NetWorthPage() {
                 { label: 'This Quarter', key: 'quarter' },
                 { label: 'This Year', key: 'year' },
               ].map((period) => {
-                const perf = performance?.[period.key as keyof typeof performance] as any;
+                const perf = performance?.[period.key as keyof typeof performance] as Record<string, unknown> | undefined;
                 const change = perf?.changeAmount || 0;
                 const changePct = perf?.changePercent || 0;
 

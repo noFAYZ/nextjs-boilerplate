@@ -76,7 +76,7 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
   const walletSyncState = realtimeSyncStates[accountId];
   const isSyncingSSE =
     walletSyncState &&
-    CRYPTO_SYNC_ACTIVE_STATUSES.includes(walletSyncState.status as any);
+    CRYPTO_SYNC_ACTIVE_STATUSES.includes(walletSyncState.status);
   const syncProgress = walletSyncState?.progress || 0;
   const lastSyncAt = walletSyncState?.completedAt;
 

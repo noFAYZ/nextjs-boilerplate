@@ -39,7 +39,7 @@ export function EnvelopeSorting({
     <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
       <div className="flex gap-3 flex-1">
         {/* Sort By */}
-        <Select value={sortBy} onValueChange={(val: any) => onSortByChange(val)}>
+        <Select value={sortBy} onValueChange={(val: string) => onSortByChange(val)}>
           <SelectTrigger variant='outline2' size='xs'>
             <SelectValue placeholder="Sort by..." />
           </SelectTrigger>

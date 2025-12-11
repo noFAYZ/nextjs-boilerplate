@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *, .dark-pro *));
 /* fffefa */
 :root {
-  --background: rgb(243,242,237);
+  --background: oklch(0.9856 0.0084 56.3169);
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -61,7 +61,9 @@
   --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
   --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
   --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
-
+  --primary-light: oklch(0.75 0.183 55.934);
+  --primary-dark: oklch(0.705 0.213 47.604);
+  --primary-ring: oklch(0.646 0.222 41.116);
 }
 
 .dark {
@@ -131,7 +133,7 @@
 }
 
 .light-pro {
-  --background: rgb(243,242,237);
+  --background: oklch(0.9856 0.0084 56.3169);
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -178,6 +180,10 @@
   --shadow-2xs: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.23);
   --shadow-xs: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.23);
   --shadow-sm: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.45), 0px 1px 2px -2.5px hsl(0 0% 78.0392% / 0.45);
+
+  --primary-light: oklch(0.75 0.183 55.934);
+    --primary-dark: oklch(0.705 0.213 47.604);
+    --primary-ring: oklch(0.646 0.222 41.116);
 }
 
 .dark-pro {
@@ -1232,3 +1238,4 @@ html {
     opacity: 1;
   }
 }
+

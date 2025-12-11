@@ -10,7 +10,7 @@ interface SuccessScreenProps {
   accountName: string;
   selectedType: string | null;
   isPlaidSuccess?: boolean;
-  plaidAccounts?: any[];
+  plaidAccounts?: Array<Record<string, unknown>>;
   onAddAnother: () => void;
   onDone: () => void;
 }

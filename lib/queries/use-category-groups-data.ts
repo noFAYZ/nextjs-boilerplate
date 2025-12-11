@@ -81,8 +81,21 @@ export function useCategoryGroups(
     page?: number;
     limit?: number;
   },
-  options?: any
-): UseQueryResult<any, unknown> {
+  options?: {
+    enabled?: boolean;
+    staleTime?: number;
+    refetchOnMount?: boolean;
+    refetchOnWindowFocus?: boolean;
+  }
+): UseQueryResult<{
+  groups: CustomCategoryGroup[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -143,7 +156,13 @@ export function useCreateCategoryGroup(): UseMutationResult<
  */
 export function useUpdateCategoryGroup(
   groupId: string
-): UseMutationResult<CustomCategoryGroup, unknown, any, unknown> {
+): UseMutationResult<CustomCategoryGroup, unknown, {
+  name?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  sortOrder?: number;
+}, unknown> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -181,18 +200,20 @@ export function useDeleteCategoryGroup(
       // Optimistically update by filtering out the deleted group
       queryClient.setQueriesData(
         { queryKey: categoryGroupsKeys.lists() },
-        (old: any) => {
-          if (!old) return old;
+        (old: unknown) => {
+          if (!old || typeof old !== 'object') return old;
+          const oldData = old as { data?: CustomCategoryGroup[] };
+          if (!oldData.data) return old;
           return {
-            ...old,
-            data: old.data.filter((g: any) => g.id !== groupId),
+            ...oldData,
+            data: oldData.data.filter((g) => g.id !== groupId),
           };
         }
       );
 
       return { previousData };
     },
-    onError: (err, variables, context: any) => {
+    onError: (err, variables, context: { previousData?: unknown } | undefined) => {
       // Revert to previous value on error
       if (context?.previousData) {
         queryClient.setQueryData(categoryGroupsKeys.lists(), context.previousData);
@@ -222,7 +243,12 @@ export function useCategories(params?: {
   limit?: number;
 }): UseQueryResult<{
   categories: CustomCategory[];
-  pagination: any;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }, unknown> {
   const { isAuthReady } = useAuthReady();
 
@@ -292,7 +318,16 @@ export function useCategoriesByType(): UseQueryResult<{
 export function useCreateCategory(): UseMutationResult<
   CustomCategory,
   unknown,
-  any,
+  {
+    groupId: string;
+    name: string;
+    displayName?: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+    emoji?: string;
+    parentCategoryId?: string;
+  },
   unknown
 > {
   const queryClient = useQueryClient();
@@ -318,7 +353,20 @@ export function useCreateCategory(): UseMutationResult<
  */
 export function useUpdateCategory(
   categoryId: string
-): UseMutationResult<CustomCategory, unknown, any, unknown> {
+): UseMutationResult<CustomCategory, unknown, {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  emoji?: string;
+  isActive?: boolean;
+  enableAlerts?: boolean;
+  alert50Percent?: boolean;
+  alert75Percent?: boolean;
+  alert90Percent?: boolean;
+  alertExceeded?: boolean;
+}, unknown> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -356,13 +404,15 @@ export function useDeleteCategory(
       // Optimistically update by filtering out the deleted category from all groups
       queryClient.setQueriesData(
         { queryKey: categoryGroupsKeys.lists() },
-        (old: any) => {
-          if (!old || !old.data) return old;
+        (old: unknown) => {
+          if (!old || typeof old !== 'object') return old;
+          const oldData = old as { data?: Array<CustomCategoryGroup & { categories?: CustomCategory[] }> };
+          if (!oldData.data) return old;
           return {
-            ...old,
-            data: old.data.map((group: any) => ({
+            ...oldData,
+            data: oldData.data.map((group) => ({
               ...group,
-              categories: (group.categories || []).filter((cat: any) => cat.id !== categoryId),
+              categories: (group.categories || []).filter((cat) => cat.id !== categoryId),
             })),
           };
         }
@@ -370,7 +420,7 @@ export function useDeleteCategory(
 
       return { previousData };
     },
-    onError: (err, variables, context: any) => {
+    onError: (err, variables, context: { previousData?: unknown } | undefined) => {
       // Revert to previous value on error
       if (context?.previousData) {
         queryClient.setQueryData(categoryGroupsKeys.lists(), context.previousData);
@@ -394,7 +444,15 @@ export function useDeleteCategory(
  */
 export function useAllocateFunds(
   categoryId: string
-): UseMutationResult<any, unknown, {
+): UseMutationResult<{
+  categoryId: string;
+  allocatedAmount: number;
+  previousBalance: number;
+  currentBalance: number;
+  totalSpent: number;
+  percentageUsed: number;
+  allocation: AllocationHistory;
+}, unknown, {
   amount: number;
   description?: string;
   sourceAccountId?: string;
@@ -415,11 +473,16 @@ export function useAllocateFunds(
 
       // Optimistically update to new value
       if (previousBalance) {
-        queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), (old: any) => ({
-          ...old,
-          allocations: [...(old?.allocations || []), newData],
-          currentBalance: (old?.currentBalance || 0) + newData.amount,
-        }));
+        queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), (old: unknown) => {
+          const oldBalance = old as CategoryBalance;
+          return {
+            ...oldBalance,
+            balance: {
+              ...oldBalance.balance,
+              currentBalance: (oldBalance.balance?.currentBalance || 0) + newData.amount,
+            },
+          };
+        });
       }
 
       return { previousBalance };
@@ -435,7 +498,7 @@ export function useAllocateFunds(
         queryKey: categoryGroupsKeys.summary(categoryId),
       });
     },
-    onError: (err, variables, context: any) => {
+    onError: (err, variables, context: { previousBalance?: unknown } | undefined) => {
       // Revert to previous value on error
       if (context?.previousBalance) {
         queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), context.previousBalance);
@@ -449,7 +512,25 @@ export function useAllocateFunds(
  */
 export function useRecordSpending(
   categoryId: string
-): UseMutationResult<any, unknown, any, unknown> {
+): UseMutationResult<{
+  categoryId: string;
+  allocatedAmount: number;
+  previousBalance: number;
+  totalSpent: number;
+  currentBalance: number;
+  percentageUsed: number;
+  spending: SpendingRecord;
+  alerts: Array<unknown>;
+}, unknown, {
+  amount: number;
+  description: string;
+  merchantName?: string;
+  transactionDate?: string;
+  sourceType?: string;
+  sourceId?: string;
+  notes?: string;
+  tags?: string[];
+}, unknown> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -465,13 +546,20 @@ export function useRecordSpending(
 
       // Optimistically update balance
       if (previousBalance) {
-        queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), (old: any) => ({
-          ...old,
-          totalSpent: (old?.totalSpent || 0) + newSpending.amount,
-          currentBalance: (old?.currentBalance || 0) - newSpending.amount,
-          percentageUsed: ((old?.totalSpent || 0) + newSpending.amount) / (old?.allocatedAmount || 1) * 100,
-          isExceeded: ((old?.totalSpent || 0) + newSpending.amount) > (old?.allocatedAmount || 0),
-        }));
+        queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), (old: unknown) => {
+          const oldBalance = old as CategoryBalance;
+          const newTotalSpent = (oldBalance.balance?.totalSpent || 0) + newSpending.amount;
+          return {
+            ...oldBalance,
+            balance: {
+              ...oldBalance.balance,
+              totalSpent: newTotalSpent,
+              currentBalance: (oldBalance.balance?.currentBalance || 0) - newSpending.amount,
+              percentageUsed: (newTotalSpent / (oldBalance.balance?.allocatedAmount || 1)) * 100,
+              isExceeded: newTotalSpent > (oldBalance.balance?.allocatedAmount || 0),
+            },
+          };
+        });
       }
 
       return { previousBalance };
@@ -490,7 +578,7 @@ export function useRecordSpending(
         queryKey: categoryGroupsKeys.summary(categoryId),
       });
     },
-    onError: (err, variables, context: any) => {
+    onError: (err, variables, context: { previousBalance?: unknown } | undefined) => {
       // Revert to previous value on error
       if (context?.previousBalance) {
         queryClient.setQueryData(categoryGroupsKeys.balance(categoryId), context.previousBalance);
@@ -504,7 +592,19 @@ export function useRecordSpending(
  */
 export function useAdjustAllocation(
   categoryId: string
-): UseMutationResult<any, unknown, any, unknown> {
+): UseMutationResult<{
+  categoryId: string;
+  previousAllocation: number;
+  newAllocation: number;
+  difference: number;
+  currentBalance: number;
+  reason?: string;
+  updatedAt: string;
+}, unknown, {
+  newAmount: number;
+  reason?: string;
+  description?: string;
+}, unknown> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -523,7 +623,25 @@ export function useAdjustAllocation(
 /**
  * Transfer funds between categories
  */
-export function useTransferFunds(): UseMutationResult<any, unknown, {
+export function useTransferFunds(): UseMutationResult<{
+  transfer: {
+    fromCategory: {
+      id: string;
+      name: string;
+      previousBalance: number;
+      newBalance: number;
+    };
+    toCategory: {
+      id: string;
+      name: string;
+      previousBalance: number;
+      newBalance: number;
+    };
+    amount: number;
+    reason?: string;
+    timestamp: string;
+  };
+}, unknown, {
   fromCategoryId: string;
   toCategoryId: string;
   amount: number;
@@ -551,7 +669,16 @@ export function useTransferFunds(): UseMutationResult<any, unknown, {
 /**
  * Bulk allocate to multiple categories
  */
-export function useBulkAllocate(): UseMutationResult<any, unknown, {
+export function useBulkAllocate(): UseMutationResult<{
+  totalAllocated: number;
+  allocations: Array<{
+    categoryId: string;
+    amount: number;
+    status: string;
+    previousBalance: number;
+    newBalance: number;
+  }>;
+}, unknown, {
   allocations: Array<{
     categoryId: string;
     amount: number;
@@ -644,7 +771,15 @@ export function useAllocationHistory(
     limit?: number;
     offset?: number;
   }
-): UseQueryResult<any, unknown> {
+): UseQueryResult<{
+  categoryId: string;
+  allocations: AllocationHistory[];
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+  };
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -666,7 +801,21 @@ export function useSpendingHistory(
     startDate?: string;
     endDate?: string;
   }
-): UseQueryResult<any, unknown> {
+): UseQueryResult<{
+  categoryId: string;
+  spending: SpendingRecord[];
+  summary: {
+    totalSpent: number;
+    transactionCount: number;
+    averageTransaction: number;
+    largestTransaction: number;
+  };
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+  };
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -686,7 +835,26 @@ export function useMonthlySpending(
     year?: number;
     month?: number;
   }
-): UseQueryResult<any, unknown> {
+): UseQueryResult<{
+  categoryId: string;
+  name: string;
+  month: string;
+  allocatedAmount: number;
+  totalSpent: number;
+  transactions: Array<{
+    date: string;
+    amount: number;
+    merchant: string;
+    description: string;
+    type: string;
+  }>;
+  daily: Array<{
+    date: string;
+    amount: number;
+    balance: number;
+    percentageUsed: number;
+  }>;
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -704,7 +872,21 @@ export function useMonthlySpending(
 /**
  * Get all available category templates for onboarding
  */
-export function useCategoryTemplates(): UseQueryResult<any, unknown> {
+export function useCategoryTemplates(): UseQueryResult<{
+  success: boolean;
+  data: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    groupCount: number;
+    categoryCount: number;
+  }>;
+  meta: {
+    timestamp: string;
+    count: number;
+  };
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -718,7 +900,29 @@ export function useCategoryTemplates(): UseQueryResult<any, unknown> {
 /**
  * Get detailed template information with all categories and groups
  */
-export function useCategoryTemplate(templateId: string): UseQueryResult<any, unknown> {
+export function useCategoryTemplate(templateId: string): UseQueryResult<{
+  success: boolean;
+  data: {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    groups: Array<{
+      name: string;
+      description: string;
+      sortOrder: number;
+      categories: Array<{
+        name: string;
+        description?: string;
+        icon?: string;
+        color?: string;
+        categoryType: 'ENVELOPE' | 'TRANSACTION';
+        cycleType?: string;
+        purpose?: string[];
+      }>;
+    }>;
+  };
+}, unknown> {
   const { isAuthReady } = useAuthReady();
 
   return useQuery({
@@ -734,7 +938,18 @@ export function useCategoryTemplate(templateId: string): UseQueryResult<any, unk
  */
 export function useApplyCategoryTemplate(
   templateId: string
-): UseMutationResult<any, unknown, void, unknown> {
+): UseMutationResult<{
+  success: boolean;
+  data: {
+    templateId: string;
+    groupsCreated: number;
+    categoriesCreated: number;
+    message: string;
+  };
+  meta: {
+    timestamp: string;
+  };
+}, unknown, void, unknown> {
   const queryClient = useQueryClient();
 
   return useMutation({

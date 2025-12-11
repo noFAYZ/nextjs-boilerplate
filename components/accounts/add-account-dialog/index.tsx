@@ -59,7 +59,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [plaidError, setPlaidError] = useState<string | null>(null);
   const [createdAccountName, setCreatedAccountName] = useState<string>('');
-  const [plaidResult, setPlaidResult] = useState<{ success: boolean; accounts?: any[]; error?: any } | null>(null);
+  const [plaidResult, setPlaidResult] = useState<{ success: boolean; accounts?: Array<Record<string, unknown>>; error?: unknown } | null>(null);
 
   const { mutate: createAccount, isPending } = useCreateManualAccount();
   const { refetch: refetchAccounts } = useBankingAccounts();
@@ -68,7 +68,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
     onSuccess: (accounts) => {
       // Success handled in onPlaidClose callback
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       // Error handled in onPlaidClose callback
     },
     onExit: () => {
@@ -118,7 +118,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
   const handleSelectCategoryItem = (
     categoryKey: 'ASSETS' | 'LIABILITIES',
-    categoryItem: any
+    categoryItem: { id: string; name: string; subtypes: Array<{ value: string; label: string }> }
   ) => {
     setSelectedCategory(categoryKey);
     setSelectedCategoryItem(categoryItem.id);
@@ -167,7 +167,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         }
         refetchAccounts();
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         const errorMessage = error?.message || 'Failed to create account';
         toast.error(errorMessage);
       },
