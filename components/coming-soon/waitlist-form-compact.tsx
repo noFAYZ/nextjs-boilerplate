@@ -102,11 +102,11 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
               <FormItem className='w-full'>
                 <FormControl>
                   <div className="relative items-center group hover:translate-y-[2px]">
-                    <SolarInboxInBoldDuotone className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground " />
+                    <SolarInboxInBoldDuotone className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 w-5 h-5 text-muted-foreground  " />
                     <Input
                       placeholder="Enter your email address"
                       {...field}
-                      className="h-10 pl-12 "
+                      className="h-10 pl-12  text-xs sm:placeholder:text-sm"
                       variant='primary'
                       disabled={isPending}
                     />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -10,7 +10,12 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useCreateManualAccount, useBankingAccounts, useCreateCryptoWallet } from '@/lib/queries';
+import {
+  useCreateManualAccount,
+  useAllAccounts,
+  useCreateCryptoWallet,
+  useInvalidateTransactionCache,
+} from '@/lib/queries';
 import { usePlaidIntegration } from '@/lib/hooks/use-plaid-integration';
 import { AccountForm } from './account-form';
 import { StatementUpload } from './statement-upload';
@@ -33,6 +38,7 @@ const accountSchema = z.object({
   type: z.string().min(1, 'Account type is required'),
   balance: z.number().min(0, 'Balance must be a positive number'),
   currency: z.string().min(1, 'Currency is required'),
+  accountSource: z.enum(['MANUAL', 'LINKED']).default('MANUAL'),
   institutionName: z.string().max(100, 'Institution name too long').optional(),
   accountNumber: z.string().max(50, 'Account number too long').optional(),
   subtype: z.string().optional(),
@@ -62,7 +68,8 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   const [plaidResult, setPlaidResult] = useState<{ success: boolean; accounts?: Array<Record<string, unknown>>; error?: unknown } | null>(null);
 
   const { mutate: createAccount, isPending } = useCreateManualAccount();
-  const { refetch: refetchAccounts } = useBankingAccounts();
+  const { refetch: refetchAccounts } = useAllAccounts();
+  const { invalidateAll: invalidateTransactions } = useInvalidateTransactionCache();
 
   const { open: openPlaidLink, loading: plaidLoading, error: plaidLinkError, isReady: plaidReady } = usePlaidIntegration({
     onSuccess: (accounts) => {
@@ -92,9 +99,10 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
       }
       // Reopen dialog
       onOpenChange(true);
-      // Refetch accounts with a small delay to allow backend processing
+      // Refetch accounts and invalidate caches with a small delay to allow backend processing
       setTimeout(() => {
         refetchAccounts();
+        invalidateTransactions();
       }, 500);
     },
   });
@@ -113,6 +121,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
       type: 'CHECKING',
       currency: 'USD',
       balance: 0,
+      accountSource: 'MANUAL',
     },
   });
 
@@ -154,7 +163,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
     setStep('selection');
   };
 
-  const onSubmit = async (data: AccountFormData) => {
+  const onSubmit = useCallback((data: AccountFormData) => {
     createAccount(data, {
       onSuccess: () => {
         toast.success('Account created successfully!');
@@ -165,14 +174,16 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         } else {
           setStep('success');
         }
+        // Refetch accounts and invalidate related caches
         refetchAccounts();
+        invalidateTransactions();
       },
       onError: (error: unknown) => {
-        const errorMessage = error?.message || 'Failed to create account';
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create account';
         toast.error(errorMessage);
       },
     });
-  };
+  }, [createAccount, refetchAccounts, invalidateTransactions]);
 
   const handleSuccessClose = () => {
     reset();
@@ -323,6 +334,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
               setStep('selection');
               setView('initial');
               refetchAccounts();
+              invalidateTransactions();
             }}
             onBack={handleBack}
           />

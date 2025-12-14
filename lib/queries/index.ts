@@ -162,6 +162,37 @@ export {
 } from './plaid-queries';
 
 // ============================================================================
+// TRANSACTION DATA HOOKS
+// ============================================================================
+
+export {
+  // Transaction Queries
+  useTransactions,
+  useTransaction,
+  useTransactionStats,
+  useTransactionCategories,
+  useTransactionCategoryGroups,
+  useMerchants,
+  useSearchCategories,
+
+  // Transaction Mutations
+  useCreateTransaction,
+  useBulkCreateTransactions,
+  useUpdateTransaction,
+  useDeleteTransaction,
+
+  // Utilities
+  useInvalidateTransactionCache,
+  usePrefetchTransactionData,
+} from './use-transactions-data';
+
+export {
+  transactionKeys,
+  transactionQueries,
+  transactionMutations,
+} from './transactions-queries';
+
+// ============================================================================
 // UNIFIED ACCOUNTS DATA HOOKS
 // ============================================================================
 

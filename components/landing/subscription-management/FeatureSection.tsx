@@ -348,7 +348,7 @@ function FeatureButton({
           <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-sm mb-4">
             {feature.description}
           </p>
-          <Button className="inline-flex items-center   text-[11px] h-7" size="sm" variant="steel">
+          <Button className="inline-flex items-center   text-[11px] h-7" size="sm" variant="brand">
             Learn more
             <LucideArrowRight className="h-3.5 w-3.5" />
           </Button>

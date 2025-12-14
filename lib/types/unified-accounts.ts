@@ -220,6 +220,7 @@ export interface CreateManualAccountRequest {
   type: AccountType;
   balance: number;
   currency: string;
+  accountSource: 'MANUAL' | 'LINKED'; // Required: specifies if manual or linked account
   institutionName?: string;
   accountNumber?: string;
   groupId?: string;

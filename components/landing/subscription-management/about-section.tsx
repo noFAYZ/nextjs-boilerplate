@@ -4,6 +4,7 @@ import { DuoIconsBank, PhSparkleDuotone, SolarInboxInBoldDuotone } from "@/compo
 import { useScroll, useTransform, motion } from "framer-motion";
 import { Bitcoin } from "lucide-react";
 import { useRef, useState } from "react";
+import { LogoCloud } from "./logo-cld-section";
 
 export default function FinanceHero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,13 +20,47 @@ export default function FinanceHero() {
   const y = useTransform(progress, [0, 1], [50, 0]);
 
   const [hoveredBadge, setHoveredBadge] = useState<string | null>(null);
-
+  const logos = [
+    {
+      src: "https://svgl.app/library/nvidia-wordmark-light.svg",
+      alt: "Nvidia Logo",
+    },
+    {
+      src: "https://svgl.app/library/supabase_wordmark_light.svg",
+      alt: "Supabase Logo",
+    },
+    {
+      src: "https://svgl.app/library/openai_wordmark_light.svg",
+      alt: "OpenAI Logo",
+    },
+    {
+      src: "https://svgl.app/library/turso-wordmark-light.svg",
+      alt: "Turso Logo",
+    },
+    {
+      src: "https://svgl.app/library/vercel_wordmark.svg",
+      alt: "Vercel Logo",
+    },
+    {
+      src: "https://svgl.app/library/github_wordmark_light.svg",
+      alt: "GitHub Logo",
+    },
+    {
+      src: "https://svgl.app/library/claude-ai-wordmark-icon_light.svg",
+      alt: "Claude AI Logo",
+    },
+    {
+      src: "https://svgl.app/library/clerk-wordmark-light.svg",
+      alt: "Clerk Logo",
+    },
+  ];
+  
   return (
     <section
       ref={containerRef}
       className="relative overflow-hidden bg-gradient-to-b from-background to-background/95 px-6 sm:px-12 lg:px-24 py-24 sm:py-32 lg:py-40 xl:py-48"
     >
-    
+
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Hero Text */}

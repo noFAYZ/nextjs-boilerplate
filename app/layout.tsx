@@ -126,7 +126,7 @@ export default function RootLayout({
         <GoogleAnalytics4 />
       </head>
       <body
-        className={`${geistSans.className}`}
+        className={`${myFont.className}`}
       >
         <GoogleTagManagerNoScript />
         <Providers>

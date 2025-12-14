@@ -52,12 +52,12 @@ export default function LandingPage() {
   return (
     <div >
   
-    {/*   <ScrollProgress /> <FeaturesGrid />*/}
+    {/*   <ScrollProgress /><Example bg={false} /> <FeaturesGrid />*/}
       
     <LandingNav />
       <LandingHero />
 <FinanceHeroDubStyle /> 
-      <Example bg={false} />
+      
 
 
 

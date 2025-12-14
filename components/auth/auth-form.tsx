@@ -346,13 +346,13 @@ export default function AuthForm({
   }
 
   return (
-    <Card className="w-full max-w-sm mx-auto border-2 shadow-lg">
-      <CardHeader className="text-center space-y-1 px-4 sm:px-6 pt-6">
+    <div className="w-full max-w-xs mx-auto rounded-3xl  p-4">
+      <div className="text-center space-y-1 p-4">
         <CardTitle className="text-xl sm:text-xl font-bold">{title}</CardTitle>
         <p className="text-xs sm:text-xs text-muted-foreground">{description}</p>
-      </CardHeader>
+      </div>
 
-      <CardContent className="px-4 sm:px-6 pb-6">
+      
         {error && (
           <div className="flex items-center gap-2 p-3 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/20">
             <AlertCircle className="w-4 h-4" />
@@ -383,10 +383,10 @@ export default function AuthForm({
               <>
                 <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-6">
                   <Button
-                    variant="outline"
-                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible"
+                    variant="outline2"
+                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible font-semibold"
                     size="sm"
-                    disabled={true} //{oauthLoading !== null}
+                    disabled= {oauthLoading !== null}
                     onClick={() => handleOAuthLogin('github')}
                   >
                     {oauthLoading === 'github' ? (
@@ -402,10 +402,10 @@ export default function AuthForm({
                       </span>
                   </Button>
                   <Button
-                    variant="outline"
-                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible"
+                    variant="outline2"
+                    className="w-full sm:w-1/2 items-center gap-2 overflow-visible font-semibold"
                     size="sm"
-                    disabled={true} //{oauthLoading !== null}
+                    disabled= {oauthLoading !== null}
                     onClick={() => handleOAuthLogin('google')}
                   >
                     {oauthLoading === 'google' ? (
@@ -581,7 +581,8 @@ export default function AuthForm({
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full  " 
+           
               disabled={isLoading || (isBlocked && blockTimeRemaining > 0)}
             >
               {isLoading ? (
@@ -594,22 +595,22 @@ export default function AuthForm({
             </Button>
           </form>
         </Form>
-      </CardContent>
+     
 
-      <CardFooter className="flex flex-col space-y-1 px-4 sm:px-6 pb-6">
+      <CardFooter className="flex flex-col  p-4">
         {links.map((link, index: number) => (
           <div key={index} className="text-center text-xs sm:text-sm">
             <span className="text-muted-foreground">{link.text}</span>{' '}
             <Link
               href={link.href}
-              className="text-primary hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-sm"
+              className="text-primary hover:underline font-medium  "
             >
               {link.linkText}
             </Link>
           </div>
         ))}
       </CardFooter>
-    </Card>
+    </div>
   );
 
   function getButtonText() {

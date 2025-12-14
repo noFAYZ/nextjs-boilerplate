@@ -19,54 +19,184 @@ import type { ApiResponse } from '@/lib/types/crypto';
 class BankingApiService {
   private readonly basePath = '/banking';
 
-  // Bank Account Management
+  // ============================================================================
+  // PLAID INTEGRATION (Provider Connection via Plaid)
+  // ============================================================================
+
+  /**
+   * Generate Plaid link token for client-side account linking
+   */
+  async generatePlaidLinkToken(redirectUrl?: string, organizationId?: string): Promise<ApiResponse<{ linkToken: string; expiration: string; requestId: string }>> {
+    return apiClient.post(`${this.basePath}/plaid/link-token`, { redirectUrl }, organizationId);
+  }
+
+  /**
+   * Exchange Plaid public token for access token and create connection
+   */
+  async exchangePlaidToken(publicToken: string, metadata?: Record<string, unknown>, organizationId?: string): Promise<ApiResponse<{
+    connectionId: string;
+    provider: string;
+    status: string;
+    accountCount: number;
+    createdAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/plaid/exchange-token`, { publicToken, metadata }, organizationId);
+  }
+
+  // ============================================================================
+  // PROVIDER CONNECTIONS
+  // ============================================================================
+
+  /**
+   * Get all provider connections for authenticated user
+   */
+  async getConnections(params?: { provider?: string; status?: string; page?: number; limit?: number }, organizationId?: string): Promise<ApiResponse<{
+    data: Array<{
+      id: string;
+      provider: string;
+      status: string;
+      accountCount: number;
+      lastSyncAt: string;
+      syncStatus: { progress: number; status: string; message: string };
+      createdAt: string;
+    }>;
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  }>> {
+    const searchParams = new URLSearchParams();
+    if (params?.provider) searchParams.set('provider', params.provider);
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/connections${query ? `?${query}` : ''}`, organizationId);
+  }
+
+  /**
+   * Get detailed information about a specific connection
+   */
+  async getConnection(connectionId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    provider: string;
+    status: string;
+    accountCount: number;
+    lastSyncAt: string;
+    accounts: Array<{ id: string; name: string; type: string; balance: number; currency: string }>;
+    createdAt: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/connections/${connectionId}`, organizationId);
+  }
+
+  /**
+   * Verify connection is still valid and accessible
+   */
+  async checkConnectionHealth(connectionId: string, organizationId?: string): Promise<ApiResponse<{
+    status: string;
+    isConnected: boolean;
+    lastVerified: string;
+    message: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/connections/${connectionId}/health`, organizationId);
+  }
+
+  /**
+   * Get current synchronization status and progress
+   */
+  async getConnectionSyncStatus(connectionId: string, organizationId?: string): Promise<ApiResponse<{
+    connectionId: string;
+    status: string;
+    progress: number;
+    currentStep: string;
+    accountsSynced: number;
+    accountsTotal: number;
+    transactionsSynced: number;
+    startedAt: string;
+    estimatedCompletion: string;
+    message: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/connections/${connectionId}/sync-status`, organizationId);
+  }
+
+  /**
+   * Disconnect provider and revoke access
+   */
+  async disconnectConnection(connectionId: string, revokeToken?: boolean, organizationId?: string): Promise<ApiResponse<{
+    message: string;
+    connectionId: string;
+    disconnectedAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/connections/${connectionId}/disconnect`, { revokeToken }, organizationId);
+  }
+
+  /**
+   * Manually trigger synchronization for a connection
+   */
+  async syncConnection(connectionId: string, options?: { syncType?: string; startDate?: string; endDate?: string; returnStream?: boolean }, organizationId?: string): Promise<ApiResponse<{
+    syncId: string;
+    status: string;
+    connectionId: string;
+    estimatedDuration: string;
+    message: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/connections/${connectionId}/sync`, options || {}, organizationId);
+  }
+
+  /**
+   * Synchronize multiple connections in parallel
+   */
+  async batchSync(connectionIds: string[], syncType?: string, organizationId?: string): Promise<ApiResponse<{
+    batchSyncId: string;
+    status: string;
+    connectionCount: number;
+    estimatedDuration: string;
+    connections: Array<{ connectionId: string; status: string }>;
+  }>> {
+    return apiClient.post(`${this.basePath}/sync/batch`, { connectionIds, syncType }, organizationId);
+  }
+
+  // ============================================================================
+  // LEGACY METHODS (for backward compatibility)
+  // ============================================================================
+
   async connectAccount(enrollmentData: CreateBankAccountRequest, organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.post(`${this.basePath}/connect`, enrollmentData, organizationId);
+    return apiClient.post(`${this.basePath}/plaid/exchange-token`, enrollmentData, organizationId);
   }
 
   async getAccounts(organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.get(`${this.basePath}/accounts`, organizationId);
+    return apiClient.get(`${this.basePath}/connections`, organizationId);
   }
 
   async getGroupedAccounts(organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.get(`${this.basePath}/accounts/grouped`, organizationId);
+    return apiClient.get(`${this.basePath}/connections`, organizationId);
   }
 
   async getAccount(accountId: string, organizationId?: string): Promise<ApiResponse<BankAccount & { bankTransactions: BankTransaction[] }>> {
-    return apiClient.get(`${this.basePath}/accounts/${accountId}`, organizationId);
+    return apiClient.get(`${this.basePath}/connections/${accountId}`, organizationId);
   }
 
   async updateAccount(accountId: string, updates: UpdateBankAccountRequest, organizationId?: string): Promise<ApiResponse<BankAccount>> {
-    return apiClient.put(`${this.basePath}/accounts/${accountId}`, updates, organizationId);
+    return apiClient.put(`${this.basePath}/connections/${accountId}`, updates, organizationId);
   }
 
   async disconnectAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiClient.delete(`${this.basePath}/accounts/${accountId}`, organizationId);
+    return apiClient.post(`${this.basePath}/connections/${accountId}/disconnect`, {}, organizationId);
   }
 
-  // Banking Overview
+  // Banking Overview (removed - use accounts module instead)
   async getOverview(organizationId?: string): Promise<ApiResponse<BankingOverview>> {
-    return apiClient.get(`${this.basePath}/overview`, organizationId);
+    console.warn('getOverview is deprecated. Use accounts module instead.');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use accounts module' } } as ApiResponse<BankingOverview>;
   }
 
   async getDashboardData(organizationId?: string): Promise<ApiResponse<BankingDashboardData>> {
-    return apiClient.get(`${this.basePath}/dashboard`, organizationId);
+    console.warn('getDashboardData is deprecated. Use accounts module instead.');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use accounts module' } } as ApiResponse<BankingDashboardData>;
   }
 
-  // Transaction Management
+  // Transaction Management (moved to transactions module)
   async getTransactions(params: BankTransactionParams = {}, organizationId?: string): Promise<ApiResponse<BankTransaction[]>> {
-    const searchParams = new URLSearchParams();
-
-    if (params.page) searchParams.set('page', params.page.toString());
-    if (params.limit) searchParams.set('limit', params.limit.toString());
-    if (params.accountId) searchParams.set('accountId', params.accountId);
-    if (params.startDate) searchParams.set('startDate', params.startDate);
-    if (params.endDate) searchParams.set('endDate', params.endDate);
-    if (params.category) searchParams.set('category', params.category);
-    if (params.type) searchParams.set('type', params.type);
-
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/transactions${query ? `?${query}` : ''}`, organizationId);
+    console.warn('getTransactions is deprecated. Use transactions module instead.');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<BankTransaction[]>;
   }
 
   async getAccountTransactions(
@@ -74,59 +204,99 @@ class BankingApiService {
     params: Omit<BankTransactionParams, 'accountId'> = {},
     organizationId?: string
   ): Promise<ApiResponse<BankTransaction[]>> {
-    const searchParams = new URLSearchParams();
-
-    if (params.page) searchParams.set('page', params.page.toString());
-    if (params.limit) searchParams.set('limit', params.limit.toString());
-    if (params.startDate) searchParams.set('startDate', params.startDate);
-    if (params.endDate) searchParams.set('endDate', params.endDate);
-    if (params.category) searchParams.set('category', params.category);
-    if (params.type) searchParams.set('type', params.type);
-
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/accounts/${accountId}/transactions${query ? `?${query}` : ''}`, organizationId);
+    console.warn('getAccountTransactions is deprecated. Use transactions module instead.');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<BankTransaction[]>;
   }
 
-  // Sync Operations
-  async syncAccount(accountId: string, syncData: BankSyncRequest = {}, organizationId?: string): Promise<ApiResponse<{ jobId: string }>> {
-    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync`, syncData, organizationId);
+  // Sync Operations (updated)
+  async syncAccount(connectionId: string, syncData: BankSyncRequest = {}, organizationId?: string): Promise<ApiResponse<{ jobId: string }>> {
+    const response = await this.syncConnection(connectionId, { syncType: 'full', ...syncData }, organizationId);
+    if (response.success) {
+      return { success: true, data: { jobId: response.data.syncId } };
+    }
+    return response as ApiResponse<{ jobId: string }>;
   }
 
-  async getSyncStatus(accountId: string, jobId?: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
-    const query = jobId ? `?jobId=${jobId}` : '';
-    return apiClient.get(`${this.basePath}/accounts/${accountId}/sync/status${query}`, organizationId);
+  async getSyncStatus(connectionId: string, jobId?: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
+    const response = await this.getConnectionSyncStatus(connectionId, organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: {
+          status: response.data.status,
+          progress: response.data.progress,
+          message: response.data.message,
+          // Map other fields as needed
+        } as BankSyncJob
+      };
+    }
+    return response as ApiResponse<BankSyncJob>;
   }
 
   // Health Check
   async getHealthStatus(organizationId?: string): Promise<ApiResponse<BankingHealthCheck>> {
-    return apiClient.get(`${this.basePath}/health`, organizationId);
+    const response = await this.getConnections(undefined, organizationId);
+    if (response.success) {
+      const connections = response.data.data;
+      return {
+        success: true,
+        data: {
+          status: 'healthy',
+          totalConnections: connections.length,
+          activeConnections: connections.filter((c: any) => c.status === 'active').length,
+          lastChecked: new Date().toISOString()
+        } as BankingHealthCheck
+      };
+    }
+    return response as ApiResponse<BankingHealthCheck>;
   }
 
   // Data Export
   async exportBankingData(exportData: BankingExportRequest, organizationId?: string): Promise<ApiResponse<BankingExportResponse>> {
-    return apiClient.post(`${this.basePath}/export`, exportData, organizationId);
+    console.warn('exportBankingData not implemented in new API.');
+    return { success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Not available in new API' } } as ApiResponse<BankingExportResponse>;
   }
 
-  // Teller Enrollments
+  // Teller Enrollments (deprecated - use connections)
   async getEnrollments(organizationId?: string): Promise<ApiResponse<TellerEnrollment[]>> {
-    return apiClient.get(`${this.basePath}/enrollments`, organizationId);
+    const response = await this.getConnections({ provider: 'teller' }, organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data.data as unknown as TellerEnrollment[]
+      };
+    }
+    return response as ApiResponse<TellerEnrollment[]>;
   }
 
   async getEnrollment(enrollmentId: string, organizationId?: string): Promise<ApiResponse<TellerEnrollment>> {
-    return apiClient.get(`${this.basePath}/enrollments/${enrollmentId}`, organizationId);
+    const response = await this.getConnection(enrollmentId, organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: response.data as unknown as TellerEnrollment
+      };
+    }
+    return response as ApiResponse<TellerEnrollment>;
   }
 
   async deleteEnrollment(enrollmentId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiClient.delete(`${this.basePath}/enrollments/${enrollmentId}`, organizationId);
+    const response = await this.disconnectConnection(enrollmentId, true, organizationId);
+    if (response.success) {
+      return { success: true, data: { success: true } };
+    }
+    return response as ApiResponse<{ success: boolean }>;
   }
 
-  // Stripe Financial Connections
+  // Stripe Financial Connections (deprecated)
   async createStripeSession(organizationId?: string): Promise<ApiResponse<{ clientSecret: string }>> {
-    return apiClient.post(`${this.basePath}/stripe/create-session`, {}, organizationId);
+    console.warn('createStripeSession deprecated - use generatePlaidLinkToken instead');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use Plaid instead' } } as ApiResponse<{ clientSecret: string }>;
   }
 
   async connectStripeAccounts(data: { sessionId: string; selectedAccountIds?: string[] }, organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
-    return apiClient.post(`${this.basePath}/stripe/connect`, data, organizationId);
+    console.warn('connectStripeAccounts deprecated - use exchangePlaidToken instead');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use Plaid instead' } } as ApiResponse<BankAccount[]>;
   }
 
   async getStripeAccountsPreview(sessionId: string, organizationId?: string): Promise<ApiResponse<{
@@ -134,24 +304,52 @@ class BankingApiService {
     accounts: Array<Record<string, unknown>>;
     totalAccounts: number;
   }>> {
-    return apiClient.post(`${this.basePath}/stripe/preview`, { sessionId }, organizationId);
+    console.warn('getStripeAccountsPreview deprecated');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Not available in new API' } } as ApiResponse<any>;
   }
 
   async syncStripeAccount(accountId: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
-    return apiClient.post(`${this.basePath}/stripe/accounts/${accountId}/sync`, {}, organizationId);
+    console.warn('syncStripeAccount deprecated');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Not available in new API' } } as ApiResponse<BankSyncJob>;
   }
 
-  // Plaid Integration
+  // Plaid Integration (deprecated - use new methods)
   async getPlaidLinkToken(organizationId?: string): Promise<ApiResponse<{ linkToken: string }>> {
-    return apiClient.get(`${this.basePath}/plaid/link-token`, organizationId);
+    const response = await this.generatePlaidLinkToken(undefined, organizationId);
+    if (response.success) {
+      return { success: true, data: { linkToken: response.data.linkToken } };
+    }
+    return response as ApiResponse<{ linkToken: string }>;
   }
 
   async addPlaidAccount(publicToken: string, organizationId?: string): Promise<ApiResponse<{ itemId: string; accountsCreated: number; accounts: BankAccount[] }>> {
-    return apiClient.post(`${this.basePath}/plaid/add-account`, { publicToken }, organizationId);
+    const response = await this.exchangePlaidToken(publicToken, undefined, organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: {
+          itemId: response.data.connectionId,
+          accountsCreated: response.data.accountCount,
+          accounts: [] as BankAccount[]
+        }
+      };
+    }
+    return response as ApiResponse<{ itemId: string; accountsCreated: number; accounts: BankAccount[] }>;
   }
 
   async syncPlaidAccounts(organizationId?: string): Promise<ApiResponse<{ synced: number; errors: number; lastSync: string }>> {
-    return apiClient.post(`${this.basePath}/plaid/sync-accounts`, {}, organizationId);
+    const response = await this.batchSync([], 'full', organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: {
+          synced: response.data.connectionCount,
+          errors: 0,
+          lastSync: new Date().toISOString()
+        }
+      };
+    }
+    return response as ApiResponse<{ synced: number; errors: number; lastSync: string }>;
   }
 
   async syncPlaidTransactions(
@@ -159,14 +357,22 @@ class BankingApiService {
     endDate: string,
     organizationId?: string
   ): Promise<ApiResponse<{ transactionsImported: number; accountsSynced: number; dateRange: { start: string; end: string }; lastSync: string }>> {
-    return apiClient.post(
-      `${this.basePath}/plaid/sync-transactions`,
-      { startDate, endDate },
-      organizationId
-    );
+    const response = await this.batchSync([], 'partial', organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: {
+          transactionsImported: 0,
+          accountsSynced: response.data.connectionCount,
+          dateRange: { start: startDate, end: endDate },
+          lastSync: new Date().toISOString()
+        }
+      };
+    }
+    return response as ApiResponse<any>;
   }
 
-  // Transaction Sync
+  // Transaction Sync (deprecated - moved to transactions module)
   async syncAccountTransactions(
     accountId: string,
     options?: {
@@ -182,7 +388,8 @@ class BankingApiService {
     skipped: number;
     totalFromTeller: number;
   }>> {
-    return apiClient.post(`${this.basePath}/accounts/${accountId}/sync/transactions`, options || {}, organizationId);
+    console.warn('syncAccountTransactions is deprecated. Use transactions module instead.');
+    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<any>;
   }
 
   // Utility methods for common operations

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
+import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid } from '../icons/icons';
 import { LogoMappr } from '../icons';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
@@ -57,13 +57,13 @@ export function LandingNav() {
   type LinkItem = { title: string; href: string; icon: LucideIcon; description?: string };
 
   const productLinks: LinkItem[] = [
-    { title: 'Crypto Portfolio', href: '/#crypto', description: 'Multi-chain, DeFi & NFTs', icon: SolarWalletMoneyBoldDuotone },
-    { title: 'Banking Aggregation', href: '/#banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
-    { title: 'Net Worth Dashboard', href: '/#net-worth', description: 'Full financial snapshot', icon: TrendingUp },
+    { title: 'Crypto', href: '/#crypto', description: 'Multi-chain, DeFi & NFTs', icon: HeroiconsWallet16Solid },
+    { title: 'Banking', href: '/#banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
+    { title: 'Net Worth', href: '/#net-worth', description: 'Full financial snapshot', icon: TrendingUp },
     { title: 'Budgets', href: '/#budgets', description: 'Flexible budgeting & alerts', icon: Zap },
     { title: 'Goals', href: '/#goals', description: 'Automated progress tracking', icon: Target },
-    { title: 'Subscription Tracker', href: '/#subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
-    { title: 'Teams & Organizations', href: '/#teams', description: 'Multi-user access', icon: Users },
+    { title: 'Subscriptions', href: '/#subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
+    { title: 'Organizations', href: '/#teams', description: 'Multi-user access', icon: Users },
     { title: 'Integrations', href: '/#integrations', description: 'QuickBooks, Zerion + more', icon: PlugIcon },
   ];
 
@@ -89,13 +89,13 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a href={href} className="block select-none rounded-xl p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+        <a href={href} className="block select-none rounded-lg p-2 leading-none no-underline outline-none transition-colors hover:bg-muted/10 hover:text-accent-foreground  ">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow border bg-muted">
-              <Icon className="h-5 w-5 text-muted-foreground" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow- shadow-white  bg-linear-to-b from-orange-400 to-[hsl(25.41,100%,50%)]  to-amber-700/30% ">
+              <Icon className="h-6 w-6 text-white" />
             </div>
             <div>
-              <div className="text-[13px] font-semibold leading-none">{title}</div>
+              <div className="text-xs font-medium  text-background">{title}</div>
               <p className="line-clamp-2 text-[11px] leading-snug text-muted-foreground mt-1">{description}</p>
             </div>
           </div>
@@ -109,28 +109,20 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
     <>
       <nav className={cn('fixed inset-x-0 top-0 z-50', 'py-4')}>
         <div className={cn('mx-auto transition-all duration-100  ',
-          '  rounded-full  dark:from-card  dark:via-muted dark:to-card',
-          
-        /*  */ isScrolled ? 'max-w-sm   bg-gradient-to-br from-black/95 via-black to-black dark:from-foreground/95 dark:via-foreground dark:to-foreground rounded-full  border-border/50 ' : 'max-w-sm  rounded-full bg-gradient-to-r from-black/95 via-black to-black  border-border/50 dark:from-foreground/95 dark:via-foreground dark:to-foreground' 
+         
+           'max-w-sm  rounded-lg sm:rounded-xl bg-[hsl(0,0%,18.82%)] dark:bg-gray-100  border-border/50 dark:from-foreground/95 dark:via-foreground dark:to-foreground w-11/12 p-2 py-1 sm:p-1' 
           
           )}>
         
-            <div className="relative flex h-16 sm:h-13 items-center justify-between sm:justify-arround px-4">
+            <div className="relative flex  items-center justify-between sm:justify-arround">
 
               
 
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2 -ml-1 group text-[40px] font-bold text-orange-500" onClick={handleLinkClick}>
+              <Link href="/" className="flex items-center gap-2  group text-[32px]  font-bold bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground  inset-shadow-2xs inset-shadow-white/20 w-9 h-9 text-shadow-2xs text-shadow-white/25 leading-[2.2rem] rounded-lg itext-center  align-middle" onClick={handleLinkClick}>
              {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
              𒀭
-             <div className="sm:hidden flex flex-col ">
-            <span className="text-base sm:text-base font-bold text-background ">
-              MoneyMappr
-            </span>
-            <span className="text-[10px] sm:text-[10px] text-muted-foreground -mt-0.5">
-              Financial Intelligence
-            </span>
-          </div>
+
               </Link>
 
               <div className="hidden lg:flex items-center justify-center flex-1 text-background" >
@@ -138,8 +130,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                   <NavigationMenuList className="gap-0">
                     <NavigationMenuItem>
                       <NavigationMenuTrigger className="bg-transparent hover:bg-none text-[13px]" >Product</NavigationMenuTrigger>
-                      <NavigationMenuContent className='rounded-3xl'>
-                        <ul className="grid w-[480px] grid-cols-2 gap-2  rounded-2xl">
+                      <NavigationMenuContent className='bg-[hsl(0,0%,18.82%)] dark:bg-gray-100 border-0 ring-0'>
+                        <ul className="grid w-[480px] grid-cols-2 gap-2  ">
                           {productLinks.map((item) => (
                             <ListItem key={item.title} title={item.title} href={item.href} description={item.description} icon={item.icon} />
                           ))}
@@ -174,7 +166,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               <div className="hidden lg:flex items-center  gap-3">
                 
               {/*    <ThemeSwitcher />*/}
-              <Link href="/#hero"><Button size="xs" variant='steel' className="group rounded-full" >
+              <Link href="/#hero"><Button size="sm" variant='brand' className="group rounded-lg h-9 text-xs font-medium" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
                       </Button></Link>
               {/*  {user ? (
@@ -221,10 +213,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
             <div className="flex items-center justify-between p-6 border-b">
               <div className="flex items-center gap-3">
                 <LogoMappr className="w-10 h-10" />
-                <div>
-                  <div className="font-bold text-lg">Mappr</div>
-                  <div className="text-xs text-muted-foreground">Financial Intelligence</div>
-                </div>
+              
               </div>
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full hover:bg-muted">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>

@@ -17,37 +17,71 @@ import type { ApiResponse } from '@/lib/types/crypto';
 class AccountsApiService {
   private readonly basePath = '/accounts';
 
+  // ============================================================================
+  // ACCOUNT MANAGEMENT
+  // ============================================================================
+
   /**
-   * Get all accounts grouped by category
-   * @returns All accounts organized by category with summary statistics
+   * Create a new account
    */
-  async getAllAccounts(organizationId?: string): Promise<ApiResponse<UnifiedAccountsResponse>> {
-    return apiClient.get(this.basePath, organizationId);
+  async createAccount(data: CreateManualAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
+    return apiClient.post(`${this.basePath}`, data, organizationId);
+  }
+
+  /**
+   * Get all accounts with filtering
+   */
+  async getAccounts(params?: {
+    accountSource?: string;
+    type?: string;
+    status?: string;
+    isActive?: boolean;
+    groupId?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+  }, organizationId?: string): Promise<ApiResponse<{
+    data: UnifiedAccountDetails[];
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  }>> {
+    const searchParams = new URLSearchParams();
+    if (params?.accountSource) searchParams.set('accountSource', params.accountSource);
+    if (params?.type) searchParams.set('type', params.type);
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.isActive !== undefined) searchParams.set('isActive', params.isActive.toString());
+    if (params?.groupId) searchParams.set('groupId', params.groupId);
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
+
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}${query ? `?${query}` : ''}`, organizationId);
+  }
+
+  /**
+   * Get account statistics
+   */
+  async getAccountStats(organizationId?: string): Promise<ApiResponse<{
+    totalAccounts: number;
+    activeAccounts: number;
+    totalBalance: number;
+    byType: Record<string, { count: number; totalBalance: number }>;
+    bySource: Record<string, { count: number; totalBalance: number }>;
+  }>> {
+    return apiClient.get(`${this.basePath}/stats`, organizationId);
   }
 
   /**
    * Get detailed information about a specific account
-   * @param accountId - The account ID
-   * @returns Account details with performance data and transaction stats
    */
   async getAccountDetails(accountId: string, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
     return apiClient.get(`${this.basePath}/${accountId}`, organizationId);
   }
 
   /**
-   * Create a new manual account
-   * @param data - Account creation data
-   * @returns Created account details
-   */
-  async createManualAccount(data: CreateManualAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
-    return apiClient.post(`${this.basePath}/manual`, data, organizationId);
-  }
-
-  /**
    * Update an existing account
-   * @param accountId - The account ID
-   * @param updates - Fields to update
-   * @returns Updated account details
    */
   async updateAccount(accountId: string, updates: UpdateAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
     return apiClient.put(`${this.basePath}/${accountId}`, updates, organizationId);
@@ -55,87 +89,180 @@ class AccountsApiService {
 
   /**
    * Delete/deactivate an account (soft delete)
-   * @param accountId - The account ID
-   * @returns Success response
    */
   async deleteAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
     return apiClient.delete(`${this.basePath}/${accountId}`, organizationId);
   }
 
   /**
+   * Get account balance
+   */
+  async getAccountBalance(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    accountId: string;
+    currentBalance: number;
+    availableBalance: number;
+    currency: string;
+    lastUpdated: string;
+    pending: { count: number; amount: number };
+  }>> {
+    return apiClient.get(`${this.basePath}/${accountId}/balance`, organizationId);
+  }
+
+  // ============================================================================
+  // NET WORTH MANAGEMENT
+  // ============================================================================
+
+  /**
+   * Create a net worth snapshot
+   */
+  async createNetWorthSnapshot(data?: { date?: string; includeAllAccounts?: boolean }, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    date: string;
+    totalNetWorth: number;
+    assets: Record<string, { total: number; accountCount?: number; walletCount?: number; propertyCount?: number; vehicleCount?: number }>;
+    liabilities: Record<string, { total: number; accountCount?: number; loanCount?: number; mortgageCount?: number }>;
+    createdAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/networth/snapshot`, data || {}, organizationId);
+  }
+
+  /**
+   * Get specific net worth snapshot
+   */
+  async getNetWorthSnapshot(snapshotId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    date: string;
+    totalNetWorth: number;
+    assets: Record<string, any>;
+    liabilities: Record<string, any>;
+    createdAt: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/networth/snapshot/${snapshotId}`, organizationId);
+  }
+
+  /**
+   * Get latest net worth snapshot
+   */
+  async getLatestNetWorthSnapshot(granularity?: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    date: string;
+    totalNetWorth: number;
+    createdAt: string;
+  }>> {
+    const query = granularity ? `?granularity=${granularity}` : '';
+    return apiClient.get(`${this.basePath}/networth/latest${query}`, organizationId);
+  }
+
+  /**
+   * Get net worth trend over a period
+   */
+  async getNetWorthTrend(period?: string, organizationId?: string): Promise<ApiResponse<{
+    period: string;
+    startDate: string;
+    endDate: string;
+    data: Array<{ date: string; totalNetWorth: number }>;
+    summary: {
+      startNetWorth: number;
+      endNetWorth: number;
+      change: number;
+      percentChange: number;
+      trend: string;
+    };
+  }>> {
+    const query = period ? `?period=${period}` : '';
+    return apiClient.get(`${this.basePath}/networth/trend${query}`, organizationId);
+  }
+
+  /**
+   * Get net worth breakdown by asset type
+   */
+  async getNetWorthBreakdown(organizationId?: string): Promise<ApiResponse<{
+    date: string;
+    totalNetWorth: number;
+    assets: Record<string, any>;
+    liabilities: Record<string, any>;
+  }>> {
+    return apiClient.get(`${this.basePath}/networth/breakdown`, organizationId);
+  }
+
+  // ============================================================================
+  // LEGACY METHODS (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * Get all accounts grouped by category (legacy)
+   */
+  async getAllAccounts(organizationId?: string): Promise<ApiResponse<UnifiedAccountsResponse>> {
+    const response = await this.getAccounts(undefined, organizationId);
+    if (response.success) {
+      return {
+        success: true,
+        data: {
+          summary: {},
+          accounts: response.data.data
+        } as unknown as UnifiedAccountsResponse
+      };
+    }
+    return response as ApiResponse<UnifiedAccountsResponse>;
+  }
+
+  /**
+   * Create a new manual account (legacy)
+   */
+  async createManualAccount(data: CreateManualAccountRequest, organizationId?: string): Promise<ApiResponse<UnifiedAccountDetails>> {
+    return this.createAccount(data, organizationId);
+  }
+
+  /**
    * Get transactions for a specific account
-   * @param accountId - The account ID
-   * @param params - Query parameters for filtering and pagination
-   * @returns Paginated list of transactions
    */
   async getAccountTransactions(
     accountId: string,
     params?: GetAccountTransactionsParams,
     organizationId?: string
   ): Promise<ApiResponse<AccountTransactionsResponse>> {
-    return apiClient.get(`${this.basePath}/${accountId}/transactions`, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.getTransactions({ accountId, ...params }, organizationId) as Promise<ApiResponse<AccountTransactionsResponse>>;
   }
 
   /**
    * Add a new transaction to an account (manual transaction)
-   * @param accountId - The account ID
-   * @param data - Transaction data
-   * @returns Created transaction details
    */
   async addTransaction(
     accountId: string,
     data: AddTransactionRequest,
     organizationId?: string
   ): Promise<ApiResponse<Transaction>> {
-    return apiClient.post(`${this.basePath}/${accountId}/transactions`, data, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.createTransaction({ accountId, ...data }, organizationId) as Promise<ApiResponse<Transaction>>;
   }
 
   /**
-   * Get all transaction category groups with categories (for envelope budgeting and transaction forms)
-   * @param organizationId - Optional organization ID filter
-   * @returns Hierarchical list of category groups with categories
+   * Get all transaction category groups with categories
    */
   async getCategoryGroups(organizationId?: string): Promise<ApiResponse<CategoryGroupsResponse>> {
-    const queryParams = new URLSearchParams();
-    queryParams.append('includeCategories', 'true');
-    queryParams.append('hierarchy', 'false');
-    const queryString = queryParams.toString();
-    const endpoint = `/accounts/transactions/category-groups${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<CategoryGroupsResponse>(endpoint, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.getCategoryGroups(organizationId) as Promise<ApiResponse<CategoryGroupsResponse>>;
   }
 
   /**
    * Get flat list of all transaction categories
-   * @param params - Query parameters for filtering and pagination
-   * @returns Paginated list of all available categories
    */
   async getCategories(params?: { groupId?: string; page?: number; limit?: number; activeOnly?: boolean; search?: string }, organizationId?: string): Promise<ApiResponse<CategoriesResponse>> {
-    const queryParams = new URLSearchParams();
-    if (params?.groupId) queryParams.append('groupId', params.groupId);
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.activeOnly !== undefined) queryParams.append('activeOnly', params.activeOnly.toString());
-    if (params?.search) queryParams.append('search', params.search);
-
-    const queryString = queryParams.toString();
-    const endpoint = `/accounts/transactions/categories${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<CategoriesResponse>(endpoint, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.getCategories(params, organizationId) as Promise<ApiResponse<CategoriesResponse>>;
   }
 
   /**
    * Search categories by name
-   * @param query - Search query string
-   * @returns List of matching categories
    */
   async searchCategories(query: string, organizationId?: string): Promise<ApiResponse<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>> {
-    const endpoint = `/accounts/transactions/categories/search?q=${encodeURIComponent(query)}`;
-    return apiClient.get<{ data: Array<{ id: string; name: string; displayName?: string; emoji?: string; color?: string; groupId: string }> }>(endpoint, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.searchCategories(query, organizationId) as Promise<ApiResponse<any>>;
   }
 
   /**
    * Get all transactions across all accounts (global transactions)
-   * @param params - Query parameters for filtering, pagination, and date range
-   * @returns Paginated list of all transactions from all accounts
    */
   async getAllTransactions(params?: {
     page?: number;
@@ -148,20 +275,8 @@ class AccountsApiService {
     source?: string;
     search?: string;
   }, organizationId?: string): Promise<ApiResponse<AccountTransactionsResponse>> {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-    if (params?.merchantId) queryParams.append('merchantId', params.merchantId);
-    if (params?.categoryId) queryParams.append('categoryId', params.categoryId);
-    if (params?.type) queryParams.append('type', params.type);
-    if (params?.source) queryParams.append('source', params.source);
-    if (params?.search) queryParams.append('search', params.search);
-
-    const queryString = queryParams.toString();
-    const endpoint = `/accounts/transactions${queryString ? `?${queryString}` : ''}`;
-    return apiClient.get<AccountTransactionsResponse>(endpoint, organizationId);
+    const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
+    return transactionApi.getTransactions(params, organizationId) as Promise<ApiResponse<AccountTransactionsResponse>>;
   }
 }
 

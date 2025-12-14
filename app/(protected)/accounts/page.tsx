@@ -632,7 +632,7 @@ export default function AccountsPage() {
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
-      {/* Header
+      {/* Header*/}
    
         <div className="flex items-center justify-end ">
         <div className="flex items-center gap-2">
@@ -650,7 +650,7 @@ export default function AccountsPage() {
     </div>
          
         </div>
-  */}
+  
 
       {/* Body Layout */}
       <div className="">

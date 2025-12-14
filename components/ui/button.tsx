@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-0 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-none  relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-0 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-none  relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
@@ -21,7 +21,7 @@ const buttonVariants = cva(
             "active:shadow-none active:translate-y-[4px] transition-all duration-150 " +
             "before:absolute before:inset-0 before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] before:opacity-0  before:transition-opacity before:duration-200 " +
             " overflow-hidden dark:from-[#FF8C1A] dark:via-[#E66A00] dark:to-[#B84D00]",
-            brand: "bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground ring inset-shadow-2xs ring-[var(--primary-ring)] inset-shadow-white/20 text-shadow-2xs text-shadow-white/25",
+            brand: "bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground  inset-shadow-2xs ring-  inset-shadow-white/20 text-shadow-2xs text-shadow-white/25",
             
         
             delete:

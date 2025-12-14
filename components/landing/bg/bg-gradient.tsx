@@ -108,7 +108,7 @@ export const BgGradient = ({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-0 -z-10 overflow-hidden",
+        "pointer-events-none absolute inset-0 -z-10 overflow-hidden overflow-x-clip",
         animated && animationType === "float" && "animate-float",
         animated && animationType === "spin" && "animate-spin-slow",
         animated && animationType === "pulse" && "animate-pulse-slow",
@@ -119,7 +119,7 @@ export const BgGradient = ({
       {/* Optional Background Image */}
       {imageSrc && (
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 overflow-hidden overflow-x-clip"
           style={{
             backgroundImage: `url(${imageSrc})`,
             backgroundSize: imageSize,
@@ -132,7 +132,7 @@ export const BgGradient = ({
 
       {/* Gradient Blob */}
       <div
-        className={cn("absolute inset-0", blur)}
+        className={cn("absolute inset-0 overflow-x-clip", blur)}
         style={{
           background:
             shape === "radial"
@@ -148,7 +148,7 @@ export const BgGradient = ({
       {/* Pattern Overlay */}
       {pattern && (
         <div
-          className="absolute inset-0 mix-blend-overlay"
+          className="absolute inset-0 mix-blend-overlay overflow-hidden overflow-x-clip"
           style={{
             opacity: patternOpacity,
             transform: `rotate(${patternRotation}deg)`,
@@ -162,7 +162,7 @@ export const BgGradient = ({
 
       {/* Noise Overlay */}
       <div
-        className="absolute inset-0 mix-blend-soft-light"
+        className="absolute inset-0 mix-blend-soft-light overflow-hidden"
         style={{
           opacity: noiseOpacity,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E")`,
