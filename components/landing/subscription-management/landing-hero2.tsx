@@ -8,6 +8,7 @@ import { TextRotate } from "../section-widgets/text-rotate";
 import { BgGradient } from "../bg/bg-gradient";
 import { LogoCloud } from "./logo-cld-section";
 import { SolarShieldBoldDuotone, SolarClockCircleBoldDuotone, DuoIconsCreditCard, SolarChartSquareBoldDuotone } from "@/components/icons/icons";
+import GooeyDotIndicator, { GooeyGalleryIndicator } from "@/components/ui/goey-indicator";
 
 const TABS = ["Track", "Budget", "Plan", "Collab"] as const;
 
@@ -70,14 +71,18 @@ export function LandingHero() {
 
   return (
     <section className="relative min-h-screen overflow-hidden">
+
+
       {/* Background */}
-      <div className="absolute inset-0 -z-10 mx-4 mt-4 ">
+      <div className="absolute inset-0 -z-10  ">
         <BgGradient
-          imageSrc="/landing/bg2.webp"
-          imageOpacity={0.95}
-          opacity="0"
-          pattern={false}
-          className="h-full w-full rounded-t-3xl shadow-xl border drop-shadow-2xl"
+          imageSrc="/landing/bg8.webp"
+          
+  imageOpacity={0.7}
+  glass
+  glassBlur={12}
+  glassOpacity={0.18}
+  glassTint="rgba(255,255,255,0.25)"
         />
       </div>
 
@@ -90,6 +95,11 @@ export function LandingHero() {
         
         {/* LEFT — Copy */}
         <div className="flex flex-col items-center text-center xl:items-start xl:text-left pb-20 xl:pb-30 ">
+        <GooeyDotIndicator
+  current={3}
+  total={5}
+  
+/>
           <motion.h1
             {...fadeUp}
             className="max-w-sm lg:max-w-md xl:max-w-lg text-4xl font-bold leading-tight text-white   xl:text-4xl  2xl:text-5xl"
@@ -165,7 +175,7 @@ export function LandingHero() {
                     forceMount
                     className="data-[state=inactive]:pointer-events-none data-[state=inactive]:opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300"
                   >
-                    <DashboardImage src="/landing/hero-dark2.JPG" />
+                    <DashboardImage src="/landing/hero-light2.JPG" />
                   </TabsContent>
                 ))}
               </div>

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid } from '../icons/icons';
+import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, MageGoals, PhUsersDuotone } from '../icons/icons';
 import { LogoMappr } from '../icons';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
@@ -60,10 +60,10 @@ export function LandingNav() {
     { title: 'Crypto', href: '/#crypto', description: 'Multi-chain, DeFi & NFTs', icon: HeroiconsWallet16Solid },
     { title: 'Banking', href: '/#banking', description: 'Traditional bank accounts', icon: DuoIconsBank },
     { title: 'Net Worth', href: '/#net-worth', description: 'Full financial snapshot', icon: TrendingUp },
-    { title: 'Budgets', href: '/#budgets', description: 'Flexible budgeting & alerts', icon: Zap },
-    { title: 'Goals', href: '/#goals', description: 'Automated progress tracking', icon: Target },
+    { title: 'Budgets', href: '/#budgets', description: 'Flexible budgeting & alerts', icon: SolarCalculatorBoldDuotone },
+    { title: 'Goals', href: '/#goals', description: 'Automated progress tracking', icon: MageGoals },
     { title: 'Subscriptions', href: '/#subscriptions', description: 'Recurring charge detection', icon: SolarInboxInBoldDuotone },
-    { title: 'Organizations', href: '/#teams', description: 'Multi-user access', icon: Users },
+    { title: 'Organizations', href: '/#teams', description: 'Multi-user access', icon: PhUsersDuotone },
     { title: 'Integrations', href: '/#integrations', description: 'QuickBooks, Zerion + more', icon: PlugIcon },
   ];
 
