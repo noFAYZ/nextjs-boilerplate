@@ -104,7 +104,7 @@ export const Footer = ({
 
         {/* Large background text - FIXED */}
         <div 
-          className="bg-gradient-to-b from-orange-600/80 via-orange-500/50 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4"
+          className="bg-gradient-to-b from-[hsl(50.53,13.87%,26.86%)] via-gray-800/80 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4"
           style={{
             fontSize: 'clamp(3rem, 12vw, 10rem)',
             maxWidth: '95vw'
