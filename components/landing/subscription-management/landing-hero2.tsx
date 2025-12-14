@@ -131,7 +131,7 @@ export function LandingHero() {
 
           <motion.p
             {...fadeUp}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.2 }}
             className="mt-8 max-w-md text-base leading-tight xl:text-white/80 sm:text-base font-semibold rounded-lg text-black "
           >
             Track, budget, and plan every transaction with AI-powered alerts,
@@ -148,7 +148,7 @@ export function LandingHero() {
         </div>
 
         {/* RIGHT — Tabs + Preview */}
-        <motion.div {...scaleIn} className=" min-w-full   xl:min-w-4xl 2xl:min-w-5xl h-full flex flex-col justify-end  ">
+        <motion.div {...fadeUp} className=" min-w-full   xl:min-w-4xl 2xl:min-w-5xl h-full flex flex-col justify-end  ">
           <Tabs defaultValue="Track" className="w-full flex justify-center xl:justify-start">
             {/* Tabs header */}
             <div className="  flex justify-center xl:justify-start">
