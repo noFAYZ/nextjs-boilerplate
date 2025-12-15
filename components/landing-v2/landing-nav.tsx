@@ -119,9 +119,9 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               
 
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2  group text-[32px]  font-bold bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground  inset-shadow-2xs inset-shadow-white/20 w-9 h-9 text-shadow-2xs text-shadow-white/25 leading-[2.2rem] rounded-lg itext-center  align-middle" onClick={handleLinkClick}>
+              <Link href="/" className="flex items-center gap-2  group text-[32px]  font-bold bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground  inset-shadow-2xs inset-shadow-white/20 w-9 h-9 text-shadow-2xs text-shadow-white/25 leading-[2.2rem] rounded-lg itext-center   align-middle " onClick={handleLinkClick}>
              {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> */}
-             𒀭
+            <span className='hover:rotate-30 transition-transform duration-200'> 𒀭</span>
 
               </Link>
 

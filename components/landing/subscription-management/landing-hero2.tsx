@@ -8,7 +8,7 @@ import { TextRotate } from "../section-widgets/text-rotate";
 import { BgGradient } from "../bg/bg-gradient";
 import { LogoCloud } from "./logo-cld-section";
 import { SolarShieldBoldDuotone, SolarClockCircleBoldDuotone, DuoIconsCreditCard, SolarChartSquareBoldDuotone } from "@/components/icons/icons";
-import GooeyDotIndicator, { GooeyGalleryIndicator } from "@/components/ui/goey-indicator";
+import { GooeyIndicator } from "@/components/ui/goey-indicator";
 
 const TABS = ["Track", "Budget", "Plan", "Collab"] as const;
 
@@ -76,35 +76,37 @@ export function LandingHero() {
       {/* Background */}
       <div className="absolute inset-0 -z-10  ">
         <BgGradient
-          imageSrc="/landing/bg8.webp"
+    
+          imageSrc="/landing/bg8.webp" imageOpacity={0.4}
+          opacity="0.5"
+          position="center"
+          to="background"
           
-  imageOpacity={0.7}
-  glass
-  glassBlur={12}
-  glassOpacity={0.18}
-  glassTint="rgba(255,255,255,0.25)"
+  
+          glass
+          glassBlur={12}
+          glassOpacity={0.18}
+          glassTint="rgba(255,255,255,0.25)"
+        
+  
         />
       </div>
 
       {/* Edge fades */}
-      <div className="pointer-events-none absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-background to-transparent" />
-      <div className="pointer-events-none absolute bottom-0 inset-x-0 h-42 bg-gradient-to-t from-background via background/80 to-transparent z-10" />
+      <div className="pointer-events-none absolute top-0 inset-x-0 h-62 opacity-80 bg-gradient-to-b from-background  via-background/40 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 inset-x-0 h-42 bg-gradient-to-t from-background via-background to-transparent z-10" />
 
       {/* Main container */}
       <div className="relative mx-auto flex min-h-screen  flex-col  xl:flex-row xl:items-end  justify-between px-2 xl:px-8 pt-30">
         
         {/* LEFT — Copy */}
         <div className="flex flex-col items-center text-center xl:items-start xl:text-left pb-20 xl:pb-30 ">
-        <GooeyDotIndicator
-  current={3}
-  total={5}
-  
-/>
+
           <motion.h1
             {...fadeUp}
             className="max-w-sm lg:max-w-md xl:max-w-lg text-4xl font-bold leading-tight text-white   xl:text-4xl  2xl:text-5xl"
           >
-            Take Control of Your{" "}
+           Take Control of Your{" "}
             <span className="inline-block">
             <TextRotate
                 texts={[
@@ -149,7 +151,7 @@ export function LandingHero() {
 
         {/* RIGHT — Tabs + Preview */}
         <motion.div {...fadeUp} className=" min-w-full   xl:min-w-4xl 2xl:min-w-5xl h-full flex flex-col justify-end  ">
-          <Tabs defaultValue="Track" className="w-full flex justify-center xl:justify-start">
+       <Tabs defaultValue="Track" className="w-full flex justify-center xl:justify-start">
             {/* Tabs header */}
             <div className="  flex justify-center xl:justify-start">
               <TabsList className="rounded-lg border border-white/10 bg-black/60 p-1.5 backdrop-blur-xl">
@@ -175,7 +177,7 @@ export function LandingHero() {
                     forceMount
                     className="data-[state=inactive]:pointer-events-none data-[state=inactive]:opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300"
                   >
-                    <DashboardImage src="/landing/hero-light2.JPG" />
+                    <DashboardImage src="/landing/hero-dark2.JPG" />
                   </TabsContent>
                 ))}
               </div>

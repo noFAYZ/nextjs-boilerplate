@@ -26,7 +26,7 @@ import {
   ArrowLeft,
   Lock,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useCreateCryptoWallet } from '@/lib/queries';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +67,7 @@ interface LimitExceededError {
 }
 
 export function CryptoWalletForm({ onSuccess, onBack }: CryptoWalletFormProps) {
+  const { error: showError } = useToast();
   const [isValidating, setIsValidating] = useState(false);
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [limitExceededError, setLimitExceededError] = useState<LimitExceededError | null>(null);
@@ -164,7 +165,7 @@ export function CryptoWalletForm({ onSuccess, onBack }: CryptoWalletFormProps) {
 
         // Show toast for other errors
         console.log('Showing toast error:', message);
-        toast.error(message || 'Failed to add wallet');
+        showError(message || 'Failed to add wallet');
       }
     });
   };

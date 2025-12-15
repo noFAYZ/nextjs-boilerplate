@@ -33,7 +33,7 @@ import {
   Unlock,
   Loader2,
 } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from "@/lib/hooks/useToast";
 import type { AccountGroup } from '@/lib/types/account-groups';
 import {
   getGroupSettings,

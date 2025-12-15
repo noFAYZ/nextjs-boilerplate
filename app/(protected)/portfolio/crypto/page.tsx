@@ -32,7 +32,7 @@ import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
 import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import Link from 'next/link';
 import {
   Breadcrumb,
@@ -64,6 +64,7 @@ interface CryptoAsset {
 
 export default function CryptoPortfolioPage() {
   const router = useRouter();
+  const { success, error } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortField>('value');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -132,16 +133,16 @@ export default function CryptoPortfolioPage() {
   }, [assets, searchQuery, sortBy, sortOrder]);
 
   const handleRefreshAll = () => {
-    toast.success('Refreshing crypto portfolio...');
+    success('Refreshing crypto portfolio...');
   };
 
   // ✅ Event handlers using centralized utilities
   const handleCopyAddress = async (address: string) => {
     try {
       await navigator.clipboard.writeText(address);
-      toast.success('Address copied to clipboard');
+      success('Address copied to clipboard');
     } catch {
-      toast.error('Failed to copy address');
+      error('Failed to copy address');
     }
   };
 

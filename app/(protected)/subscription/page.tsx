@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { useSubscription } from '@/lib/hooks/use-subscription';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from "@/lib/hooks/useToast";
 import { useLoading } from '@/lib/contexts/loading-context';
 import { 
   Crown, 

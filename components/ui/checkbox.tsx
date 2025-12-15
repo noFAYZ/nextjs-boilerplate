@@ -25,7 +25,7 @@ export function Checkbox({
   }
 
   const baseClasses = cn(
-    "peer relative inline-flex items-center justify-center rounded-md border border-input transition-all duration-200 outline-none cursor-pointer",
+    "peer relative inline-flex items-center justify-center rounded-md border border-input transition-all duration-0 outline-none cursor-pointer",
     "focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
     "disabled:cursor-not-allowed disabled:opacity-50",
     sizeClasses[size],
@@ -50,7 +50,7 @@ export function Checkbox({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
               className="flex items-center justify-center text-primary-foreground"
             >
               <Check className={cn("stroke-[3px]", size === "lg" ? "size-4" : "size-3")} />

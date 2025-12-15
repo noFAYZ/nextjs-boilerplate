@@ -23,7 +23,7 @@ import { useCryptoStore } from "@/lib/stores/crypto-store";
 import { SyncProgressIndicator } from "@/components/crypto/SyncProgressIndicator";
 import { WalletSyncItem } from "@/components/crypto/WalletSyncItem";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useToast } from "@/lib/hooks/useToast";
 
 // Helper function to determine wallet status based on sync state and wallet data
 function getWalletStatus(

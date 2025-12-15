@@ -116,52 +116,103 @@ export const subscriptionQueries = {
 export const subscriptionMutations = {
   /**
    * Create a new subscription
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   useCreate: () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (data: CreateSubscriptionRequest) =>
-        subscriptionsApi.createSubscription(data),
-      onSuccess: (response) => {
-        if (response.success) {
-          // Invalidate all subscription-related queries
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
+      mutationFn: async (data: CreateSubscriptionRequest) => {
+        const response = await subscriptionsApi.createSubscription(data);
+        if (!response.success) {
+          throw new Error(response.error?.message || 'Failed to create subscription');
+        }
+        return response;
+      },
+      onMutate: async (newSubscriptionData) => {
+        // Cancel any ongoing fetches
+        await queryClient.cancelQueries({ queryKey: subscriptionKeys.lists() });
 
-          // Optimistically add to cache
-          queryClient.setQueryData(
-            subscriptionKeys.list({}),
+        // Snapshot previous data for rollback
+        const previousLists = queryClient.getQueriesData<SubscriptionListResponse>({
+          queryKey: subscriptionKeys.lists(),
+        });
+
+        // Optimistically add to cache with temporary ID
+        const optimisticSubscription = {
+          id: `temp-${Date.now()}`,
+          ...newSubscriptionData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: 'ACTIVE' as const,
+        } as any; // Cast as subscription type
+
+        // Update ALL subscription list queries (regardless of filter keys)
+        queryClient.setQueriesData(
+          { queryKey: subscriptionKeys.lists() },
+          (old: SubscriptionListResponse | undefined) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: [optimisticSubscription, ...old.data],
+            };
+          }
+        );
+
+        return { previousLists };
+      },
+      onSuccess: (response) => {
+        if (response.success && response.data) {
+          // Update ALL subscription list queries (regardless of filter keys)
+          // This matches queries with any filter state from the UI store
+          queryClient.setQueriesData(
+            { queryKey: subscriptionKeys.lists() },
             (old: SubscriptionListResponse | undefined) => {
               if (!old?.data) return old;
               return {
                 ...old,
-                data: [response.data, ...old.data],
+                data: old.data.map((sub) =>
+                  sub.id.startsWith('temp-') ? response.data : sub
+                ),
               };
             }
           );
         }
       },
-      onError: (error) => {
-        console.error('Failed to create subscription:', error);
+      onError: (error, _, context) => {
+        // Rollback to previous state
+        if (context?.previousLists) {
+          context.previousLists.forEach(([queryKey, data]) => {
+            queryClient.setQueryData(queryKey, data);
+          });
+        }
       },
     });
   },
 
   /**
    * Update an existing subscription
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   useUpdate: () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: ({
+      mutationFn: async ({
         id,
         updates,
       }: {
         id: string;
         updates: UpdateSubscriptionRequest;
-      }) => subscriptionsApi.updateSubscription(id, updates),
+      }) => {
+        const response = await subscriptionsApi.updateSubscription(id, updates);
+        if (!response.success) {
+          throw new Error(response.error?.message || 'Failed to update subscription');
+        }
+        return response;
+      },
       onMutate: async ({ id, updates }) => {
         // Cancel outgoing refetches
         await queryClient.cancelQueries({ queryKey: subscriptionKeys.detail(id) });
@@ -171,7 +222,9 @@ export const subscriptionMutations = {
         const previousSubscription = queryClient.getQueryData(
           subscriptionKeys.detail(id)
         );
-        const previousList = queryClient.getQueryData(subscriptionKeys.list({}));
+        const previousLists = queryClient.getQueriesData<SubscriptionListResponse>({
+          queryKey: subscriptionKeys.lists(),
+        });
 
         // Optimistically update detail
         queryClient.setQueryData(
@@ -182,9 +235,9 @@ export const subscriptionMutations = {
           }
         );
 
-        // Optimistically update list
-        queryClient.setQueryData(
-          subscriptionKeys.list({}),
+        // Optimistically update ALL subscription list queries (regardless of filter keys)
+        queryClient.setQueriesData(
+          { queryKey: subscriptionKeys.lists() },
           (old: SubscriptionListResponse | undefined) => {
             if (!old?.data) return old;
             return {
@@ -196,9 +249,32 @@ export const subscriptionMutations = {
           }
         );
 
-        return { previousSubscription, previousList };
+        return { previousSubscription, previousLists };
       },
-      onError: (_error, { id }, context) => {
+      onSuccess: (response, { id }) => {
+        if (response.success && response.data) {
+          // Update detail with server response
+          queryClient.setQueryData(subscriptionKeys.detail(id), response.data);
+
+          // Update ALL subscription list queries (regardless of filter keys)
+          queryClient.setQueriesData(
+            { queryKey: subscriptionKeys.lists() },
+            (old: SubscriptionListResponse | undefined) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.map((sub) =>
+                  sub.id === id ? response.data : sub
+                ),
+              };
+            }
+          );
+
+          // Invalidate analytics since subscription data changed
+          queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
+        }
+      },
+      onError: (error, { id }, context) => {
         // Rollback on error
         if (context?.previousSubscription) {
           queryClient.setQueryData(
@@ -206,16 +282,10 @@ export const subscriptionMutations = {
             context.previousSubscription
           );
         }
-        if (context?.previousList) {
-          queryClient.setQueryData(subscriptionKeys.list({}), context.previousList);
-        }
-      },
-      onSuccess: (response, { id }) => {
-        if (response.success) {
-          // Invalidate to ensure consistency
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.detail(id) });
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
+        if (context?.previousLists) {
+          context.previousLists.forEach(([queryKey, data]) => {
+            queryClient.setQueryData(queryKey, data);
+          });
         }
       },
     });
@@ -223,30 +293,43 @@ export const subscriptionMutations = {
 
   /**
    * Delete a subscription
+   * Strategy 1: Optimistic removal with rollback
+   * Strategy 2: Direct cache removal from server response
    */
   useDelete: () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (subscriptionId: string) =>
-        subscriptionsApi.deleteSubscription(subscriptionId),
+      mutationFn: async (subscriptionId: string) => {
+        const response = await subscriptionsApi.deleteSubscription(subscriptionId);
+        if (!response.success) {
+          throw new Error(response.error?.message || 'Failed to delete subscription');
+        }
+        return response;
+      },
       onMutate: async (subscriptionId) => {
         // Cancel outgoing refetches
         await queryClient.cancelQueries({ queryKey: subscriptionKeys.lists() });
+        await queryClient.cancelQueries({ queryKey: subscriptionKeys.detail(subscriptionId) });
 
-        // Snapshot previous list
-        const previousList = queryClient.getQueryData(subscriptionKeys.list({}));
+        // Snapshot previous lists
+        const previousLists = queryClient.getQueriesData<SubscriptionListResponse>({
+          queryKey: subscriptionKeys.lists(),
+        });
 
-        // DON'T remove from list yet - let the UI store handle the deleting state
-        // The subscription will show a skeleton while deleting
+        // Optimistically remove from ALL subscription list queries (regardless of filter keys)
+        queryClient.setQueriesData(
+          { queryKey: subscriptionKeys.lists() },
+          (old: SubscriptionListResponse | undefined) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.filter((sub) => sub.id !== subscriptionId),
+            };
+          }
+        );
 
-        return { previousList };
-      },
-      onError: (_error, _subscriptionId, context) => {
-        // Rollback on error (though we didn't change anything in onMutate)
-        if (context?.previousList) {
-          queryClient.setQueryData(subscriptionKeys.list({}), context.previousList);
-        }
+        return { previousLists };
       },
       onSuccess: (response, subscriptionId) => {
         if (response.success) {
@@ -255,23 +338,28 @@ export const subscriptionMutations = {
             queryKey: subscriptionKeys.detail(subscriptionId),
           });
 
-          // NOW remove from list after successful deletion
-          queryClient.setQueryData(
-            subscriptionKeys.list({}),
+          // Remove from ALL subscription list queries (regardless of filter keys)
+          queryClient.setQueriesData(
+            { queryKey: subscriptionKeys.lists() },
             (old: SubscriptionListResponse | undefined) => {
               if (!old?.data) return old;
               return {
                 ...old,
-                data: old.data.filter(
-                  (sub: UserSubscription) => sub.id !== subscriptionId
-                ),
+                data: old.data.filter((sub) => sub.id !== subscriptionId),
               };
             }
           );
 
-          // Invalidate all subscription queries
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
+          // Invalidate analytics since subscription data changed
           queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
+        }
+      },
+      onError: (error, subscriptionId, context) => {
+        // Rollback on error
+        if (context?.previousLists) {
+          context.previousLists.forEach(([queryKey, data]) => {
+            queryClient.setQueryData(queryKey, data);
+          });
         }
       },
     });
@@ -279,6 +367,7 @@ export const subscriptionMutations = {
 
   /**
    * Add a charge to a subscription
+   * Strategy 2: Direct cache updates from server response
    */
   useAddCharge: () => {
     const queryClient = useQueryClient();
@@ -292,8 +381,8 @@ export const subscriptionMutations = {
         chargeData: AddChargeRequest;
       }) => subscriptionsApi.addCharge(subscriptionId, chargeData),
       onSuccess: (response, { subscriptionId }) => {
-        if (response.success) {
-          // Invalidate subscription detail to refetch with new charge
+        if (response.success && response.data) {
+          // Invalidate subscription detail to refetch with new charge data
           queryClient.invalidateQueries({
             queryKey: subscriptionKeys.detail(subscriptionId, {
               includeCharges: true,
@@ -304,14 +393,13 @@ export const subscriptionMutations = {
           queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
         }
       },
-      onError: (error) => {
-        console.error('Failed to add charge:', error);
-      },
     });
   },
 
   /**
    * Manually renew a subscription
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   useRenew: () => {
     const queryClient = useQueryClient();
@@ -324,28 +412,81 @@ export const subscriptionMutations = {
         subscriptionId: string;
         renewalData: ManualRenewalRequest;
       }) => subscriptionsApi.renewSubscription(subscriptionId, renewalData),
-      onSuccess: (response, { subscriptionId }) => {
-        if (response.success) {
-          // Invalidate subscription detail to refetch with updated renewal info
-          queryClient.invalidateQueries({
-            queryKey: subscriptionKeys.detail(subscriptionId),
-          });
+      onMutate: async ({ subscriptionId, renewalData }) => {
+        // Cancel outgoing fetches
+        await queryClient.cancelQueries({ queryKey: subscriptionKeys.detail(subscriptionId) });
+        await queryClient.cancelQueries({ queryKey: subscriptionKeys.lists() });
 
-          // Invalidate lists to update subscription status
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
+        // Snapshot previous data
+        const previousDetail = queryClient.getQueryData<UserSubscription>(
+          subscriptionKeys.detail(subscriptionId)
+        );
+        const previousLists = queryClient.getQueriesData<SubscriptionListResponse>({
+          queryKey: subscriptionKeys.lists(),
+        });
+
+        // Optimistically update detail with renewal data
+        queryClient.setQueryData<UserSubscription>(
+          subscriptionKeys.detail(subscriptionId),
+          (old) => (old ? { ...old, ...renewalData } : old)
+        );
+
+        // Optimistically update ALL subscription list queries (regardless of filter keys)
+        queryClient.setQueriesData(
+          { queryKey: subscriptionKeys.lists() },
+          (old: SubscriptionListResponse | undefined) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.map((sub) =>
+                sub.id === subscriptionId ? { ...sub, ...renewalData } : sub
+              ),
+            };
+          }
+        );
+
+        return { previousDetail, previousLists };
+      },
+      onSuccess: (response, { subscriptionId }) => {
+        if (response.success && response.data) {
+          // Update detail with server response
+          queryClient.setQueryData(subscriptionKeys.detail(subscriptionId), response.data);
+
+          // Update ALL subscription list queries (regardless of filter keys)
+          queryClient.setQueriesData(
+            { queryKey: subscriptionKeys.lists() },
+            (old: SubscriptionListResponse | undefined) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.map((sub) =>
+                  sub.id === subscriptionId ? response.data : sub
+                ),
+              };
+            }
+          );
 
           // Invalidate analytics to update spending data
           queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
         }
       },
-      onError: (error) => {
-        console.error('Failed to renew subscription:', error);
+      onError: (error, { subscriptionId }, context) => {
+        // Rollback on error
+        if (context?.previousDetail) {
+          queryClient.setQueryData(subscriptionKeys.detail(subscriptionId), context.previousDetail);
+        }
+        if (context?.previousLists) {
+          context.previousLists.forEach(([queryKey, data]) => {
+            queryClient.setQueryData(queryKey, data);
+          });
+        }
       },
     });
   },
 
   /**
    * Detect subscriptions from transactions
+   * Strategy 2: Direct cache invalidation for detected items
    */
   useDetect: () => {
     const queryClient = useQueryClient();
@@ -355,11 +496,9 @@ export const subscriptionMutations = {
       onSuccess: (response) => {
         if (response.success && response.data.totalDetections > 0) {
           // Invalidate all subscription queries to refetch with new detections
-          queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
+          queryClient.invalidateQueries({ queryKey: subscriptionKeys.lists() });
+          queryClient.invalidateQueries({ queryKey: subscriptionKeys.analytics() });
         }
-      },
-      onError: (error) => {
-        console.error('Failed to detect subscriptions:', error);
       },
     });
   },

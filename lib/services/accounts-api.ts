@@ -196,11 +196,9 @@ class AccountsApiService {
     const response = await this.getAccounts(undefined, organizationId);
     if (response.success) {
       return {
+        
         success: true,
-        data: {
-          summary: {},
-          accounts: response.data.data
-        } as unknown as UnifiedAccountsResponse
+        data: response.data as unknown as UnifiedAccountsResponse
       };
     }
     return response as ApiResponse<UnifiedAccountsResponse>;

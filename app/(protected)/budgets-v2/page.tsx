@@ -52,7 +52,7 @@ import { useEnvelopeUIStore } from '@/lib/stores/envelope-ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { categoryGroupsApi } from '@/lib/services/category-groups-api';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import {
   Dialog,
   DialogContent,
@@ -111,6 +111,7 @@ import { TableContent } from '@/components/budgets/sections/table-content';
 
 export default function BudgetsV2Page() {
   usePostHogPageView('budgets-v2');
+  const { success, error } = useToast();
 
   // ============================================================================
   // INITIALIZATION & CONTEXT
@@ -263,9 +264,9 @@ export default function BudgetsV2Page() {
     setIsRefreshing(true);
     try {
       await queryClient.invalidateQueries({ queryKey: ['category-groups'] });
-      toast.success('Data refreshed');
+      success('Data refreshed');
     } catch (error) {
-      toast.error('Failed to refresh');
+      error('Failed to refresh');
     } finally {
       setIsRefreshing(false);
     }
@@ -275,7 +276,7 @@ export default function BudgetsV2Page() {
 
   const handleRecordSpending = useCallback((amount: number) => {
     if (amount <= 0) {
-      toast.error('Amount must be greater than 0');
+      error('Amount must be greater than 0');
       return;
     }
 
@@ -290,11 +291,11 @@ export default function BudgetsV2Page() {
       },
       {
         onSuccess: () => {
-          toast.success('Spending recorded');
+          success('Spending recorded');
         },
         onError: (error: unknown) => {
           const apiError = error as { response?: { data?: { message?: string } } };
-          toast.error(apiError?.response?.data?.message || 'Failed to record spending');
+          error(apiError?.response?.data?.message || 'Failed to record spending');
         },
       }
     );
@@ -311,12 +312,12 @@ export default function BudgetsV2Page() {
 
       deleteCategoryMutation.mutate(undefined, {
         onSuccess: () => {
-          toast.success('Category deleted successfully');
+          success('Category deleted successfully');
           selection.clearSelection();
         },
         onError: (error: unknown) => {
           const apiError = error as { message?: string };
-          toast.error(apiError?.message || 'Failed to delete category');
+          error(apiError?.message || 'Failed to delete category');
         },
       });
     } else if (dialogs.deleteTarget.type === 'group') {
@@ -326,12 +327,12 @@ export default function BudgetsV2Page() {
 
       deleteGroupMutation.mutate(undefined, {
         onSuccess: () => {
-          toast.success('Group deleted successfully');
+          success('Group deleted successfully');
           selection.clearSelection();
         },
         onError: (error: unknown) => {
           const apiError = error as { message?: string };
-          toast.error(apiError?.message || 'Failed to delete group');
+          error(apiError?.message || 'Failed to delete group');
         },
       });
     }
@@ -343,7 +344,7 @@ export default function BudgetsV2Page() {
     popovers.setIsApplyingTemplate(true);
     try {
       await categoryGroupsApi.applyTemplate(popovers.selectedTemplate);
-      toast.success('Template applied successfully! Categories have been created.');
+      success('Template applied successfully! Categories have been created.');
       popovers.setSelectedTemplate(null);
 
       // Invalidate and refetch category groups
@@ -352,7 +353,7 @@ export default function BudgetsV2Page() {
       });
     } catch (error: unknown) {
       const apiError = error as { message?: string };
-      toast.error(apiError?.message || 'Failed to apply template');
+      error(apiError?.message || 'Failed to apply template');
     } finally {
       popovers.setIsApplyingTemplate(false);
     }
@@ -619,7 +620,7 @@ export default function BudgetsV2Page() {
           groups={sortedGroups}
           onAssign={async (groupId, amount) => {
             // Handle assign logic here
-            toast.success(`Assigned ${amount} to group`);
+            success(`Assigned ${amount} to group`);
             popovers.setAssignPopoverOpen(false);
           }}
         />

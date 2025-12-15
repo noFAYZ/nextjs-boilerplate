@@ -1054,7 +1054,7 @@ export function NetWorthChart({
   return (
     <Card
       ref={chartContainerRef}
-      className={cn("w-full space-y-2 shadow-none hover:shadow-none border-border/80 ", className)}
+      className={cn("w-full space-y-2 shadow-xs hover:shadow-none border-border/70 ", className)}
       role="region"
       aria-label="Net Worth Chart"
     >

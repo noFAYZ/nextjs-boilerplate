@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useCategories } from '@/lib/queries/use-accounts-data';
 import { useAllAccounts } from '@/lib/queries/use-accounts-data';
 import {
@@ -91,6 +91,7 @@ export function TransactionDetailDrawer({
   transaction,
   onClose,
 }: TransactionDetailDrawerProps) {
+  const { success } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<UnifiedTransaction> | null>(null);
 
@@ -133,7 +134,7 @@ export function TransactionDetailDrawer({
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copied to clipboard`);
+    success(`${label} copied to clipboard`);
   };
 
   const isIncome =
@@ -152,7 +153,7 @@ export function TransactionDetailDrawer({
 
   const handleSave = () => {
     // TODO: Implement save functionality with mutation
-    toast.success('Transaction updated');
+    success('Transaction updated');
     setIsEditing(false);
     setEditData(null);
   };

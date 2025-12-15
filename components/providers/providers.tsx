@@ -18,6 +18,8 @@ import { OrganizationDataSyncProvider } from "./organization-data-sync-provider"
 import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
 import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-overlay";
 import { RealtimeSyncProvider } from "./realtime-sync-provider";
+import {  ToastProvider } from "../ui/toast";
+
 
 /**
  * Global Providers
@@ -47,6 +49,7 @@ export default function Providers({ children }: { children: ReactNode }) {
               themes={["light", "dark", "light-pro", "dark-pro"]}
               disableTransitionOnChange
             >
+         <ToastProvider>
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
                 <RealtimeSyncProvider>
@@ -66,7 +69,7 @@ export default function Providers({ children }: { children: ReactNode }) {
                   </ViewModeProvider>
                   </RealtimeSyncProvider>
                 </StoreProvider>
-              </CurrencyProvider>
+              </CurrencyProvider></ToastProvider>
             </ThemeProvider>
           </QueryProvider>
         </LoadingProvider>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import { BudgetAccountGroup } from '@/lib/types/budget';
 
 export function AssignAmountPopover({
@@ -18,6 +18,7 @@ export function AssignAmountPopover({
   groups: BudgetAccountGroup[];
   onAssign: (groupId: string, amount: number) => Promise<void>;
 }) {
+  const toast = useToast();
   const [selectedGroup, setSelectedGroup] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [position, setPosition] = React.useState({ top: 0, left: 0 });
@@ -36,13 +37,13 @@ export function AssignAmountPopover({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGroup || !amount || parseFloat(amount) <= 0) {
-      toast.error('Please select a group and enter an amount');
+      toast.toast({ title: 'Error', description: 'Please select a group and enter an amount', variant: 'destructive' });
       return;
     }
 
     const numAmount = parseFloat(amount);
     if (numAmount > totalBalance) {
-      toast.error(`Amount cannot exceed available balance (${totalBalance})`);
+      toast.toast({ title: 'Error', description: `Amount cannot exceed available balance (${totalBalance})`, variant: 'destructive' });
       return;
     }
 
@@ -52,7 +53,7 @@ export function AssignAmountPopover({
       setSelectedGroup('');
       setAmount('');
     } catch (error) {
-      toast.error('Failed to assign amount');
+      toast.toast({ title: 'Error', description: 'Failed to assign amount', variant: 'destructive' });
     } finally {
       setIsAssigning(false);
     }

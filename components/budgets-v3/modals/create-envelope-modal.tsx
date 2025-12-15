@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useCreateEnvelope } from '@/lib/queries';
 
 interface CreateEnvelopeModalProps {
@@ -45,6 +45,7 @@ const CYCLES = [
 const EMOJI_OPTIONS = ['🛒', '🍽️', '🚗', '💡', '🏥', '📺', '🎬', '⚽', '🎵', '📚', '✈️', '🏠', '💇', '💰'];
 
 export function CreateEnvelopeModal({ isOpen, onClose }: CreateEnvelopeModalProps) {
+  const { success, error } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -89,11 +90,11 @@ export function CreateEnvelopeModal({ isOpen, onClose }: CreateEnvelopeModalProp
       },
       {
         onSuccess: () => {
-          toast.success('Envelope created successfully!');
+          success('Envelope created successfully!');
           handleClose();
         },
-        onError: (error) => {
-          toast.error(error?.message || 'Failed to create envelope');
+        onError: (err) => {
+          error(err?.message || 'Failed to create envelope');
         },
       }
     );

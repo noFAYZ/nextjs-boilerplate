@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { MageCaretUpFill, MageCaretDownFill } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import Link from 'next/link';
 import {
   Breadcrumb,
@@ -31,6 +31,7 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 
 export default function NetWorthPage() {
   const { pageClass } = useViewModeClasses();
+  const { success, info } = useToast();
   const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<AssetAccount | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -41,7 +42,7 @@ export default function NetWorthPage() {
 
   const handleRefresh = () => {
     refetch();
-    toast.success('Refreshing net worth data...');
+    success('Refreshing net worth data...');
   };
 
   const handleCreateAsset = () => {
@@ -56,12 +57,12 @@ export default function NetWorthPage() {
 
   const handleDeleteAsset = (asset: AssetAccount) => {
     // TODO: Implement delete confirmation dialog
-    toast.info('Delete functionality coming soon');
+    info('Delete functionality coming soon');
   };
 
   const handleViewAsset = (asset: AssetAccount) => {
     // Navigate to asset detail page or show detail modal
-    toast.info('Asset details coming soon');
+    info('Asset details coming soon');
   };
 
   if (isLoading) {

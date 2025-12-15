@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Stepper, useStepper, type Step } from '@/components/ui/stepper';
 import { DataSelectionAccordion } from '@/components/integrations/DataSelectionAccordion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from "@/lib/hooks/useToast";
 import { cn } from '@/lib/utils';
 import { bankingMutations } from '@/lib/queries/banking-queries';
 import { bankingApi } from '@/lib/services/banking-api';

@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Loader2, Home, Car, Package } from 'lucide-react';
 import { useCreateAssetAccount, useUpdateAssetAccount } from '@/lib/queries/use-networth-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import type { AssetAccount, CreateAssetAccountRequest } from '@/lib/types/networth';
 
 interface AssetFormModalProps {
@@ -38,6 +38,7 @@ const assetTypes = [
 
 export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) {
   const isEdit = !!asset;
+  const toast = useToast();
   const { mutate: createAsset, isPending: isCreating } = useCreateAssetAccount();
   const { mutate: updateAsset, isPending: isUpdating } = useUpdateAssetAccount(asset?.id || '');
 
@@ -113,7 +114,7 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
 
     // Validation
     if (!formData.name || !formData.type || formData.balance === undefined) {
-      toast.error('Please fill in all required fields');
+      toast.toast({ title: 'Error', description: 'Please fill in all required fields', variant: 'destructive' });
       return;
     }
 
@@ -139,27 +140,27 @@ export function AssetFormModal({ isOpen, onClose, asset }: AssetFormModalProps) 
     if (isEdit) {
       updateAsset(data, {
         onSuccess: () => {
-          toast.success('Asset updated successfully');
+          toast.toast({ title: 'Success', description: 'Asset updated successfully', variant: 'success' });
           onClose();
         },
         onError: (error: unknown) => {
           const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
             ? error.message
             : 'Failed to update asset';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         },
       });
     } else {
       createAsset(data, {
         onSuccess: () => {
-          toast.success('Asset created successfully');
+          toast.toast({ title: 'Success', description: 'Asset created successfully', variant: 'success' });
           onClose();
         },
         onError: (error: unknown) => {
           const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
             ? error.message
             : 'Failed to create asset';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         },
       });
     }

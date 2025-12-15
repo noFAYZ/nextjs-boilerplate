@@ -49,7 +49,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useBankingAccounts, useCryptoWallets } from "@/lib/queries"
 import { useCreateGoal, useUpdateGoal } from "@/lib/queries/use-goal-data"
-import { toast } from "sonner"
+import { useToast } from '@/lib/hooks/useToast'
 import type {
   Goal,
   CreateGoalRequest,
@@ -204,6 +204,7 @@ export function CreateGoalDialog({
   onSuccess,
   goal,
 }: CreateGoalDialogProps) {
+  const toast = useToast();
   const [milestones, setMilestones] = React.useState<Milestone[]>([])
   const [currentTag, setCurrentTag] = React.useState("")
   const [currentStep, setCurrentStep] = React.useState(0)

@@ -627,7 +627,8 @@ export default function AccountsPage() {
     }
   };
 
- 
+  
+
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
@@ -667,7 +668,7 @@ export default function AccountsPage() {
          {/* Full-width Chart*/}
         {showNetWorth && (
           <div className="mb-4">
-            <NetWorthChart mode="demo"   height={300}  />
+            <NetWorthChart mode="demo"  className='' height={200}  />
           </div>
         )} 
 
@@ -687,9 +688,9 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden rounded-xl "
+                      className="overflow-hidden border border-border/80 "
                     >
-                      <AccordionTrigger className="group relative flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card rounded-b-none cursor-pointer hover:bg-muted/50">
+                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card/20 rounded-b-none cursor-pointer hover:bg-muted/20">
                         {/* Icon */}
                         <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
                           {config.icon}

@@ -27,7 +27,7 @@ import {
   useResumeBudget,
   useArchiveBudget,
 } from "@/lib/queries/use-budget-data"
-import { useToast } from "@/lib/hooks/use-toast"
+import { useToast } from "@/lib/hooks/useToast"
 import type { Budget } from "@/lib/types/budget"
 
 export default function BudgetsPage() {

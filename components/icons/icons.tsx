@@ -2173,3 +2173,27 @@ export function BasilEditOutline(props: SVGProps<SVGSVGElement>) {
 export function LetsIconsAddDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" {...props}><g fill="none"><circle cx={12} cy={12} r={9} fill="currentColor" fillOpacity={0.25}></circle><path stroke="currentColor" strokeLinecap="square" strokeLinejoin="round" strokeWidth={1.2} d="M12 8v8m4-4H8"></path></g></svg>);
 }
+
+export function MappLogo(props: SVGProps<SVGSVGElement>) {
+	return (<svg
+		id="Layer_2"
+		data-name="Layer 2"
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 108.89 73.35" {...props}
+	  >
+		<defs>
+		  <style
+			dangerouslySetInnerHTML={{
+			  __html:
+				"\n      .cls-1 {\n        fill: #fff;\n        stroke-width: 0px;\n      }\n    "
+			}}
+		  />
+		</defs>
+		<g id="Layer_1-2" data-name="Layer 1">
+		  <polygon
+			className="cls-1"
+			points="108.89 10.48 108.89 52.39 72.59 73.35 72.59 52.39 54.44 62.87 36.29 52.39 36.29 73.35 0 52.39 0 10.48 18.15 20.96 18.15 0 54.44 20.96 90.74 0 90.74 20.96 108.89 10.48"
+		  />
+		</g>
+	  </svg>);
+}

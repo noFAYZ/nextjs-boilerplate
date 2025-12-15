@@ -43,13 +43,13 @@ export function SubscriptionsFloatingToolbar({
               <div className="h-6 w-px bg-border/30" />
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Monthly Spend</p>
-                <p className="text-sm font-semibold">
+                <div className="text-sm font-semibold">
                   <CurrencyDisplay
                     amountUSD={totalMonthlySpend}
                     variant="small"
                     isLoading={isLoading}
                   />
-                </p>
+                </div>
               </div>
             </div>
           </div>
@@ -141,13 +141,13 @@ export function SubscriptionsFloatingToolbar({
           {/* Monthly Spend */}
           <div className="flex items-center justify-between text-xs px-2">
             <span className="text-muted-foreground uppercase tracking-wide">Monthly Spend</span>
-            <span className="font-semibold">
+            <div className="font-semibold">
               <CurrencyDisplay
                 amountUSD={totalMonthlySpend}
                 variant="small"
                 isLoading={isLoading}
               />
-            </span>
+            </div>
           </div>
 
           {/* Actions Grid */}

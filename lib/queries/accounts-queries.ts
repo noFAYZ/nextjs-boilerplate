@@ -104,6 +104,8 @@ export const accountsQueries = {
       retry: false, // Don't retry on 401/404 errors
       select: (data: ApiResponse<UnifiedAccountsResponse>) => {
         if (data.success && data.data) {
+         
+
           return data.data;
         }
         return mockUnifiedAccounts;
@@ -281,6 +283,8 @@ export const accountsQueries = {
 export const accountsMutations = {
   /**
    * Create a manual account
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   createManualAccount: () => {
     const queryClient = useQueryClient();
@@ -289,15 +293,67 @@ export const accountsMutations = {
       mutationFn: async (data: CreateManualAccountRequest) => {
         return await accountsApi.createManualAccount(data);
       },
-      onSuccess: () => {
-        // Invalidate and refetch all accounts
-        queryClient.invalidateQueries({ queryKey: accountsKeys.list() });
+      onMutate: async (newAccountData) => {
+        // Cancel any ongoing fetches
+        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
+
+        // Snapshot previous data for rollback
+        const previousAccounts = queryClient.getQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list()
+        );
+
+        // Optimistically update cache with temporary account
+        const optimisticAccount = {
+          id: `temp-${Date.now()}`,
+          ...newAccountData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: 'pending' as const,
+        } as any; // Cast as account type
+
+        queryClient.setQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list(),
+          (old) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: [optimisticAccount, ...old.data],
+            };
+          }
+        );
+
+        return { previousAccounts };
+      },
+      onSuccess: (response, _, context) => {
+        if (response.success && response.data) {
+          // Replace optimistic account with real server response
+          queryClient.setQueryData<UnifiedAccountsResponse>(
+            accountsKeys.list(),
+            (old) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.map((acc) =>
+                  acc.id.startsWith('temp-') ? response.data : acc
+                ),
+              };
+            }
+          );
+        }
+      },
+      onError: (error, _, context) => {
+        // Rollback to previous state
+        if (context?.previousAccounts) {
+          queryClient.setQueryData(accountsKeys.list(), context.previousAccounts);
+        }
       },
     });
   },
 
   /**
    * Update an account
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   updateAccount: () => {
     const queryClient = useQueryClient();
@@ -306,16 +362,77 @@ export const accountsMutations = {
       mutationFn: async ({ accountId, updates }: { accountId: string; updates: UpdateAccountRequest }) => {
         return await accountsApi.updateAccount(accountId, updates);
       },
-      onSuccess: (_, variables) => {
-        // Invalidate the specific account and the list
-        queryClient.invalidateQueries({ queryKey: accountsKeys.account(variables.accountId) });
-        queryClient.invalidateQueries({ queryKey: accountsKeys.list() });
+      onMutate: async ({ accountId, updates }) => {
+        // Cancel outgoing fetches
+        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
+        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
+
+        // Snapshot previous data
+        const previousList = queryClient.getQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list()
+        );
+        const previousDetail = queryClient.getQueryData<UnifiedAccountDetails>(
+          accountsKeys.account(accountId)
+        );
+
+        // Optimistically update list
+        queryClient.setQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list(),
+          (old) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.map((acc) =>
+                acc.id === accountId ? { ...acc, ...updates } : acc
+              ),
+            };
+          }
+        );
+
+        // Optimistically update detail
+        queryClient.setQueryData<UnifiedAccountDetails>(
+          accountsKeys.account(accountId),
+          (old) => (old ? { ...old, ...updates } : old)
+        );
+
+        return { previousList, previousDetail };
+      },
+      onSuccess: (response, { accountId }, context) => {
+        if (response.success && response.data) {
+          // Update list with server response
+          queryClient.setQueryData<UnifiedAccountsResponse>(
+            accountsKeys.list(),
+            (old) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.map((acc) =>
+                  acc.id === accountId ? response.data : acc
+                ),
+              };
+            }
+          );
+
+          // Update detail with server response
+          queryClient.setQueryData(accountsKeys.account(accountId), response.data);
+        }
+      },
+      onError: (error, { accountId }, context) => {
+        // Rollback to previous state
+        if (context?.previousList) {
+          queryClient.setQueryData(accountsKeys.list(), context.previousList);
+        }
+        if (context?.previousDetail) {
+          queryClient.setQueryData(accountsKeys.account(accountId), context.previousDetail);
+        }
       },
     });
   },
 
   /**
    * Delete an account
+   * Strategy 1: Optimistic removal with rollback
+   * Strategy 2: Direct cache removal from server response
    */
   deleteAccount: () => {
     const queryClient = useQueryClient();
@@ -324,15 +441,63 @@ export const accountsMutations = {
       mutationFn: async (accountId: string) => {
         return await accountsApi.deleteAccount(accountId);
       },
-      onSuccess: () => {
-        // Invalidate and refetch all accounts
-        queryClient.invalidateQueries({ queryKey: accountsKeys.list() });
+      onMutate: async (accountId) => {
+        // Cancel outgoing fetches
+        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
+        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
+
+        // Snapshot previous data
+        const previousList = queryClient.getQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list()
+        );
+
+        // Optimistically remove from list
+        queryClient.setQueryData<UnifiedAccountsResponse>(
+          accountsKeys.list(),
+          (old) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.filter((acc) => acc.id !== accountId),
+            };
+          }
+        );
+
+        return { previousList };
+      },
+      onSuccess: (response, accountId) => {
+        if (response.success) {
+          // Remove detail from cache
+          queryClient.removeQueries({
+            queryKey: accountsKeys.account(accountId),
+          });
+
+          // Ensure it's removed from list
+          queryClient.setQueryData<UnifiedAccountsResponse>(
+            accountsKeys.list(),
+            (old) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.filter((acc) => acc.id !== accountId),
+              };
+            }
+          );
+        }
+      },
+      onError: (error, accountId, context) => {
+        // Rollback to previous state
+        if (context?.previousList) {
+          queryClient.setQueryData(accountsKeys.list(), context.previousList);
+        }
       },
     });
   },
 
   /**
    * Add a transaction to an account
+   * Strategy 1: Optimistic updates with rollback
+   * Strategy 2: Direct cache updates from server response
    */
   addTransaction: () => {
     const queryClient = useQueryClient();
@@ -341,10 +506,76 @@ export const accountsMutations = {
       mutationFn: async ({ accountId, data }: { accountId: string; data: AddTransactionRequest }) => {
         return await accountsApi.addTransaction(accountId, data);
       },
-      onSuccess: (_, variables) => {
-        // Invalidate the account's transactions and account details
-        queryClient.invalidateQueries({ queryKey: accountsKeys.transactions(variables.accountId) });
-        queryClient.invalidateQueries({ queryKey: accountsKeys.account(variables.accountId) });
+      onMutate: async ({ accountId, data }) => {
+        // Cancel outgoing fetches
+        await queryClient.cancelQueries({ queryKey: accountsKeys.transactions(accountId) });
+        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
+
+        // Snapshot previous data
+        const previousTransactions = queryClient.getQueryData<AccountTransactionsResponse>(
+          accountsKeys.transactions(accountId)
+        );
+        const previousAccount = queryClient.getQueryData<UnifiedAccountDetails>(
+          accountsKeys.account(accountId)
+        );
+
+        // Optimistically add transaction
+        const optimisticTransaction = {
+          id: `temp-${Date.now()}`,
+          ...data,
+          createdAt: new Date().toISOString(),
+          status: 'pending' as const,
+        } as any; // Cast as transaction type
+
+        queryClient.setQueryData<AccountTransactionsResponse>(
+          accountsKeys.transactions(accountId),
+          (old) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: [optimisticTransaction, ...old.data],
+            };
+          }
+        );
+
+        return { previousTransactions, previousAccount };
+      },
+      onSuccess: (response, { accountId }, context) => {
+        if (response.success && response.data) {
+          // Replace optimistic transaction with real server response
+          queryClient.setQueryData<AccountTransactionsResponse>(
+            accountsKeys.transactions(accountId),
+            (old) => {
+              if (!old?.data) return old;
+              return {
+                ...old,
+                data: old.data.map((txn) =>
+                  txn.id.startsWith('temp-') ? response.data : txn
+                ),
+              };
+            }
+          );
+
+          // Invalidate account details to get updated balance
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.account(accountId),
+          });
+        }
+      },
+      onError: (error, { accountId }, context) => {
+        // Rollback to previous state
+        if (context?.previousTransactions) {
+          queryClient.setQueryData(
+            accountsKeys.transactions(accountId),
+            context.previousTransactions
+          );
+        }
+        if (context?.previousAccount) {
+          queryClient.setQueryData(
+            accountsKeys.account(accountId),
+            context.previousAccount
+          );
+        }
       },
     });
   },

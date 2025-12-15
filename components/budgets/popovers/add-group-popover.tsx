@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCreateCategoryGroup } from '@/lib/queries/use-category-groups-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 export function AddGroupPopover({
   onClose,
@@ -11,6 +11,7 @@ export function AddGroupPopover({
   onClose: () => void;
   triggerElement?: HTMLElement | null;
 }) {
+  const toast = useToast();
   const [groupName, setGroupName] = useState('');
   const [position, setPosition] = React.useState({ top: 0, left: 0 });
   const { mutate: createGroup, isPending } = useCreateCategoryGroup();
@@ -28,7 +29,7 @@ export function AddGroupPopover({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!groupName.trim()) {
-      toast.error('Group name required');
+      toast.toast({ title: 'Error', description: 'Group name required', variant: 'destructive' });
       return;
     }
 
@@ -41,7 +42,7 @@ export function AddGroupPopover({
       { name: groupNameCopy },
       {
         onSuccess: () => {
-          toast.success(`Group "${groupNameCopy}" created successfully`);
+          toast.toast({ title: 'Success', description: `Group "${groupNameCopy}" created successfully`, variant: 'success' });
         },
         onError: (error: unknown) => {
           const errorMessage = error && typeof error === 'object' && 'response' in error &&
@@ -50,7 +51,7 @@ export function AddGroupPopover({
             typeof error.response.data.message === 'string'
             ? error.response.data.message
             : 'Failed to create group';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         },
       }
     );

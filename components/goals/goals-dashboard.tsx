@@ -17,7 +17,7 @@ import { AddContributionDialog } from './add-contribution-dialog';
 import Link from 'next/link';
 import { GoalFiltersSheet } from './goal-filters-sheet';
 import { GoalCardSkeleton } from './goal-card-skeleton';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import type { Goal } from '@/lib/types/goals';
 import { GoalCardList } from './GoalList';
 import { IcTwotoneEnergySavingsLeaf, MageGoals, NotoMoneyBag, StreamlinePlumpMoneyCashBill1 } from '../icons/icons';
@@ -33,6 +33,7 @@ import {
 
 export function GoalsDashboard() {
   const router = useRouter();
+  const { success, error: toastError, info } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -111,9 +112,9 @@ export function GoalsDashboard() {
     startTransition(() => {
       // React Query will refetch automatically
       // This is a no-op since React Query handles refetching
-      toast.success('Goals refreshed');
+      success('Goals refreshed');
     });
-  }, []);
+  }, [success]);
 
   // Goal action handlers
   const handleEditGoal = useCallback((goal: Goal) => {
@@ -133,43 +134,43 @@ export function GoalsDashboard() {
     try {
       deleteGoalMutation.mutate(deletingGoal.id, {
         onSuccess: () => {
-          toast.success('Goal deleted successfully');
+          success('Goal deleted successfully');
           setIsDeleteDialogOpen(false);
           setDeletingGoal(null);
         },
-        onError: (error: unknown) => {
-          const message = error instanceof Error ? error.message : 'Failed to delete goal';
-          toast.error('Failed to delete goal', { description: message });
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Failed to delete goal';
+          toastError({ title: 'Failed to delete goal', description: message });
         },
         onSettled: () => {
           setIsDeleting(false);
         },
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      toast.error('Failed to delete goal', { description: message });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      toastError({ title: 'Failed to delete goal', description: message });
       setIsDeleting(false);
     }
-  }, [deletingGoal, deleteGoalMutation]);
+  }, [deletingGoal, deleteGoalMutation, success, toastError]);
 
   const handleCalculateProgress = useCallback(async (goal: Goal) => {
     try {
-      toast.info('Calculating progress...', { description: 'This may take a moment' });
+      info({ title: 'Calculating progress...', description: 'This may take a moment' });
 
       calculateProgressMutation.mutate(goal.id, {
         onSuccess: () => {
-          toast.success('Progress updated successfully');
+          success('Progress updated successfully');
         },
-        onError: (error: unknown) => {
-          const message = error instanceof Error ? error.message : 'Failed to calculate progress';
-          toast.error('Failed to calculate progress', { description: message });
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Failed to calculate progress';
+          toastError({ title: 'Failed to calculate progress', description: message });
         },
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      toast.error('Failed to calculate progress', { description: message });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      toastError({ title: 'Failed to calculate progress', description: message });
     }
-  }, [calculateProgressMutation]);
+  }, [calculateProgressMutation, info, success, toastError]);
 
   const handleAddContribution = useCallback((goal: Goal) => {
     setContributingGoal(goal);
@@ -188,26 +189,26 @@ export function GoalsDashboard() {
         },
         {
           onSuccess: () => {
-            toast.success('Contribution added successfully');
+            success('Contribution added successfully');
             setIsContributionDialogOpen(false);
             setContributingGoal(null);
           },
-          onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : 'Failed to add contribution';
-            toast.error('Failed to add contribution', { description: message });
-            throw error;
+          onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to add contribution';
+            toastError({ title: 'Failed to add contribution', description: message });
+            throw err;
           },
           onSettled: () => {
             setIsAddingContribution(false);
           },
         }
       );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      toast.error('Failed to add contribution', { description: message });
-      throw error;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      toastError({ title: 'Failed to add contribution', description: message });
+      throw err;
     }
-  }, [contributingGoal, addContributionMutation]);
+  }, [contributingGoal, addContributionMutation, success, toastError]);
 
   const handleViewDetails = useCallback((goal: Goal) => {
     router.push(`/goals/${goal.id}`);

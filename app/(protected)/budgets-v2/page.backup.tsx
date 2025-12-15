@@ -38,7 +38,7 @@ import { useEnvelopeUIStore } from '@/lib/stores/envelope-ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { CreateEnvelopeModal } from '@/components/budgets-v2/create-envelope-modal';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 
 interface EnvelopeItem {
   id: string;
@@ -76,6 +76,7 @@ const getCategoryGroupLabel = (type: string) => {
 
 export default function BudgetsV2Page() {
   usePostHogPageView('budgets-v2');
+  const toast = useToast();
 
   // Auth
   const user = useAuthStore((state) => state.user);
@@ -194,12 +195,12 @@ export default function BudgetsV2Page() {
   const handleCreateEnvelope = async (data: Record<string, unknown>) => {
     try {
       await createEnvelopeMutation.mutateAsync(data);
-      toast.success('Envelope created successfully');
+      toast.toast({ title: 'Success', description: 'Envelope created successfully', variant: 'success' });
       closeCreateEnvelopeModal();
       await refetchEnvelopes();
       await refetchDashboard();
     } catch (error) {
-      toast.error('Failed to create envelope');
+      toast.toast({ title: 'Error', description: 'Failed to create envelope', variant: 'destructive' });
     }
   };
 
@@ -449,6 +450,7 @@ function TableDataRow({
   showBalances: boolean;
   isLast: boolean;
 }) {
+  const toast = useToast();
   const [isEditingAssigned, setIsEditingAssigned] = React.useState(false);
   const [editValue, setEditValue] = React.useState('');
 
@@ -478,12 +480,12 @@ function TableDataRow({
     const newAmount = parseFloat(editValue);
 
     if (isNaN(newAmount)) {
-      toast.error('Please enter a valid amount');
+      toast.toast({ title: 'Error', description: 'Please enter a valid amount', variant: 'destructive' });
       return;
     }
 
     if (newAmount < 0) {
-      toast.error('Amount cannot be negative');
+      toast.toast({ title: 'Error', description: 'Amount cannot be negative', variant: 'destructive' });
       return;
     }
 
@@ -492,12 +494,12 @@ function TableDataRow({
       { amount: newAmount },
       {
         onSuccess: () => {
-          toast.success(`Allocated $${newAmount.toFixed(2)} to ${envelope.name}`);
+          toast.toast({ title: 'Success', description: `Allocated $${newAmount.toFixed(2)} to ${envelope.name}`, variant: 'success' });
           setIsEditingAssigned(false);
         },
         onError: (error: unknown) => {
           const errorMessage = error?.response?.data?.message || 'Failed to update allocation';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         },
       }
     );
@@ -616,6 +618,7 @@ function TableGroupRow({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const toast = useToast();
   const [isEditingAssigned, setIsEditingAssigned] = React.useState(false);
   const [editValue, setEditValue] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
@@ -654,12 +657,12 @@ function TableGroupRow({
     const newAmount = parseFloat(editValue);
 
     if (isNaN(newAmount)) {
-      toast.error('Please enter a valid amount');
+      toast.toast({ title: 'Error', description: 'Please enter a valid amount', variant: 'destructive' });
       return;
     }
 
     if (newAmount < 0) {
-      toast.error('Amount cannot be negative');
+      toast.toast({ title: 'Error', description: 'Amount cannot be negative', variant: 'destructive' });
       return;
     }
 
@@ -674,7 +677,7 @@ function TableGroupRow({
 
     // Distribute the delta proportionally across all envelopes
     if (envelopes.length === 0) {
-      toast.error('No envelopes in this group');
+      toast.toast({ title: 'Error', description: 'No envelopes in this group', variant: 'destructive' });
       return;
     }
 
@@ -711,11 +714,11 @@ function TableGroupRow({
         queryKey: ['envelopes', 'lists', 'with-stats'],
       });
 
-      toast.success(`Allocated $${newAmount.toFixed(2)} to ${getCategoryGroupLabel(groupType)}`);
+      toast.toast({ title: 'Success', description: `Allocated $${newAmount.toFixed(2)} to ${getCategoryGroupLabel(groupType)}`, variant: 'success' });
       setIsEditingAssigned(false);
     } catch (error: unknown) {
       const errorMessage = error?.response?.data?.message || 'Failed to update allocations';
-      toast.error(errorMessage);
+      toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -833,6 +836,7 @@ function GridCard({
   envelope: EnvelopeItem;
   showBalances: boolean;
 }) {
+  const toast = useToast();
   const [isEditingAssigned, setIsEditingAssigned] = React.useState(false);
   const [editValue, setEditValue] = React.useState('');
   const allocateMutation = useAllocateToEnvelope(envelope.id);
@@ -861,12 +865,12 @@ function GridCard({
     const newAmount = parseFloat(editValue);
 
     if (isNaN(newAmount)) {
-      toast.error('Please enter a valid amount');
+      toast.toast({ title: 'Error', description: 'Please enter a valid amount', variant: 'destructive' });
       return;
     }
 
     if (newAmount < 0) {
-      toast.error('Amount cannot be negative');
+      toast.toast({ title: 'Error', description: 'Amount cannot be negative', variant: 'destructive' });
       return;
     }
 
@@ -875,12 +879,12 @@ function GridCard({
       { amount: newAmount },
       {
         onSuccess: () => {
-          toast.success(`Allocated $${newAmount.toFixed(2)} to ${envelope.name}`);
+          toast.toast({ title: 'Success', description: `Allocated $${newAmount.toFixed(2)} to ${envelope.name}`, variant: 'success' });
           setIsEditingAssigned(false);
         },
         onError: (error: unknown) => {
           const errorMessage = error?.response?.data?.message || 'Failed to update allocation';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         },
       }
     );

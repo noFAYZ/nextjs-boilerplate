@@ -4,6 +4,8 @@ import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, Settings, User, Crown, ChevronsUpDownIcon, LucideMenu, Menu, SquareMenu, MenuIcon, ChevronLeft, ChevronRight, Search, RefreshCcw, RefreshCwIcon, SidebarClose, SidebarOpen } from 'lucide-react';
+import { useQueryClient, useIsFetching, useIsMutating } from '@tanstack/react-query';
+import { useToast } from "@/lib/hooks/useToast";
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -51,6 +53,11 @@ export function SidebarMainColumn({
 }: SidebarMainColumnProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
+  const isLoading = isFetching > 0 || isMutating > 0;
 
   // PRODUCTION-GRADE: Use AuthStore instead of fetching profile
   const user = useAuthStore((state) => state.user);
@@ -59,10 +66,10 @@ export function SidebarMainColumn({
     try {
       // Navigate to logout loading screen
       router.push('/auth/logout-loading');
-      
+
       // Perform logout
       await authClient.signOut();
-      
+
       // Navigate directly to login (no success screen)
       router.push('/auth/login');
     } catch (error) {
@@ -72,6 +79,24 @@ export function SidebarMainColumn({
     }
   }, [router]);
 
+  const handleRefresh = React.useCallback(async () => {
+    try {
+      // Detect current page and refetch appropriate data
+      if (pathname.includes('/subscriptions')) {
+        await queryClient.refetchQueries({ queryKey: ['subscriptions'] });
+      } else {
+        // Generic refetch for other pages
+        await queryClient.refetchQueries();
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to refresh data. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  }, [pathname, queryClient, toast]);
+
   const avatar = createAvatar(avataaarsNeutral, {
     size: 128,
     seed: user.name,
@@ -80,7 +105,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/80  transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
@@ -131,11 +156,11 @@ export function SidebarMainColumn({
       {/* Toggle always visible in expanded mode */}
       <div className='flex items-center gap-3'>
 
-     
+
         <Button
         variant="outlinemuted2"
         size="icon-sm"
-       
+
         className="ml-auto rounded-full"
       >
         <Settings
@@ -145,11 +170,18 @@ export function SidebarMainColumn({
         <Button
         variant="outlinemuted2"
         size="icon-sm"
-       
-        className="ml-auto rounded-full"
+        onClick={handleRefresh}
+        disabled={isLoading}
+        className={cn(
+          "ml-auto rounded-full transition-colors",
+          isLoading && "bg-amber-100 text-amber-900 hover:bg-amber-300"
+        )}
       >
         <RefreshCwIcon
-          className="h-4.5 w-4.5  "
+          className={cn(
+            "h-4.5 w-4.5",
+            isLoading && "animate-spin"
+          )}
         />
       </Button>
 {/* */}   <Button

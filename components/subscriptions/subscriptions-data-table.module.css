@@ -1,0 +1,34 @@
+/* Production-grade datatable styles - no animations */
+
+/* Table row base styles */
+.tableRow {
+  will-change: background-color;
+}
+
+.tableRow:hover {
+  background-color: rgb(var(--muted) / 0.3);
+}
+
+/* Row deletion state */
+.rowDeleting {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Clickable cell styling */
+.clickableCell {
+  will-change: color;
+}
+
+.tableRow:hover .clickableCell {
+  color: rgb(var(--primary));
+}
+
+/* Actions container - show on hover */
+.actionsContainer {
+  opacity: 0;
+}
+
+.tableRow:hover .actionsContainer {
+  opacity: 1;
+}

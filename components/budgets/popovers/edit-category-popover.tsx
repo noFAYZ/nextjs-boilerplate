@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUpdateCategory } from '@/lib/queries/use-category-groups-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 export function EditCategoryPopover({
   category,
@@ -19,6 +19,7 @@ export function EditCategoryPopover({
   onDelete: () => void;
   triggerElement?: HTMLElement | null;
 }) {
+  const toast = useToast();
   const { mutate: updateCategory, isPending } = useUpdateCategory(category.id);
   const [position, setPosition] = React.useState({ top: 0, left: 0 });
 
@@ -36,7 +37,7 @@ export function EditCategoryPopover({
     const trimmedName = newCategoryName.trim();
 
     if (!trimmedName) {
-      toast.error('Category name cannot be empty');
+      toast.toast({ title: 'Error', description: 'Category name cannot be empty', variant: 'destructive' });
       return;
     }
 
@@ -50,11 +51,11 @@ export function EditCategoryPopover({
       { name: trimmedName },
       {
         onSuccess: () => {
-          toast.success('Category updated');
+          toast.toast({ title: 'Success', description: 'Category updated', variant: 'success' });
           onClose();
         },
         onError: (error: unknown) => {
-          toast.error('Failed to update category');
+          toast.toast({ title: 'Error', description: 'Failed to update category', variant: 'destructive' });
         },
       }
     );

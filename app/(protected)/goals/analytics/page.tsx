@@ -9,7 +9,7 @@ import { GoalAnalyticsDashboard } from '@/components/goals/goal-analytics';
 import { useGoalsStore } from '@/lib/stores';
 import { goalsApi } from '@/lib/services/goals-api';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import Link from 'next/link';
 import {
   Breadcrumb,
@@ -24,6 +24,7 @@ import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetc
 
 export default function GoalsAnalyticsPage() {
   const router = useRouter();
+  const { error: showError } = useToast();
   const { analytics, setAnalytics, setAnalyticsLoading } = useGoalsStore();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -49,7 +50,8 @@ export default function GoalsAnalyticsPage() {
           setError('Analytics are not yet available. The backend is still being configured.');
         } else {
           setError(response.error.message);
-          toast.error('Failed to load analytics', {
+          showError({
+            title: 'Failed to load analytics',
             description: response.error.message,
           });
         }

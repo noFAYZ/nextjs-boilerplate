@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCreateCategory } from '@/lib/queries/use-category-groups-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 export function AddCategoryForm({
   groupId,
@@ -11,13 +11,14 @@ export function AddCategoryForm({
   groupId: string;
   onClose: () => void;
 }) {
+  const toast = useToast();
   const [categoryName, setCategoryName] = useState('');
   const { mutate: createCategory, isPending } = useCreateCategory();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryName.trim()) {
-      toast.error('Category name required');
+      toast.toast({ title: 'Error', description: 'Category name required', variant: 'destructive' });
       return;
     }
 
@@ -33,11 +34,11 @@ export function AddCategoryForm({
       },
       {
         onSuccess: () => {
-          toast.success('Category created successfully');
+          toast.toast({ title: 'Success', description: 'Category created successfully', variant: 'success' });
         },
         onError: (error: unknown) => {
           const message = error instanceof Error ? error.message : 'Failed to create category';
-          toast.error(message);
+          toast.toast({ title: 'Error', description: message, variant: 'destructive' });
         },
       }
     );

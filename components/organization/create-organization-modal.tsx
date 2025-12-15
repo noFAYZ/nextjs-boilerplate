@@ -28,7 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { useCreateOrganization, useUpdateOrganization } from '@/lib/queries/use-organization-data';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from "@/lib/hooks/useToast";
 import type { Organization, CreateOrganizationInput, UpdateOrganizationInput } from '@/lib/types/organization';
 
 interface CreateOrganizationModalProps {

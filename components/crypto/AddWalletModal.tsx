@@ -25,7 +25,7 @@ import {
   Loader2,
   PlusIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -69,6 +69,7 @@ interface AddWalletModalProps {
 }
 
 export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
+  const toast = useToast();
   const [isValidating, setIsValidating] = useState(false);
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
 
@@ -147,7 +148,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
 
     createWallet(formattedData, {
       onSuccess: () => {
-        toast.success('Wallet added successfully!');
+        toast.toast({ title: 'Success', description: 'Wallet added successfully!', variant: 'success' });
         reset(); // Reset form
         onOpenChange(false); // Close modal
       },
@@ -158,7 +159,7 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
         if (!planLimitError) {
           const err = error as { message?: string };
           const errorMessage = err.message || 'Failed to add wallet';
-          toast.error(errorMessage);
+          toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         }
       }
     });
@@ -171,11 +172,11 @@ export function AddWalletModal({ open, onOpenChange }: AddWalletModalProps) {
         billingPeriod: 'MONTHLY'
       });
 
-      toast.success(`Successfully upgraded to ${planType} plan!`);
+      toast.toast({ title: 'Success', description: `Successfully upgraded to ${planType} plan!`, variant: 'success' });
       planLimitDialog.hideDialog();
     } catch (error) {
       console.error('Upgrade error:', error);
-      toast.error('Failed to upgrade plan. Please try again.');
+      toast.toast({ title: 'Error', description: 'Failed to upgrade plan. Please try again.', variant: 'destructive' });
     }
   };
 

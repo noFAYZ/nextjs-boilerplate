@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { AlertCircle, Zap } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 interface AddEnvelopeBudgetModalProps {
   isOpen: boolean;
@@ -40,6 +40,7 @@ export function AddEnvelopeBudgetModal({
   categories,
   month,
 }: AddEnvelopeBudgetModalProps) {
+  const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(selectedCategoryId);
   const [budgetAmount, setBudgetAmount] = useState<string>('');
   const [step, setStep] = useState<'select' | 'amount'>('select');
@@ -88,13 +89,13 @@ export function AddEnvelopeBudgetModal({
 
   const handleSave = async () => {
     if (!selectedCategory || !budgetAmount) {
-      toast.error('Please fill in all fields');
+      toast.toast({ title: 'Error', description: 'Please fill in all fields', variant: 'destructive' });
       return;
     }
 
     const amount = parseFloat(budgetAmount);
     if (isNaN(amount) || amount <= 0) {
-      toast.error('Please enter a valid amount');
+      toast.toast({ title: 'Error', description: 'Please enter a valid amount', variant: 'destructive' });
       return;
     }
 
@@ -102,10 +103,10 @@ export function AddEnvelopeBudgetModal({
       setIsSaving(true);
       // Store in localStorage (temporary - will be replaced with backend in future)
       localStorage.setItem(`budget-${selectedCategory}`, amount.toString());
-      toast.success('Budget saved successfully');
+      toast.toast({ title: 'Success', description: 'Budget saved successfully', variant: 'success' });
       onClose();
     } catch (error) {
-      toast.error('Failed to save budget');
+      toast.toast({ title: 'Error', description: 'Failed to save budget', variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }

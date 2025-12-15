@@ -23,7 +23,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import { useToast } from '@/lib/hooks/useToast';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 // ✅ Import TanStack Query hooks (organization-aware)
@@ -182,6 +182,7 @@ function WalletSkeleton() {
 
 function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const router = useRouter();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState("tokens");
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -232,7 +233,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
     if (prevStatus && ['syncing', 'syncing_assets', 'syncing_transactions', 'syncing_nfts', 'syncing_defi'].includes(prevStatus) && currentStatus === "completed") {
       setTimeout(() => {
         refetch();
-        toast.success("Wallet data updated!");
+        toast.toast({ title: 'Success', description: "Wallet data updated!", variant: 'success' });
       }, 1000); // Small delay to ensure backend has processed the sync
     }
 
@@ -258,9 +259,9 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
     try {
       await navigator.clipboard.writeText(wallet.walletData.address);
-      toast.success("Address copied to clipboard");
+      toast.toast({ title: 'Success', description: "Address copied to clipboard", variant: 'success' });
     } catch (error) {
-      toast.error("Failed to copy address");
+      toast.toast({ title: 'Error', description: "Failed to copy address", variant: 'destructive' });
     }
   }, [wallet?.walletData?.address]);
 
@@ -279,20 +280,20 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       },
       {
         onSuccess: () => {
-          toast.success("Wallet sync started");
+          toast.toast({ title: 'Success', description: "Wallet sync started", variant: 'success' });
           // Show the sync progress modal
           setShowSyncModal(true);
         },
         onError: (error: Error) => {
-          toast.error(error.message || "Failed to start sync");
+          toast.toast({ title: 'Error', description: error.message || "Failed to start sync", variant: 'destructive' });
         },
       }
     );
   }, [walletIdentifier, syncWallet]);
 
   const handleSyncComplete = useCallback(() => {
-    
-    toast.success('Wallet sync completed successfully!');
+
+    toast.toast({ title: 'Success', description: 'Wallet sync completed successfully!', variant: 'success' });
 
     // Refresh wallet data after completion
     refetch();

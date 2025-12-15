@@ -21,7 +21,6 @@ import {
 } from '@tanstack/react-query';
 import { goalsApi } from '@/lib/services/goals-api';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { toast } from 'sonner';
 import type {
   CreateGoalRequest,
   UpdateGoalRequest,
@@ -168,18 +167,9 @@ export function useCreateGoal() {
     onSuccess: (response) => {
       // Invalidate all goal queries
       queryClient.invalidateQueries({ queryKey: goalKeys.all });
-
-      // Show success toast
-      if (response.data) {
-        toast.success('Goal created successfully!', {
-          description: `${response.data.name} has been added to your goals.`,
-        });
-      }
     },
     onError: (error: Error) => {
-      toast.error('Failed to create goal', {
-        description: error.message || 'An error occurred while creating the goal.',
-      });
+      console.error('Failed to create goal:', error);
     },
   });
 }
@@ -199,18 +189,9 @@ export function useUpdateGoal() {
       queryClient.invalidateQueries({ queryKey: goalKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: goalKeys.lists() });
       queryClient.invalidateQueries({ queryKey: goalKeys.analytics() });
-
-      // Show success toast
-      if (response.data) {
-        toast.success('Goal updated successfully!', {
-          description: `${response.data.name} has been updated.`,
-        });
-      }
     },
     onError: (error: Error) => {
-      toast.error('Failed to update goal', {
-        description: error.message || 'An error occurred while updating the goal.',
-      });
+      console.error('Failed to update goal:', error);
     },
   });
 }

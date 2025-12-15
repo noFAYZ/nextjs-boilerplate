@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Plus, LayoutGrid, List } from "lucide-react";
+import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,6 @@ import { UpcomingCharges } from "@/components/subscriptions/upcoming-charges";
 import { SubscriptionsFloatingToolbar } from "@/components/subscriptions/subscriptions-floating-toolbar";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import { useDeleteSubscription, useSubscriptions } from "@/lib/queries/use-subscription-data";
-import { useToast } from "@/lib/hooks/use-toast";
 import type { UserSubscription } from "@/lib/types/subscription";
 import {
   AlertDialog,
@@ -23,10 +23,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "@/lib/hooks/useToast";
 
 export default function SubscriptionsPage() {
   usePostHogPageView('subscriptions');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching();
+
   const [selectedSubscription, setSelectedSubscription] = React.useState<UserSubscription | null>(
     null
   );
@@ -38,9 +42,13 @@ export default function SubscriptionsPage() {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
   const { setActiveTab, ui, viewPreferences, setSubscriptionsView } = useSubscriptionUIStore();
-  const { data: subscriptions = [] } = useSubscriptions();
+  const { data: subscriptions = [], isLoading: isLoadingSubscriptions } = useSubscriptions();
 
   const { mutate: deleteSubscription, isPending: isDeleting } = useDeleteSubscription();
+
+  const handleRefresh = React.useCallback(async () => {
+    await queryClient.refetchQueries({ queryKey: ['subscriptions'] });
+  }, [queryClient]);
 
   // Calculate total monthly spend for selected
   const selectedSubscriptions = subscriptions.filter((s) =>
@@ -68,6 +76,7 @@ export default function SubscriptionsPage() {
           toast({
             title: "Subscription deleted",
             description: "The subscription has been removed successfully.",
+            variant: 'success'
           });
           setIsDeleteDialogOpen(false);
           setSubscriptionToDelete(null);

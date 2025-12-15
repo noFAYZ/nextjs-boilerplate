@@ -2,8 +2,16 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { type HTMLAttributes, useMemo } from "react";
-import { useReducedMotion } from "framer-motion";
+import { type HTMLAttributes, useMemo, useEffect, useState } from "react";
+import { useReducedMotion, motion, AnimatePresence } from "framer-motion";
+import { GooeyIndicator } from "@/components/ui/goey-indicator";
+
+interface GalleryImage {
+  src: string;
+  opacity?: number;
+  position?: string;
+  size?: "cover" | "contain";
+}
 
 interface BgGradientProps extends HTMLAttributes<HTMLDivElement> {
   size?: string;
@@ -23,17 +31,17 @@ interface BgGradientProps extends HTMLAttributes<HTMLDivElement> {
   imagePosition?: string;
   imageSize?: "cover" | "contain";
 
-  pattern?: boolean;
-  patternColor?: string;
-  patternType?: "dots" | "grid" | "diagonal" | "cross" | "wave" | "custom";
-  customPatternSVG?: string;
-  patternSize?: number;
-  patternOpacity?: number;
-  patternRotation?: number;
+  /** Gallery */
+  gallery?: GalleryImage[];
+  galleryIndex?: number;
+  autoRotate?: boolean;
+  rotateInterval?: number;
 
-  noiseOpacity?: number;
+  /** Indicator */
+  showIndicator?: boolean;
+  indicatorPosition?: "bottom" | "top" | "center";
 
-  /** Glass overlay */
+  /** Glass */
   glass?: boolean;
   glassBlur?: number;
   glassOpacity?: number;
@@ -61,15 +69,13 @@ export const BgGradient = ({
   imagePosition = "center",
   imageSize = "cover",
 
-  pattern = true,
-  patternColor = "rgba(120,120,120,0.25)",
-  patternType = "dots",
-  customPatternSVG,
-  patternSize = 18,
-  patternOpacity = 0.25,
-  patternRotation = 0,
+  gallery,
+  galleryIndex,
+  autoRotate = false,
+  rotateInterval = 4000,
 
-  noiseOpacity = 0.08,
+  showIndicator = false,
+  indicatorPosition = "bottom",
 
   glass = false,
   glassBlur = 18,
@@ -81,48 +87,25 @@ export const BgGradient = ({
   ...props
 }: BgGradientProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const [internalIndex, setInternalIndex] = useState(0);
+
+  const activeIndex = galleryIndex ?? internalIndex;
+  const activeImage = gallery?.[activeIndex];
+
+  useEffect(() => {
+    if (!gallery || !autoRotate || prefersReducedMotion) return;
+    const id = setInterval(
+      () => setInternalIndex((i) => (i + 1) % gallery.length),
+      rotateInterval
+    );
+    return () => clearInterval(id);
+  }, [gallery, autoRotate, rotateInterval, prefersReducedMotion]);
 
   const gradientStops = useMemo(() => {
     return via
       ? `${from} ${fromOpacity}, ${via} 40%, ${to} 80%`
       : `${from} ${fromOpacity}, ${to} 100%`;
   }, [from, via, to, fromOpacity]);
-
-  const svgPatterns: Record<string, string> = {
-    dots: `
-      <svg width='${patternSize}' height='${patternSize}' xmlns='http://www.w3.org/2000/svg'>
-        <circle cx='${patternSize / 2}' cy='${patternSize / 2}' r='1.2' fill='${patternColor}' />
-      </svg>
-    `,
-    grid: `
-      <svg width='${patternSize}' height='${patternSize}' xmlns='http://www.w3.org/2000/svg'>
-        <rect width='1' height='${patternSize}' fill='${patternColor}' />
-        <rect width='${patternSize}' height='1' fill='${patternColor}' />
-      </svg>
-    `,
-    diagonal: `
-      <svg width='${patternSize}' height='${patternSize}' xmlns='http://www.w3.org/2000/svg'>
-        <path d='M0 ${patternSize} L${patternSize} 0' stroke='${patternColor}' stroke-width='1'/>
-      </svg>
-    `,
-    cross: `
-      <svg width='${patternSize}' height='${patternSize}' xmlns='http://www.w3.org/2000/svg'>
-        <path d='M${patternSize / 2} 0 V ${patternSize}' stroke='${patternColor}'/>
-        <path d='M0 ${patternSize / 2} H ${patternSize}' stroke='${patternColor}'/>
-      </svg>
-    `,
-    wave: `
-      <svg width='${patternSize}' height='${patternSize}' xmlns='http://www.w3.org/2000/svg'>
-        <path d='M0 ${patternSize / 2} Q ${patternSize / 4} 0, ${patternSize / 2} ${patternSize / 2} T ${patternSize} ${patternSize / 2}'
-          stroke='${patternColor}' fill='none'/>
-      </svg>
-    `,
-  };
-
-  const selectedPattern =
-    patternType === "custom" && customPatternSVG
-      ? customPatternSVG
-      : svgPatterns[patternType];
 
   return (
     <div
@@ -144,22 +127,41 @@ export const BgGradient = ({
       )}
       {...props}
     >
-      {/* Background image */}
-      {imageSrc && !prefersReducedMotion && (
-        <div className="absolute inset-0" style={{ opacity: imageOpacity }}>
-          <Image
-            src={imageSrc}
-            alt=""
-            fill
-            sizes="100vw"
-            quality={70}
-            className={imageSize === "cover" ? "object-cover" : "object-contain"}
-            style={{ objectPosition: imagePosition }}
-          />
-        </div>
-      )}
+      {/* Gallery / Image */}
+      <AnimatePresence mode="wait">
+        {(activeImage || imageSrc) && !prefersReducedMotion && (
+          <motion.div
+            key={activeImage?.src ?? imageSrc}
+            className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1.03 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{
+              opacity: activeImage?.opacity ?? imageOpacity,
+            }}
+          >
+            <Image
+              src={activeImage?.src ?? imageSrc!}
+              alt=""
+              fill
+              sizes="100vw"
+              quality={75}
+              className={
+                (activeImage?.size ?? imageSize) === "cover"
+                  ? "object-cover"
+                  : "object-contain"
+              }
+              style={{
+                objectPosition:
+                  activeImage?.position ?? imagePosition,
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Gradient blob */}
+      {/* Gradient */}
       <div
         className={cn("absolute inset-0", blur)}
         style={{
@@ -171,32 +173,6 @@ export const BgGradient = ({
               : `conic-gradient(from 0deg at center, ${gradientStops})`,
           backgroundSize: size,
           opacity,
-          willChange: animated ? "transform" : undefined,
-        }}
-      />
-
-      {/* Pattern */}
-      {pattern && selectedPattern && (
-        <div
-          className="absolute inset-0 mix-blend-overlay"
-          style={{
-            opacity: patternOpacity,
-            transform: `rotate(${patternRotation}deg)`,
-            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(
-              selectedPattern
-            )}")`,
-            backgroundRepeat: "repeat",
-          }}
-        />
-      )}
-
-      {/* Noise */}
-      <div
-        className="absolute inset-0 mix-blend-soft-light"
-        style={{
-          opacity: noiseOpacity,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E\")",
         }}
       />
 
@@ -222,6 +198,24 @@ export const BgGradient = ({
               }}
             />
           )}
+        </div>
+      )}
+
+      {/* Indicator */}
+      {showIndicator && gallery && (
+        <div
+          className={cn(
+            "absolute left-1/2 -translate-x-1/2",
+            indicatorPosition === "bottom" && "bottom-6",
+            indicatorPosition === "top" && "top-6",
+            indicatorPosition === "center" &&
+              "top-1/2 -translate-y-1/2"
+          )}
+        >
+          <GooeyIndicator
+            current={activeIndex }
+            total={gallery.length}
+          />
         </div>
       )}
     </div>

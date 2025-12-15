@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
 import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useGTM } from '@/lib/hooks/use-gtm';
 import { Card } from '../ui/card';
 
@@ -35,6 +35,9 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
   // ✅ GTM tracking
   const { trackWaitlistSignup } = useGTM();
 
+  // ✅ Custom toast hook
+  const { success, error } = useToast();
+
   const form = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
@@ -51,13 +54,15 @@ export function WaitlistFormCompact({ className }: WaitlistFormProps) {
         // Track successful waitlist signup with GTM
         trackWaitlistSignup({ email: data.email });
 
-        toast.success('Successfully joined the waitlist!', {
+        success({
+          title: 'Successfully joined the waitlist!',
           description: 'We\'ll notify you when MoneyMappr launches.',
         });
       },
-      onError: (error) => {
-        toast.error('Failed to join waitlist', {
-          description: error.message,
+      onError: (err) => {
+        error({
+          title: 'Failed to join waitlist',
+          description: err.message,
         });
       },
     });

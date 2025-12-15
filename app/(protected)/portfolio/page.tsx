@@ -25,7 +25,7 @@ import {
   FluentBuildingBank28Regular,
 } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import Link from 'next/link';
 import {
   Breadcrumb,
@@ -42,6 +42,7 @@ import { Card } from '@/components/ui/card';
 export default function PortfolioPage() {
   usePostHogPageView('portfolio');
   const router = useRouter();
+  const { success } = useToast();
   const { pageClass } = useViewModeClasses();
 
   // ✅ UPDATED: Use Net Worth API for comprehensive aggregation
@@ -150,7 +151,7 @@ export default function PortfolioPage() {
   const handleRefreshAll = () => {
     // ✅ Refetch net worth data
     refetch();
-    toast.success('Refreshing portfolio data...');
+    success('Refreshing portfolio data...');
   };
 
   if (isLoading) {

@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/useToast";
 import { useRenewSubscription } from "@/lib/queries/use-subscription-data";
 import { Loader2, RefreshCw, Calendar } from "lucide-react";
 import { subscriptionsApi } from "@/lib/services/subscriptions-api";

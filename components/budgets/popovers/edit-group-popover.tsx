@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUpdateCategoryGroup } from '@/lib/queries/use-category-groups-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 export function EditGroupPopover({
   group,
@@ -19,6 +19,7 @@ export function EditGroupPopover({
   onDelete: () => void;
   triggerElement?: HTMLElement | null;
 }) {
+  const toast = useToast();
   const { mutate: updateGroup, isPending } = useUpdateCategoryGroup(group.id);
   const [position, setPosition] = React.useState({ top: 0, left: 0 });
 
@@ -36,7 +37,7 @@ export function EditGroupPopover({
     const trimmedName = editGroupName.trim();
 
     if (!trimmedName) {
-      toast.error('Group name cannot be empty');
+      toast.toast({ title: 'Error', description: 'Group name cannot be empty', variant: 'destructive' });
       return;
     }
 
@@ -50,11 +51,11 @@ export function EditGroupPopover({
       { name: trimmedName },
       {
         onSuccess: () => {
-          toast.success('Group updated');
+          toast.toast({ title: 'Success', description: 'Group updated', variant: 'success' });
           onClose();
         },
         onError: (error: unknown) => {
-          toast.error('Failed to update group');
+          toast.toast({ title: 'Error', description: 'Failed to update group', variant: 'destructive' });
         },
       }
     );

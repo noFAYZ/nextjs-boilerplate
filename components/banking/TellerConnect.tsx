@@ -20,7 +20,7 @@ import {
   Lock,
   X
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import React from 'react';
 
 import { useBankingStore } from '@/lib/stores/banking-store';
@@ -50,6 +50,7 @@ interface TellerConnectProps {
 }
 
 export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectProps) {
+  const { success, error: toastError } = useToast();
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
@@ -131,7 +132,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
               }
             });
 
-            toast.success('Bank accounts connected successfully!');
+            success('Bank accounts connected successfully!');
             onSuccess?.([]); // Will be populated with actual account data
             onOpenChange(false);
           } catch (error: unknown) {
@@ -144,7 +145,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
             if (!planLimitError) {
               // Only show toast for non-plan-limit errors
               const errorMessage = err?.error?.message || err?.message || 'Failed to connect bank account';
-              toast.error(errorMessage);
+              toastError(errorMessage);
               setTellerConnectError(errorMessage);
             }
           } finally {
@@ -164,7 +165,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
           // Handle specific events
           if (evt.type === 'error') {
             setTellerConnectError(evt.message || 'An error occurred during connection');
-            toast.error('Connection error occurred');
+            toastError('Connection error occurred');
           }
         }
       };
@@ -183,7 +184,7 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
         tellerInstanceRef.current.open();
       } catch (error) {
         console.error('Failed to open Teller Connect:', error);
-        toast.error('Failed to open bank connection');
+        toastError('Failed to open bank connection');
       }
     }
   };
@@ -207,11 +208,11 @@ export function TellerConnect({ open, onOpenChange, onSuccess }: TellerConnectPr
         billingPeriod: 'MONTHLY' as const
       });
 
-      toast.success(`Successfully upgraded to ${planType} plan!`);
+      success(`Successfully upgraded to ${planType} plan!`);
       planLimitDialog.hideDialog();
     } catch (error) {
       console.error('Upgrade error:', error);
-      toast.error('Failed to upgrade plan. Please try again.');
+      toastError('Failed to upgrade plan. Please try again.');
     }
   };
 

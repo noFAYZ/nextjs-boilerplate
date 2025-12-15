@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 
 interface CreateBudgetModalProps {
   isOpen: boolean;
@@ -44,6 +44,7 @@ const CYCLES = [
 const BUDGET_ICONS = ['💰', '🛒', '🏠', '🚗', '🍔', '🎮', '📱', '💊', '✈️', '🎓', '👕', '🎬'];
 
 export function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModalProps) {
+  const { success, error } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -85,10 +86,10 @@ export function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModalProps) {
     try {
       // TODO: Call the actual mutation to create a budget
       // For now, just show a success message
-      toast.success('Budget created successfully!');
+      success('Budget created successfully!');
       handleClose();
-    } catch (error) {
-      toast.error('Failed to create budget');
+    } catch (err) {
+      error('Failed to create budget');
     } finally {
       setIsLoading(false);
     }

@@ -21,7 +21,7 @@ import {
 } from "@/lib/queries/use-budget-data"
 import { BudgetFormModal } from "@/components/budgets/budget-form-modal"
 import { BudgetHeader } from "@/components/budgets/budget-header"
-import { useToast } from "@/lib/hooks/use-toast"
+import { useToast } from "@/lib/hooks/useToast"
 import { cn } from "@/lib/utils"
 import type { Budget } from "@/lib/types/budget"
 import Link from "next/link"

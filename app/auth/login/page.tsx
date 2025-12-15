@@ -9,10 +9,11 @@ import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignInFormData } from '@/lib/types';
 import { useAuthStore, selectAuthError, selectSession, selectIsAuthenticated } from '@/lib/stores';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 function LoginForm() {
   usePostHogPageView('auth_login');
   const router = useRouter();
+  const { error: toastError } = useToast();
   const login = useAuthStore((state) => state.login);
   const error = useAuthStore(selectAuthError);
   const clearError = useAuthStore((state) => state.clearAuthErrors);
@@ -58,12 +59,12 @@ function LoginForm() {
       // Check if error is EMAIL_NOT_VERIFIED
       if (errorObj.code === 'EMAIL_NOT_VERIFIED') {
         // Redirect to verification page with email
-        toast.error('Please verify your email to continue');
+        toastError('Please verify your email to continue');
         setTimeout(() => {
           router.push(`/auth/resend-verification?email=${encodeURIComponent(data?.email)}`);
         }, 1500);
       } else {
-        toast.error(error instanceof Error ? error.message : 'Login failed');
+        toastError(error instanceof Error ? error.message : 'Login failed');
       }
     }
   };

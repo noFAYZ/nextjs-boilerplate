@@ -8,7 +8,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { budgetApi } from '@/lib/services/budget-api';
 import { budgetKeys } from '@/lib/queries/budget-queries';
-import { toast } from 'sonner';
 
 interface AllocateRequest {
   budgetId: string;
@@ -64,14 +63,10 @@ export function useBudgetAllocation() {
         queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
         queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
         queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
-
-        toast.success('Budget allocated successfully');
       }
     },
     onError: (error: any) => {
       console.error('Failed to allocate budget:', error);
-      const message = error?.response?.data?.message || 'Failed to allocate to budget';
-      toast.error(message);
     },
   });
 }

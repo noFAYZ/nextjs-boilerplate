@@ -22,7 +22,7 @@ import {
   useAllocateFunds,
 } from '@/lib/queries/use-category-groups-data';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import { EditCategoryPopover } from '../popovers/edit-category-popover';
 
 export function CategoryRow({
@@ -44,6 +44,7 @@ export function CategoryRow({
   onSpendClick: (envelope: Record<string, unknown>) => void;
   onDeleteClick: (envelope: Record<string, unknown>) => void;
 }) {
+  const toast = useToast();
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [editCategoryNameOpen, setEditCategoryNameOpen] = useState(false);
@@ -60,7 +61,7 @@ export function CategoryRow({
   const handleEditAllocation = (value: string) => {
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) {
-      toast.error('Invalid amount');
+      toast.toast({ title: 'Error', description: 'Invalid amount', variant: 'destructive' });
       return;
     }
 
@@ -74,11 +75,11 @@ export function CategoryRow({
       { amount, description: 'Allocation adjustment' },
       {
         onSuccess: () => {
-          toast.success('Allocation updated');
+          toast.toast({ title: 'Success', description: 'Allocation updated', variant: 'success' });
           setEditingField(null);
         },
         onError: (error: unknown) => {
-          toast.error(error?.response?.data?.message || 'Failed to update');
+          toast.toast({ title: 'Error', description: error?.response?.data?.message || 'Failed to update', variant: 'destructive' });
         },
       }
     );

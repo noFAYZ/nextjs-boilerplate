@@ -19,7 +19,7 @@ import {
   useUploadProfilePicture,
   useDeleteUserAccount
 } from '@/lib/queries/use-auth-data';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from "@/lib/hooks/useToast";
 import { useLoading } from '@/lib/contexts/loading-context';
 import { User, Mail, Phone, Calendar, DollarSign, Globe, Camera, Trash2 } from 'lucide-react';
 import type { UserProfileUpdateData } from '@/lib/types';

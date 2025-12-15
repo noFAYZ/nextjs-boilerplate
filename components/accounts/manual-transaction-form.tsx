@@ -16,7 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Plus, X, Loader2, icons } from 'lucide-react';
 import { useAddTransaction } from '@/lib/queries/use-accounts-data';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
 import type { AddTransactionRequest, TransactionSplit as TransactionSplitType } from '@/lib/types/unified-accounts';
@@ -35,6 +35,7 @@ export function ManualTransactionForm({
   onClose,
   accountId,
 }: ManualTransactionFormProps) {
+  const { success, error } = useToast();
   const { mutate: addTransaction, isPending } = useAddTransaction();
   const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
@@ -84,7 +85,7 @@ export function ManualTransactionForm({
 
   const handleAddMerchant = () => {
     if (!newMerchantName.trim()) {
-      toast.error('Please enter a merchant name');
+      error('Please enter a merchant name');
       return;
     }
 
@@ -98,7 +99,7 @@ export function ManualTransactionForm({
     setFormData({ ...formData, merchantId: newMerchantName });
     setNewMerchantName('');
     setShowNewMerchantInput(false);
-    toast.success('Merchant added');
+    success('Merchant added');
   };
 
   const handleAddSplit = () => {
@@ -120,7 +121,7 @@ export function ManualTransactionForm({
 
     // Validate required fields
     if (!formData.description || !formData.date || !formData.amount || formData.amount <= 0) {
-      toast.error('Description, date, and positive amount are required');
+      error('Description, date, and positive amount are required');
       return;
     }
 
@@ -128,7 +129,7 @@ export function ManualTransactionForm({
     if (useSplits && splits.length > 0) {
       const activeSplits = splits.filter((s) => s.customCategoryId);
       if (activeSplits.length > 0 && !isBalanced) {
-        toast.error(`Splits total ($${splitTotal.toFixed(2)}) doesn't match transaction amount ($${totalAmount.toFixed(2)})`);
+        error(`Splits total ($${splitTotal.toFixed(2)}) doesn't match transaction amount ($${totalAmount.toFixed(2)})`);
         return;
       }
     }
@@ -158,18 +159,18 @@ export function ManualTransactionForm({
         { accountId, data: submitData },
         {
           onSuccess: () => {
-            toast.success('Transaction added successfully');
+            success('Transaction added successfully');
             resetForm();
             onClose();
           },
           onError: (error) => {
             const errorMessage = error instanceof Error ? error.message : 'Failed to add transaction';
-            toast.error(errorMessage);
+            error(errorMessage);
           },
         }
       );
     } catch (error) {
-      toast.error('An error occurred while adding the transaction');
+      error('An error occurred while adding the transaction');
     }
   };
 

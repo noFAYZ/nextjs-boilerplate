@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCategoryGroup } from '@/lib/queries/use-category-groups-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import type { CustomCategoryGroup } from '@/lib/services/category-groups-api';
 
 export function TransferCategoriesDialog({
@@ -15,6 +15,7 @@ export function TransferCategoriesDialog({
   allGroups: CustomCategoryGroup[];
   onClose: () => void;
 }) {
+  const toast = useToast();
   const [destinationGroupId, setDestinationGroupId] = useState<string>('');
   const deleteGroupMutation = useDeleteCategoryGroup(sourceGroupId);
 
@@ -23,12 +24,12 @@ export function TransferCategoriesDialog({
 
   const handleTransfer = async () => {
     if (!destinationGroupId) {
-      toast.error('Please select a destination group');
+      toast.toast({ title: 'Error', description: 'Please select a destination group', variant: 'destructive' });
       return;
     }
 
     // TODO: Implement API call to transfer categories
-    toast.success(`Categories transferred to ${allGroups.find(g => g.id === destinationGroupId)?.name}`);
+    toast.toast({ title: 'Success', description: `Categories transferred to ${allGroups.find(g => g.id === destinationGroupId)?.name}`, variant: 'success' });
     onClose();
   };
 
@@ -38,10 +39,10 @@ export function TransferCategoriesDialog({
 
     deleteGroupMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success('Group deleted successfully');
+        toast.toast({ title: 'Success', description: 'Group deleted successfully', variant: 'success' });
       },
       onError: (error: Error) => {
-        toast.error(error?.message || 'Failed to delete group');
+        toast.toast({ title: 'Error', description: error?.message || 'Failed to delete group', variant: 'destructive' });
       },
     });
   };

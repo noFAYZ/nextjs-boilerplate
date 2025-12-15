@@ -6,7 +6,7 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -70,6 +70,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   const { mutate: createAccount, isPending } = useCreateManualAccount();
   const { refetch: refetchAccounts } = useAllAccounts();
   const { invalidateAll: invalidateTransactions } = useInvalidateTransactionCache();
+  const toast = useToast();
 
   const { open: openPlaidLink, loading: plaidLoading, error: plaidLinkError, isReady: plaidReady } = usePlaidIntegration({
     onSuccess: (accounts) => {
@@ -89,11 +90,11 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
       // Store result and reopen dialog
       setPlaidResult(result);
       if (result.success) {
-        toast.success(`Successfully connected ${result.accounts?.length || 1} account(s)!`);
+        toast.toast({ title: 'Success', description: `Successfully connected ${result.accounts?.length || 1} account(s)!`, variant: 'success' });
         setStep('plaid-success');
       } else {
         const errorMsg = result.error?.error_message || result.error?.error || 'Failed to connect account. Please try again.';
-        toast.error(errorMsg);
+        toast.toast({ title: 'Error', description: errorMsg, variant: 'destructive' });
         setStep('plaid-error');
         setPlaidError(errorMsg);
       }
@@ -166,7 +167,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
   const onSubmit = useCallback((data: AccountFormData) => {
     createAccount(data, {
       onSuccess: () => {
-        toast.success('Account created successfully!');
+        toast.toast({ title: 'Success', description: 'Account created successfully!', variant: 'success' });
         setCreatedAccountName(data.name);
         // Show statement upload step for bank accounts
         if (shouldShowBankStatementUpload(data.type)) {
@@ -178,12 +179,12 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         refetchAccounts();
         invalidateTransactions();
       },
-      onError: (error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to create account';
-        toast.error(errorMessage);
+      onError: (err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create account';
+        toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
       },
     });
-  }, [createAccount, refetchAccounts, invalidateTransactions]);
+  }, [createAccount, refetchAccounts, invalidateTransactions, toast]);
 
   const handleSuccessClose = () => {
     reset();
@@ -330,7 +331,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
         {step === 'crypto' && (
           <CryptoWalletForm
             onSuccess={() => {
-              toast.success('Wallet added successfully!');
+              toast.toast({ title: 'Success', description: 'Wallet added successfully!', variant: 'success' });
               setStep('selection');
               setView('initial');
               refetchAccounts();

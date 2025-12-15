@@ -19,7 +19,7 @@ import {
   TrendingUp,
   ArrowDownRight,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 import Image from 'next/image';
@@ -60,6 +60,7 @@ interface CryptoAccountDetailProps {
 }
 
 export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
+  const { success, error: showError } = useToast();
   const [activeTab, setActiveTab] = useState('tokens');
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -107,7 +108,7 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
     ) {
       setTimeout(() => {
         refetch();
-        toast.success('Wallet data updated!');
+        success('Wallet data updated!');
       }, 1000);
     }
 
@@ -132,9 +133,9 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
 
     try {
       await navigator.clipboard.writeText(wallet.walletData.address);
-      toast.success('Address copied to clipboard');
+      success('Address copied to clipboard');
     } catch (error) {
-      toast.error('Failed to copy address');
+      showError('Failed to copy address');
     }
   }, [wallet?.walletData?.address]);
 
@@ -153,18 +154,18 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
       },
       {
         onSuccess: () => {
-          toast.success('Wallet sync started');
+          success('Wallet sync started');
           setShowSyncModal(true);
         },
         onError: (error: Error) => {
-          toast.error(error.message || 'Failed to start sync');
+          showError(error.message || 'Failed to start sync');
         },
       }
     );
   }, [accountId, syncWalletMutation]);
 
   const handleSyncComplete = useCallback(() => {
-    toast.success('Wallet sync completed successfully!');
+    success('Wallet sync completed successfully!');
     refetch();
   }, [refetch]);
 

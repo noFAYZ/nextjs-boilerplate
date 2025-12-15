@@ -11,7 +11,7 @@ import { CheckCircle, Loader2, Mail, Sparkles, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import { useGTM } from '@/lib/hooks/use-gtm';
 
 const waitlistSchema = z.object({
@@ -28,6 +28,7 @@ interface WaitlistFormProps {
 
 export function WaitlistForm({ className }: WaitlistFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const toast = useToast();
 
   // ✅ TanStack Query mutation for server data
   const { mutate: joinWaitlist, isPending } = useJoinWaitlist();
@@ -57,14 +58,10 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
           lastName: data.lastName,
         });
 
-        toast.success('Successfully joined the waitlist!', {
-          description: 'We\'ll notify you when MoneyMappr launches.',
-        });
+        toast.toast({ title: 'Success', description: 'We\'ll notify you when MoneyMappr launches.', variant: 'success' });
       },
       onError: (error) => {
-        toast.error('Failed to join waitlist', {
-          description: error.message,
-        });
+        toast.toast({ title: 'Error', description: error.message, variant: 'destructive' });
       },
     });
   };

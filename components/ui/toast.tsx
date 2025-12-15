@@ -1,28 +1,49 @@
 "use client"
 
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
-import { createContext, useContext, useReducer, useCallback } from "react"
+import { cva } from "class-variance-authority"
+import {
+  X,
+  CheckCircle2,
+  AlertCircle,
+  Info,
+  AlertTriangle,
+  Loader2,
+  CircleArrowOutUpRight,
+} from "lucide-react"
+import { createContext, useContext, useReducer, useCallback, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { SolarCheckCircleBoldDuotone } from "../icons/icons"
+import { Button } from "./button"
+
+/* -------------------------------------------------------------------------- */
+/*                                   Styles                                   */
+/* -------------------------------------------------------------------------- */
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-lg border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full backdrop-blur-sm",
+  "group pointer-events-auto relative flex w-full gap-3 rounded-lg border p-2 shadow-2xl backdrop-blur-2xl transition-all animate-toast-in overflow-visible",
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        destructive: "destructive border-destructive bg-destructive text-destructive-foreground",
-        success: "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100",
-        warning: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100",
-        info: "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100",
+        default:
+          "border-border bg-gradient-to-br from-muted to-muted/80 text-foreground shadow-lg hover:shadow-xl",
+        success:
+          "border-emerald-400/40 bg-gradient-to-br from-emerald-50/90 via-emerald-50/60 to-emerald-100/40 text-emerald-900 dark:from-emerald-950/60 dark:via-emerald-900/40 dark:to-emerald-950/30 dark:text-emerald-50 dark:border-emerald-400/30",
+        destructive:
+          "border-red-400/40 bg-gradient-to-br from-red-50/90 via-red-50/60 to-red-100/40 text-red-900 dark:from-red-950/60 dark:via-red-900/40 dark:to-red-950/30 dark:text-red-50 dark:border-red-400/30",
+        warning:
+          "border-amber-400/40 bg-gradient-to-br from-amber-50/90 via-amber-50/60 to-amber-100/40 text-amber-900 dark:from-amber-950/60 dark:via-amber-900/40 dark:to-amber-950/30 dark:text-amber-50 dark:border-amber-400/30",
+        info:
+          "border-blue-400/40 bg-gradient-to-br from-blue-50/90 via-blue-50/60 to-blue-100/40 text-blue-900 dark:from-blue-950/60 dark:via-blue-900/40 dark:to-blue-950/30 dark:text-blue-50 dark:border-blue-400/30",
+        loading:
+          "border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10",
       },
       size: {
-        sm: "text-sm py-2 px-3",
-        default: "text-sm py-3 px-4",
-        lg: "text-base py-4 px-6",
+        sm: "text-xs min-w-[260px]",
+        default: "text-sm min-w-[320px] max-w-[420px]",
+        lg: "text-base min-w-[380px] max-w-[480px]",
       },
     },
     defaultVariants: {
@@ -32,54 +53,64 @@ const toastVariants = cva(
   }
 )
 
+/* -------------------------------------------------------------------------- */
+/*                                   Types                                    */
+/* -------------------------------------------------------------------------- */
+
+export type ToastVariant =
+  | "default"
+  | "success"
+  | "destructive"
+  | "warning"
+  | "info"
+  | "loading"
+
 export interface Toast {
   id: string
   title?: string
   description?: string
-  action?: {
-    label: string
-    onClick: () => void
-  }
-  variant?: "default" | "destructive" | "success" | "warning" | "info"
+  action?: { label: string; onClick: () => void }
+  variant?: ToastVariant
   size?: "sm" | "default" | "lg"
   duration?: number
   dismissible?: boolean
+  dismissing?: boolean
 }
 
 interface ToastState {
   toasts: Toast[]
 }
 
-type ToastAction =
-  | { type: "ADD_TOAST"; toast: Toast }
-  | { type: "DISMISS_TOAST"; id: string }
-  | { type: "REMOVE_TOAST"; id: string }
-  | { type: "UPDATE_TOAST"; id: string; toast: Partial<Toast> }
+/* -------------------------------------------------------------------------- */
+/*                                   Reducer                                  */
+/* -------------------------------------------------------------------------- */
 
-const toastReducer = (state: ToastState, action: ToastAction): ToastState => {
+const MAX_TOASTS = 5
+
+type Action =
+  | { type: "ADD"; toast: Toast }
+  | { type: "DISMISS"; id: string }
+  | { type: "REMOVE"; id: string }
+  | { type: "UPDATE"; id: string; patch: Partial<Toast> }
+
+function reducer(state: ToastState, action: Action): ToastState {
   switch (action.type) {
-    case "ADD_TOAST":
+    case "ADD":
       return {
-        ...state,
-        toasts: [...state.toasts, action.toast],
+        toasts: [...state.toasts, action.toast].slice(-MAX_TOASTS),
       }
-    case "DISMISS_TOAST":
+    case "DISMISS":
       return {
-        ...state,
         toasts: state.toasts.map((t) =>
           t.id === action.id ? { ...t, dismissing: true } : t
         ),
       }
-    case "REMOVE_TOAST":
+    case "REMOVE":
+      return { toasts: state.toasts.filter((t) => t.id !== action.id) }
+    case "UPDATE":
       return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.id),
-      }
-    case "UPDATE_TOAST":
-      return {
-        ...state,
         toasts: state.toasts.map((t) =>
-          t.id === action.id ? { ...t, ...action.toast } : t
+          t.id === action.id ? { ...t, ...action.patch } : t
         ),
       }
     default:
@@ -87,194 +118,320 @@ const toastReducer = (state: ToastState, action: ToastAction): ToastState => {
   }
 }
 
-const ToastContext = createContext<{
+/* -------------------------------------------------------------------------- */
+/*                                   Context                                  */
+/* -------------------------------------------------------------------------- */
+
+interface ToastContextValue {
   toasts: Toast[]
-  toast: (toast: Omit<Toast, "id">) => string
+  toast: (t: Omit<Toast, "id">) => string
   dismiss: (id: string) => void
-  update: (id: string, toast: Partial<Toast>) => void
-} | null>(null)
+  update: (id: string, patch: Partial<Toast>) => void
+  promise: <T>(
+    p: Promise<T>,
+    opts: {
+      loading: string
+      success: string | ((v: T) => string)
+      error: string | ((e: unknown) => string)
+    }
+  ) => void
+}
+
+const ToastContext = createContext<ToastContextValue | null>(null)
+
+/* -------------------------------------------------------------------------- */
+/*                                  Provider                                  */
+/* -------------------------------------------------------------------------- */
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(toastReducer, { toasts: [] })
+  const [state, dispatch] = useReducer(reducer, { toasts: [] })
+  const timers = useRef<Record<string, number>>({})
 
-  const toast = useCallback((toastData: Omit<Toast, "id">) => {
-    const id = Math.random().toString(36).substr(2, 9)
-    const newToast: Toast = {
-      id,
-      duration: 5000,
-      dismissible: true,
-      ...toastData,
-    }
+  const remove = (id: string) => {
+    window.clearTimeout(timers.current[id])
+    delete timers.current[id]
+    dispatch({ type: "REMOVE", id })
+  }
 
-    dispatch({ type: "ADD_TOAST", toast: newToast })
+  const dismiss = useCallback((id: string) => {
+    dispatch({ type: "DISMISS", id })
+    timers.current[id] = window.setTimeout(() => remove(id), 250)
+  }, [])
 
-    if (newToast.duration && newToast.duration > 0) {
-      setTimeout(() => {
-        dispatch({ type: "DISMISS_TOAST", id })
-        setTimeout(() => {
-          dispatch({ type: "REMOVE_TOAST", id })
-        }, 300)
-      }, newToast.duration)
+  const toast = useCallback((data: Omit<Toast, "id">) => {
+    const id = crypto.randomUUID()
+    const isLoading = data.variant === "loading"
+
+    dispatch({
+      type: "ADD",
+      toast: {
+        id,
+        dismissible: !isLoading,
+        duration: isLoading ? undefined : data.duration ?? 4500,
+        ...data,
+      },
+    })
+
+    if (data.duration && data.duration > 0 && !isLoading) {
+      timers.current[id] = window.setTimeout(() => dismiss(id), data.duration)
     }
 
     return id
+  }, [dismiss])
+
+  const update = useCallback((id: string, patch: Partial<Toast>) => {
+    dispatch({ type: "UPDATE", id, patch })
   }, [])
 
-  const dismiss = useCallback((id: string) => {
-    dispatch({ type: "DISMISS_TOAST", id })
-    setTimeout(() => {
-      dispatch({ type: "REMOVE_TOAST", id })
-    }, 300)
-  }, [])
+  const promise = useCallback(<T,>(
+    p: Promise<T>,
+    opts: ToastContextValue["promise"] extends (
+      p: Promise<T>,
+      opts: infer O
+    ) => any
+      ? O
+      : never
+  ) => {
+    const id = toast({ title: opts.loading, variant: "loading" })
 
-  const update = useCallback((id: string, toastData: Partial<Toast>) => {
-    dispatch({ type: "UPDATE_TOAST", id, toast: toastData })
+    p.then((res) => {
+      update(id, {
+        title: typeof opts.success === "function" ? opts.success(res) : opts.success,
+        variant: "success",
+        dismissible: true,
+        duration: 4000,
+      })
+    }).catch((err) => {
+      update(id, {
+        title: typeof opts.error === "function" ? opts.error(err) : opts.error,
+        variant: "destructive",
+        dismissible: true,
+        duration: 5000,
+      })
+    })
+  }, [toast, update])
+
+  useEffect(() => {
+    return () => {
+      Object.values(timers.current).forEach(clearTimeout)
+    }
   }, [])
 
   return (
-    <ToastContext.Provider
-      value={{
-        toasts: state.toasts,
-        toast,
-        dismiss,
-        update,
-      }}
-    >
+    <ToastContext.Provider value={{ toasts: state.toasts, toast, dismiss, update, promise }}>
+      <ToastStyles />
       {children}
       <ToastViewport />
     </ToastContext.Provider>
   )
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                   Hook                                     */
+/* -------------------------------------------------------------------------- */
+
 export function useToast() {
-  const context = useContext(ToastContext)
-  if (!context) {
-    throw new Error("useToast must be used within a ToastProvider")
-  }
-  return context
+  const ctx = useContext(ToastContext)
+  if (!ctx) throw new Error("useToast must be used inside ToastProvider")
+  return ctx
 }
 
-function ToastViewport() {
-  const { toasts } = useToast()
+/* -------------------------------------------------------------------------- */
+/*                                  Viewport                                  */
+/* -------------------------------------------------------------------------- */
 
-  return (
-    <div className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]">
-      {toasts.map((toast) => (
-        <ToastComponent key={toast.id} toast={toast} />
+function ToastViewport() {
+  const ctx = useContext(ToastContext)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!ctx || !mounted) return null
+
+  return createPortal(
+    <div
+      className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-h-screen "
+      aria-live="polite"
+      aria-label="Notifications"
+    >
+      {ctx.toasts.map((t) => (
+        <div key={t.id} className="pointer-events-auto">
+          <ToastItem toast={t} />
+        </div>
       ))}
-    </div>
+    </div>,
+    document.body
   )
 }
 
-interface ToastComponentProps {
-  toast: Toast
-}
+/* -------------------------------------------------------------------------- */
+/*                                  Toast Item                                */
+/* -------------------------------------------------------------------------- */
 
-function ToastComponent({ toast }: ToastComponentProps) {
+function ToastItem({ toast }: { toast: Toast }) {
   const { dismiss } = useToast()
 
-  const getIcon = () => {
-    switch (toast.variant) {
-      case "success":
-        return <CheckCircle className="size-4 shrink-0" />
-      case "destructive":
-        return <AlertCircle className="size-4 shrink-0" />
-      case "warning":
-        return <AlertTriangle className="size-4 shrink-0" />
-      case "info":
-        return <Info className="size-4 shrink-0" />
-      default:
-        return null
-    }
+  const variantConfig = {
+    success: {
+      icon: <SolarCheckCircleBoldDuotone className="w-5 h-5" />,
+      iconBg: "bg-lime-400 dark:bg-lime-900/40",
+      iconColor: "text-lime-800 dark:text-lime-400",
+      glow: "bg-lime-400/20",
+    },
+    destructive: {
+      icon: <AlertCircle className="w-5 h-5" />,
+      iconBg: "bg-red-100 dark:bg-red-900/40",
+      iconColor: "text-red-600 dark:text-red-400",
+      glow: "bg-red-400/20",
+    },
+    warning: {
+      icon: <AlertTriangle className="w-5 h-5" />,
+      iconBg: "bg-amber-100 dark:bg-amber-900/40",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      glow: "bg-amber-400/20",
+    },
+    info: {
+      icon: <Info className="w-5 h-5" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/40",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      glow: "bg-blue-400/20",
+    },
+    loading: {
+      icon: <Loader2 className="w-5 h-5 animate-spin" />,
+      iconBg: "bg-primary/15 dark:bg-primary/25",
+      iconColor: "text-primary",
+      glow: "bg-primary/15",
+    },
+    default: {
+      icon: null,
+      iconBg: "bg-muted",
+      iconColor: "text-muted-foreground",
+      glow: "bg-muted/20",
+    },
   }
+
+  const config = variantConfig[toast.variant ?? "default"]
 
   return (
     <div
       className={cn(
-        toastVariants({ variant: toast.variant, size: toast.size }),
-        "animate-in slide-in-from-bottom-full fade-in-0 sm:slide-in-from-right-full"
+        toastVariants({variant:'default', size: toast.size }),
+        toast.dismissing && "animate-toast-out", ""
       )}
+      role={toast.variant === "destructive" ? "alert" : "status"}
     >
-      <div className="flex items-start gap-3 flex-1">
-        {getIcon()}
-        <div className="flex-1 space-y-1">
-          {toast.title && (
-            <div className="text-sm font-semibold">{toast.title}</div>
-          )}
-          {toast.description && (
-            <div className="text-sm opacity-90">{toast.description}</div>
-          )}
-        </div>
-      </div>
+      {/* Icon with glow background */}
+      {config.icon && (
+        <div className="relative flex-shrink-0 flex items-start justify-center">
+          {/* Glow effect */}
+      
 
-      <div className="flex items-center gap-2">
+          {/* Icon background circle */}
+          <div className={cn("relative flex items-center justify-center w-9 h-9 rounded-full border shadow-inner", config.iconBg, )}>
+            <div className={cn("w-5 h-5 flex items-center justify-center", config.iconColor)}>
+              {config.icon}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        {toast.title && (
+          <div className="font-semibold leading-tight text-sm ">{toast.title}</div>
+        )}
+        {toast.description && (
+          <div className="text-xs opacity-85 leading-relaxed">{toast.description}</div>
+        )}
         {toast.action && (
           <Button
-            size="sm"
-            variant="ghost"
             onClick={toast.action.onClick}
-            className="h-8 px-3 text-xs"
+           variant='outline2'
+           className="gap-1 py-0.5 "
+           size="xs"
+           icon={<CircleArrowOutUpRight className="w-2.5 h-2.5" />}
+           iconPosition="right"
           >
-            {toast.action.label}
-          </Button>
-        )}
-        
-        {toast.dismissible && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => dismiss(toast.id)}
-            className="h-8 w-8 p-0"
-          >
-            <X className="size-3" />
+            {toast.action.label} 
           </Button>
         )}
       </div>
+
+      {/* Close button */}
+      {toast.dismissible && (
+        <Button
+          onClick={() => dismiss(toast.id)}
+          variant="outlinemuted"
+          className="absolute -top-1 -right-1 "
+          size="icon-xs"
+          aria-label="Dismiss notification"
+        >
+          <X className="h-3.5 w-3.5" />
+        </Button>
+      )}
     </div>
   )
 }
 
-// Convenience functions
-export const toastPresets = {
-  success: (message: string, options?: Partial<Toast>) => ({
-    variant: "success" as const,
-    title: "Success",
-    description: message,
-    ...options,
-  }),
-  
-  error: (message: string, options?: Partial<Toast>) => ({
-    variant: "destructive" as const,
-    title: "Error", 
-    description: message,
-    ...options,
-  }),
-  
-  warning: (message: string, options?: Partial<Toast>) => ({
-    variant: "warning" as const,
-    title: "Warning",
-    description: message,
-    ...options,
-  }),
-  
-  info: (message: string, options?: Partial<Toast>) => ({
-    variant: "info" as const,
-    title: "Info",
-    description: message,
-    ...options,
-  }),
-  
-  promise: <T,>(
-    promise: Promise<T>,
-    options: {
-      loading: string
-      success: string | ((data: T) => string)
-      error: string | ((error: unknown) => string)
-    }
-  ) => {
-    // Implementation for promise-based toasts
-    return promise
-  },
-}
+/* -------------------------------------------------------------------------- */
+/*                              Animations Styles                            */
+/* -------------------------------------------------------------------------- */
 
-export { toastVariants }
+const animationStyles = `
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(384px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes toast-out {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(384px) scale(0.9);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .animate-toast-in {
+    animation: toast-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-toast-out {
+    animation: toast-out 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+`
+
+function ToastStyles() {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
+
+  return <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
+}

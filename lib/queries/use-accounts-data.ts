@@ -56,6 +56,7 @@ function useAuthReady() {
  * @returns All accounts organized by category with summary statistics
  */
 export function useAllAccounts() {
+  
   return useBaseUnifiedAccounts();
 }
 

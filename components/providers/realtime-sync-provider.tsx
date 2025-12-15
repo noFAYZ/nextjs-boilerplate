@@ -6,7 +6,7 @@ import { WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
 import { useBankingStore } from '@/lib/stores/banking-store';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
 import { cryptoKeys, clearInitializationTimeout as clearCryptoInitTimeout } from '@/lib/queries/crypto-queries';
 import { bankingKeys, clearInitializationTimeout as clearBankingInitTimeout } from '@/lib/queries/banking-queries';
@@ -60,6 +60,7 @@ interface RealtimeSyncProviderProps {
 }
 
 export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const bankingStore = useBankingStore();
   const cryptoStore = useCryptoStore();
@@ -213,8 +214,8 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
     queryClient.refetchQueries({ queryKey: bankingKeys.accounts() });
     queryClient.refetchQueries({ queryKey: bankingKeys.overview() });
     console.log(`[RealtimeSync] ✅ Bank sync completed for ${accountId}`);
-    toast.success('Bank account sync completed successfully');
-  }, [bankingStore, queryClient]);
+    toast.toast({ title: 'Success', description: 'Bank account sync completed successfully', variant: 'success' });
+  }, [bankingStore, queryClient, toast]);
 
   // Helper to fail banking sync
   const failBankingSync = useCallback((accountId: string, errorMsg: string) => {
@@ -226,8 +227,8 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
       syncTimeoutRef.current.delete(`bank_${accountId}`);
     }
     console.log(`[RealtimeSync] ❌ Bank sync failed for ${accountId}: ${errorMsg}`);
-    toast.error(`Bank account sync failed: ${errorMsg}`);
-  }, [bankingStore]);
+    toast.toast({ title: 'Error', description: `Bank account sync failed: ${errorMsg}`, variant: 'destructive' });
+  }, [bankingStore, toast]);
 
   // Helper to set up sync timeout
   const setupSyncTimeout = useCallback((syncKey: string, store: { getState?: () => { realtimeSyncStates?: Record<string, BankingSyncState> } }, id: string, completeHandler: () => void) => {
@@ -302,7 +303,7 @@ export function RealtimeSyncProvider({ children }: RealtimeSyncProviderProps) {
         // Refetch queries
         queryClient.refetchQueries({ queryKey: bankingKeys.accounts() });
         queryClient.refetchQueries({ queryKey: bankingKeys.overview() });
-        toast.success('Bank account sync completed successfully');
+        toast.toast({ title: 'Success', description: 'Bank account sync completed successfully', variant: 'success' });
         return;
       }
 

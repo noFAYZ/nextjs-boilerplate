@@ -25,7 +25,7 @@ import {
   PlusIcon
 } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -79,6 +79,7 @@ const NETWORKS = [
 
 export default function AddWalletPage() {
   const router = useRouter();
+  const { success, error: toastError } = useToast();
   const [isValidating, setIsValidating] = useState(false);
   const [addressStatus, setAddressStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [searchTerm, setSearchTerm] = useState("");
@@ -167,7 +168,7 @@ export default function AddWalletPage() {
       // ✅ Use TanStack Query mutation
       createWallet(formattedData, {
         onSuccess: () => {
-          toast.success('Wallet added successfully!');
+          success('Wallet added successfully!');
           router.push('/accounts/wallet');
         },
         onError: (err: Error) => {
@@ -178,7 +179,7 @@ export default function AddWalletPage() {
             return; // Plan limit dialog is shown
           }
 
-          toast.error((err as { message?: string })?.message || 'Failed to add wallet. Please try again.');
+          toastError((err as { message?: string })?.message || 'Failed to add wallet. Please try again.');
         }
       });
     } catch (error: unknown) {
@@ -198,11 +199,11 @@ export default function AddWalletPage() {
         billingPeriod: 'MONTHLY'
       });
 
-      toast.success(`Successfully upgraded to ${planType} plan!`);
+      success(`Successfully upgraded to ${planType} plan!`);
       planLimitDialog.hideDialog();
     } catch (error) {
       console.error('Upgrade error:', error);
-      toast.error('Failed to upgrade plan. Please try again.');
+      toastError('Failed to upgrade plan. Please try again.');
     }
   };
 

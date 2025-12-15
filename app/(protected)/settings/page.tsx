@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Settings, Palette, Bell, Shield, Eye, Database, Wallet, TrendingUp, Activity, Globe, Save, RotateCcw, AlertCircle, Loader2, Moon, Sun, Monitor } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import { cn } from '@/lib/utils';
 import { useUserProfile, useUpdateUserProfile } from '@/lib/queries';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
@@ -43,6 +43,7 @@ const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';
 
 export default function SettingsPage() {
   usePostHogPageView('settings');
+  const { success, error, warning } = useToast();
   const { data: userProfile, isLoading } = useUserProfile({ enabled: true });
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateUserProfile();
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
@@ -82,7 +83,7 @@ export default function SettingsPage() {
     const saved = saveWithTimestamp(PREFERENCES_STORAGE_KEY, preferences);
 
     if (!saved) {
-      toast.error('Failed to save settings');
+      error('Failed to save settings');
       return;
     }
 
@@ -101,11 +102,11 @@ export default function SettingsPage() {
             language: preferences.language,
             timezone: preferences.timezone,
           });
-          toast.success('Settings saved');
+          success('Settings saved');
           setHasUnsavedChanges(false);
         },
         onError: () => {
-          toast.warning('Saved locally');
+          warning('Saved locally');
           setHasUnsavedChanges(false);
         },
       }
@@ -116,7 +117,7 @@ export default function SettingsPage() {
     if (!confirm('Reset all settings?')) return;
     setPreferences(DEFAULT_USER_PREFERENCES);
     removeLocalStorageItem(PREFERENCES_STORAGE_KEY);
-    toast.success('Settings reset');
+    success('Settings reset');
     setHasUnsavedChanges(false);
   };
 

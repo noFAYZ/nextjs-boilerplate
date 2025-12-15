@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 
 interface CreateEnvelopeModalProps {
   isOpen: boolean;
@@ -50,6 +50,7 @@ export function CreateEnvelopeModal({
   onSubmit,
   isLoading = false,
 }: CreateEnvelopeModalProps) {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',

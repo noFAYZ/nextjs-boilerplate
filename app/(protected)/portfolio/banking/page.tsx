@@ -21,7 +21,7 @@ import {
   FluentBuildingBank28Regular,
 } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
-import { toast } from 'sonner';
+import { useToast } from "@/lib/hooks/useToast";
 import Link from 'next/link';
 import {
   Breadcrumb,
@@ -45,6 +45,7 @@ interface BankingAsset {
 
 export default function BankingPortfolioPage() {
   const router = useRouter();
+  const { success } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortField>('value');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -117,7 +118,7 @@ export default function BankingPortfolioPage() {
 
   const handleRefreshAll = () => {
     refetchBanking();
-    toast.success('Refreshing banking portfolio...');
+    success('Refreshing banking portfolio...');
   };
 
   const handleAssetClick = (asset: BankingAsset) => {

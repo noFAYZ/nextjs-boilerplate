@@ -41,7 +41,6 @@ import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
 import { cryptoKeys } from '@/lib/queries/crypto-queries';
 import { bankingKeys } from '@/lib/queries/banking-queries';
 import { WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
-import { toast } from 'sonner';
 
 interface RealtimeSyncConnectionOptions {
   enableCrypto?: boolean;
@@ -165,14 +164,11 @@ export function useRealtimeSyncConnection(options: RealtimeSyncConnectionOptions
                 });
                 queryClient.refetchQueries({ queryKey: bankingKeys.accounts() });
                 queryClient.refetchQueries({ queryKey: bankingKeys.overview() });
-
-                toast.success('Bank account sync completed successfully');
               } else if (data.status === 'failed_bank') {
                 bankingStore.failRealtimeSync(
                   data.accountId,
                   data.message || 'Bank sync failed'
                 );
-                toast.error(`Bank account sync failed: ${data.message || 'Unknown error'}`);
               } else {
                 bankingStore.updateRealtimeSyncProgress(
                   data.accountId,
@@ -230,7 +226,6 @@ export function useRealtimeSyncConnection(options: RealtimeSyncConnectionOptions
             if (data.accountId) {
               const errorMsg = data.error || 'Unknown error occurred';
               bankingStore.failRealtimeSync(data.accountId, errorMsg);
-              toast.error(`Bank account sync failed: ${errorMsg}`);
             }
             break;
         }

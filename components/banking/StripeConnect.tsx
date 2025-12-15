@@ -19,7 +19,7 @@ import {
   CreditCard,
   Lock,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/lib/hooks/useToast';
 import React from 'react';
 
 import { useBankingStore } from '@/lib/stores/banking-store';
@@ -73,6 +73,7 @@ interface StripeConnectProps {
 }
 
 export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectProps) {
+  const toast = useToast();
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [scriptError, setScriptError] = useState<string | null>(null);
@@ -132,7 +133,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
 
   const handleConnect = async () => {
     if (!stripeRef.current) {
-      toast.error('Stripe.js not loaded');
+      toast.toast({ title: 'Error', description: 'Stripe.js not loaded', variant: 'destructive' });
       return;
     }
 
@@ -166,7 +167,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
         sessionId,
       });
 
-      toast.success('Bank accounts connected successfully!');
+      toast.toast({ title: 'Success', description: 'Bank accounts connected successfully!', variant: 'success' });
       onSuccess?.([]); // Will be populated with actual account data
       onOpenChange(false);
     } catch (error) {
@@ -178,7 +179,7 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
       if (!planLimitError) {
         // Only show toast for non-plan-limit errors
         const errorMessage = error instanceof Error ? error.message : 'Failed to connect bank account';
-        toast.error(errorMessage);
+        toast.toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
         setStripeConnectError(errorMessage);
       }
     } finally {
@@ -199,11 +200,11 @@ export function StripeConnect({ open, onOpenChange, onSuccess }: StripeConnectPr
         billingPeriod: 'MONTHLY'
       });
 
-      toast.success(`Successfully upgraded to ${planType} plan!`);
+      toast.toast({ title: 'Success', description: `Successfully upgraded to ${planType} plan!`, variant: 'success' });
       planLimitDialog.hideDialog();
     } catch (error) {
       console.error('Upgrade error:', error);
-      toast.error('Failed to upgrade plan. Please try again.');
+      toast.toast({ title: 'Error', description: 'Failed to upgrade plan. Please try again.', variant: 'destructive' });
     }
   };
 

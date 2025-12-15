@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/useToast";
 import {
   useCreateSubscription,
   useUpdateSubscription,
@@ -189,6 +189,12 @@ export function SubscriptionFormModal({
   const onSubmit = (data: CreateSubscriptionRequest) => {
     const action = subscription ? updateSubscription : createSubscription;
     const payload = subscription ? { id: subscription.id, updates: data } : data;
+    const isCreate = !subscription;
+
+    // Close dialog immediately for create
+    if (isCreate) {
+      onClose();
+    }
 
     action(payload as CreateSubscriptionRequest | { id: string; updates: CreateSubscriptionRequest }, {
       onSuccess: () => {
@@ -196,12 +202,16 @@ export function SubscriptionFormModal({
           title: subscription ? "Subscription updated" : "Subscription created",
           description: "Your subscription has been saved successfully.",
         });
-        onClose();
+        // Close dialog for updates
+        if (!isCreate) {
+          onClose();
+        }
       },
-      onError: () => {
+      onError: (error) => {
+        const errorMessage = error instanceof Error ? error.message : "Failed to save subscription. Please try again.";
         toast({
           title: "Error",
-          description: "Failed to save subscription. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       },

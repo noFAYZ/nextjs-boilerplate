@@ -1,53 +1,80 @@
-import React from 'react';
+import { useId } from "react";
 
-const GooeyDotIndicator = ({ current = 1, total = 5 }) => {
-  const baseRadius = 10;
-  const activeRadius = 16;
-  const dotSpacing = 48;
-  const width = Math.max(200, (total - 1) * dotSpacing + 80);
-  const height = 80;
+export const GooeyIndicator = ({
+  current,
+  total,
+}: {
+  current: number;
+  total: number;
+}) => {
+  const id = useId();
+  const dots = Array.from({ length: total });
+  const spacing = 32;
+  const baseRadius = 8;
+  const activeRadius = 12;
+
+  const safeCurrent = Math.min(Math.max(current, 0), total - 1);
+  const width = spacing * (total - 1) + 40;
 
   return (
     <svg
       width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label={`Image ${current} of ${total}`}
+      height={50}
+      viewBox={`0 0 ${width} 50`}
+      className="z-20"
     >
       <defs>
-        <filter id="goo" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <filter id={`gooey-${id}`}>
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
           <feColorMatrix
             in="blur"
             mode="matrix"
-            values="1 0 0 0 0  
-                    0 1 0 0 0  
-                    0 0 1 0 0  
-                    0 0 0 18 -7"
-            result="goo"
+            values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0 0 0 18 -7
+            "
+            result="gooey"
           />
-          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+          <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
         </filter>
       </defs>
 
-      <g filter="url(#goo)">
-        {Array.from({ length: total }, (_, i) => {
-          const index = i + 1;
-          const isActive = index === current;
-          const cx = width / 2 + (i - (total - 1) / 2) * dotSpacing;
-          const cy = height / 2;
-          const r = isActive ? activeRadius : baseRadius;
+      <g filter={`url(#gooey-${id})`}>
+        {/* Connectors */}
+        {dots.slice(0, -1).map((_, i) => {
+          const x1 = 10 + i * spacing;
+          const x2 = x1 + spacing;
+
+          return (
+            <rect
+              key={i}
+              x={x1}
+              y={22}
+              width={spacing}
+              height={8}
+              rx={3}
+              fill="#fff"
+            />
+          );
+        })}
+
+        {/* Dots */}
+        {dots.map((_, i) => {
+          const isActive = i === safeCurrent;
+          const x = 20 + i * spacing;
 
           return (
             <circle
               key={i}
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="#6366f1" // indigo-500, change to any color you like
+              cx={x}
+              cy={26}
+              r={isActive ? activeRadius : baseRadius}
+              fill="#fff"
               style={{
-                transition: 'r 0.4s ease, cx 0.4s ease',
+                transition:
+                  "r 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
               }}
             />
           );
@@ -56,5 +83,3 @@ const GooeyDotIndicator = ({ current = 1, total = 5 }) => {
     </svg>
   );
 };
-
-export default GooeyDotIndicator;

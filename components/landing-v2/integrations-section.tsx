@@ -164,7 +164,7 @@ export default function DatabaseWithRestApi({
       <div
         className="absolute top-0 left-0 right-0 w-full h-[303px]  "
         style={{
-          background: "linear-gradient(to bottom, var(--background) 20%, rgba(217, 217, 217, 0) 100%)",
+          background: "linear-gradient(to bottom, var(--background) 30%, rgba(217, 217, 217, 0) 100%)",
           zIndex: 10,
         }}
       />
@@ -178,7 +178,7 @@ export default function DatabaseWithRestApi({
         }}
       />
 
-      <BgGradient pattern={false} imageSrc="/landing/bg1.webp" opacity="0" imageOpacity={0.9} />
+      <BgGradient  imageSrc="/landing/bg9.webp" opacity='0.1'  />
       <ScrollReveal className="z-20">
            {/* caption under center */}
     
@@ -192,7 +192,7 @@ export default function DatabaseWithRestApi({
 {badges.map((b, i) => (
   <div
     key={`badge-${i}`}
-    className=" z-40 flex items-center gap-2 px-3 py-1 rounded-xl backdrop-blur-sm bg-card/70  text-xs shadow-sm"  >
+    className=" z-40 flex items-center gap-2 px-2 py-1 rounded-lg backdrop-blur-sm bg-card/70 border text-xs shadow-sm"  >
     {b.icon}
     <span className="hidden sm:inline">{b.label}</span>
   </div>

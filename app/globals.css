@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *, .dark-pro *));
 /* fffefa */
 :root {
-  --background: hsl(0, 0%, 100%);
+  --background: hsl(24, 45%, 98%);
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -43,7 +43,7 @@
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
 
-  --radius: 0.5rem;
+  --radius: 0rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.24rem;
@@ -108,7 +108,7 @@
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --radius: 0.5rem;
+  --radius: 0rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.24rem;
@@ -167,7 +167,7 @@
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
 
-  --radius: 0.5rem;
+  --radius: 0rem;
 
   --tracking-normal: -0.025em;
   --spacing: 0.24rem;

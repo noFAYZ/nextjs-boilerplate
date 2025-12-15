@@ -18,6 +18,7 @@ import { SolarCheckCircleBoldDuotone } from "../icons/icons"
 import { getLogoUrl } from "@/lib/services/logo-service"
 import { SubscriptionCardSkeleton } from "./subscription-card-skeleton"
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store"
+import { CurrencyDisplay } from "../ui/currency-display"
 
 interface SubscriptionCardProps {
   subscription: UserSubscription
@@ -108,13 +109,13 @@ export function SubscriptionCard({
               <h3 className="font-semibold text-sm truncate flex gap-2">
                 {subscription.name}
                 {subscription.autoRenew && (
-                  <div className="text-[10px] bg-primary/10 text-primary px-1 py-0.5 rounded-full border border-primary/20">
+                  <div className="text-[10px] bg-primary/10 text-primary px-1 rounded-full border border-primary/20">
                     Auto-renew
                   </div>
                 )}
                        <Badge
               className={cn(
-                "flex items-center gap-1 px-1 py-0.5 text-[10px] font-medium rounded-full",
+                "flex items-center gap-1 px-1  text-[10px] font-medium rounded-full",
                 statusColor[subscription.status]
               )}
             >
@@ -132,9 +133,10 @@ export function SubscriptionCard({
 
           <div className="flex flex-col items-end justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-lg">
-                {subscriptionsApi.formatCurrency(subscription.amount, subscription.currency)}
-              </span>
+             
+             
+                <CurrencyDisplay amountUSD={subscription.amount} variant="lg" className="font-semibold" />
+          
               
             </div>
 <span className="text-xs text-muted-foreground">
