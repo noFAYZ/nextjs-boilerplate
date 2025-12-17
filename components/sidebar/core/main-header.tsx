@@ -130,7 +130,7 @@ const greeting =
     <TooltipProvider delayDuration={100}>
       <header className="relative w-full z-40  ">
         {/* Row 1 — Main Navigation */}
-        <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-4 relative container mx-auto">
+        <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-4 relative  ">
           
           {/* LEFT GROUP */}
           <div className="flex items-center gap-2 sm:gap-3">
