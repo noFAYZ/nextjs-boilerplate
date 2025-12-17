@@ -35,38 +35,49 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     showCloseButton?: boolean;
+    hiddenTitle?: string;
   }
->(({ className, children, showCloseButton = true, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-full max-w-[92%] -translate-x-1/2 -translate-y-1/2",
-        "sm:max-w-lg rounded-lg  bg-background shadow-xs p-6",
-        "focus:outline-none",
+>(({ className, children, showCloseButton = true, hiddenTitle = "Dialog", ...props }, ref) => {
+  // Check if children contains a DialogTitle
+  const hasDialogTitle = React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === DialogPrimitive.Title
+  );
 
-        // Exact same enter/exit animation as your Framer version
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-2",
-        "data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-top-2",
-        "duration-100 ease-[cubic-bezier(0.16,1,0.3,1)]",
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "fixed left-1/2 top-1/2 z-50 w-full max-w-[92%] -translate-x-1/2 -translate-y-1/2",
+          "sm:max-w-lg rounded-lg  bg-background shadow-xs p-6",
+          "focus:outline-none",
 
-        className
-      )}
-      {...props}
-    >
-      {children}
+          // Exact same enter/exit animation as your Framer version
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-2",
+          "data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-top-2",
+          "duration-100 ease-[cubic-bezier(0.16,1,0.3,1)]",
 
-      {showCloseButton && (
-        <DialogClose className="absolute right-3 top-3 cursor-pointer rounded-full bg-background p-0.5 text-red-800/60 hover:text-red-800 transition-colors">
-          <SolarCloseCircleBoldDuotone className="size-7" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
-      )}
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
+          className
+        )}
+        {...props}
+      >
+        {!hasDialogTitle && (
+          <DialogPrimitive.Title className="sr-only">{hiddenTitle}</DialogPrimitive.Title>
+        )}
+        {children}
+
+        {showCloseButton && (
+          <DialogClose className="absolute right-3 top-3 cursor-pointer rounded-full bg-background p-0.5 text-red-800/60 hover:text-red-800 transition-colors">
+            <SolarCloseCircleBoldDuotone className="size-7" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+        )}
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+});
 DialogContent.displayName = "DialogContent";
 
 // Rest unchanged — exactly your original styling

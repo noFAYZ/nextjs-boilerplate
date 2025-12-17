@@ -161,19 +161,20 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const toast = useCallback((data: Omit<Toast, "id">) => {
     const id = crypto.randomUUID()
     const isLoading = data.variant === "loading"
+    const duration = isLoading ? undefined : data.duration ?? 4500
 
     dispatch({
       type: "ADD",
       toast: {
         id,
         dismissible: !isLoading,
-        duration: isLoading ? undefined : data.duration ?? 4500,
+        duration,
         ...data,
       },
     })
 
-    if (data.duration && data.duration > 0 && !isLoading) {
-      timers.current[id] = window.setTimeout(() => dismiss(id), data.duration)
+    if (duration && duration > 0 && !isLoading) {
+      timers.current[id] = window.setTimeout(() => dismiss(id), duration)
     }
 
     return id
@@ -364,7 +365,7 @@ function ToastItem({ toast }: { toast: Toast }) {
         <Button
           onClick={() => dismiss(toast.id)}
           variant="outlinemuted"
-          className="absolute -top-1 -right-1 "
+          className="absolute -top-1 -right-1 w-4.5 h-4.5"
           size="icon-xs"
           aria-label="Dismiss notification"
         >

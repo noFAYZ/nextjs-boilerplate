@@ -194,11 +194,56 @@ class AccountsApiService {
    */
   async getAllAccounts(organizationId?: string): Promise<ApiResponse<UnifiedAccountsResponse>> {
     const response = await this.getAccounts(undefined, organizationId);
-    if (response.success) {
+    if (response.success && response.data.data) {
+      const accounts = response.data.data;
+
+      // Group accounts by category (lowercase keys)
+      const groups: Record<string, any> = {
+        cash: { category: 'CASH', totalBalance: 0, accountCount: 0, accounts: [] },
+        credit: { category: 'CREDIT', totalBalance: 0, accountCount: 0, accounts: [] },
+        investments: { category: 'INVESTMENTS', totalBalance: 0, accountCount: 0, accounts: [] },
+        assets: { category: 'ASSETS', totalBalance: 0, accountCount: 0, accounts: [] },
+        liabilities: { category: 'LIABILITIES', totalBalance: 0, accountCount: 0, accounts: [] },
+        other: { category: 'OTHER', totalBalance: 0, accountCount: 0, accounts: [] },
+      };
+
+      // Categorize each account
+      accounts.forEach((account: UnifiedAccountDetails) => {
+        const category = (account.category || 'OTHER').toLowerCase();
+        const key = category;
+
+        if (groups[key]) {
+          groups[key].accounts.push(account);
+          groups[key].totalBalance += account.balance || 0;
+          groups[key].accountCount += 1;
+        } else {
+          // Fallback for unmapped categories
+          groups.other.accounts.push(account);
+          groups.other.totalBalance += account.balance || 0;
+          groups.other.accountCount += 1;
+        }
+      });
+
+      // Calculate summary
+      const totalAssets = (groups.cash.totalBalance || 0) +
+                         (groups.investments.totalBalance || 0) +
+                         (groups.assets.totalBalance || 0);
+      const totalLiabilities = (groups.credit.totalBalance || 0) +
+                              (groups.liabilities.totalBalance || 0);
+
       return {
-        
         success: true,
-        data: response.data as unknown as UnifiedAccountsResponse
+        data: {
+          summary: {
+            totalNetWorth: totalAssets - totalLiabilities,
+            totalAssets,
+            totalLiabilities,
+            accountCount: accounts.length,
+            currency: 'USD',
+            lastUpdated: new Date().toISOString(),
+          },
+          groups,
+        } as unknown as UnifiedAccountsResponse
       };
     }
     return response as ApiResponse<UnifiedAccountsResponse>;

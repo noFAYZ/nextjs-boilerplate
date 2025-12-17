@@ -84,15 +84,17 @@ export default function TransactionsPage() {
           timestamp: tx.date || new Date().toISOString(),
           amount: Math.abs(amount),
           currency: 'USD',
-          merchent: tx.merchant?.name || tx.merchantName,
+          merchant: tx.merchant,
           description: tx.description || 'Transaction',
           account: {
             id: tx.accountId || tx.account?.id,
             name: tx.account?.name || 'Unknown Account',
             type: (tx.account?.type || 'CASH') as const,
             institute: tx.account?.institute,
+            mask:(tx as any)?.account?.mask,
           },
-          category: tx.category?.name || tx.category,
+          category: tx.category?.name || tx.category ,
+          pfc: tx.metadata.pfc,
           source: (tx.source === 'bank' ? 'BANKING' : tx.source || 'BANKING') as const,
         });
       });
@@ -132,6 +134,7 @@ export default function TransactionsPage() {
     setPage(1);
   };
 
+  console.log(transactionsResponse)
   return (
     <div className="h-full flex flex-col relative space-y-2 ">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />

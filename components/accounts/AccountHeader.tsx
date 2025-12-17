@@ -15,8 +15,8 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
   const utilization =
     account.type === 'CREDIT_CARD'
       ? calculateCreditUtilization(
-          parseFloat(account.balance.toString()),
-          parseFloat(account.availableBalance?.toString() || '0')
+          parseFloat((account.balance ?? 0).toString()),
+          parseFloat((account.availableBalance ?? 0).toString())
         )
       : 0
 
@@ -44,14 +44,16 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                   <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
                     {account.name}
                   </h1>
-                  <Badge variant="new" className="text-[10px] px-1.5 py-0 h-4.5 font-normal">
-                    {accountConfig.label}
-                  </Badge>
+                 
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="truncate">{account.institutionName}</span>
-                  <span className="text-muted-foreground/40">•</span>
-                  <span className="font-mono">•••• {account.accountNumber?.slice(-4)}</span>
+                  <span className="text-muted-foreground/40">••••</span>
+                  <span className="font-mono"> {account.accountNumber ? account.accountNumber  : account.mask ?? account.mask}</span>
+ <Badge variant="new" className="text-[10px] px-1.5 py-0 h-4.5 font-normal">
+                    {accountConfig.label}
+                  </Badge>
+
                 </div>
               </div>
             </div>
@@ -64,9 +66,10 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                 </span>
                 <CurrencyDisplay
                   amountUSD={parseFloat(
-                    account.availableBalance?.toString() || account.balance.toString()
+                    ((account.availableBalance ?? account.balance) ?? 0).toString()
                   )}
-                  className="text-2xl font-bold text-foreground"
+                  className=" font-bold text-foreground"
+                  variant='large'
                 />
               </div>
               <div className="flex items-center gap-1.5 text-xs">
@@ -74,7 +77,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                   {account.type === 'CREDIT_CARD' ? 'Owed:' : 'Ledger:'}
                 </span>
                 <CurrencyDisplay
-                  amountUSD={parseFloat(account.balance.toString())}
+                  amountUSD={parseFloat(((account.currentBalance) ?? 0).toString())}
                   variant="compact"
                   className={cn(
                     'font-medium',
@@ -183,10 +186,10 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                   
                   <div className="flex justify-between text-[10px] mt-1 text-muted-foreground">
                     <span>
-                     <CurrencyDisplay amountUSD={parseFloat(account.balance.toString())} variant="compact" className="inline font-medium text-foreground" />
+                     <CurrencyDisplay amountUSD={parseFloat(((account.balance) ?? 0).toString())} variant="compact" className="inline font-medium text-foreground" />
                     </span>
                     <span>
-                      <CurrencyDisplay amountUSD={Math.abs(parseFloat(account.balance.toString())) + parseFloat(account.availableBalance?.toString() || "0")} variant="compact" className="inline font-medium text-foreground" />
+                      <CurrencyDisplay amountUSD={Math.abs(parseFloat(((account.balance) ?? 0).toString())) + parseFloat(((account.availableBalance) ?? 0).toString())} variant="compact" className="inline font-medium text-foreground" />
                     </span>
                   </div>
                 </div>
@@ -198,7 +201,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
         
       </div>
       <Separator className="bg-border/50" />
-      <NetWorthChart mode='demo' height={200} className='border-0 shadow-none'/>
+      {/* <NetWorthChart mode='demo' height={200} className='border-0 shadow-none'/> */}
     </Card>
   )
 }

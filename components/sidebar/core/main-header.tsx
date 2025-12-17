@@ -147,9 +147,10 @@ const greeting =
               </Tooltip>
             </div>
 
-            <h1 className="text-lg font-semibold mb-1  bg-clip-text">
+            {/* <h1 className="text-lg font-semibold mb-1  bg-clip-text">
             {greeting}, {firstName}!  
-          </h1>
+          </h1> */}
+          <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
 
             {/* Sidebar toggler — desktop only 
             <div className="hidden md:block">

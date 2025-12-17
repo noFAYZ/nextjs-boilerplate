@@ -59,7 +59,7 @@ function ThemeSwitcher() {
         "group",
       )}
       size="icon"
-      variant="outline"
+      variant="outline2"
       onClick={toggleTheme}
     >
       {/* Sun */}

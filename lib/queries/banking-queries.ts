@@ -60,6 +60,12 @@ export const bankingKeys = {
   enrollments: (orgId?: string) => [...bankingKeys.all, 'enrollments', orgId] as const,
   enrollment: (id: string, orgId?: string) => [...bankingKeys.enrollments(orgId), id] as const,
 
+  // Provider Connections
+  connections: (orgId?: string) => [...bankingKeys.all, 'connections', orgId] as const,
+  connection: (id: string, orgId?: string) => [...bankingKeys.connections(orgId), id] as const,
+  connectionHealth: (id: string, orgId?: string) => [...bankingKeys.connection(id, orgId), 'health'] as const,
+  connectionSyncStatus: (id: string, orgId?: string) => [...bankingKeys.connection(id, orgId), 'sync-status'] as const,
+
   // Sync
   syncStatus: (accountId: string, jobId?: string, orgId?: string) =>
     [...bankingKeys.accounts(orgId), accountId, 'sync', { jobId }] as const,
@@ -340,6 +346,88 @@ export const bankingQueries = {
     queryFn: () => bankingApi.getEnrollment(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 10,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
+  }),
+
+  // Provider Connections
+  connections: (orgId?: string) => ({
+    queryKey: bankingKeys.connections(orgId),
+    queryFn: async () => {
+      try {
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getConnections({}, currentOrgId);
+      } catch (error: unknown) {
+        return handleApiError(error, { data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } });
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
+    select: (data: ApiResponse<any>) => {
+      // API returns data as an array directly
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      // Fallback for nested structure
+      if (data.success && data.data && Array.isArray(data.data.data)) {
+        return data.data.data;
+      }
+      return [];
+    },
+  }),
+
+  connection: (id: string, orgId?: string) => ({
+    queryKey: bankingKeys.connection(id, orgId),
+    queryFn: async () => {
+      try {
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getConnection(id, currentOrgId);
+      } catch (error: unknown) {
+        return handleApiError(error, null);
+      }
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 3,
+    retry: false,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
+  }),
+
+  connectionHealth: (id: string, orgId?: string) => ({
+    queryKey: bankingKeys.connectionHealth(id, orgId),
+    queryFn: async () => {
+      try {
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.checkConnectionHealth(id, currentOrgId);
+      } catch (error: unknown) {
+        return handleApiError(error, null);
+      }
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60, // 1 minute
+    refetchInterval: 1000 * 60 * 2, // Check every 2 minutes
+    retry: false,
+    select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
+  }),
+
+  connectionSyncStatus: (id: string, orgId?: string) => ({
+    queryKey: bankingKeys.connectionSyncStatus(id, orgId),
+    queryFn: async () => {
+      try {
+        const currentOrgId = getCurrentOrganizationId(orgId);
+        return await bankingApi.getConnectionSyncStatus(id, currentOrgId);
+      } catch (error: unknown) {
+        return handleApiError(error, null);
+      }
+    },
+    enabled: !!id,
+    staleTime: 1000 * 10, // 10 seconds
+    refetchInterval: (query) => {
+      const data = query.state.data as any;
+      if (data?.status === 'in_progress' || data?.status === 'syncing') {
+        return 3000; // Poll every 3 seconds during sync
+      }
+      return false; // Don't poll when not syncing
+    },
+    retry: false,
     select: (data: ApiResponse<unknown>) => data.success ? data.data : null,
   }),
 
@@ -765,6 +853,67 @@ export const bankingMutations = {
     });
   },
 
+  // Provider Connection mutations
+  useDisconnectConnection: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ connectionId, revokeToken }: { connectionId: string; revokeToken?: boolean }) =>
+        bankingApi.disconnectConnection(connectionId, revokeToken),
+      onSuccess: (response, variables) => {
+        if (response.success) {
+          // Remove connection-specific queries from cache
+          queryClient.removeQueries({ queryKey: bankingKeys.connection(variables.connectionId) });
+          queryClient.removeQueries({ queryKey: bankingKeys.connectionHealth(variables.connectionId) });
+          queryClient.removeQueries({ queryKey: bankingKeys.connectionSyncStatus(variables.connectionId) });
+
+          // Invalidate global queries that depend on connection data
+          queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+          queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to disconnect connection:', error);
+      },
+    });
+  },
+
+  useSyncConnection: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ connectionId, options }: { connectionId: string; options?: { syncType?: string; startDate?: string; endDate?: string } }) =>
+        bankingApi.syncConnection(connectionId, options),
+      onSuccess: (response, variables) => {
+        if (response.success) {
+          // Invalidate connection sync status to get fresh data
+          queryClient.invalidateQueries({ queryKey: bankingKeys.connectionSyncStatus(variables.connectionId) });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to sync connection:', error);
+      },
+    });
+  },
+
+  useBatchSyncConnections: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ connectionIds, syncType }: { connectionIds: string[]; syncType?: string }) =>
+        bankingApi.batchSync(connectionIds, syncType),
+      onSuccess: (response) => {
+        if (response.success) {
+          // Invalidate all connection-related queries
+          queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to batch sync connections:', error);
+      },
+    });
+  },
+
   // Transaction sync mutations
   useSyncAccountTransactions: () => {
     const queryClient = useQueryClient();
@@ -1018,4 +1167,144 @@ export const useSpendingByCategory = (params?: {
   const { user, isInitialized } = useAuthStore();
   const isAuthReady = !!user && isInitialized;
   return useQuery({ ...bankingQueries.spendingByCategory(params), enabled: isAuthReady });
+};
+
+// Provider Connections
+export const useProviderConnections = () => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.connections(), enabled: isAuthReady });
+};
+
+export const useProviderConnection = (connectionId: string | null) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.connection(connectionId!), enabled: isAuthReady && !!connectionId });
+};
+
+export const useConnectionHealth = (connectionId: string | null) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.connectionHealth(connectionId!), enabled: isAuthReady && !!connectionId });
+};
+
+export const useConnectionSyncStatus = (connectionId: string | null) => {
+  const { user, isInitialized } = useAuthStore();
+  const isAuthReady = !!user && isInitialized;
+  return useQuery({ ...bankingQueries.connectionSyncStatus(connectionId!), enabled: isAuthReady && !!connectionId });
+};
+
+// Connection Mutations
+export const useDisconnectConnection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ connectionId, revokeToken }: { connectionId: string; revokeToken?: boolean }) =>
+      bankingApi.disconnectConnection(connectionId, revokeToken),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        // Remove connection-specific queries from cache
+        queryClient.removeQueries({ queryKey: bankingKeys.connection(variables.connectionId) });
+        queryClient.removeQueries({ queryKey: bankingKeys.connectionHealth(variables.connectionId) });
+        queryClient.removeQueries({ queryKey: bankingKeys.connectionSyncStatus(variables.connectionId) });
+
+        // Invalidate global queries that depend on connection data
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to disconnect connection:', error);
+    },
+  });
+};
+
+export const useSyncConnection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ connectionId, options }: { connectionId: string; options?: { syncType?: string; startDate?: string; endDate?: string } }) =>
+      bankingApi.syncConnection(connectionId, options),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        // Invalidate connection sync status to get fresh data
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connectionSyncStatus(variables.connectionId) });
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to sync connection:', error);
+    },
+  });
+};
+
+export const useBatchSyncConnections = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ connectionIds, syncType }: { connectionIds: string[]; syncType?: string }) =>
+      bankingApi.batchSync(connectionIds, syncType),
+    onSuccess: (response) => {
+      if (response.success) {
+        // Invalidate all connection-related queries
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to batch sync connections:', error);
+    },
+  });
+};
+
+export const useReconnectConnection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (connectionId: string) =>
+      bankingApi.reconnectConnection(connectionId),
+    onSuccess: (response, connectionId) => {
+      if (response.success) {
+        // Invalidate connection-specific queries to refresh data
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connection(connectionId) });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connectionHealth(connectionId) });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connectionSyncStatus(connectionId) });
+
+        // Invalidate global queries that depend on connection data
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to reconnect connection:', error);
+    },
+  });
+};
+
+export const useDeleteConnection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (connectionId: string) =>
+      bankingApi.deleteConnection(connectionId),
+    onSuccess: (response, connectionId) => {
+      if (response.success) {
+        // Remove connection-specific queries from cache
+        queryClient.removeQueries({ queryKey: bankingKeys.connection(connectionId) });
+        queryClient.removeQueries({ queryKey: bankingKeys.connectionHealth(connectionId) });
+        queryClient.removeQueries({ queryKey: bankingKeys.connectionSyncStatus(connectionId) });
+
+        // Invalidate global queries that depend on connection data
+        // This will trigger a refetch of the connections list
+        queryClient.invalidateQueries({ queryKey: bankingKeys.connections() });
+
+        // Also invalidate accounts since connection deletion removes associated accounts
+        queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.overview() });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() });
+        queryClient.invalidateQueries({ queryKey: bankingKeys.transactions() });
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to delete connection:', error);
+    },
+  });
 };

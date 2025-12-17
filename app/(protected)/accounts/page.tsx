@@ -24,6 +24,7 @@ import {
   ArrowRight,
   Dot,
   PenIcon,
+  Car,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -205,7 +206,7 @@ function DraggableAccountItem({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild >
-                  {account.source === 'manual' ? (
+                  {account.source === 'MANUAL' ? (
                     <div className='cursor-help'>
                       <MdiPen className='text-yellow-700 w-4 h-4' />
                     </div>
@@ -284,7 +285,7 @@ const categoryConfig = {
   CASH: { label: 'Cash & Equivalents', icon: <StreamlineFreehandMoneyCashBill className="h-6 w-6" /> },
   INVESTMENTS: { label: 'Investments', icon: <TrendingUp className="h-6 w-6" /> },
   REAL_ESTATE: { label: 'Real Estate', icon: <Home className="h-6 w-6" /> },
-  VEHICLE: { label: 'Vehicles', icon: <Wallet className="h-6 w-6" /> },
+  VEHICLE: { label: 'Vehicles', icon: <Car className="h-6 w-6" /> },
   VALUABLES: { label: 'Valuables', icon: <Package className="h-6 w-6" /> },
   CRYPTO: { label: 'Cryptocurrency', icon: <HeroiconsWallet className="h-6 w-6" /> },
   OTHER_ASSET: { label: 'Other Assets', icon: <Package className="h-6 w-6" /> },
@@ -628,7 +629,7 @@ export default function AccountsPage() {
   };
 
   
-
+  console.log(accountsData)
   return (
     <div className="h-full flex flex-col relative space-y-6">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
@@ -661,16 +662,16 @@ export default function AccountsPage() {
 
 
         {/* Two-column layout: Accordions left, Summary right */}
-        <div className="grid grid-cols-1 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
           {/* Accordions Column */}
-          <div className="lg:col-span-6">
-         {/* Full-width Chart*/}
+          <div className="lg:col-span-8">
+         {/* Full-width Chart
         {showNetWorth && (
           <div className="mb-4">
             <NetWorthChart mode="demo"  className='' height={200}  />
           </div>
-        )} 
+        )} */}
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <Accordion type="multiple" defaultValue={categoriesWithAccounts.map(c => c.key)} className='space-y-2'>
@@ -688,18 +689,18 @@ export default function AccountsPage() {
                     <AccordionItem
                       key={group.key}
                       value={group.key}
-                      className="overflow-hidden border border-border/80 "
+                      className="overflow-hidden border rounded-xl shadow   border-border/50 hover:shadow-md"
                     >
-                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 bg-card transition-all duration-0 [&[data-state=open]]:bg-card/20 rounded-b-none cursor-pointer hover:bg-muted/20">
+                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 bg-muted/70 transition-all duration-0 [&[data-state=open]]:bg-muted/40  [&[data-state=open]]:rounded-b-none cursor-pointer hover:bg-muted/60">
                         {/* Icon */}
-                        <div className="h-11 w-11 rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
+                        <div className="h-9 w-9 rounded-full  shadow-xs group-hover:shadow-lg bg-gradient-to-br from-orange-400/90 to-orange-500/90 text-white  flex items-center justify-center flex-shrink-0">
                           {config.icon}
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0 text-left">
                           <div className="flex items-center">
-                            <h3 className="font-medium text-[15px] text-foreground truncate">
+                            <h3 className="font-semibold text-[15px] text-foreground truncate">
                               {config.label}
                             </h3>
                           </div>
@@ -750,7 +751,7 @@ export default function AccountsPage() {
           </div>
 
           {/* Right Sidebar Summary */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-4">
       
             <SummarySidebar summary={summaryData} />
           </div>

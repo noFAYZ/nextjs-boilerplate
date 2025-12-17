@@ -75,6 +75,7 @@ import { TransactionDetailDrawer } from "@/components/transactions/transaction-d
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
+import { useProviderConnections, useSyncConnection } from "@/lib/queries/banking-queries";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -154,6 +155,15 @@ export default function UnifiedAccountDetailsPage() {
     limit: 100, // Fetch up to 100 transactions
   });
 
+  // Get all provider connections to find the matching one
+  const {
+    data: connections = [],
+    isLoading: isLoadingConnections,
+  } = useProviderConnections();
+
+  // Sync connection mutation
+  const { mutate: syncMutation, isPending: isSyncMutationPending } = useSyncConnection();
+
   // Handle both response structures: direct array or wrapped in .data
   const transactionsData = Array.isArray(transactionsResponse)
     ? transactionsResponse
@@ -202,8 +212,42 @@ export default function UnifiedAccountDetailsPage() {
 
   const handleSync = async () => {
     try {
+      if (!account) {
+        console.error("Account not found");
+        return;
+      }
+
+      // Find the connection that matches this account
+      // First, try to match by provider info
+      const matchingConnection = connections.find((conn) => {
+        console.log(account, conn.provider)
+        // Check if any accounts in this connection match our account
+        // For now, we'll use a simple heuristic: match by provider and institution
+        if (account.providerType === "PLAID" && conn.provider === "PLAID") {
+          return true;
+        }
+        if (account.providerType === "TELLER" && conn.provider === "TELLER") {
+          return true;
+        }
+        return false;
+      });
+
+      if (!matchingConnection) {
+        console.error(
+          "No matching connection found for this account",
+          account.source,
+          account.institutionName
+        );
+        return;
+      }
+
       setIsSyncing(true);
-      // TODO: Implement sync for unified accounts
+      syncMutation({
+        connectionId: matchingConnection.id,
+        options: {
+          syncType: "full",
+        },
+      });
     } catch (error) {
       console.error("Failed to sync account:", error);
       setIsSyncing(false);
@@ -307,10 +351,10 @@ export default function UnifiedAccountDetailsPage() {
       const absAmount = Math.abs(amount);
 
       // Determine transaction type - prefer tx.type field if available
-      let txType: 'DEPOSIT' | 'WITHDRAWAL';
+      let txType: 'DEPOSIT' | 'WITHDRAWAL' | 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'SEND' | 'RECEIVE' | 'SWAP' | 'OTHER';
       if (tx.type && typeof tx.type === 'string') {
         // New schema: use the type field directly
-        txType = tx.type === 'INCOME' || tx.type === 'DEPOSIT' ? 'DEPOSIT' : 'WITHDRAWAL';
+        txType = tx.type as any;
       } else {
         // Old schema: determine from amount sign
         txType = amount > 0 ? 'DEPOSIT' : 'WITHDRAWAL';
@@ -319,22 +363,34 @@ export default function UnifiedAccountDetailsPage() {
       return {
         id: tx.id,
         type: txType,
-        status: 'COMPLETED' as const,
+        status: (tx.status || 'COMPLETED') as const,
         timestamp: tx.date,
+        date: tx.date,
         amount: absAmount,
-        currency: 'USD',
-        description: tx.description || tx.merchantName || 'Transaction',
-        hash: tx.id,
+        currency: tx.currency || 'USD',
+        description: tx.description || (tx as any).merchant?.displayName || tx.merchantName || 'Transaction',
+        hash: (tx as any).providerTransactionId || tx.id,
         merchent: tx.merchantName,
+        merchant: (tx as any).merchant || {
+          id: (tx as any).merchantId,
+          displayName: tx.merchantName,
+          icon: (tx as any).metadata?.pfc?.iconUrl,
+          logo: (tx as any).metadata?.logoUrl,
+          website: (tx as any).metadata?.website,
+        },
         account: {
-          id: account?.id || '',
-          name: account?.name || 'Unknown Account',
+          id: (tx as any)?.account?.id || '',
+          name: (tx as any)?.account?.name || 'Unknown Account',
           type: 'BANKING' as const,
-          institute: account?.institutionName || '',
+          mask:(tx as any)?.account?.mask,
+          institute: (tx as any)?.account?.institutionName || '',
         },
         category: tx.category,
         tags: [],
         source: 'BANKING' as const,
+        pending: (tx as any).pending || (tx as any).isPending || false,
+        runningBalance: (tx as any).runningBalance,
+        metadata: (tx as any).metadata,
       };
     }) as UnifiedTransaction[];
 
@@ -400,8 +456,10 @@ export default function UnifiedAccountDetailsPage() {
   const IconComponent = accountConfig.icon;
   const syncState = realtimeSyncStates[account.id];
 
+  console.log(transactionsResponse)
+
   return (
-    <div className={` max-w-3xl mx-auto space-y-3`}>
+    <div className={` max-w-5xl mx-auto space-y-3`}>
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -418,6 +476,8 @@ export default function UnifiedAccountDetailsPage() {
               onClick={handleSync}
               disabled={
                 isSyncing ||
+                isSyncMutationPending ||
+                isLoadingConnections ||
                 syncState?.status === "syncing" ||
                 syncState?.status === "processing" ||
                 syncState?.status === "syncing_transactions"
@@ -427,6 +487,7 @@ export default function UnifiedAccountDetailsPage() {
               className="gap-2"
             >
               {isSyncing ||
+              isSyncMutationPending ||
               syncState?.status === "syncing" ||
               syncState?.status === "syncing_transactions" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -772,43 +833,43 @@ export default function UnifiedAccountDetailsPage() {
                   Manage your account
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="space-y-2">
+              <CardContent className="p-2 pt-0 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2"
+                    variant="outline2"
+                    size="xs"
+                    className=" gap-2"
                   >
                     <ArrowUpRight className="h-4 w-4" />
-                    Transfer Funds
+                    Transfer
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2"
+                    variant="outline2"
+                    size="xs"
+                    className="   gap-2"
                   >
                     <Download className="h-4 w-4" />
-                    Export Transactions
+                    Export 
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2"
+                    variant="outline2"
+                    size="xs"
+                    className="   gap-2"
                   >
                     <Settings className="h-4 w-4" />
-                    Account Settings
+                    Settings 
                   </Button>
-                  <Separator />
+                  
+                </div><Separator />
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    variant="delete"
+                    size="xs"
+                    className="w-full  gap-2 "
                     onClick={handleDisconnect}
                   >
                     <Trash2 className="h-4 w-4" />
-                    Disconnect Account
+                    Disconnect
                   </Button>
-                </div>
               </CardContent>
             </Card>
 

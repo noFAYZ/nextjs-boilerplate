@@ -185,10 +185,10 @@ export const accountsQueries = {
       },
       staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
       select: (data: ApiResponse<CategoriesResponse>) => {
-        if (data.success && data.data) {
-          return data.data;
+        if (data.success && data.data?.data) {
+          return data.data.data;
         }
-        return { data: [] };
+        return [];
       },
     }),
 
@@ -293,59 +293,20 @@ export const accountsMutations = {
       mutationFn: async (data: CreateManualAccountRequest) => {
         return await accountsApi.createManualAccount(data);
       },
-      onMutate: async (newAccountData) => {
-        // Cancel any ongoing fetches
-        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
+      onSuccess: (response) => {
+        // Invalidate all account-related queries to force a refetch
+        // This ensures the UI updates immediately with the new account
+        queryClient.invalidateQueries({
+          queryKey: accountsKeys.list(),
+        });
 
-        // Snapshot previous data for rollback
-        const previousAccounts = queryClient.getQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list()
-        );
-
-        // Optimistically update cache with temporary account
-        const optimisticAccount = {
-          id: `temp-${Date.now()}`,
-          ...newAccountData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          status: 'pending' as const,
-        } as any; // Cast as account type
-
-        queryClient.setQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list(),
-          (old) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: [optimisticAccount, ...old.data],
-            };
-          }
-        );
-
-        return { previousAccounts };
+        // Also invalidate transactions as balance might have changed
+        queryClient.invalidateQueries({
+          queryKey: accountsKeys.allTransactions(),
+        });
       },
-      onSuccess: (response, _, context) => {
-        if (response.success && response.data) {
-          // Replace optimistic account with real server response
-          queryClient.setQueryData<UnifiedAccountsResponse>(
-            accountsKeys.list(),
-            (old) => {
-              if (!old?.data) return old;
-              return {
-                ...old,
-                data: old.data.map((acc) =>
-                  acc.id.startsWith('temp-') ? response.data : acc
-                ),
-              };
-            }
-          );
-        }
-      },
-      onError: (error, _, context) => {
-        // Rollback to previous state
-        if (context?.previousAccounts) {
-          queryClient.setQueryData(accountsKeys.list(), context.previousAccounts);
-        }
+      onError: (error) => {
+        // Error will be handled by the component
       },
     });
   },
@@ -362,69 +323,25 @@ export const accountsMutations = {
       mutationFn: async ({ accountId, updates }: { accountId: string; updates: UpdateAccountRequest }) => {
         return await accountsApi.updateAccount(accountId, updates);
       },
-      onMutate: async ({ accountId, updates }) => {
-        // Cancel outgoing fetches
-        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
-        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
+      onSuccess: (response, { accountId }) => {
+        if (response.success) {
+          // Invalidate account list and detail queries to force refetch
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.list(),
+          });
 
-        // Snapshot previous data
-        const previousList = queryClient.getQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list()
-        );
-        const previousDetail = queryClient.getQueryData<UnifiedAccountDetails>(
-          accountsKeys.account(accountId)
-        );
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.account(accountId),
+          });
 
-        // Optimistically update list
-        queryClient.setQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list(),
-          (old) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: old.data.map((acc) =>
-                acc.id === accountId ? { ...acc, ...updates } : acc
-              ),
-            };
-          }
-        );
-
-        // Optimistically update detail
-        queryClient.setQueryData<UnifiedAccountDetails>(
-          accountsKeys.account(accountId),
-          (old) => (old ? { ...old, ...updates } : old)
-        );
-
-        return { previousList, previousDetail };
-      },
-      onSuccess: (response, { accountId }, context) => {
-        if (response.success && response.data) {
-          // Update list with server response
-          queryClient.setQueryData<UnifiedAccountsResponse>(
-            accountsKeys.list(),
-            (old) => {
-              if (!old?.data) return old;
-              return {
-                ...old,
-                data: old.data.map((acc) =>
-                  acc.id === accountId ? response.data : acc
-                ),
-              };
-            }
-          );
-
-          // Update detail with server response
-          queryClient.setQueryData(accountsKeys.account(accountId), response.data);
+          // Invalidate transactions as they might be affected
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.allTransactions(),
+          });
         }
       },
-      onError: (error, { accountId }, context) => {
-        // Rollback to previous state
-        if (context?.previousList) {
-          queryClient.setQueryData(accountsKeys.list(), context.previousList);
-        }
-        if (context?.previousDetail) {
-          queryClient.setQueryData(accountsKeys.account(accountId), context.previousDetail);
-        }
+      onError: (error) => {
+        // Error will be handled by the component
       },
     });
   },
@@ -441,55 +358,25 @@ export const accountsMutations = {
       mutationFn: async (accountId: string) => {
         return await accountsApi.deleteAccount(accountId);
       },
-      onMutate: async (accountId) => {
-        // Cancel outgoing fetches
-        await queryClient.cancelQueries({ queryKey: accountsKeys.list() });
-        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
-
-        // Snapshot previous data
-        const previousList = queryClient.getQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list()
-        );
-
-        // Optimistically remove from list
-        queryClient.setQueryData<UnifiedAccountsResponse>(
-          accountsKeys.list(),
-          (old) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: old.data.filter((acc) => acc.id !== accountId),
-            };
-          }
-        );
-
-        return { previousList };
-      },
       onSuccess: (response, accountId) => {
         if (response.success) {
-          // Remove detail from cache
+          // Invalidate account list and detail queries to force refetch
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.list(),
+          });
+
           queryClient.removeQueries({
             queryKey: accountsKeys.account(accountId),
           });
 
-          // Ensure it's removed from list
-          queryClient.setQueryData<UnifiedAccountsResponse>(
-            accountsKeys.list(),
-            (old) => {
-              if (!old?.data) return old;
-              return {
-                ...old,
-                data: old.data.filter((acc) => acc.id !== accountId),
-              };
-            }
-          );
+          // Invalidate transactions as they might be affected
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.allTransactions(),
+          });
         }
       },
-      onError: (error, accountId, context) => {
-        // Rollback to previous state
-        if (context?.previousList) {
-          queryClient.setQueryData(accountsKeys.list(), context.previousList);
-        }
+      onError: (error) => {
+        // Error will be handled by the component
       },
     });
   },
@@ -506,76 +393,29 @@ export const accountsMutations = {
       mutationFn: async ({ accountId, data }: { accountId: string; data: AddTransactionRequest }) => {
         return await accountsApi.addTransaction(accountId, data);
       },
-      onMutate: async ({ accountId, data }) => {
-        // Cancel outgoing fetches
-        await queryClient.cancelQueries({ queryKey: accountsKeys.transactions(accountId) });
-        await queryClient.cancelQueries({ queryKey: accountsKeys.account(accountId) });
+      onSuccess: (response, { accountId }) => {
+        if (response.success) {
+          // Invalidate all related queries to force refetch
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.transactions(accountId),
+          });
 
-        // Snapshot previous data
-        const previousTransactions = queryClient.getQueryData<AccountTransactionsResponse>(
-          accountsKeys.transactions(accountId)
-        );
-        const previousAccount = queryClient.getQueryData<UnifiedAccountDetails>(
-          accountsKeys.account(accountId)
-        );
-
-        // Optimistically add transaction
-        const optimisticTransaction = {
-          id: `temp-${Date.now()}`,
-          ...data,
-          createdAt: new Date().toISOString(),
-          status: 'pending' as const,
-        } as any; // Cast as transaction type
-
-        queryClient.setQueryData<AccountTransactionsResponse>(
-          accountsKeys.transactions(accountId),
-          (old) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: [optimisticTransaction, ...old.data],
-            };
-          }
-        );
-
-        return { previousTransactions, previousAccount };
-      },
-      onSuccess: (response, { accountId }, context) => {
-        if (response.success && response.data) {
-          // Replace optimistic transaction with real server response
-          queryClient.setQueryData<AccountTransactionsResponse>(
-            accountsKeys.transactions(accountId),
-            (old) => {
-              if (!old?.data) return old;
-              return {
-                ...old,
-                data: old.data.map((txn) =>
-                  txn.id.startsWith('temp-') ? response.data : txn
-                ),
-              };
-            }
-          );
-
-          // Invalidate account details to get updated balance
           queryClient.invalidateQueries({
             queryKey: accountsKeys.account(accountId),
           });
+
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.allTransactions(),
+          });
+
+          // Also invalidate account list to update balances
+          queryClient.invalidateQueries({
+            queryKey: accountsKeys.list(),
+          });
         }
       },
-      onError: (error, { accountId }, context) => {
-        // Rollback to previous state
-        if (context?.previousTransactions) {
-          queryClient.setQueryData(
-            accountsKeys.transactions(accountId),
-            context.previousTransactions
-          );
-        }
-        if (context?.previousAccount) {
-          queryClient.setQueryData(
-            accountsKeys.account(accountId),
-            context.previousAccount
-          );
-        }
+      onError: (error) => {
+        // Error will be handled by the component
       },
     });
   },

@@ -129,6 +129,29 @@ class BankingApiService {
   }
 
   /**
+   * Reactivate a disconnected connection
+   */
+  async reconnectConnection(connectionId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    provider: string;
+    status: string;
+    lastSyncAt: string;
+    message: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/connections/${connectionId}/reconnect`, {}, organizationId);
+  }
+
+  /**
+   * Permanently delete a connection
+   */
+  async deleteConnection(connectionId: string, organizationId?: string): Promise<ApiResponse<{
+    message: string;
+    success: boolean;
+  }>> {
+    return apiClient.delete(`${this.basePath}/connections/${connectionId}`, organizationId);
+  }
+
+  /**
    * Manually trigger synchronization for a connection
    */
   async syncConnection(connectionId: string, options?: { syncType?: string; startDate?: string; endDate?: string; returnStream?: boolean }, organizationId?: string): Promise<ApiResponse<{

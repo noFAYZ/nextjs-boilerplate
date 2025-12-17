@@ -34,6 +34,7 @@ import {
   ChevronDownIcon,
   ChevronsDownUp,
   ChevronsUpDown,
+
 } from 'lucide-react';
 import { formatDate } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -44,29 +45,64 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { GgArrowsExchange, SolarCalendarBoldDuotone } from '../icons/icons';
+import { GgArrowsExchange, MemoryArrowTopRight, SolarCalendarBoldDuotone } from '../icons/icons';
+import Link from 'next/link';
 
 export interface UnifiedTransaction {
   id: string;
-  type: 'SEND' | 'RECEIVE' | 'SWAP' | 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'OTHER';
+  type: 'SEND' | 'RECEIVE' | 'SWAP' | 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'EXPENSE' | 'INCOME' | 'OTHER';
   status: 'CONFIRMED' | 'PENDING' | 'FAILED' | 'COMPLETED' | 'PROCESSING';
   timestamp: string;
+  date?: string;
   amount: number;
   currency?: string;
   description: string;
   fromAddress?: string;
   toAddress?: string;
   hash?: string;
-  merchent?:string;
+  merchent?: string;
+  merchant?: {
+    id?: string;
+    displayName?: string;
+    icon?: string;
+    logo?: string;
+    website?: string;
+  };
   account?: {
     id: string;
     name: string;
     type: 'CRYPTO' | 'BANKING';
     institute: string;
+    mask: string;
   };
   category?: string;
   tags?: string[];
   source: 'CRYPTO' | 'BANKING';
+  pending?: boolean;
+  status?: string;
+  runningBalance?: number;
+  metadata?: {
+    pfc?: {
+      iconUrl?: string;
+      primary?: string;
+      detailed?: string;
+    };
+    logoUrl?: string;
+    website?: string;
+    location?: {
+      city?: string;
+      region?: string;
+      address?: string;
+      country?: string;
+    };
+    counterparties?: Array<{
+      name?: string;
+      type?: string;
+      website?: string;
+      logo_url?: string;
+    }>;
+    [key: string]: unknown;
+  };
 }
 
 interface TransactionsDataTableProps {
@@ -363,21 +399,21 @@ export function TransactionsDataTable({
           <Table>
             <TableHeader className="bg-muted/80 border-b border-border/50">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-10 px-4 py-1"></TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-1 min-w-[250px]">Transaction</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Account</TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-1 min-w-[300px]">Merchant</TableHead>
                 <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Category</TableHead>
-                <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-1">Amount</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Account</TableHead>
+                <TableHead className="hidden lg:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Status</TableHead>
+                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-4 py-1">Amount</TableHead>
                 <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-1 w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {[...Array(4)].map((_, i) => (
                 <TableRow key={i} className="border-b border-border/30">
-                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded-full animate-pulse" /></TableCell>
-                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></TableCell>
-                  <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
+                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="flex gap-3"><div className="h-9 w-9 bg-muted rounded-full flex-shrink-0 animate-pulse" /><div className="flex-1"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></div></div></TableCell>
                   <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded animate-pulse" /></TableCell>
+                  <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
+                  <TableCell className="hidden lg:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-6 w-16 bg-muted rounded-full animate-pulse" /></TableCell>
                   <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded ml-auto animate-pulse" /></TableCell>
                   <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded animate-pulse ml-auto" /></TableCell>
                 </TableRow>
@@ -419,7 +455,7 @@ export function TransactionsDataTable({
   }
 
   
-
+console.log(transactions)
   return (
     <div className="space-y-4">
       {/* Data Table */}
@@ -428,12 +464,12 @@ export function TransactionsDataTable({
           <Table>
             <TableHeader className="bg-muted/80 border-b border-border/50">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-8 sm:w-10 px-2 sm:px-4  "></TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[200px] sm:min-w-[250px]">Transaction</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[150px]">Account</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4  ">Category</TableHead>
-                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4   min-w-[80px]">Amount</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4   w-8 sm:w-10"></TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[200px] sm:min-w-[200px]">Merchant</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 sm:min-w-[200px]">Category</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[150px] sm:min-w-[200px]">Account</TableHead>
+                <TableHead className="hidden lg:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[100px]">Status</TableHead>
+                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[120px]">Amount</TableHead>
+                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4 w-8 sm:w-10"></TableHead>
               </TableRow>
             </TableHeader>
           <TableBody>
@@ -445,8 +481,8 @@ export function TransactionsDataTable({
                 <Fragment key={date}>
                   {/* Date Separator */}
                   <TableRow className="hover:bg-transparent shadow-none border-0">
-                    <TableCell colSpan={6} className="px-2   py-0.5 bg-muted">
-                      <p className="text-[10px] font-semibold flex gap-1  tracking-wider text-muted-foreground">
+                    <TableCell colSpan={6} className="px-2 py-2 bg-background">
+                      <p className="text-[10px] font-semibold flex gap-1 tracking-wider text-muted-foreground">
                         <SolarCalendarBoldDuotone className='w-3 h-3' />{date}
                       </p>
                     </TableCell>
@@ -457,95 +493,129 @@ export function TransactionsDataTable({
                     <TableRow
                       key={tx.id}
                       className={cn(
-                        'group border-b border-border/30 hover:bg-muted/50  cursor-pointer'
+                        'group border-b border-border/50 hover:bg-muted/20'
                       )}
-                      onClick={() => onRowClick?.(tx)}
                     >
-                      {/* Type Icon */}
-                      <TableCell className="px-2 sm:px-4  ">
-                        <div className={`flex justify-center h-8  w-8 rounded-full items-center ${getTyqpeBgColor(tx.type)} `}>
-                        
-                          {getT2ypeIcon(tx.type)}
-                        </div>
-                      </TableCell>
-
-                      {/* Description */}
-                      <TableCell className="px-2 sm:px-4  cursor-pointer group-hover:text-primary transition-colors">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-sm font-semibold text-foreground truncate">
-                            {tx.description}
-                          </p>
-                          {tx.hash && (
-                            <p className="text-xs text-muted-foreground font-mono truncate">
-                              {tx.hash.slice(0, 32)}...
-                            </p>
+                      {/* Merchant/Payee with Logo */}
+                      <TableCell className="px-2 sm:px-4">
+                        <div className="flex items-center gap-3">
+                          {/* Merchant Logo or Type Icon */}
+                          {tx.merchant?.logo || tx.metadata?.logoUrl ? (
+                            <img
+                              src={tx.merchant?.logo || tx.metadata?.logoUrl}
+                              alt={tx.merchant?.displayName || tx.merchent}
+                              className="h-7 w-7 rounded-full object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className={`flex justify-center h-7 w-7 rounded-full items-center flex-shrink-0 ${getTyqpeBgColor(tx.type)}`}>
+                              {getT2ypeIcon(tx.type)}
+                            </div>
                           )}
-                        </div>
-                      </TableCell>
 
-                      {/* Account */}
-                      <TableCell className="hidden sm:table-cell px-2 sm:px-4  ">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
-                            {tx.account?.name.charAt(0).toUpperCase() || 'A'}
-                          </div>
-                          <div className="flex flex-col gap-0.5 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">
-                              {tx.account?.name || 'Unknown'}
+                          {/* Merchant/Description Info */}
+                          <div className="flex flex-col gap-1 min-w-0 flex-1">
+                            <p className="text-sm flex gap-2 font-semibold text-foreground truncate">
+                              {tx.merchant?.displayName || tx.merchent || tx.description}
+                              {tx.merchant?.website && <Link href={tx.merchant?.website}><MemoryArrowTopRight className='w-4 h-4' /></Link>}
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                              {tx.account?.type === 'CRYPTO' ? 'Crypto' : tx?.account?.institute}
-                            </p>
+                           {/*  <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
+                              {tx.account?.institute && (
+                                <span className="truncate">{tx.account.institute}</span>
+                              )}
+                            </div> */}
                           </div>
                         </div>
                       </TableCell>
 
                       {/* Category */}
-                      <TableCell className="hidden md:table-cell px-2 sm:px-4  ">
-                        {tx.category ? (
+                      <TableCell className="hidden md:table-cell px-2 sm:px-4">
+                        {tx.category && (
                           <Badge variant="outline" className="text-xs">
                             {tx.category}
                           </Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
+                        ) }
+                          {tx.metadata?.pfc?.primary && (
+                                <Badge variant="outline" className="text-xs p-0.5 pr-1 rounded-full">
+                                  <img
+                              src={tx.metadata?.pfc?.iconUrl || tx.metadata?.logoUrl}
+                              alt={tx.merchant?.displayName || tx.merchent}
+                              className="h-6 w-6 rounded-full object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                                  {tx.metadata.pfc.primary.toLowerCase()}</Badge>
+                              )}
+                      </TableCell>
+
+                      {/* Account */}
+                      <TableCell className="hidden sm:table-cell px-2 sm:px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                            {tx.account?.name.charAt(0).toUpperCase() || 'A'}
+                          </div>
+                          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-foreground truncate" title={tx.account?.name}>
+                              {tx.account?.name && tx.account.name.length > 18 ? `${tx.account.name.slice(0, 16)}...` : tx.account?.name || 'Unknown'}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {tx.account?.mask  }
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Status */}
+                      <TableCell className="hidden lg:table-cell px-2 sm:px-4">
+                        <Badge
+                          variant={tx.pending ? 'secondary' : 'outline'}
+                          className={cn('text-xs font-semibold',
+                            tx.pending
+                              ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
+                              : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
+                          )}
+                        >
+                          {tx.pending ? 'Pending' : 'Posted'}
+                        </Badge>
                       </TableCell>
 
                       {/* Amount */}
-                      <TableCell className="text-right px-2 sm:px-4  min-w-[80px]">
-                        <div className={cn('font-semibold text-sm', getTypeColor(tx.type))}>
-                          <span>{tx.type === 'SEND' || tx.type === 'WITHDRAWAL' ? '-' : '+'}</span>
-                          <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline" />
+                      <TableCell className="text-right px-2 sm:px-4 min-w-[100px]">
+                        <div className="flex flex-col items-end gap-1">
+                          <div className={cn('font-semibold text-sm',
+                            tx.type === 'SEND' || tx.type === 'WITHDRAWAL' || tx.type === 'EXPENSE'
+                              ? 'text-foreground'
+                              : tx.type === 'RECEIVE' || tx.type === 'DEPOSIT' || tx.type === 'INCOME'
+                              ? 'text-lime-600 dark:text-lime-500'
+                              : 'text-muted-foreground'
+                          )}>
+                            <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline font-semibold" />
+                          </div>
+                        {/*   <Badge variant="soft" className="text-[10px] capitalize font-semibold">
+                            {tx.type === 'SEND' || tx.type === 'WITHDRAWAL' || tx.type === 'EXPENSE'
+                              ? 'Expense'
+                              : tx.type === 'RECEIVE' || tx.type === 'DEPOSIT' || tx.type === 'INCOME'
+                              ? 'Income'
+                              : tx.type === 'TRANSFER'
+                              ? 'Transfer'
+                              : tx.type}
+                          </Badge> */}
                         </div>
                       </TableCell>
 
                       {/* Actions */}
-                      <TableCell className="text-center px-1 sm:px-4  w-8 sm:w-10">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="outline2"
-                                size="icon-xs"
-                                
-                              >
-                                <ChevronDownIcon className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {tx.hash && (
-                                <DropdownMenuItem>
-                                  <ExternalLink className="h-4 w-4 mr-2" />
-                                  View on {tx.source === 'CRYPTO' ? 'Explorer' : 'Bank'}
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem>
-                                <Download className="h-4 w-4 mr-2" />
-                                Export
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                      <TableCell className="text-center px-1 sm:px-4 w-8 sm:w-10">
+                        <Button
+                          variant="outlinemuted"
+                          size="icon-sm"
+                          onClick={() => onRowClick?.(tx)}
+                          className=" w-7 h-7 rounded-full"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

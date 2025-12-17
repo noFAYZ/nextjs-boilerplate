@@ -1067,9 +1067,9 @@ const formatRelativeTime = (
       threshold: 7 * 24 * 60 * 60 * 1000,
     },
     { name: "day", ms: 24 * 60 * 60 * 1000, threshold: 24 * 60 * 60 * 1000 },
-    { name: "hour", ms: 60 * 60 * 1000, threshold: 60 * 60 * 1000 },
-    { name: "minute", ms: 60 * 1000, threshold: 60 * 1000 },
-    { name: "second", ms: 1000, threshold: 1000 },
+    { name: "hr", ms: 60 * 60 * 1000, threshold: 60 * 60 * 1000 },
+    { name: "min", ms: 60 * 1000, threshold: 60 * 1000 },
+    { name: "sec", ms: 1000, threshold: 1000 },
   ];
 
   // Handle "just now" case

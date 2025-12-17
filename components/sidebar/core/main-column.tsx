@@ -32,7 +32,9 @@ import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { UserOrgSwitcher } from '@/components/organization/user-org-switcher';
-import { SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
+import {  GameIconsFairyWings,  } from '@/components/icons/icons';
+import { SettingsDialog } from '@/components/settings/settings-dialog';
+import { useCommandPalette } from '@/components/command/command-palette';
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
@@ -61,6 +63,9 @@ export function SidebarMainColumn({
 
   // PRODUCTION-GRADE: Use AuthStore instead of fetching profile
   const user = useAuthStore((state) => state.user);
+
+  // Settings dialog state
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   const handleSignOut = React.useCallback(async () => {
     try {
@@ -103,9 +108,11 @@ export function SidebarMainColumn({
     radius: 20,
   }).toDataUri();
 
+  const { openCommandPalette } = useCommandPalette();
+
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar   transition-all duration-100", mainColumnExpanded ? "w-64" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/40 inset-shadow-2xs ring-  inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100", mainColumnExpanded ? "w-70" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
@@ -120,22 +127,23 @@ export function SidebarMainColumn({
       {/* Logo — visible normally, but disabled when hovered */}
       <Link
         href="/"
-        className="flex items-center gap-2 -ml-1 text-[40px] font-bold text-orange-500
+        className="flex items-center gap-2  text-[40px] font-bold text-[hsl(29.65,100%,50%)]
                    transition-opacity duration-150 
                    group-hover:opacity-0 
                    group-hover:pointer-events-none"    // <— prevents link click on hover
       >
-        𒀭
+       
+        <GameIconsFairyWings className="w-9 h-9" />
       </Link>
 
-      {/* Toggle — only visible and clickable on hover */}
+      {/* Toggle — only visible and clickable on hover  𒀭*/}
       <Button
         onClick={onToggleMainColumn}
         variant='ghost'
         size='icon'
         className="absolute left-3 opacity-0 group-hover:opacity-100 
                    transition-opacity duration-150 
-                   pointer-events-none group-hover:pointer-events-auto cursor-pointer" // <— clickable only on hover
+                   pointer-events-none group-hover:pointer-events-auto cursor-pointer rounded-full " // <— clickable only on hover
       >
         <SidebarOpen className="h-5 w-5  " />
       </Button>
@@ -143,14 +151,15 @@ export function SidebarMainColumn({
   ) : (
     <>
       {/* Expanded State — logo + label */}
-      <Link href="/" className="flex items-center gap-2">
-        <span className="text-[42px] font-bold text-orange-500">𒀭</span>
-        {/* <div className="flex flex-col">
-          <span className="text-base font-bold">MoneyMappr</span>
+      <Link href="/" className="flex items-center gap-1">
+        <span className="text-[42px] font-bold text-[hsl(29.65,100%,50%)] group "><GameIconsFairyWings className="w-9 h-9" /></span>
+ 
+        {/* */}<div className="flex flex-col">
+          <span className="text-base font-bold"> Mappr</span>
           <span className="text-[10px] text-muted-foreground -mt-0.5 hidden sm:block">
-            Financial Intelligence
+            Intelligence
           </span>
-        </div> */}
+        </div> 
       </Link>
 
       {/* Toggle always visible in expanded mode */}
@@ -158,23 +167,23 @@ export function SidebarMainColumn({
 
 
         <Button
-        variant="outlinemuted2"
+        variant="outlinemuted"
         size="icon-sm"
-
-        className="ml-auto rounded-full"
+        onClick={() => setSettingsOpen(true)}
+        className="ml-auto rounded-full hover:rotate-30 transition duration-100"
       >
         <Settings
           className="h-5 w-5  "
         />
       </Button>
         <Button
-        variant="outlinemuted2"
+        variant="outlinemuted"
         size="icon-sm"
         onClick={handleRefresh}
         disabled={isLoading}
         className={cn(
-          "ml-auto rounded-full transition-colors",
-          isLoading && "bg-amber-100 text-amber-900 hover:bg-amber-300"
+          "ml-auto rounded-full transition-colors hover:rotate-30 transition duration-100",
+          isLoading && "bg-amber-100 text-amber-900 hover:bg-amber-300 "
         )}
       >
         <RefreshCwIcon
@@ -188,7 +197,7 @@ export function SidebarMainColumn({
         variant="ghost"
         size="icon-sm"
         onClick={onToggleMainColumn}
-        className="ml-auto"
+        className="ml-auto rounded-full"
       >
         <SidebarClose
           className="h-5 w-5 "
@@ -209,19 +218,10 @@ export function SidebarMainColumn({
 
           {/*   */} 
 
-        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 " : "space-y-1 px-3 ")}>
+        <nav className={cn("flex flex-col", mainColumnExpanded ? "space-y-0.5 px-3 " : "space-y-0.5 px-3 ")}>
 
-<button
-               
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md bg-muted dark:bg-muted/70 border border-border hover:border-foreground/10 hover:bg-muted/60 focus:outline-none focus:ring-0 mb-8  transition-colors text-left cursor-text"
-              >
-                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-                {mainColumnExpanded && (<div className='flex w-full justify-between'><span className=" text-muted-foreground text-xs  ">Search...</span>
-                <kbd className=" sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground  md:flex">
-                  ⌘K
-                </kbd>
-                </div>)}
-              </button> 
+      {/*    <ActionSearchBar onOpenCommandPalette={openCommandPalette} />*/}
+
 
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -240,13 +240,13 @@ export function SidebarMainColumn({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="ghost"
+                    variant={"ghost"}
                     size="lg"
                     className={cn(
-                      "w-full h-auto shadow-none rounded-sm overflow-visible",
+                      "w-full h-auto   overflow-visible",
                       mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5  " : "justify-center p-1.5   border-r border-border/50  ",
                       isHighlighted
-                        ? "dark:bg-muted/60 bg-accent/50 hover:bg-muted/80 text-foreground/90"
+                        ? "dark:bg-muted/60 bg-accent  hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
                     icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5  w-5  ")}  />}
@@ -255,7 +255,7 @@ export function SidebarMainColumn({
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-normal text-sm truncate",
+                        "font-semibold text-[13px] truncate",
                         isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}
@@ -432,6 +432,9 @@ export function SidebarMainColumn({
         </div>
       </div>
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </TooltipProvider>
   );
 }

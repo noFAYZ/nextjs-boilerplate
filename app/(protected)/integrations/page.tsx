@@ -22,12 +22,14 @@ import {
   TrendingUp,
   Clock,
   Sparkles,
+  Plug,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IntegrationCard } from '@/components/integrations/IntegrationCard';
 import { IntegrationSyncProgress } from '@/components/integrations/IntegrationSyncProgress';
 import { IntegrationConnectPopup } from '@/components/integrations/IntegrationConnectPopup';
 import { IntegrationDisconnectDialog } from '@/components/integrations/IntegrationDisconnectDialog';
+import { ConnectionsList } from '@/components/integrations/ConnectionsList';
 import {
   useAvailableProviders,
   useUserIntegrations,
@@ -52,7 +54,7 @@ import {
 export default function IntegrationsPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'connected' | 'available'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'connected' | 'available' | 'connections'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [connectingProvider, setConnectingProvider] = useState<{ provider: IntegrationProvider; name: string } | null>(null);
   const [disconnectingProvider, setDisconnectingProvider] = useState<{ provider: IntegrationProvider; name: string } | null>(null);
@@ -304,6 +306,10 @@ export default function IntegrationsPage() {
                     <LinkIcon className="w-4 h-4" />
                     Available
                   </TabsTrigger>
+                  <TabsTrigger value="connections" variant="ghost" className="gap-2" size={'sm'}>
+                    <Plug className="w-4 h-4" />
+                    Connections
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -336,8 +342,13 @@ export default function IntegrationsPage() {
         
         </div>
 
+        {/* Connections Tab Content */}
+        {activeTab === 'connections' && (
+          <ConnectionsList />
+        )}
+
         {/* Active Syncs - Compact Version */}
-        {stats.connected > 0 && (
+        {activeTab !== 'connections' && stats.connected > 0 && (
 <>
               {integrations
                 .filter((i) => i.status === 'CONNECTED')
@@ -349,10 +360,11 @@ export default function IntegrationsPage() {
                     className="border-0 rounded-xl bg-background/50"
                   />
                 ))}</>
-         
+
         )}
 
         {/* Integrations Grid - Modern Layout */}
+        {activeTab !== 'connections' && (
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  ">
           {isLoading ? (
             <>
@@ -427,6 +439,7 @@ export default function IntegrationsPage() {
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* Connect Popup */}
