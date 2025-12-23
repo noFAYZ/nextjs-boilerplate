@@ -48,12 +48,14 @@ interface AccountsUIState {
     groupBy: 'category' | 'institution' | 'type' | 'none';
     chartType: 'area' | 'bar' | 'line';
     timeRange: '7d' | '30d' | '90d' | '1y' | 'all';
+    defaultOverview: 'overview' | 'overview-2';
   };
 
   // UI State (non-persistent)
   ui: {
-    activeTab: 'overview' | 'manage';
+    activeTab: 'overview' | 'manage' | 'overview-2';
     isBulkSelectMode: boolean;
+    selectedCategory: string | null;
   };
 }
 
@@ -87,8 +89,10 @@ interface AccountsUIActions {
   setTimeRange: (range: '7d' | '30d' | '90d' | '1y' | 'all') => void;
 
   // UI Actions
-  setActiveTab: (tab: 'overview' | 'manage') => void;
+  setActiveTab: (tab: 'overview' | 'manage' | 'overview-2') => void;
   toggleBulkSelectMode: () => void;
+  setSelectedCategory: (category: string | null) => void;
+  setDefaultOverview: (overview: 'overview' | 'overview-2') => void;
 
   // Utility Actions
   resetUIState: () => void;
@@ -130,12 +134,14 @@ const initialState: AccountsUIState = {
     groupBy: 'category',
     chartType: 'area',
     timeRange: '30d',
+    defaultOverview: 'overview',
   },
 
   // UI State (non-persistent)
   ui: {
     activeTab: 'overview',
     isBulkSelectMode: false,
+    selectedCategory: null,
   },
 };
 
@@ -387,6 +393,24 @@ export const useAccountsUIStore = create<AccountsUIStore>()(
             'accounts-ui/toggleBulkSelectMode'
           ),
 
+        setSelectedCategory: (category) =>
+          set(
+            (state) => {
+              state.ui.selectedCategory = category;
+            },
+            false,
+            'accounts-ui/setSelectedCategory'
+          ),
+
+        setDefaultOverview: (overview) =>
+          set(
+            (state) => {
+              state.viewPreferences.defaultOverview = overview;
+            },
+            false,
+            'accounts-ui/setDefaultOverview'
+          ),
+
         // ================================================================
         // UTILITY ACTIONS
         // ================================================================
@@ -421,7 +445,9 @@ export const useAccountsUIStore = create<AccountsUIStore>()(
         name: 'moneymappr-accounts-ui',
         // Only persist preferences and sort settings
         partialize: (state) => ({
-          viewPreferences: state.viewPreferences,
+          viewPreferences: {
+            ...state.viewPreferences,
+          },
           filters: {
             sortBy: state.filters.sortBy,
             sortOrder: state.filters.sortOrder,

@@ -9,6 +9,7 @@ import {
   Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface FooterLink {
   label: string;
@@ -103,22 +104,97 @@ export const Footer = ({
         </div>
 
         {/* Large background text - FIXED */}
-        <div 
-          className="bg-gradient-to-b from-[hsl(50.53,13.87%,26.86%)] via-gray-800/80 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4"
-          style={{
-            fontSize: 'clamp(3rem, 12vw, 10rem)',
-            maxWidth: '95vw'
-          }}
-        >
-          {brandName.toUpperCase()}
-        </div>
+{/* Background Brand Text */}
+<div className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 w-full px-4 z-0">
+  <div
+    className="
+      relative text-center font-extrabold tracking-tight leading-none
+      bg-clip-text text-transparent
+      bg-gradient-to-b
+      from-black/80
+      via-black/20
+      to-transparent
+      dark:from-white/35
+      dark:via-white/15
+    "
+    style={{
+      fontSize: "clamp(3rem, 12vw, 10rem)",
+      maxWidth: "95vw",
+    }}
+  >
+    {brandName.toUpperCase()}
+
+    {/* Soft glow layer */}
+    <span
+      aria-hidden
+      className="
+        absolute inset-0
+        bg-clip-text text-transparent
+        bg-gradient-to-b
+        from-primary/30
+        via-primary/10
+        to-transparent
+        blur-xl
+        opacity-60
+      "
+    >
+      {brandName.toUpperCase()}
+    </span>
+  </div>
+</div>
 
         {/* Bottom logo */}
-        <div className="absolute  duration-300 drop-shadow-[0_0px_20px_rgba(0,0,0,0.5)] dark:drop-shadow-[0_0px_20px_rgba(255,255,255,0.3)] bottom-24 md:bottom-20 backdrop-blur-sm rounded-full bg-background/60 left-1/2  flex items-center justify-center p-3 -translate-x-1/2 z-10">
-          <div className="w-12 sm:w-16 md:w-24 h-12 sm:h-16 md:h-24 bg-gradient-to-br from-foreground to-foreground/80 rounded-full flex items-center justify-center shadow-lg text-[70px] text-orange-500">
-          𒀭
-          </div>
-        </div>
+      {/* Bottom Floating Logo */}
+<div className="pointer-events-none absolute bottom-24 md:bottom-20 left-1/2 -translate-x-1/2 z-20">
+  <div
+    className="
+      relative flex items-center justify-center
+      rounded-full
+      p-[2px]
+      bg-gradient-to-br from-primary/40 via-primary/20 to-transparent
+      
+    "
+  >
+    {/* Glow ring */}
+    <div
+      className="
+        absolute inset-0 rounded-full
+        blur-xl
+        bg-primary/30
+        dark:bg-primary/40
+      "
+    />
+
+    {/* Glass container */}
+    <div
+      className="
+        relative flex items-center justify-center
+        w-16 h-16 sm:w-20 sm:h-20
+        rounded-full
+        backdrop-blur-xl
+        bg-background/60
+        border border-border/40
+        shadow-[0_20px_40px_rgba(0,0,0,0.15)]
+        dark:shadow-[0_20px_40px_rgba(0,0,0,0.6)]
+      "
+    >
+      {/* Logo */}
+      <Image
+        src="/logo/log.webp"
+        alt="MoneyMappr logo"
+        width={72}
+        height={72}
+        priority
+        className="
+          w-10 h-10 sm:w-14 sm:h-14
+          object-contain
+       
+        "
+      />
+    </div>
+  </div>
+</div>
+
 
         {/* Bottom line */}
         <div className="absolute bottom-32 sm:bottom-34 backdrop-blur-sm h-1 bg-gradient-to-r from-transparent via-border to-transparent w-full left-1/2 -translate-x-1/2"></div>

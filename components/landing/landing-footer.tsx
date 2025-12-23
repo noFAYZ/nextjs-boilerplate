@@ -132,7 +132,7 @@ export function LandingFooter() {
                 
                   >
                   <Image
-                      src="/logo/mappr.svg"
+                      src="/logo/log.png"
                       alt="MoneyMappr logo"
                       width={56}
                       height={56}

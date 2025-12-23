@@ -38,7 +38,7 @@ export function MainLayout({
 
           <div className={cn(
             "h-full",
-            isProMode ? "p-3 md:p-8 container mx-auto " : " p-3 md:p-8 mx-auto"
+            isProMode ? "p-3 md:p-8  mx-auto " : " p-3 md:p-8 mx-auto"
           )}>
             {children}
           </div>
@@ -50,7 +50,7 @@ export function MainLayout({
 
   // Standard layout with sidebar (beginner mode - no header)
   return (
-    <div className={cn("min-h-screen ", className)}>
+    <div className={cn("min-h-screen  ", className)}>
       {shouldShowHeader && <Header />}
 
       <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))]" : "h-screen"}>

@@ -24,7 +24,7 @@ import { avataaarsNeutral } from '@dicebear/collection';
 import { OrganizationSwitcher } from '@/components/organization';
 import { ActionSearchBar } from '../ui/action-search-bar';
 import { useCommandPalette } from '../command/command-palette';
-import { DuoIconsBank, HeroiconsWallet16Solid, LetsIconsAddDuotone, MageDashboard, SolarHomeSmileBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '../icons/icons';
+import { DuoIconsBank, HeroiconsWallet16Solid, LetsIconsAddDuotone, MageDashboard, SolarHomeSmileBoldDuotone, TablerLayoutSidebarLeftExpandFilled, WalletLogoIconOpen } from '../icons/icons';
 import { UserOrgSwitcher } from '../organization/user-org-switcher';
 import { useGlobalUIStore } from '@/lib/stores/global-ui-store';
 
@@ -108,6 +108,34 @@ export function Header({
     radius: 20,
   }).toDataUri();
 
+  function NavIconButton({
+    icon,
+    label,
+    delay = 0,
+  }: {
+    icon: React.ReactNode
+    label: string
+    delay?: number
+  }) {
+    return (
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label={label}
+        className="
+          opacity-0
+          translate-x-2
+          group-hover:opacity-100 group-hover:translate-x-0
+          group-focus-within:opacity-100 group-focus-within:translate-x-0
+          transition duration-100 ease-out
+        "
+        style={{ transitionDelay: `${delay}ms` }}
+        icon={icon}
+      />
+    )
+  }
+  
+
   return (
     <>
       <header 
@@ -125,67 +153,65 @@ export function Header({
         {/* Simplified Header */}
         <div className="flex items-center justify-between h-14 md:h-16 px-4 lg:px-6">
           {/* Left Section - Logo, Organization Switcher, & Search */}
- 
-          <div className="relative group">
-  <div
+          <div className="relative">
+  <nav
     className="
-      flex items-center justify-start gap-2
-      w-11 h-11 
-      bg-card dark:bg-accent rounded-full shadow-lg border
-      transition-all duration-200 overflow-hidden
-      group-hover:rounded-xl group-hover:w-60 
+      group
+      flex items-center
+      h-11
+      w-11
+      rounded-full
+      bg-card
+      border border-border
+      shadow-sm
+      transition-[width,border-radius] duration-200 ease-out
+      hover:w-56 hover:rounded-xl
+      focus-within:w-56 focus-within:rounded-xl
+      overflow-hidden
     "
+    aria-label="Quick navigation"
   >
-    {/* Logo – stays visible always */}
+    {/* Anchor / Home */}
     <Link
       href="/"
-      className="flex items-center justify-center min-w-11 h-11 
-                 text-[34px] font-bold text-orange-500"
+      className="
+        flex items-center justify-center
+        w-11 h-11
+        shrink-0
+        text-orange-500
+        focus-visible:outline-none
+        focus-visible:ring-2 focus-visible:ring-primary
+      "
+      aria-label="Home"
     >
-      𒀭
+      <WalletLogoIconOpen className="w-7 h-7" />
     </Link>
 
-    {/* Button 1 */}
-
-    {/* Button 2 */}
-    <Button
-      className="
-        opacity-0 translate-x-4 
-        group-hover:opacity-100 group-hover:translate-x-0 
-        transition-all duration-300 delay-150
-      "
-      variant="ghost"
-      size="icon-sm"
-      icon={<SolarHomeSmileBoldDuotone className='w-6 h-6' />}
-    >
-     
-    </Button>
-      {/* Button 2 */}
-      <Button
-      className="
-        opacity-0 translate-x-4 
-        group-hover:opacity-100 group-hover:translate-x-0 
-        transition-all duration-300 delay-150
-      "
-      variant="ghost"
-      size="icon-sm"
-      icon={<HeroiconsWallet16Solid className='w-6 h-6' />}
-    >
-      
-    </Button>
-    <Button
-      className="
-        opacity-0 translate-x-4 
-        group-hover:opacity-100 group-hover:translate-x-0 
-        transition-all duration-300 delay-150
-      "
-      variant="ghost"
-      size="icon-sm"
-      icon={<DuoIconsBank className='w-6 h-6' />}
-    >
-      
-    </Button>
-  </div>
+    {/* Actions */}
+    <ul className="flex items-center gap-1 px-1">
+      <li>
+        <NavIconButton
+          label="Dashboard"
+          icon={<SolarHomeSmileBoldDuotone className="w-5 h-5" />}
+          delay={80}
+        />
+      </li>
+      <li>
+        <NavIconButton
+          label="Wallets"
+          icon={<HeroiconsWallet16Solid className="w-5 h-5" />}
+          delay={120}
+        />
+      </li>
+      <li>
+        <NavIconButton
+          label="Banks"
+          icon={<DuoIconsBank className="w-5 h-5" />}
+          delay={160}
+        />
+      </li>
+    </ul>
+  </nav>
 </div>
 
 

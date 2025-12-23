@@ -25,6 +25,7 @@ import {
   ExternalLink,
   Power,
   PowerOff,
+  WifiHigh,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -39,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
-import { HeroiconsWallet, MdiDollar, SolarLibraryBoldDuotone } from '@/components/icons/icons';
+import { HeroiconsWallet, MdiDollar, SolarLibraryBoldDuotone, MdiPen } from '@/components/icons/icons';
 import styles from './accounts-data-table.module.css';
 
 interface AccountsDataTableProps {
@@ -126,7 +127,7 @@ const AccountTableRow = memo(function AccountTableRow({
     <TableRow
       className={cn(
         styles.tableRow,
-        'group border-b border-border/50   hover:bg-muted/30',
+        'group border-b border-border/30   hover:bg-muted/30',
         isDeleting && styles.rowDeleting,
         isSelected && 'bg-primary/5'
       )}
@@ -177,15 +178,12 @@ const AccountTableRow = memo(function AccountTableRow({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1 sm:gap-2">
               <p className="font-semibold text-xs sm:text-sm truncate">{account.name}</p>
-              {account.category && (
-                <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
-                  {account.category.replace(/_/g, ' ')}
-                </Badge>
-              )}
             </div>
-            {account.institutionName && (
-              <p className="text-xs text-muted-foreground truncate hidden sm:block">{account.institutionName}</p>
-            )}
+            <div className="text-xs text-muted-foreground truncate hidden sm:flex items-center gap-2">
+              {account.institutionName && <span>{account.institutionName}</span>}
+              {account.accountNumber && <span>•</span>}
+              {account.accountNumber && <span className="font-mono">{account.accountNumber}</span>}
+            </div>
           </div>
         </div>
       </TableCell>
@@ -193,6 +191,17 @@ const AccountTableRow = memo(function AccountTableRow({
       {/* Type Column */}
       <TableCell className="hidden sm:table-cell text-left ">
         <p className="text-sm font-medium">{account.type}</p>
+      </TableCell>
+
+      {/* Category Column */}
+      <TableCell className="hidden sm:table-cell text-left ">
+        {account.category ? (
+          <Badge variant="outline" className="text-xs rounded-sm">
+            {account.category.replace(/_/g, ' ')}
+          </Badge>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
       </TableCell>
 
       {/* Balance Column */}
@@ -211,6 +220,33 @@ const AccountTableRow = memo(function AccountTableRow({
         <Badge variant={account.isActive ? 'success' : 'subtle'} className="rounded-lg text-xs">
           {account.isActive ? 'Active' : 'Inactive'}
         </Badge>
+      </TableCell>
+
+      {/* Source Column - Manual/Linked */}
+      <TableCell className="hidden md:table-cell text-left">
+        {account.accountSource === 'MANUAL' ? (
+          <div className="flex items-center gap-1.5">
+            <MdiPen className="h-3.5 w-3.5 text-orange-600 dark:text-orange-500" />
+            <span className="text-xs font-medium text-foreground">Manual</span>
+          </div>
+        ) : account.accountSource === 'LINK' ? (
+          <div className="flex items-center gap-1.5">
+            <WifiHigh className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-500" />
+            <span className="text-xs font-medium text-foreground">Linked</span>
+          </div>
+        ) : account.providerType === 'PLAID' ? (
+          <div className="flex items-center gap-1.5">
+            <img src="/logo/banks/plaid.png" alt="Plaid" className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium text-foreground">Plaid</span>
+          </div>
+        ) : account.providerType ? (
+          <div className="flex items-center gap-1.5">
+            <WifiHigh className="h-3.5 w-3.5 text-blue-600 dark:text-blue-500" />
+            <span className="text-xs font-medium text-foreground">{account.providerType}</span>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
       </TableCell>
 
       {/* Last Sync Column */}
@@ -383,8 +419,8 @@ export function AccountsDataTable({
     <div className="space-y-4">
       {/* Data Table */}
   
-        <Table aria-label="Accounts list" className='border border-border/80 bg-card rounded-lg'>
-          <TableHeader className="bg-muted  border-b border-border/80 ">
+        <Table aria-label="Accounts list" className='border border-border/50 bg-card rounded-lg'>
+          <TableHeader className="bg-muted/50  border-b border-border/50 ">
             <TableRow className="hover:bg-transparent border-none">
               <TableHead className="w-10  ">
                 <Checkbox
@@ -400,11 +436,17 @@ export function AccountsDataTable({
               <TableHead className="hidden sm:table-cell text-left font-semibold text-xs uppercase tracking-wider ">
                 Type
               </TableHead>
+              <TableHead className="hidden sm:table-cell text-left font-semibold text-xs uppercase tracking-wider ">
+                Category
+              </TableHead>
               <TableHead className="text-right font-semibold text-xs uppercase tracking-wider  ">
                 Balance
               </TableHead>
               <TableHead className="hidden sm:table-cell text-left font-semibold text-xs uppercase tracking-wider ">
                 Status
+              </TableHead>
+              <TableHead className="hidden md:table-cell text-left font-semibold text-xs uppercase tracking-wider ">
+                Source
               </TableHead>
               <TableHead className="hidden xl:table-cell text-left font-semibold text-xs uppercase tracking-wider  ">
                 Last Sync

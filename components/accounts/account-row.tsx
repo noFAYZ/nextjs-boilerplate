@@ -79,7 +79,7 @@ export function AccountRow({
       style={style}
       onClick={handleClick}
       className={cn(
-        'group relative flex items-center gap-2.5 p-2 transition-all hover:bg-muted/20 cursor-pointer',
+        'group relative flex items-center gap-2.5 p-2 transition-all hover:bg-muted/50 cursor-pointer',
         isSortableDragging && 'bg-primary/10',
         className
       )}

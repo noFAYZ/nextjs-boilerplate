@@ -38,6 +38,7 @@ import {
   Loader,
   Loader2,
   Repeat2,
+  Layout,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -51,6 +52,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/lib/hooks/useToast';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
 import type { UserPreferences } from '@/lib/types/settings';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { PlanType } from '@/lib/types';
@@ -145,6 +147,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { toast } = useToast();
   const user = useAuthStore((state) => state.user);
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
+  const defaultOverview = useAccountsUIStore((state) => state.viewPreferences.defaultOverview);
+  const setDefaultOverview = useAccountsUIStore((state) => state.setDefaultOverview);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Provider connections hooks
@@ -499,6 +503,37 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <SettingItem icon={<Clock className="h-5 w-5" />} label="Reduced Motion" description="Minimize animations">
                       <ToggleSwitch value={preferences.reducedMotion} onChange={() => updatePreference('reducedMotion', !preferences.reducedMotion)} />
                     </SettingItem>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">Accounts Overview Layout</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => setDefaultOverview('overview')}
+                          className={cn("p-4 rounded-lg border-2 transition-all text-left", defaultOverview === 'overview' ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}
+                        >
+                          <div className="flex flex-col gap-2">
+                            <span className="text-sm font-medium text-foreground">Overview</span>
+                            <p className="text-xs text-muted-foreground">Accordion view grouped by category</p>
+                            {defaultOverview === 'overview' && (
+                              <Badge className="w-fit text-[10px]" variant="default">Active</Badge>
+                            )}
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setDefaultOverview('overview-2')}
+                          className={cn("p-4 rounded-lg border-2 transition-all text-left", defaultOverview === 'overview-2' ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}
+                        >
+                          <div className="flex flex-col gap-2">
+                            <span className="text-sm font-medium text-foreground">Overview 2</span>
+                            <p className="text-xs text-muted-foreground">Sidebar with category filter</p>
+                            {defaultOverview === 'overview-2' && (
+                              <Badge className="w-fit text-[10px]" variant="default">Active</Badge>
+                            )}
+                          </div>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

@@ -112,7 +112,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-card border-r border-border/70 inset-shadow-2xs ring-  inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100", mainColumnExpanded ? "w-70" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-sidebar  border-r  inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100", mainColumnExpanded ? "w-70" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
@@ -249,13 +249,13 @@ export function SidebarMainColumn({
                         ? "dark:bg-muted/60 bg-accent  hover:bg-muted/80 text-foreground/90"
                         : "text-muted-foreground border-transparent hover:bg-muted/50"
                     )}
-                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-5  w-5  ")}  />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-6  w-6  ")}  />}
                   >
 
 
                     {mainColumnExpanded && (
                       <span className={cn(
-                        "font-semibold text-[13px] truncate",
+                        "font-medium text-[13px] truncate",
                         isHighlighted ? "text-foreground " : "text-muted-foreground"
                       )}>
                         {item.label}

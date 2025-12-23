@@ -402,7 +402,6 @@ export function TransactionsDataTable({
                 <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-1 min-w-[300px]">Merchant</TableHead>
                 <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Category</TableHead>
                 <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Account</TableHead>
-                <TableHead className="hidden lg:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Status</TableHead>
                 <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-4 py-1">Amount</TableHead>
                 <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-1 w-10"></TableHead>
               </TableRow>
@@ -413,7 +412,6 @@ export function TransactionsDataTable({
                   <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="flex gap-3"><div className="h-9 w-9 bg-muted rounded-full flex-shrink-0 animate-pulse" /><div className="flex-1"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></div></div></TableCell>
                   <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded animate-pulse" /></TableCell>
                   <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="hidden lg:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-6 w-16 bg-muted rounded-full animate-pulse" /></TableCell>
                   <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded ml-auto animate-pulse" /></TableCell>
                   <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded animate-pulse ml-auto" /></TableCell>
                 </TableRow>
@@ -467,7 +465,6 @@ console.log(transactions)
                 <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[200px] sm:min-w-[200px]">Merchant</TableHead>
                 <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 sm:min-w-[200px]">Category</TableHead>
                 <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[150px] sm:min-w-[200px]">Account</TableHead>
-                <TableHead className="hidden lg:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[100px]">Status</TableHead>
                 <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[120px]">Amount</TableHead>
                 <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4 w-8 sm:w-10"></TableHead>
               </TableRow>
@@ -481,7 +478,7 @@ console.log(transactions)
                 <Fragment key={date}>
                   {/* Date Separator */}
                   <TableRow className="hover:bg-transparent shadow-none border-0">
-                    <TableCell colSpan={6} className="px-2 py-2 bg-background">
+                    <TableCell colSpan={5} className="px-2 py-2 bg-background">
                       <p className="text-[10px] font-semibold flex gap-1 tracking-wider text-muted-foreground">
                         <SolarCalendarBoldDuotone className='w-3 h-3' />{date}
                       </p>
@@ -566,20 +563,6 @@ console.log(transactions)
                             </p>
                           </div>
                         </div>
-                      </TableCell>
-
-                      {/* Status */}
-                      <TableCell className="hidden lg:table-cell px-2 sm:px-4">
-                        <Badge
-                          variant={tx.pending ? 'secondary' : 'outline'}
-                          className={cn('text-xs font-semibold',
-                            tx.pending
-                              ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
-                              : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
-                          )}
-                        >
-                          {tx.pending ? 'Pending' : 'Posted'}
-                        </Badge>
                       </TableCell>
 
                       {/* Amount */}

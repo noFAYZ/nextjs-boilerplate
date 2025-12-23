@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,6 +14,7 @@ import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
 
 // Extracted tab components
 import { OverviewTab } from '@/components/accounts/overview-tab';
+import { Overview2Tab } from '@/components/accounts/overview-2-tab';
 import { ManageTab } from '@/components/accounts/manage-tab';
 
 /* -------------------------------------------------------------------------- */
@@ -29,6 +30,14 @@ export default function AccountsPage() {
   const setActiveTab = useAccountsUIStore((state) => state.setActiveTab);
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
   const setBalanceVisible = useAccountsUIStore((state) => state.setBalanceVisible);
+  const defaultOverview = useAccountsUIStore((state) => state.viewPreferences.defaultOverview);
+
+  // Initialize active tab with default overview on mount
+  useEffect(() => {
+    if (activeTab !== defaultOverview && (activeTab === 'overview' || activeTab === 'overview-2')) {
+      setActiveTab(defaultOverview);
+    }
+  }, [defaultOverview]);
 
   // Dialog state
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
@@ -39,9 +48,9 @@ export default function AccountsPage() {
 
       {/* Header: Tabs and Actions */}
       <div className="flex items-center justify-between">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className=''>
           <TabsList className="grid grid-cols-2 gap-0.5" variant="ghost">
-            <TabsTrigger value="overview" variant="ghost">
+            <TabsTrigger value={defaultOverview} variant="ghost">
               Overview
             </TabsTrigger>
             <TabsTrigger value="manage" variant="ghost">
@@ -78,6 +87,12 @@ export default function AccountsPage() {
         {activeTab === 'overview' && (
           <div className="space-y-6 h-full overflow-auto">
             <OverviewTab />
+          </div>
+        )}
+
+        {activeTab === 'overview-2' && (
+          <div className="h-full overflow-hidden">
+            <Overview2Tab />
           </div>
         )}
 

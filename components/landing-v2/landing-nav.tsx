@@ -91,8 +91,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
       <NavigationMenuLink asChild>
         <a href={href} className="block select-none rounded-lg p-2 leading-none no-underline outline-none transition-colors hover:bg-muted/10 hover:text-accent-foreground  ">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow- shadow-white  bg-linear-to-b from-orange-400 to-[hsl(25.41,100%,50%)]  to-amber-700/30% ">
-              <Icon className="h-6 w-6 text-white" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow-inner shadow-black  bg-linear-to-b from-orange-400 to-[hsl(25.41,100%,50%)]  to-amber-700/30% ">
+              <Icon className="h-6 w-6 text-white/90" />
             </div>
             <div>
               <div className="text-xs font-medium  text-background">{title}</div>

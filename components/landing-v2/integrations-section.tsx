@@ -8,6 +8,7 @@ import { getLogoUrl } from "@/lib/services/logo-service";
 import { DuoIconsBank, FluentPlugConnectedCheckmark20Filled, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, SolarChartSquareBoldDuotone, TablerPlugConnected } from "../icons/icons";
 import { BgGradient } from "../landing/bg/bg-gradient";
 import { ScrollReveal } from "../landing/scroll-reveal";
+import Image from "next/image";
 
 interface DatabaseWithRestApiProps {
   className?: string;
@@ -178,7 +179,7 @@ export default function DatabaseWithRestApi({
         }}
       />
 
-      <BgGradient  imageSrc="/landing/bg9.webp" opacity='0.1'  />
+      <BgGradient  imageSrc="/landing/bg3.webp" opacity='0.1'  />
       <ScrollReveal className="z-20">
            {/* caption under center */}
     
@@ -337,9 +338,24 @@ export default function DatabaseWithRestApi({
             />
 
             {/* inner glyph */}
-            <text x={0} y={24} textAnchor="middle" fontSize={cfg.bigNode * 1.82} fontWeight={800} fill={lightColor}>
-              𒀭
-            </text>
+            <defs>
+  <filter id="logoGlow">
+    <feGaussianBlur stdDeviation="6" result="blur" />
+    <feMerge>
+      <feMergeNode in="blur" />
+      <feMergeNode in="SourceGraphic" />
+    </feMerge>
+  </filter>
+</defs>
+
+<image
+  href="/logo/log.webp"
+  x={-(cfg.bigNode * 0.9)}
+  y={-(cfg.bigNode * 0.9)}
+  width={cfg.bigNode * 1.8}
+  height={cfg.bigNode * 1.8}
+  filter="url(#logoGlow)"
+/>
 
             {/* highlight ring that flashes slightly when nodes arrive (synced with duration) */}
             <circle cx={0} cy={0} r={cfg.bigNode * 0.9} fill="none" stroke={lightColor} strokeOpacity={0.08} strokeWidth={1}>

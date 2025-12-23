@@ -459,7 +459,7 @@ export default function UnifiedAccountDetailsPage() {
   console.log(transactionsResponse)
 
   return (
-    <div className={` max-w-5xl mx-auto space-y-3`}>
+    <div className={`  mx-auto space-y-3`}>
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -501,8 +501,9 @@ export default function UnifiedAccountDetailsPage() {
           </div>
         </div>
       </div>
+<div className="grid grid-cols-12 gap-4  w-full">
 
-      <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent} />
+<div className="col-span-8">
 
       {/* Transactions Section with Tabs */}
       <Tabs
@@ -511,19 +512,16 @@ export default function UnifiedAccountDetailsPage() {
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
-          <TabsList variant="pill" >
-            <TabsTrigger value="transactions" variant="pill" >
+          <TabsList variant="pill" size="sm" >
+            <TabsTrigger value="transactions" variant="pill" size="sm">
               <SolarBillListBoldDuotone className="h-5 w-5 " />
               Transactions
             </TabsTrigger>
-            <TabsTrigger value="analytics" variant="pill" >
+            <TabsTrigger value="analytics" variant="pill" size="sm">
               <SolarChartSquareBoldDuotone className="h-5 w-5 " />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="settings" variant="pill" >
-              <LetsIconsSettingLineDuotone className="h-5 w-5 " />
-              Settings
-            </TabsTrigger>
+      
           </TabsList>
           <div className="flex items-center gap-2">
             <div className="relative w-64">
@@ -822,11 +820,12 @@ export default function UnifiedAccountDetailsPage() {
           </div>
         </TabsContent>
 
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-4">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card variant="outlined">
+      </Tabs>
+</div>
+<div className="col-span-4 space-y-3 ">
+      <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent}  />
+      <Card variant="outlined">
               <CardHeader className="p-4">
                 <CardTitle className="text-base">Account Actions</CardTitle>
                 <CardDescription className="text-xs">
@@ -873,55 +872,9 @@ export default function UnifiedAccountDetailsPage() {
               </CardContent>
             </Card>
 
-            <Card variant="outlined">
-              <CardHeader className="p-4">
-                <CardTitle className="text-base">Account Information</CardTitle>
-                <CardDescription className="text-xs">
-                  View account details
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Account Name
-                    </p>
-                    <p className="text-sm font-medium">{account.name}</p>
-                  </div>
-                  <Separator />
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Institution
-                    </p>
-                    <p className="text-sm font-medium">
-                      {account.institutionName}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Account Number
-                    </p>
-                    <p className="text-sm font-mono">
-                      ****{account.accountNumber?.slice(-4)}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Account Type
-                    </p>
-                    <Badge variant="secondary" className="mt-1">
-                      {accountConfig.label}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
-
+      
+       </div>
+</div>
       {/* Manual Transaction Form Modal */}
       <ManualTransactionForm
         isOpen={isAddTransactionModalOpen}

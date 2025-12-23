@@ -46,7 +46,7 @@ export function SidebarLayout({
   );
 
   return (
-    <div className={cn("flex h-screen w-full bg-sidebar", className)}>
+    <div className={cn("flex h-screen w-full ", className)}>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:flex-col">
         <Sidebar
@@ -105,7 +105,7 @@ export function SidebarLayout({
     </div>
   )}
 
-          <div className=" container mx-auto p-3 md:p-6">{children}</div>
+          <div className="  mx-auto p-3 md:p-6">{children}</div>
         </div>
 </main>
 

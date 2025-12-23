@@ -167,9 +167,46 @@ export function OverviewTab() {
                       </div>
                     </AccordionTrigger>
 
-                    <AccordionContent className="  p-0">
+                    <AccordionContent className="p-0 relative">
+                      {/* Tree lines SVG */}
+                      <svg
+                        className="absolute left-0 top-0 w-full h-full pointer-events-none"
+                        style={{ overflow: 'visible' }}
+                      >
+                        {orderedAccounts.length > 0 && (
+                          <>
+                            {/* Vertical line from category icon */}
+                            <line
+                              x1="18"
+                              y1="0"
+                              x2="18"
+                              y2={orderedAccounts.length * 60 + 20}
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-border/50"
+                              opacity="0.5"
+                            />
+                            {/* Horizontal lines to each account */}
+                            {orderedAccounts.map((_, index) => (
+                              <g key={`line-${index}`}>
+                                <line
+                                  x1="18"
+                                  y1={index * 60 + 30}
+                                  x2="44"
+                                  y2={index * 60 + 30}
+                                  stroke="currentColor"
+                                  strokeWidth="1"
+                                  className="text-border/50"
+                                  opacity="0.5"
+                                />
+                              </g>
+                            ))}
+                          </>
+                        )}
+                      </svg>
+
                       <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                        <div className=" ">
+                        <div className="relative pl-6">
                           {orderedAccounts.map((account) => {
                             const isCrypto =
                               account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';

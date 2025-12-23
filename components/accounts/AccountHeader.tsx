@@ -201,7 +201,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
         
       </div>
       <Separator className="bg-border/50" />
-      {/* <NetWorthChart mode='demo' height={200} className='border-0 shadow-none'/> */}
+      {/**/} <NetWorthChart mode='demo' height={200} className='border-0 shadow-none'/> 
     </Card>
   )
 }
