@@ -202,12 +202,14 @@ class TransactionsApiService {
     status?: 'PENDING' | 'POSTED' | 'CLEARED' | 'RECONCILED';
     notes?: string;
     tags?: string[];
+    accountId?: string;
     metadata?: Record<string, any>;
   }, organizationId?: string): Promise<ApiResponse<{
     id: string;
     description: string;
     categoryId?: string;
     status: string;
+    accountId?: string;
     updatedAt: string;
   }>> {
     return apiClient.put(`${this.basePath}/${id}`, data, organizationId);

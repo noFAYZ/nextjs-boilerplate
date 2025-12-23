@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api-client';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface NetWorthSnapshot {
   snapshotDate: Date;
@@ -94,14 +93,14 @@ export function NetWorthTrendChart({ isLoading: parentLoading, balanceVisible }:
 
     const maxValue = Math.max(...data.map((d) => d.value));
     const minValue = Math.min(...data.map((d) => d.value));
+    const avgValue = data.reduce((sum, d) => sum + d.value, 0) / data.length;
 
     return {
-      startValue: trendData.startValue,
       endValue: trendData.endValue,
-      change: trendData.change,
       changePercent: trendData.changePercent,
       maxValue,
       minValue,
+      avgValue,
       isPositive: trendData.change >= 0,
     };
   }, [trendData, data]);
@@ -120,73 +119,51 @@ export function NetWorthTrendChart({ isLoading: parentLoading, balanceVisible }:
   }
 
   return (
-    <div className="bg-card rounded-lg border border-border/50 p-6 space-y-6">
-      {/* Header */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Net Worth Trend</h3>
-          <div className="flex items-center gap-1 text-sm font-semibold">
-            {stats.isPositive ? (
-              <span className="text-emerald-600 dark:text-emerald-500 flex items-center gap-1">
-                <TrendingUp className="h-4 w-4" />
-                +{stats.changePercent.toFixed(2)}%
-              </span>
+    <div className="w-full space-y-2 bg-card rounded-lg border border-border/50 shadow-xs">
+      {/* Header with Metrics and Period Selector */}
+      <div className="flex justify-between items-center gap-2 p-4">
+        {/* Current Balance Metric */}
+        {stats && !isLoading && (
+          <div className="flex">
+            {balanceVisible ? (
+              <CurrencyDisplay amountUSD={stats.endValue} variant="lg" className="font-medium" />
             ) : (
-              <span className="text-red-600 dark:text-red-500">
-                {stats.changePercent.toFixed(2)}%
-              </span>
+              <span className="text-lg font-medium">••••</span>
             )}
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Start</p>
-            <p className="text-lg font-bold text-foreground">
-              {balanceVisible ? `$${(stats.startValue / 1000).toFixed(0)}K` : '••••'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Change</p>
-            <p className={cn('text-lg font-bold', stats.isPositive ? 'text-emerald-600' : 'text-red-600')}>
-              {balanceVisible ? (
-                <>
-                  {stats.isPositive ? '+' : '-'}${(Math.abs(stats.change) / 1000).toFixed(0)}K
-                </>
-              ) : (
-                '••••'
-              )}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Current</p>
-            <p className="text-lg font-bold text-foreground">
-              {balanceVisible ? `$${(stats.endValue / 1000).toFixed(0)}K` : '••••'}
-            </p>
-          </div>
+        {/* Period Selector */}
+        <div className="flex items-center gap-2">
+          {(['7', '30', '90', '1Y'] as const).map((p) => (
+            <Button
+              key={p}
+              size="sm"
+              variant={period === p ? 'default' : 'outline'}
+              onClick={() => setPeriod(p)}
+              className="text-xs h-7"
+            >
+              {p === '1Y' ? '1Y' : p + 'd'}
+            </Button>
+          ))}
         </div>
-      </div>
-
-      {/* Period Selector */}
-      <div className="flex gap-2">
-        {(['7', '30', '90', '1Y'] as const).map((p) => (
-          <Button
-            key={p}
-            size="sm"
-            variant={period === p ? 'default' : 'outline'}
-            onClick={() => setPeriod(p)}
-            className="text-xs"
-          >
-            {p === '1Y' ? '1Y' : p + 'd'}
-          </Button>
-        ))}
       </div>
 
       {/* Chart */}
-      <div className="w-full h-64">
+      <div className="relative -m-2" style={{ height: '256px' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+          <AreaChart
+            data={data}
+            margin={{ top: 40, right: 30, left: 0, bottom: 20 }}
+          >
+            <defs>
+              <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                <stop offset="40%" stopColor="hsl(var(--primary))" stopOpacity={0.33} />
+                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.01} />
+              </linearGradient>
+            </defs>
+
             <XAxis
               dataKey="date"
               stroke="hsl(var(--muted-foreground))"
@@ -201,7 +178,26 @@ export function NetWorthTrendChart({ isLoading: parentLoading, balanceVisible }:
               axisLine={{ stroke: 'hsl(var(--border))' }}
               width={70}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+              domain={['dataMin - 10%', 'dataMax + 10%']}
+              tickCount={5}
             />
+
+            {/* Average line */}
+            <ReferenceLine
+              y={stats.avgValue}
+              stroke="hsl(var(--muted-foreground))"
+              strokeDasharray="4 4"
+              strokeWidth={1.5}
+              opacity={0.4}
+              label={{
+                value: 'Avg',
+                position: 'right',
+                fill: 'hsl(var(--muted-foreground))',
+                fontSize: 10,
+                fontWeight: 500,
+              }}
+            />
+
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
@@ -216,32 +212,20 @@ export function NetWorthTrendChart({ isLoading: parentLoading, balanceVisible }:
               }}
               labelFormatter={(label) => label}
             />
-            <Line
-              type="monotone"
+
+            <Area
+              type="linear"
               dataKey="value"
               stroke={stats.isPositive ? 'hsl(var(--primary))' : 'hsl(5, 92%, 54%)'}
-              dot={false}
-              strokeWidth={2}
+              strokeWidth={2.5}
+              fill="url(#networthGradient)"
               isAnimationActive={true}
+              animationDuration={500}
+              dot={false}
+              activeDot={{ r: 4 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Min/Max Info */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-        <div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">High</p>
-          <p className="text-sm font-bold text-foreground">
-            {balanceVisible ? `$${(stats.maxValue / 1000).toFixed(0)}K` : '••••'}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Low</p>
-          <p className="text-sm font-bold text-foreground">
-            {balanceVisible ? `$${(stats.minValue / 1000).toFixed(0)}K` : '••••'}
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -123,6 +123,23 @@ export function useAllTransactions(params?: {
   });
 }
 
+/**
+ * Get account balance chart data
+ * @param accountId - Account ID to fetch chart data for
+ * @param period - Time period (7d, 30d, 90d, 1y, all)
+ * @returns Account chart data with balance history
+ */
+export function useAccountChart(accountId: string | null, period: string = '30d') {
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthReady = !!user && isInitialized;
+
+  return useQuery({
+    ...accountsQueries.accountChart(accountId || '', period),
+    enabled: isAuthReady && !!accountId,
+  });
+}
+
 // ============================================================================
 // ACCOUNT MUTATIONS
 // ============================================================================

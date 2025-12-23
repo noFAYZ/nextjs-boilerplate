@@ -47,6 +47,7 @@ export const accountsKeys = {
   allTransactions: (orgId?: string) => [...accountsKeys.all, 'all-transactions', orgId] as const,
   categories: (orgId?: string) => [...accountsKeys.all, 'categories', orgId] as const,
   categoryGroups: (organizationId?: string) => [...accountsKeys.all, 'category-groups', organizationId || 'default'] as const,
+  accountChart: (accountId: string, period: string, orgId?: string) => [...accountsKeys.all, 'account-chart', accountId, period, orgId] as const,
 };
 
 // Helper function for error handling
@@ -211,6 +212,51 @@ export const accountsQueries = {
           return data.data;
         }
         return { data: [] };
+      },
+    }),
+
+  /**
+   * Get account balance chart data
+   */
+  accountChart: (accountId: string, period: string = '30d', orgId?: string) =>
+    queryOptions({
+      queryKey: accountsKeys.accountChart(accountId, period, orgId),
+      queryFn: async () => {
+        try {
+          return await accountsApi.getAccountChart(accountId, period, getCurrentOrganizationId(orgId));
+        } catch (error: unknown) {
+          throw error;
+        }
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      enabled: !!accountId,
+      select: (data: ApiResponse<{
+        period: string;
+        dataPoints: Array<{ timestamp: string; value: number; available: number }>;
+        summary: {
+          currentBalance: number;
+          highestBalance: number;
+          lowestBalance: number;
+          averageBalance: number;
+          startDate: string;
+          endDate: string;
+        };
+      }>) => {
+        if (data.success && data.data) {
+          return data.data;
+        }
+        return {
+          period,
+          dataPoints: [],
+          summary: {
+            currentBalance: 0,
+            highestBalance: 0,
+            lowestBalance: 0,
+            averageBalance: 0,
+            startDate: new Date().toISOString(),
+            endDate: new Date().toISOString(),
+          },
+        };
       },
     }),
 

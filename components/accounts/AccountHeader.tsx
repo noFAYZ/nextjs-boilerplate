@@ -10,6 +10,7 @@ import { calculateCreditUtilization } from '@/lib/utils'
 import { NetWorthChart } from '../networth/networth-chart'
 import { Card } from '@/components/ui/card'
 import { LetsIconsTimeProgressDuotone, PhTerminalDuotone } from '../icons/icons'
+import { AccountBalanceChart } from './account-balance-chart'
 
 export function AccountHeader({ account, accountConfig, analytics, IconComponent }) {
   const utilization =
@@ -36,12 +37,12 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
               >
                 <IconComponent className={`h-7 w-7 ${accountConfig.textColor}`} />
               </div> */}
-              <div className="h-12 w-12 sm:h-14 sm:w-14  rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <div className="h-10 w-10   rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
               <IconComponent className={`h-7 w-7 `} />
                         </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
+                  <h1 className="text-sm font-semibold tracking-tight text-foreground truncate">
                     {account.name}
                   </h1>
                  
@@ -69,7 +70,7 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
                     ((account.availableBalance ?? account.balance) ?? 0).toString()
                   )}
                   className=" font-bold text-foreground"
-                  variant='large'
+                  variant='lg'
                 />
               </div>
               <div className="flex items-center gap-1.5 text-xs">
@@ -201,7 +202,8 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
         
       </div>
       <Separator className="bg-border/50" />
-      {/**/} <NetWorthChart mode='demo' height={200} className='border-0 shadow-none'/> 
+      {/* <NetWorthChart mode='demo'  height={200} className='border-0 shadow-none'/> */}
+      <AccountBalanceChart accountId={account.id} balanceVisible={true} />
     </Card>
   )
 }

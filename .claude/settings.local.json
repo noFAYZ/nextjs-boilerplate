@@ -18,7 +18,9 @@
       "Bash(python:*)",
       "Bash(grep:*)",
       "Bash(git checkout:*)",
-      "Bash(perl -i -pe:*)"
+      "Bash(perl -i -pe:*)",
+      "Bash(perl:*)",
+      "Bash(node -c:*)"
     ],
     "deny": [],
     "ask": []

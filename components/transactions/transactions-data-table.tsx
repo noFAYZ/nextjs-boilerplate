@@ -47,6 +47,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { GgArrowsExchange, MemoryArrowTopRight, SolarCalendarBoldDuotone } from '../icons/icons';
 import Link from 'next/link';
+import { AccountCombobox } from '@/components/ui/account-combobox';
+import { useAllAccounts, useUpdateTransaction } from '@/lib/queries';
+import { getLogoUrl } from '@/lib/services/logo-service';
 
 export interface UnifiedTransaction {
   id: string;
@@ -312,6 +315,10 @@ export function TransactionsDataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc'>('date-desc');
 
+  // Queries and mutations
+  const { data: accountsResponse, isLoading: accountsLoading } = useAllAccounts();
+  const { mutate: updateTransaction, isPending: isUpdatingTransaction } = useUpdateTransaction();
+
   // Use external filters from parent component
   const searchTerm = externalSearchTerm;
   const typeFilter = externalTypeFilter;
@@ -366,6 +373,35 @@ export function TransactionsDataTable({
 
     return filtered;
   }, [transactions, searchTerm, typeFilter, statusFilter, sourceFilter, sortBy]);
+  const getInstitutionLogo = (url) => {
+ 
+    if (url) {
+      return getLogoUrl(url) || undefined;
+    }
+    return undefined;
+  };
+  // Transform accounts for combobox
+  const accountsList = useMemo(() => {
+    if (!accountsResponse?.groups) return [];
+
+    const allAccounts: Array<{ id: string; name: string; mask?: string; logo?:string }> = [];
+    Object.values(accountsResponse.groups).forEach((group: any) => {
+      if (group.accounts && Array.isArray(group.accounts)) {
+        group.accounts.forEach((account: any) => {
+          allAccounts.push({
+            id: account.id,
+            name: account.name,
+            mask: account.mask || '',
+            logo: getInstitutionLogo(account?.institutionUrl)
+           
+          });
+        });
+      }
+    });
+    return allAccounts;
+  }, [accountsResponse]);
+
+  console.log(accountsResponse?.groups)
 
   // Group transactions by date
   const groupedTransactions = useMemo(() => {
@@ -379,6 +415,14 @@ export function TransactionsDataTable({
     });
     return groups;
   }, [filteredTransactions]);
+
+  // Handle account change
+  const handleAccountChange = (transactionId: string, newAccountId: string) => {
+    updateTransaction({
+      id: transactionId,
+      data: { accountId: newAccountId },
+    });
+  };
 
   // Paginate
   const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
@@ -453,7 +497,7 @@ export function TransactionsDataTable({
   }
 
   
-console.log(transactions)
+
   return (
     <div className="space-y-4">
       {/* Data Table */}
@@ -550,19 +594,16 @@ console.log(transactions)
 
                       {/* Account */}
                       <TableCell className="hidden sm:table-cell px-2 sm:px-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                            {tx.account?.name.charAt(0).toUpperCase() || 'A'}
-                          </div>
-                          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                            <p className="text-xs font-semibold text-foreground truncate" title={tx.account?.name}>
-                              {tx.account?.name && tx.account.name.length > 18 ? `${tx.account.name.slice(0, 16)}...` : tx.account?.name || 'Unknown'}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                              {tx.account?.mask  }
-                            </p>
-                          </div>
-                        </div>
+                        <AccountCombobox
+                          accountId={tx.account?.id || ''}
+                          accountName={tx.account?.name || 'Unknown'}
+                          accountMask={tx.account?.mask}
+                   
+                          accounts={accountsList}
+                          onAccountChange={(newAccountId) => handleAccountChange(tx.id, newAccountId)}
+                          isLoading={accountsLoading || isUpdatingTransaction}
+                          disabled={accountsList.length === 0 || accountsLoading}
+                        />
                       </TableCell>
 
                       {/* Amount */}

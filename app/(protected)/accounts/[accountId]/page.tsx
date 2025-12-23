@@ -61,6 +61,7 @@ import {
 } from "@/components/icons/icons";
 import { LetsIconsSettingLineDuotone } from "@/components/icons";
 import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
+import { useAccountsUIStore } from "@/lib/stores/accounts-ui-store";
 import {
   Table,
   TableBody,
@@ -76,6 +77,7 @@ import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-acc
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
 import { useProviderConnections, useSyncConnection } from "@/lib/queries/banking-queries";
+import { AccountBalanceChart } from "@/components/accounts/account-balance-chart";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -134,6 +136,7 @@ export default function UnifiedAccountDetailsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
   const { pageClass } = useViewModeClasses();
+  const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
 
   // Currency context
   useCurrency();
@@ -825,6 +828,7 @@ export default function UnifiedAccountDetailsPage() {
 </div>
 <div className="col-span-4 space-y-3 ">
       <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent}  />
+     {/*  <AccountBalanceChart accountId={accountId} balanceVisible={balanceVisible} /> */}
       <Card variant="outlined">
               <CardHeader className="p-4">
                 <CardTitle className="text-base">Account Actions</CardTitle>

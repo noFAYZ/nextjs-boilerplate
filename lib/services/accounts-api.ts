@@ -109,6 +109,33 @@ class AccountsApiService {
   }
 
   // ============================================================================
+  // ACCOUNT CHARTS
+  // ============================================================================
+
+  /**
+   * Get account balance chart data
+   */
+  async getAccountChart(accountId: string, period: string = '30d', organizationId?: string): Promise<ApiResponse<{
+    period: string;
+    dataPoints: Array<{
+      timestamp: string;
+      value: number;
+      available: number;
+    }>;
+    summary: {
+      currentBalance: number;
+      highestBalance: number;
+      lowestBalance: number;
+      averageBalance: number;
+      startDate: string;
+      endDate: string;
+    };
+  }>> {
+    const query = `?period=${period}`;
+    return apiClient.get(`${this.basePath}/${accountId}/chart${query}`, organizationId);
+  }
+
+  // ============================================================================
   // NET WORTH MANAGEMENT
   // ============================================================================
 

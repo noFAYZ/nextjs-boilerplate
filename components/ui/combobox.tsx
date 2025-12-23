@@ -18,11 +18,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
+
+/* -------------------------------------------------------------------------- */
+/* Types                                                                      */
+/* -------------------------------------------------------------------------- */
 
 export interface ComboboxOption {
   value: string
   label: string
   searchValue?: string
+  logo?: string | null
 }
 
 interface ComboboxProps {
@@ -34,63 +40,128 @@ interface ComboboxProps {
   emptyMessage?: string
   disabled?: boolean
   className?: string
-  width?: string
 }
+
+/* -------------------------------------------------------------------------- */
+/* Utils                                                                      */
+/* -------------------------------------------------------------------------- */
+
+function normalizeLabel(label?: string) {
+  return label?.trim() ?? ""
+}
+
+function buildSearchValue(option: ComboboxOption) {
+  return `${normalizeLabel(option.label)} ${option.searchValue ?? ""}`
+    .toLowerCase()
+    .trim()
+}
+
+/* -------------------------------------------------------------------------- */
+/* Component                                                                  */
+/* -------------------------------------------------------------------------- */
 
 export function Combobox({
   options,
   value,
   onSelect,
-  placeholder = "Select option...",
-  searchPlaceholder = "Search options...",
-  emptyMessage = "No option found.",
-  disabled,
+  placeholder = "Select option",
+  searchPlaceholder = "Search…",
+  emptyMessage = "No results found",
+  disabled = false,
   className,
-  width = "w-[200px]",
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
-  const selectedOption = options.find((option) => option.value === value)
+  const selectedOption = React.useMemo(
+    () => options.find((o) => o.value === value),
+    [options, value]
+  )
+
+  const displayLabel = normalizeLabel(selectedOption?.label)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild >
         <Button
-          variant="outline2"
+          variant="outlinemuted2"
           role="combobox"
           aria-expanded={open}
-          className={cn(width, "justify-between", className)}
           disabled={disabled}
-          
+          className={cn(
+            "w-full justify-start gap-2 px-2 py-1",
+            className
+          )}
         >
-          {selectedOption ? selectedOption.label : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+   {selectedOption?.logo ?   <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium flex-shrink-0">
+          <Avatar className="h-7 w-7 rounded-full border border-border">
+          <AvatarImage
+           src={selectedOption.logo}
+           alt={selectedOption.label || "Option"}
+            className="rounded-full"
+          />
+          <AvatarFallback className="bg-card rounded-full">
+          {selectedOption.label.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+
+           
+          </div> : null}
+     
+          <span className="truncate">
+            {displayLabel || placeholder}
+          </span>
+        
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={cn(width, "p-0 max-h-[300px]")}>
+
+      <PopoverContent className="w-[320px] p-0" >
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList className="max-h-[250px]">
+
+          <CommandList className="max-h-[260px]">
             <CommandEmpty>{emptyMessage}</CommandEmpty>
+
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.searchValue || option.label}
-                  onSelect={() => {
-                    onSelect(option.value === value ? "" : option.value)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
+              {options.map((option) => {
+                const label = normalizeLabel(option.label)
+                const isSelected = value === option.value
+
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={buildSearchValue(option)}
+                    onSelect={() => {
+                      if (disabled) return
+                      onSelect(option.value)
+                      setOpen(false)
+                    }}
+                    className="cursor-pointer"
+                  >
+                 
+<div className="flex">
+                    {option.logo ? (
+                      <Avatar className="mr-2 h-6 w-6 border">
+                        <AvatarImage
+                          src={option.logo}
+                          alt={label || "Option"}
+                        />
+                        <AvatarFallback>
+                          {label.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : null}
+
+                    <span className="truncate text-xs">{label}</span>
+</div>
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        isSelected ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           </CommandList>
         </Command>
@@ -99,16 +170,20 @@ export function Combobox({
   )
 }
 
-export function useCombobox(initialValue?: string) {
-  const [value, setValue] = React.useState(initialValue || "")
+/* -------------------------------------------------------------------------- */
+/* Hook                                                                       */
+/* -------------------------------------------------------------------------- */
 
-  const handleSelect = React.useCallback((newValue: string) => {
-    setValue(newValue)
+export function useCombobox(initialValue = "") {
+  const [value, setValue] = React.useState(initialValue)
+
+  const onSelect = React.useCallback((next: string) => {
+    setValue(next)
   }, [])
 
   return {
     value,
-    onSelect: handleSelect,
+    onSelect,
     setValue,
   }
 }
