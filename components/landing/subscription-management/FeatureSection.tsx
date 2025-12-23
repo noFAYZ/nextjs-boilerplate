@@ -38,6 +38,7 @@ import { SpendingCategoriesWidget } from "@/components/dashboard-widgets";
 import { UpcomingBillsWidget } from "@/components/dashboard-widgets";
 import { ScrollReveal } from "../scroll-reveal";
 import { BgGradient } from "../bg/bg-gradient";
+import Image from "next/image";
 
 // Demo Data
 const DEMO_WALLETS = [
@@ -310,9 +311,9 @@ function FeatureButton({
       onClick={onClick}
       onMouseEnter={onClick}
       className={cn(
-        "w-full text-left p-3  transition-all duration-0  border ",
+        "w-full text-left p-3  transition-all duration-0  border cursor-default ",
         isActive
-          ? "bg-card border-border/50"
+          ? "bg-card border-border/80"
           : "bg-none  border-transparent hover:bg-card "
       )}
     >
@@ -321,14 +322,15 @@ function FeatureButton({
         <div
           className={cn(
             "flex items-center justify-center h-9 w-9 rounded-full",
-            " bg-card group-hover:bg-muted shadow-lg ring-1 ring-inset ring-foreground/10 "
+            " bg-card   shadow-lg ring-1 ring-inset ring-foreground/10 ",
+            isActive && "bg-orange-100 dark:bg-orange-400/10"
           )}
         >
 
           <Icon
             className={cn(
               "h-5 w-5",
-             "text-muted-foreground"
+             "text-orange-800"
             )}
           />
         </div>
@@ -723,7 +725,7 @@ export default function MoneyMapprFeatureSection() {
           </div>
         </div>
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center rounded-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center rounded-2xl bg-background">
           {/* Left Features */}
           <div className="hidden sm:block lg:col-span-4 space-y-12">
             {leftFeatures.map((feature) => (
@@ -737,8 +739,8 @@ export default function MoneyMapprFeatureSection() {
           </div>
 
           {/* Center Visual */}
-          <div className="relative lg:col-span-4 flex items-center justify-center h-full w-full p-4">
-   <BgGradient  className=" rounded-xl border shadow over" from="hsl(8.18,25%,82.75%)" to="hsl(20.77,65%,68.63%)"  />
+          <div className="relative lg:col-span-4 flex items-center justify-center h-full w-full bg-muted p-4 rounded-lg">
+{/*           <BgGradient  className=" rounded-xl border shadow over" from="hsl(8.18,25%,82.75%)" to="hsl(20.77,65%,68.63%)"  /> */}
             <div
               key={activeFeature.id}
               className="w-full  animate-in fade-in duration-150"
@@ -763,6 +765,11 @@ export default function MoneyMapprFeatureSection() {
 
 
       </div>
+      {/* 61  */}
+      <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={500} height={500} className="absolute left-0 bottom-0 -z-20 object-contain" priority />
+   
+      <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={100} height={100} className="absolute right-50 top-0 -z-20 object-contain" priority />
+      <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={300} height={300} className="absolute right-4 top-20 -z-20 object-contain" priority />
     </section>
     </>
   );

@@ -325,18 +325,10 @@ export const accountsMutations = {
       },
       onSuccess: (response, { accountId }) => {
         if (response.success) {
-          // Invalidate account list and detail queries to force refetch
+          // Invalidate all unified-accounts queries (use exact: false to match any orgId)
           queryClient.invalidateQueries({
-            queryKey: accountsKeys.list(),
-          });
-
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.account(accountId),
-          });
-
-          // Invalidate transactions as they might be affected
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.allTransactions(),
+            queryKey: ['unified-accounts'],
+            exact: false,
           });
         }
       },
@@ -360,18 +352,10 @@ export const accountsMutations = {
       },
       onSuccess: (response, accountId) => {
         if (response.success) {
-          // Invalidate account list and detail queries to force refetch
+          // Invalidate all unified-accounts queries (use exact: false to match any orgId)
           queryClient.invalidateQueries({
-            queryKey: accountsKeys.list(),
-          });
-
-          queryClient.removeQueries({
-            queryKey: accountsKeys.account(accountId),
-          });
-
-          // Invalidate transactions as they might be affected
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.allTransactions(),
+            queryKey: ['unified-accounts'],
+            exact: false,
           });
         }
       },
@@ -395,24 +379,81 @@ export const accountsMutations = {
       },
       onSuccess: (response, { accountId }) => {
         if (response.success) {
-          // Invalidate all related queries to force refetch
+          // Invalidate all unified-accounts queries (use exact: false to match any orgId)
           queryClient.invalidateQueries({
-            queryKey: accountsKeys.transactions(accountId),
-          });
-
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.account(accountId),
-          });
-
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.allTransactions(),
-          });
-
-          // Also invalidate account list to update balances
-          queryClient.invalidateQueries({
-            queryKey: accountsKeys.list(),
+            queryKey: ['unified-accounts'],
+            exact: false,
           });
         }
+      },
+      onError: (error) => {
+        // Error will be handled by the component
+      },
+    });
+  },
+
+  /**
+   * Bulk deactivate accounts
+   */
+  bulkDeactivateAccounts: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async (accountIds: string[]) => {
+        return await accountsApi.bulkDeactivateAccounts(accountIds);
+      },
+      onSuccess: () => {
+        // Invalidate all account queries (use exact: false to match any orgId)
+        queryClient.invalidateQueries({
+          queryKey: ['unified-accounts'],
+          exact: false,
+        });
+      },
+      onError: (error) => {
+        // Error will be handled by the component
+      },
+    });
+  },
+
+  /**
+   * Bulk reactivate accounts
+   */
+  bulkReactivateAccounts: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async (accountIds: string[]) => {
+        return await accountsApi.bulkReactivateAccounts(accountIds);
+      },
+      onSuccess: () => {
+        // Invalidate all account queries (use exact: false to match any orgId)
+        queryClient.invalidateQueries({
+          queryKey: ['unified-accounts'],
+          exact: false,
+        });
+      },
+      onError: (error) => {
+        // Error will be handled by the component
+      },
+    });
+  },
+
+  /**
+   * Bulk delete accounts
+   */
+  bulkDeleteAccounts: () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: async (accountIds: string[]) => {
+        return await accountsApi.bulkDeleteAccounts(accountIds);
+      },
+      onSuccess: () => {
+        // Invalidate all account queries (use exact: false to match any orgId)
+        queryClient.invalidateQueries({
+          queryKey: ['unified-accounts'],
+          exact: false,
+        });
       },
       onError: (error) => {
         // Error will be handled by the component

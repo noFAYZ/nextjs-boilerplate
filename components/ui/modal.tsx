@@ -48,7 +48,7 @@ const ModalContent = React.forwardRef<
     sm: "sm:max-w-sm",
     md: "sm:max-w-md",
     lg: "sm:max-w-2xl",
-    xl: "sm:max-w-4xl",
+    xl: "sm:max-w-3xl",
     full: "sm:max-w-6xl",
   };
 
@@ -59,7 +59,7 @@ const ModalContent = React.forwardRef<
         ref={ref}
         className={cn(
           "fixed left-1/2 top-1/2 z-50 w-[95vw] max-h-[95vh] -translate-x-1/2 -translate-y-1/2",
-          "rounded-xl bg-background shadow-2xl border border-border/40",
+          "rounded-lg bg-background shadow-xl border border-border/40",
           "focus:outline-none",
 
           // Animation

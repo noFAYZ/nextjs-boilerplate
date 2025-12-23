@@ -1,18 +1,15 @@
 import { apiClient } from '@/lib/api-client';
-import type { 
-  ApiResponse, 
+import type {
+  ApiResponse,
+  PlanType,
   SubscriptionPlan,
   CurrentSubscription,
   CreateSubscriptionData,
   UpgradeSubscriptionData,
+  DowngradeSubscriptionData,
   CancelSubscriptionData,
-  SubscriptionHistory,
-  PaymentIntent,
-  CreatePaymentIntentData,
-  ProcessPaymentData,
   PaymentHistory,
   UsageStats,
-  TrackUsageData,
   FeatureLimitCheck
 } from '@/lib/types';
 
@@ -53,6 +50,13 @@ export class SubscriptionService {
   }
 
   /**
+   * Downgrade current subscription
+   */
+  async downgradeSubscription(data: DowngradeSubscriptionData): Promise<ApiResponse<CurrentSubscription>> {
+    return apiClient.post<CurrentSubscription>('/subscriptions/downgrade', data);
+  }
+
+  /**
    * Cancel current subscription
    */
   async cancelSubscription(data: CancelSubscriptionData): Promise<ApiResponse<CurrentSubscription>> {
@@ -60,68 +64,36 @@ export class SubscriptionService {
   }
 
   /**
-   * Get subscription history
+   * Reactivate cancelled subscription
    */
-  async getSubscriptionHistory(): Promise<ApiResponse<SubscriptionHistory[]>> {
-    return apiClient.get<SubscriptionHistory[]>('/subscriptions/history');
-  }
-
-  // Payment Methods
-  /**
-   * Create payment intent for subscription
-   */
-  async createPaymentIntent(data: CreatePaymentIntentData): Promise<ApiResponse<PaymentIntent>> {
-    return apiClient.post<PaymentIntent>('/payments/intent', data);
+  async reactivateSubscription(): Promise<ApiResponse<CurrentSubscription>> {
+    return apiClient.post<CurrentSubscription>('/subscriptions/reactivate', {});
   }
 
   /**
-   * Process payment
-   */
-  async processPayment(data: ProcessPaymentData): Promise<ApiResponse<void>> {
-    return apiClient.post<void>('/payments/process', data);
-  }
-
-  /**
-   * Get payment history
+   * Get payment/subscription history (invoices)
    */
   async getPaymentHistory(): Promise<ApiResponse<PaymentHistory[]>> {
-    return apiClient.get<PaymentHistory[]>('/payments/history');
+    return apiClient.get<PaymentHistory[]>('/subscriptions/history');
   }
 
   /**
    * Retry failed payment
    */
   async retryPayment(paymentId: string): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(`/payments/${paymentId}/retry`);
-  }
-
-  // Usage Tracking
-  /**
-   * Get usage statistics
-   */
-  async getUsageStats(): Promise<ApiResponse<UsageStats>> {
-    return apiClient.get<UsageStats>('/usage/stats');
-  }
-
-  /**
-   * Check feature limit
-   */
-  async checkFeatureLimit(feature: string): Promise<ApiResponse<FeatureLimitCheck>> {
-    return apiClient.get<FeatureLimitCheck>(`/usage/check/${feature}`);
-  }
-
-  /**
-   * Track usage manually
-   */
-  async trackUsage(data: TrackUsageData): Promise<ApiResponse<void>> {
-    return apiClient.post<void>('/usage/track', data);
+    return apiClient.post<void>(`/subscriptions/payments/${paymentId}/retry`);
   }
 
   // Utility Methods
+
   /**
    * Calculate subscription cost with tax
    */
-  calculateSubscriptionCost(plan: SubscriptionPlan, billingPeriod: 'MONTHLY' | 'YEARLY', taxRate = 0): number {
+  calculateSubscriptionCost(
+    plan: SubscriptionPlan,
+    billingPeriod: 'MONTHLY' | 'YEARLY',
+    taxRate = 0
+  ): number {
     const basePrice = billingPeriod === 'YEARLY' ? plan.yearlyPrice : plan.monthlyPrice;
     const tax = basePrice * taxRate;
     return basePrice + tax;
@@ -142,19 +114,8 @@ export class SubscriptionService {
   getYearlySavingsPercentage(plan: SubscriptionPlan): number {
     const monthlyTotal = plan.monthlyPrice * 12;
     const yearlyPrice = plan.yearlyPrice;
+    if (monthlyTotal === 0) return 0;
     return ((monthlyTotal - yearlyPrice) / monthlyTotal) * 100;
-  }
-
-  /**
-   * Check if user can access feature
-   */
-  async canAccessFeature(feature: string): Promise<boolean> {
-    try {
-      const response = await this.checkFeatureLimit(feature);
-      return response.success && response.data.allowed;
-    } catch {
-      return false;
-    }
   }
 
   /**
@@ -165,6 +126,30 @@ export class SubscriptionService {
       style: 'currency',
       currency,
     }).format(amount);
+  }
+
+  /**
+   * Check if plan A can upgrade to plan B
+   */
+  canUpgradeTo(fromPlan: PlanType, toPlan: PlanType): boolean {
+    const hierarchy: Record<PlanType, number> = {
+      FREE: 0,
+      PRO: 1,
+      ULTIMATE: 2,
+    };
+    return hierarchy[toPlan] > hierarchy[fromPlan];
+  }
+
+  /**
+   * Check if plan A can downgrade to plan B
+   */
+  canDowngradeTo(fromPlan: PlanType, toPlan: PlanType): boolean {
+    const hierarchy: Record<PlanType, number> = {
+      FREE: 0,
+      PRO: 1,
+      ULTIMATE: 2,
+    };
+    return hierarchy[toPlan] < hierarchy[fromPlan];
   }
 }
 

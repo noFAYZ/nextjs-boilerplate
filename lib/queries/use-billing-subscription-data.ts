@@ -28,8 +28,8 @@ import type {
   CurrentSubscription,
   CreateSubscriptionData,
   UpgradeSubscriptionData,
+  DowngradeSubscriptionData,
   CancelSubscriptionData,
-  SubscriptionHistory,
   PaymentHistory,
   UsageStats,
   ApiResponse,
@@ -123,6 +123,8 @@ export function useCurrentBillingSubscription() {
       if (!response.success) {
         throw new Error(response.error.message);
       }
+
+     
       return response.data;
     },
     enabled: isAuthReady,
@@ -132,38 +134,12 @@ export function useCurrentBillingSubscription() {
 }
 
 // ============================================================================
-// SUBSCRIPTION HISTORY QUERIES
-// ============================================================================
-
-/**
- * Get subscription history
- * @returns All past and current subscriptions
- */
-export function useSubscriptionHistory() {
-  const { isAuthReady } = useAuthReady();
-
-  return useQuery({
-    queryKey: billingSubscriptionKeys.history(),
-    queryFn: async () => {
-      const response = await subscriptionService.getSubscriptionHistory();
-      if (!response.success) {
-        throw new Error(response.error.message);
-      }
-      return response.data;
-    },
-    enabled: isAuthReady,
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
-  });
-}
-
-// ============================================================================
 // PAYMENT HISTORY QUERIES
 // ============================================================================
 
 /**
- * Get payment history
- * @returns All payment transactions
+ * Get payment/invoice history
+ * @returns All payment transactions (invoices)
  */
 export function usePaymentHistory() {
   const { isAuthReady } = useAuthReady();
@@ -375,6 +351,130 @@ export function useCancelBillingSubscription() {
           }
         );
       }
+
+      return { previousSubscription };
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousSubscription) {
+        queryClient.setQueryData(
+          billingSubscriptionKeys.current(),
+          context.previousSubscription
+        );
+      }
+    },
+    onSuccess: (response) => {
+      if (response.success) {
+        // Update with server response
+        queryClient.setQueryData(
+          billingSubscriptionKeys.current(),
+          response.data
+        );
+        // Invalidate related caches
+        invalidateSubscriptionCaches(queryClient);
+      }
+    },
+  });
+}
+
+/**
+ * Downgrade current subscription
+ * @returns Mutation hook with optimistic updates
+ */
+export function useDowngradeBillingSubscription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: DowngradeSubscriptionData) =>
+      subscriptionService.downgradeSubscription(data),
+    onMutate: async (data) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: billingSubscriptionKeys.current(),
+      });
+
+      // Snapshot previous value
+      const previousSubscription = queryClient.getQueryData(
+        billingSubscriptionKeys.current()
+      );
+
+      // Optimistically update to new plan
+      queryClient.setQueryData(
+        billingSubscriptionKeys.current(),
+        (old: CurrentSubscription | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            subscription: {
+              ...old.subscription,
+              planType: data.planType,
+              billingPeriod: data.billingPeriod,
+            } as any,
+          };
+        }
+      );
+
+      return { previousSubscription };
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousSubscription) {
+        queryClient.setQueryData(
+          billingSubscriptionKeys.current(),
+          context.previousSubscription
+        );
+      }
+    },
+    onSuccess: (response) => {
+      if (response.success) {
+        // Update with server response
+        queryClient.setQueryData(
+          billingSubscriptionKeys.current(),
+          response.data
+        );
+        // Invalidate related caches
+        invalidateSubscriptionCaches(queryClient);
+      }
+    },
+  });
+}
+
+/**
+ * Reactivate cancelled subscription
+ * @returns Mutation hook with optimistic updates
+ */
+export function useReactivateBillingSubscription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => subscriptionService.reactivateSubscription(),
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: billingSubscriptionKeys.current(),
+      });
+
+      // Snapshot previous value
+      const previousSubscription = queryClient.getQueryData(
+        billingSubscriptionKeys.current()
+      );
+
+      // Optimistically update status to ACTIVE
+      queryClient.setQueryData(
+        billingSubscriptionKeys.current(),
+        (old: CurrentSubscription | undefined) => {
+          if (!old || !old.subscription) return old;
+          return {
+            ...old,
+            subscription: {
+              ...old.subscription,
+              status: 'ACTIVE' as const,
+              cancelAt: null,
+              canceledAt: null,
+            },
+          };
+        }
+      );
 
       return { previousSubscription };
     },

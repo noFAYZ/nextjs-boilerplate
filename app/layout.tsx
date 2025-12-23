@@ -12,7 +12,7 @@ import "@/lib/config/env";
 import localFont from 'next/font/local'
 
 
-const geistSans = Readex_Pro({
+const geistSans = Bricolage_Grotesque({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: 'swap',

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SolarCheckCircleBoldDuotone } from '../icons/icons';
 import { GameIconsUpgrade } from '../icons';
 import { ScrollReveal } from './scroll-reveal';
+import Image from 'next/image';
 
 export function PricingSection() {
   const plans = [
@@ -76,21 +77,23 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-lg border p-6 h-fit ${
+              className={`relative rounded-lg border p-6 h-fit  ${
                 plan.highlighted
                   ? 'bg-gradient-to-br from-accent/40 to-muted/95   shadow-lg scale-105'
                   : 'bg-card shadow-xs hover:shadow-xl transition-shadow'
               }`}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+            >{plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-40">
                   <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-1 rounded-xl text-xs font-bold shadow-lg">
                     MOST POPULAR
                   </div>
                 </div>
               )}
-<div className='flex items-center gap-3 mb-4'>
+              
+              {/* Popular Badge */}
+             
+<div className='relative flex items-center gap-3 mb-4 overflow-hidden'>
+
               {/* Icon */}
               <div
                 className={` border border-border/80 inline-flex h-12 w-12 items-center justify-center rounded-xl ${
@@ -188,6 +191,8 @@ export function PricingSection() {
                   </div>
                 ))}
               </div>
+
+              {plan.popular && (<Image src="/logo/log6.svg" alt="Mappr logo" width={56} height={56} className="absolute -z-20 -right-10 -bottom-0 w-20 h-20 object-contain opacity-60" priority />) }
             </div>
           ))}
         </div>

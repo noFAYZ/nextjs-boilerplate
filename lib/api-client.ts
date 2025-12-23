@@ -127,6 +127,15 @@ class ApiClient {
         ...options,
       });
 
+      // Handle 204 No Content - no body to parse
+      if (response.status === 204) {
+        this.consecutiveFailures = 0;
+        return {
+          success: true,
+          data: {} as T,
+        };
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -141,7 +150,7 @@ class ApiClient {
             details: data,
           };
         }
-        
+
         if (response.status === 403) {
           // Forbidden - insufficient permissions
           logger.warn('Forbidden API request', { endpoint, status: 403 });

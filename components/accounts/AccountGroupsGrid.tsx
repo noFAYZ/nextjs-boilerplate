@@ -33,11 +33,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import AvatarGroup from "../ui/avatar-group";
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral } from "@dicebear/collection";
 import Image from "next/image";
+import { getLogoUrl } from "@/lib/services/logo-service";
 interface AccountGroupsGridProps {
   onGroupSelect?: (group: AccountGroup) => void;
   limit?: number; // Limit number of groups shown
@@ -70,6 +71,20 @@ function GroupDetailsView({
     size: 128,
     radius: 20,
   }).toDataUri();
+
+  const getInstitutionLogo = (account: Record<string, unknown>) => {
+    // Prioritize institutionLogo if available
+    const institutionLogo = account.institutionLogo as string | null | undefined;
+    if (institutionLogo) {
+      return institutionLogo;
+    }
+    // Fallback to institutionUrl with logo service
+    const institutionUrl = account.institutionUrl as string | null | undefined;
+    if (institutionUrl) {
+      return getLogoUrl(institutionUrl) || undefined;
+    }
+    return undefined;
+  };
 
   const handleRemoveWallet = async (walletId: string) => {
     try {
@@ -392,16 +407,28 @@ function GroupDetailsView({
                                   </div>
                                 </div>
                               )}
-                              <div className="size-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-400 to-green-500 shadow-md group-hover:shadow-lg hover-scale">
-                                <Building2 className="size-6 text-white" />
-                              </div>
+                              <Avatar className="size-12 rounded-xl flex-shrink-0">
+                                <AvatarImage
+                                  src={getInstitutionLogo(account)}
+                                  alt={account.institutionName || 'Institution'}
+                                  className="rounded-xl"
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-green-400 to-green-500 rounded-xl">
+                                  <Building2 className="size-6 text-white" />
+                                </AvatarFallback>
+                              </Avatar>
                               <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-green-700 dark:group-hover:text-green-300 color-transition">
-                                  {account.name}
+                                  {(account as Record<string, unknown>).name}
                                 </p>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                                  {account.institutionName || account.type}
+                                  {(account as Record<string, unknown>).institutionName} • ••••{((account as Record<string, unknown>).mask as string) || ((account as Record<string, unknown>).accountNumber as string)?.slice(-4) || '****'}
                                 </p>
+                                {(account as Record<string, unknown>).accountSource && (
+                                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    {(account as Record<string, unknown>).accountSource}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <div className="text-right">

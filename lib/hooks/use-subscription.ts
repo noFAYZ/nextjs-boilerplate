@@ -3,7 +3,6 @@
 import {
   useSubscriptionPlans,
   useCurrentBillingSubscription,
-  useSubscriptionHistory,
   usePaymentHistory,
   useUsageStats,
   useCreateBillingSubscription,
@@ -18,7 +17,6 @@ import type {
   CreateSubscriptionData,
   UpgradeSubscriptionData,
   CancelSubscriptionData,
-  SubscriptionHistory,
   PaymentHistory,
   UsageStats,
   ApiResponse
@@ -27,7 +25,6 @@ import type {
 interface UseSubscriptionReturn {
   plans: SubscriptionPlan[];
   currentSubscription: CurrentSubscription | null;
-  subscriptionHistory: SubscriptionHistory[];
   paymentHistory: PaymentHistory[];
   usageStats: UsageStats | null;
   isLoading: boolean;
@@ -67,7 +64,6 @@ export function useSubscription(): UseSubscriptionReturn {
   // Queries
   const plansQuery = useSubscriptionPlans();
   const currentQuery = useCurrentBillingSubscription();
-  const historyQuery = useSubscriptionHistory();
   const paymentsQuery = usePaymentHistory();
   const usageQuery = useUsageStats();
 
@@ -83,7 +79,6 @@ export function useSubscription(): UseSubscriptionReturn {
   const isLoading =
     plansQuery.isLoading ||
     currentQuery.isLoading ||
-    historyQuery.isLoading ||
     paymentsQuery.isLoading ||
     usageQuery.isLoading;
 
@@ -95,7 +90,6 @@ export function useSubscription(): UseSubscriptionReturn {
   const error =
     currentQuery.error?.message ||
     plansQuery.error?.message ||
-    historyQuery.error?.message ||
     paymentsQuery.error?.message ||
     usageQuery.error?.message ||
     null;
@@ -105,7 +99,6 @@ export function useSubscription(): UseSubscriptionReturn {
     Math.max(
       plansQuery.dataUpdatedAt || 0,
       currentQuery.dataUpdatedAt || 0,
-      historyQuery.dataUpdatedAt || 0,
       paymentsQuery.dataUpdatedAt || 0,
       usageQuery.dataUpdatedAt || 0
     )
@@ -119,7 +112,6 @@ export function useSubscription(): UseSubscriptionReturn {
     await Promise.all([
       plansQuery.refetch(),
       currentQuery.refetch(),
-      historyQuery.refetch(),
       paymentsQuery.refetch(),
       usageQuery.refetch(),
     ]);
@@ -194,7 +186,6 @@ export function useSubscription(): UseSubscriptionReturn {
     // State
     plans: plansQuery.data || [],
     currentSubscription: currentQuery.data || null,
-    subscriptionHistory: historyQuery.data || [],
     paymentHistory: paymentsQuery.data || [],
     usageStats: usageQuery.data || null,
     isLoading,

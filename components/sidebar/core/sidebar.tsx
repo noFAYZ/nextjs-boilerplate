@@ -618,7 +618,7 @@ export function Sidebar({
       <div 
         ref={sidebarRef}
         className={cn(
-          "hidden md:flex h-full bg-background",
+          "hidden md:flex h-full ",
           className
         )}
       >

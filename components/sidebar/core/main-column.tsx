@@ -32,7 +32,7 @@ import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 import { UserOrgSwitcher } from '@/components/organization/user-org-switcher';
-import {  GameIconsFairyWings,  } from '@/components/icons/icons';
+import {  ArcticonsCarsmile, GameIconsFairyWings, SimpleIconsWebmoney, WalletLogoIconOpen,  } from '@/components/icons/icons';
 import { SettingsDialog } from '@/components/settings/settings-dialog';
 import { useCommandPalette } from '@/components/command/command-palette';
 
@@ -112,7 +112,7 @@ export function SidebarMainColumn({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className={cn("flex h-full flex-col bg-sidebar border-r border-border/40 inset-shadow-2xs ring-  inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100", mainColumnExpanded ? "w-70" : "w-16")}>
+      <div className={cn("flex h-full flex-col bg-card border-r border-border/70 inset-shadow-2xs ring-  inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100", mainColumnExpanded ? "w-70" : "w-16")}>
 
    
 {/* Sidebar Header - Logo + Toggle */}
@@ -127,13 +127,13 @@ export function SidebarMainColumn({
       {/* Logo — visible normally, but disabled when hovered */}
       <Link
         href="/"
-        className="flex items-center gap-2  text-[40px] font-bold text-[hsl(29.65,100%,50%)]
+        className="flex items-center gap-2  text-[40px] font-bold text-[hsl(24,100%,50%)]
                    transition-opacity duration-150 
                    group-hover:opacity-0 
                    group-hover:pointer-events-none"    // <— prevents link click on hover
       >
        
-        <GameIconsFairyWings className="w-9 h-9" />
+        <WalletLogoIconOpen className="w-8 h-8" />
       </Link>
 
       {/* Toggle — only visible and clickable on hover  𒀭*/}
@@ -151,8 +151,8 @@ export function SidebarMainColumn({
   ) : (
     <>
       {/* Expanded State — logo + label */}
-      <Link href="/" className="flex items-center gap-1">
-        <span className="text-[42px] font-bold text-[hsl(29.65,100%,50%)] group "><GameIconsFairyWings className="w-9 h-9" /></span>
+      <Link href="/" className="flex items-center gap-2">
+        <span className="text-[42px] font-bold text-[hsl(29.65,100%,50%)] group "><WalletLogoIconOpen className="w-8 h-8" /></span>
  
         {/* */}<div className="flex flex-col">
           <span className="text-base font-bold"> Mappr</span>

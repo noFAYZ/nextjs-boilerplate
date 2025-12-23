@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, MageGoals, PhUsersDuotone, GameIconsDeathStar, GameIconsTyre, GameIconsMetalDisc, GameIconsIceCube, GameIconsHops, GameIconsFairyWings } from '../icons/icons';
+import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, MageGoals, PhUsersDuotone, GameIconsDeathStar, GameIconsTyre, GameIconsMetalDisc, GameIconsIceCube, GameIconsHops, GameIconsFairyWings, LogoMapprsss, GhostLogo, GhostLogoDark, SimpleIconsWebmoney, WalletLogoIconOpen } from '../icons/icons';
 import { LogoMappr } from '../icons';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
@@ -110,7 +110,8 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
       <nav className={cn('fixed inset-x-0 top-0 z-50', 'py-4')}>
         <div className={cn('mx-auto transition-all duration-100  ',
          
-           'max-w-sm  rounded-lg sm:rounded-2xl bg-[hsl(0,0%,18.82%)] dark:bg-gray-100  border-border/50 dark:from-foreground/95 dark:via-foreground dark:to-foreground w-11/12 p-2 py-1 sm:p-1' 
+           'max-w-md  rounded-full  bg-[hsl(0,0%,18.82%)] dark:bg-gray-100  border-border/50 dark:from-foreground/95 dark:via-foreground dark:to-foreground w-11/12 p-2 py-1 sm:p-1' ,
+           isScrolled ? 'max-w-sm ' : ''
           
           )}>
         
@@ -119,13 +120,15 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               
 
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2  group text-[32px]  font-bold bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground  inset-shadow-2xs inset-shadow-white/20 w-9 h-9 text-shadow-2xs text-shadow-white/25 leading-[2.2rem] rounded-xl itext-center  justify-center align-middle " onClick={handleLinkClick}>
-             {/*    <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> 
-              <span className='hover:rotate-30 transition-transform duration-200'> 𒀭</span>
-             */}
+             <Link href="/" className="flex items-center gap-2 bg-muted p-0.5 rounded-full group text-[32px]  " onClick={handleLinkClick}>
+               {/*   <Image src="/logo/mappr.svg" alt="Mappr logo" width={56} height={56} className="w-9 h-9 object-contain" priority /> 
+              <span className='hover:rotate-30 transition-transform duration-200'> 𒀭</span>*/}
+             
            
-            <GameIconsFairyWings className='w-7 h-7' />
+            <WalletLogoIconOpen className='w-8 h-8' />
               </Link>
+
+         
 
               <div className="hidden lg:flex items-center justify-center flex-1 text-background" >
                 <NavigationMenu delayDuration={0}> {/* Instant open */}
@@ -168,7 +171,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               <div className="hidden lg:flex items-center  gap-3">
                 
               {/*    <ThemeSwitcher />*/}
-              <Link href="/#hero"><Button size="sm" variant='brand' className="group rounded-xl h-9 text-xs font-medium" >
+              <Link href="/#hero"><Button size="sm" variant='brand' className="group rounded-full  h-9 text-xs font-medium" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
                       </Button></Link>
               {/*  {user ? (

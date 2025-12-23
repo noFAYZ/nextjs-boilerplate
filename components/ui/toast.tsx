@@ -182,7 +182,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const update = useCallback((id: string, patch: Partial<Toast>) => {
     dispatch({ type: "UPDATE", id, patch })
-  }, [])
+
+    // If duration is provided, set up auto-dismiss timer
+    if (patch.duration && patch.duration > 0) {
+      // Clear any existing timer first
+      window.clearTimeout(timers.current[id])
+      // Set new timer
+      timers.current[id] = window.setTimeout(() => dismiss(id), patch.duration)
+    }
+  }, [dismiss])
 
   const promise = useCallback(<T,>(
     p: Promise<T>,

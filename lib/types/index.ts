@@ -10,6 +10,7 @@ export * from './settings';
 // Feature Types
 export * from './banking';
 export * from './crypto';
+export * from './billing-subscription';
 export * from './subscription';
 export * from './budget';
 export * from './account-groups';

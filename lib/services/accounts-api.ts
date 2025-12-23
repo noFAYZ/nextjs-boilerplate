@@ -321,6 +321,39 @@ class AccountsApiService {
     const transactionApi = await import('./transactions-api').then(m => m.transactionsApi);
     return transactionApi.getTransactions(params, organizationId) as Promise<ApiResponse<AccountTransactionsResponse>>;
   }
+
+  /**
+   * Bulk deactivate multiple accounts
+   */
+  async bulkDeactivateAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    successCount: number;
+    failedCount: number;
+    results: Array<{ id: string; success: boolean; error?: string }>;
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-deactivate`, { accountIds }, organizationId);
+  }
+
+  /**
+   * Bulk reactivate multiple accounts
+   */
+  async bulkReactivateAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    successCount: number;
+    failedCount: number;
+    results: Array<{ id: string; success: boolean; error?: string }>;
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-reactivate`, { accountIds }, organizationId);
+  }
+
+  /**
+   * Bulk delete multiple accounts
+   */
+  async bulkDeleteAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    successCount: number;
+    failedCount: number;
+    results: Array<{ id: string; success: boolean; error?: string }>;
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-delete`, { accountIds }, organizationId);
+  }
 }
 
 export const accountsApi = new AccountsApiService();

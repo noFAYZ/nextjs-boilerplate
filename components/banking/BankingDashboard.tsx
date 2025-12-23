@@ -72,6 +72,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { getLogoUrl } from '@/lib/services/logo-service';
 
 interface BankingDashboardProps {
   onAccountView?: (account: BankAccount) => void;
@@ -153,6 +155,20 @@ export function BankingDashboard({
     // Convert from USD to user's selected currency and format
     const convertedAmount = convertFromUSD(dollarsAmount);
     return formatAmount(convertedAmount);
+  };
+
+  const getInstitutionLogo = (account: BankAccount) => {
+    // Prioritize institutionLogo if available (will be added to BankAccount type)
+    const institutionLogo = (account as any).institutionLogo;
+    if (institutionLogo) {
+      return institutionLogo;
+    }
+    // Fallback to institutionUrl with logo service
+    const institutionUrl = (account as any).institutionUrl;
+    if (institutionUrl) {
+      return getLogoUrl(institutionUrl) || undefined;
+    }
+    return undefined;
   };
 
   const getBalanceChange = () => {
@@ -742,17 +758,33 @@ export function BankingDashboard({
                                   <div className="space-y-3">
                                     <div className="flex items-start justify-between">
                                       <div className="flex items-center gap-3">
-                                        <div className="h-11 w-11 bg-muted rounded-xl flex items-center justify-center">
-                                          <IconComponent className="h-8 w-8 text-foreground/90 dark:text-orange-50" />
-                                        </div>
+                                        <Avatar className="h-11 w-11 rounded-xl flex-shrink-0">
+                                          <AvatarImage
+                                            src={getInstitutionLogo(account)}
+                                            alt={account.institutionName || 'Institution'}
+                                            className="rounded-xl"
+                                          />
+                                          <AvatarFallback className="bg-primary/10 rounded-xl">
+                                            <span className="text-sm font-medium text-primary">
+                                              {account.institutionName?.charAt(0).toUpperCase() || 'B'}
+                                            </span>
+                                          </AvatarFallback>
+                                        </Avatar>
                                         <div>
                                           <h4 className="font-medium text-sm">{account.name}</h4>
-                                          <p className="text-xs text-muted-foreground">
-                                            ****{account.accountNumber.slice(-4)}
-                                          </p>
+                                          <div className="space-y-0.5">
+                                            <p className="text-xs text-muted-foreground">
+                                              {account.institutionName} • ****{account.accountNumber.slice(-4)}
+                                            </p>
+                                            {account.accountSource && (
+                                              <p className="text-xs text-muted-foreground">
+                                                {account.accountSource}
+                                              </p>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
-                                     
+
                                     </div>
 
                                     <div className="space-y-2">
@@ -820,9 +852,18 @@ export function BankingDashboard({
                               >
                                 <CardContent className="p-4">
                                   <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                      <IconComponent className="h-5 w-5 text-blue-600" />
-                                    </div>
+                                    <Avatar className="h-10 w-10 rounded-lg flex-shrink-0">
+                                      <AvatarImage
+                                        src={getInstitutionLogo(account)}
+                                        alt={account.institutionName || 'Institution'}
+                                        className="rounded-lg"
+                                      />
+                                      <AvatarFallback className="bg-primary/10 rounded-lg">
+                                        <span className="text-xs font-medium text-primary">
+                                          {account.institutionName?.charAt(0).toUpperCase() || 'B'}
+                                        </span>
+                                      </AvatarFallback>
+                                    </Avatar>
 
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2 mb-1">
@@ -830,7 +871,7 @@ export function BankingDashboard({
                                         {getSyncStatusBadge(account)}
                                       </div>
                                       <p className="text-sm text-muted-foreground">
-                                        {account.type.replace('_', ' ')} • ****{account.accountNumber.slice(-4)}
+                                        {account.institutionName} • ****{account.accountNumber.slice(-4)} • {account.accountSource}
                                       </p>
                                     </div>
 

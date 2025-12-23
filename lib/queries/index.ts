@@ -209,6 +209,9 @@ export {
   useCreateManualAccount,
   useUpdateAccount,
   useDeleteAccount as useDeleteUnifiedAccount,
+  useBulkDeactivateAccounts,
+  useBulkReactivateAccounts,
+  useBulkDeleteAccounts,
 } from './use-accounts-data';
 
 export {
@@ -384,7 +387,6 @@ export {
   useCurrentBillingSubscription,
 
   // History Queries
-  useSubscriptionHistory,
   usePaymentHistory,
 
   // Usage Queries

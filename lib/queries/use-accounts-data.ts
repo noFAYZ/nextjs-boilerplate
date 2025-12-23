@@ -205,6 +205,48 @@ export function useAddTransaction() {
   return accountsMutations.addTransaction();
 }
 
+/**
+ * Bulk deactivate multiple accounts
+ * @returns Mutation hook with automatic cache invalidation
+ * @example
+ * ```ts
+ * const { mutate: deactivateAccounts } = useBulkDeactivateAccounts();
+ *
+ * deactivateAccounts(['id1', 'id2']);
+ * ```
+ */
+export function useBulkDeactivateAccounts() {
+  return accountsMutations.bulkDeactivateAccounts();
+}
+
+/**
+ * Bulk reactivate multiple accounts
+ * @returns Mutation hook with automatic cache invalidation
+ * @example
+ * ```ts
+ * const { mutate: reactivateAccounts } = useBulkReactivateAccounts();
+ *
+ * reactivateAccounts(['id1', 'id2']);
+ * ```
+ */
+export function useBulkReactivateAccounts() {
+  return accountsMutations.bulkReactivateAccounts();
+}
+
+/**
+ * Bulk delete multiple accounts
+ * @returns Mutation hook with automatic cache invalidation
+ * @example
+ * ```ts
+ * const { mutate: deleteAccounts } = useBulkDeleteAccounts();
+ *
+ * deleteAccounts(['id1', 'id2']);
+ * ```
+ */
+export function useBulkDeleteAccounts() {
+  return accountsMutations.bulkDeleteAccounts();
+}
+
 // ============================================================================
 // COMPUTED QUERIES (derived from unified accounts)
 // ============================================================================

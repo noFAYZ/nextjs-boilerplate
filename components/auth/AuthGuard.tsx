@@ -7,6 +7,7 @@ import { RefreshCcw, User2 } from "lucide-react";
 import { FailLoader, LogoLoader } from "../icons";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { ErrorAuthIcon, ErrorIcon } from "../icons/icons";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -39,21 +40,25 @@ export default function AuthGuard({
 
   // Show error state if there's an auth error
   if (error && requireAuth) {
-    return (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
-      <Card className="px-5 border-border shadow-none " >
-        <div className="flex items-center space-x-3">
-        <FailLoader className=" w-8 h-8"/>
-          <span className="text-sm font-medium">Authentication Error!</span>
-        </div>
+    return (<div className=" relative h-screen     z-10 flex items-center justify-center">
+      <Card className="p-6 space-y-4 items-center " >
+    
+        <ErrorAuthIcon className=" w-12 h-12"/>
+          
+        <h1 className="text-md font-semibold">Authentication Error!</h1>
         <div className="flex gap-2 justify-center">
-          <Button className="flex gap-2" size={'sm'} variant={'outline'}>
+          <Button className="flex gap-2" size={'sm'} variant={'outline'}
+          icon={<RefreshCcw className="w-4 h-4"  />}
+          >
            
-           <span className="w-4 h-4"> <RefreshCcw  /></span> 
+           
            Reload
           </Button>
-          <Button className="flex gap-2" size={'sm'} variant={'outline'} onClick={() =>router.push('/auth/login')}>
+          <Button className="flex gap-2" size={'sm'}   onClick={() =>router.push('/auth/login')}
+            icon={<User2 className="w-4 h-4"  />}
+            >
            
-           <span className="w-4 h-4"> <User2  /></span> 
+           
            Login
           </Button></div>
       </Card>
@@ -63,11 +68,11 @@ export default function AuthGuard({
   // Show custom fallback or loading state
   if (loading) {
     return (
-      fallback || (<div className=" relative h-[80vh]     z-10 flex items-center justify-center">
-        <Card className="px-5 border-border shadow-none " >
+      fallback || (<div className=" relative h-screen     z-10 flex items-center justify-center">
+        <Card className="px-5 border-border  " >
           <div className="flex items-center space-x-3">
             <LogoLoader className="w-8 h-8" />
-            <span className="text-sm font-medium">Authenticating....</span>
+            <span className="text-sm font-semibold">Authenticating....</span>
           </div>
         </Card>
         </div>)

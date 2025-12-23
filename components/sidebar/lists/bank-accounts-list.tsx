@@ -9,10 +9,12 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import type { BankAccount } from '@/lib/types/banking';
 import { format } from 'date-fns';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { getLogoUrl } from '@/lib/services/logo-service';
 
 interface SidebarBankAccountsListProps {
   onMobileClose: () => void;
@@ -64,6 +66,20 @@ export function SidebarBankAccountsList({ onMobileClose }: SidebarBankAccountsLi
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(parseFloat(amount.toString()));
+  };
+
+  const getInstitutionLogo = (account: BankAccount) => {
+    // Prioritize institutionLogo if available (will be added to BankAccount type)
+    const institutionLogo = (account as any).institutionLogo;
+    if (institutionLogo) {
+      return institutionLogo;
+    }
+    // Fallback to institutionUrl with logo service
+    const institutionUrl = (account as any).institutionUrl;
+    if (institutionUrl) {
+      return getLogoUrl(institutionUrl) || undefined;
+    }
+    return undefined;
   };
 
   const getEnrollmentStatusVariant = (status: string) => {
@@ -228,20 +244,34 @@ export function SidebarBankAccountsList({ onMobileClose }: SidebarBankAccountsLi
                         )}
                       >
                         <div className="flex items-center gap-2 mb-2">
-                          {/* Account Icon */}
-                          <div className="h-7 w-7 bg-muted/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <AccountIcon className={cn("h-3.5 w-3.5", iconColor)} />
-                          </div>
+                          {/* Institution Logo */}
+                          <Avatar className="h-7 w-7 rounded-lg flex-shrink-0">
+                            <AvatarImage
+                              src={getInstitutionLogo(account)}
+                              alt={account.institutionName || 'Institution'}
+                              className="rounded-lg"
+                            />
+                            <AvatarFallback className="bg-muted/50 rounded-lg">
+                              <span className="text-[10px] font-medium text-muted-foreground">
+                                {account.institutionName?.charAt(0).toUpperCase() || 'B'}
+                              </span>
+                            </AvatarFallback>
+                          </Avatar>
 
                           {/* Account Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-0.5">
                               <h4 className="font-medium text-xs truncate">{account.name}</h4>
-                           
+
                             </div>
                             <p className="text-[10px] text-muted-foreground">
-                              {account.type.replace('_', ' ')} • ••••{account.accountNumber.slice(-4)}
+                              {account.institutionName} • ••••{account.accountNumber.slice(-4)}
                             </p>
+                            {account.accountSource && (
+                              <p className="text-[10px] text-muted-foreground">
+                                {account.accountSource}
+                              </p>
+                            )}
                           </div>
 
                           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />

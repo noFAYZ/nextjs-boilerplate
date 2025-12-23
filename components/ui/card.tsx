@@ -9,7 +9,7 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: "rounded-xl border-border/90 shadow-sm hover:shadow-md",
+        default: "rounded-xl border-border/90 shadow-sm hover:shadow-md  ",
         elevated: "rounded-xl shadow-md hover:shadow-lg border-border/40",
         outlined: "rounded-xl border-2 border-border/40 hover:border-border/60 shadow-sm hover:shadow-md",
         ghost: "rounded-lg border-transparent hover:bg-card/40 hover:border-border/20",

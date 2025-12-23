@@ -21,7 +21,7 @@ const badgeVariants = cva(
           "text-foreground bg-card [a&]:hover:bg-background [a&]:hover:text-accent-foreground shadow-sm  border-border/80",
 
         success:
-          "border-transparent bg-emerald-500 text-white shadow-sm [a&]:hover:bg-emerald-600 dark:bg-emerald-600 dark:[a&]:hover:bg-emerald-700",
+          "border-transparent bg-lime-700/50 text-white/90 shadow-sm [a&]:hover:bg-lime-600 dark:bg-lime-700/50 dark:[a&]:hover:bg-lime-700",
         'success-icon':
           "border-transparent bg-lime-700 text-white/70 shadow-sm [a&]:hover:bg-lime-600 dark:bg-lime-800 dark:[a&]:hover:bg-lime-700",
         warning:
@@ -57,7 +57,7 @@ const badgeVariants = cva(
           "border-transparent bg-gradient-to-br from-pink-600 to-rose-700 text-white shadow-xs  ",
 
         subtle:
-          "border-border/50 bg-muted/50 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
+          "border border-border dark:border-muted  bg-muted shadow-xl  text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
         muted:
           "border-border/80 bg-muted/90 text-muted-foreground [a&]:hover:bg-muted [a&]:hover:text-foreground",
         "subtle-primary":
@@ -76,7 +76,7 @@ const badgeVariants = cva(
           "backdrop-blur-lg bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(30,30,30,0.4)]   border border-white/30 dark:border-white/10 text-foreground shadow-sm",
         
         aqua:
-          "bg-[linear-gradient(to_bottom_right,rgba(0,122,255,0.18),rgba(0,122,255,0.1))]   text-[rgb(0,122,255)] border border-[rgba(0,122,255,0.25)] backdrop-blur-sm",
+          "bg-[linear-gradient(to_bottom_right,rgb(255,105,0),rgba(254,215,170,0.2))]      backdrop-blur-sm",
         
         metal:
           "bg-gradient-to-br from-zinc-200/70 via-zinc-100/60 to-zinc-300/70     dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-700   border border-zinc-400/40 dark:border-zinc-700/40   text-zinc-900 dark:text-zinc-100 shadow-inner",
@@ -90,7 +90,7 @@ const badgeVariants = cva(
       },
       size: {
         icon: "p-0.5 text-[10px]",
-        sm: "px-1.5 py-0.5 text-[10px]",
+        sm: "pl-0.5 pr-1 py-0.5 text-[10px] h-5",
         default: "px-2 py-0.5 text-xs",
         lg: "px-3 py-1 text-sm",
       },
