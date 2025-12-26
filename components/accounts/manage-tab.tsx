@@ -262,7 +262,7 @@ export function ManageTab() {
   };
 
   return (
-    <div className="space-y-4 flex flex-col h-full">
+    <div className="space-y-4 flex flex-col h-full max-w-7xl mx-auto">
       {/* Data Table */}
  
           <AccountsDataTable

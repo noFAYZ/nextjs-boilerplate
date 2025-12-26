@@ -165,14 +165,45 @@ export function useUpdateTransaction(): UseMutationResult<any, Error, any, unkno
 
   return useMutation({
     ...transactionMutations.update(),
-    onSuccess: (data, variables) => {
-      // Invalidate specific and related caches
-      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.stats() });
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches for transaction lists
+      await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+
+      // Snapshot the previous data
+      const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+
+      // Optimistically update the transaction in the cache
+      if (previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+          if (!old || !old.data) return old;
+
+          return {
+            ...old,
+            data: Array.isArray(old.data)
+              ? old.data.map((tx: any) =>
+                  tx.id === variables.id
+                    ? { ...tx, ...variables.data }
+                    : tx
+                )
+              : old.data,
+          };
+        });
+      }
+
+      return { previousTransactions };
     },
-    onError: (error) => {
+    onSuccess: (data, variables) => {
+      // Invalidate specific and related caches with background refetch
+      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(variables.id), refetchType: 'background' });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.lists(), refetchType: 'background' });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.stats(), refetchType: 'background' });
+    },
+    onError: (error, variables, context) => {
       console.error('Failed to update transaction:', error);
+      // Rollback optimistic update on error
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      }
     },
   });
 }

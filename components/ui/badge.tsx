@@ -12,7 +12,7 @@ const badgeVariants = cva(
       variant: {
         default:
           "border-transparent bg-primary text-primary-foreground  [a&]:hover:bg-primary/90 [a&]:hover:shadow-md",
-        soft: "bg-background dark:bg-muted text-muted-foreground border",
+        soft: "bg-muted dark:bg-card text-muted-foreground border",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground shadow-sm [a&]:hover:bg-secondary/90",
         destructive:
@@ -29,7 +29,7 @@ const badgeVariants = cva(
         error:
           "border-transparent bg-red-500 text-white shadow-sm [a&]:hover:bg-red-600 dark:bg-red-600 dark:[a&]:hover:bg-red-700",
         info:
-          "border-transparent bg-blue-500 text-white shadow-sm [a&]:hover:bg-blue-600 dark:bg-blue-600 dark:[a&]:hover:bg-blue-700",
+          "border-transparent bg-blue-500/70 text-white shadow-sm [a&]:hover:bg-blue-600 dark:bg-blue-600 dark:[a&]:hover:bg-blue-700",
 
         "success-soft":
           "border-emerald-200 bg-emerald-50 text-emerald-700 [a&]:hover:bg-emerald-100 [a&]:hover:border-emerald-300 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",

@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { ActionSearchBar } from '@/components/ui/action-search-bar';
+import { PageTabs } from '@/components/ui/page-tabs';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -134,7 +135,7 @@ const greeting =
           
           {/* LEFT GROUP */}
           <div className="flex items-center gap-2 sm:gap-3">
-            
+
             {/* Mobile menu */}
             <div className="md:hidden">
               <Tooltip>
@@ -147,10 +148,8 @@ const greeting =
               </Tooltip>
             </div>
 
-            {/* <h1 className="text-lg font-semibold mb-1  bg-clip-text">
-            {greeting}, {firstName}!  
-          </h1> */}
-          <ActionSearchBar onOpenCommandPalette={openCommandPalette} />
+            {/* Page Tabs - shown on /accounts and /transactions pages */}
+            <PageTabs />
 
             {/* Sidebar toggler — desktop only 
             <div className="hidden md:block">

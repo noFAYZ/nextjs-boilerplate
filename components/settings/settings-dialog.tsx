@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import {
   Modal,
   ModalContent,
@@ -142,7 +142,7 @@ const SettingItem = ({
   </Card>
 );
 
-export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
+const SettingsDialogComponent = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const { toast } = useToast();
   const user = useAuthStore((state) => state.user);
@@ -152,7 +152,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Provider connections hooks
-  const { data: connections = [], isLoading: isLoadingConnections, error: connectionsError } = useProviderConnections();
+  const { data: connections = [], isLoading: isLoadingConnections, error: connectionsError } = useProviderConnections({ enabled: open });
   const { mutate: disconnectMutation, isPending: isDisconnecting } = useDisconnectConnection();
   const { mutate: syncMutation, isPending: isSyncing } = useSyncConnection();
   const { mutate: reconnectMutation, isPending: isReconnecting } = useReconnectConnection();
@@ -161,8 +161,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ connectionId: string; connectionName: string } | null>(null);
 
   // Billing hooks
-  const { data: currentSubscription, isLoading: isLoadingSubscription, error: subscriptionError } = useCurrentBillingSubscription();
-  const { data: paymentHistory = [], isLoading: isLoadingPayments, error: paymentsError } = usePaymentHistory();
+  const { data: currentSubscription, isLoading: isLoadingSubscription, error: subscriptionError } = useCurrentBillingSubscription({ enabled: open });
+  const { data: paymentHistory = [], isLoading: isLoadingPayments, error: paymentsError } = usePaymentHistory({ enabled: open });
   const { mutate: upgradeMutation, isPending: isUpgrading } = useUpgradeBillingSubscription();
   const { mutate: downgradeMutation, isPending: isDowngrading } = useDowngradeBillingSubscription();
   const { mutate: cancelMutation, isPending: isCancelling } = useCancelBillingSubscription();
@@ -365,8 +365,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       return false;
     }
   };
-
-  console.log(connections)
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
@@ -1215,4 +1213,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       </AlertDialog>
     </Modal>
   );
-}
+};
+
+export const SettingsDialog = memo(SettingsDialogComponent);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState, useMemo } from 'react';
+import { Fragment, useState, useMemo, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +48,10 @@ import {
 import { GgArrowsExchange, MemoryArrowTopRight, SolarCalendarBoldDuotone } from '../icons/icons';
 import Link from 'next/link';
 import { AccountCombobox } from '@/components/ui/account-combobox';
-import { useAllAccounts, useUpdateTransaction } from '@/lib/queries';
+import { MerchantCombobox } from '@/components/ui/merchant-combobox';
+import { CategoryCombobox } from '@/components/ui/category-combobox';
+import { useAllAccounts, useUpdateTransaction, useMerchants } from '@/lib/queries';
+import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
 import { getLogoUrl } from '@/lib/services/logo-service';
 
 export interface UnifiedTransaction {
@@ -117,6 +120,7 @@ interface TransactionsDataTableProps {
   typeFilter?: string;
   statusFilter?: string;
   sourceFilter?: string;
+  hideAccountColumn?: boolean;
 }
 export enum TransactionType {
   CardPayment = "card_payment",
@@ -204,7 +208,7 @@ const getTypeColor = (type: string) => {
 };
 
 const getTyqpeBgColor = (type: string) => {
-  console.log(type)
+
   switch (type) {
     case 'SEND':
     case 'WITHDRAWAL':
@@ -311,12 +315,15 @@ export function TransactionsDataTable({
   typeFilter: externalTypeFilter = 'all',
   statusFilter: externalStatusFilter = 'all',
   sourceFilter: externalSourceFilter = 'all',
+  hideAccountColumn = false,
 }: TransactionsDataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc'>('date-desc');
 
   // Queries and mutations
   const { data: accountsResponse, isLoading: accountsLoading } = useAllAccounts();
+  const { data: merchantsResponse, isLoading: merchantsLoading } = useMerchants({ limit: 1000 });
+  const { data: categoriesResponse, isLoading: categoriesLoading } = useTransactionCategories();
   const { mutate: updateTransaction, isPending: isUpdatingTransaction } = useUpdateTransaction();
 
   // Use external filters from parent component
@@ -385,15 +392,17 @@ export function TransactionsDataTable({
     if (!accountsResponse?.groups) return [];
 
     const allAccounts: Array<{ id: string; name: string; mask?: string; logo?:string }> = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.values(accountsResponse.groups).forEach((group: any) => {
       if (group.accounts && Array.isArray(group.accounts)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         group.accounts.forEach((account: any) => {
           allAccounts.push({
             id: account.id,
             name: account.name,
             mask: account.mask || '',
             logo: getInstitutionLogo(account?.institutionUrl)
-           
+
           });
         });
       }
@@ -401,7 +410,40 @@ export function TransactionsDataTable({
     return allAccounts;
   }, [accountsResponse]);
 
-  console.log(accountsResponse?.groups)
+  // Transform merchants for combobox
+  const merchantsList = useMemo(() => {
+    if (!merchantsResponse) return [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return merchantsResponse?.map((merchant: any) => ({
+      id: merchant.id,
+      name: merchant.name,
+      logoUrl: merchant.logo,
+      website: merchant.website,
+    }));
+  }, [merchantsResponse]);
+
+  // Transform categories for combobox
+  const categoriesList = useMemo(() => {
+    if (!categoriesResponse?.groups) return [];
+
+    const allCategories: Array<{ id: string; displayName: string; emoji?: string; groupName: string }> = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    categoriesResponse.groups.forEach((group: any) => {
+      if (group.categories && Array.isArray(group.categories)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        group.categories.forEach((category: any) => {
+          allCategories.push({
+            id: category.id,
+            displayName: category.displayName,
+            emoji: category.emoji,
+            groupName: group.groupName,
+          });
+        });
+      }
+    });
+    return allCategories;
+  }, [categoriesResponse]);
 
   // Group transactions by date
   const groupedTransactions = useMemo(() => {
@@ -416,13 +458,29 @@ export function TransactionsDataTable({
     return groups;
   }, [filteredTransactions]);
 
-  // Handle account change
-  const handleAccountChange = (transactionId: string, newAccountId: string) => {
+  // Handle account change (optimistic update handled in mutation)
+  const handleAccountChange = useCallback((transactionId: string, newAccountId: string) => {
     updateTransaction({
       id: transactionId,
       data: { accountId: newAccountId },
     });
-  };
+  }, [updateTransaction]);
+
+  // Handle merchant change (optimistic update handled in mutation)
+  const handleMerchantChange = useCallback((transactionId: string, newMerchantId: string) => {
+    updateTransaction({
+      id: transactionId,
+      data: { merchantId: newMerchantId },
+    });
+  }, [updateTransaction]);
+
+  // Handle category change (optimistic update handled in mutation)
+  const handleCategoryChange = useCallback((transactionId: string, newCategoryId: string) => {
+    updateTransaction({
+      id: transactionId,
+      data: { categoryId: newCategoryId },
+    });
+  }, [updateTransaction]);
 
   // Paginate
   const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
@@ -439,31 +497,27 @@ export function TransactionsDataTable({
     return (
       <div className="space-y-3">
         <div className="h-10 bg-muted animate-pulse rounded-lg" />
-        <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm">
-          <Table>
-            <TableHeader className="bg-muted/80 border-b border-border/50">
-              <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-4 py-1 min-w-[300px]">Merchant</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Category</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-4 py-1">Account</TableHead>
-                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-4 py-1">Amount</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-1 w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(4)].map((_, i) => (
-                <TableRow key={i} className="border-b border-border/30">
-                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="flex gap-3"><div className="h-9 w-9 bg-muted rounded-full flex-shrink-0 animate-pulse" /><div className="flex-1"><div className="h-4 w-40 bg-muted rounded animate-pulse mb-2" /><div className="h-3 w-32 bg-muted/50 rounded animate-pulse" /></div></div></TableCell>
-                  <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
-                  <TableCell className="px-2 sm:px-4 py-2 sm:py-3"><div className="h-4 w-20 bg-muted rounded ml-auto animate-pulse" /></TableCell>
-                  <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-8 sm:w-10"><div className="h-8 sm:h-10 w-8 sm:w-10 bg-muted rounded animate-pulse ml-auto" /></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="rounded-xl overflow-hidden">
+          <div className="w-full overflow-x-auto">
+            <Table className="w-full">
+        
+              <TableBody>
+                {[...Array(4)].map((_, i) => (
+                  <TableRow key={i} className="border-b border-border/30">
+                    <TableCell className="px-2 sm:px-4 py-2 sm:py-3 w-[20%] overflow-hidden"><div className="flex gap-3"><div className="h-6 w-6 bg-muted rounded-full flex-shrink-0 animate-pulse" /><div className="flex-1"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></div></div></TableCell>
+                    <TableCell className="hidden lg:table-cell px-2 sm:px-4 py-2 sm:py-3 w-[20%] overflow-hidden"><div className="h-4 w-20 bg-muted rounded animate-pulse" /></TableCell>
+                    {!hideAccountColumn && (
+                      <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 w-[20%] overflow-hidden"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
+                    )}
+                    <TableCell className="px-2 sm:px-4 py-2 sm:py-3 w-[10%]"><div className="h-4 w-16 bg-muted rounded ml-auto animate-pulse" /></TableCell>
+                    <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-[5%]"><div className="h-6 w-6 bg-muted rounded ml-auto animate-pulse" /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </div>
+          </div>
         </div>
-      </div>
     );
   }
 
@@ -496,23 +550,14 @@ export function TransactionsDataTable({
     );
   }
 
-  
-
   return (
     <div className="space-y-4">
       {/* Data Table */}
-      <div className="bg-card border border-border/80 rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-muted/80 border-b border-border/50">
-              <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[200px] sm:min-w-[200px]">Merchant</TableHead>
-                <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 sm:min-w-[200px]">Category</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[150px] sm:min-w-[200px]">Account</TableHead>
-                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 min-w-[120px]">Amount</TableHead>
-                <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-1 sm:px-4 w-8 sm:w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
+      <div className="rounded-xl overflow-hidden">
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full">
+         
+
           <TableBody>
             {Object.entries(groupedTransactions).map(([date, txs]) => {
               const txsInPage = txs.filter(tx => paginatedTransactions.includes(tx));
@@ -522,7 +567,7 @@ export function TransactionsDataTable({
                 <Fragment key={date}>
                   {/* Date Separator */}
                   <TableRow className="hover:bg-transparent shadow-none border-0">
-                    <TableCell colSpan={5} className="px-2 py-2 bg-background">
+                    <TableCell colSpan={hideAccountColumn ? 4 : 5} className=" bg-background">
                       <p className="text-[10px] font-semibold flex gap-1 tracking-wider text-muted-foreground">
                         <SolarCalendarBoldDuotone className='w-3 h-3' />{date}
                       </p>
@@ -534,80 +579,56 @@ export function TransactionsDataTable({
                     <TableRow
                       key={tx.id}
                       className={cn(
-                        'group border-b border-border/50 hover:bg-muted/20'
+                        'group border-none border-border/80 hover:bg-muted/20',
+
                       )}
                     >
-                      {/* Merchant/Payee with Logo */}
-                      <TableCell className="px-2 sm:px-4">
-                        <div className="flex items-center gap-3">
-                          {/* Merchant Logo or Type Icon */}
-                          {tx.merchant?.logo || tx.metadata?.logoUrl ? (
-                            <img
-                              src={tx.merchant?.logo || tx.metadata?.logoUrl}
-                              alt={tx.merchant?.displayName || tx.merchent}
-                              className="h-7 w-7 rounded-full object-cover flex-shrink-0"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className={`flex justify-center h-7 w-7 rounded-full items-center flex-shrink-0 ${getTyqpeBgColor(tx.type)}`}>
-                              {getT2ypeIcon(tx.type)}
-                            </div>
-                          )}
-
-                          {/* Merchant/Description Info */}
-                          <div className="flex flex-col gap-1 min-w-0 flex-1">
-                            <p className="text-sm flex gap-2 font-semibold text-foreground truncate">
-                              {tx.merchant?.displayName || tx.merchent || tx.description}
-                              {tx.merchant?.website && <Link href={tx.merchant?.website}><MemoryArrowTopRight className='w-4 h-4' /></Link>}
-                            </p>
-                           {/*  <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
-                              {tx.account?.institute && (
-                                <span className="truncate">{tx.account.institute}</span>
-                              )}
-                            </div> */}
-                          </div>
-                        </div>
-                      </TableCell>
-
-                      {/* Category */}
-                      <TableCell className="hidden md:table-cell px-2 sm:px-4">
-                        {tx.category && (
-                          <Badge variant="outline" className="text-xs">
-                            {tx.category}
-                          </Badge>
-                        ) }
-                          {tx.metadata?.pfc?.primary && (
-                                <Badge variant="outline" className="text-xs p-0.5 pr-1 rounded-full">
-                                  <img
-                              src={tx.metadata?.pfc?.iconUrl || tx.metadata?.logoUrl}
-                              alt={tx.merchant?.displayName || tx.merchent}
-                              className="h-6 w-6 rounded-full object-cover flex-shrink-0"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
-                            />
-                                  {tx.metadata.pfc.primary.toLowerCase()}</Badge>
-                              )}
-                      </TableCell>
-
-                      {/* Account */}
-                      <TableCell className="hidden sm:table-cell px-2 sm:px-4">
-                        <AccountCombobox
-                          accountId={tx.account?.id || ''}
-                          accountName={tx.account?.name || 'Unknown'}
-                          accountMask={tx.account?.mask}
-                   
-                          accounts={accountsList}
-                          onAccountChange={(newAccountId) => handleAccountChange(tx.id, newAccountId)}
-                          isLoading={accountsLoading || isUpdatingTransaction}
-                          disabled={accountsList.length === 0 || accountsLoading}
+                      {/* Merchant/Payee Combobox */}
+                      <TableCell className=" w-[20%] overflow-hidden">
+                        <MerchantCombobox
+                          merchantId={tx.merchant?.id}
+                          merchantName={tx.merchant?.displayName || tx.merchent || tx.description}
+                          merchantLogo={tx.merchant?.logo || tx.metadata?.logoUrl}
+                          merchants={merchantsList}
+                          onMerchantChange={(newMerchantId) => handleMerchantChange(tx.id, newMerchantId)}
+                          isLoading={merchantsLoading || isUpdatingTransaction}
+                          disabled={merchantsList.length === 0 || merchantsLoading}
+                          typeIcon={getT2ypeIcon(tx.type)}
+                          typeBgColor={getTyqpeBgColor(tx.type)}
                         />
                       </TableCell>
 
+                      {/* Category */}
+                      <TableCell className="hidden lg:table-cell w-[20%] overflow-hidden">
+                        <CategoryCombobox
+                          categoryId={tx?.categoryId}
+                          categories={categoriesList}
+                          onCategoryChange={(newCategoryId) => handleCategoryChange(tx.id, newCategoryId)}
+                          isLoading={categoriesLoading || isUpdatingTransaction}
+                          disabled={categoriesList.length === 0 || categoriesLoading}
+                          categoryName={categoriesList.find(c => c.id === tx.category)?.displayName}
+                          categoryEmoji={categoriesList.find(c => c.id === tx.category)?.emoji}
+                        />
+                      </TableCell>
+
+                      {/* Account */}
+                      {!hideAccountColumn && (
+                        <TableCell className="hidden md:table-cell w-[10%] overflow-hidden">
+                          <AccountCombobox
+                            accountId={tx.account?.id || ''}
+                            accountName={tx.account?.name || 'Unknown'}
+                            accountMask={tx.account?.mask}
+
+                            accounts={accountsList}
+                            onAccountChange={(newAccountId) => handleAccountChange(tx.id, newAccountId)}
+                            isLoading={accountsLoading || isUpdatingTransaction}
+                            disabled={accountsList.length === 0 || accountsLoading}
+                          />
+                        </TableCell>
+                      )}
+
                       {/* Amount */}
-                      <TableCell className="text-right px-2 sm:px-4 min-w-[100px]">
+                      <TableCell className="text-right  w-[10%]">
                         <div className="flex flex-col items-end gap-1">
                           <div className={cn('font-semibold text-sm',
                             tx.type === 'SEND' || tx.type === 'WITHDRAWAL' || tx.type === 'EXPENSE'
@@ -631,14 +652,14 @@ export function TransactionsDataTable({
                       </TableCell>
 
                       {/* Actions */}
-                      <TableCell className="text-center px-1 sm:px-4 w-8 sm:w-10">
+                      <TableCell className="text-center  w-[5%]">
                         <Button
                           variant="outlinemuted"
                           size="icon-sm"
                           onClick={() => onRowClick?.(tx)}
-                          className=" w-7 h-7 rounded-full"
+                          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full"
                         >
-                          <ChevronRight className="h-5 w-5" />
+                          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Button>
                       </TableCell>
                     </TableRow>

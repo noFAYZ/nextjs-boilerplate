@@ -48,16 +48,6 @@ export default function AccountsPage() {
 
       {/* Header: Tabs and Actions */}
       <div className="flex items-center justify-between">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className=''>
-          <TabsList className="grid grid-cols-2 gap-0.5" variant="ghost">
-            <TabsTrigger value={defaultOverview} variant="ghost">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="manage" variant="ghost">
-              Manage
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
 
         <div className="flex items-center gap-2">
           <Button

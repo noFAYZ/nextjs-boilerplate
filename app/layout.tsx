@@ -12,7 +12,7 @@ import "@/lib/config/env";
 import localFont from 'next/font/local'
 
 
-const geistSans = Bricolage_Grotesque({
+const geistSans = Sora({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: 'swap',

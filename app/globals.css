@@ -5,7 +5,6 @@
 /* fffefa */
 :root {
   --background: oklch(1 0 0);
-  --bg-muted:hsl(35.29,73.91%,95.49%)
   --foreground: oklch(0.3471 0.0299 97.0894);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2174 0.0019 106.5582);
@@ -44,10 +43,10 @@
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
 
-  --radius: 0;
+  --radius: 0.4rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.24rem;
+  --spacing: 0.25rem;
 
   --shadow-x: 0px;
   --shadow-y: 3px;
@@ -109,10 +108,10 @@
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --radius: 0;
+  --radius: 0.4rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.24rem;
+  --spacing: 0.25rem;
 
   --shadow-x: 0px;
   --shadow-y: 3px;
@@ -168,10 +167,10 @@
   --sidebar-ring: oklch(0.7731 0 0);
   --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
 
-  --radius: 0;
+  --radius: 0.4rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.24rem;
+  --spacing: 0.22rem;
   --shadow-x: 0px;
   --shadow-y: 3px;
   --shadow-blur: 1px;
@@ -188,7 +187,7 @@
 }
 
 .dark-pro {
-  --background: hsl(0,0%,3.92%);
+  --background: hsl(0,0%,1.92%);
   --foreground: oklch(0.9074 0.0142 93.0137);
   --card: hsl(0,0%,10.59%);
   --card-foreground: oklch(0.9378 0.0112 17.3800);
@@ -224,10 +223,10 @@
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --radius: 0;
+  --radius: 0.4rem;
 
   --tracking-normal: -0.025em;
-  --spacing: 0.24rem;
+  --spacing: 0.22rem;
   --shadow-x: 0px;
   --shadow-y: 3px;
   --shadow-blur: 1px;
@@ -1239,4 +1238,3 @@ html {
     opacity: 1;
   }
 }
-

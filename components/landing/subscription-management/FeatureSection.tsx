@@ -322,7 +322,7 @@ function FeatureButton({
         <div
           className={cn(
             "flex items-center justify-center h-9 w-9 rounded-full",
-            " bg-card   shadow-lg ring-1 ring-inset ring-foreground/10 ",
+            " bg-card   shadow-lg border ",
             isActive && "bg-orange-100 dark:bg-orange-400/10"
           )}
         >

@@ -13,6 +13,7 @@ const cardVariants = cva(
         elevated: "rounded-xl shadow-md hover:shadow-lg border-border/40",
         outlined: "rounded-xl border-2 border-border/40 hover:border-border/60 shadow-sm hover:shadow-md",
         ghost: "rounded-lg border-transparent hover:bg-card/40 hover:border-border/20",
+        muted: "rounded-lg border-border50 bg-muted dark:bg-card  ",
         filled: "rounded-xl bg-muted/30 hover:bg-muted/40 border-transparent",
         gradient: "rounded-xl bg-gradient-to-br from-card via-card/95 to-card/90 border-border/20 shadow-lg hover:shadow-xl backdrop-blur-sm",
         success: "rounded-xl bg-gradient-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-950/20 dark:to-green-950/20 border-emerald-200/50 dark:border-emerald-800/50 shadow-md hover:shadow-lg",

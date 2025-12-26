@@ -226,22 +226,22 @@ const AccountTableRow = memo(function AccountTableRow({
       <TableCell className="hidden md:table-cell text-left">
         {account.accountSource === 'MANUAL' ? (
           <div className="flex items-center gap-1.5">
-            <MdiPen className="h-3.5 w-3.5 text-orange-600 dark:text-orange-500" />
+            <MdiPen className="h-4 w-4 text-orange-600 dark:text-orange-500" />
             <span className="text-xs font-medium text-foreground">Manual</span>
           </div>
         ) : account.accountSource === 'LINK' ? (
           <div className="flex items-center gap-1.5">
-            <WifiHigh className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-500" />
+            <WifiHigh className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
             <span className="text-xs font-medium text-foreground">Linked</span>
           </div>
         ) : account.providerType === 'PLAID' ? (
           <div className="flex items-center gap-1.5">
-            <img src="/logo/banks/plaid.png" alt="Plaid" className="h-3.5 w-3.5" />
+            <img src="/logo/banks/plaid.png" alt="Plaid" className="h-4 w-4" />
             <span className="text-xs font-medium text-foreground">Plaid</span>
           </div>
         ) : account.providerType ? (
           <div className="flex items-center gap-1.5">
-            <WifiHigh className="h-3.5 w-3.5 text-blue-600 dark:text-blue-500" />
+            <WifiHigh className="h-4 w-4 text-blue-600 dark:text-blue-500" />
             <span className="text-xs font-medium text-foreground">{account.providerType}</span>
           </div>
         ) : (

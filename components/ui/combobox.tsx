@@ -40,6 +40,8 @@ interface ComboboxProps {
   emptyMessage?: string
   disabled?: boolean
   className?: string
+  popoverWidth?: string
+  popoverStyle?: React.CSSProperties
 }
 
 /* -------------------------------------------------------------------------- */
@@ -69,6 +71,8 @@ export function Combobox({
   emptyMessage = "No results found",
   disabled = false,
   className,
+  popoverWidth = "w-[320px]",
+  popoverStyle,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -88,7 +92,7 @@ export function Combobox({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-start gap-2 px-2 py-1",
+            "w-full max-w-full justify-start gap-2 px-2 py-1 h-auto overflow-hidden border border-transparent hover:border-border",
             className
           )}
         >
@@ -104,9 +108,9 @@ export function Combobox({
           </AvatarFallback>
         </Avatar>
 
-           
+
           </div> : null}
-     
+
           <span className="truncate">
             {displayLabel || placeholder}
           </span>
@@ -114,7 +118,7 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[320px] p-0" >
+      <PopoverContent className={cn(popoverWidth, "p-0")} style={popoverStyle}>
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
 

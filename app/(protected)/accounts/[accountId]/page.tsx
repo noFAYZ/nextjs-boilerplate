@@ -389,6 +389,7 @@ export default function UnifiedAccountDetailsPage() {
           institute: (tx as any)?.account?.institutionName || '',
         },
         category: tx.category,
+        categoryId: tx.categoryId,
         tags: [],
         source: 'BANKING' as const,
         pending: (tx as any).pending || (tx as any).isPending || false,
@@ -570,6 +571,7 @@ export default function UnifiedAccountDetailsPage() {
               transactions={unifiedTransactions}
               isLoading={transactionsLoading}
               onRowClick={handleRowClick}
+              hideAccountColumn={true}
             />
           )}
 

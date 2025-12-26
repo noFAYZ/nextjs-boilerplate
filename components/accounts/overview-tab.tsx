@@ -206,7 +206,7 @@ export function OverviewTab() {
                       </svg>
 
                       <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                        <div className="relative pl-6">
+                        <div className="relative">
                           {orderedAccounts.map((account) => {
                             const isCrypto =
                               account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';

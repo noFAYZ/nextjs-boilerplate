@@ -92,7 +92,7 @@ export function SidebarLayout({
     </div>
   )} */}
 
-<div className="flex-1 ">
+<div className="flex-1   ">
 {showHeader && (
     <div className="w-full">
       <MainHeader
