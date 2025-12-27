@@ -1,7 +1,7 @@
 /**
  * Transaction Categories Data Hooks
  * React Query hooks for transaction category operations
- * Uses actual backend endpoints from /api/v1/transactions/categories
+ * Uses actual backend endpoints from /api/v1/categories
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

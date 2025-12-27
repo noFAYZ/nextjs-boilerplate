@@ -5,10 +5,10 @@ import type { ApiResponse } from '@/lib/types/crypto';
  * Transaction Categories API Service
  * Handles all transaction category operations
  *
- * Base path: /transactions/categories
+ * Base path: /categories
  */
 class TransactionCategoriesApiService {
-  private readonly basePath = '/transactions/categories';
+  private readonly basePath = '/categories';
 
   // ============================================================================
   // CATEGORIES QUERIES
@@ -16,7 +16,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Get all categories grouped by category group
-   * GET /api/v1/transactions/categories
+   * GET /api/v1/categories
    */
   async getCategories(organizationId?: string): Promise<ApiResponse<{
     groups: Array<{
@@ -49,7 +49,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Create a new custom category under a category group
-   * POST /api/v1/transactions/categories/custom
+   * POST /api/v1/categories/custom
    */
   async createCustomCategory(
     data: {
@@ -83,7 +83,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Update a custom category
-   * PUT /api/v1/transactions/categories/:id
+   * PUT /api/v1/categories/:id
    */
   async updateCategory(
     categoryId: string,
@@ -117,7 +117,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Delete a custom category
-   * DELETE /api/v1/transactions/categories/:id
+   * DELETE /api/v1/categories/:id
    */
   async deleteCategory(
     categoryId: string,
@@ -135,7 +135,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Initialize default categories for organization
-   * POST /api/v1/transactions/categories/initialize
+   * POST /api/v1/categories/initialize
    */
   async initializeCategories(organizationId?: string): Promise<ApiResponse<{
     userId: string;
@@ -149,7 +149,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Toggle category enabled/disabled status
-   * PATCH /api/v1/transactions/categories/:id/status
+   * PATCH /api/v1/categories/:id/status
    */
   async toggleCategoryStatus(
     categoryId: string,
@@ -177,7 +177,7 @@ class TransactionCategoriesApiService {
 
   /**
    * Get all category groups with their categories
-   * GET /api/v1/transactions/category-groups
+   * GET /api/v1/category-groups
    */
   async getCategoryGroups(organizationId?: string): Promise<ApiResponse<{
     groups: Array<{
@@ -196,12 +196,12 @@ class TransactionCategoriesApiService {
     totalGroups: number;
   }>> {
     const query = organizationId ? `?organizationId=${organizationId}` : '';
-    return apiClient.get(`/transactions/category-groups${query}`, organizationId);
+    return apiClient.get(`/category-groups${query}`, organizationId);
   }
 
   /**
    * Create a new custom category group
-   * POST /api/v1/transactions/category-groups
+   * POST /api/v1/category-groups
    */
   async createCategoryGroup(
     data: {
@@ -221,12 +221,12 @@ class TransactionCategoriesApiService {
     updatedAt: string;
   }>> {
     const query = organizationId ? `?organizationId=${organizationId}` : '';
-    return apiClient.post(`/transactions/category-groups${query}`, data, organizationId);
+    return apiClient.post(`/category-groups${query}`, data, organizationId);
   }
 
   /**
    * Update a custom category group
-   * PUT /api/v1/transactions/category-groups/:id
+   * PUT /api/v1/category-groups/:id
    */
   async updateCategoryGroup(
     groupId: string,
@@ -247,12 +247,12 @@ class TransactionCategoriesApiService {
     updatedAt: string;
   }>> {
     const query = organizationId ? `?organizationId=${organizationId}` : '';
-    return apiClient.put(`/transactions/category-groups/${groupId}${query}`, data, organizationId);
+    return apiClient.put(`/category-groups/${groupId}${query}`, data, organizationId);
   }
 
   /**
    * Delete a custom category group
-   * DELETE /api/v1/transactions/category-groups/:id
+   * DELETE /api/v1/category-groups/:id
    */
   async deleteCategoryGroup(
     groupId: string,
@@ -261,12 +261,12 @@ class TransactionCategoriesApiService {
     message: string;
   }>> {
     const query = organizationId ? `?organizationId=${organizationId}` : '';
-    return apiClient.delete(`/transactions/category-groups/${groupId}${query}`, organizationId);
+    return apiClient.delete(`/category-groups/${groupId}${query}`, organizationId);
   }
 
   /**
    * Toggle category group enabled/disabled status
-   * PATCH /api/v1/transactions/category-groups/:id/status
+   * PATCH /api/v1/category-groups/:id/status
    */
   async toggleCategoryGroupStatus(
     groupId: string,
@@ -284,7 +284,7 @@ class TransactionCategoriesApiService {
     updatedAt: string;
   }>> {
     const query = organizationId ? `?organizationId=${organizationId}` : '';
-    return apiClient.patch(`/transactions/category-groups/${groupId}/status${query}`, { enabled }, organizationId);
+    return apiClient.patch(`/category-groups/${groupId}/status${query}`, { enabled }, organizationId);
   }
 }
 

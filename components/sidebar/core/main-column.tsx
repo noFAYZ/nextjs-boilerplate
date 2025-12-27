@@ -247,9 +247,9 @@ export function SidebarMainColumn({
                       mainColumnExpanded ? "justify-start gap-2 md:gap-3 p-1.5  " : "justify-center p-1.5   border-r border-border/50  ",
                       isHighlighted
                         ? "dark:bg-muted/60 bg-accent  hover:bg-muted/80 text-foreground/90"
-                        : "text-muted-foreground border-transparent hover:bg-muted/50"
+                        : "text-muted-foreground hover:bg-accent/60 dark:hover:bg-muted/60 border-transparent "
                     )}
-                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-5 w-4 md:w-5" : "h-6  w-6  ")}  />}
+                    icon={<Icon className={cn(" antialiased flex-shrink-0", mainColumnExpanded ? "h-4 md:h-6 w-4 md:w-6" : "h-6  w-6  ")}  />}
                   >
 
 

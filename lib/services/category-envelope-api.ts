@@ -110,7 +110,7 @@ export const categoryEnvelopeApi = {
     }
   ) => {
     return apiClient.post<CategoryEnvelope>(
-      `/accounts/transactions/categories/${categoryId}/allocate`,
+      `/accounts/categories/${categoryId}/allocate`,
       data
     );
   },
@@ -131,7 +131,7 @@ export const categoryEnvelopeApi = {
     }
   ) => {
     return apiClient.post<CategoryEnvelope>(
-      `/accounts/transactions/categories/${categoryId}/spend`,
+      `/accounts/categories/${categoryId}/spend`,
       data
     );
   },
@@ -154,7 +154,7 @@ export const categoryEnvelopeApi = {
       cycleType: string;
       periodStart: string | null;
       periodEnd: string | null;
-    }>(`/accounts/transactions/categories/${categoryId}/balance`);
+    }>(`/accounts/categories/${categoryId}/balance`);
   },
 
   /**
@@ -168,7 +168,7 @@ export const categoryEnvelopeApi = {
     }>;
   }) => {
     return apiClient.post<CategoryEnvelope[]>(
-      `/accounts/transactions/categories/bulk-allocate`,
+      `/accounts/categories/bulk-allocate`,
       data
     );
   },
@@ -186,7 +186,7 @@ export const categoryEnvelopeApi = {
     transactionDate?: string;
   }) => {
     return apiClient.post<CategoryEnvelope[]>(
-      `/accounts/transactions/categories/split-spending`,
+      `/accounts/categories/split-spending`,
       data
     );
   },
@@ -206,7 +206,7 @@ export const categoryEnvelopeApi = {
       total: number;
       limit: number;
       offset: number;
-    }>(`/accounts/transactions/categories/${categoryId}/allocation-history`, {
+    }>(`/accounts/categories/${categoryId}/allocation-history`, {
       params,
     });
   },
@@ -226,7 +226,7 @@ export const categoryEnvelopeApi = {
       total: number;
       limit: number;
       offset: number;
-    }>(`/accounts/transactions/categories/${categoryId}/spending-history`, {
+    }>(`/accounts/categories/${categoryId}/spending-history`, {
       params,
     });
   },
@@ -236,7 +236,7 @@ export const categoryEnvelopeApi = {
    */
   getAnalytics: async (categoryId: string) => {
     return apiClient.get<CategoryAnalytics>(
-      `/accounts/transactions/categories/${categoryId}/analytics`
+      `/accounts/categories/${categoryId}/analytics`
     );
   },
 };

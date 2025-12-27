@@ -430,7 +430,7 @@ export const categoryGroupsApi = {
     return apiClient.get<{
       categories: CustomCategory[];
       count: number;
-    }>('/accounts/transactions/categories/type/envelope');
+    }>('/accounts/categories/type/envelope');
   },
 
   // ========== ALLOCATION & SPENDING ==========
