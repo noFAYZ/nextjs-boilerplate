@@ -245,7 +245,7 @@ class TransactionsApiService {
       }>;
     }>;
   }>> {
-    return apiClient.get(`${this.basePath}/categories/groups`, organizationId);
+    return apiClient.get(`/category-groups`, organizationId);
   }
 
   /**
@@ -276,7 +276,7 @@ class TransactionsApiService {
     if (params?.search) searchParams.set('search', params.search);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/categories${query ? `?${query}` : ''}`, organizationId);
+    return apiClient.get(`/categories${query ? `?${query}` : ''}`, organizationId);
   }
 
   /**
@@ -292,7 +292,7 @@ class TransactionsApiService {
       groupId: string;
     }>;
   }>> {
-    return apiClient.get(`${this.basePath}/categories/search?q=${encodeURIComponent(query)}`, organizationId);
+    return apiClient.get(`/categories/search?q=${encodeURIComponent(query)}`, organizationId);
   }
 
   /**
@@ -318,7 +318,7 @@ class TransactionsApiService {
     if (params?.search) searchParams.set('search', params.search);
 
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/merchants${query ? `?${query}` : ''}`, organizationId);
+    return apiClient.get(`/merchants${query ? `?${query}` : ''}`, organizationId);
   }
 }
 
