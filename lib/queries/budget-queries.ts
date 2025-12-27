@@ -6,6 +6,7 @@ import {
   queryOptions,
 } from '@tanstack/react-query';
 import { budgetApi } from '@/lib/services/budget-api';
+import { invalidateByDependency } from '@/lib/query-invalidation';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   Budget,
@@ -136,24 +137,47 @@ export const budgetMutations = {
     return useMutation({
       mutationFn: async (data: CreateBudgetRequest) => {
         const response = await budgetApi.createBudget(data);
-
-        // If the API call succeeded but the response indicates failure, throw the full response
-        if (!response.success) {
-          throw response;
-        }
-
+        if (!response.success) throw response;
         return response;
       },
-      onSuccess: (response) => {
-        if (response.success) {
-          // Invalidate all budget queries
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+      onMutate: async (newBudget) => {
+        // Cancel refetches
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        await queryClient.cancelQueries({ queryKey: budgetKeys.analytics() });
+        await queryClient.cancelQueries({ queryKey: budgetKeys.summary() });
+
+        // Get previous data
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+        const previousAnalytics = queryClient.getQueryData(budgetKeys.analytics());
+        const previousSummary = queryClient.getQueryData(budgetKeys.summary());
+
+        // Optimistically add to lists
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: [
+              { ...newBudget, id: `temp-${Date.now()}`, createdAt: new Date() },
+              ...(Array.isArray(old.data) ? old.data : []),
+            ],
+          }));
+        }
+
+        return { previousLists, previousAnalytics, previousSummary };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to create budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
+        }
+        if (context?.previousAnalytics) {
+          queryClient.setQueryData(budgetKeys.analytics(), context.previousAnalytics);
+        }
+        if (context?.previousSummary) {
+          queryClient.setQueryData(budgetKeys.summary(), context.previousSummary);
         }
       },
-      onError: (error) => {
-        console.error('Failed to create budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:create');
       },
     });
   },
@@ -168,11 +192,13 @@ export const budgetMutations = {
       onMutate: async ({ id, updates }) => {
         // Cancel outgoing refetches
         await queryClient.cancelQueries({ queryKey: budgetKeys.detail(id) });
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
 
-        // Snapshot previous value
+        // Snapshot previous values
         const previousBudget = queryClient.getQueryData(budgetKeys.detail(id));
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
 
-        // Optimistically update budget
+        // Optimistically update detail
         queryClient.setQueryData(budgetKeys.detail(id), (old: BudgetResponse | undefined) => {
           if (!old || !old.success) return old;
           return {
@@ -181,25 +207,29 @@ export const budgetMutations = {
           };
         });
 
-        return { previousBudget };
-      },
-      onSuccess: (response, variables) => {
-        if (response.success) {
-          // Update the specific budget query
-          queryClient.setQueryData(budgetKeys.detail(variables.id), response);
-
-          // Invalidate related queries
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+        // Optimistically update list
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.map((budget: any) =>
+              budget.id === id ? { ...budget, ...updates } : budget
+            ),
+          }));
         }
+
+        return { previousBudget, previousLists };
       },
       onError: (error, variables, context) => {
-        // Rollback optimistic update on error
+        console.error('Failed to update budget:', error);
         if (context?.previousBudget) {
           queryClient.setQueryData(budgetKeys.detail(variables.id), context.previousBudget);
         }
-        console.error('Failed to update budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
+        }
+      },
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:update');
       },
     });
   },
@@ -210,20 +240,36 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.deleteBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          // Remove budget detail from cache
-          queryClient.removeQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.removeQueries({ queryKey: budgetKeys.transactions(budgetId) });
+      onMutate: async (budgetId) => {
+        // Cancel refetches
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        await queryClient.cancelQueries({ queryKey: budgetKeys.detail(budgetId) });
 
-          // Invalidate list and analytics
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+        // Get previous data
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+
+        // Optimistically remove from list
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.filter((budget: any) => budget.id !== budgetId),
+          }));
+        }
+
+        // Clear detail cache
+        queryClient.removeQueries({ queryKey: budgetKeys.detail(budgetId) });
+        queryClient.removeQueries({ queryKey: budgetKeys.transactions(budgetId) });
+
+        return { previousLists };
+      },
+      onError: (error, budgetId, context) => {
+        console.error('Failed to delete budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
         }
       },
-      onError: (error) => {
-        console.error('Failed to delete budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:delete');
       },
     });
   },
@@ -234,14 +280,8 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.refreshBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          // Invalidate the budget detail to refresh spending data
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
-        }
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:refresh');
       },
       onError: (error) => {
         console.error('Failed to refresh budget:', error);
@@ -255,16 +295,29 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.archiveBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+      onMutate: async (budgetId) => {
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.map((budget: any) =>
+              budget.id === budgetId ? { ...budget, isArchived: true } : budget
+            ),
+          }));
+        }
+
+        return { previousLists };
+      },
+      onError: (error, budgetId, context) => {
+        console.error('Failed to archive budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
         }
       },
-      onError: (error) => {
-        console.error('Failed to archive budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:archive');
       },
     });
   },
@@ -275,16 +328,29 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.unarchiveBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+      onMutate: async (budgetId) => {
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.map((budget: any) =>
+              budget.id === budgetId ? { ...budget, isArchived: false } : budget
+            ),
+          }));
+        }
+
+        return { previousLists };
+      },
+      onError: (error, budgetId, context) => {
+        console.error('Failed to unarchive budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
         }
       },
-      onError: (error) => {
-        console.error('Failed to unarchive budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:unarchive');
       },
     });
   },
@@ -295,16 +361,29 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.pauseBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+      onMutate: async (budgetId) => {
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.map((budget: any) =>
+              budget.id === budgetId ? { ...budget, isPaused: true } : budget
+            ),
+          }));
+        }
+
+        return { previousLists };
+      },
+      onError: (error, budgetId, context) => {
+        console.error('Failed to pause budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
         }
       },
-      onError: (error) => {
-        console.error('Failed to pause budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:pause');
       },
     });
   },
@@ -315,16 +394,29 @@ export const budgetMutations = {
 
     return useMutation({
       mutationFn: (budgetId: string) => budgetApi.resumeBudget(budgetId),
-      onSuccess: (response, budgetId) => {
-        if (response.success) {
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
+      onMutate: async (budgetId) => {
+        await queryClient.cancelQueries({ queryKey: budgetKeys.lists() });
+        const previousLists = queryClient.getQueryData(budgetKeys.lists());
+
+        if (previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), (old: any) => ({
+            ...old,
+            data: old.data.map((budget: any) =>
+              budget.id === budgetId ? { ...budget, isPaused: false } : budget
+            ),
+          }));
+        }
+
+        return { previousLists };
+      },
+      onError: (error, budgetId, context) => {
+        console.error('Failed to resume budget:', error);
+        if (context?.previousLists) {
+          queryClient.setQueryData(budgetKeys.lists(), context.previousLists);
         }
       },
-      onError: (error) => {
-        console.error('Failed to resume budget:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:resume');
       },
     });
   },
@@ -336,18 +428,28 @@ export const budgetMutations = {
     return useMutation({
       mutationFn: ({ budgetId, transaction }: { budgetId: string; transaction: AddBudgetTransactionRequest }) =>
         budgetApi.addBudgetTransaction(budgetId, transaction),
-      onSuccess: (response, variables) => {
-        if (response.success) {
-          // Invalidate budget to refresh spending
-          queryClient.invalidateQueries({ queryKey: budgetKeys.detail(variables.budgetId) });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.lists() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.summary() });
-          queryClient.invalidateQueries({ queryKey: budgetKeys.transactions(variables.budgetId) });
+      onMutate: async ({ budgetId }) => {
+        // Cancel refetches
+        await queryClient.cancelQueries({ queryKey: budgetKeys.detail(budgetId) });
+        await queryClient.cancelQueries({ queryKey: budgetKeys.transactions(budgetId) });
+
+        // Get previous data
+        const previousBudget = queryClient.getQueryData(budgetKeys.detail(budgetId));
+        const previousTransactions = queryClient.getQueryData(budgetKeys.transactions(budgetId));
+
+        return { previousBudget, previousTransactions };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to add budget transaction:', error);
+        if (context?.previousBudget) {
+          queryClient.setQueryData(budgetKeys.detail(variables.budgetId), context.previousBudget);
+        }
+        if (context?.previousTransactions) {
+          queryClient.setQueryData(budgetKeys.transactions(variables.budgetId), context.previousTransactions);
         }
       },
-      onError: (error) => {
-        console.error('Failed to add budget transaction:', error);
+      onSuccess: () => {
+        invalidateByDependency(queryClient, 'budgets:addTransaction');
       },
     });
   },

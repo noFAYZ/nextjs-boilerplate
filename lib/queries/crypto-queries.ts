@@ -7,6 +7,7 @@ import {
   type InfiniteData
 } from '@tanstack/react-query';
 import { cryptoApi } from '@/lib/services/crypto-api';
+import { invalidateByDependency } from '@/lib/query-invalidation';
 import { useCryptoStore } from '@/lib/stores/crypto-store';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
@@ -336,21 +337,46 @@ export const cryptoMutations = {
 
         return response;
       },
+      onMutate: async (newWallet) => {
+        // Cancel refetches
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets() });
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.portfolio() });
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.analytics() });
+
+        // Get previous data
+        const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
+        const previousPortfolio = queryClient.getQueryData(cryptoKeys.portfolio());
+        const previousAnalytics = queryClient.getQueryData(cryptoKeys.analytics());
+
+        // Optimistically add to wallet list
+        if (previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => [
+            { ...newWallet, id: `temp-${Date.now()}`, createdAt: new Date() },
+            ...(Array.isArray(old) ? old : []),
+          ]);
+        }
+
+        return { previousWallets, previousPortfolio, previousAnalytics };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to create wallet:', error);
+        if (context?.previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), context.previousWallets);
+        }
+        if (context?.previousPortfolio) {
+          queryClient.setQueryData(cryptoKeys.portfolio(), context.previousPortfolio);
+        }
+        if (context?.previousAnalytics) {
+          queryClient.setQueryData(cryptoKeys.analytics(), context.previousAnalytics);
+        }
+      },
       onSuccess: (response) => {
         if (response.success) {
           // Update Zustand store
           addWallet(response.data);
-
-          // Comprehensive cache invalidation for wallet creation
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.transactions() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.nfts() });
+          // Background invalidation will refetch updated data
+          invalidateByDependency(queryClient, 'crypto:createWallet');
         }
-      },
-      onError: (error) => {
-        console.error('Failed to create wallet:', error);
       },
     });
   },
@@ -363,23 +389,57 @@ export const cryptoMutations = {
       mutationKey: ['updateWallet'],
       mutationFn: ({ id, updates }: { id: string; updates: UpdateWalletRequest }) =>
         cryptoApi.updateWallet(id, updates),
+      onMutate: async ({ id, updates }) => {
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets() });
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.wallet(id) });
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.portfolio() });
+
+        // Snapshot previous values
+        const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
+        const previousWallet = queryClient.getQueryData(cryptoKeys.wallet(id));
+        const previousPortfolio = queryClient.getQueryData(cryptoKeys.portfolio());
+
+        // Optimistically update wallet list
+        if (previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => {
+            if (Array.isArray(old)) {
+              return old.map((wallet: any) =>
+                wallet.id === id ? { ...wallet, ...updates } : wallet
+              );
+            }
+            return old;
+          });
+        }
+
+        // Optimistically update wallet detail
+        if (previousWallet) {
+          queryClient.setQueryData(cryptoKeys.wallet(id), (old: any) =>
+            old ? { ...old, ...updates } : old
+          );
+        }
+
+        return { previousWallets, previousWallet, previousPortfolio };
+      },
+      onError: (error, variables, context) => {
+        console.error('Failed to update wallet:', error);
+        if (context?.previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), context.previousWallets);
+        }
+        if (context?.previousWallet) {
+          queryClient.setQueryData(cryptoKeys.wallet(variables.id), context.previousWallet);
+        }
+        if (context?.previousPortfolio) {
+          queryClient.setQueryData(cryptoKeys.portfolio(), context.previousPortfolio);
+        }
+      },
       onSuccess: (response, variables) => {
         if (response.success) {
           // Update Zustand store
           updateWallet(variables.id, response.data);
-
-          // Comprehensive cache invalidation for wallet update
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallet(variables.id) });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletTransactions(variables.id) });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletNfts(variables.id) });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.walletDefi(variables.id) });
+          // Background invalidation will refetch updated data
+          invalidateByDependency(queryClient, 'crypto:updateWallet');
         }
-      },
-      onError: (error) => {
-        console.error('Failed to update wallet:', error);
       },
     });
   },
@@ -391,28 +451,50 @@ export const cryptoMutations = {
     return useMutation({
       mutationKey: ['deleteWallet'],
       mutationFn: (walletId: string) => cryptoApi.deleteWallet(walletId),
+      onMutate: async (walletId) => {
+        // Cancel refetches
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.wallets() });
+        await queryClient.cancelQueries({ queryKey: cryptoKeys.portfolio() });
+
+        // Get previous data
+        const previousWallets = queryClient.getQueryData(cryptoKeys.wallets());
+        const previousPortfolio = queryClient.getQueryData(cryptoKeys.portfolio());
+
+        // Optimistically remove from list
+        if (previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), (old: any) => {
+            if (Array.isArray(old)) {
+              return old.filter((wallet: any) => wallet.id !== walletId);
+            }
+            return old;
+          });
+        }
+
+        // Clear wallet-specific queries
+        queryClient.removeQueries({ queryKey: cryptoKeys.wallet(walletId) });
+        queryClient.removeQueries({ queryKey: cryptoKeys.walletTransactions(walletId) });
+        queryClient.removeQueries({ queryKey: cryptoKeys.walletNfts(walletId) });
+        queryClient.removeQueries({ queryKey: cryptoKeys.walletDefi(walletId) });
+        queryClient.removeQueries({ queryKey: cryptoKeys.syncStatus(walletId) });
+
+        return { previousWallets, previousPortfolio };
+      },
+      onError: (error, walletId, context) => {
+        console.error('Failed to delete wallet:', error);
+        if (context?.previousWallets) {
+          queryClient.setQueryData(cryptoKeys.wallets(), context.previousWallets);
+        }
+        if (context?.previousPortfolio) {
+          queryClient.setQueryData(cryptoKeys.portfolio(), context.previousPortfolio);
+        }
+      },
       onSuccess: (response, walletId) => {
         if (response.success) {
           // Update Zustand store
           removeWallet(walletId);
-          
-          // Remove all wallet-specific queries from cache
-          queryClient.removeQueries({ queryKey: cryptoKeys.wallet(walletId) });
-          queryClient.removeQueries({ queryKey: cryptoKeys.walletTransactions(walletId) });
-          queryClient.removeQueries({ queryKey: cryptoKeys.walletNfts(walletId) });
-          queryClient.removeQueries({ queryKey: cryptoKeys.walletDefi(walletId) });
-          queryClient.removeQueries({ queryKey: cryptoKeys.syncStatus(walletId) });
-
-          // Invalidate global queries that depend on wallet list
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.portfolio() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.analytics() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.transactions() });
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.nfts() });
+          // Background invalidation will refetch updated data
+          invalidateByDependency(queryClient, 'crypto:deleteWallet');
         }
-      },
-      onError: (error) => {
-        console.error('Failed to delete wallet:', error);
       },
     });
   },
@@ -440,10 +522,8 @@ export const cryptoMutations = {
           );
 
           // SSE will handle sync status updates automatically
-          // Just invalidate queries to refresh UI data when sync completes
-          queryClient.invalidateQueries({
-            queryKey: cryptoKeys.syncStatus(walletId, jobId)
-          });
+          // Invalidate sync status to show polling updates
+          invalidateByDependency(queryClient, 'crypto:syncWallet');
 
           // Timeout: if no SSE message within 30s, auto-fail the sync
           const timeoutId = setTimeout(() => {
@@ -496,7 +576,7 @@ export const cryptoMutations = {
           });
 
           // Comprehensive cache invalidation for all wallet sync
-          queryClient.invalidateQueries({ queryKey: cryptoKeys.wallets() });
+          invalidateByDependency(queryClient, 'crypto:syncAllWallets');
         }
       },
       onError: (error) => {

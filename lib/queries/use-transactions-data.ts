@@ -7,6 +7,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '@/lib/services/transactions-api';
 import { transactionQueries, transactionMutations, transactionKeys } from './transactions-queries';
+import { invalidateByDependency } from '@/lib/query-invalidation';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 
 // ============================================================================
@@ -127,13 +128,42 @@ export function useCreateTransaction(): UseMutationResult<any, Error, any, unkno
 
   return useMutation({
     ...transactionMutations.create(),
-    onSuccess: (data) => {
-      // Invalidate related caches
-      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.stats() });
+    onMutate: async (newTransaction) => {
+      // Cancel refetches
+      await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.stats() });
+
+      // Get previous data
+      const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+      const previousStats = queryClient.getQueryData(transactionKeys.stats());
+
+      // Optimistically add to list
+      if (previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+          if (!old || !old.data) return old;
+          return {
+            ...old,
+            data: [
+              { ...newTransaction, id: `temp-${Date.now()}`, createdAt: new Date() },
+              ...(Array.isArray(old.data) ? old.data : []),
+            ],
+          };
+        });
+      }
+
+      return { previousTransactions, previousStats };
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       console.error('Failed to create transaction:', error);
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      }
+      if (context?.previousStats) {
+        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'transactions:update');
     },
   });
 }
@@ -146,13 +176,46 @@ export function useBulkCreateTransactions(): UseMutationResult<any, Error, any, 
 
   return useMutation({
     ...transactionMutations.bulkCreate(),
-    onSuccess: (data) => {
-      // Invalidate related caches
-      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.stats() });
+    onMutate: async (newTransactions) => {
+      // Cancel refetches
+      await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.stats() });
+
+      // Get previous data
+      const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+      const previousStats = queryClient.getQueryData(transactionKeys.stats());
+
+      // Optimistically add all to list
+      if (previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+          if (!old || !old.data) return old;
+          const tempTransactions = (Array.isArray(newTransactions) ? newTransactions : [newTransactions]).map(
+            (tx, idx) => ({
+              ...tx,
+              id: `temp-${Date.now()}-${idx}`,
+              createdAt: new Date(),
+            })
+          );
+          return {
+            ...old,
+            data: [...tempTransactions, ...(Array.isArray(old.data) ? old.data : [])],
+          };
+        });
+      }
+
+      return { previousTransactions, previousStats };
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       console.error('Failed to bulk create transactions:', error);
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      }
+      if (context?.previousStats) {
+        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'transactions:update');
     },
   });
 }
@@ -166,17 +229,20 @@ export function useUpdateTransaction(): UseMutationResult<any, Error, any, unkno
   return useMutation({
     ...transactionMutations.update(),
     onMutate: async (variables) => {
-      // Cancel any outgoing refetches for transaction lists
+      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.detail(variables.id) });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.stats() });
 
       // Snapshot the previous data
       const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+      const previousDetail = queryClient.getQueryData(transactionKeys.detail(variables.id));
+      const previousStats = queryClient.getQueryData(transactionKeys.stats());
 
-      // Optimistically update the transaction in the cache
+      // Optimistically update the transaction in list
       if (previousTransactions) {
         queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
           if (!old || !old.data) return old;
-
           return {
             ...old,
             data: Array.isArray(old.data)
@@ -190,20 +256,32 @@ export function useUpdateTransaction(): UseMutationResult<any, Error, any, unkno
         });
       }
 
-      return { previousTransactions };
-    },
-    onSuccess: (data, variables) => {
-      // Invalidate specific and related caches with background refetch
-      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(variables.id), refetchType: 'background' });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.lists(), refetchType: 'background' });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.stats(), refetchType: 'background' });
+      // Optimistically update the detail view
+      if (previousDetail) {
+        queryClient.setQueryData(transactionKeys.detail(variables.id), {
+          ...previousDetail,
+          ...variables.data,
+        });
+      }
+
+      return { previousTransactions, previousDetail, previousStats };
     },
     onError: (error, variables, context) => {
       console.error('Failed to update transaction:', error);
-      // Rollback optimistic update on error
+      // Rollback optimistic updates on error
       if (context?.previousTransactions) {
         queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
       }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(transactionKeys.detail(variables.id), context.previousDetail);
+      }
+      if (context?.previousStats) {
+        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      }
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate with background refetch to confirm server state
+      invalidateByDependency(queryClient, 'transactions:update');
     },
   });
 }
@@ -216,14 +294,49 @@ export function useDeleteTransaction(): UseMutationResult<void, Error, string, u
 
   return useMutation({
     mutationFn: (id: string) => transactionsApi.deleteTransaction(id),
-    onSuccess: (data, id) => {
-      // Invalidate related caches
-      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: transactionKeys.stats() });
+    onMutate: async (id) => {
+      // Cancel refetches
+      await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.stats() });
+
+      // Get previous data
+      const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+      const previousDetail = queryClient.getQueryData(transactionKeys.detail(id));
+      const previousStats = queryClient.getQueryData(transactionKeys.stats());
+
+      // Optimistically remove from list
+      if (previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+          if (!old || !old.data) return old;
+          return {
+            ...old,
+            data: Array.isArray(old.data)
+              ? old.data.filter((tx: any) => tx.id !== id)
+              : old.data,
+          };
+        });
+      }
+
+      // Clear detail cache
+      queryClient.removeQueries({ queryKey: transactionKeys.detail(id) });
+
+      return { previousTransactions, previousDetail, previousStats };
     },
-    onError: (error) => {
+    onError: (error, id, context) => {
       console.error('Failed to delete transaction:', error);
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(transactionKeys.detail(id), context.previousDetail);
+      }
+      if (context?.previousStats) {
+        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'transactions:delete');
     },
   });
 }

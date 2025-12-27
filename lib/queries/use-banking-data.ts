@@ -27,6 +27,7 @@ import {
   useBankingOverview as useBaseBankingOverview,
   useBankingDashboard as useBaseBankingDashboard,
 } from './banking-queries';
+import { invalidateByDependency } from '@/lib/query-invalidation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { useBankingUIStore } from '@/lib/stores/banking-ui-store';
@@ -511,13 +512,8 @@ export function useMapAccountToCategory(organizationId?: string) {
       }
       throw new Error(response.error?.message || 'Failed to map account to category');
     },
-    onSuccess: (_data, variables) => {
-      // Invalidate account queries to update customCategories
-      queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
-      queryClient.invalidateQueries({ queryKey: bankingKeys.account(variables.accountId) });
-
-      // Invalidate category queries
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'categories:mapAccount');
     },
   });
 }
@@ -548,13 +544,8 @@ export function useUnmapAccountFromCategory(organizationId?: string) {
       }
       throw new Error(response.error?.message || 'Failed to unmap account from category');
     },
-    onSuccess: (_data, variables) => {
-      // Invalidate account queries to update customCategories
-      queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() });
-      queryClient.invalidateQueries({ queryKey: bankingKeys.account(variables.accountId) });
-
-      // Invalidate category queries
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'categories:unmapAccount');
     },
   });
 }

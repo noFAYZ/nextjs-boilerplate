@@ -6,6 +6,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { categorizationRulesApi } from '@/lib/services/categorization-rules-api';
+import { invalidateByDependency } from '@/lib/query-invalidation';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 
 // Query keys for cache management
@@ -94,10 +95,31 @@ export function useCreateCategorizationRule(): UseMutationResult<any, Error, any
       const response = await categorizationRulesApi.createRule(data);
       return response.data;
     },
+    onMutate: async (newData) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+
+      // Get previous data
+      const previousRules = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+
+      // Optimistically add new rule to list
+      if (previousRules) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), [
+          ...previousRules,
+          { ...newData, id: `temp-${Date.now()}`, createdAt: new Date() },
+        ]);
+      }
+
+      return { previousRules };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousRules) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousRules);
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
+      invalidateByDependency(queryClient, 'rules:create');
     },
   });
 }
@@ -130,15 +152,43 @@ export function useUpdateCategorizationRule(): UseMutationResult<any, Error, any
       const response = await categorizationRulesApi.updateRule(ruleId, data);
       return response.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
-      if (data?.id) {
-        queryClient.invalidateQueries({
-          queryKey: categorizationRulesKeys.detail(data.id),
+    onMutate: async ({ ruleId, data: updates }) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      // Get previous data
+      const previousList = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+      const previousDetail = queryClient.getQueryData(categorizationRulesKeys.detail(ruleId));
+
+      // Optimistically update list
+      if (previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), previousList.map(rule =>
+          rule.id === ruleId ? { ...rule, ...updates } : rule
+        ));
+      }
+
+      // Optimistically update detail
+      if (previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), {
+          ...previousDetail,
+          ...updates,
         });
       }
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(variables.ruleId), context.previousDetail);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'rules:update');
     },
   });
 }
@@ -154,15 +204,42 @@ export function useEnableRule(): UseMutationResult<any, Error, string> {
       const response = await categorizationRulesApi.enableRule(ruleId);
       return response.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
-      if (data?.id) {
-        queryClient.invalidateQueries({
-          queryKey: categorizationRulesKeys.detail(data.id),
+    onMutate: async (ruleId) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      // Get previous data
+      const previousList = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+      const previousDetail = queryClient.getQueryData(categorizationRulesKeys.detail(ruleId));
+
+      // Optimistically enable in list
+      if (previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), previousList.map(rule =>
+          rule.id === ruleId ? { ...rule, isActive: true } : rule
+        ));
+      }
+
+      // Optimistically enable in detail
+      if (previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), {
+          ...previousDetail,
+          isActive: true,
         });
       }
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, ruleId, context) => {
+      if (context?.previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), context.previousDetail);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'rules:enable');
     },
   });
 }
@@ -178,15 +255,42 @@ export function useDisableRule(): UseMutationResult<any, Error, string> {
       const response = await categorizationRulesApi.disableRule(ruleId);
       return response.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
-      if (data?.id) {
-        queryClient.invalidateQueries({
-          queryKey: categorizationRulesKeys.detail(data.id),
+    onMutate: async (ruleId) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      // Get previous data
+      const previousList = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+      const previousDetail = queryClient.getQueryData(categorizationRulesKeys.detail(ruleId));
+
+      // Optimistically disable in list
+      if (previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), previousList.map(rule =>
+          rule.id === ruleId ? { ...rule, isActive: false } : rule
+        ));
+      }
+
+      // Optimistically disable in detail
+      if (previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), {
+          ...previousDetail,
+          isActive: false,
         });
       }
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, ruleId, context) => {
+      if (context?.previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), context.previousDetail);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'rules:disable');
     },
   });
 }
@@ -210,15 +314,42 @@ export function useSetRulePriority(): UseMutationResult<any, Error, any> {
       });
       return response.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
-      if (data?.id) {
-        queryClient.invalidateQueries({
-          queryKey: categorizationRulesKeys.detail(data.id),
+    onMutate: async ({ ruleId, priority }) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      // Get previous data
+      const previousList = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+      const previousDetail = queryClient.getQueryData(categorizationRulesKeys.detail(ruleId));
+
+      // Optimistically update priority in list
+      if (previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), previousList.map(rule =>
+          rule.id === ruleId ? { ...rule, priority } : rule
+        ));
+      }
+
+      // Optimistically update priority in detail
+      if (previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), {
+          ...previousDetail,
+          priority,
         });
       }
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, variables, context) => {
+      if (context?.previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(variables.ruleId), context.previousDetail);
+      }
+    },
+    onSuccess: () => {
+      invalidateByDependency(queryClient, 'rules:setPriority');
     },
   });
 }
@@ -243,9 +374,7 @@ export function useDuplicateRule(): UseMutationResult<any, Error, any> {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
+      invalidateByDependency(queryClient, 'rules:create');
     },
   });
 }
@@ -265,10 +394,35 @@ export function useDeleteCategorizationRule(): UseMutationResult<any, Error, str
       const response = await categorizationRulesApi.deleteRule(ruleId);
       return response.data;
     },
+    onMutate: async (ruleId) => {
+      // Cancel ongoing refetches
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.list() });
+      await queryClient.cancelQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      // Get previous data
+      const previousList = queryClient.getQueryData<any[]>(categorizationRulesKeys.list());
+      const previousDetail = queryClient.getQueryData(categorizationRulesKeys.detail(ruleId));
+
+      // Optimistically remove from list
+      if (previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), previousList.filter(rule => rule.id !== ruleId));
+      }
+
+      // Clear detail cache
+      queryClient.removeQueries({ queryKey: categorizationRulesKeys.detail(ruleId) });
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, ruleId, context) => {
+      if (context?.previousList) {
+        queryClient.setQueryData(categorizationRulesKeys.list(), context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(categorizationRulesKeys.detail(ruleId), context.previousDetail);
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
+      invalidateByDependency(queryClient, 'rules:delete');
     },
   });
 }
@@ -333,9 +487,7 @@ export function useImportRules(): UseMutationResult<any, Error, any> {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: categorizationRulesKeys.list(),
-      });
+      invalidateByDependency(queryClient, 'rules:create');
     },
   });
 }
