@@ -121,6 +121,8 @@ interface TransactionsDataTableProps {
   statusFilter?: string;
   sourceFilter?: string;
   hideAccountColumn?: boolean;
+  categoriesData?: unknown; // Categories data from page level
+  categoriesLoading?: boolean; // Categories loading state from page level
 }
 export enum TransactionType {
   CardPayment = "card_payment",

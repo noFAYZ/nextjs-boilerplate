@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAllTransactions } from '@/lib/queries/use-accounts-data';
+import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
 import { TransactionsDataTable, UnifiedTransaction } from '@/components/transactions/transactions-data-table';
 import { TransactionDetailDrawer } from '@/components/transactions/transaction-detail-drawer';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

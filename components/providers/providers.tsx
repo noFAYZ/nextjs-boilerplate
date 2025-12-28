@@ -42,40 +42,38 @@ export default function Providers({ children }: { children: ReactNode }) {
     <ErrorBoundary>
       <PostHogProvider>
         <AuthProvider>
-          <CSRFProvider>
-            <LoadingProvider>
-            <QueryProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="light"
-                themes={["light", "dark", "light-pro", "dark-pro"]}
-                disableTransitionOnChange
-              >
-           <ToastProvider>
-                <CurrencyProvider defaultCurrency="USD">
-                  <StoreProvider>
-                  <RealtimeSyncProvider>
-                    <OrganizationURLSyncProvider />
-                    <OrganizationDataSyncProvider />
-                    <GlobalRefetchOverlay />
-                    <ViewModeProvider>
-                      <AccountProvider>
-                        <DockProvider>
-                          <OnboardingGuard>
-                            {children}
-                            <SessionTimeoutModal />
-                            <OrganizationModalsProvider />
-                          </OnboardingGuard>
-                        </DockProvider>
-                      </AccountProvider>
-                    </ViewModeProvider>
-                    </RealtimeSyncProvider>
-                  </StoreProvider>
-                </CurrencyProvider></ToastProvider>
-              </ThemeProvider>
-            </QueryProvider>
-          </LoadingProvider>
-          </CSRFProvider>
+          <LoadingProvider>
+          <QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              themes={["light", "dark", "light-pro", "dark-pro"]}
+              disableTransitionOnChange
+            >
+         <ToastProvider>
+              <CurrencyProvider defaultCurrency="USD">
+                <StoreProvider>
+                <RealtimeSyncProvider>
+                  <OrganizationURLSyncProvider />
+                  <OrganizationDataSyncProvider />
+                  <GlobalRefetchOverlay />
+                  <ViewModeProvider>
+                    <AccountProvider>
+                      <DockProvider>
+                        <OnboardingGuard>
+                          {children}
+                          <SessionTimeoutModal />
+                          <OrganizationModalsProvider />
+                        </OnboardingGuard>
+                      </DockProvider>
+                    </AccountProvider>
+                  </ViewModeProvider>
+                  </RealtimeSyncProvider>
+                </StoreProvider>
+              </CurrencyProvider></ToastProvider>
+            </ThemeProvider>
+          </QueryProvider>
+        </LoadingProvider>
         </AuthProvider>
       </PostHogProvider>
     </ErrorBoundary>

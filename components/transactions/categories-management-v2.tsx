@@ -82,7 +82,12 @@ const EMOJI_SUGGESTIONS = [
   '🌱', '🎨', '🚀', '🔧', '📊', '🎵', '☕', '🍎',
 ];
 
-export function CategoriesManagementV2() {
+interface CategoriesManagementV2Props {
+  categoriesData?: unknown;
+  categoriesLoading?: boolean;
+}
+
+export function CategoriesManagementV2({ categoriesData: propCategoriesData, categoriesLoading: propCategoriesLoading }: CategoriesManagementV2Props = {}) {
   const { toast, update, dismiss } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingCategory, setEditingCategory] = useState<(Category & { groupId: string; }) | null>(null);
@@ -94,7 +99,10 @@ export function CategoriesManagementV2() {
   const [groupToDelete, setGroupToDelete] = useState<CategoryGroup | null>(null);
 
   // Queries and mutations
-  const { data: categoriesData, isLoading } = useTransactionCategories();
+  // Use categories from props if provided (from parent page), otherwise fetch locally
+  const { data: localCategoriesData, isLoading: localCategoriesLoading } = useTransactionCategories();
+  const categoriesData = propCategoriesData ?? localCategoriesData;
+  const isLoading = propCategoriesLoading ?? localCategoriesLoading;
   const createCategoryMutation = useCreateCustomCategory();
   const updateCategoryMutation = useUpdateCategory();
   const deleteCategoryMutation = useDeleteCategory();

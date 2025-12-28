@@ -76,7 +76,12 @@ interface RuleFormData {
   description?: string;
 }
 
-export function RulesManagement() {
+interface RulesManagementProps {
+  categoriesData?: unknown;
+  categoriesLoading?: boolean;
+}
+
+export function RulesManagement({ categoriesData: propCategoriesData, categoriesLoading: propCategoriesLoading }: RulesManagementProps = {}) {
   const { toast, update, dismiss } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,7 +95,9 @@ export function RulesManagement() {
 
   // Queries and mutations
   const { data: rulesData, isLoading } = useCategorizationRules();
-  const { data: categoriesData } = useTransactionCategories();
+  // Use categories from props if provided (from parent page), otherwise fetch locally
+  const { data: localCategoriesData } = useTransactionCategories();
+  const categoriesData = propCategoriesData ?? localCategoriesData;
   const createRuleMutation = useCreateCategorizationRule();
   const deleteRuleMutation = useDeleteCategorizationRule();
   const enableRuleMutation = useEnableRule();

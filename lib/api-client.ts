@@ -30,7 +30,7 @@ class ApiClient {
     return this.token;
   }
 
-  private async getHeaders(organizationId?: string, method?: string): Promise<Record<string, string>> {
+  private async getHeaders(organizationId?: string): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -53,14 +53,6 @@ class ApiClient {
     // Add organization context if available (via header)
     if (orgId) {
       headers['Organization-Id'] = orgId;
-    }
-
-    // Add CSRF token for state-changing requests (POST, PUT, PATCH, DELETE)
-    if (method && isCSRFProtectionRequired(method)) {
-      const csrfToken = getCSRFTokenFromCookie();
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
-      }
     }
 
     return headers;
@@ -128,20 +120,13 @@ class ApiClient {
         url = `${url}${separator}organizationId=${orgId}`;
       }
 
-      const method = (options.method || 'GET').toUpperCase();
-      const headers = await this.getHeaders(organizationId, method);
+      const headers = await this.getHeaders(organizationId);
 
       const response = await fetch(url, {
         headers,
-        credentials: 'include', // Include cookies for better-auth and CSRF
+        credentials: 'include', // Include cookies for better-auth
         ...options,
       });
-
-      // Try to update CSRF token from response header if present
-      const csrfTokenFromResponse = getCSRFTokenFromResponseHeader(response);
-      if (csrfTokenFromResponse && typeof window !== 'undefined') {
-        logger.debug('CSRF token updated from response header');
-      }
 
       // Handle 204 No Content - no body to parse
       if (response.status === 204) {
@@ -168,17 +153,6 @@ class ApiClient {
         }
 
         if (response.status === 403) {
-          // Check if this is a CSRF validation error
-          if (isCSRFValidationError(response.status, data.error?.code)) {
-            logger.warn('CSRF validation failed', { endpoint, status: 403, errorCode: data.error?.code });
-            throw {
-              response,
-              message: 'Security validation failed. Please refresh the page and try again.',
-              code: 'CSRF_VALIDATION_FAILED',
-              details: data,
-            };
-          }
-
           // Forbidden - insufficient permissions
           logger.warn('Forbidden API request', { endpoint, status: 403 });
           throw {
@@ -304,12 +278,6 @@ class ApiClient {
       }
 
       const healthData = await response.json() as { status: string; timestamp: string };
-
-      // Try to update CSRF token from health check response
-      const csrfTokenFromResponse = getCSRFTokenFromResponseHeader(response);
-      if (csrfTokenFromResponse && typeof window !== 'undefined') {
-        logger.debug('CSRF token initialized from health check');
-      }
 
       // Reset consecutive failures on successful health check
       this.consecutiveFailures = 0;
