@@ -47,7 +47,7 @@ export default function AccountsPage() {
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Header: Tabs and Actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-end">
 
         <div className="flex items-center gap-2">
           <Button

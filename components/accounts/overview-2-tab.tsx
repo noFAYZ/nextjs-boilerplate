@@ -12,7 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 import type { AccountCategory } from '@/lib/types';
 import { Button } from '../ui/button';
-import { ChevronDown, ChevronRight, TrendingUp, Wallet, PieChart } from 'lucide-react';
+import { ChevronDown, ChevronRight, TrendingUp, Wallet, PieChart, Dot, ArrowRight } from 'lucide-react';
+import { SolarCheckCircleBoldDuotone } from '../icons/icons';
 
 interface AccountGroup {
   key: string;
@@ -96,7 +97,7 @@ export function Overview2Tab() {
   return (
     <div className="h-full flex gap-4">
       {/* Sidebar: Category Tabs */}
-      <div className="w-74 flex flex-col gap-2   h-fit rounded-lg">
+      <div className="w-[20%] flex flex-col gap-2   h-fit rounded-lg">
 
 
         {/* Tab List */}
@@ -110,7 +111,7 @@ export function Overview2Tab() {
               <Button
                 key={group.key}
                 onClick={() => setSelectedCategory(group.key)}
-                variant={isActive ? 'outline2' : 'ghost'}
+                variant={isActive ? 'outlinebrand' : 'ghost'}
                 size='xl'
                 className={cn(
                   'w-full flex gap-3 px-3 py-2    rounded-lg transition-all text-left',
@@ -125,21 +126,26 @@ export function Overview2Tab() {
 
                 {/* Label */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{config.label}</div>
+                  <div className="text-sm font-semibold truncate items-center flex gap-1">{config.label}
+
+                      {/* Percentage Badge 
+                <Badge
+                  variant="outline"
+                  size="sm"
+                  className="flex-shrink-0 text-xs font-semibold px-1 rounded-full"
+                >
+                  {progress.toFixed(0)}%
+                </Badge>*/}
+                  </div>
+                  
                 </div>
 
 
 
-                {/* Percentage Badge */}
-                <Badge
-                  variant="outline"
-                  size="sm"
-                  className="flex-shrink-0 text-xs font-semibold px-2 rounded-full"
-                >
-                  {progress.toFixed(0)}%
-                </Badge>
+              
+                <CurrencyDisplay amountUSD={group.totalBalance || 0} />
 
-              {isActive ? <ChevronRight className='w-4 h-4'/>  : <ChevronDown className='w-4 h-4'/>  }
+              {isActive && <ChevronRight className='w-4.5 h-4.5'/>    }
               </Button>
             );
           })}
@@ -149,10 +155,10 @@ export function Overview2Tab() {
       {/* Main Content: Account Rows and Right Widget Wrapper */}
       <div className="flex-1 flex gap-4 min-w-0">
         {/* Center: Account Rows */}
-        <div className="flex-1 flex flex-col  min-w-0 h-fit bg-card  rounded-lg border">
-          {/* Header with Selected Category Info */}
+        <div className="flex-1 flex flex-col  min-w-0 h-fit bg-card  rounded-2xl border overflow-hidden">
+          {/* Header with Selected Category Info 
           {selectedGroup && (
-            <div className="flex items-center justify-between p-2 px-4 bg-muted rounded-t-lg border-b ">
+            <div className="flex items-center justify-between p-2 px-4 bg-primary/5 border-b ">
               <div className="flex items-center gap-3">
                
                   {getAccountCategoryConfig(selectedGroup.category).icon}
@@ -183,11 +189,11 @@ export function Overview2Tab() {
               </div>
             </div>
           )}
-
+*/}
           {/* Accounts List */}
           <div className="flex-1 overflow-y-auto  ">
             {selectedAccounts.length > 0 ? (
-              <div className="divide-y divide-border/50">
+              <div className="divide-y divide-border">
                 {selectedAccounts.map((account) => (
                   <AccountRow
                     key={account.id}

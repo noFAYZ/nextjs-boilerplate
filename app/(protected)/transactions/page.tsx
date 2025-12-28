@@ -161,7 +161,7 @@ export default function TransactionsPage() {
 
 
   return (
-    <div className="h-full flex flex-col relative space-y-2 max-w-7xl mx-auto">
+    <div className="h-full flex flex-col relative space-y-2 ">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Tabs - TabsList is now in the header, only content here */}

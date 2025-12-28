@@ -79,7 +79,7 @@ export function AccountRow({
       style={style}
       onClick={handleClick}
       className={cn(
-        'group relative flex items-center gap-2.5 p-2 transition-all hover:bg-muted/50 cursor-pointer',
+        'group relative flex items-center gap-2.5 p-3 transition-all hover:bg-muted/50 cursor-pointer',
         isSortableDragging && 'bg-primary/10',
         className
       )}
@@ -97,14 +97,14 @@ export function AccountRow({
 
       {/* Icon - Institution Logo */}
       <div className="relative h-10 w-10 flex-shrink-0 mr-2">
-        <Avatar className="h-10 w-10 rounded-full border border-border">
+        <Avatar className="h-10 w-10 rounded-full border border-border ">
           <AvatarImage
             src={getInstitutionLogo()}
             alt={account.institutionName || 'Institution'}
             className="rounded-full"
             onError={handleImageError}
           />
-          <AvatarFallback className="bg-card rounded-full">
+          <AvatarFallback className="bg-background rounded-full">
             {isCrypto ? (
               <HeroiconsWallet className="h-6 w-6" />
             ) : (
@@ -211,15 +211,15 @@ export function AccountRow({
       </div>
 
       {/* Amount & Status */}
-      <div className="flex flex-col items-end flex-shrink-0 gap-1">
+      <div className="flex flex-col items-end flex-shrink-0 ">
         <div className="text-right">
           {balanceVisible ? (
-            <CurrencyDisplay amountUSD={account.balance} variant="small" className="text-muted-foreground font-semibold" />
+            <CurrencyDisplay amountUSD={account.balance} variant="small" className="text-foreground font-semibold" />
           ) : (
-            <span className="text-muted-foreground font-bold text-xs">••••••</span>
+            <span className="text-muted-foreground font-semibold text-xs">••••••</span>
           )}
         </div>
-        <div className="flex items-center gap-1 text-[9px] px-1 h-5 text-muted-foreground">
+        <div className="flex items-center gap-1 text-[9px]  text-muted-foreground">
           <Clock className="h-3 w-3" />
           <span className="hidden sm:inline">{account.updatedAt ? timestampzPresets.relative(account.updatedAt) : 'Never'}</span>
         </div>
