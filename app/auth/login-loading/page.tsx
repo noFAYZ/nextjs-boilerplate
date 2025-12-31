@@ -14,7 +14,7 @@ export default function LoginLoadingPage() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.push('/auth/login');
-    }, 10000); // 10 seconds max
+    }, 109000); // 10 seconds max
 
     return () => clearTimeout(timeout);
   }, [router]);

@@ -553,10 +553,9 @@ export function TransactionsDataTable({
   }
 
   return (
-    <div className="space-y-4">
+    < >
       {/* Data Table */}
-      <div className="rounded-xl overflow-hidden">
-        <div className="w-full overflow-x-auto">
+
           <Table className="w-full">
          
 
@@ -671,8 +670,7 @@ export function TransactionsDataTable({
             })}
           </TableBody>
         </Table>
-        </div>
-      </div>
+   
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -717,6 +715,6 @@ export function TransactionsDataTable({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

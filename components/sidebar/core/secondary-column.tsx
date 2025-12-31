@@ -12,6 +12,7 @@ import { MenuItem, QuickAction } from '../types';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { OrganizationSwitcher } from '@/components/organization';
+import { Card } from '@/components/ui/card';
 
 interface SidebarSecondaryColumnProps {
   isExpanded: boolean;
@@ -98,11 +99,11 @@ export function SidebarSecondaryColumn({
       
       <div className="p-4 space-y-2 ">
         {isExpanded ? (
-          <div className="rounded-lg bg-primary/5 border border-primary/20 p-3.5">
+          <Card className="rounded-lg border  p-2">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-                  <Crown className="h-4.5 w-4.5 text-primary" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted border ">
+                  <GameIconsUpgrade className="h-4.5 w-4.5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-sm text-foreground">Upgrade to Pro</h3>
@@ -113,15 +114,15 @@ export function SidebarSecondaryColumn({
               <div className="flex items-center justify-between pt-2 border-t border-border/50">
                 <span className="text-[10px] text-muted-foreground font-medium">14-day free trial</span>
                 <Button
-                  size="sm"
-                  className="h-7 text-[11px] px-3 font-medium"
+                  size="xs"
+                  className="  h-6 text-[10px] px-2 font-semibold"
                   onClick={() => router.push('/subscription')}
                 >
                   Upgrade
                 </Button>
               </div>
             </div>
-          </div>
+          </Card>
         ) : (
           <Button
             variant="ghost"

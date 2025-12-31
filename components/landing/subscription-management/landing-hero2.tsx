@@ -77,16 +77,16 @@ export function LandingHero() {
       <div className="absolute inset-0 -z-10  ">
         <BgGradient
     
-          imageSrc="/landing/bg8.webp" imageOpacity={0.4}
-          opacity="0.5"
-          position="center"
+          imageSrc="/landing/bg8.webp"  
+          opacity="0.3"
+          position="top"
           to="background"
           
   
           glass
-          glassBlur={12}
-          glassOpacity={0.18}
-          glassTint="rgba(255,255,255,0.25)"
+        
+       
+      
         
   
         />

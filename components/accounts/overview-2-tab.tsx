@@ -193,7 +193,7 @@ export function Overview2Tab() {
           {/* Accounts List */}
           <div className="flex-1 overflow-y-auto  ">
             {selectedAccounts.length > 0 ? (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-border/90">
                 {selectedAccounts.map((account) => (
                   <AccountRow
                     key={account.id}
