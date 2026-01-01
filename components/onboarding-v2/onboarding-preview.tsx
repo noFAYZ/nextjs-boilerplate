@@ -3,7 +3,6 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
-import { Animate } from '@/components/ui/animate';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { FINANCIAL_GOALS } from '@/lib/constants/financial-goals';
 import { BUDGET_TEMPLATES } from '@/lib/constants/budget-templates';
@@ -64,40 +63,34 @@ export function OnboardingPreview({ onboardingData }: OnboardingPreviewProps) {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-950 overflow-hidden">
       {/* Header */}
-      <div className="px-7 pt-8 pb-5">
-        <Animate type="fade-in" duration={300} delay={50}>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">SUMMARY</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Profile preview and settings</p>
-          </div>
-        </Animate>
+      <div className="px-7 pt-8 pb-5 animate-in fade-in duration-200">
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">SUMMARY</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Profile preview and settings</p>
+        </div>
       </div>
 
       {/* Scrollable Content - Premium Minimal Design */}
       <div className="flex-1 overflow-y-auto px-7 py-6 space-y-6">
         {/* Net Worth - Hero */}
-        <Animate key={`networth-${updateKey}`} type="fade-in" delay={100} duration={300}>
-          <div className="space-y-3 p-5 rounded-lg bg-gradient-to-r from-primary/20 via-primary/10 to-transparent">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">NET WORTH</p>
-            <div className="space-y-1">
-              <div className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
-                {totalAccountCount > 0 ? (
-                  <Animate key={`value-${netWorth}`} type="fade-in" duration={200}>
-                    <CurrencyDisplay amountUSD={netWorth} variant='2xl' />
-                  </Animate>
-                ) : (
-                  '$0.00'
-                )}
-              </div>
-
-              {totalAccountCount == 0 && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Add accounts to see your net worth
-                </p>
+        <div key={`networth-${updateKey}`} className="space-y-3 p-5 rounded-lg bg-gradient-to-r from-primary/20 via-primary/10 to-transparent animate-in fade-in duration-200">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">NET WORTH</p>
+          <div className="space-y-1">
+            <div className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
+              {totalAccountCount > 0 ? (
+                <CurrencyDisplay key={`value-${netWorth}`} amountUSD={netWorth} variant='2xl' />
+              ) : (
+                '$0.00'
               )}
             </div>
+
+            {totalAccountCount == 0 && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Add accounts to see your net worth
+              </p>
+            )}
           </div>
-        </Animate>
+        </div>
 
 
 
@@ -213,107 +206,97 @@ export function OnboardingPreview({ onboardingData }: OnboardingPreviewProps) {
 
         {/* Divider - shows only when needed */}
         {(profile.firstName || experienceLevel || selectedGoals.length > 0 || budgetTemplate) && (
-          <Animate type="fade-in" delay={200} duration={300}>
-            <div className="h-px bg-slate-200 dark:bg-slate-800" />
-          </Animate>
+          <div className="h-px bg-slate-200 dark:bg-slate-800 animate-in fade-in duration-200" />
         )}
 
         {/* Profile */}
         {profile.firstName && (
-          <Animate type="fade-in" delay={200} duration={300}>
-            <div className="space-y-2 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">PROFILE</p>
-              <div className="space-y-0.5">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {profile.firstName} {profile.lastName}
+          <div className="space-y-2 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40 animate-in fade-in duration-200">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">PROFILE</p>
+            <div className="space-y-0.5">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                {profile.firstName} {profile.lastName}
+              </p>
+              {profile.occupation && (
+                <p className="text-xs text-slate-600 dark:text-slate-400">{profile.occupation}</p>
+              )}
+              {profile.monthlyIncome && (
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  Income: ${profile.monthlyIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}/mo
                 </p>
-                {profile.occupation && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400">{profile.occupation}</p>
-                )}
-                {profile.monthlyIncome && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                    Income: ${profile.monthlyIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}/mo
-                  </p>
-                )}
-              </div>
+              )}
             </div>
-          </Animate>
+          </div>
         )}
 
         {/* Experience */}
         {experienceLevel && (
-          <Animate type="fade-in" delay={200} duration={300}>
-            <div className="space-y-2 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">EXPERIENCE LEVEL</p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white capitalize">{experienceLevel}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                {experienceLevel === 'beginner' && 'Get guided step-by-step through features'}
-                {experienceLevel === 'intermediate' && 'Balanced interface with helpful guidance'}
-                {experienceLevel === 'advanced' && 'Full power with minimal restrictions'}
-              </p>
-            </div>
-          </Animate>
+          <div className="space-y-2 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40 animate-in fade-in duration-200">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">EXPERIENCE LEVEL</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white capitalize">{experienceLevel}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+              {experienceLevel === 'beginner' && 'Get guided step-by-step through features'}
+              {experienceLevel === 'intermediate' && 'Balanced interface with helpful guidance'}
+              {experienceLevel === 'advanced' && 'Full power with minimal restrictions'}
+            </p>
+          </div>
         )}
 
         {/* Goals */}
         {selectedGoals.length > 0 && (
-          <Animate type="fade-in" delay={300} duration={300}>
-            <div className="space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">
-                FINANCIAL GOALS ({selectedGoals.length})
-              </p>
-              <div className="space-y-1.5">
-                {selectedGoals.slice(0, 4).map((goalId) => {
-                  const goal = FINANCIAL_GOALS[goalId as keyof typeof FINANCIAL_GOALS];
-                  return goal ? (
-                    <p key={goalId} className="text-xs text-slate-700 dark:text-slate-300">
-                      {goal.icon} {goal.name}
-                    </p>
-                  ) : null;
-                })}
-                {selectedGoals.length > 4 && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 pt-1">+{selectedGoals.length - 4} more goal{selectedGoals.length - 4 !== 1 ? 's' : ''}</p>
-                )}
-              </div>
+          <div className="space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40 animate-in fade-in duration-200">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">
+              FINANCIAL GOALS ({selectedGoals.length})
+            </p>
+            <div className="space-y-1.5">
+              {selectedGoals.slice(0, 4).map((goalId) => {
+                const goal = FINANCIAL_GOALS[goalId as keyof typeof FINANCIAL_GOALS];
+                return goal ? (
+                  <p key={goalId} className="text-xs text-slate-700 dark:text-slate-300">
+                    {goal.icon} {goal.name}
+                  </p>
+                ) : null;
+              })}
+              {selectedGoals.length > 4 && (
+                <p className="text-xs text-slate-600 dark:text-slate-400 pt-1">+{selectedGoals.length - 4} more goal{selectedGoals.length - 4 !== 1 ? 's' : ''}</p>
+              )}
             </div>
-          </Animate>
+          </div>
         )}
 
         {/* Budget */}
         {budgetTemplate && (
-          <Animate type="fade-in" delay={300} duration={300}>
-            <div className="space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">BUDGET TEMPLATE</p>
-              {(() => {
-                const template = BUDGET_TEMPLATES[budgetTemplate as keyof typeof BUDGET_TEMPLATES];
-                return template ? (
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {template.icon} {template.name}
-                    </p>
-                    {template.allocation && (
-                      <div className="space-y-2">
-                        {Object.entries(template.allocation).map(([key, value]) => (
-                          <div key={key} className="space-y-0.5">
-                            <div className="flex justify-between items-baseline">
-                              <span className="text-xs text-slate-700 dark:text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                              <span className="text-xs font-semibold text-slate-900 dark:text-white">{value}%</span>
-                            </div>
-                            <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary transition-all duration-500"
-                                style={{ width: `${value}%` }}
-                              />
-                            </div>
+          <div className="space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/40 animate-in fade-in duration-200">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">BUDGET TEMPLATE</p>
+            {(() => {
+              const template = BUDGET_TEMPLATES[budgetTemplate as keyof typeof BUDGET_TEMPLATES];
+              return template ? (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {template.icon} {template.name}
+                  </p>
+                  {template.allocation && (
+                    <div className="space-y-2">
+                      {Object.entries(template.allocation).map(([key, value]) => (
+                        <div key={key} className="space-y-0.5">
+                          <div className="flex justify-between items-baseline">
+                            <span className="text-xs text-slate-700 dark:text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                            <span className="text-xs font-semibold text-slate-900 dark:text-white">{value}%</span>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : null;
-              })()}
-            </div>
-          </Animate>
+                          <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all duration-500"
+                              style={{ width: `${value}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null;
+            })()}
+          </div>
         )}
       </div>
     </div>

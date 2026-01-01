@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
-import { Animate } from '@/components/ui/animate';
 import { Loader2 } from 'lucide-react';
 
 import { ProfileStep } from './steps/profile-step';
@@ -54,13 +53,11 @@ export function OnboardingContent({ onboardingData, updateOnboardingData }: Onbo
           </div>
         )}
 
-        <Animate key={currentStep} type="fade-in" duration={300}>
-          <div className="max-w-2xl mx-auto">
-            {StepComponent && (
-              <StepComponent onboardingData={onboardingData} updateOnboardingData={updateOnboardingData} />
-            )}
-          </div>
-        </Animate>
+        <div key={currentStep} className="max-w-2xl mx-auto animate-in fade-in duration-300">
+          {StepComponent && (
+            <StepComponent onboardingData={onboardingData} updateOnboardingData={updateOnboardingData} />
+          )}
+        </div>
       </div>
 
       {/* Navigation footer */}

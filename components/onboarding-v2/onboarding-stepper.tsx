@@ -3,7 +3,6 @@
 import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Animate } from '@/components/ui/animate';
 
 const STEPS = [
   { number: 1, title: 'Profile', description: 'Your information' },
@@ -39,15 +38,14 @@ export function OnboardingStepper() {
             const isUpcoming = step.number > currentStep;
 
             return (
-              <Animate key={step.number} type="fade-in" delay={50 * index} duration={300}>
-                <button
-                  onClick={() => handleStepClick(step.number)}
-               
-                  className={cn(
-                    'w-full text-left transition-all duration-300 group disabled:cursor-not-allowed relative',
-                    isClickable && !isActive && 'cursor-pointer'
-                  )}
-                >
+              <button
+                key={step.number}
+                onClick={() => handleStepClick(step.number)}
+                className={cn(
+                  'w-full text-left transition-all duration-300 group disabled:cursor-not-allowed relative animate-in fade-in',
+                  isClickable && !isActive && 'cursor-pointer'
+                )}
+              >
                   {/* Vertical Connector Line */}
                   {index < STEPS.length - 1 && (
                     <div
@@ -105,10 +103,9 @@ export function OnboardingStepper() {
                       </p>
                     </div>
 
-                
+
                   </div>
-                </button>
-              </Animate>
+              </button>
             );
           })}
         </div>
