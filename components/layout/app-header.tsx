@@ -481,17 +481,17 @@ export function AppHeader({
               <Search className="size-4" />
             </Button>
           )}
-          
+
           {showNotifications && (
-            <NotificationButton 
-              count={notificationCount} 
-              onClick={onNotificationClick} 
+            <NotificationButton
+              count={notificationCount}
+              onClick={onNotificationClick}
             />
           )}
-          
+
           {showThemeToggle && <ThemeToggle />}
-          
-          <UserMenu 
+
+          <UserMenu
             user={user}
             onProfileClick={onProfileClick}
             onSignOut={onSignOut}

@@ -25,8 +25,8 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
         return;
       }
 
-      // Skip check if already on onboarding page
-      if (pathname === '/onboarding') {
+      // Skip check if already on onboarding-v2 page
+      if (pathname === '/onboarding-v2') {
         setIsCheckingOnboarding(false);
         return;
       }
@@ -38,25 +38,28 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
       }
 
       try {
-        // Check if onboarding has been completed
-        const onboardingCompleted = localStorage.getItem('onboarding-completed');
-        
+        // Check if onboarding v2 has been completed or skipped
+        const onboardingCompleted = localStorage.getItem('onboarding-v2-completed');
+        const onboardingSkipped = localStorage.getItem('onboarding-v2-skipped');
+
         // You could also check this from your backend API
         // const response = await apiClient.get('/user/onboarding-status');
         // const { completed } = response.data;
 
-        if (!onboardingCompleted && isAuthenticated) {
-          // User hasn't completed onboarding, redirect them
-          router.push('/onboarding');
+        // Allow access if user has completed OR skipped onboarding
+        if (!onboardingCompleted && !onboardingSkipped && isAuthenticated) {
+          // User hasn't completed or skipped onboarding v2, redirect them
+          router.push('/onboarding-v2');
           return;
         }
 
         // Check if user profile is incomplete (additional check)
         if (user && isAuthenticated) {
           const hasBasicProfile = user.name || user.firstName;
-          
-          if (!hasBasicProfile && !onboardingCompleted) {
-            router.push('/onboarding');
+
+          // Only redirect if they haven't completed AND haven't skipped AND don't have profile
+          if (!hasBasicProfile && !onboardingCompleted && !onboardingSkipped) {
+            router.push('/onboarding-v2');
             return;
           }
         }
@@ -99,11 +102,12 @@ export function useOnboardingStatus() {
     }
 
     const checkStatus = () => {
-      const onboardingCompleted = localStorage.getItem('onboarding-completed');
+      const onboardingCompleted = localStorage.getItem('onboarding-v2-completed');
+      const onboardingSkipped = localStorage.getItem('onboarding-v2-skipped');
       const hasBasicProfile = user?.name || user?.firstName;
-      
-      // User needs onboarding if they haven't completed it AND don't have basic profile
-      const needs = !onboardingCompleted && !hasBasicProfile;
+
+      // User needs onboarding if they haven't completed it AND haven't skipped AND don't have basic profile
+      const needs = !onboardingCompleted && !onboardingSkipped && !hasBasicProfile;
       setNeedsOnboarding(needs);
     };
 
@@ -113,11 +117,11 @@ export function useOnboardingStatus() {
   return {
     needsOnboarding,
     markOnboardingComplete: () => {
-      localStorage.setItem('onboarding-completed', 'true');
+      localStorage.setItem('onboarding-v2-completed', 'true');
       setNeedsOnboarding(false);
     },
     resetOnboarding: () => {
-      localStorage.removeItem('onboarding-completed');
+      localStorage.removeItem('onboarding-v2-completed');
       setNeedsOnboarding(true);
     }
   };

@@ -22,7 +22,8 @@
       "Bash(perl:*)",
       "Bash(node -c:*)",
       "WebSearch",
-      "Bash(timeout 120 npm run build)"
+      "Bash(timeout 120 npm run build)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

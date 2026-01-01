@@ -99,9 +99,10 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
     }
   };
 
-  const handleOrgSelect = (org: Organization) => {
+  const handleOrgSelect = async (org: Organization) => {
     selectOrganization(org.id);
     setSelectedOrganization(org.id);
+    await authClient.organization.setActive({ organizationId: org.id });
   };
 
   const handleCreateOrg = () => {

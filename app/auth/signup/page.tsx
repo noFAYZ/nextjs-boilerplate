@@ -6,20 +6,19 @@ import posthog from 'posthog-js';
 import AuthForm from '@/components/auth/auth-form';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { SignUpFormData } from '@/lib/types';
-import { useAuthStore, selectAuthError, selectIsAuthenticated, selectSession } from '@/lib/stores';
-import { useLoading } from '@/lib/contexts/loading-context';
+import { useAuthStore, selectIsAuthenticated, selectSession } from '@/lib/stores';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { useToast } from '@/lib/hooks/useToast';
 
 export default function SignUpPage() {
   usePostHogPageView('auth_signup');
   const router = useRouter();
+  const { toast } = useToast();
   const signup = useAuthStore((state) => state.signup);
-  const error = useAuthStore(selectAuthError);
-  const clearError = useAuthStore((state) => state.clearAuthErrors);
+  const signupLoading = useAuthStore((state) => state.signupLoading);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const session = useAuthStore(selectSession);
   const [success, setSuccess] = useState(false);
-  const { showLoading, showSuccess, showError } = useLoading();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -34,18 +33,16 @@ export default function SignUpPage() {
   }, []);
 
   const handleSignUp = async (data: SignUpFormData) => {
-    clearError();
-    
     try {
-      showLoading('Creating your account...');
       await signup(data);
       posthog.capture('signup_success', { email: data.email });
       setSuccess(true);
-      showSuccess('Account created successfully! Please check your email to verify your account.');
+      toast({ title: 'Account created successfully! Please check your email to verify your account.', variant: 'success' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Signup failed';
       posthog.capture('signup_failed', { email: data.email, error: errorMessage });
-      showError(errorMessage);
+      // Show error as toast
+      toast({ title: errorMessage, variant: 'destructive' });
     }
   };
 
@@ -60,7 +57,7 @@ export default function SignUpPage() {
         title="Create your account"
         description="Join MoneyMappr and take control of your finances"
         onSubmit={handleFormSubmit}
-        error={error ? { code: 'AUTH_ERROR', message: String(error) } : null}
+        isLoading={signupLoading}
         success={success}
         successMessage="Account created successfully! Please check your email to verify your account before signing in."
         links={[

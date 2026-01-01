@@ -54,7 +54,7 @@ export default function Providers({ children }: { children: ReactNode }) {
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
                 <RealtimeSyncProvider>
-                  <OrganizationURLSyncProvider />
+                 
                   <OrganizationDataSyncProvider />
                   <GlobalRefetchOverlay />
                   <ViewModeProvider>

@@ -232,7 +232,7 @@ export function Header({
       h-11 px-2
       bg-card dark:bg-accent border shadow-lg rounded-full
       transition-all duration-200 overflow-hidden
-    
+
     "
   >
     {/* Theme Switcher — always visible */}

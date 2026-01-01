@@ -26,6 +26,7 @@ import {
 import { useOrganizations, usePersonalOrganization } from '@/lib/queries/use-organization-data';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { authClient } from '@/lib/auth-client';
 import type { Organization } from '@/lib/types/organization';
 import { Button } from '../ui/button';
 import { PhUsersDuotone } from '../icons/icons';
@@ -77,12 +78,13 @@ export function OrganizationSwitcher({ className = '', onOrgSelect, compact }: O
     currentOrg = personalOrg;
   }
 
-  const handleOrgSelect = (org: Organization) => {
+  const handleOrgSelect = async (org: Organization) => {
     // Update BOTH stores:
     // 1. UI store for selection state/visual feedback
     selectOrganization(org.id);
     // 2. Context store for data scoping (triggers automatic refetch via OrganizationDataSyncProvider)
     setSelectedOrganization(org.id);
+    await authClient.organization.setActive({ organizationId: org.id });
     onOrgSelect?.(org);
   };
 

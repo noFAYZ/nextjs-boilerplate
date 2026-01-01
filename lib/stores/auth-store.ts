@@ -176,27 +176,28 @@ const initialState: AuthState = {
   autoLogoutTimer: null,
 };
 
-// Helper function to handle Better Auth errors
-const handleBetterAuthError = (error: unknown): string => {
-  if (error?.error) {
-    // Better Auth specific error format
-    if (error.error.message) {
-      return error.error.message;
-    }
-    if (typeof error.error === 'string') {
-      return error.error;
-    }
-  }
+// Helper function to handle Better Auth errors and extract backend error codes
+const handleBetterAuthError = (error: unknown): { message: string; code?: string } => {
+  const errorObj = error as {
+    error?: {
+      code?: string;
+      message?: string;
+    };
+    code?: string;
+    message?: string;
+  };
 
-  if (error?.message) {
-    return error.message;
-  }
+  // Extract error code from nested structure for proper error handler recognition
+  const errorCode = errorObj.error?.code || errorObj.code;
+  const message = errorObj.error?.message || errorObj.message ||
+                 (typeof errorObj.error === 'string' ? errorObj.error : null) ||
+                 (typeof error === 'string' ? error : null) ||
+                 'An unexpected error occurred';
 
-  if (typeof error === 'string') {
-    return error;
-  }
-
-  return 'An unexpected error occurred';
+  return {
+    message,
+    code: errorCode
+  };
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -220,7 +221,10 @@ export const useAuthStore = create<AuthStore>()(
             });
 
             if (result.error) {
-              throw new Error(handleBetterAuthError(result));
+              const { message, code } = handleBetterAuthError(result);
+              const err = new Error(message);
+              if (code) (err as any).code = code;
+              throw err;
             }
 
             if (result.data?.user && result.data?.token) {
@@ -288,7 +292,10 @@ export const useAuthStore = create<AuthStore>()(
             });
 
             if (result.error) {
-              throw new Error(handleBetterAuthError(result));
+              const { message, code } = handleBetterAuthError(result);
+              const err = new Error(message);
+              if (code) (err as any).code = code;
+              throw err;
             }
 
             if (result.data?.user) {

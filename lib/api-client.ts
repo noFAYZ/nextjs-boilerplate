@@ -115,11 +115,11 @@ class ApiClient {
       }
 
       // Add organizationId to query string for backend filtering
-      if (orgId) {
+  /*     if (orgId) {
         const separator = url.includes('?') ? '&' : '?';
         url = `${url}${separator}organizationId=${orgId}`;
       }
-
+ */
       const headers = await this.getHeaders(organizationId);
 
       const response = await fetch(url, {

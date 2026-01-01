@@ -49,6 +49,7 @@ import { useCommandPalette } from '@/components/command/command-palette';
 import { useAuthStore, useGlobalUIStore } from '@/lib/stores';
 import { LetsIconsAddDuotone, SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
+import { OnboardingIndicator } from '@/components/layout/onboarding-indicator';
 
 interface MainHeaderProps {
   mainColumnExpanded: boolean;
@@ -213,8 +214,9 @@ const greeting =
 
           {/* RIGHT GROUP */}
           <div className="flex items-center gap-2  ml-auto">
-            
-        
+
+            <OnboardingIndicator />
+
             <ThemeSwitcher />
  {/* Add button */}
  <Button variant="outline2" size='sm'  className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
@@ -224,8 +226,8 @@ const greeting =
       
             {/* Add button */}
        
-                <Button variant="brand" size='icon-sm'  className='rounded-[0.9rem]' onClick={openAddMenu}>
-                  <PlusIcon className="h-5 w-5" />
+                <Button variant="steel" size='icon-sm'  className=' ' onClick={openAddMenu}>
+                  <PlusIcon className="h-5 w-5" strokeWidth={3} />
                 </Button>
              
           </div>

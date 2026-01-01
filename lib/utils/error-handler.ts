@@ -16,6 +16,46 @@ export interface AppError {
   timestamp: Date;
 }
 
+/**
+ * Auth error code mappings from backend
+ */
+export const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  MISSING_CREDENTIALS: 'Email and password are required',
+  USER_NOT_FOUND: 'No account found with this email. Please sign up first.',
+  INVALID_EMAIL_OR_PASSWORD: 'Invalid email or password',
+  EMAIL_ALREADY_EXISTS: 'Email already exists. Please sign in instead.',
+  INVALID_PASSWORD_LENGTH: 'Password must be between 8 and 128 characters',
+  INVALID_EMAIL: 'Invalid email format',
+  USER_NOT_VERIFIED: 'Please verify your email before signing in',
+  INVALID_TOKEN: 'Invalid or expired token',
+  TOKEN_EXPIRED: 'Token has expired',
+  SESSION_EXPIRED: 'Your session has expired. Please sign in again',
+  UNAUTHORIZED: 'Unauthorized access',
+  INVALID_SESSION: 'Invalid session',
+  RATE_LIMIT_EXCEEDED: 'Too many requests. Please try again later',
+  AUTHENTICATION_FAILED: 'Authentication failed',
+  INVALID_CREDENTIALS: 'Invalid credentials provided',
+  OAUTH_PROVIDER_ERROR: 'OAuth provider error',
+  PROVIDER_NOT_ENABLED: 'OAuth provider is not enabled',
+  ORGANIZATION_NOT_FOUND: 'Organization not found',
+  INVALID_ROLE: 'Invalid role',
+  USER_ALREADY_MEMBER: 'User is already a member of this organization',
+  ACCESS_DENIED: 'Access denied',
+  INVALID_ORGANIZATION_ID: 'Invalid organization ID',
+  PASSWORD_RESET_FAILED: 'Password reset failed',
+  EMAIL_VERIFICATION_FAILED: 'Email verification failed',
+  EMAIL_NOT_PROVIDED: 'Email is required',
+  PASSWORD_NOT_PROVIDED: 'Password is required',
+  NAME_REQUIRED: 'Name is required',
+  INVALID_NAME: 'Invalid name',
+  INVALID_REDIRECT_URL: 'Invalid redirect URL',
+  CONTEXT_LOAD_FAILED: 'Failed to load request context',
+  ORG_REQUIRED: 'Organization context required',
+  INSUFFICIENT_ROLE: 'Insufficient role for this operation',
+  PERSONAL_ORG_REQUIRED: 'This operation requires a personal organization',
+  EMAIL_NOT_VERIFIED: 'Please verify your email before signing in'
+};
+
 export interface ErrorRecoveryAction {
   label: string;
   action: () => void | Promise<void>;
@@ -83,8 +123,48 @@ class ErrorHandler {
     let retryable = true;
     const details = error;
 
+    // Authentication errors (check FIRST before generic API errors)
+    if (this.isAuthError(error)) {
+      const authError = error as {
+        code?: string;
+        message?: string;
+        error?: { code?: string; message?: string };
+        details?: { error?: { code?: string; message?: string } };
+      };
+
+      // Extract auth error code from various possible locations
+      const errorCode = authError.code ||
+                       authError.error?.code ||
+                       authError.details?.error?.code;
+
+      if (errorCode && AUTH_ERROR_MESSAGES[errorCode]) {
+        code = errorCode;
+        message = AUTH_ERROR_MESSAGES[errorCode];
+        userMessage = customUserMessage || AUTH_ERROR_MESSAGES[errorCode];
+
+        // Special handling for different error types
+        if (errorCode.includes('NOT_FOUND') || errorCode === 'INVALID_EMAIL_OR_PASSWORD') {
+          severity = 'medium';
+          retryable = false;
+        } else if (errorCode === 'RATE_LIMIT_EXCEEDED') {
+          severity = 'medium';
+          retryable = true;
+        } else if (errorCode === 'SESSION_EXPIRED' || errorCode === 'UNAUTHORIZED') {
+          severity = 'high';
+          recoverable = true;
+          retryable = false;
+        }
+      } else {
+        code = 'AUTH_ERROR';
+        message = 'Authentication failed';
+        userMessage = customUserMessage || 'Please log in again to continue.';
+        severity = 'high';
+        recoverable = false;
+        retryable = false;
+      }
+    }
     // Backend connection errors (ERR_CONNECTION_REFUSED, etc.)
-    if (this.isBackendConnectionError(error)) {
+    else if (this.isBackendConnectionError(error)) {
       code = 'BACKEND_UNREACHABLE';
       message = 'Backend server is unreachable';
       userMessage = 'Unable to connect to the backend server. Please check if the server is running and try again.';
@@ -177,15 +257,6 @@ class ErrorHandler {
           userMessage = 'Request failed. Please try again.';
         }
       }
-    }
-    // Authentication errors
-    else if (this.isAuthError(error)) {
-      code = 'AUTH_ERROR';
-      message = 'Authentication failed';
-      userMessage = 'Please log in again to continue.';
-      severity = 'high';
-      recoverable = false;
-      retryable = false;
     }
     // Validation errors
     else if (this.isValidationError(error)) {
@@ -286,10 +357,71 @@ class ErrorHandler {
         break;
 
       case 'UNAUTHORIZED':
+      case 'SESSION_EXPIRED':
+      case 'INVALID_SESSION':
         actions.push({
           label: 'Log in again',
           action: () => {
             window.location.href = '/auth/login';
+          },
+          primary: true
+        });
+        break;
+
+      case 'USER_NOT_FOUND':
+        actions.push({
+          label: 'Sign up',
+          action: () => {
+            window.location.href = '/auth/signup';
+          },
+          primary: true
+        });
+        actions.push({
+          label: 'Back to login',
+          action: () => {
+            window.history.back();
+          }
+        });
+        break;
+
+      case 'EMAIL_ALREADY_EXISTS':
+        actions.push({
+          label: 'Sign in',
+          action: () => {
+            window.location.href = '/auth/login';
+          },
+          primary: true
+        });
+        break;
+
+      case 'USER_NOT_VERIFIED':
+      case 'EMAIL_NOT_VERIFIED':
+        actions.push({
+          label: 'Verify email',
+          action: () => {
+            window.location.href = '/auth/resend-verification';
+          },
+          primary: true
+        });
+        break;
+
+      case 'TOKEN_EXPIRED':
+      case 'INVALID_TOKEN':
+        actions.push({
+          label: 'Request new token',
+          action: () => {
+            window.location.href = '/auth/forgot-password';
+          },
+          primary: true
+        });
+        break;
+
+      case 'RATE_LIMIT_EXCEEDED':
+        actions.push({
+          label: 'Wait and try again',
+          action: async () => {
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            window.location.reload();
           },
           primary: true
         });
@@ -398,18 +530,19 @@ class ErrorHandler {
         code?: string;
       };
 
-      // Check for ERR_CONNECTION_REFUSED and other backend down errors
-      return err.message?.includes('ERR_CONNECTION_REFUSED') ||
-             err.message?.includes('Failed to fetch') ||
-             err.message?.includes('fetch') ||
-             err.name === 'NetworkError' ||
-             err.name === 'TypeError' ||
-             err.cause?.code === 'ECONNREFUSED' ||
-             err.cause?.code === 'ENOTFOUND' ||
-             err.code === 'ERR_CONNECTION_REFUSED' ||
-             err.code === 'BACKEND_UNREACHABLE' ||
-             err.code === 'BACKEND_DOWN' ||
-             !err.response;
+      // Check for actual connection errors only, not HTTP errors
+      // HTTP errors (including 401, 404, 500) have a response object and should not be treated as connection errors
+      return (err.message?.includes('ERR_CONNECTION_REFUSED') ||
+              err.message?.includes('Failed to fetch') ||
+              err.message?.includes('fetch') ||
+              err.name === 'NetworkError' ||
+              err.name === 'TypeError' ||
+              err.cause?.code === 'ECONNREFUSED' ||
+              err.cause?.code === 'ENOTFOUND' ||
+              err.code === 'ERR_CONNECTION_REFUSED' ||
+              err.code === 'BACKEND_UNREACHABLE' ||
+              err.code === 'BACKEND_DOWN') &&
+             !err.response; // Only treat as connection error if there's NO response
     }
     return false;
   }
@@ -421,16 +554,32 @@ class ErrorHandler {
   }
 
   private isApiError(error: unknown): boolean {
-    return typeof error === 'object' && 
-           error !== null && 
-           ('response' in error || 'status' in error);
+    if (typeof error !== 'object' || error === null) return false;
+
+    const err = error as { response?: any; status?: number; code?: string };
+    // Check if it has a response/status (HTTP error) or if it's an auth error code
+    return 'response' in error || 'status' in error ||
+           (err.code && AUTH_ERROR_MESSAGES[err.code as keyof typeof AUTH_ERROR_MESSAGES]);
   }
 
   private isAuthError(error: unknown): boolean {
-    return typeof error === 'object' && 
-           error !== null && 
-           ('code' in error && 
-            (error as { code?: string }).code?.includes('AUTH'));
+    if (typeof error !== 'object' || error === null) return false;
+
+    const err = error as {
+      code?: string;
+      message?: string;
+      error?: { code?: string };
+      details?: { error?: { code?: string } };
+    };
+
+    const code = err.code ||
+                err.error?.code ||
+                err.details?.error?.code;
+
+    // Check if it's any of the auth error codes from backend
+    return !!(code && AUTH_ERROR_MESSAGES[code as keyof typeof AUTH_ERROR_MESSAGES]) ||
+           !!(err.code?.includes('AUTH')) ||
+           !!(err.error?.code?.includes('AUTH'));
   }
 
   private isValidationError(error: unknown): boolean {

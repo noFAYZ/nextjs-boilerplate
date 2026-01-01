@@ -274,15 +274,10 @@ export default function AuthForm({
         await recordFailedAttempt();
         await checkBruteForceStatus(); // Refresh the status
       }
-      
-      // If there's a validation error, show it on the form
-      if (error instanceof Error) {
-        form.setError('root', { 
-          type: 'manual', 
-          message: error.message 
-        });
-      }
-      
+
+      // Error is already shown via toast in the parent component
+      // No need to set form error as it would duplicate the error message
+
       logger.error('Authentication attempt failed', error, {
         type,
         email: (data as Record<string, unknown>)?.email,
@@ -353,12 +348,7 @@ export default function AuthForm({
       </div>
 
       
-        {error && (
-          <div className="flex items-center gap-2 p-3 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/20">
-            <AlertCircle className="w-4 h-4" />
-            <span>{error.message}</span>
-          </div>
-        )}
+ 
              {/* Display brute force protection warning */}
              {isBlocked && blockTimeRemaining > 0 && (
               <Alert className="mb-4 border-yellow-200 bg-yellow-50 dark:border-yellow-900/20 dark:bg-yellow-900/10">
