@@ -80,7 +80,7 @@ export function OnboardingPreview({ onboardingData }: OnboardingPreviewProps) {
           <div className="space-y-3 p-5 rounded-lg bg-gradient-to-r from-primary/20 via-primary/10 to-transparent">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wider">NET WORTH</p>
             <div className="space-y-1">
-              <p className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
+              <div className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
                 {totalAccountCount > 0 ? (
                   <Animate key={`value-${netWorth}`} type="fade-in" duration={200}>
                     <CurrencyDisplay amountUSD={netWorth} variant='2xl' />
@@ -88,8 +88,8 @@ export function OnboardingPreview({ onboardingData }: OnboardingPreviewProps) {
                 ) : (
                   '$0.00'
                 )}
-              </p>
-          
+              </div>
+
               {totalAccountCount == 0 && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Add accounts to see your net worth
