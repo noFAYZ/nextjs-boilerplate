@@ -18,7 +18,7 @@ interface CurrencyDisplayProps {
   /** Color coding based on positive/negative values */
   colorCoded?: boolean;
   /** Variant styling */
-  variant?: 'default' | 'large' | 'small' | 'compact' |'xl' | '2xl' | 'lg';
+  variant?: 'default' | 'large' | 'small' | 'compact' | 'xl' | '2xl' | 'lg';
 }
 
 export function CurrencyDisplay({
@@ -31,13 +31,14 @@ export function CurrencyDisplay({
   variant = 'default',
 }: CurrencyDisplayProps) {
   const { convertFromUSD, isLoading: currencyLoading, error } = useCurrency();
-  const { formatAmount, currencySymbol, selectedCurrency } = useCurrencyFormat();
+  const { formatAmount, currencySymbol } = useCurrencyFormat();
 
+  // Loading skeleton
   if (isLoading || currencyLoading) {
     const skeletonClass = cn(
       'inline-block',
       {
-       'h-12 w-32': variant === '2xl',
+        'h-12 w-32': variant === '2xl',
         'h-10 w-28': variant === 'xl',
         'h-8 w-24': variant === 'large',
         'h-7 w-20': variant === 'lg',
@@ -50,6 +51,7 @@ export function CurrencyDisplay({
     return <Skeleton className={skeletonClass} />;
   }
 
+  // Error fallback
   if (error) {
     return (
       <span className={cn('text-muted-foreground', className)}>
@@ -61,22 +63,28 @@ export function CurrencyDisplay({
   // Convert from USD to selected currency
   const convertedAmount = convertFromUSD(amountUSD);
 
+  // Absolute value for formatting
+  const absoluteAmount = Math.abs(convertedAmount);
+
   // Format the amount
   const formattedAmount = showSymbol
-    ? formatAmount(convertedAmount, formatOptions)
+    ? formatAmount(absoluteAmount, formatOptions)
     : new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
         ...formatOptions,
-      }).format(convertedAmount);
+      }).format(absoluteAmount);
 
-  // Split integer and decimal parts for styling
+  // Split integer and decimal parts
   const [integerPart, decimalPart] = formattedAmount.split('.');
 
+  // Determine sign
+  const sign = convertedAmount < 0 ? '-' : '';
+
+  // Base styling
   const baseClass = cn(
     'font-medium',
     {
-      // Variant styles
       'text-4xl font-medium': variant === '2xl',
       'text-3xl font-bold': variant === 'xl',
       'text-2xl font-bold': variant === 'large',
@@ -85,18 +93,18 @@ export function CurrencyDisplay({
       'text-[14px]': variant === 'small',
       'text-xs': variant === 'compact',
 
-      // Color coding
-      'text-green-600 dark:text-green-400': colorCoded && amountUSD > 0,
-      'text-red-600 dark:text-red-400': colorCoded && amountUSD < 0,
-      'text-muted-foreground': colorCoded && amountUSD === 0,
+      // Color coding for positive/negative/zero
+      'text-green-600 dark:text-green-400': colorCoded && convertedAmount > 0,
+      'text-red-600 dark:text-red-400': colorCoded && convertedAmount < 0,
+      'text-muted-foreground': colorCoded && convertedAmount === 0,
     },
     className
   );
 
+  // Decimal styling (optional: inherit color from integer part)
   const decimalClass = cn(
     'font-medium',
     {
-      // Variant styles
       'text-xl font-medium': variant === '2xl',
       'text-lg font-bold': variant === 'xl',
       'text-sm font-bold': variant === 'large',
@@ -105,77 +113,20 @@ export function CurrencyDisplay({
       'text-[10px]': variant === 'small',
       'text-[9px]': variant === 'compact',
 
-      // Color coding
-      'text-green-600 dark:text-green-400': colorCoded && amountUSD > 0,
-      'text-red-600 dark:text-red-400': colorCoded && amountUSD < 0,
-      'text-muted-foreground': colorCoded && amountUSD === 0,
-    },
-    className
+      // Decimal inherits main color
+      'text-green-600 dark:text-green-400': colorCoded && convertedAmount > 0,
+      'text-red-600 dark:text-red-400': colorCoded && convertedAmount < 0,
+      'text-muted-foreground': colorCoded && convertedAmount === 0,
+    }
   );
 
   return (
     <span className={baseClass} title={`${amountUSD?.toLocaleString()} USD`}>
+      {sign}
       {integerPart}
       {decimalPart && (
-        <span className={`${decimalClass} text-muted-foreground `}>.{decimalPart}</span>
+        <span className={decimalClass}>.{decimalPart}</span>
       )}
-    </span>
-  );
-}
-
-interface CurrencySymbolProps {
-  currency?: string;
-  className?: string;
-}
-
-export function CurrencySymbol({ currency, className }: CurrencySymbolProps) {
-  const { currencySymbol, selectedCurrency } = useCurrencyFormat();
-
-  const symbol = currency
-    ? (() => {
-        try {
-          const { currencyService } = require('@/lib/services/currency-api');
-          return currencyService.getCurrencySymbol(currency);
-        } catch {
-          return currency;
-        }
-      })()
-    : currencySymbol;
-
-  return <span className={className}>{symbol}</span>;
-}
-
-interface CurrencyCodeProps {
-  className?: string;
-}
-
-export function CurrencyCode({ className }: CurrencyCodeProps) {
-  const { selectedCurrency } = useCurrencyFormat();
-  return <span className={cn('font-mono text-xs', className)}>{selectedCurrency}</span>;
-}
-
-interface CurrencyInfoProps {
-  showCode?: boolean;
-  showSymbol?: boolean;
-  className?: string;
-  separator?: string;
-}
-
-export function CurrencyInfo({
-  showCode = true,
-  showSymbol = true,
-  className,
-  separator = ' ',
-}: CurrencyInfoProps) {
-  const { currencySymbol, selectedCurrency } = useCurrencyFormat();
-
-  const parts = [];
-  if (showSymbol) parts.push(currencySymbol);
-  if (showCode) parts.push(selectedCurrency);
-
-  return (
-    <span className={cn('font-medium', className)}>
-      {parts.join(separator)}
     </span>
   );
 }

@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/client";
+import { organizationClient } from "better-auth/client/plugins"
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL || "http://localhost:3000",
@@ -6,7 +7,9 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: 'include', // Important for cookie-based sessions
   },
-
+  plugins: [ 
+    organizationClient() 
+] ,
   
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || "",

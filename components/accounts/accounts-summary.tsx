@@ -40,7 +40,7 @@ export function AccountsSummary({ summary }: AccountsSummaryProps) {
                     Total Net Worth
                   </p>
                   <h2 className="mt-2 text-4xl font-semibold text-black dark:text-white tracking-tight">
-                    {summary.totalNetWorth > 0 ? (
+                    {summary.totalNetWorth ? (
                       <CurrencyDisplay amountUSD={summary.totalNetWorth} variant="2xl" />
                     ) : (
                       '—'

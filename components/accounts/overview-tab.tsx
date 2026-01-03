@@ -54,6 +54,8 @@ export function OverviewTab() {
   // Reordered accounts state
   const [accountOrder, setAccountOrder] = useState<Record<string, string[]> | null>(null);
 
+  console.log(accountsData)
+
   // dnd-kit sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
