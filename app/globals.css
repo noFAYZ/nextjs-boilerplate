@@ -96,7 +96,7 @@
   --chart-neutral: oklch(0.55 0.03 85);
   --chart-primary: oklch(0.5110 0.1345 39.2633);
   --chart-accent: oklch(0.65 0.18 220);
-  --sidebar: oklch(0.2357 0.0024 67.7077);
+  --sidebar: rgb(28,28,28);
   --sidebar-foreground: oklch(0.8074 0.0142 93.0137);
   --sidebar-primary: oklch(0.3250 0 0);
   --sidebar-primary-foreground: oklch(0.9881 0 0);

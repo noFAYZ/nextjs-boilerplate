@@ -19,7 +19,6 @@ export default function NotificationsPopover() {
             relative overflow-visible 
             hover:text-foreground hover:bg-muted
             transition-all
-            hover:scale-[1.06] active:scale-[0.96]
           "
         >
           <StashBell className="h-5 w-5" />

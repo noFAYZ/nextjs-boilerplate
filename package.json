@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "download-logos": "node scripts/download-blockchain-logos.js",
-    "download-logos:force": "node scripts/download-blockchain-logos.js --force"
+    "download-logos:force": "node scripts/download-blockchain-logos.js --force",
+    "download-website-logos": "npx ts-node scripts/downloadLogos.ts",
+    "download-website-logos:force": "npx ts-node scripts/downloadLogos.ts --force"
   },
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-beta.3",

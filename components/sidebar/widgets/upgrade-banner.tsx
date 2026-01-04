@@ -9,7 +9,7 @@ const UpgradeBanner = ({isExpanded}) => {
   return (
     <div className="w-full  space-y-2 ">
     {isExpanded ? (
-      <Card className="rounded-lg border  p-2">
+      <Card className="  border shadow-none  ">
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted border ">

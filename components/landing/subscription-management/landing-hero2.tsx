@@ -29,36 +29,52 @@ export function LandingHero() {
 
   const logos = [
     {
-      src: "https://svgl.app/library/nvidia-wordmark-light.svg",
-      alt: "Nvidia Logo",
+      src: "/logo/producthunt.com.webp",
+      alt: "Product Hunt Logo",
     },
     {
-      src: "https://svgl.app/library/supabase_wordmark_light.svg",
-      alt: "Supabase Logo",
+      src: "/logo/news.ycombinator.com.webp",
+      alt: "Hacker News Logo",
     },
     {
-      src: "https://svgl.app/library/openai_wordmark_light.svg",
-      alt: "OpenAI Logo",
+      src: "/logo/indiehackers.com.webp",
+      alt: "Indie Hackers Logo",
     },
     {
-      src: "https://svgl.app/library/turso-wordmark-light.svg",
-      alt: "Turso Logo",
+      src: "/logo/techcrunch.com.webp",
+      alt: "TechCrunch Logo",
     },
     {
-      src: "https://svgl.app/library/vercel_wordmark.svg",
-      alt: "Vercel Logo",
+      src: "/logo/forbes.com.webp",
+      alt: "Forbes Logo",
     },
     {
-      src: "https://svgl.app/library/github_wordmark_light.svg",
-      alt: "GitHub Logo",
+      src: "/logo/fastcompany.com.webp",
+      alt: "Fast Company Logo",
     },
     {
-      src: "https://svgl.app/library/claude-ai-wordmark-icon_light.svg",
-      alt: "Claude AI Logo",
+      src: "/logo/entrepreneur.com.webp",
+      alt: "Entrepreneur Logo",
     },
     {
-      src: "https://svgl.app/library/clerk-wordmark-light.svg",
-      alt: "Clerk Logo",
+      src: "/logo/businessinsider.com.webp",
+      alt: "Business Insider Logo",
+    },
+    {
+      src: "/logo/inc.com.webp",
+      alt: "Inc Logo",
+    },
+    {
+      src: "/logo/wired.com.webp",
+      alt: "Wired Logo",
+    },
+    {
+      src: "/logo/theverge.com.webp",
+      alt: "The Verge Logo",
+    },
+    {
+      src: "/logo/mashable.com.webp",
+      alt: "Mashable Logo",
     },
   ];
   const FEATURES = [
@@ -150,7 +166,7 @@ export function LandingHero() {
         </div>
 
         {/* RIGHT — Tabs + Preview */}
-        <motion.div {...fadeUp} className=" min-w-full   xl:min-w-4xl 2xl:min-w-5xl h-full flex flex-col justify-end  ">
+        <motion.div {...fadeUp} className=" min-w-full   xl:min-w-3xl 2xl:min-w-4xl @min-3xl:min-w-5xl h-full flex flex-col justify-end  ">
        <Tabs defaultValue="Track" className="w-full flex justify-center xl:justify-start">
             {/* Tabs header */}
             <div className="  flex justify-center xl:justify-start">

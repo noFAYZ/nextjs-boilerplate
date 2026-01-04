@@ -65,6 +65,7 @@ import {
   ArcticonsCarsmile,
   GameIconsFairyWings,
   SimpleIconsWebmoney,
+  SolarMenuDotsBoldDuotone,
   WalletLogoIconOpen,
 } from "@/components/icons/icons";
 import { SettingsDialog } from "@/components/settings/settings-dialog";
@@ -73,6 +74,7 @@ import { OrganizationSwitcher } from "@/components/organization";
 import NotificationsPopover from "../widgets/notifications";
 import { Card } from "@/components/ui/card";
 import UpgradeBanner from "../widgets/upgrade-banner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface SidebarMainColumnProps {
   menuItems: MenuItem[];
@@ -150,8 +152,8 @@ export function SidebarMainColumn({
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          "flex h-full flex-col   border-r border-border/50  inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-75 space-y-2",
-          mainColumnExpanded ? "w-70" : "w-16"
+          "flex h-full flex-col  bg-sidebar    inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-75 space-y-2",
+          mainColumnExpanded ? "w-74" : "w-16"
         )}
       >
         {/* Sidebar Header - Logo + Toggle */}
@@ -204,7 +206,10 @@ export function SidebarMainColumn({
               </Link>
 
               {/* Toggle always visible in expanded mode */}
-              <div className="flex items-center  gap-3">
+              <div className="flex items-center  gap-2">
+                
+              {/* Theme */}
+              <ThemeSwitcher  />
                 <NotificationsPopover />
                 <Button
                   variant="ghost"
@@ -285,7 +290,7 @@ export function SidebarMainColumn({
                       {mainColumnExpanded && (
                         <span
                           className={cn(
-                            "font-medium text-[13px] truncate",
+                            "font-medium text-sm truncate",
                             isHighlighted
                               ? "text-foreground "
                               : "text-muted-foreground"
@@ -365,116 +370,162 @@ export function SidebarMainColumn({
           </div>
         )} */}
 
-          <div
-            className={cn(
-              "mt-auto px-2  space-y-4",
-              !mainColumnExpanded && "px-2"
-            )}
-          >
-            {/* <GlobalViewSwitcher size='sm' className='items-start justify-start mx-0' />  */}<UpgradeBanner isExpanded={mainColumnExpanded} />
-           
-            <div
-              className={cn(
-                "flex  border bg-muted/60 backdrop-blur-md shadow-sm",
-                mainColumnExpanded
-                  ? "items-center justify-between px-3 py-1"
-                  : "flex-col items-center gap-2 p-1"
-              )}
+        
+
+<div className={cn("mt-auto px-2 space-y-4", !mainColumnExpanded && "px-2")}>
+  {/* Upgrade Banner */}
+  <UpgradeBanner isExpanded={mainColumnExpanded} />
+
+  {/* Footer Dock */}
+  <div
+    className={cn(
+      "flex  bg-card  backdrop-blur-md shadow-sm transition-all border",
+      mainColumnExpanded
+        ? "items-center justify-between px-3 py-1 gap-3"
+        : "flex-col items-center p-1 gap-2"
+    )}
+  >
+    {/* Help */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setSettingsOpen(true)}
+          className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted "
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Help</TooltipContent>
+    </Tooltip>
+
+    {/* Tips */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setSettingsOpen(true)}
+          className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted "
+        >
+          <Lightbulb className="h-5 w-5" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Tips</TooltipContent>
+    </Tooltip>
+    {/* Settings */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setSettingsOpen(true)}
+          className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted "
+        >
+          <Settings className="h-5 w-5" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Settings</TooltipContent>
+    </Tooltip>
+ 
+    {/* Divider */}
+    <div
+      className={cn(
+        "bg-border",
+        mainColumnExpanded ? "h-5 w-px mx-1" : "h-px w-full my-1"
+      )}
+    />
+ {/* Menu Popover */}
+    <Popover>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted "
             >
-              {/* Help */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => setSettingsOpen(true)}
-                    className="
-            rounded-xl text-muted-foreground
-            hover:text-foreground hover:bg-muted
-            transition-all
-            hover:scale-[1.06] active:scale-[0.96]
-          "
-                  >
-                    <HelpCircle className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Help</TooltipContent>
-              </Tooltip>
+              <SolarMenuDotsBoldDuotone className="h-5 w-5" />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Menu</TooltipContent>
+      </Tooltip>
+      <PopoverContent side="right" className="w-48 p-2 rounded-xl bg-background shadow-lg">
+        {/* Empty placeholder — can add menu items later */}
+      </PopoverContent>
+    </Popover>
+  {/* User Avatar Menu */}
+  <DropdownMenu>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant={mainColumnExpanded ? "ghost" : "outline2"}
+            size="icon-sm"
+            className="rounded-full p-0"
+          >
+            <Avatar className="h-7 w-7">
+              <AvatarImage src={avatar} alt={`${user?.name || "User"}'s avatar`} />
+              <AvatarFallback className="text-xs md:text-sm bg-muted text-muted-foreground">
+                {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+      </TooltipTrigger>
+      {mainColumnExpanded && (
+        <TooltipContent className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10">
+          {user?.name || "Profile"}
+        </TooltipContent>
+      )}
+    </Tooltip>
+    <DropdownMenuContent
+      align="start"
+      side="right"
+      className="w-56 bg-[#2a2a2a] border-white/10 text-white rounded-xl shadow-lg"
+    >
+      <div className="px-3 py-2 border-b border-white/10">
+        <p className="text-sm font-medium">{user?.name}</p>
+        <p className="text-xs text-white/60 truncate">{user?.email}</p>
+      </div>
 
-              {/* Tips */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => setSettingsOpen(true)}
-                    className="
-            rounded-xl text-muted-foreground
-            hover:text-foreground hover:bg-muted
-            transition-all
-            hover:scale-[1.06] active:scale-[0.96]
-          "
-                  >
-                    <Lightbulb className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Tips</TooltipContent>
-              </Tooltip>
+      <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+        <Link href="/profile" className="flex items-center gap-3">
+          <User className="h-4 w-4" />
+          Profile
+        </Link>
+      </DropdownMenuItem>
 
-              {/* Command Palette */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="
-            rounded-xl text-muted-foreground
-            hover:text-foreground hover:bg-muted
-            transition-all
-            hover:scale-[1.06] active:scale-[0.96]
-          "
-                  >
-                    <Command className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  Command Menu{" "}
-                  <span className="ml-1 text-xs opacity-60">⌘K</span>
-                </TooltipContent>
-              </Tooltip>
+      <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+        <Link href="/subscription" className="flex items-center gap-3">
+          <Crown className="h-4 w-4" />
+          Subscription
+        </Link>
+      </DropdownMenuItem>
 
-              {/* Divider */}
-              <div
-                className={cn(
-                  "bg-border",
-                  mainColumnExpanded ? "h-5 w-px mx-1" : "h-px w-full my-1"
-                )}
-              />
+      <DropdownMenuSeparator className="bg-white/10" />
 
-              {/* Settings */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => setSettingsOpen(true)}
-                    className="
-            rounded-xl text-muted-foreground
-            hover:text-foreground hover:bg-muted
-            transition-all
-            hover:scale-[1.06] active:scale-[0.96]
-          "
-                  >
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Settings</TooltipContent>
-              </Tooltip>
+      <DropdownMenuItem
+        className="flex items-center gap-3 text-red-400 focus:text-red-400 focus:bg-white/10 cursor-pointer"
+        onClick={handleSignOut}
+      >
+        <LogOut className="h-4 w-4" />
+        Sign Out
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
 
-              {/* Theme */}
-              <ThemeSwitcher />
-            </div>
-          </div>
+  
+
+   
+  </div>
+
+
+</div>
+
+ 
         </div>
       </div>
 
