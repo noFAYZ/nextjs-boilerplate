@@ -1,43 +1,40 @@
 'use client';
 
-/**
- * Organization Switcher
- *
- * Modern dropdown component for switching between organizations
- * - Built on Radix DropdownMenu for robustness
- * - Displays current organization with visual indicators
- * - Lists all available organizations
- * - Quick actions to create new org or manage members
- * - Shows personal workspace indicator with accessible styling
- */
-
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronsUpDownIcon } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuGroup,
-} from '@/components/ui/dropdown-menu';
-import { useOrganizations, usePersonalOrganization } from '@/lib/queries/use-organization-data';
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+
+import {
+  useOrganizations,
+  usePersonalOrganization,
+} from '@/lib/queries/use-organization-data';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { authClient } from '@/lib/auth-client';
+
 import type { Organization } from '@/lib/types/organization';
-import { Button } from '../ui/button';
 import { PhUsersDuotone } from '../icons/icons';
 
-interface OrganizationSwitcherProps {
-  className?: string;
-  onOrgSelect?: (org: Organization) => void;
-  compact?: boolean
-}
+/* -------------------------------------------------------------------------- */
+/*                                   Avatar                                   */
+/* -------------------------------------------------------------------------- */
 
-function OrgAvatar({ org, size = 'default' }: { org: Organization; size?: 'sm' | 'default' | 'lg' }) {
+const OrgAvatar = React.memo(function OrgAvatar({
+  org,
+  size = 'default',
+}: {
+  org: Organization;
+  size?: 'sm' | 'default' | 'lg';
+}) {
   const sizeClasses = {
     sm: 'w-7 h-7 text-xs',
     default: 'w-8 h-8 text-sm',
@@ -45,191 +42,216 @@ function OrgAvatar({ org, size = 'default' }: { org: Organization; size?: 'sm' |
   };
 
   return (
-    <div className={`flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 ${sizeClasses[size]}`}>
-      {org.icon ? (
-        <span>{org.icon}</span>
-      ) : (
-        <span>{org.name[0]?.toUpperCase()}</span>
+    <div
+      className={cn(
+        'flex shrink-0 items-center justify-center rounded-full',
+        'bg-muted text-foreground font-medium border',
+        sizeClasses[size]
       )}
+    >
+      {org.icon ?? org.name[0]?.toUpperCase()}
     </div>
   );
+});
+
+/* -------------------------------------------------------------------------- */
+/*                           Organization Switcher                             */
+/* -------------------------------------------------------------------------- */
+
+interface OrganizationSwitcherProps {
+  className?: string;
+  compact?: boolean;
+  onOrgSelect?: (org: Organization) => void;
 }
 
-export function OrganizationSwitcher({ className = '', onOrgSelect, compact }: OrganizationSwitcherProps) {
+export function OrganizationSwitcher({
+  className,
+  compact,
+  onOrgSelect,
+}: OrganizationSwitcherProps) {
   const router = useRouter();
+  const [open, setOpen] = React.useState(false);
 
-  // Data hooks
-  const { data: organizations = [], isLoading: orgsLoading, error: orgsError } = useOrganizations();
-  const { data: personalOrg, isLoading: personalOrgLoading } = usePersonalOrganization();
+  const { data: organizations = [], isLoading: orgsLoading } =
+    useOrganizations();
+  const { data: personalOrg, isLoading: personalLoading } =
+    usePersonalOrganization();
 
-  // UI store (for modal states, selections UI)
-  const { selectedOrganizationId, selectOrganization, openCreateOrgModal } =
-    useOrganizationUIStore();
+  const {
+    selectedOrganizationId,
+    selectOrganization,
+    openCreateOrgModal,
+  } = useOrganizationUIStore();
 
-  // Context store (for data scoping - triggers query invalidation)
   const { setSelectedOrganization } = useOrganizationStore();
 
-  const isLoading = orgsLoading || personalOrgLoading;
-  const hasError = orgsError !== null && orgsError !== undefined;
+  const isLoading = orgsLoading || personalLoading;
 
-  // Find current organization (prefer selected, fallback to personal)
-  let currentOrg = organizations.find((org) => org.id === selectedOrganizationId);
-  if (!currentOrg) {
-    currentOrg = personalOrg;
-  }
+  const currentOrg = React.useMemo(
+    () =>
+      organizations.find((o) => o.id === selectedOrganizationId) ??
+      personalOrg,
+    [organizations, selectedOrganizationId, personalOrg]
+  );
 
-  const handleOrgSelect = async (org: Organization) => {
-    // Update BOTH stores:
-    // 1. UI store for selection state/visual feedback
-    selectOrganization(org.id);
-    // 2. Context store for data scoping (triggers automatic refetch via OrganizationDataSyncProvider)
-    setSelectedOrganization(org.id);
-    await authClient.organization.setActive({ organizationId: org.id });
-    onOrgSelect?.(org);
-  };
+  const handleSelect = React.useCallback(
+    async (org: Organization) => {
+      if (org.id === selectedOrganizationId) {
+        setOpen(false);
+        return;
+      }
 
-  const handleCreateOrg = () => {
-    openCreateOrgModal();
-  };
+      selectOrganization(org.id);
+      setSelectedOrganization(org.id);
+      setOpen(false);
 
-  const handleManageMembers = (org: Organization) => {
-    router.push(`/dashboard/organization/${org.id}/members`);
-  };
+      await authClient.organization.setActive({
+        organizationId: org.id,
+      });
 
-  // Show loading state
-  if (isLoading && !currentOrg) {
-    return (
-      <div className={`flex items-center gap-3 px-3 py-2 rounded-md border border-border/50  bg-muted ${className}`}>
-        <div className="h-2 w-2 rounded-full animate-pulse bg-muted-foreground/50" />
-        <span className="text-sm text-muted-foreground">Loading...</span>
-      </div>
-    );
-  }
+      onOrgSelect?.(org);
+    },
+    [
+      selectOrganization,
+      setSelectedOrganization,
+      selectedOrganizationId,
+      onOrgSelect,
+    ]
+  );
 
-  // Show error state
-  if (hasError && !currentOrg) {
-    return (
-      <div className={`flex items-center gap-3 px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20 ${className}`}>
-        <div className="h-2 w-2 rounded-full bg-destructive" />
-        <span className="text-sm text-destructive font-medium">Error loading</span>
-      </div>
-    );
-  }
-
-  // Fallback if no organization found
-  if (!currentOrg) {
-    return (
-      <div className={`flex items-center gap-3 px-3 py-2 rounded-md bg-muted ${className}`}>
-        <div className="h-6 w-6 rounded-md bg-muted-foreground/20 flex items-center justify-center">
-          <span className="text-xs font-semibold">?</span>
-        </div>
-        <span className="text-sm text-muted-foreground">Select Org</span>
-      </div>
-    );
-  }
+  if (!currentOrg) return null;
 
   return (
-    <DropdownMenu>
-      {/* Trigger Button */}
-      <DropdownMenuTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      {/* Trigger */}
+      <PopoverTrigger asChild>
         <Button
+          variant={compact ? 'outline2' : 'outline2'}
+          size={compact ? 'icon-sm' : 'lg'}
           className={cn(
-            'flex items-center  ',
-            'group',
-            compact ? ' rounded-full w-full  ' : ' shadow-xs justify-between gap-3 w-full px-3 rounded-lg',
+            'group ',
+            compact
+              ? 'rounded-full'
+              : 'flex w-full items-center justify-between gap-3 px-1.5 rounded-lg shadow-none hover:bg-muted/60',
             className
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}
-          variant={compact ? 'outline' :'outline2'}
-       size={compact ? 'icon-lg' : 'xl'}
         >
-          {compact? <>
-          
+          {compact ? (
             <OrgAvatar org={currentOrg} size="sm" />
-         
-        
-      
-          
-          </> : <>   <div className="flex items-center text-start gap-2 flex-1 min-w-0">
-            <OrgAvatar org={currentOrg} size="sm" />
-            <div className="flex-1 min-w-0">
-             
-              {currentOrg.isPersonal ? <p className="text-xs ">Personal Workspace</p> :  <p className="text-sm  truncate ">{currentOrg.name}</p>
-                  }
-              <p className="text-[11px]  text-muted-foreground truncate">Free</p>
-            </div>
-          </div>
-          <ChevronsUpDownIcon
-            size={16}
-            className="flex-shrink-0 text-muted-foreground  "
-          /></>}
-       
-        </Button>
-      </DropdownMenuTrigger>
-
-      {/* Dropdown Content */}
-      <DropdownMenuContent align="start" sideOffset={8} className="w-72">
-        {/* Header */}
-        <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold uppercase text-muted-foreground tracking-wide">
-          Your Workspaces
-        </DropdownMenuLabel>
-
-        {/* Organizations Group */}
-        <DropdownMenuGroup>
-          {organizations.length > 0 ? (
-            organizations.map((org) => (
-              <DropdownMenuItem
-                key={org.id}
-                onClick={() => handleOrgSelect(org)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 cursor-pointer',
-                  org.id === selectedOrganizationId && 'bg-muted '
-                )}
-              >
-                <OrgAvatar org={org}   />
-                
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{org.name}</p>
-                  {org.isPersonal && (
-                    <p className="text-xs text-muted-foreground">Personal Workspace</p>
-                  )}
-                </div>
-                {org.id === selectedOrganizationId && (
-                  <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                )}
-              </DropdownMenuItem>
-            ))
           ) : (
-            <div className="px-3 py-6 text-center">
-              <p className="text-sm text-muted-foreground">No workspaces yet</p>
+            <>
+              <div className="flex items-center gap-2 min-w-0">
+                <OrgAvatar org={currentOrg} size="sm" />
+                <div className="min-w-0 text-left">
+                  <p className="text-xs font-medium truncate">
+                    {currentOrg.isPersonal
+                      ? 'Personal Workspace'
+                      : currentOrg.name}
+                  </p>
+                  
+                </div>
+              </div>
+              <ChevronsUpDown className="h-4 w-4 text-muted-foreground transition group-hover:opacity-80" />
+            </>
+          )}
+        </Button>
+      </PopoverTrigger>
+
+      {/* Content */}
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-72 p-2"
+      >
+        <p className="px-2 py-1.5 text-xs font-semibold uppercase text-muted-foreground">
+          Workspaces
+        </p>
+
+        <div
+          className="mt-1 space-y-0.5"
+          role="listbox"
+          aria-label="Workspaces"
+        >
+          {isLoading ? (
+            <div className="px-3 py-4 text-sm text-muted-foreground">
+              Loading…
             </div>
+          ) : organizations.length === 0 ? (
+            <div className="px-3 py-4 text-sm text-muted-foreground">
+              No workspaces yet
+            </div>
+          ) : (
+            organizations.map((org) => {
+              const active = org.id === selectedOrganizationId;
+
+              return (
+                <Button
+                  key={org.id}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => handleSelect(org)}
+                  variant='ghost'
+                  className={cn(
+                    'relative flex items-center gap-3 rounded-md w-full  text-start',
+                    'transition hover:bg-muted focus-visible:outline-none ',
+                    active && 'bg-muted'
+
+                  )}
+                >
+                  {active && (
+                    <span className="absolute left-0 h-4 w-0.5 rounded bg-primary" />
+                  )}
+
+                  <OrgAvatar org={org} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">
+                      {org.name}
+                    </p>
+                   
+                  </div>
+                </Button>
+              );
+            })
           )}
-        </DropdownMenuGroup>
+        </div>
 
-        {/* Separator */}
-        <DropdownMenuSeparator className="my-2" />
+        <Separator className="my-2" />
 
-        {/* Actions */}
-        <DropdownMenuGroup>
+        <div className="space-y-1">
+          <Button
+            size="xs"
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              setOpen(false);
+              openCreateOrgModal();
+            }}
+          >
+            Create Workspace
+          </Button>
+
+          <Button
+            variant="ghost"
         
-            <Button className='w-full mb-2' size='xs'    onClick={handleCreateOrg}>
-                    
-            <span className="font-medium">Create Workspace</span>
-            </Button>
-     
-       
+            className={cn(
+              'relative flex items-center gap-3 rounded-md w-full  text-start',
+              'transition hover:bg-muted focus-visible:outline-none justify-start',
+           
 
-          {currentOrg && (
-            <DropdownMenuItem
-              onClick={() => handleManageMembers(currentOrg)}
-              className="flex items-center gap-2 px-3 py-2.5 text-sm cursor-pointer"
-            >
-              <PhUsersDuotone   />
-              <span>Manage Members</span>
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            )}
+            onClick={() => {
+              setOpen(false);
+              router.push(
+                `/dashboard/organization/${currentOrg.id}/members`
+              );
+            }}
+          >
+            <PhUsersDuotone className="h-4 w-4" />
+            Manage Members
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

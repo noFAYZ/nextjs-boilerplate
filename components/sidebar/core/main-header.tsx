@@ -5,6 +5,7 @@ import {
   Crown,
   LogOut,
   Menu,
+  MenuIcon,
   PlusIcon,
   RefreshCcw,
   Settings,
@@ -50,6 +51,8 @@ import { useAuthStore, useGlobalUIStore } from '@/lib/stores';
 import { LetsIconsAddDuotone, SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { OnboardingIndicator } from '@/components/layout/onboarding-indicator';
+import { useIsFetching, useIsMutating, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/lib/hooks/useToast';
 
 interface MainHeaderProps {
   mainColumnExpanded: boolean;
@@ -95,6 +98,11 @@ export function MainHeader({
   const { openCommandPalette } = useCommandPalette();
   const openAddMenu = useGlobalUIStore((s) => s.openAddMenu);
   const breadcrumbs = generateBreadcrumbs(pathname);
+ const queryClient = useQueryClient();
+    const isFetching = useIsFetching();
+    const isMutating = useIsMutating();
+    const isLoading = isFetching > 0 || isMutating > 0;   
+    const { toast } = useToast();
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -127,7 +135,24 @@ const greeting =
     : currentHour < 18
     ? "Good afternoon"
     : "Good evening";
-
+   
+  const handleRefresh = React.useCallback(async () => {
+    try {
+      // Detect current page and refetch appropriate data
+      if (pathname.includes("/subscriptions")) {
+        await queryClient.refetchQueries({ queryKey: ["subscriptions"] });
+      } else {
+        // Generic refetch for other pages
+        await queryClient.refetchQueries();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [pathname, queryClient, toast]);
   return (
     <TooltipProvider delayDuration={100}>
       <header className="relative w-full z-40  ">
@@ -217,9 +242,9 @@ const greeting =
 
             <OnboardingIndicator />
 
-            <ThemeSwitcher />
+        
  {/* Add button */}
- <Button variant="outline2" size='sm'  className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className="h-6 w-6" />}>
+ <Button variant="outline2" size='sm'      onClick={handleRefresh}  disabled={isLoading} className='rounded-full pl-1 shadow-none pr-2' icon={ <SolarRefreshCircleBoldDuotone className={cn("h-6 w-6", isLoading && "animate-spin")} />}>
              
               Sync
             </Button>
@@ -227,9 +252,69 @@ const greeting =
             {/* Add button */}
        
                 <Button variant="steel" size='icon-sm'  className=' ' onClick={openAddMenu}>
-                  <PlusIcon className="h-5 w-5" strokeWidth={3} />
+                  <PlusIcon className="h-5 w-5" strokeWidth={2} />
                 </Button>
              
+
+                <Tooltip>
+            <DropdownMenu>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+            
+                    <Button
+                      variant="outline2"
+                      size="icon-sm"
+                      className=" rounded-full flex-shrink-0"
+                    >
+                      <Avatar className="h-full w-full">
+                        <AvatarImage
+                          src={avatar}
+                          alt={`${user?.name || "User"}'s avatar`}
+                        />
+                        <AvatarFallback className="text-xs md:text-sm bg-muted text-muted-foreground">
+                          {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              {mainColumnExpanded && (
+                <TooltipContent
+                  
+                  className="bg-[#2a2a2a] text-white text-xs font-medium rounded-lg shadow-xl border border-white/10"
+                >
+                  {user?.name || 'Profile'}
+                </TooltipContent>
+              )}
+              <DropdownMenuContent align="end" side="bottom" className="w-56 bg-[#2a2a2a] border-white/10 text-white">
+                <div className="px-3 py-2 border-b border-white/10">
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs text-white/60 truncate">{user?.email}</p>
+                </div>
+                <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+                  <Link href="/profile" className="flex items-center gap-3 cursor-pointer">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-white/80 focus:text-white focus:bg-white/10">
+                  <Link href="/subscription" className="flex items-center gap-3 cursor-pointer">
+                    <Crown className="h-4 w-4" />
+                    <span>Subscription</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem
+                  className="flex items-center gap-3 text-red-400 focus:text-red-400 focus:bg-white/10 cursor-pointer"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Tooltip>
           </div>
         </div>
 

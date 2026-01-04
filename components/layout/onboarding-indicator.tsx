@@ -115,7 +115,7 @@ export function OnboardingIndicator() {
     return (
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button size="sm" variant="steel" className="px-1 pr-2 gap-2 font-se text-xs not-even:" icon={  <div className="relative w-6 h-6 flex items-center justify-center flex-shrink-0 border rounded-full bg-muted text-foreground font-bold text-xs p-0.5 ">
+          <Button size="sm" variant="secondary" className="px-1 pr-2 gap-2 font-se text-xs not-even:" icon={  <div className="relative w-6 h-6 flex items-center justify-center flex-shrink-0 border rounded-full bg-muted text-foreground font-bold text-xs p-0.5 ">
            {(progress / 6) *100}%
             </div>}>
           
