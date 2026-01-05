@@ -246,7 +246,7 @@ export function SubscriptionsOverviewWidget() {
   // Empty State
   if (allSubscriptions.length === 0) {
     return (
-      <Card className="relative rounded-xl border border-borderlg:col-span-2">
+      <Card className="relative rounded-xl border border-border lg:col-span-2">
          <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
        
@@ -295,7 +295,7 @@ export function SubscriptionsOverviewWidget() {
   }
 
   return (
-    <Card className="relative h-full w-full flex flex-col border/50"  >
+    <Card className="relative  w-full flex flex-col border-border h-[450px] "  >
       {/* Header */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">

@@ -302,7 +302,7 @@ export function NetWorthWidget() {
   };
 
   return (
-    <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col">
+    <Card className="relative border   shadow-xs gap-4 h-full w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between  ">
         <div className="flex items-center gap-2">

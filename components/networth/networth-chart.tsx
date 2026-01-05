@@ -591,7 +591,7 @@ const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
 
   return (
     <g>
-      <circle cx={cx} cy={cy} r={2.5} fill="white" stroke="var(--chart-1)" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={2} fill="#FFDCD2" stroke="var(--chart-1)" strokeWidth={1} />
     </g>
   );
 };
@@ -1054,7 +1054,7 @@ export function NetWorthChart({
   return (
     <Card
       ref={chartContainerRef}
-      className={cn("w-full space-y-2 shadow-xs hover:shadow-none border-border/70 ", className)}
+      className={cn("w-full  p-0 space-y-2 shadow-xs hover:shadow-none border-border/70 ", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -1062,15 +1062,15 @@ export function NetWorthChart({
 
      
 
-<div className='flex justify-between items-center gap-2 p-4'>
+<div className='flex justify-end items-center gap-2 p-4'>
 
-   {/* Compact Metrics Cards */}
+   {/* Compact Metrics Cards
    {  metrics && !isLoading && (
         <div className="flex">
           <CurrencyDisplay amountUSD={metrics.current} variant='xl' className='font-medium' />
        
         </div>
-      )}
+      )} */}
 
 <div className='flex items-center gap-2'>
       {/* Chart Type Selector */}
@@ -1122,7 +1122,7 @@ export function NetWorthChart({
 
       {/* Chart Container */}
       <div
-        className="relative -m-2 "
+        className="relative   -x-2"
         style={{ height }}
       >
  
@@ -1176,7 +1176,7 @@ export function NetWorthChart({
                     y={averageValue}
                     stroke="var(--muted-foreground)"
                     strokeDasharray="4 4"
-                    strokeWidth={1.5}
+                    strokeWidth={1 }
                     opacity={0.4}
                     label={{
                       value: 'Avg',
@@ -1193,13 +1193,13 @@ export function NetWorthChart({
                     type="linear"
                     dataKey="totalNetWorth"
                     stroke="var(--chart-primary)"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     fill="url(#networthGradient)"
                     aria-label="Net worth area"
                     isAnimationActive={true}
-                    animationDuration={500}
-                    dot={<CustomNetWorthDot />}
-                    activeDot={{ r: 3 }}
+                    animationDuration={400}
+                /*     dot={<CustomNetWorthDot />} */
+                    activeDot={{ r: 1 }}
                   />
                 </AreaChart>
               ) : (
@@ -1255,7 +1255,7 @@ export function NetWorthChart({
                     stackId="a"
                     fill="rgb(246,115,49)"
                     name="Liabilities"
-                    radius={[0, 0, 8, 8]}
+                    radius={[0, 0, 4, 4]}
                     isAnimationActive={true}
                     animationDuration={500}
                     activeBar={false}
@@ -1265,7 +1265,7 @@ export function NetWorthChart({
                     stackId="a"
                     fill="rgb(246,193,152)"
                     name="Assets"
-                    radius={[8, 8, 0, 0]}
+                    radius={[4, 4, 0, 0]}
                     isAnimationActive={true}
                     animationDuration={500}
                     activeBar={false}
@@ -1275,13 +1275,13 @@ export function NetWorthChart({
                     type="linear"
                     dataKey="totalNetWorth"
                     stroke="var(--muted-foreground)"
-                    strokeWidth={3.5}
+                    strokeWidth={2}
                     strokeDasharray="5 5"
                     dot={<CustomNetWorthDot />}
-                    activeDot={{ r: 5 }}
+                    activeDot={{ r: 2 }}
                     name="Net Worth"
                     isAnimationActive={true}
-                    animationDuration={500}
+                    animationDuration={400}
                     yAxisId="right"
                   />
                   <YAxis

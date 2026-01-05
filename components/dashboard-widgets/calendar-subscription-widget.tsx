@@ -22,6 +22,7 @@ import { MageCalendar2, SolarCalendarBoldDuotone } from '@/components/icons/icon
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { CardSkeleton } from '../ui/card-skeleton';
+import { Separator } from '../ui/separator';
 
 // Helper to get days in a month
 function getDaysInMonth(year: number, month: number): Date[] {
@@ -66,7 +67,7 @@ function StackedSubscriptionAvatars({
   const remaining = subscriptions.length - maxVisible;
 
   return (
-    <div className=":data-[slot=avatar]:ring-background flex -space-x-5 *:data-[slot=avatar]:ring-2 ">
+    <div className=":data-[slot=avatar]:ring-background flex -space-x-5 *:data-[slot=avatar]:ring-2  ">
       {visibleSubs.map((sub, index) => (
         <Avatar
           key={sub.id}
@@ -336,7 +337,7 @@ export function CalendarSubscriptionWidget() {
 
   return (
     <>
-      <Card className="relative h-full w-full flex flex-col border border-border/50">
+      <Card className="relative w-full flex flex-col border-border justify-between h-[450px]">
         {/* Modern Header */}
         <div className="flex items-center justify-between mb-2">
       
@@ -386,6 +387,7 @@ export function CalendarSubscriptionWidget() {
             </Button>
           </div>
         </div>
+        
 
         {/* Month/Year Display */}
         <div className="text-center mb-3  border-b border-border/30">

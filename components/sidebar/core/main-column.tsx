@@ -270,7 +270,7 @@ export function SidebarMainColumn({
                       className={cn(
                         "w-full h-auto   overflow-visible",
                         mainColumnExpanded
-                          ? "justify-start gap-2 md:gap-2 p-1  "
+                          ? "justify-start gap-2 md:gap-2 p-1.5  "
                           : "justify-center p-1    border-r border-border/50  ",
                         isHighlighted
                           ? "dark:bg-muted/60 bg-accent  hover:bg-muted/80 text-foreground/90"

@@ -44,11 +44,14 @@ import {
   DuoIconsBank,
   HeroiconsWallet16Solid,
   SolarInboxInBoldDuotone,
+  SolarPieChart2BoldDuotone,
   SolarWalletMoneyBoldDuotone,
 } from "@/components/icons/icons";
 import { LetsIconsSettingLineDuotone } from "@/components/icons";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
+import { DashboardHeader } from "@/components/home/dashboard-header";
+import { Separator } from "@/components/ui/separator";
 
 export default function DashboardPage() {
   usePostHogPageView("dashboard");
@@ -132,14 +135,14 @@ export default function DashboardPage() {
     href: string;
     icon: React.ReactNode;
     title: string;
-    subtitle: string;
+    subtitle?: string;
     iconWrapperClass?: string;
   }) {
     return (
       <Link href={href} className="min-w-[160px]">
         <Card
           className={cn(
-            "group relative flex flex-row items-center gap-2 rounded-full border border-border/80 bg-card p-1.5 pr-4 shadow-sm",
+            "group relative flex flex-row items-center gap-2 rounded-lg border border-none bg-card p-1.5 pr-4 shadow-sm",
             "cursor-pointer"
           )}
           interactive
@@ -162,57 +165,26 @@ export default function DashboardPage() {
     );
   }
 
-  return (
+  return (<div className="space-y-4 container mx-auto">
+<DashboardHeader />  
+
+  <div className="flex ">
+
+
  
-      <div className="space-y-4 ">
+      <div className="space-y-4 w-full">
 
-   {/*       <div
-      className={cn(
-        "grid ",
-        "grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row lg:justify-end",
-        "lg:gap-2"
-      )}
-    >
-      <AccountItem
-        href="/accounts/bank"
-        title="Bank Accounts"
-        subtitle="Manage your banks"
-        icon={<DuoIconsBank className="w-5 h-5 text-foreground/70" />}
-        iconWrapperClass="bg-accent dark:bg-muted"
-      />
+   {/* */}   
 
-      <AccountItem
-        href="/accounts/wallet"
-        title="Crypto Wallets"
-        subtitle="Track your crypto"
-        icon={<HeroiconsWallet16Solid stroke="2" className="w-5 h-5 text-foreground/70" />}
-        iconWrapperClass="bg-accent dark:bg-muted"
-      />
 
-      <AccountItem
-        href="/subscriptions"
-        title="Subscriptions"
-        subtitle="Manage subscriptions"
-        icon={<SolarInboxInBoldDuotone stroke="2" className="w-5 h-5 text-foreground/70" />}
-        iconWrapperClass="bg-accent dark:bg-muted"
-      />
 
-      <AccountItem
-        href="/settings"
-        title="Settings"
-        subtitle="Customize app"
-        icon={<LetsIconsSettingLineDuotone stroke="2" className="w-6 h-6" />}
-        iconWrapperClass="bg-accent dark:bg-muted"
-      />
-    </div> */}
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
-       {/*    <h1 className="text-lg font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+        {/*   <h1 className="text-lg font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
             {greeting}, {firstName}!  
           </h1> */}
 
-
-          <div className="flex justify-end ">
+<div className="flex justify-end ">
             <Button
               variant={isEditMode ? "brand" : "outline2"}
               size="icon-xs"
@@ -242,6 +214,7 @@ export default function DashboardPage() {
               <Settings2 className="h-4 w-4" />
             </Button>
           </div>
+        
        
         </div>
 
@@ -265,6 +238,67 @@ export default function DashboardPage() {
           onClose={() => setIsSettingsOpen(false)}
         />
       </div>
-  
+
+   {/*    <div className="w-[25%] flex-flex-col items-center justify-center p-6 space-y-4">
+      <div
+      className={cn(
+        "grid grid-cols-2 gap-1.5",
+      
+      )}
+    >
+      <AccountItem
+        href="/accounts/bank"
+        title="Bank Accounts"
+    
+        icon={<DuoIconsBank className="w-5 h-5 text-foreground/70" />}
+        iconWrapperClass="bg-accent dark:bg-muted"
+      />
+
+      <AccountItem
+        href="/accounts/wallet"
+        title="Crypto Wallets"
+       
+        icon={<HeroiconsWallet16Solid stroke="2" className="w-5 h-5 text-foreground/70" />}
+        iconWrapperClass="bg-accent dark:bg-muted"
+      />
+
+      <AccountItem
+        href="/subscriptions"
+        title="Subscriptions"
+        icon={<SolarInboxInBoldDuotone stroke="2" className="w-5 h-5 text-foreground/70" />}
+        iconWrapperClass="bg-accent dark:bg-muted"
+      />
+
+      <AccountItem
+        href="/settings"
+        title="Settings"
+        icon={<LetsIconsSettingLineDuotone stroke="2" className="w-6 h-6" />}
+        iconWrapperClass="bg-accent dark:bg-muted"
+      />
+    </div> 
+          <Card className="rounded-lg   ">
+            <div className="flex items-center gap-2 mb-4">
+              <SolarPieChart2BoldDuotone className="h-5 w-5 bg-[hsl(76,65%,54%)] text-[hsl(76,47%,27%)]" strokeWidth={2.5} />
+              <h3 className="font-semibold text-sm ">Budget Limit</h3>
+            </div>
+           
+            <div className="space-y-2">
+              <div className="w-full bg-[rgb(255,246,182)] rounded-lg h-4 overflow-hidden">
+                <div
+                  className="bg-[rgb(173,210,72)] h-full transition-all"
+                  style={{
+                    width: `${Math.min((2300 / 3000) * 100, 100)}%`,
+                  }}
+                />
+              </div>
+              <p className="text-xs  font-medium">
+                {formatCurrency(2300)} spent out of {formatCurrency(3000)}
+              </p>
+
+            </div>
+          </Card>
+
+      </div> */}
+  </div></div>
   );
 }

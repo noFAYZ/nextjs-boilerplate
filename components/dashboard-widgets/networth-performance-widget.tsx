@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { HeroiconsWallet16Solid, MingcuteChartBarFill } from "@/components/icons/icons";
+import { Separator } from "../ui/separator";
 
 /**
  * NetWorth Performance Widget
@@ -18,7 +19,7 @@ import { HeroiconsWallet16Solid, MingcuteChartBarFill } from "@/components/icons
  */
 export function NetWorthPerformanceWidget() {
   return (
-    <Card className="relative border border-border/50 shadow-xs h-full w-full flex flex-col gap-4 ">
+    <div className="relative border-none shadow-none hover:shadow-none h-full w-full flex flex-col gap-2 justify-between h-[450px]">
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -40,11 +41,11 @@ export function NetWorthPerformanceWidget() {
           </Button>
         </Link>
       </div>
-
+    
       {/* Chart Container - Flex grow to fill available space */}
      
-        <NetWorthChart mode="demo" height={300} className="border-0  -mx-2" />
+        <NetWorthChart mode="demo" height={300} className="border-0   " />
       
-    </Card>
+    </div>
   );
 }

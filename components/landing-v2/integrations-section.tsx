@@ -179,7 +179,7 @@ export default function DatabaseWithRestApi({
         }}
       />
 
-      <BgGradient  imageSrc="/landing/bg3.webp" opacity='0.1'  />
+      <BgGradient  imageSrc="/landing/bg12.webp" opacity='0.1'  />
       <ScrollReveal className="z-20">
            {/* caption under center */}
     

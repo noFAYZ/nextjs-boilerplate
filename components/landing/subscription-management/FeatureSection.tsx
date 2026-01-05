@@ -766,7 +766,7 @@ export default function MoneyMapprFeatureSection() {
 
       </div>
       {/* 61  */}
-      <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={500} height={500} className="absolute left-0 bottom-0 -z-20 object-contain" priority />
+
    
       <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={100} height={100} className="absolute right-50 top-0 -z-20 object-contain" priority />
       <Image src="/patterns/shape-61.svg" alt="Mappr logo" width={300} height={300} className="absolute right-4 top-20 -z-20 object-contain" priority />

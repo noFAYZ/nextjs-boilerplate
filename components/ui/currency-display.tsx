@@ -18,7 +18,7 @@ interface CurrencyDisplayProps {
   /** Color coding based on positive/negative values */
   colorCoded?: boolean;
   /** Variant styling */
-  variant?: 'default' | 'large' | 'small' | 'compact' | 'xl' | '2xl' | 'lg';
+  variant?: 'default' | 'large' | 'small' | 'compact' | 'xl' | '2xl' | 'lg' | '3xl';
 }
 
 export function CurrencyDisplay({
@@ -38,6 +38,7 @@ export function CurrencyDisplay({
     const skeletonClass = cn(
       'inline-block',
       {
+        'h-20 w-60': variant === '3xl',
         'h-12 w-32': variant === '2xl',
         'h-10 w-28': variant === 'xl',
         'h-8 w-24': variant === 'large',
@@ -85,6 +86,7 @@ export function CurrencyDisplay({
   const baseClass = cn(
     'font-medium',
     {
+      'text-6xl font-medium': variant === '3xl',
       'text-4xl font-medium': variant === '2xl',
       'text-3xl font-bold': variant === 'xl',
       'text-2xl font-bold': variant === 'large',
@@ -105,6 +107,7 @@ export function CurrencyDisplay({
   const decimalClass = cn(
     'font-medium',
     {
+      'text-3xl font-medium': variant === '3xl',
       'text-xl font-medium': variant === '2xl',
       'text-lg font-bold': variant === 'xl',
       'text-sm font-bold': variant === 'large',

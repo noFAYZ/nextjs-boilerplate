@@ -43,12 +43,25 @@ interface AccountsUIState {
 
   // View Preferences (persistent)
   viewPreferences: {
-    accountsView: 'grid' | 'list' | 'grouped';
+    accountsView: 'table' | 'card';
     balanceVisible: boolean;
     groupBy: 'category' | 'institution' | 'type' | 'none';
     chartType: 'area' | 'bar' | 'line';
     timeRange: '7d' | '30d' | '90d' | '1y' | 'all';
     defaultOverview: 'overview' | 'overview-2';
+
+    // Table-specific preferences
+    tablePreferences: {
+      visibleColumns: string[];
+      columnWidths: Record<string, number>;
+      density: 'compact' | 'comfortable' | 'spacious';
+    };
+
+    // Card-specific preferences
+    cardPreferences: {
+      cardSize: 'small' | 'medium' | 'large';
+      showQuickActions: boolean;
+    };
   };
 
   // UI State (non-persistent)
@@ -63,6 +76,7 @@ interface AccountsUIActions {
   // Selection Actions
   toggleAccountSelection: (accountId: string) => void;
   selectAccount: (accountId: string) => void;
+  selectAllVisible: (accountIds: string[]) => void;
   clearSelection: () => void;
 
   // Deletion Actions
@@ -82,11 +96,20 @@ interface AccountsUIActions {
   clearFilters: () => void;
 
   // View Preference Actions
-  setAccountsView: (view: 'grid' | 'list' | 'grouped') => void;
+  setAccountsView: (view: 'table' | 'card') => void;
   setBalanceVisible: (visible: boolean) => void;
   setGroupBy: (groupBy: 'category' | 'institution' | 'type' | 'none') => void;
   setChartType: (type: 'area' | 'bar' | 'line') => void;
   setTimeRange: (range: '7d' | '30d' | '90d' | '1y' | 'all') => void;
+
+  // Table Preference Actions
+  setTableDensity: (density: 'compact' | 'comfortable' | 'spacious') => void;
+  setVisibleColumns: (columns: string[]) => void;
+  setColumnWidth: (column: string, width: number) => void;
+
+  // Card Preference Actions
+  setCardSize: (size: 'small' | 'medium' | 'large') => void;
+  toggleQuickActions: () => void;
 
   // UI Actions
   setActiveTab: (tab: 'overview' | 'manage' | 'overview-2') => void;
@@ -129,12 +152,21 @@ const initialState: AccountsUIState = {
 
   // View Preferences (persistent)
   viewPreferences: {
-    accountsView: 'grouped',
+    accountsView: 'table',
     balanceVisible: true,
     groupBy: 'category',
     chartType: 'area',
     timeRange: '30d',
     defaultOverview: 'overview',
+    tablePreferences: {
+      visibleColumns: ['name', 'type', 'category', 'balance', 'status', 'actions'],
+      columnWidths: {},
+      density: 'comfortable',
+    },
+    cardPreferences: {
+      cardSize: 'medium',
+      showQuickActions: true,
+    },
   },
 
   // UI State (non-persistent)
@@ -179,6 +211,15 @@ export const useAccountsUIStore = create<AccountsUIStore>()(
             },
             false,
             'accounts-ui/selectAccount'
+          ),
+
+        selectAllVisible: (accountIds) =>
+          set(
+            (state) => {
+              state.selectedAccountIds = accountIds;
+            },
+            false,
+            'accounts-ui/selectAllVisible'
           ),
 
         clearSelection: () =>
@@ -366,6 +407,58 @@ export const useAccountsUIStore = create<AccountsUIStore>()(
             },
             false,
             'accounts-ui/setTimeRange'
+          ),
+
+        // ================================================================
+        // TABLE PREFERENCE ACTIONS
+        // ================================================================
+        setTableDensity: (density) =>
+          set(
+            (state) => {
+              state.viewPreferences.tablePreferences.density = density;
+            },
+            false,
+            'accounts-ui/setTableDensity'
+          ),
+
+        setVisibleColumns: (columns) =>
+          set(
+            (state) => {
+              state.viewPreferences.tablePreferences.visibleColumns = columns;
+            },
+            false,
+            'accounts-ui/setVisibleColumns'
+          ),
+
+        setColumnWidth: (column, width) =>
+          set(
+            (state) => {
+              state.viewPreferences.tablePreferences.columnWidths[column] = width;
+            },
+            false,
+            'accounts-ui/setColumnWidth'
+          ),
+
+        // ================================================================
+        // CARD PREFERENCE ACTIONS
+        // ================================================================
+        setCardSize: (size) =>
+          set(
+            (state) => {
+              state.viewPreferences.cardPreferences.cardSize = size;
+            },
+            false,
+            'accounts-ui/setCardSize'
+          ),
+
+        toggleQuickActions: () =>
+          set(
+            (state) => {
+              state.viewPreferences.cardPreferences.showQuickActions =
+                !state.viewPreferences.cardPreferences.showQuickActions;
+            },
+            false,
+            'accounts-ui/toggleQuickActions'
           ),
 
         // ================================================================

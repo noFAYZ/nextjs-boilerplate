@@ -16,6 +16,8 @@ import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react
 import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
 import { LandingHero } from '@/components/landing/subscription-management/landing-hero2';
 import { Example } from '@/components/landing/section-widgets/features-tabs';
+import Features from '@/components/landing-v2/features';
+import MapprFeatures from '@/components/landing-v2/features';
 
 
 export default function LandingPage() {
@@ -58,7 +60,7 @@ export default function LandingPage() {
       <LandingHero />
 <FinanceHeroDubStyle /> 
       
-
+<MapprFeatures />
 
 
 
