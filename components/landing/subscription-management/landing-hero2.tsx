@@ -86,19 +86,19 @@ export function LandingHero() {
   
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden ">
 
 
       {/* Background */}
-      <div className="absolute inset-0 -z-10  ">
+      <div className="absolute inset-0 -z-10   ">
         <BgGradient
     
           imageSrc="/landing/bg8.webp"  
-          opacity="0.3"
+          opacity="0.1"
           position="top"
           to="background"
-          
-  
+           
+    
           glass
         
        
@@ -166,7 +166,7 @@ export function LandingHero() {
         </div>
 
         {/* RIGHT — Tabs + Preview */}
-        <motion.div {...fadeUp} className=" min-w-full   xl:min-w-3xl 2xl:min-w-4xl @min-3xl:min-w-5xl h-full flex flex-col justify-end  ">
+        <motion.div {...fadeUp} className=" min-w-full   xl:min-w-2xl 2xl:min-w-5xl  3xl:min-w-5xl h-full flex flex-col justify-end  ">
        <Tabs defaultValue="Track" className="w-full flex justify-center xl:justify-start">
             {/* Tabs header */}
             <div className="  flex justify-center xl:justify-start">
