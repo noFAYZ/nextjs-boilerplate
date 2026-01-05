@@ -112,7 +112,7 @@ export default function TransactionsPage() {
           },
           category: tx.category?.name || tx.category ,
           categoryId: tx?.categoryId || null ,
-          pfc: tx.metadata.pfc,
+          pfc: tx.metadata?.pfc,
           source: (tx.source === 'bank' ? 'BANKING' : tx.source || 'BANKING') as const,
         });
       });
