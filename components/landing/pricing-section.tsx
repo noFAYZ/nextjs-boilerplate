@@ -53,18 +53,18 @@ export function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="py-20">
-      <div className=" mx-auto ">
- 
+    <section id="pricing" className="py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+
 
         <ScrollReveal>
-       
-          
-       <div className="relative max-w-lg mx-auto  mb-8 text-center">
-     <div className="mx-auto  text-center ">
-       <h2 className="text-3xl md:text-4xl font-bold mb-4">
+
+
+       <div className="relative max-w-lg mx-auto mb-8 sm:mb-10 md:mb-12 text-center">
+     <div className="mx-auto text-center">
+       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
        Simple, transparent pricing       </h2>
-       <p className="text-sm md:text-base text-muted-foreground">
+       <p className="text-xs sm:text-sm md:text-base text-muted-foreground px-2 sm:px-0">
        Start free, upgrade when you need more. No hidden fees, cancel anytime.       </p>
      </div>
    </div>
@@ -73,44 +73,44 @@ export function PricingSection() {
      </ScrollReveal>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 max-w-2xl mx-auto">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-lg border p-6 h-fit  ${
+              className={`relative rounded-lg border p-4 sm:p-5 md:p-6 h-fit transition-all ${
                 plan.highlighted
-                  ? 'bg-gradient-to-br from-accent/40 to-muted/95   shadow-lg scale-105'
+                  ? 'bg-gradient-to-br from-accent/40 to-muted/95 shadow-lg md:scale-105'
                   : 'bg-card shadow-xs hover:shadow-xl transition-shadow'
               }`}
             >{plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-40">
-                  <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-1 rounded-xl text-xs font-bold shadow-lg">
+                <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-40">
+                  <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-3 sm:px-4 py-0.5 sm:py-1 rounded-xl text-xs font-bold shadow-lg whitespace-nowrap">
                     MOST POPULAR
                   </div>
                 </div>
               )}
-              
+
               {/* Popular Badge */}
-             
-<div className='relative flex items-center gap-3 mb-4 overflow-hidden'>
+
+<div className='relative flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6 overflow-hidden'>
 
               {/* Icon */}
               <div
-                className={` border border-border/80 inline-flex h-12 w-12 items-center justify-center rounded-xl ${
+                className={`border border-border/80 inline-flex h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-xl flex-shrink-0 ${
                   !plan.highlighted
                     ? 'bg-muted backdrop-blur-sm'
                     : 'bg-gradient-to-b from-[#FFB347] via-[#FF7A00] to-[#E66A00] '
                 }`}
               >
                 <plan.icon
-                  className={`h-6 w-6 ${
+                  className={`h-5 sm:h-6 w-5 sm:w-6 ${
                     !plan.highlighted ? '' : 'text-white'
                   }`}
                 />
               </div>
   {/* Plan Name */}
   <h3
-                className={`text-2xl font-bold mb-2 ${
+                className={`text-xl sm:text-2xl font-bold ${
                   plan.highlighted ? '' : 'text-foreground'
                 }`}
               >
@@ -121,10 +121,10 @@ export function PricingSection() {
           
 
               {/* Price */}
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-7 md:mb-8">
                 <div className="flex items-baseline gap-2">
                   <span
-                    className={`text-5xl font-bold ${
+                    className={`text-4xl sm:text-5xl font-bold ${
                       plan.highlighted ? '' : 'text-foreground'
                     }`}
                   >
@@ -132,7 +132,7 @@ export function PricingSection() {
                   </span>
                   {plan.price !== 'Custom' && (
                     <span
-                      className={`text-xs ${
+                      className={`text-xs sm:text-sm ${
                         plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >
@@ -141,7 +141,7 @@ export function PricingSection() {
                   )}
                 </div>
                 <p
-                  className={`text-xs mt-1 ${
+                  className={`text-xs mt-1 sm:mt-2 ${
                     plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -150,9 +150,9 @@ export function PricingSection() {
               </div>
 
               {/* CTA Button */}
-              <Link href={plan.name === 'Enterprise' ? '#' : '#'} >
+              <Link href={plan.name === 'Enterprise' ? '#' : '#'} className="w-full">
                 <Button
-                  className={`w-full mb-8 ${
+                  className={`w-full mb-6 sm:mb-7 md:mb-8 ${
                     !plan.highlighted
                       ? ' '
                       : ''
@@ -164,25 +164,25 @@ export function PricingSection() {
                   {plan.cta}
                 </Button>
               </Link>
-    
+
               {/* Features List */}
-              <div className="space-y-2">
+              <div className="space-y-2 sm:space-y-2.5">
                 <p
-                  className={`text-xs font-semibold uppercase tracking-wider mb-4 ${
+                  className={`text-xs font-semibold uppercase tracking-wider mb-3 sm:mb-4 ${
                     plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   What&apos;s included:
                 </p>
                 {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-center  gap-3">
+                  <div key={feature} className="flex items-start gap-2 sm:gap-3">
                     <SolarCheckCircleBoldDuotone
-                      className={`h-4.5 w-4.5 mt-0.5 flex-shrink-0 ${
+                      className={`h-4 sm:h-4.5 w-4 sm:w-4.5 mt-0.5 flex-shrink-0 ${
                         plan.highlighted ? 'text-orange-500' : 'text-muted-foreground'
                       }`}
                     />
                     <span
-                      className={`text-xs ${
+                      className={`text-xs sm:text-sm leading-relaxed ${
                         plan.highlighted ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}
                     >
@@ -192,7 +192,7 @@ export function PricingSection() {
                 ))}
               </div>
 
-              {plan.popular && (<Image src="/logo/log6.svg" alt="Mappr logo" width={56} height={56} className="absolute -z-20 -right-10 -bottom-0 w-20 h-20 object-contain opacity-60" priority />) }
+              {plan.popular && (<Image src="/logo/log6.svg" alt="Mappr logo" width={56} height={56} className="absolute -z-20 -right-8 sm:-right-10 -bottom-0 w-16 sm:w-20 h-16 sm:h-20 object-contain opacity-60" priority />) }
             </div>
           ))}
         </div>

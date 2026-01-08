@@ -45,7 +45,7 @@ const OrgAvatar = React.memo(function OrgAvatar({
     <div
       className={cn(
         'flex shrink-0 items-center justify-center rounded-full',
-        'bg-muted text-foreground font-medium border',
+        'bg-primary/40 text-foreground font-medium border',
         sizeClasses[size]
       )}
     >
@@ -127,7 +127,7 @@ export function OrganizationSwitcher({
       <PopoverTrigger asChild>
         <Button
           variant={compact ? 'outline2' : 'outline2'}
-          size={compact ? 'icon-sm' : 'lg'}
+          size={compact ? 'icon' : 'lg'}
           className={cn(
             'group ',
             compact

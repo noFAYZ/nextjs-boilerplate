@@ -152,7 +152,7 @@ export function SidebarMainColumn({
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          "flex h-full flex-col  bg-sidebar    inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-75 space-y-2",
+          "flex h-full flex-col  bg-sidebar border-r shadow-lg   inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-75 space-y-2",
           mainColumnExpanded ? "w-74" : "w-16"
         )}
       >
@@ -282,7 +282,7 @@ export function SidebarMainColumn({
                             " antialiased flex-shrink-0",
                             mainColumnExpanded
                               ? "h-4 xl:h-5.5 w-4 xl:w-5.5"
-                              : "h-5.5  w-5.5  "
+                              : "h-6  w-6  "
                           )}
                         />
                       }

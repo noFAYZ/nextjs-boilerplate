@@ -3801,3 +3801,31 @@ export function CategoryMerchantIcon(props: SVGProps<SVGSVGElement>) {
 export function SolarMenuDotsBoldDuotone(props: SVGProps<SVGSVGElement>) {
 	return (<svg xmlns="http://www.w3.org/2000/svg" width={1024} height={1024} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m14 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"></path><path fill="currentColor" d="M14 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0" opacity={0.5}></path></svg>);
 }
+
+export function WalletLogoIconOpenRed(props: SVGProps<SVGSVGElement>) {
+	return (<svg
+		height="120px"
+		width="200px"
+		version="1.1"
+		id="Layer_1"
+		xmlns="http://www.w3.org/2000/svg"
+		xmlnsXlink="http://www.w3.org/1999/xlink"
+		viewBox="0 0 400 222"
+		xmlSpace="preserve"
+		fill="#D35B38"
+	
+		{...props}
+	  >
+		
+		<g id="SVGRepo_iconCarrier">
+		  {" "}
+		  <path
+			style={{ fill: "" }}
+			d="M404.798,72.895C366.605,34.702,313.843,11.08,255.562,11.08S144.52,34.702,106.327,72.895 l149.236,149.236L404.798,72.895z"
+		  />{" "}
+		
+
+		</g>
+	  </svg>
+	  );
+}

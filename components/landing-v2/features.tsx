@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
+import { WalletLogoIconOpenRed } from "../icons/icons";
+import { cn } from "@/lib/utils";
 
 const FeatureSection = ({
     title,
@@ -12,21 +14,21 @@ const FeatureSection = ({
     reverse = false,
   }) => {
     return (
-      <section className="w-full flex justify-center">
+      <section className="w-full flex justify-center px-4 sm:px-6 lg:px-8">
         <div
-          className={`max-w-[1280px] w-full flex items-center gap-[200px] space-y-4 ${
-            reverse ? "flex-row-reverse" : "flex-row"
+          className={`max-w-[1280px] w-full flex flex-col lg:flex-row items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16 xl:gap-[200px] py-8 sm:py-12 md:py-16 lg:py-20 relative ${
+            reverse ? "lg:flex-row-reverse" : ""
           }`}
         >
           {/* Image Block */}
-          <div className="relative">
-            <div className="w-[420px] h-[420px] rounded-[48px] border-[12px] border-border shadow-[0_10px_30px_rgba(0,0,0,0.12)] overflow-hidden">
+          <div className="relative w-full lg:w-auto flex-shrink-0">
+            <div className="w-full sm:w-80 md:w-96 lg:w-[420px] aspect-square rounded-2xl sm:rounded-3xl lg:rounded-[48px] border-4 sm:border-6 lg:border-[12px] border-border shadow-[0_10px_30px_rgba(0,0,0,0.12)] overflow-hidden">
            {/*    <img
                 src={mainImage}
                 alt={title}
                 className="w-full h-full object-cover"
               />*/}
-               <video 
+               <video
                     src={mainImage}
                     autoPlay
                     loop
@@ -35,7 +37,7 @@ const FeatureSection = ({
                     className="w-full h-full rounded-lg object-cover"
                 />
             </div>
-  
+
             {/* Floating Card
             <div
               className={`absolute top-1/2 -translate-y-1/2 w-[310px] rounded-xl overflow-hidden bg-white shadow-[0_1px_2px_rgba(0,0,0,0.08),0_16px_32px_rgba(0,0,0,0.2)]
@@ -48,25 +50,26 @@ const FeatureSection = ({
               />
             </div> */}
           </div>
-  
+
           {/* Content */}
-          <div className="max-w-[450px]">
-            <h2 className="text-4xl font-semibold mb-4 text-foreground  ">
+          <div className="w-full lg:w-auto lg:max-w-[450px] relative">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-semibold mb-3 sm:mb-4 text-foreground">
               {title}
             </h2>
-  
-            <p className="text-base leading-relaxed text-muted-foreground mb-8">
+
+            <p className="text-sm sm:text-base leading-relaxed text-muted-foreground mb-6 sm:mb-8">
               {description}
             </p>
-  
+        
             <a href={buttonLink}>
-              <Button className="group  px-2 text-sm rounded-full " size="lg" variant="steel" icon={
-                <div className="p-1.5 group bg-white rounded-full"><ArrowRight className="w-4.5 h-4.5 text-black group-hover:-rotate-30 transition duration-75" /></div>
+              <Button className="group px-2 text-xs sm:text-sm rounded-full" size="lg" variant="steel" icon={
+                <div className="p-1.5 group bg-white rounded-full"><ArrowRight className="w-4 sm:w-4.5 h-4 sm:h-4.5 text-black group-hover:-rotate-30 transition duration-75" /></div>
             } iconPosition="right">
                 {buttonText}
               </Button>
-            </a>
-          </div>
+            </a>   
+          </div> <WalletLogoIconOpenRed className={cn("h-80 w-80   absolute  opacity-30 ",
+reverse? 'top-[28%] -left-40 rotate-270  ': 'rotate-90 top-[17%] -right-40' )} fill={reverse? 'red' : '#BCC987'} />
         </div>
       </section>
     );

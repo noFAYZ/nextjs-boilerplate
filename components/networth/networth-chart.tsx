@@ -11,6 +11,7 @@ import {
   RefreshCcw,
   Minus,
   TrendingDown,
+  ArrowDownLeft,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -25,7 +26,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
-import { cn } from '@/lib/utils';
+import { cn, formatDateTime } from '@/lib/utils';
 import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/queries/use-networth-data';
 import type { TimePeriod } from '@/lib/types/networth';
 import { SnapshotGranularity } from '@/lib/types/networth';
@@ -36,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SolarCalendarBoldDuotone } from '../icons/icons';
+import { MemoryArrowTopRight, SolarCalendarBoldDuotone } from '../icons/icons';
 import {
   ChartContainer,
   ChartTooltip,
@@ -591,7 +592,7 @@ const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
 
   return (
     <g>
-      <circle cx={cx} cy={cy} r={2} fill="#FFDCD2" stroke="var(--chart-1)" strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={1.5} fill="#FFDCD2" stroke="var(--chart-1)" strokeWidth={1} opacity={0.6} />
     </g>
   );
 };
@@ -921,16 +922,12 @@ export function NetWorthChart({
         role="region"
         aria-label="Net Worth Chart (Compact View)"
       >
-        <div className="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+        <div className="flex items-center justify-between mx-2.5 mb-2 gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 flex-wrap">
-            {mode === 'demo' && (
-              <span className="text-[9px] font-extrabold px-2 py-1  bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20">
-                DEMO
-              </span>
-            )}
+      
             {metrics && !isLoading && (
               <div className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-full font-extrabold text-[10px] shadow-sm",
+                "flex items-center gap-1 px-1 py-0.5 rounded-sm font-extrabold text-[10px] shadow-sm",
                 metrics.isPositive
                   ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20"
                   : "bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20"
@@ -943,7 +940,7 @@ export function NetWorthChart({
 
           {showPeriodFilter && (
             <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
-              <SelectTrigger size="sm" className="w-[100px] h-7 text-[11px] font-medium">
+              <SelectTrigger size="xs" className="rounded-none shadow-none" variant='outline2'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -957,7 +954,7 @@ export function NetWorthChart({
           )}
         </div>
 
-        <div className="relative rounded-none overflow-hidden border bg-muted/30 shadow-sm" style={{ height }}>
+        <div className="relative rounded-none overflow-hidden " style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (
@@ -978,13 +975,13 @@ export function NetWorthChart({
                 <AreaChart
                   accessibilityLayer
                   data={chartData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
                 >
                   <defs>
                     <linearGradient id="networthGradientCompact" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--chart-primary)" stopOpacity={0.5} />
-                      <stop offset="40%" stopColor="var(--chart-primary)" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="var(--chart-primary)" stopOpacity={0.02} />
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={1} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.04} />
                     </linearGradient>
                   </defs>
 
@@ -995,24 +992,14 @@ export function NetWorthChart({
                     vertical={false}
                   />
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    stroke="var(--muted-foreground)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={5}
-                    opacity={0.7}
-                    interval="preserveStartEnd"
-                  />
 
                   <YAxis
                     stroke="var(--muted-foreground)"
-                    fontSize={10}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-5}
+                  
                     opacity={0.7}
                     width={40}
                     domain={yAxisDomain as [number, number]}
@@ -1024,8 +1011,9 @@ export function NetWorthChart({
                   <Area
                     type="linear"
                     dataKey="totalNetWorth"
-                    stroke="var(--chart-primary)"
-                    strokeWidth={4}
+                    stroke="var(--chart-1)"
+                    opacity={0.5}
+                    strokeWidth={2.4}
                     fill="url(#networthGradientCompact)"
                     aria-label="Net worth area"
                     isAnimationActive={true}
@@ -1054,7 +1042,7 @@ export function NetWorthChart({
   return (
     <Card
       ref={chartContainerRef}
-      className={cn("w-full  p-0 space-y-2 shadow-xs hover:shadow-none border-border/70 ", className)}
+      className={cn("w-full  p-0 space-y-4 shadow-xs hover:shadow-none rounded-sm flex flex-col justify-between", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -1062,7 +1050,7 @@ export function NetWorthChart({
 
      
 
-<div className='flex justify-end items-center gap-2 p-4'>
+<div className='flex justify-end items-center gap-2 pr-4'>
 
    {/* Compact Metrics Cards
    {  metrics && !isLoading && (
@@ -1070,12 +1058,36 @@ export function NetWorthChart({
           <CurrencyDisplay amountUSD={metrics.current} variant='xl' className='font-medium' />
        
         </div>
-      )} */}
+      )} 
+
+      <div className='flex gap-4'>
+      <Card className="rounded-none justify-between  w-34 h-14 bg-[hsl(75.79,100%,70.2%)] p-1">
+            <div className="flex items-center gap-2  ">
+              <ArrowDownLeft className="h-5 w-5 bg-[hsl(76,65%,54%)] text-[hsl(76,47%,27%)]" strokeWidth={2.5} />
+              <h3 className="text-gray-800 text-xs upp">Income</h3>
+            </div>
+            <div className="text-xs font-semibold text-gray-800 text-end ">
+              {formatCurrency(4600)}
+            </div>
+          </Card>
+
+          <Card className="rounded-none justify-between  w-34 h-14 bg-[rgb(255,220,210)] p-1">
+            <div className="flex items-center gap-2  ">
+              <MemoryArrowTopRight className="h-5 w-5 bg-[rgb(240,185,169)]  text-[rgb(141,62,40)]" strokeWidth={2.5} />
+              <h3 className=" text-xs text-gray-700">Expense</h3>
+            </div>
+
+
+            <div className="text-xs text-end font-semibold text-gray-800">
+              {formatCurrency(2100)}
+            </div>
+          </Card>
+      </div>*/}
 
 <div className='flex items-center gap-2'>
       {/* Chart Type Selector */}
       <Select value={chartType} onValueChange={(v) => setChartType(v as 'performance' | 'breakdown')}>
-        <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none w-[120px]" size='xs' variant='outline2'>
+        <SelectTrigger className="gap-1 rounded-none font-medium h-7 text-xs  shadow-none w-[120px]" size='xs' variant='outline2'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent className=' shadow-none'>
@@ -1090,7 +1102,7 @@ export function NetWorthChart({
 
       {showPeriodFilter && chartType === 'performance' && (
         <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)} >
-          <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none" size='xs' variant='outline2'>
+          <SelectTrigger className="gap-1 font-medium h-7 rounded-none text-xs  shadow-none" size='xs' variant='outline2'>
             <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
@@ -1106,7 +1118,7 @@ export function NetWorthChart({
 
       {showPeriodFilter && chartType === 'breakdown' && (
         <Select value={breakdownPeriod} onValueChange={(v) => setBreakdownPeriod(v as 'monthly' | 'quarterly' | 'yearly')} >
-          <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none w-[110px]" size='xs' variant='outline2'>
+          <SelectTrigger className="gap-1 font-medium h-7 text-xs  shadow-none w-[110px] rounded-none" size='xs' variant='outline2'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent className=' shadow-none'>
@@ -1155,29 +1167,54 @@ export function NetWorthChart({
               {chartType === 'performance' ? (
                 <AreaChart
                   data={chartData}
-                  margin={{  top:40 }}
+                
                   role="img"
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
                   aria-label={`Net worth area chart showing ${chartData.length} data points over ${selectedPeriod}`}
                 >
                   <defs>
                     <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.5} />
-                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.33} />
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.5} />
                       <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
                     </linearGradient>
                   </defs>
 
-                {/*   <CartesianGrid vertical={false} /> */}
+                  <CartesianGrid vertical={false} />
 
               
+                  <YAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
+                  
+                    opacity={0.7}
+                    width={40}
+                    domain={yAxisDomain as [number, number]}
+                    aria-label="Net worth value axis"
+                  />
 
+<XAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => formatDateTime(value)}
+                  
+                    opacity={0.7}
+                    width={40}
+               
+                    aria-label="Net worth value axis"
+                  />
                  
                   <ReferenceLine
                     y={averageValue}
                     stroke="var(--muted-foreground)"
                     strokeDasharray="4 4"
                     strokeWidth={1 }
-                    opacity={0.4}
+                    opacity={0.25}
                     label={{
                       value: 'Avg',
                       position: 'right',
@@ -1192,8 +1229,9 @@ export function NetWorthChart({
                   <Area
                     type="linear"
                     dataKey="totalNetWorth"
-                    stroke="var(--chart-primary)"
-                    strokeWidth={2}
+                    stroke="var(--chart-1)"
+                    strokeWidth={2.5}
+                    opacity={0.8}
                     fill="url(#networthGradient)"
                     aria-label="Net worth area"
                     isAnimationActive={true}
@@ -1207,14 +1245,14 @@ export function NetWorthChart({
                   accessibilityLayer
                   data={breakdownChartData}
                   margin={{ top: 15, right: 20, left: 15, bottom: 15 }}
-                  barSize={45}
-                  barCategoryGap={20}
+                  barSize={20}
+                  barCategoryGap={1}
                 >
-                  <CartesianGrid vertical={false} />
+                  <CartesianGrid vertical={false} opacity={0.8} />
 
                   <XAxis
                     dataKey="formattedDate"
-                    tickLine={true}
+                    tickLine={false}
                     tickMargin={10}
                     axisLine={false}
                     fontSize={12}
@@ -1226,34 +1264,18 @@ export function NetWorthChart({
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-8}
-                    width={50}
+                    tick={false}
+                    width={0}
                   />
-
-               {/*    <ReferenceLine
-                    y={breakdownAverages.avgAssets + breakdownAverages.avgLiabilities}
-                    stroke="var(--foreground)"
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    opacity={0.5}
-                    label={{
-                      value: 'Avg',
-                      position: 'right',
-                      fill: 'var(--muted-foreground)',
-                      fontSize: 10,
-                      fontWeight: 500,
-                    }}
-                  /> */}
 
                   <ChartTooltip content={<ChartTooltipContent hideLabel />} />
 
-                {/*   <ChartLegend content={<ChartLegendContent />} /> */}
+                {/* */}  <ChartLegend content={<ChartLegendContent />} /> 
 
                   <Bar
                     dataKey="totalLiabilities"
                     stackId="a"
-                    fill="rgb(246,115,49)"
+                    fill="rgb(241,190,175)"
                     name="Liabilities"
                     radius={[0, 0, 4, 4]}
                     isAnimationActive={true}
@@ -1263,7 +1285,7 @@ export function NetWorthChart({
                   <Bar
                     dataKey="totalAssets"
                     stackId="a"
-                    fill="rgb(246,193,152)"
+                    fill="rgb(188,201,135)"
                     name="Assets"
                     radius={[4, 4, 0, 0]}
                     isAnimationActive={true}
@@ -1274,25 +1296,13 @@ export function NetWorthChart({
                   <Line
                     type="linear"
                     dataKey="totalNetWorth"
-                    stroke="var(--muted-foreground)"
+                    stroke="var(--chart-1)"
                     strokeWidth={2}
-                    strokeDasharray="5 5"
                     dot={<CustomNetWorthDot />}
-                    activeDot={{ r: 2 }}
+                    activeDot={{ r: 3 }}
                     name="Net Worth"
                     isAnimationActive={true}
                     animationDuration={400}
-                    yAxisId="right"
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={8}
-                    width={50}
                   />
                 </ComposedChart>
               )}

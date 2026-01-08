@@ -98,7 +98,7 @@ export function CurrencyDisplay({
       // Color coding for positive/negative/zero
       'text-green-600 dark:text-green-400': colorCoded && convertedAmount > 0,
       'text-red-600 dark:text-red-400': colorCoded && convertedAmount < 0,
-      'text-muted-foreground': colorCoded && convertedAmount === 0,
+      'text-muted-foreground': colorCoded && convertedAmount == 0,
     },
     className
   );
@@ -119,7 +119,7 @@ export function CurrencyDisplay({
       // Decimal inherits main color
       'text-green-600 dark:text-green-400': colorCoded && convertedAmount > 0,
       'text-red-600 dark:text-red-400': colorCoded && convertedAmount < 0,
-      'text-muted-foreground': colorCoded && convertedAmount === 0,
+      'text-muted-foreground': colorCoded && convertedAmount == 0,
     }
   );
 

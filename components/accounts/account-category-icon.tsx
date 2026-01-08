@@ -60,3 +60,16 @@ export function AccountCategoryIcon({ category, className }: AccountCategoryIcon
 export function getAccountCategoryConfig(category: AccountCategory | string): CategoryConfig {
   return accountCategoryConfig[category] || accountCategoryConfig.OTHER;
 }
+
+/**
+ * Determines if an account category is an Asset or Liability
+ */
+export function getCategoryType(category: AccountCategory | string): 'ASSET' | 'LIABILITY' {
+  const assetCategories = ['CASH', 'INVESTMENTS', 'REAL_ESTATE', 'VEHICLE', 'VALUABLES', 'CRYPTO', 'OTHER_ASSET', 'ASSETS'];
+  const liabilityCategories = ['CREDIT_CARD', 'MORTGAGE', 'LOAN', 'OTHER_LIABILITY', 'LIABILITIES', 'CREDIT'];
+
+  if (assetCategories.includes(String(category))) return 'ASSET';
+  if (liabilityCategories.includes(String(category))) return 'LIABILITY';
+
+  return 'ASSET'; // Default to asset for unknown categories
+}

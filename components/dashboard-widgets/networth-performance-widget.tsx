@@ -19,7 +19,7 @@ import { Separator } from "../ui/separator";
  */
 export function NetWorthPerformanceWidget() {
   return (
-    <div className="relative border-none shadow-none hover:shadow-none h-full w-full flex flex-col gap-2 justify-between h-[450px]">
+    <Card className="relative border-border shadow-none hover:shadow-none   w-full flex flex-col gap-2 justify-between h-[450px]">
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -44,8 +44,8 @@ export function NetWorthPerformanceWidget() {
     
       {/* Chart Container - Flex grow to fill available space */}
      
-        <NetWorthChart mode="demo" height={300} className="border-0   " />
+        <NetWorthChart mode="demo" height={280} className="border-0   " />
       
-    </div>
+    </Card>
   );
 }

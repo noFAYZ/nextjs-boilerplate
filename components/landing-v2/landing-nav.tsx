@@ -134,7 +134,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
                 <NavigationMenu delayDuration={0}> {/* Instant open */}
                   <NavigationMenuList className="gap-0">
                     <NavigationMenuItem>
-                      <NavigationMenuTrigger className="bg-transparent hover:bg-none text-[13px]" >Product</NavigationMenuTrigger>
+                      <NavigationMenuTrigger className="bg-transparent hover:bg-none text-sm" >Product</NavigationMenuTrigger>
                       <NavigationMenuContent className='bg-[hsl(0,0%,18.82%)] dark:bg-gray-100 border-0 ring-0'>
                         <ul className="grid w-[480px] grid-cols-2 gap-2  ">
                           {productLinks.map((item) => (
@@ -149,7 +149,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
-                        <Link href="/#pricing" className=" text-[13px] font-medium hover:bg-accent/0 hover:text-background/80  rounded-full transition-colors py-1">
+                        <Link href="/#pricing" className=" text-sm font-medium hover:bg-accent/0 hover:text-background/80  rounded-full transition-colors py-1">
                           Pricing
                         </Link>
                       </NavigationMenuLink>
@@ -157,7 +157,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
 
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
-                        <Link href="#faq" className=" text-[13px] font-medium hover:bg-accent/0 py-1 hover:text-background/80 rounded-full transition-colors">
+                        <Link href="#faq" className=" text-sm font-medium hover:bg-accent/0 py-1 hover:text-background/80 rounded-full transition-colors">
                           FAQs
                         </Link>
                       </NavigationMenuLink>
@@ -171,7 +171,7 @@ function ListItem({ title, href, description, icon: Icon }: LinkItem) {
               <div className="hidden lg:flex items-center  gap-3">
                 
               {/*    <ThemeSwitcher />*/}
-              <Link href="/#hero"><Button size="sm" variant='brand' className="group rounded-full  h-9 text-xs font-medium" >
+              <Link href="/#hero"><Button size="sm" variant='steel' className="group rounded-full  h-9 text-sm font-semibold" >
                         Waitlist  <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition" />
                       </Button></Link>
               {/*  {user ? (
