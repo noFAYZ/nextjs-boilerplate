@@ -649,12 +649,12 @@ const PeriodFilterButtons = ({ periods, selectedPeriod, onPeriodChange, compact 
       <Button
         key={period.value}
         size={compact ? "xs" : "sm"}
-        variant={selectedPeriod === period.value ? "outline2" : "outlinemuted2"}
+        variant={selectedPeriod === period.value ? "brand" : "outlinemuted2"}
         onClick={() => onPeriodChange(period.value)}
         className={cn(
-          "rounded-none font-medium transition-all border-0 hover:border-none hover:bg-none flex-1",
+          "font-medium transition-all uppercase border-none hover:border-none flex-1 text-[12px] text-muted-foreground",
           compact && "text-xs",
-          selectedPeriod === period.value && "shadow-sm",
+          selectedPeriod === period.value && "shadow-sm text-white",
           index > 0 && "border-l border-input"
         )}
       >
@@ -1265,9 +1265,9 @@ export function NetWorthChart({
   // Full mode - enterprise-grade with accessibility
 
   return (
-    <Card
+    <div
       ref={chartContainerRef}
-      className={cn("w-full  p-0 space-y-4 shadow-xs hover:shadow-none rounded-sm flex flex-col justify-between", className)}
+      className={cn("w-full  p-0 space-y-4   hover:shadow-none rounded-none flex flex-col justify-between", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -1384,7 +1384,7 @@ export function NetWorthChart({
             config={{
               totalNetWorth: {
                 label: 'Net Worth',
-                color: 'var(--chart-1)',
+                color: 'var(--chart-3)',
               },
               totalAssets: {
                 label: 'Assets',
@@ -1409,7 +1409,7 @@ export function NetWorthChart({
                   <defs>
                     <linearGradient id="networthGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
-                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.5} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.4} />
                       <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.01} />
                     </linearGradient>
                   </defs>
@@ -1464,7 +1464,7 @@ export function NetWorthChart({
                     type="linear"
                     dataKey="totalNetWorth"
                     stroke="var(--chart-1)"
-                    strokeWidth={2.5}
+                    strokeWidth={2}
                     opacity={1}
                     fill="url(#networthGradient)"
                     aria-label="Net worth area"
@@ -1546,6 +1546,6 @@ export function NetWorthChart({
         
       </div>
 
-    </Card>
+    </div>
   );
 }

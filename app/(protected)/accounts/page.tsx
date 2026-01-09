@@ -46,7 +46,7 @@ export default function AccountsPage() {
     <div className="h-full flex flex-col relative space-y-4">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
-      {/* Header: Tabs and Actions */}
+      {/* Header: Tabs and Actions 
       <div className="flex items-center justify-end">
 
         <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default function AccountsPage() {
             Add Account
           </Button>
         </div>
-      </div>
+      </div>*/}
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">

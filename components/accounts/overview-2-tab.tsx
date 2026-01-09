@@ -109,7 +109,7 @@ export function Overview2Tab() {
 
   return (
    <div className='flex flex-col space-y-4'> 
-     <NetWorthChart mode="demo" height={350} className="p-6"  />
+     <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
    
    <div className="h-full flex  gap-4">
 

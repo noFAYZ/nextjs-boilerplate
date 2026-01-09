@@ -68,8 +68,7 @@ export function DashboardHeader() {
       return { assetsPercent, liabilitiesPercent };
     }, [summaryData]);
 
-    console.log(netWorth)
-
+ 
   return (
     <div>
       {/* Greeting 

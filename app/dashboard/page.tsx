@@ -108,14 +108,14 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           {/* Main Content Container */}
-          <div className="space-y-4 px-4 sm:px-6 lg:px-8 py-4 max-w-full">
+          <div className="space-y-4  max-w-full">
             {/* Header Section - Controls */}
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-0">
               <Button
                 variant={isEditMode ? "brand" : "outline2"}
                 size="icon-xs"
                 onClick={toggleEditMode}
-                className="gap-1 border-r-0 rounded-r-none"
+                className=" rounded-none"
                 title={
                   isEditMode
                     ? "Exit edit mode"
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 variant="outline2"
                 size="icon-xs"
                 onClick={() => setIsSettingsOpen(true)}
-                className="gap-1 rounded-l-none"
+                className=" rounded-none"
                 title="Manage widgets"
               >
                 <Settings2 className="h-4 w-4" />
@@ -143,7 +143,7 @@ export default function DashboardPage() {
 
             {/* Edit Mode Info Banner */}
             {isEditMode && (
-              <div className="p-3 rounded-lg bg-accent/30 border border-accent/50 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="p-2   bg-secondary   animate-in fade-in slide-in-from-top-2 duration-300">
                 <p className="text-xs font-semibold text-foreground">
                   ✏️ Drag to reorder widgets • Drag the corner to resize • Use
                   &quot;Widgets&quot; button to show/hide
