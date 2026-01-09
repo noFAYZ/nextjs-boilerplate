@@ -24,7 +24,8 @@
       "WebSearch",
       "Bash(timeout 120 npm run build)",
       "Bash(git add:*)",
-      "Bash(yarn add:*)"
+      "Bash(yarn add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
