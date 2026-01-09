@@ -106,8 +106,8 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
       <SortableContext items={widgetIds} strategy={verticalListSortingStrategy} disabled={!isEditMode}>
         <div
           className={cn(
-            'grid auto-rows-max gap-4',
-            'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+            'grid auto-rows-max gap-3 sm:gap-4',
+            'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
             isDragging && isEditMode && 'opacity-75'
           )}
         >
@@ -121,10 +121,15 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
                 key={widget.id}
                 className={cn(
                   'col-span-1',
-                  // Responsive column spans
-                  colSpan === 2 && 'sm:col-span-2 lg:col-span-2',
-                  colSpan === 3 && 'sm:col-span-2 lg:col-span-3',
-                  colSpan === 4 && 'sm:col-span-2 lg:col-span-4'
+                  // Responsive column spans based on widget size
+                  // Small (1 col): always 1 column
+                  colSpan === 1 && 'col-span-1',
+                  // Medium (2 cols): 2 on sm, 2 on md, 2 on lg
+                  colSpan === 2 && 'sm:col-span-2 md:col-span-2 lg:col-span-2',
+                  // Large (3 cols): 2 on sm, 3 on md, 3 on lg
+                  colSpan === 3 && 'sm:col-span-2 md:col-span-3 lg:col-span-3',
+                  // Full (4 cols): 2 on sm, 3 on md, 4 on lg
+                  colSpan === 4 && 'sm:col-span-2 md:col-span-3 lg:col-span-4'
                 )}
               >
                 <DashboardWidgetContainer

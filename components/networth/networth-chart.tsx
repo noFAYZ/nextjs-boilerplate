@@ -1004,7 +1004,7 @@ export function NetWorthChart({
     return (
       <div
         ref={chartContainerRef}
-        className={cn("w-full  -mb-2   space-y-3 shadow-sm border  ", className)}
+        className={cn("w-full  -mb-2   space-y-3    ", className)}
         role="region"
         aria-label="Net Worth Chart (Compact View)"
       >
@@ -1134,7 +1134,7 @@ export function NetWorthChart({
         </div>
 
         {/* Chart container */}
-        <div className="relative rounded-md overflow-visible bg-muted/30 border border-muted -mr-4" style={{ height }}>
+        <div className="relative rounded-md overflow-visible bg-muted/30 border-0 -mr-4" style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (

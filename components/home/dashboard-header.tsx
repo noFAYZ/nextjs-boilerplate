@@ -92,7 +92,7 @@ export function DashboardHeader() {
 </div>*/}
 
       {/* Main layout: Networth on left, Metrics on right */}
-      <div className="flex  justify-between items-center gap-8 border p-4 pb-0 bg-muted rounded-2xl  ">
+      <div className="flex  justify-between items-center gap-8  p-4 pb-0 bg-muted rounded-2xl  ">
         {/* Left: Net Worth Section */}
      
 
