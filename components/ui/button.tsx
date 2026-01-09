@@ -36,7 +36,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
         outline:
-          "border-2 border-border bg-white dark:bg-[#3E3C3C] backdrop-blur-sm hover:bg-gray-200 hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
+          "border-2 border-[rgb(218,217,212)] bg-white dark:bg-[#3E3C3C] backdrop-blur-sm hover:bg-gray-200 hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
           outlinemuted:"border border-border/80  bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow-none   ",
           outlinemuted2:"  hover:border    hover:bg-muted  hover:text-accent-foreground  shadow-none   ",
           outlinepressed:
@@ -108,12 +108,12 @@ outlinecard:" bg-muted dark:bg-card      hover:bg-card/80  hover:text-accent-for
           "bg-gradient-to-b from-[#EB8229] to-[#D46922] text-white border border-[#D46922] shadow-[inset_0_0px_0_rgb(226,131,63)] hover:from-[#D46922] hover:to-[#C85E20] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] active:scale-[0.98]",
       },
       size: {
-        xs: "h-7 px-2 text-xs rounded-md gap-1",
-        sm: "h-8 px-3 text-sm rounded-md gap-1",
-        default: "h-9 px-4 gap-2",
-        lg: "h-10 px-6 text-base gap-2.5",
-        xl: "h-12 px-8 text-lg gap-3",
-        "2xl": "h-14 px-10 text-xl gap-3",
+        xs: "h-7 px-1.5 text-xs rounded-md gap-1",
+        sm: "h-8 px-2 text-sm rounded-md gap-1",
+        default: "h-9 px-2.5 gap-2",
+        lg: "h-10 px-3 text-base gap-2.5",
+        xl: "h-12 px-4 text-lg gap-3",
+        "2xl": "h-14 px-5 text-xl gap-3",
         icon: "size-9",
         "icon-xs": "size-6",
         "icon-sm": "size-8",

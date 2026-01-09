@@ -10,6 +10,7 @@ export { CryptoAllocationWidget } from './crypto-allocation-widget';
 export { NetworkDistributionWidget } from './network-distribution-widget';
 
 // Banking Widgets
+export { AccountsWidget } from './accounts-widget';
 export { AccountSpendingComparisonWidget } from './account-spending-comparison-widget';
 
 // Goals, Budgets & Subscriptions Widgets

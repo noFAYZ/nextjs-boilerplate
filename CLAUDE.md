@@ -412,6 +412,81 @@ export function WalletList() {
 - Use the custom theme provider for consistent theming
 - Implement responsive design patterns
 
+### Modal & Dialog Design Standards ⭐
+
+**Modern, Compact, Functional Design Pattern**
+
+All modals, dialogs, and setting panels follow this design standard:
+
+```typescript
+// ✅ CORRECT: Modern modal design pattern
+<Dialog open={isOpen} onOpenChange={onClose}>
+  <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-5">
+
+    {/* Header: Icon badge + Title + Description */}
+    <DialogHeader className="space-y-2">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Settings2 className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <DialogTitle>Modal Title</DialogTitle>
+          <DialogDescription className="text-xs mt-1">
+            Concise description
+          </DialogDescription>
+        </div>
+      </div>
+    </DialogHeader>
+
+    {/* Content Area: Clean, compact spacing */}
+    <div className="space-y-5">
+      {/* Items/Cards without borders - use subtle background colors */}
+      <div
+        className={cn(
+          'flex items-center justify-between p-3 rounded-lg transition-all cursor-pointer',
+          isActive ? 'bg-primary/5 hover:bg-primary/8' : 'bg-muted/40 hover:bg-muted/50'
+        )}
+      >
+        <span className="text-sm font-medium">Item Label</span>
+        <Switch checked={isActive} onCheckedChange={handleToggle} />
+      </div>
+
+      {/* Nested/Expanded sections: subtle background, no borders */}
+      {isExpanded && (
+        <div className="ml-3 p-3 bg-muted/30 rounded-lg space-y-2">
+          <p className="text-xs font-medium text-foreground">Subsection</p>
+          {/* Content with icon-based buttons for better UX */}
+        </div>
+      )}
+    </div>
+
+    {/* Footer: Minimal, clean actions */}
+    <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/50">
+      <Button variant="outline" size="sm">Action</Button>
+      <Button size="sm">Primary</Button>
+    </div>
+  </DialogContent>
+</Dialog>
+```
+
+**Design Principles:**
+1. **No Border Colors** - Use `bg-primary/5`, `bg-muted/40` instead of `border-primary/30`
+2. **Icon Badges in Headers** - `h-8 w-8 rounded-lg bg-primary/10` with icon inside
+3. **Compact Layout** - `p-3` to `p-5` padding, `space-y-2` to `space-y-5` gaps
+4. **Semantic Icons** - Use icons for size selection (Square, Maximize, Maximize2, Minimize)
+5. **Subtle Hover States** - Use opacity changes: `hover:bg-primary/8` instead of border changes
+6. **Clean Typography** - Clear hierarchy with font weights and sizes
+7. **No Unnecessary Elements** - Remove separators unless truly needed
+8. **Theme-Based Colors** - Use `primary/10`, `muted/40` etc. instead of hardcoded colors
+
+**Benefits:**
+- ✅ Modern, professional appearance
+- ✅ Better visual hierarchy
+- ✅ Consistent across app
+- ✅ Responsive and compact
+- ✅ Accessible with clear focus states
+- ✅ Easy to maintain and extend
+
 ### API Integration ⭐
 
 **NEVER call API services directly from components**

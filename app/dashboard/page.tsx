@@ -22,6 +22,7 @@ import { useState } from "react";
 // Import dashboard widgets
 import {
   NetWorthWidget,
+  AccountsWidget,
   NetWorthPerformanceWidget,
   MonthlySpendingTrendWidget,
   SpendingCategoriesWidget,
@@ -74,6 +75,10 @@ export default function DashboardPage() {
     {
       id: "net-worth",
       component: <NetWorthWidget />,
+    },
+    {
+      id: "accounts",
+      component: <AccountsWidget />,
     },
     {
       id: "networth-performance",
@@ -165,7 +170,7 @@ export default function DashboardPage() {
     );
   }
 
-  return (<div className="space-y-4 container mx-auto">
+  return (<div className="space-y-4   mx-auto">
 <DashboardHeader />  
 
   <div className="flex ">

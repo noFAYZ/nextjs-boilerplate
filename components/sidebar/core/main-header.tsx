@@ -9,12 +9,13 @@ import {
   PlusIcon,
   RefreshCcw,
   Settings,
-  User
+  User,
+  Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
@@ -43,16 +44,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
+import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
 
 import { useCommandPalette } from '@/components/command/command-palette';
 import { useAuthStore, useGlobalUIStore } from '@/lib/stores';
-import { LetsIconsAddDuotone, SolarRefreshCircleBoldDuotone, TablerLayoutSidebarLeftExpandFilled } from '@/components/icons/icons';
+import {
+  LetsIconsAddDuotone,
+  SolarRefreshCircleBoldDuotone,
+  TablerLayoutSidebarLeftExpandFilled,
+  SolarLibraryBoldDuotone,
+  SolarBillListBoldDuotone,
+  SolarInboxInBoldDuotone,
+  MageGoals,
+} from '@/components/icons/icons';
 import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { OnboardingIndicator } from '@/components/layout/onboarding-indicator';
 import { useIsFetching, useIsMutating, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/lib/hooks/useToast';
+import { LetsIconsSettingLineDuotone } from '@/components/icons';
 
 interface MainHeaderProps {
   mainColumnExpanded: boolean;
@@ -96,13 +112,16 @@ export function MainHeader({
   const pathname = usePathname();
   const router = useRouter();
   const { openCommandPalette } = useCommandPalette();
-  const openAddMenu = useGlobalUIStore((s) => s.openAddMenu);
   const breadcrumbs = generateBreadcrumbs(pathname);
- const queryClient = useQueryClient();
-    const isFetching = useIsFetching();
-    const isMutating = useIsMutating();
-    const isLoading = isFetching > 0 || isMutating > 0;   
-    const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
+  const isLoading = isFetching > 0 || isMutating > 0;
+  const { toast } = useToast();
+
+  // Add menu state
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -153,6 +172,32 @@ const greeting =
       });
     }
   }, [pathname, queryClient, toast]);
+
+  // Add menu action handlers
+  const handleAddAccount = () => {
+    setAddMenuOpen(false);
+    setIsAddAccountDialogOpen(true);
+  };
+
+  const handleAddTransaction = () => {
+    setAddMenuOpen(false);
+    // TODO: Implement add transaction dialog
+  };
+
+  const handleAddRule = () => {
+    setAddMenuOpen(false);
+    // TODO: Implement add rule dialog
+  };
+
+  const handleAddSubscription = () => {
+    setAddMenuOpen(false);
+    router.push('/subscriptions');
+  };
+
+  const handleAddGoal = () => {
+    setAddMenuOpen(false);
+    // TODO: Implement add goal dialog
+  };
   return (
     <TooltipProvider delayDuration={100}>
       <header className="relative w-full z-40  ">
@@ -244,22 +289,75 @@ const greeting =
 
         
  {/* Add button */}
- <Button variant="outline2" size='sm'      onClick={handleRefresh}  disabled={isLoading} className='rounded-full pl-1 shadow-none pr-2 hover:bg-muted/60' icon={ <SolarRefreshCircleBoldDuotone className={cn("h-6 w-6", isLoading && "animate-spin")} />}>
+ <Button variant="outline"      onClick={handleRefresh}  disabled={isLoading} className='  pl-1  pr-2  ' icon={ <SolarRefreshCircleBoldDuotone className={cn("h-6 w-6", isLoading && "animate-spin")} />}>
              
               Sync
             </Button>
       
-            {/* Add button */}
-       
-                <Button variant="steel" size='icon-sm'  className='rounded-full ' onClick={openAddMenu}>
-                  <PlusIcon className="h-5 w-5" strokeWidth={2} />
+            {/* Add menu popover */}
+            <Popover open={addMenuOpen} onOpenChange={setAddMenuOpen}>
+              <PopoverTrigger asChild>
+                <Button   size='icon' className='rounded-full'  >
+                  <PlusIcon className="h-6 w-6" strokeWidth={2} />
+               
                 </Button>
-             
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2" align="end">
+                <div className="space-y-1">
+                  {/* Account */}
+                  <button
+                    onClick={handleAddAccount}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <SolarLibraryBoldDuotone className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Account</span>
+                  </button>
 
-         
+                  {/* Transaction */}
+                  <button
+                    onClick={handleAddTransaction}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <SolarBillListBoldDuotone className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Transaction</span>
+                  </button>
+
+                  {/* Rule */}
+                  <button
+                    onClick={handleAddRule}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <LetsIconsSettingLineDuotone className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Rule</span>
+                  </button>
+
+                  {/* Subscription */}
+                  <button
+                    onClick={handleAddSubscription}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <SolarInboxInBoldDuotone className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Subscription</span>
+                  </button>
+
+                  {/* Goal */}
+                  <button
+                    onClick={handleAddGoal}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <MageGoals className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm font-medium">Goal</span>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+
           </div>
         </div>
 
+        {/* Add Account Dialog */}
+        <AddAccountDialog open={isAddAccountDialogOpen} onOpenChange={setIsAddAccountDialogOpen} />
 
       </header>
     </TooltipProvider>

@@ -205,7 +205,7 @@ export function RecentActivityWidget() {
               <div className="group   p-2.5 px-4 hover:bg-muted/70 transition-all duration-75 cursor-pointer ">
                 <div className="flex items-center gap-3">
                   {/* Date Stamp */}
-                  <div className="h-8 w-8 flex flex-col items-center justify-center flex-shrink-0 rounded-xl bg-accent ">
+                  <div className="h-8 w-8 flex flex-col items-center justify-center flex-shrink-0 rounded-sm bg-accent ">
                     <span className="text-[10px] font-semibold text-muted-foreground leading-none">
                       {monthStr}
                     </span>

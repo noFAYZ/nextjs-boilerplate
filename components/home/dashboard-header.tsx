@@ -98,7 +98,7 @@ export function DashboardHeader() {
 
      
   {/* Main Card – Pure Apple Glass */}
-  <Card className="p-3  border-none bg-transparent shadow-none hover:shadow-none" >
+  <Card className="p-3 w-[40%]  border-none bg-transparent shadow-none hover:shadow-none" >
    
 
     {/* Content */}
@@ -253,9 +253,9 @@ export function DashboardHeader() {
 
 
         {/* Right: Metrics Cards */}
-        <div className='flex gap-4 w-[40%]'>
-                  <div className=" grid grid-cols-1  gap-1">
-          {/* Income Card - Bright Lime Green
+        <div className='flex gap-4  w-full'>
+            {/*      <div className=" grid grid-cols-1  gap-1">
+           Income Card - Bright Lime Green
           <Card className="rounded-lg  w-40 h-16 bg-[hsl(75.79,100%,70.2%)]">
             <div className="flex items-center gap-2  ">
               <ArrowDownLeft className="h-5 w-5 bg-[hsl(76,65%,54%)] text-[hsl(76,47%,27%)]" strokeWidth={2.5} />
@@ -305,9 +305,9 @@ export function DashboardHeader() {
             
 
             </div>
-          </Card>*/}
-        </div>
-        <NetWorthChart mode="demo" height={150} className="border-0 bg-transparent shadow-none border-none   -mr-4 -mt-2  "  />
+          </Card>
+        </div>*/}
+        <NetWorthChart mode="demo" height={150} className="border-0 bg-transparent shadow-none border-none   -mr-4 -mt-2  "  compact/>
        
         </div>
           

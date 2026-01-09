@@ -12,6 +12,7 @@ import {
   Minus,
   TrendingDown,
   ArrowDownLeft,
+  Settings2,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -26,7 +27,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
-import { cn, formatDateTime } from '@/lib/utils';
+import { cn, formatDate, formatDateTime } from '@/lib/utils';
 import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/queries/use-networth-data';
 import type { TimePeriod } from '@/lib/types/networth';
 import { SnapshotGranularity } from '@/lib/types/networth';
@@ -49,6 +50,9 @@ import {
 import { MetricCard } from '../ui/metric-card';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { Card } from '../ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { formatBusinessTime, timestampzToReadable } from '@/lib/utils/time';
 
 /**
  * Enterprise-grade NetWorth Chart Component
@@ -84,8 +88,12 @@ interface NetWorthChartProps {
   height?: number;
   /** Enable compact mode for embedded views */
   compact?: boolean;
-  /** Show period selection dropdown */
+  /** Show period selection filter */
   showPeriodFilter?: boolean;
+  /** Period filter UI type: button group or dropdown select */
+  periodFilterType?: 'buttons' | 'select';
+  /** Show net worth display in header */
+  showNetWorthDisplay?: boolean;
   /** Show average reference line */
   showComparison?: boolean;
   /** Initial time period */
@@ -520,6 +528,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   const liabilities = data.totalLiabilities;
   const change = data.change || 0;
   const changePercent = data.changePercent || 0;
+  const isPositive = change >= 0;
 
   let formattedDate: string;
   try {
@@ -527,6 +536,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
+      weekday: 'short'
     });
   } catch (error) {
     console.warn('[NetWorthChart] Date formatting error:', error);
@@ -534,42 +544,70 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   }
 
   return (
-    <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
-      <div className="space-y-2">
-        {/* Header */}
-        <div className="space-y-0.5">
-          <time className="text-[10px] text-muted-foreground font-medium" dateTime={data.date}>
+    <div className="bg-background/95 backdrop-blur-md border border-muted rounded-lg p-4 shadow-xl min-w-72">
+      <div className="space-y-3">
+        {/* Date Header */}
+        <div className="flex items-center justify-between">
+          <time className="text-xs text-muted-foreground font-semibold uppercase tracking-wide" dateTime={data.date}>
             {formattedDate}
           </time>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold tabular-nums">
+        </div>
+
+        {/* Main Net Worth Value */}
+        <div className={cn(
+          "px-3 py-2.5 rounded-md ",
+          isPositive
+            ? "bg-emerald-500/5 "
+            : "bg-red-500/5 "
+        )}>
+          <p className="text-[10px] text-muted-foreground font-semibold mb-1 uppercase tracking-wide">Net Worth</p>
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-lg font-bold tabular-nums tracking-tight">
               {formatCurrency(netWorth)}
             </span>
             {change !== 0 && (
               <span
                 className={cn(
-                  "text-[10px] font-semibold tabular-nums",
-                  change >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+                  "flex items-center gap-1 text-xs font-bold tabular-nums",
+                  isPositive
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
                 )}
               >
-                {change >= 0 ? '+' : ''}{Math.abs(changePercent).toFixed(1)}%
+                {isPositive ? (
+                  <ArrowUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ArrowDown className="h-3.5 w-3.5" />
+                )}
+                {isPositive ? '+' : ''}{Math.abs(changePercent).toFixed(2)}%
               </span>
             )}
           </div>
+          {change !== 0 && (
+            <p className="text-[10px] text-muted-foreground mt-1.5">
+              Change: {isPositive ? '+' : ''}{formatCurrency(change, { maximumFractionDigits: 0 })}
+            </p>
+          )}
         </div>
 
-        {/* Breakdown */}
-        <div className="space-y-1.5 pt-1.5 border-t">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Assets</span>
-            <span className="font-semibold tabular-nums">
+        {/* Assets & Liabilities Breakdown */}
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/40 hover:bg-muted/60 transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500/70"></div>
+              <span className="text-xs font-medium text-muted-foreground">Assets</span>
+            </div>
+            <span className="font-bold text-sm tabular-nums">
               {formatCurrency(assets, { maximumFractionDigits: 0 })}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Liabilities</span>
-            <span className="font-semibold tabular-nums">
+          <div className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/40 hover:bg-muted/60 transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500/70"></div>
+              <span className="text-xs font-medium text-muted-foreground">Liabilities</span>
+            </div>
+            <span className="font-bold text-sm tabular-nums">
               {formatCurrency(liabilities, { maximumFractionDigits: 0 })}
             </span>
           </div>
@@ -596,6 +634,35 @@ const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
     </g>
   );
 };
+
+// Period filter button group
+interface PeriodFilterButtonsProps {
+  periods: Array<{ value: TimePeriod; label: string; description: string }>;
+  selectedPeriod: TimePeriod;
+  onPeriodChange: (period: TimePeriod) => void;
+  compact?: boolean;
+}
+
+const PeriodFilterButtons = ({ periods, selectedPeriod, onPeriodChange, compact = false }: PeriodFilterButtonsProps) => (
+  <div className={cn("flex gap-0 flex-wrap inline-flex rounded-md border border-input bg-background", compact ? "justify-end" : "")}>
+    {periods.map((period, index) => (
+      <Button
+        key={period.value}
+        size={compact ? "xs" : "sm"}
+        variant={selectedPeriod === period.value ? "outline2" : "outlinemuted2"}
+        onClick={() => onPeriodChange(period.value)}
+        className={cn(
+          "rounded-none font-medium transition-all border-0 hover:border-none hover:bg-none flex-1",
+          compact && "text-xs",
+          selectedPeriod === period.value && "shadow-sm",
+          index > 0 && "border-l border-input"
+        )}
+      >
+        {period.value}
+      </Button>
+    ))}
+  </div>
+);
 
 // Loading skeleton
 const ChartSkeleton = ({ height }: { height: number }) => (
@@ -667,6 +734,8 @@ export function NetWorthChart({
   height: rawHeight,
   compact = false,
   showPeriodFilter = true,
+  periodFilterType = 'buttons',
+  showNetWorthDisplay = false,
   showComparison = false,
   defaultPeriod = '1m',
   onPeriodChange,
@@ -680,6 +749,9 @@ export function NetWorthChart({
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>(defaultPeriod);
   const [chartType, setChartType] = useState<'performance' | 'breakdown'>('performance');
   const [breakdownPeriod, setBreakdownPeriod] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [showNetWorthLine, setShowNetWorthLine] = useState(true);
+  const [showAssets, setShowAssets] = useState(false);
+  const [showLiabilities, setShowLiabilities] = useState(false);
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   // Sanitize height input
@@ -859,17 +931,31 @@ export function NetWorthChart({
     }
   }, [chartData]);
 
-  // Calculate Y-axis domain with padding
+  // Calculate Y-axis domain with padding (only for active chart lines)
   const yAxisDomain = useMemo(() => {
     if (!chartData.length) return [0, 100000];
 
     try {
-      const validData = chartData.filter(d => isValidNumber(d.totalNetWorth));
+      const validData = chartData.filter(d =>
+        isValidNumber(d.totalNetWorth) &&
+        isValidNumber(d.totalAssets) &&
+        isValidNumber(d.totalLiabilities)
+      );
       if (validData.length === 0) return [0, 100000];
 
-      const values = validData.map(d => d.totalNetWorth);
-      const min = Math.min(...values);
-      const max = Math.max(...values);
+      // Collect values only from active/visible series
+      const allValues: number[] = [];
+      validData.forEach(d => {
+        if (showNetWorthLine) allValues.push(d.totalNetWorth);
+        if (showAssets) allValues.push(d.totalAssets);
+        if (showLiabilities) allValues.push(d.totalLiabilities);
+      });
+
+      // If no active series, return default
+      if (allValues.length === 0) return [0, 100000];
+
+      const min = Math.min(...allValues);
+      const max = Math.max(...allValues);
       const range = max - min;
       const padding = Math.max(range * 0.1, 1000); // 10% padding or minimum 1000
 
@@ -881,7 +967,7 @@ export function NetWorthChart({
       console.error('[NetWorthChart] Y-axis domain calculation error:', error);
       return [0, 100000];
     }
-  }, [chartData]);
+  }, [chartData, showNetWorthLine, showAssets, showLiabilities]);
 
   // Aggregate breakdown data based on selected breakdown period
   const breakdownChartData = useMemo(() => {
@@ -913,48 +999,142 @@ export function NetWorthChart({
   // Component Render
   // ============================================================================
 
-  // Compact mode with orange branding
+  // Compact mode with professional styling
   if (compact) {
     return (
-      <section
+      <div
         ref={chartContainerRef}
-        className={cn("w-full", className)}
+        className={cn("w-full  -mb-2   space-y-3 shadow-sm border  ", className)}
         role="region"
         aria-label="Net Worth Chart (Compact View)"
       >
-        <div className="flex items-center justify-between mx-2.5 mb-2 gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 flex-wrap">
-      
-            {metrics && !isLoading && (
-              <div className={cn(
-                "flex items-center gap-1 px-1 py-0.5 rounded-sm font-extrabold text-[10px] shadow-sm",
-                metrics.isPositive
-                  ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-500/20"
-                  : "bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20"
-              )}>
-                {metrics.isPositive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                {metrics.isPositive ? '+' : ''}{metrics.changePercent.toFixed(1)}%
-              </div>
-            )}
-          </div>
-
-          {showPeriodFilter && (
-            <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
-              <SelectTrigger size="xs" className="rounded-none shadow-none" variant='outline2'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {periods.slice(0, 4).map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
-                    {period.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Header with metrics and controls */}
+        <div className="flex items-start justify-between gap-4 w-full">
+          {/* Left: Net Worth Display */}
+          {showNetWorthDisplay && (
+            <div className="flex flex-col gap-1 flex-shrink-0">
+              {!isLoading && metrics && (
+                <>
+                  <p className="text-xs text-muted-foreground font-medium">Net Worth</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-bold">
+                      {formatCurrency(metrics.current, { maximumFractionDigits: 0 })}
+                    </span>
+                    {!metrics.isNeutral && (
+                      <span
+                        className={cn(
+                          "text-xs font-semibold flex items-center gap-0.5",
+                          metrics.isPositive
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-red-600 dark:text-red-400"
+                        )}
+                      >
+                        {metrics.isPositive ? (
+                          <ArrowUp className="h-3 w-3" />
+                        ) : (
+                          <ArrowDown className="h-3 w-3" />
+                        )}
+                        {Math.abs(metrics.changePercent).toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           )}
+
+          {/* Right: Controls (Period selector + Chart lines toggle) */}
+          <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+            {showPeriodFilter && periodFilterType === 'buttons' && (
+              <PeriodFilterButtons
+                periods={periods.slice(0, 4)}
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={handlePeriodChange}
+                compact={true}
+              />
+            )}
+
+            {showPeriodFilter && periodFilterType === 'select' && (
+              <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
+                <SelectTrigger size="xs" className="h-8 text-xs rounded-md" variant='outline2'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {periods.slice(0, 4).map((period) => (
+                    <SelectItem key={period.value} value={period.value}>
+                      {period.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Chart Lines Toggle Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon-xs"
+                  variant="outline2"
+                  className="  p-0 rounded-none"
+                  title="Toggle chart lines"
+                >
+                  <Settings2 className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3" align="end">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Chart Lines</p>
+                  <div className="space-y-1.5">
+                    {/* Net Worth Checkbox */}
+                    <div className="flex items-center gap-2 p-1 rounded-md hover:bg-muted/60 transition-colors cursor-pointer"
+                      onClick={() => setShowNetWorthLine(!showNetWorthLine)}>
+                      <Checkbox
+                        checked={showNetWorthLine}
+                        onCheckedChange={(checked) => setShowNetWorthLine(checked as boolean)}
+                        className="cursor-pointer"
+                      />
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--chart-1)' }}></div>
+                        <label className="text-sm font-medium cursor-pointer flex-1">Net Worth</label>
+                      </div>
+                    </div>
+
+                    {/* Assets Checkbox */}
+                    <div className="flex items-center gap-2 p-1 rounded-md hover:bg-muted/60 transition-colors cursor-pointer"
+                      onClick={() => setShowAssets(!showAssets)}>
+                      <Checkbox
+                        checked={showAssets}
+                        onCheckedChange={(checked) => setShowAssets(checked as boolean)}
+                        className="cursor-pointer"
+                      />
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500/70"></div>
+                        <label className="text-sm font-medium cursor-pointer flex-1">Assets</label>
+                      </div>
+                    </div>
+
+                    {/* Liabilities Checkbox */}
+                    <div className="flex items-center gap-2 p-1 rounded-md hover:bg-muted/60 transition-colors cursor-pointer"
+                      onClick={() => setShowLiabilities(!showLiabilities)}>
+                      <Checkbox
+                        checked={showLiabilities}
+                        onCheckedChange={(checked) => setShowLiabilities(checked as boolean)}
+                        className="cursor-pointer"
+                      />
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="w-2 h-2 rounded-full bg-red-500/70"></div>
+                        <label className="text-sm font-medium cursor-pointer flex-1">Liabilities</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
-        <div className="relative rounded-none overflow-hidden " style={{ height }}>
+        {/* Chart container */}
+        <div className="relative rounded-md overflow-visible bg-muted/30 border border-muted -mr-4" style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (
@@ -966,7 +1146,7 @@ export function NetWorthChart({
               config={{
                 totalNetWorth: {
                   label: 'Net Worth',
-                  color: 'var(--chart-primary)',
+                  color: 'var(--chart-1)',
                 },
               } satisfies ChartConfig}
               className="h-full w-full"
@@ -979,52 +1159,97 @@ export function NetWorthChart({
                 >
                   <defs>
                     <linearGradient id="networthGradientCompact" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={1} />
-                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.6} />
-                      <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.04} />
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                      <stop offset="40%" stopColor="var(--chart-1)" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="assetsGradientCompact" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="rgb(34, 197, 94)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="rgb(34, 197, 94)" stopOpacity={0.05} />
+                    </linearGradient>
+                    <linearGradient id="liabilitiesGradientCompact" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity={0.05} />
                     </linearGradient>
                   </defs>
 
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="var(--border)"
-                    opacity={0.2}
+                    opacity={0.15}
                     vertical={false}
                   />
 
+                  <XAxis
+                    dataKey="formattedDate"
+                    stroke="var(--muted-foreground)"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={false}
+                  />
 
                   <YAxis
                     stroke="var(--muted-foreground)"
-                    fontSize={11}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => formatCompactCurrency(value)}
-                  
-                    opacity={0.7}
+                    opacity={0.65}
                     width={40}
                     domain={yAxisDomain as [number, number]}
+                    tickMargin={6}
                     aria-label="Net worth value axis"
                   />
 
                   <ChartTooltip content={<CustomTooltip />} cursor={false} />
 
-                  <Area
-                    type="linear"
-                    dataKey="totalNetWorth"
-                    stroke="var(--chart-1)"
-                    opacity={0.5}
-                    strokeWidth={2.4}
-                    fill="url(#networthGradientCompact)"
-                    aria-label="Net worth area"
-                    isAnimationActive={true}
-                    animationDuration={100}
-                  />
+                  {showNetWorthLine && (
+                    <Area
+                      type="linear"
+                      dataKey="totalNetWorth"
+                      stroke="var(--chart-1)"
+                      opacity={0.7}
+                      strokeWidth={2}
+                      fill="url(#networthGradientCompact)"
+                      aria-label="Net worth area"
+                      isAnimationActive={true}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {showAssets && (
+                    <Area
+                      type="linear"
+                      dataKey="totalAssets"
+                      stroke="rgb(34, 197, 94)"
+                      opacity={0.6}
+                      strokeWidth={2}
+                      fill="url(#assetsGradientCompact)"
+                      aria-label="Assets area"
+                      isAnimationActive={true}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {showLiabilities && (
+                    <Area
+                      type="linear"
+                      dataKey="totalLiabilities"
+                      stroke="rgb(239, 68, 68)"
+                      opacity={0.6}
+                      strokeWidth={2}
+                      fill="url(#liabilitiesGradientCompact)"
+                      aria-label="Liabilities area"
+                      isAnimationActive={true}
+                      animationDuration={500}
+                    />
+                  )}
                 </AreaChart>
               </ResponsiveContainer>
             </ChartContainer>
           )}
         </div>
-      </section>
+      </div>
     );
   }
   const chartConfig = {
@@ -1100,7 +1325,16 @@ export function NetWorthChart({
         </SelectContent>
       </Select>
 
-      {showPeriodFilter && chartType === 'performance' && (
+      {showPeriodFilter && chartType === 'performance' && periodFilterType === 'buttons' && (
+        <PeriodFilterButtons
+          periods={periods}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={handlePeriodChange}
+          compact={false}
+        />
+      )}
+
+      {showPeriodFilter && chartType === 'performance' && periodFilterType === 'select' && (
         <Select value={selectedPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)} >
           <SelectTrigger className="gap-1 font-medium h-7 rounded-none text-xs  shadow-none" size='xs' variant='outline2'>
             <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
@@ -1190,7 +1424,7 @@ export function NetWorthChart({
                     axisLine={false}
                     tickFormatter={(value) => formatCompactCurrency(value)}
                   
-                    opacity={0.7}
+                  
                     width={40}
                     domain={yAxisDomain as [number, number]}
                     aria-label="Net worth value axis"
@@ -1198,13 +1432,13 @@ export function NetWorthChart({
 
 <XAxis
                     stroke="var(--muted-foreground)"
-                    fontSize={11}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatDateTime(value)}
+                    tickFormatter={(value) => formatDate(value)}
                   
-                    opacity={0.7}
-                    width={40}
+              
+              
                
                     aria-label="Net worth value axis"
                   />
@@ -1214,7 +1448,7 @@ export function NetWorthChart({
                     stroke="var(--muted-foreground)"
                     strokeDasharray="4 4"
                     strokeWidth={1 }
-                    opacity={0.25}
+                    opacity={0.6}
                     label={{
                       value: 'Avg',
                       position: 'right',
@@ -1231,7 +1465,7 @@ export function NetWorthChart({
                     dataKey="totalNetWorth"
                     stroke="var(--chart-1)"
                     strokeWidth={2.5}
-                    opacity={0.8}
+                    opacity={1}
                     fill="url(#networthGradient)"
                     aria-label="Net worth area"
                     isAnimationActive={true}
