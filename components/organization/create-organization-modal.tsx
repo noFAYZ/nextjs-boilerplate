@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, AlertCircle, Sparkles, Building2, Upload, X as XIcon } from 'lucide-react';
+import { Loader2, AlertCircle, Sparkles, Building2, Upload, X as XIcon, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -38,62 +38,119 @@ interface CreateOrganizationModalProps {
   onSuccess?: (org: Organization) => void;
 }
 
-const EMOJI_SUGGESTIONS = ['🏢', '💼', '🚀', '💡', '🎯', '📊', '💰', '🏦', '🎨', '⚙️', '🔧', '📱', '🌟', '💎', '🎭', '🎪'];
+const EMOJI_CATEGORIES = {
+  Business: ['🏢', '💼', '🏭', '🏗️', '🏛️', '🏦', '💳', '💰', '💸', '💵', '💴', '💶'],
+  Creative: ['🎨', '🖼️', '🎭', '🎪', '🎬', '🎤', '🎧', '📸', '✏️', '🖌️', '🖍️', '✒️'],
+  Tech: ['💻', '📱', '⌨️', '🖥️', '🔧', '⚙️', '🔩', '🛠️', '⚡', '🔌', '📡', '🤖'],
+  Growth: ['🚀', '📈', '📊', '💹', '🎯', '🎲', '🏆', '🥇', '⭐', '🌟', '✨', '💫'],
+  Lifestyle: ['🌍', '🌎', '🌏', '🌐', '🏖️', '🏝️', '🌴', '🌺', '🌸', '🌼', '🌻', '🌷'],
+  General: ['📝', '📋', '📂', '📁', '📚', '📖', '📕', '📗', '📘', '📙', '🎁', '🎀'],
+};
+
+const ALL_EMOJIS = Object.values(EMOJI_CATEGORIES).flat();
 
 /**
- * Emoji Icon Selector Component
- * Similar to budget icon selector for consistency
+ * Enhanced Icon Selector Component with categories and search
  */
 function IconSelector({ value, onChange }: { value: string; onChange: (emoji: string) => void }) {
-  const [showAll, setShowAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<keyof typeof EMOJI_CATEGORIES>('Business');
 
-  const displayEmojis = showAll ? EMOJI_SUGGESTIONS : EMOJI_SUGGESTIONS.slice(0, 6);
+  const categoryEmojis = EMOJI_CATEGORIES[selectedCategory];
+  const filteredEmojis = searchQuery
+    ? ALL_EMOJIS.filter(emoji =>
+        Object.entries(EMOJI_CATEGORIES).some(([_, emojis]) =>
+          emojis.includes(emoji) && emoji.includes(searchQuery)
+        )
+      )
+    : categoryEmojis;
 
   return (
     <div className="space-y-2">
-      {/* Emoji Grid */}
-      <div className="grid grid-cols-6 gap-2">
-        {displayEmojis.map((emoji) => (
-          <button
-            key={emoji}
-            type="button"
-            onClick={() => onChange(emoji)}
-            className={cn(
-              'p-2 text-2xl rounded-lg border-2 transition-all',
-              value === emoji
-                ? 'border-primary bg-primary/10'
-                : 'border-border hover:border-muted-foreground'
-            )}
-          >
-            {emoji}
-          </button>
-        ))}
+      {/* Search Input */}
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Search emoji..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={cn(
+            'w-full pl-8 pr-3 py-1.5 rounded-lg bg-secondary/40 text-xs',
+            'placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all duration-100',
+            'focus:ring-primary/50'
+          )}
+        />
       </div>
 
-      {/* Show More Button */}
-      {!showAll && EMOJI_SUGGESTIONS.length > 6 && (
-        <button
-          type="button"
-          onClick={() => setShowAll(true)}
-          className="text-xs text-primary hover:text-primary/80 font-medium"
-        >
-          + {EMOJI_SUGGESTIONS.length - 6} more
-        </button>
+      {/* Category Tabs */}
+      {!searchQuery && (
+        <div className="flex gap-0.5 flex-wrap">
+          {Object.keys(EMOJI_CATEGORIES).map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setSelectedCategory(category as keyof typeof EMOJI_CATEGORIES)}
+              className={cn(
+                'px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-100',
+                selectedCategory === category
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary/50 hover:bg-secondary/70 text-foreground'
+              )}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
       )}
 
-      {/* Custom Emoji Input */}
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value.substring(0, 2))}
-        placeholder="Or paste emoji"
-        maxLength={2}
-        className={cn(
-          'w-full p-2 border rounded-lg bg-background text-xs text-center',
-          'placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all',
-          'focus:ring-primary/50 focus:border-primary'
+      {/* Emoji Grid */}
+      <div className="grid grid-cols-8 gap-0.5 p-1.5 bg-secondary/40 rounded-lg max-h-[180px] overflow-y-auto">
+        {filteredEmojis.length > 0 ? (
+          filteredEmojis.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => {
+                onChange(emoji);
+                setSearchQuery('');
+              }}
+              className={cn(
+                'p-1.5 text-lg rounded-md transition-all duration-100 hover:scale-110 hover:bg-secondary/60',
+                value === emoji
+                  ? 'bg-primary/20 scale-110'
+                  : ''
+              )}
+              title={emoji}
+            >
+              {emoji}
+            </button>
+          ))
+        ) : (
+          <div className="col-span-8 text-center py-6 text-xs text-muted-foreground">
+            No emoji found
+          </div>
         )}
-      />
+      </div>
+
+      {/* Custom Emoji Input */}
+      <div>
+        <label className="text-xs font-medium text-muted-foreground mb-1 block">
+          Custom emoji
+        </label>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value.substring(0, 2))}
+          placeholder="😊"
+          maxLength={2}
+          className={cn(
+            'w-full p-1.5 rounded-lg bg-secondary/40 text-lg text-center text-sm',
+            'placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all duration-100',
+            'focus:ring-primary/50'
+          )}
+        />
+      </div>
     </div>
   );
 }
@@ -106,12 +163,13 @@ export function CreateOrganizationModal({
 }: CreateOrganizationModalProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     description: '',
-    icon: EMOJI_SUGGESTIONS[0],
+    icon: EMOJI_CATEGORIES.Business[0],
     logoFile: null as File | null,
     logoPreview: '',
   });
@@ -127,7 +185,7 @@ export function CreateOrganizationModal({
         name: organization.name,
         slug: organization.slug,
         description: organization.description || '',
-        icon: organization.icon || EMOJI_SUGGESTIONS[0],
+        icon: organization.icon || EMOJI_CATEGORIES.Business[0],
         logoFile: null,
         logoPreview: organization.logoUrl || '',
       });
@@ -136,7 +194,7 @@ export function CreateOrganizationModal({
         name: '',
         slug: '',
         description: '',
-        icon: EMOJI_SUGGESTIONS[0],
+        icon: EMOJI_CATEGORIES.Business[0],
         logoFile: null,
         logoPreview: '',
       });
@@ -319,275 +377,203 @@ export function CreateOrganizationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-sm max-h-[90vh] overflow-hidden flex flex-col p-0">
         {/* Header */}
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            {isEditMode ? 'Edit Workspace' : 'Create Workspace'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode
-              ? 'Update your workspace details'
-              : 'Set up a new workspace'}
-          </DialogDescription>
-        </DialogHeader>
+        <div className="px-4 pt-4 pb-3 bg-secondary/40">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-base font-semibold">{isEditMode ? 'Edit Workspace' : 'Create Workspace'}</DialogTitle>
+            <DialogDescription className="text-xs">
+              {isEditMode ? 'Update your workspace details' : 'Set up your new workspace'}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
         {/* Form Content */}
-        <ScrollArea className="h-[calc(90vh-16rem)] pr-4">
-          <form id="org-form" onSubmit={handleSubmit} className="space-y-5 pb-2">
-            {/* Error Alert */}
-            {error && (
-              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
-                <AlertCircle size={16} className="text-destructive flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-destructive">{error}</p>
+        <form id="org-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+          {/* Error Alert */}
+          {error && (
+            <div className="p-2.5 bg-destructive/10 rounded-lg flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-150">
+              <AlertCircle size={14} className="text-destructive flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-destructive">{error}</p>
+            </div>
+          )}
+
+          {/* Live Preview Card */}
+          <div className="p-3 rounded-lg bg-secondary/50 space-y-2">
+            <div className="flex items-center gap-3">
+              {/* Icon/Logo Preview */}
+              <div className="flex-shrink-0">
+                {formData.logoPreview ? (
+                  <img
+                    src={formData.logoPreview}
+                    alt="Logo"
+                    className="h-12 w-12 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-lg bg-primary/15 flex items-center justify-center text-2xl font-semibold">
+                    {formData.icon}
+                  </div>
+                )}
               </div>
+
+              {/* Preview Text */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {formData.name || 'Workspace'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {!isEditMode ? `ws.com/${formData.slug || 'workspace'}` : 'Workspace'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Name Input */}
+          <div className="space-y-1">
+            <label htmlFor="name" className="text-xs font-semibold text-foreground">Workspace Name</label>
+            <Input
+              id="name"
+              name="name"
+              required
+              placeholder="Acme Corporation"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={isLoading}
+              maxLength={100}
+              className="h-9 text-sm transition-colors duration-100"
+            />
+            {validationErrors.name && (
+              <p className="text-xs text-destructive">{validationErrors.name}</p>
             )}
+          </div>
 
-            {/* Workspace Preview Card */}
-            <div className="p-4 border border-border rounded-lg bg-gradient-to-br from-muted/50 to-muted/25">
-              <p className="text-xs font-medium text-muted-foreground mb-3">Preview</p>
-              <div className="flex items-center gap-4">
-                {/* Icon/Logo Preview */}
-                <div className="flex-shrink-0">
-                  {formData.logoPreview ? (
-                    <img
-                      src={formData.logoPreview}
-                      alt="Logo preview"
-                      className="h-16 w-16 rounded-lg object-cover border border-border shadow-sm"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 rounded-lg bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-3xl">
-                      {formData.icon}
-                    </div>
-                  )}
-                </div>
+          {/* Icon Selector - Enhanced */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Choose Icon
+            </label>
+            <IconSelector value={formData.icon} onChange={handleIconChange} />
+          </div>
 
-                {/* Preview Text */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">
-                    {formData.name || 'Workspace Name'}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {!isEditMode ? `ws.com/${formData.slug || 'my-workspace'}` : 'Workspace'}
-                  </p>
-                  {formData.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                      {formData.description}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* Collapsible Additional Details */}
+          <button
+            type="button"
+            onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-secondary/60 active:bg-secondary transition-colors duration-100 group"
+          >
+            <span className="text-xs font-semibold text-foreground">Additional Details</span>
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 text-muted-foreground transition-transform duration-100 group-hover:text-foreground',
+                isDetailsExpanded && 'rotate-180'
+              )}
+            />
+          </button>
 
-            {/* Basic Information Section */}
-            <div className="space-y-4 pt-2">
-              <div>
-                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  Basic Information
-                </h3>
-
-                <div className="space-y-3.5">
-                  {/* Name */}
-                  <div>
-                    <Input
-                      label="Workspace Name"
-                      id="name"
-                      name="name"
-                      required
-                      placeholder="Acme Corporation"
-                      value={formData.name}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      maxLength={100}
-                    />
-                    {validationErrors.name && (
-                      <p className="text-xs text-destructive mt-1">{validationErrors.name}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formData.name.length}/100 characters
-                    </p>
-                  </div>
-
-                  {/* Slug - Only show on create */}
-                  {!isEditMode && (
-                    <div>
-                      <label htmlFor="slug" className="text-sm font-medium mb-1.5 block">
-                        Workspace URL <span className="text-destructive">*</span>
-                      </label>
-                      <div className="flex items-center gap-2 px-3 py-2.5 border border-input rounded-lg bg-background focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-primary transition-all">
-                        <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                          ws.com/
-                        </span>
-                        <input
-                          id="slug"
-                          name="slug"
-                          type="text"
-                          value={formData.slug}
-                          onChange={handleChange}
-                          placeholder="my-workspace"
-                          className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground font-medium"
-                          disabled={isLoading}
-                          maxLength={50}
-                        />
-                      </div>
-                      {validationErrors.slug && (
-                        <p className="text-xs text-destructive mt-1">{validationErrors.slug}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formData.slug.length}/50 characters
-                      </p>
-                    </div>
-                  )}
+          {/* Collapsible Content */}
+          {isDetailsExpanded && (
+            <div className="space-y-3 px-2.5 py-2.5 rounded-lg bg-secondary/40 animate-in fade-in slide-in-from-top-2 duration-100">
+              {/* Description */}
+              <div className="space-y-1">
+                <label htmlFor="description" className="text-xs font-semibold text-foreground">Description</label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Describe your workspace..."
+                  value={formData.description}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  rows={2}
+                  maxLength={500}
+                  className="text-xs resize-none"
+                />
+                {validationErrors.description && (
+                  <p className="text-xs text-destructive">{validationErrors.description}</p>
+                )}
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-muted-foreground">Optional</p>
+                  <p className="text-xs text-muted-foreground">{formData.description.length}/500</p>
                 </div>
               </div>
-            </div>
 
-            <Separator className="my-3" />
-
-            {/* Branding Section */}
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Branding
-                </h3>
-
-                <div className="space-y-4">
-                  {/* Icon Selector */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block">Icon</label>
-                    <IconSelector value={formData.icon} onChange={handleIconChange} />
-                  </div>
-
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block">
-                      Logo Image <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
-                    </label>
-
-                    {formData.logoPreview ? (
-                      <div className="space-y-2.5">
-                        {/* Logo Preview */}
-                        <div className="flex items-center gap-3 p-3 border border-border rounded-lg bg-muted/30">
-                          <img
-                            src={formData.logoPreview}
-                            alt="Logo preview"
-                            className="h-14 w-14 rounded-lg object-cover border border-border/50"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium truncate">
-                              {formData.logoFile?.name || 'Current logo'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formData.logoFile
-                                ? (formData.logoFile.size / 1024).toFixed(2) + ' KB'
-                                : 'Uploaded'}
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={removeLogo}
-                            disabled={isLoading}
-                            className="p-2 hover:bg-muted rounded-md transition-colors flex-shrink-0"
-                            title="Remove logo"
-                          >
-                            <XIcon className="h-4 w-4 text-muted-foreground" />
-                          </button>
-                        </div>
-
-                        {/* Change Logo Button */}
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={isLoading}
-                          className="w-full px-3 py-2.5 border border-input rounded-lg text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
-                        >
-                          Change Logo
-                        </button>
+              {/* Logo Upload */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-foreground">Logo Image</label>
+                {formData.logoPreview ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 transition-colors duration-100">
+                      <img
+                        src={formData.logoPreview}
+                        alt="Logo"
+                        className="h-10 w-10 rounded object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold truncate">{formData.logoFile?.name || 'Logo'}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formData.logoFile ? ((formData.logoFile.size / 1024).toFixed(2) + ' KB') : 'Uploaded'}
+                        </p>
                       </div>
-                    ) : (
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={removeLogo}
                         disabled={isLoading}
-                        className="w-full flex flex-col items-center justify-center gap-2.5 p-7 border-2 border-dashed border-border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all disabled:opacity-50 group"
+                        className="p-1.5 hover:bg-secondary rounded transition-colors duration-100 flex-shrink-0"
                       >
-                        <Upload className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                        <div className="text-center">
-                          <p className="text-sm font-medium">Upload Logo</p>
-                          <p className="text-xs text-muted-foreground">
-                            PNG, JPG or GIF (Max 5MB)
-                          </p>
-                        </div>
+                        <XIcon className="h-3.5 w-3.5 text-muted-foreground" />
                       </button>
-                    )}
-
-                    {/* Hidden File Input */}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading}
-                      className="hidden"
-                    />
-                    {validationErrors.logoUrl && (
-                      <p className="text-xs text-destructive mt-1">{validationErrors.logoUrl}</p>
-                    )}
+                      className="w-full px-2 py-1.5 rounded-lg text-xs font-medium hover:bg-secondary/60 active:bg-secondary transition-colors duration-100 disabled:opacity-50"
+                    >
+                      Change Logo
+                    </button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <Separator className="my-3" />
-
-            {/* Additional Details Section */}
-            <div className="space-y-4 pb-2">
-              <div>
-                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  Additional Details
-                </h3>
-
-                <div>
-                  <Textarea
-                    label="Description"
-                    id="description"
-                    name="description"
-                    placeholder="Describe your workspace purpose and goals..."
-                    value={formData.description}
-                    onChange={handleChange}
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
                     disabled={isLoading}
-                    rows={3}
-                    maxLength={500}
-                  />
-                  {validationErrors.description && (
-                    <p className="text-xs text-destructive mt-1">{validationErrors.description}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {formData.description.length}/500 characters
-                  </p>
-                </div>
+                    className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-lg hover:bg-secondary/60 active:bg-secondary transition-all duration-100 group disabled:opacity-50 bg-secondary/40"
+                  >
+                    <Upload className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-100" />
+                    <div className="text-center">
+                      <p className="text-xs font-medium">Upload Logo</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">PNG, JPG, GIF (Max 5MB)</p>
+                    </div>
+                  </button>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  disabled={isLoading}
+                  className="hidden"
+                />
               </div>
             </div>
-          </form>
-        </ScrollArea>
+          )}
+        </form>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 pt-4 border-t mt-4">
+        <div className="px-4 py-3 bg-secondary/30 flex gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isLoading}
+            size="sm"
+            className="flex-1 h-9 text-sm"
           >
             Cancel
           </Button>
-          <Button type="submit" form="org-form" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditMode ? 'Update' : 'Create'} Workspace
+          <Button type="submit" form="org-form" disabled={isLoading} size="sm" className="flex-1 h-9 text-sm gap-2">
+            {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {isEditMode ? 'Update' : 'Create'}
           </Button>
         </div>
       </DialogContent>
