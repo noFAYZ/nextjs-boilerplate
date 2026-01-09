@@ -37,7 +37,15 @@ export type WidgetId =
   | 'recent-activity'
   | 'goals'
   | 'budgets'
-  | 'money-flow';
+  | 'money-flow'
+  | 'asset-breakdown'
+  | 'liabilities-breakdown'
+  | 'assets-vs-liabilities'
+  | 'debt-to-asset-ratio'
+  | 'asset-allocation'
+  | 'financial-health-score'
+  | 'debt-summary'
+  | 'cash-position';
 
 export interface WidgetLayout {
   id: WidgetId;
@@ -98,6 +106,14 @@ const DEFAULT_WIDGETS: Record<WidgetId, WidgetLayout> = {
   'goals': { id: 'goals', visible: true, order: 12, size: 'small' },
   'budgets': { id: 'budgets', visible: true, order: 13, size: 'small' },
   'money-flow': { id: 'money-flow', visible: false, order: 14, size: 'full' },
+  'asset-breakdown': { id: 'asset-breakdown', visible: true, order: 15, size: 'small' },
+  'liabilities-breakdown': { id: 'liabilities-breakdown', visible: true, order: 16, size: 'small' },
+  'assets-vs-liabilities': { id: 'assets-vs-liabilities', visible: false, order: 17, size: 'small' },
+  'debt-to-asset-ratio': { id: 'debt-to-asset-ratio', visible: false, order: 18, size: 'small' },
+  'asset-allocation': { id: 'asset-allocation', visible: false, order: 19, size: 'large' },
+  'financial-health-score': { id: 'financial-health-score', visible: false, order: 20, size: 'medium' },
+  'debt-summary': { id: 'debt-summary', visible: false, order: 21, size: 'small' },
+  'cash-position': { id: 'cash-position', visible: false, order: 22, size: 'small' },
 };
 
 const initialState: DashboardLayoutState = {
@@ -171,7 +187,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
         }),
         // Version for detecting stale cache and rebuilding
         // Incremented to force cache reset and widget state rebuild
-        version: 5,
+        version: 6,
         // Migrate from old format if needed and merge with defaults
         migrate: (persistedState: { widgets?: Record<WidgetId, WidgetLayout> }, version: number) => {
           // Always merge persisted widgets with defaults to ensure all widgets exist
@@ -181,8 +197,8 @@ export const useDashboardLayoutStore = create<DashboardLayoutStore>()(
             ...persistedWidgets,
           };
 
-          // If version is old (less than 5), merge with defaults to fix any corruption and add new widgets
-          if (version < 5) {
+          // If version is old (less than 6), merge with defaults to fix any corruption and add new widgets
+          if (version < 6) {
             return {
               ...initialState,
               widgets: mergedWidgets,

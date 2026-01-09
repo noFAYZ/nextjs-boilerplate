@@ -92,6 +92,46 @@ const WIDGET_OPTIONS: WidgetOption[] = [
     label: 'Budgets Overview',
     category: 'Financial',
   },
+  {
+    id: 'asset-breakdown',
+    label: 'Asset Breakdown',
+    category: 'Financial',
+  },
+  {
+    id: 'liabilities-breakdown',
+    label: 'Liabilities Breakdown',
+    category: 'Financial',
+  },
+  {
+    id: 'assets-vs-liabilities',
+    label: 'Assets vs Liabilities',
+    category: 'Financial',
+  },
+  {
+    id: 'debt-to-asset-ratio',
+    label: 'Debt-to-Asset Ratio',
+    category: 'Financial',
+  },
+  {
+    id: 'asset-allocation',
+    label: 'Asset Allocation',
+    category: 'Financial',
+  },
+  {
+    id: 'financial-health-score',
+    label: 'Financial Health Score',
+    category: 'Financial',
+  },
+  {
+    id: 'debt-summary',
+    label: 'Debt Summary',
+    category: 'Financial',
+  },
+  {
+    id: 'cash-position',
+    label: 'Liquid Assets',
+    category: 'Financial',
+  },
 ];
 
 const SIZE_ICONS: Record<WidgetSize, React.ReactNode> = {

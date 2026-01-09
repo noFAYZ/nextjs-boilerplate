@@ -28,6 +28,14 @@ import {
   RecentActivityWidget,
   GoalsOverviewWidget,
   BudgetOverviewWidget,
+  AssetBreakdownWidget,
+  LiabilitiesBreakdownWidget,
+  AssetsVsLiabilitiesWidget,
+  DebtToAssetRatioWidget,
+  AssetAllocationWidget,
+  FinancialHealthScoreWidget,
+  DebtSummaryWidget,
+  CashPositionWidget,
 } from "@/components/dashboard-widgets";
 
 // Import dashboard components
@@ -98,6 +106,39 @@ export default function DashboardPage() {
     {
       id: "budgets",
       component: <BudgetOverviewWidget />,
+    },
+    // Net Worth Widgets
+    {
+      id: "asset-breakdown",
+      component: <AssetBreakdownWidget />,
+    },
+    {
+      id: "liabilities-breakdown",
+      component: <LiabilitiesBreakdownWidget />,
+    },
+    {
+      id: "assets-vs-liabilities",
+      component: <AssetsVsLiabilitiesWidget />,
+    },
+    {
+      id: "debt-to-asset-ratio",
+      component: <DebtToAssetRatioWidget />,
+    },
+    {
+      id: "asset-allocation",
+      component: <AssetAllocationWidget />,
+    },
+    {
+      id: "financial-health-score",
+      component: <FinancialHealthScoreWidget />,
+    },
+    {
+      id: "debt-summary",
+      component: <DebtSummaryWidget />,
+    },
+    {
+      id: "cash-position",
+      component: <CashPositionWidget />,
     },
   ];
 

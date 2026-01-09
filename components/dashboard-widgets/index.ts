@@ -4,6 +4,18 @@ export { NetWorthPerformanceWidget } from './networth-performance-widget';
 export { MonthlySpendingTrendWidget } from './monthly-spending-trend-widget';
 export { SpendingCategoriesWidget } from './spending-categories-widget';
 
+// Net Worth Widgets
+export {
+  AssetBreakdownWidget,
+  LiabilitiesBreakdownWidget,
+  AssetsVsLiabilitiesWidget,
+  DebtToAssetRatioWidget,
+  AssetAllocationWidget,
+  FinancialHealthScoreWidget,
+  DebtSummaryWidget,
+  CashPositionWidget,
+} from './networth';
+
 
 // Crypto Widgets
 export { CryptoAllocationWidget } from './crypto-allocation-widget';
