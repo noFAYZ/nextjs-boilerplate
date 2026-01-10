@@ -7,146 +7,149 @@ import { Card } from '@/components/ui/card';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Wallet, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
-// Asset type colors
-const ASSET_COLORS = {
-  cash: '#3b82f6',           // Blue
-  investment: '#8b5cf6',     // Purple
-  crypto: '#f59e0b',         // Amber
-  realEstate: '#10b981',     // Emerald
-  vehicle: '#ef4444',        // Red
-  otherAssets: '#ec4899',    // Pink
-};
-
-interface AssetData {
-  name: string;
+interface AssetBreakdownItem {
+  label: string;
   value: number;
+  percentage: number;
   color: string;
 }
+
+const ASSET_COLORS = [
+  'bg-blue-500',      // cash
+  'bg-green-500',     // investments
+  'bg-violet-500',    // crypto
+  'bg-purple-500',    // real estate
+  'bg-orange-500',    // vehicles
+  'bg-slate-500',     // other
+];
 
 export function AssetBreakdownWidget() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
-  const [activeAsset, setActiveAsset] = useState<string>('');
+  const [hoveredAsset, setHoveredAsset] = useState<string>('');
 
   const assetData = useMemo(() => {
     const typedData = accountsData as any;
     if (!typedData?.summary) return [];
 
-    const assets: AssetData[] = [];
-
+    const items: AssetBreakdownItem[] = [];
     const cash = typedData.summary.cashValue || 0;
     const investment = typedData.summary.investmentValue || 0;
     const crypto = typedData.summary.cryptoValue || 0;
     const realEstate = typedData.summary.realEstateValue || 0;
     const vehicle = typedData.summary.vehicleValue || 0;
     const other = typedData.summary.otherAssetValue || 0;
+    const total = cash + investment + crypto + realEstate + vehicle + other;
 
-    if (cash > 0) assets.push({ name: 'Cash', value: cash, color: ASSET_COLORS.cash });
-    if (investment > 0) assets.push({ name: 'Investments', value: investment, color: ASSET_COLORS.investment });
-    if (crypto > 0) assets.push({ name: 'Crypto', value: crypto, color: ASSET_COLORS.crypto });
-    if (realEstate > 0) assets.push({ name: 'Real Estate', value: realEstate, color: ASSET_COLORS.realEstate });
-    if (vehicle > 0) assets.push({ name: 'Vehicles', value: vehicle, color: ASSET_COLORS.vehicle });
-    if (other > 0) assets.push({ name: 'Other', value: other, color: ASSET_COLORS.otherAssets });
+    if (cash > 0) items.push({ label: 'Cash', value: cash, percentage: (cash / total) * 100, color: ASSET_COLORS[0] });
+    if (investment > 0) items.push({ label: 'Investments', value: investment, percentage: (investment / total) * 100, color: ASSET_COLORS[1] });
+    if (crypto > 0) items.push({ label: 'Crypto', value: crypto, percentage: (crypto / total) * 100, color: ASSET_COLORS[2] });
+    if (realEstate > 0) items.push({ label: 'Real Estate', value: realEstate, percentage: (realEstate / total) * 100, color: ASSET_COLORS[3] });
+    if (vehicle > 0) items.push({ label: 'Vehicles', value: vehicle, percentage: (vehicle / total) * 100, color: ASSET_COLORS[4] });
+    if (other > 0) items.push({ label: 'Other', value: other, percentage: (other / total) * 100, color: ASSET_COLORS[5] });
 
-    return assets;
+    return items.sort((a, b) => b.value - a.value);
   }, [accountsData]);
 
-  const totalAssets = useMemo(() => {
-    return assetData.reduce((sum, asset) => sum + asset.value, 0);
+  const totalValue = useMemo(() => {
+    return assetData.reduce((sum, item) => sum + item.value, 0);
   }, [assetData]);
 
-  const activeAssetData = useMemo(() => {
-    return assetData.find(a => a.name === activeAsset);
-  }, [assetData, activeAsset]);
+  const activeAsset = useMemo(() => {
+    return assetData.find(a => a.label === hoveredAsset);
+  }, [assetData, hoveredAsset]);
 
-  if (isLoading) {
-    return <CardSkeleton className="h-[400px]" />;
-  }
+  if (isLoading) return <CardSkeleton />;
 
   return (
-    <Card className="relative border border-border/50 h-[400px] flex flex-col p-4">
+    <Card className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none h-full flex flex-col">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-            <Wallet className="h-4 w-4 text-blue-600" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground">Asset Breakdown</h3>
-        </div>
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
+        <h3 className="text-xs font-medium text-muted-foreground">Assets breakdown</h3>
+        <TrendingUp className="h-4 w-4 text-muted-foreground" />
       </div>
 
       {/* Content */}
       {assetData.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-            <p className="text-xs font-medium text-foreground">No assets yet</p>
-          </div>
+          <p className="text-xs text-muted-foreground">No asset data</p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
-          {/* Chart */}
-          <div className="flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={assetData}
-                  cx="50%"
-                  cy="45%"
-                  innerRadius={45}
-                  outerRadius={70}
-                  paddingAngle={2}
-                  dataKey="value"
-                  onMouseEnter={(_, index) => setActiveAsset(assetData[index].name)}
-                  onMouseLeave={() => setActiveAsset('')}
-                >
-                  {assetData.map((entry) => (
-                    <Cell
-                      key={entry.name}
-                      fill={entry.color}
-                      opacity={!activeAsset || activeAsset === entry.name ? 1 : 0.3}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+        <div className="flex-1 flex flex-col gap-2 overflow-y-auto">
+          {/* SVG Donut Chart */}
+          <div className="h-24 w-24 mx-auto">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {assetData.map((item, index) => {
+                const startAngle = assetData.slice(0, index).reduce((sum, a) => sum + (a.percentage / 100) * 360, 0);
+                const endAngle = startAngle + (item.percentage / 100) * 360;
+
+                const startRad = (startAngle - 90) * Math.PI / 180;
+                const endRad = (endAngle - 90) * Math.PI / 180;
+
+                const x1 = 50 + 30 * Math.cos(startRad);
+                const y1 = 50 + 30 * Math.sin(startRad);
+                const x2 = 50 + 30 * Math.cos(endRad);
+                const y2 = 50 + 30 * Math.sin(endRad);
+
+                const largeArc = item.percentage > 50 ? 1 : 0;
+                const pathData = `M ${x1} ${y1} A 30 30 0 ${largeArc} 1 ${x2} ${y2} L ${50 + 15 * Math.cos((endRad + startRad) / 2)} ${50 + 15 * Math.sin((endRad + startRad) / 2)} Z`;
+
+                const colorMap: Record<string, string> = {
+                  'bg-blue-500': '#3b82f6',
+                  'bg-green-500': '#22c55e',
+                  'bg-violet-500': '#a78bfa',
+                  'bg-purple-500': '#a855f7',
+                  'bg-orange-500': '#f97316',
+                  'bg-slate-500': '#64748b',
+                };
+
+                return (
+                  <path
+                    key={item.label}
+                    d={pathData}
+                    fill={colorMap[item.color]}
+                    opacity={!hoveredAsset || hoveredAsset === item.label ? 1 : 0.3}
+                    className="transition-opacity duration-200 cursor-pointer"
+                    onMouseEnter={() => setHoveredAsset(item.label)}
+                    onMouseLeave={() => setHoveredAsset('')}
+                  />
+                );
+              })}
+            </svg>
           </div>
 
-          {/* Legend & Stats */}
-          <div className="space-y-2 flex-shrink-0">
-            {activeAssetData ? (
-              <div className="p-2.5 rounded-lg bg-secondary/50">
-                <p className="text-[10px] font-medium text-muted-foreground">{activeAssetData.name}</p>
-                <p className="text-lg font-bold text-foreground">
-                  <CurrencyDisplay amountUSD={activeAssetData.value} variant="small" />
+          {/* Stats */}
+          <div className="space-y-1.5 text-center">
+            {activeAsset ? (
+              <>
+                <p className="text-[10px] text-muted-foreground">{activeAsset.label}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  <CurrencyDisplay amountUSD={activeAsset.value} variant="small" />
                 </p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {((activeAssetData.value / totalAssets) * 100).toFixed(1)}% of total
-                </p>
-              </div>
+                <p className="text-[10px] text-muted-foreground">{activeAsset.percentage.toFixed(1)}%</p>
+              </>
             ) : (
-              <div className="p-2.5 rounded-lg bg-secondary/50">
-                <p className="text-[10px] font-medium text-muted-foreground">Total Assets</p>
-                <p className="text-lg font-bold text-foreground">
-                  <CurrencyDisplay amountUSD={totalAssets} variant="small" />
+              <>
+                <p className="text-[10px] text-muted-foreground">Total assets</p>
+                <p className="text-sm font-semibold text-foreground">
+                  <CurrencyDisplay amountUSD={totalValue} variant="small" />
                 </p>
-              </div>
+              </>
             )}
-            <div className="grid grid-cols-2 gap-1.5 text-[10px]">
-              {assetData.map(asset => (
-                <div key={asset.name} className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: asset.color }} />
-                  <span className="text-muted-foreground">{asset.name}</span>
-                </div>
-              ))}
-            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="grid grid-cols-2 gap-1 pt-2 border-t border-border/50 text-[9px]">
+            {assetData.map(asset => (
+              <div key={asset.label} className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${asset.color}`} />
+                <span className="text-muted-foreground truncate">{asset.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
