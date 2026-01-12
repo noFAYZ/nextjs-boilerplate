@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Copy, Edit2, Save, X, Calendar, Tag, Building2, MapPin, Hash, ArrowUpRight, ArrowDownLeft, Repeat2, Edit } from 'lucide-react';
+import { Copy, Edit2, Save, X, Calendar, Tag, Building2, MapPin, Hash, ArrowUpRight, ArrowDownLeft, Repeat2, Edit, Paperclip, FileText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/drawer';
 import type { UnifiedTransaction } from './transactions-data-table';
 import { BasilEditOutline, MageCalendar2, MdiPen, SolarCalendarBoldDuotone } from '../icons/icons';
+import { TransactionAttachments, TransactionNotesEditor, TransactionTagsManager, DuplicateDetectionBanner } from '@/app/(protected)/accounts/components';
 
 interface TransactionDetailDrawerProps {
   isOpen: boolean;
@@ -94,6 +95,19 @@ export function TransactionDetailDrawer({
   const { success } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<UnifiedTransaction> | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    attachments: false,
+    notes: false,
+    tags: false,
+    duplicates: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   // Fetch categories
   const { data: categoriesResponse } = useCategories();
@@ -556,6 +570,96 @@ export function TransactionDetailDrawer({
                     </Badge>
                   </div>
 
+          {/* Enhanced Features Section */}
+          <div className="pt-6 space-y-3 border-t border-border/50">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Enhancements</p>
+
+            {/* Duplicate Detection Section */}
+            <ExpandableSection
+              title="Duplicates"
+              section="duplicates"
+              icon={<AlertCircle className="h-4 w-4 text-amber-500" />}
+              isExpanded={expandedSections.duplicates}
+              onToggle={toggleSection}
+            >
+              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                <DuplicateDetectionBanner
+                  duplicateCount={0}
+                  onResolve={async () => {
+                    console.log('Resolve duplicates');
+                    // TODO: Integrate with getDuplicateTransactions API
+                  }}
+                />
+              </div>
+            </ExpandableSection>
+
+            {/* Tags Section */}
+            <ExpandableSection
+              title="Tags"
+              section="tags"
+              icon={<Tag className="h-4 w-4 text-blue-500" />}
+              isExpanded={expandedSections.tags}
+              onToggle={toggleSection}
+            >
+              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                <TransactionTagsManager
+                  transactionId={transaction.id}
+                  initialTags={transaction.tags || []}
+                  onSave={async (tags) => {
+                    console.log('Save tags:', tags);
+                    success('Tags updated');
+                    // TODO: Integrate with addTransactionTag / removeTransactionTag APIs
+                  }}
+                />
+              </div>
+            </ExpandableSection>
+
+            {/* Notes Section */}
+            <ExpandableSection
+              title="Notes"
+              section="notes"
+              icon={<FileText className="h-4 w-4 text-green-500" />}
+              isExpanded={expandedSections.notes}
+              onToggle={toggleSection}
+            >
+              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                <TransactionNotesEditor
+                  transactionId={transaction.id}
+                  onSave={async (notes) => {
+                    console.log('Save notes:', notes);
+                    success('Notes updated');
+                    // TODO: Integrate with updateTransactionNote API
+                  }}
+                />
+              </div>
+            </ExpandableSection>
+
+            {/* Attachments Section */}
+            <ExpandableSection
+              title="Attachments"
+              section="attachments"
+              icon={<Paperclip className="h-4 w-4 text-purple-500" />}
+              isExpanded={expandedSections.attachments}
+              onToggle={toggleSection}
+            >
+              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                <TransactionAttachments
+                  transactionId={transaction.id}
+                  onUpload={async (file) => {
+                    console.log('Upload attachment:', file);
+                    success('Attachment uploaded');
+                    // TODO: Integrate with uploadTransactionAttachment API
+                  }}
+                  onDelete={async (attachmentId) => {
+                    console.log('Delete attachment:', attachmentId);
+                    success('Attachment deleted');
+                    // TODO: Integrate with deleteTransactionAttachment API
+                  }}
+                />
+              </div>
+            </ExpandableSection>
+          </div>
+
         </div>
 
         {/* Footer */}
@@ -588,5 +692,47 @@ export function TransactionDetailDrawer({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+/**
+ * Expandable Section Component for Transaction Drawer
+ */
+interface ExpandableSectionProps {
+  title: string;
+  section: string;
+  icon?: React.ReactNode;
+  isExpanded: boolean;
+  onToggle: (section: string) => void;
+  children: React.ReactNode;
+}
+
+function ExpandableSection({
+  title,
+  section,
+  icon,
+  isExpanded,
+  onToggle,
+  children,
+}: ExpandableSectionProps) {
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={() => onToggle(section)}
+        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/40 transition-colors text-left group"
+      >
+        <div className="flex items-center gap-2">
+          {icon && <div className="text-muted-foreground">{icon}</div>}
+          <h4 className="font-semibold text-sm text-foreground">{title}</h4>
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+        )}
+      </button>
+
+      {isExpanded && <div className="space-y-2 pl-0">{children}</div>}
+    </div>
   );
 }
