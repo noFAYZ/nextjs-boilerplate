@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAllAccounts } from '@/lib/queries';
@@ -16,6 +16,7 @@ import { ChevronRight, TrendingUp, Wallet, PieChart } from 'lucide-react';
 import { SolarCheckCircleBoldDuotone } from '../icons/icons';
 import { Card } from '../ui/card';
 import { NetWorthChart } from '../networth/networth-chart';
+import { AccountGroupingPanel } from '@/app/(protected)/accounts/components';
 
 interface AccountGroup {
   key: string;
@@ -30,6 +31,8 @@ export function Overview2Tab() {
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
   const selectedCategory = useAccountsUIStore((state) => state.ui.selectedCategory);
   const setSelectedCategory = useAccountsUIStore((state) => state.setSelectedCategory);
+  const [showGrouping, setShowGrouping] = useState(false);
+  const [accountGroups, setAccountGroups] = useState<any[]>([]);
 
   // Get categories with accounts
   const categoriesWithAccounts = useMemo(() => {
@@ -108,9 +111,40 @@ export function Overview2Tab() {
   }
 
   return (
-   <div className='flex flex-col space-y-4'> 
-     <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
-   
+   <div className='flex flex-col space-y-4'>
+     {/* Header with Chart and Grouping Toggle */}
+     <div className="flex items-center justify-between">
+       <div className="flex-1">
+         <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
+       </div>
+       <Button
+         variant={showGrouping ? "default" : "outline"}
+         size="sm"
+         onClick={() => setShowGrouping(!showGrouping)}
+         className="ml-4"
+       >
+         {showGrouping ? 'Hide Groups' : 'Manage Groups'}
+       </Button>
+     </div>
+
+     {/* Account Grouping Section */}
+     {showGrouping && (
+       <div className="bg-card rounded-lg border border-border/50 p-4">
+         <AccountGroupingPanel
+           groups={accountGroups}
+           isLoading={isLoading}
+           onCreateGroup={async (groupData) => {
+             // TODO: Integrate with createAccountGroup API
+             console.log('Create group:', groupData);
+           }}
+           onDeleteGroup={async (groupId) => {
+             // TODO: Integrate with deleteAccountGroup API
+             console.log('Delete group:', groupId);
+           }}
+         />
+       </div>
+     )}
+
    <div className="h-full flex  gap-4">
 
       {/* Sidebar: Enterprise Navigation */}

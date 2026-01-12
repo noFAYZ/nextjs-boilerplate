@@ -34,6 +34,7 @@ import { getAccountCategoryConfig } from './account-category-icon';
 import { AccountRow } from './account-row';
 import { AccountsSummary } from './accounts-summary';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
+import { NetWorthCard, AccountsOverviewSection } from '@/app/(protected)/accounts/components';
 import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 import type { AccountCategory } from '@/lib/types';
 
@@ -233,8 +234,23 @@ export function OverviewTab() {
           </DndContext>
         </div>
 
-        {/* Right Sidebar Summary */}
-        <div className="lg:col-span-4">
+        {/* Right Sidebar Summary with Enhanced Overview */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* Net Worth Overview Section */}
+          <AccountsOverviewSection
+            netWorth={summaryData ? {
+              totalNetWorth: summaryData.totalNetWorth || 0,
+              totalAssets: summaryData.totalAssets || 0,
+              totalLiabilities: summaryData.totalLiabilities || 0,
+              previousNetWorth: summaryData.previousNetWorth,
+              currency: 'USD'
+            } : undefined}
+            connections={[]}
+            isLoadingNetWorth={false}
+            isLoadingConnections={false}
+          />
+
+          {/* Traditional Summary Cards */}
           <AccountsSummary summary={summaryData} />
         </div>
       </div>

@@ -26,6 +26,7 @@ import {
   Settings,
   LayoutGrid,
   List,
+  Paperclip,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -78,6 +79,7 @@ import { ManualTransactionForm } from "@/components/accounts/manual-transaction-
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
 import { useProviderConnections, useSyncConnection } from "@/lib/queries/banking-queries";
 import { AccountBalanceChart } from "@/components/accounts/account-balance-chart";
+import { TransactionAttachments, DuplicateDetectionBanner, TransactionNotesEditor, TransactionTagsManager } from "@/app/(protected)/accounts/components";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -135,6 +137,7 @@ export default function UnifiedAccountDetailsPage() {
   const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const { pageClass } = useViewModeClasses();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
 
@@ -525,7 +528,11 @@ export default function UnifiedAccountDetailsPage() {
               <SolarChartSquareBoldDuotone className="h-5 w-5 " />
               Analytics
             </TabsTrigger>
-      
+            <TabsTrigger value="attachments" variant="pill" size="sm">
+              <Paperclip className="h-5 w-5 " />
+              Attachments
+            </TabsTrigger>
+
           </TabsList>
           <div className="flex items-center gap-2">
             <div className="relative w-64">
@@ -696,6 +703,15 @@ export default function UnifiedAccountDetailsPage() {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
+          {/* Duplicate Detection Banner */}
+          <DuplicateDetectionBanner
+            duplicateCount={0}
+            onResolve={async () => {
+              // TODO: Integrate with getDuplicateTransactions and resolveDuplicate APIs
+              console.log('Resolve duplicates');
+            }}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Top Categories */}
             <Card variant="outlined">
@@ -825,6 +841,67 @@ export default function UnifiedAccountDetailsPage() {
           </div>
         </TabsContent>
 
+        {/* Attachments Tab */}
+        <TabsContent value="attachments" className="space-y-4">
+          <Card variant="outlined" className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Transaction Attachments</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Select a transaction to view and manage attachments (receipts, documents, etc.)
+            </p>
+
+            {/* Transaction Selection */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Select a transaction:
+                </label>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {unifiedTransactions.slice(0, 10).map((tx) => (
+                    <button
+                      key={tx.id}
+                      onClick={() => setSelectedTransactionId(tx.id)}
+                      className={cn(
+                        "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
+                        selectedTransactionId === tx.id
+                          ? "bg-primary/10 border-primary"
+                          : "border-border hover:bg-muted/50"
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">
+                          {tx.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(tx.timestamp), "MMM d, yyyy")}
+                        </p>
+                      </div>
+                      <Badge variant="outline">
+                        {tx.amount.toFixed(2)}
+                      </Badge>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Attachments Component */}
+              {selectedTransactionId && (
+                <div className="mt-6 pt-6 border-t">
+                  <TransactionAttachments
+                    transactionId={selectedTransactionId}
+                    onUpload={async (file) => {
+                      // TODO: Integrate with uploadTransactionAttachment API
+                      console.log('Upload attachment:', file);
+                    }}
+                    onDelete={async (attachmentId) => {
+                      // TODO: Integrate with deleteTransactionAttachment API
+                      console.log('Delete attachment:', attachmentId);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </Card>
+        </TabsContent>
 
       </Tabs>
 </div>
