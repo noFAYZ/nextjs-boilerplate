@@ -381,6 +381,310 @@ class AccountsApiService {
   }>> {
     return apiClient.post(`${this.basePath}/bulk-delete`, { accountIds }, organizationId);
   }
+
+  // ============================================================================
+  // ACCOUNT LIFECYCLE MANAGEMENT
+  // ============================================================================
+
+  /**
+   * Archive a single account (soft delete, reversible)
+   */
+  async archiveAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    status: string;
+    archivedAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/${accountId}/archive`, {}, organizationId);
+  }
+
+  /**
+   * Reopen an archived account
+   */
+  async reopenAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    status: string;
+    archivedAt: null;
+  }>> {
+    return apiClient.post(`${this.basePath}/${accountId}/reopen`, {}, organizationId);
+  }
+
+  /**
+   * Close an account permanently (irreversible)
+   */
+  async closeAccount(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    status: string;
+    closedAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/${accountId}/close`, {}, organizationId);
+  }
+
+  /**
+   * Bulk archive multiple accounts
+   */
+  async bulkArchiveAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    totalRequested: number;
+    totalProcessed: number;
+    failed: string[];
+    processedIds: string[];
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-archive`, { accountIds }, organizationId);
+  }
+
+  /**
+   * Bulk reopen multiple accounts
+   */
+  async bulkReopenAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    totalRequested: number;
+    totalProcessed: number;
+    failed: string[];
+    processedIds: string[];
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-reopen`, { accountIds }, organizationId);
+  }
+
+  /**
+   * Bulk close multiple accounts
+   */
+  async bulkCloseAccounts(accountIds: string[], organizationId?: string): Promise<ApiResponse<{
+    totalRequested: number;
+    totalProcessed: number;
+    failed: string[];
+    processedIds: string[];
+  }>> {
+    return apiClient.post(`${this.basePath}/bulk-close`, { accountIds }, organizationId);
+  }
+
+  /**
+   * Get account lifecycle history (audit trail)
+   */
+  async getAccountLifecycleHistory(accountId: string, organizationId?: string): Promise<ApiResponse<Array<{
+    id: string;
+    accountId: string;
+    eventType: string;
+    fromStatus: string | null;
+    toStatus: string;
+    timestamp: string;
+  }>>> {
+    return apiClient.get(`${this.basePath}/${accountId}/lifecycle-history`, organizationId);
+  }
+
+  // ============================================================================
+  // ACCOUNT GROUPING & FAVORITES
+  // ============================================================================
+
+  /**
+   * Get all account groups
+   */
+  async getAccountGroups(organizationId?: string): Promise<ApiResponse<Array<{
+    id: string;
+    name: string;
+    description?: string;
+    accountCount: number;
+    totalBalance: number;
+    createdAt: string;
+  }>>> {
+    return apiClient.get(`${this.basePath}/groups`, organizationId);
+  }
+
+  /**
+   * Create a new account group
+   */
+  async createAccountGroup(data: {
+    name: string;
+    description?: string;
+  }, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    name: string;
+    description?: string;
+    accountCount: number;
+    createdAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/groups`, data, organizationId);
+  }
+
+  /**
+   * Add account to group
+   */
+  async addAccountToGroup(groupId: string, accountId: string, organizationId?: string): Promise<ApiResponse<{
+    groupId: string;
+    accountId: string;
+    addedAt: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/groups/${groupId}/members`, { accountId }, organizationId);
+  }
+
+  /**
+   * Remove account from group
+   */
+  async removeAccountFromGroup(groupId: string, accountId: string, organizationId?: string): Promise<ApiResponse<{
+    success: boolean;
+    message: string;
+  }>> {
+    return apiClient.delete(`${this.basePath}/groups/${groupId}/members/${accountId}`, organizationId);
+  }
+
+  /**
+   * Get group summary with accounts
+   */
+  async getGroupSummary(groupId: string, organizationId?: string): Promise<ApiResponse<{
+    id: string;
+    name: string;
+    accountCount: number;
+    totalBalance: number;
+    accounts: Array<{
+      id: string;
+      name: string;
+      type: string;
+      balance: number;
+    }>;
+  }>> {
+    return apiClient.get(`${this.basePath}/groups/${groupId}/summary`, organizationId);
+  }
+
+  /**
+   * Mark account as favorite
+   */
+  async markAccountFavorite(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    accountId: string;
+    isFavorite: boolean;
+    markedAt: string;
+  }>> {
+    return apiClient.put(`${this.basePath}/${accountId}/favorite`, {}, organizationId);
+  }
+
+  /**
+   * Remove account from favorites
+   */
+  async removeAccountFromFavorites(accountId: string, organizationId?: string): Promise<ApiResponse<{
+    success: boolean;
+    message: string;
+  }>> {
+    return apiClient.delete(`${this.basePath}/${accountId}/favorite`, organizationId);
+  }
+
+  /**
+   * Get all favorite accounts
+   */
+  async getFavoriteAccounts(organizationId?: string): Promise<ApiResponse<Array<{
+    id: string;
+    name: string;
+    type: string;
+    balance: number;
+    markedAt: string;
+  }>>> {
+    return apiClient.get(`${this.basePath}/favorites`, organizationId);
+  }
+
+  // ============================================================================
+  // EXCHANGE RATES & MULTI-CURRENCY
+  // ============================================================================
+
+  /**
+   * Get exchange rate between two currencies
+   */
+  async getExchangeRate(from: string, to: string, date?: string, organizationId?: string): Promise<ApiResponse<{
+    from: string;
+    to: string;
+    rate: number;
+    date: string;
+    source: string;
+  }>> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('from', from);
+    searchParams.set('to', to);
+    if (date) searchParams.set('date', date);
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/exchange-rates?${query}`, organizationId);
+  }
+
+  /**
+   * Convert currency amount
+   */
+  async convertCurrency(amount: number, from: string, to: string, date?: string, organizationId?: string): Promise<ApiResponse<{
+    originalAmount: number;
+    originalCurrency: string;
+    convertedAmount: number;
+    targetCurrency: string;
+    rate: number;
+    timestamp: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/exchange-rates/convert`, {
+      amount,
+      from,
+      to,
+      date,
+    }, organizationId);
+  }
+
+  /**
+   * Get net worth in a specific currency
+   */
+  async getNetWorthInCurrency(currency: string, organizationId?: string): Promise<ApiResponse<{
+    currency: string;
+    totalNetWorth: number;
+    totalAssets: number;
+    totalLiabilities: number;
+    conversionRate: number;
+    baseCurrency: string;
+    timestamp: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/networth/currency/${currency}`, organizationId);
+  }
+
+  /**
+   * Refresh exchange rate cache
+   */
+  async refreshExchangeRateCache(organizationId?: string): Promise<ApiResponse<{
+    success: boolean;
+    message: string;
+  }>> {
+    return apiClient.post(`${this.basePath}/exchange-rates/refresh`, {}, organizationId);
+  }
+
+  /**
+   * Get exchange rate cache statistics
+   */
+  async getExchangeRateCacheStats(organizationId?: string): Promise<ApiResponse<{
+    cachedRates: number;
+    oldestCacheAge: string;
+    newestCacheAge: string;
+    cacheSize: string;
+  }>> {
+    return apiClient.get(`${this.basePath}/exchange-rates/cache-stats`, organizationId);
+  }
+
+  // ============================================================================
+  // BALANCE HISTORY
+  // ============================================================================
+
+  /**
+   * Get account balance history
+   */
+  async getBalanceHistory(accountId: string, params?: {
+    dateFrom?: string;
+    dateTo?: string;
+    limit?: number;
+  }, organizationId?: string): Promise<ApiResponse<{
+    data: Array<{
+      date: string;
+      balance: number;
+      availableBalance: number;
+      currency: string;
+    }>;
+    metadata: {
+      total: number;
+      limit: number;
+      offset: number;
+    };
+  }>> {
+    const searchParams = new URLSearchParams();
+    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiClient.get(`${this.basePath}/${accountId}/history${query ? `?${query}` : ''}`, organizationId);
+  }
 }
 
 export const accountsApi = new AccountsApiService();

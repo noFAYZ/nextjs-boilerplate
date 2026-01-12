@@ -252,7 +252,7 @@ export function Overview2Tab() {
       <div className="flex-1 flex gap-4 min-w-0">
         {/* Center: Account Rows */}
         <div className="flex-1 flex flex-col  min-w-0 h-fit bg-card  rounded-2xl border overflow-hidden">
-          {/* Header with Selected Category Info */}
+          {/* Header with Selected Category Info
           {selectedGroup && (
             <div className="flex items-center justify-between p-2 px-4 bg-primary/5 border-b ">
               <div className="flex items-center gap-3">
@@ -284,7 +284,7 @@ export function Overview2Tab() {
                 <p className="text-xs text-muted-foreground">Total Balance</p>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Accounts List */}
           <div className="flex-1 overflow-y-auto  ">
