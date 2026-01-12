@@ -25,7 +25,9 @@
       "Bash(timeout 120 npm run build)",
       "Bash(git add:*)",
       "Bash(yarn add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
