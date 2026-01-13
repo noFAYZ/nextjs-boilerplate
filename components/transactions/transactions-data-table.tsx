@@ -13,6 +13,24 @@
  * This component is a clean orchestrator that delegates:
  * - Business logic to useTransactionTable hook
  * - Rendering to focused sub-components (Table, Row, Skeleton, Empty, Pagination, Modal)
+ *
+ * PERFORMANCE CHARACTERISTICS:
+ * - Pure orchestrator: No useState, no filtering logic, no mutations
+ * - All business logic in hook: Enables testability and reusability
+ * - All sub-components memoized: Prevents cascading re-renders
+ * - Optimistic mutations: Instant UI feedback on inline edits
+ * - Lazy data loading: Attachments modal loads on demand
+ *
+ * RENDERING OPTIMIZATION:
+ * - TransactionTable is memoized: Only re-renders if data actually changes
+ * - Each TransactionTableRow is memoized: Prevents row-level re-renders
+ * - Callbacks are stable: useCallback in hook prevents child re-renders
+ * - Conditional rendering: Skeleton, Empty, and Table are mutually exclusive
+ *
+ * For large datasets (1000+ transactions), consider:
+ * - Virtualization: Use react-window to render only visible rows
+ * - Prefetching: Prefetch next page before user navigates
+ * - Server-side filtering: Move filtering logic to backend if needed
  */
 
 import { useTransactionTable } from '@/lib/hooks/use-transaction-table';

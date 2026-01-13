@@ -8,8 +8,46 @@
  * - Sorting (date, amount)
  * - Pagination
  * - Data transformations
- * - Mutations (inline editing)
+ * - Mutations (inline editing with optimistic updates)
  * - Modal state management
+ *
+ * PERFORMANCE OPTIMIZATIONS:
+ * - useMemo: Filtering, grouping, pagination computations are memoized to avoid recalculation
+ * - useCallback: Event handlers are memoized to maintain referential equality for child components
+ * - TanStack Query: All server state queries use built-in caching with strategic staleTime
+ * - Optimistic Updates: Mutations update UI immediately, rollback on error via queryClient
+ * - Custom Hooks: Separated data fetching from business logic for testability
+ *
+ * MEMOIZATION STRATEGY:
+ * 1. useMemo for expensive computations:
+ *    - filteredTransactions: O(n) filtering + sorting operation
+ *    - groupedTransactions: Grouping by date (used by table for rendering)
+ *    - paginatedTransactions: Slice operation (fast but memoized for reference stability)
+ *    - accountsList/merchantsList/categoriesList: Transform API responses for comboboxes
+ *
+ * 2. useCallback for event handlers:
+ *    - All callbacks are memoized to prevent child component re-renders
+ *    - Handlers passed to TransactionTable won't change unless their dependencies change
+ *
+ * 3. Child Component Memoization (via React.memo):
+ *    - TransactionTable: Wrapped in memo to prevent re-renders
+ *    - TransactionTableRow: Wrapped in memo with custom equality check
+ *    - MerchantCell: Wrapped in memo for cell-level optimization
+ *
+ * MUTATION OPTIMIZATION:
+ * - useUpdateTransaction uses optimistic updates pattern:
+ *   1. Cancel outgoing queries
+ *   2. Snapshot previous state
+ *   3. Optimistically update UI immediately
+ *   4. Rollback on error
+ *   5. Refetch on success (background)
+ *
+ * FUTURE OPTIMIZATION OPPORTUNITIES:
+ * 1. Virtualization: Use react-window for tables with 1000+ transactions
+ * 2. Prefetching: useEffect to prefetch next page before user navigates
+ * 3. Worker Threads: Move sorting/filtering to Web Worker for large datasets
+ * 4. Cache Strategies: Adjust staleTime based on data freshness requirements
+ * 5. Selective Invalidation: Only invalidate affected cache keys on mutation
  */
 
 import { useState, useMemo, useCallback } from 'react';
