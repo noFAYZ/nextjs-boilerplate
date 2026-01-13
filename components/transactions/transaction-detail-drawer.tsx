@@ -182,7 +182,7 @@ export function TransactionDetailDrawer({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
 
-      <SheetContent side="right" className="w-full sm:w-[500px] md:w-[600px] overflow-y-auto p-0 bg-card border-l border-border">
+      <SheetContent side="right" className="w-full sm:w-[650px] lg:w-[800px] overflow-y-auto p-0 bg-card border-l border-border">
         {/* Accessible Title (hidden visually) */}
          <SheetTitle className="sr-only">Transaction Details</SheetTitle>
 
