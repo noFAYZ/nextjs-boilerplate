@@ -5,9 +5,10 @@
  *
  * Pure table rendering component that displays transactions grouped by date
  * Orchestrates TransactionDateSeparator and TransactionTableRow components
+ * Memoized to prevent unnecessary re-renders when callbacks change
  */
 
-import { Fragment } from 'react';
+import { Fragment, memo } from 'react';
 import { Table, TableBody } from '@/components/ui/table';
 import { TransactionDateSeparator } from './transaction-date-separator';
 import { TransactionTableRow } from './transaction-table-row';
@@ -48,56 +49,75 @@ interface TransactionTableProps {
   onRowClick?: (tx: UnifiedTransaction) => void;
 }
 
-export function TransactionTable({
-  groupedTransactions,
-  paginatedTransactions,
-  hideAccountColumn = false,
-  accountsList,
-  merchantsList,
-  categoriesList,
-  onAccountChange,
-  onMerchantChange,
-  onCategoryChange,
-  onAttachmentClick,
-  onRowClick,
-}: TransactionTableProps) {
-  return (
-    <div className="rounded-xl overflow-hidden">
-      <div className="w-full overflow-x-auto">
-        <Table className="w-full">
-          <TableBody>
-            {Object.entries(groupedTransactions).map(([date, txs]) => {
-              // Filter transactions for current page
-              const txsInPage = txs.filter((tx) => paginatedTransactions.includes(tx));
-              if (txsInPage.length === 0) return null;
+/**
+ * Memoized table with custom equality check
+ * Prevents re-renders when callbacks change but data is the same
+ */
+export const TransactionTable = memo(
+  function TransactionTable({
+    groupedTransactions,
+    paginatedTransactions,
+    hideAccountColumn = false,
+    accountsList,
+    merchantsList,
+    categoriesList,
+    onAccountChange,
+    onMerchantChange,
+    onCategoryChange,
+    onAttachmentClick,
+    onRowClick,
+  }: TransactionTableProps) {
+    return (
+      <div className="rounded-xl overflow-hidden">
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full">
+            <TableBody>
+              {Object.entries(groupedTransactions).map(([date, txs]) => {
+                // Filter transactions for current page
+                const txsInPage = txs.filter((tx) => paginatedTransactions.includes(tx));
+                if (txsInPage.length === 0) return null;
 
-              return (
-                <Fragment key={date}>
-                  {/* Date Separator */}
-                  <TransactionDateSeparator date={date} hideAccountColumn={hideAccountColumn} />
+                return (
+                  <Fragment key={date}>
+                    {/* Date Separator */}
+                    <TransactionDateSeparator date={date} hideAccountColumn={hideAccountColumn} />
 
-                  {/* Transactions for this date */}
-                  {txsInPage.map((tx) => (
-                    <TransactionTableRow
-                      key={tx.id}
-                      transaction={tx}
-                      hideAccountColumn={hideAccountColumn}
-                      accountsList={accountsList}
-                      merchantsList={merchantsList}
-                      categoriesList={categoriesList}
-                      onAccountChange={onAccountChange}
-                      onMerchantChange={onMerchantChange}
-                      onCategoryChange={onCategoryChange}
-                      onAttachmentClick={onAttachmentClick}
-                      onRowClick={onRowClick}
-                    />
-                  ))}
-                </Fragment>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    {/* Transactions for this date */}
+                    {txsInPage.map((tx) => (
+                      <TransactionTableRow
+                        key={tx.id}
+                        transaction={tx}
+                        hideAccountColumn={hideAccountColumn}
+                        accountsList={accountsList}
+                        merchantsList={merchantsList}
+                        categoriesList={categoriesList}
+                        onAccountChange={onAccountChange}
+                        onMerchantChange={onMerchantChange}
+                        onCategoryChange={onCategoryChange}
+                        onAttachmentClick={onAttachmentClick}
+                        onRowClick={onRowClick}
+                      />
+                    ))}
+                  </Fragment>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+  (prevProps, nextProps) => {
+    // Return true if props are equal (skip re-render)
+    // Return false if props changed (do re-render)
+    return (
+      Object.keys(prevProps.groupedTransactions).length ===
+        Object.keys(nextProps.groupedTransactions).length &&
+      prevProps.paginatedTransactions.length === nextProps.paginatedTransactions.length &&
+      prevProps.hideAccountColumn === nextProps.hideAccountColumn &&
+      prevProps.accountsList.length === nextProps.accountsList.length &&
+      prevProps.merchantsList.length === nextProps.merchantsList.length &&
+      prevProps.categoriesList.length === nextProps.categoriesList.length
+    );
+  }
+);

@@ -4,8 +4,10 @@
  * Transaction Table Row Component
  *
  * Renders a single transaction row with all cells (merchant, category, account, amount, attachments, actions)
+ * Memoized to prevent unnecessary re-renders when parent updates but transaction data unchanged
  */
 
+import { memo } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Paperclip } from 'lucide-react';
@@ -17,7 +19,12 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { getTypeIcon } from '@/lib/utils/transaction-display-helpers';
 import type { UnifiedTransaction, TransactionTableRowProps } from '@/lib/types';
 
-export function TransactionTableRow({
+/**
+ * Memoized row component with custom equality check
+ * Prevents re-renders when callbacks reference changes but transaction data is the same
+ */
+export const TransactionTableRow = memo(
+  function TransactionTableRow({
   transaction: tx,
   hideAccountColumn = false,
   accountsList,
@@ -121,4 +128,22 @@ export function TransactionTableRow({
       </TableCell>
     </TableRow>
   );
-}
+},
+  (prevProps, nextProps) => {
+    // Return true if props are equal (skip re-render)
+    // Return false if props changed (do re-render)
+    return (
+      prevProps.transaction.id === nextProps.transaction.id &&
+      prevProps.transaction.merchant?.id === nextProps.transaction.merchant?.id &&
+      prevProps.transaction.category === nextProps.transaction.category &&
+      prevProps.transaction.account?.id === nextProps.transaction.account?.id &&
+      prevProps.transaction.amount === nextProps.transaction.amount &&
+      prevProps.transaction.type === nextProps.transaction.type &&
+      prevProps.transaction.status === nextProps.transaction.status &&
+      prevProps.hideAccountColumn === nextProps.hideAccountColumn &&
+      prevProps.accountsList.length === nextProps.accountsList.length &&
+      prevProps.merchantsList.length === nextProps.merchantsList.length &&
+      prevProps.categoriesList.length === nextProps.categoriesList.length
+    );
+  }
+);
