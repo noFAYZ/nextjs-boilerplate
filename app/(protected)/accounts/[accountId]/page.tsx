@@ -896,6 +896,14 @@ export default function UnifiedAccountDetailsPage() {
                       // TODO: Integrate with deleteTransactionAttachment API
                       console.log('Delete attachment:', attachmentId);
                     }}
+                    onTogglePublic={async (attachmentId, isPublic) => {
+                      // TODO: Integrate with toggleAttachmentAccess API
+                      console.log('Toggle public:', attachmentId, isPublic);
+                    }}
+                    onDownload={async (attachmentId) => {
+                      // TODO: Integrate with downloadTransactionAttachment API
+                      return '';
+                    }}
                   />
                 </div>
               )}

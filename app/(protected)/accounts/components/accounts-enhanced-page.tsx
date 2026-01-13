@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Settings2, LayoutDashboard } from "lucide-react";
-import { AccountsSummary } from "@/components/accounts/accounts-summary";
 import { AccountsDataView } from "@/components/accounts/accounts-data-view";
 import { AccountsOverviewSection } from "./accounts-overview-section";
 import { AccountGroupingPanel } from "./account-grouping-panel";
@@ -51,9 +50,6 @@ export function AccountsEnhancedPage({ initialTab = "overview" }: EnhancedAccoun
             isLoadingNetWorth={false}
             isLoadingConnections={false}
           />
-
-          {/* Summary Cards */}
-          <AccountsSummary />
 
           {/* Additional Overview Content */}
           <div className="grid gap-6">
