@@ -31,10 +31,12 @@ import {
   BookOpen,
   History,
   Tag,
+  CheckSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAllTransactions } from '@/lib/queries/use-accounts-data';
 import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
+import { useBankingUIStore } from '@/lib/stores/ui-stores';
 import { TransactionsDataTable } from '@/components/transactions';
 import type { UnifiedTransaction } from '@/lib/types';
 import { TransactionDetailDrawer } from '@/components/transactions/transaction-detail-drawer';
@@ -54,6 +56,10 @@ export default function TransactionsPage() {
   const dateRange = useTransactionsUIStore((state) => state.dateRange);
   const setDateRange = useTransactionsUIStore((state) => state.setDateRange);
   const clearDateRange = useTransactionsUIStore((state) => state.clearDateRange);
+
+  // Get bulk selection state from banking UI store
+  const isBulkSelectMode = useBankingUIStore((state) => state.ui.isBulkSelectMode);
+  const toggleBulkSelectMode = useBankingUIStore((state) => state.toggleBulkSelectMode);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -187,20 +193,37 @@ export default function TransactionsPage() {
                 </div>
               </div>
 
-              {/* Action Buttons: Auto Categorize, Date, Filters, Export, Refresh */}
+              {/* Action Buttons Group */}
               <div className="flex gap-2">
+                {/* PRIMARY ACTIONS GROUP */}
                 {/* Auto Categorize Button */}
                 <Button
                   variant="brand"
                   size="xs"
                   title={uncategorizedCount > 0 ? `Auto categorize ${uncategorizedCount} transaction${uncategorizedCount !== 1 ? 's' : ''}` : 'No uncategorized transactions'}
                   disabled={uncategorizedCount === 0}
-                  
+
                 >
                   <Zap className="h-4 w-4" />
                   Auto Categorize ({uncategorizedCount})
                 </Button>
 
+                {/* Edit Multiple Button */}
+                <Button
+                  variant={isBulkSelectMode ? "secondary" : "outline2"}
+                  size="xs"
+                  onClick={toggleBulkSelectMode}
+                  title={isBulkSelectMode ? "Exit bulk selection mode" : "Enter bulk selection mode"}
+                  className={isBulkSelectMode ? "bg-muted/40" : ""}
+                >
+                  <CheckSquare className="h-4 w-4" />
+                  {isBulkSelectMode ? "Cancel" : "Edit Multiple"}
+                </Button>
+
+                {/* DIVIDER SPACE */}
+                <div className="w-px bg-border/50" />
+
+                {/* FILTERING GROUP */}
                 {/* Date Button */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -353,6 +376,10 @@ export default function TransactionsPage() {
                   </PopoverContent>
                 </Popover>
 
+                {/* DIVIDER SPACE */}
+                <div className="w-px bg-border/50" />
+
+                {/* DATA ACTIONS GROUP */}
                 {/* Export Button */}
                 <Button
                   variant="outline2"

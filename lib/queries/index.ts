@@ -180,6 +180,7 @@ export {
   useBulkCreateTransactions,
   useUpdateTransaction,
   useDeleteTransaction,
+  useBulkUpdateTransactions,
 
   // Utilities
   useInvalidateTransactionCache,

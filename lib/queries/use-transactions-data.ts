@@ -383,3 +383,70 @@ export function usePrefetchTransactionData() {
       }),
   };
 }
+
+/**
+ * Bulk update multiple transactions
+ * Updates multiple transactions with the same data in a single operation
+ */
+export function useBulkUpdateTransactions(): UseMutationResult<
+  any[],
+  Error,
+  {
+    transactionIds: string[];
+    updates: Record<string, any>;
+  },
+  unknown
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ transactionIds, updates }) => {
+      // Update all transactions in parallel
+      const promises = transactionIds.map(id =>
+        transactionsApi.updateTransaction(id, updates)
+      );
+      return Promise.all(promises);
+    },
+    onMutate: async ({ transactionIds, updates }) => {
+      // Cancel outgoing queries
+      await queryClient.cancelQueries({ queryKey: transactionKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: transactionKeys.stats() });
+
+      // Snapshot previous data
+      const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
+      const previousStats = queryClient.getQueryData(transactionKeys.stats());
+
+      // Optimistically update multiple transactions in cache
+      if (previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+          if (!old || !old.data) return old;
+          return {
+            ...old,
+            data: Array.isArray(old.data)
+              ? old.data.map((tx: any) =>
+                  transactionIds.includes(tx.id)
+                    ? { ...tx, ...updates }
+                    : tx
+                )
+              : old.data,
+          };
+        });
+      }
+
+      return { previousTransactions, previousStats };
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      }
+      if (context?.previousStats) {
+        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate with background refetch to confirm server state
+      invalidateByDependency(queryClient, 'transactions:update');
+    },
+  });
+}

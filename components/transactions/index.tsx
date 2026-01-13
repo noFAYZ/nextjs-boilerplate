@@ -21,6 +21,10 @@ export { TransactionPagination } from './pagination/transaction-pagination';
 // Modal Components
 export { AttachmentModal } from './modals/attachment-modal';
 
+// Bulk Edit Components
+export { BulkTransactionHeader } from './bulk/bulk-transaction-header';
+export { BulkEditTransactionsDrawer } from './bulk/bulk-edit-transactions-drawer';
+
 // Hooks (for building custom implementations)
 export { useTransactionTable } from '@/lib/hooks/use-transaction-table';
 

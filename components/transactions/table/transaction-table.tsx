@@ -47,6 +47,15 @@ interface TransactionTableProps {
 
   /** Callback when row is clicked (chevron button) */
   onRowClick?: (tx: UnifiedTransaction) => void;
+
+  /** Whether bulk select mode is active (shows checkboxes) */
+  isBulkSelectMode?: boolean;
+
+  /** IDs of selected transactions */
+  selectedTransactionIds?: string[];
+
+  /** Callback when transaction checkbox is toggled */
+  onToggleSelect?: (id: string) => void;
 }
 
 /**
@@ -66,6 +75,9 @@ export const TransactionTable = memo(
     onCategoryChange,
     onAttachmentClick,
     onRowClick,
+    isBulkSelectMode = false,
+    selectedTransactionIds = [],
+    onToggleSelect,
   }: TransactionTableProps) {
     return (
       <div className="rounded-xl overflow-hidden">
@@ -96,6 +108,9 @@ export const TransactionTable = memo(
                         onCategoryChange={onCategoryChange}
                         onAttachmentClick={onAttachmentClick}
                         onRowClick={onRowClick}
+                        isBulkSelectMode={isBulkSelectMode}
+                        isSelected={selectedTransactionIds.includes(tx.id)}
+                        onToggleSelect={onToggleSelect}
                       />
                     ))}
                   </Fragment>
@@ -115,6 +130,8 @@ export const TransactionTable = memo(
         Object.keys(nextProps.groupedTransactions).length &&
       prevProps.paginatedTransactions.length === nextProps.paginatedTransactions.length &&
       prevProps.hideAccountColumn === nextProps.hideAccountColumn &&
+      prevProps.isBulkSelectMode === nextProps.isBulkSelectMode &&
+      prevProps.selectedTransactionIds?.length === nextProps.selectedTransactionIds?.length &&
       prevProps.accountsList.length === nextProps.accountsList.length &&
       prevProps.merchantsList.length === nextProps.merchantsList.length &&
       prevProps.categoriesList.length === nextProps.categoriesList.length

@@ -9,10 +9,12 @@
  * - Pagination
  * - Inline editing (merchant, category, account)
  * - Attachments modal
+ * - Bulk selection and editing
  *
  * This component is a clean orchestrator that delegates:
  * - Business logic to useTransactionTable hook
  * - Rendering to focused sub-components (Table, Row, Skeleton, Empty, Pagination, Modal)
+ * - Bulk state to banking-ui-store
  *
  * PERFORMANCE CHARACTERISTICS:
  * - Pure orchestrator: No useState, no filtering logic, no mutations
@@ -33,12 +35,16 @@
  * - Server-side filtering: Move filtering logic to backend if needed
  */
 
+import { useState, useCallback, useMemo } from 'react';
+import { useBankingUIStore } from '@/lib/stores/ui-stores';
 import { useTransactionTable } from '@/lib/hooks/use-transaction-table';
 import { TransactionTable } from './table/transaction-table';
 import { TransactionTableSkeleton } from './table/transaction-table-skeleton';
 import { TransactionTableEmpty } from './table/transaction-table-empty';
 import { TransactionPagination } from './pagination/transaction-pagination';
 import { AttachmentModal } from './modals/attachment-modal';
+import { BulkTransactionHeader } from './bulk/bulk-transaction-header';
+import { BulkEditTransactionsDrawer } from './bulk/bulk-edit-transactions-drawer';
 import { ITEMS_PER_PAGE } from '@/lib/constants/transaction-constants';
 import type { TransactionsDataTableProps } from '@/lib/types';
 
@@ -66,6 +72,24 @@ export function TransactionsDataTable({
   sourceFilter = 'all',
   hideAccountColumn = false,
 }: TransactionsDataTableProps) {
+  // ============================================
+  // State: Bulk Edit Drawer
+  // ============================================
+
+  const [isBulkEditDrawerOpen, setIsBulkEditDrawerOpen] = useState(false);
+
+  // ============================================
+  // State: Bulk Selection (from Zustand)
+  // ============================================
+
+  const isBulkSelectMode = useBankingUIStore(state => state.ui.isBulkSelectMode);
+  const selectedTransactionIds = useBankingUIStore(state => state.ui.selectedTransactionIds);
+  const toggleBulkSelectMode = useBankingUIStore(state => state.toggleBulkSelectMode);
+  const selectTransaction = useBankingUIStore(state => state.selectTransaction);
+  const deselectTransaction = useBankingUIStore(state => state.deselectTransaction);
+  const selectAllTransactions = useBankingUIStore(state => state.selectAllTransactions);
+  const clearTransactionSelection = useBankingUIStore(state => state.clearTransactionSelection);
+
   // ============================================
   // Hook: Business Logic
   // ============================================
@@ -110,6 +134,28 @@ export function TransactionsDataTable({
   });
 
   // ============================================
+  // Callbacks: Bulk Selection
+  // ============================================
+
+  const handleToggleSelect = useCallback((id: string) => {
+    if (selectedTransactionIds.includes(id)) {
+      deselectTransaction(id);
+    } else {
+      selectTransaction(id);
+    }
+  }, [selectedTransactionIds, selectTransaction, deselectTransaction]);
+
+  const handleSelectAll = useCallback(() => {
+    const allIds = paginatedTransactions.map(tx => tx.id);
+    selectAllTransactions(allIds);
+  }, [paginatedTransactions, selectAllTransactions]);
+
+  // Get selected transaction objects for drawer
+  const selectedTransactions = useMemo(() => {
+    return paginatedTransactions.filter(tx => selectedTransactionIds.includes(tx.id));
+  }, [paginatedTransactions, selectedTransactionIds]);
+
+  // ============================================
   // Conditional Rendering
   // ============================================
 
@@ -134,6 +180,17 @@ export function TransactionsDataTable({
 
   return (
     <>
+      {/* Bulk Selection Header */}
+      {isBulkSelectMode && selectedTransactionIds.length > 0 && (
+        <BulkTransactionHeader
+          selectedCount={selectedTransactionIds.length}
+          totalCount={paginatedTransactions.length}
+          onSelectAll={handleSelectAll}
+          onClearSelection={clearTransactionSelection}
+          onOpenBulkEdit={() => setIsBulkEditDrawerOpen(true)}
+        />
+      )}
+
       {/* Transaction Table */}
       <TransactionTable
         groupedTransactions={groupedTransactions}
@@ -147,6 +204,9 @@ export function TransactionsDataTable({
         onCategoryChange={handleCategoryChange}
         onAttachmentClick={openAttachmentModal}
         onRowClick={onRowClick}
+        isBulkSelectMode={isBulkSelectMode}
+        selectedTransactionIds={selectedTransactionIds}
+        onToggleSelect={handleToggleSelect}
       />
 
       {/* Pagination Controls */}
@@ -159,6 +219,16 @@ export function TransactionsDataTable({
           onPageChange={handlePageChange}
         />
       )}
+
+      {/* Bulk Edit Drawer */}
+      <BulkEditTransactionsDrawer
+        isOpen={isBulkEditDrawerOpen}
+        onClose={() => {
+          setIsBulkEditDrawerOpen(false);
+        }}
+        selectedTransactionIds={selectedTransactionIds}
+        selectedTransactions={selectedTransactions}
+      />
 
       {/* Attachment Modal */}
       <AttachmentModal

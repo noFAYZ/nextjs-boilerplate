@@ -5,12 +5,14 @@
  *
  * Renders a single transaction row with all cells (merchant, category, account, amount, attachments, actions)
  * Memoized to prevent unnecessary re-renders when parent updates but transaction data unchanged
+ * Includes checkbox column for bulk selection mode
  */
 
 import { memo } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Paperclip } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
@@ -35,13 +37,35 @@ export const TransactionTableRow = memo(
   onCategoryChange,
   onAttachmentClick,
   onRowClick,
-}: TransactionTableRowProps) {
+  isBulkSelectMode = false,
+  isSelected = false,
+  onToggleSelect,
+}: TransactionTableRowProps & {
+  isBulkSelectMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
+}) {
   return (
     <TableRow
-      className={cn('group border-none border-border/80 hover:bg-muted/20')}
+      className={cn(
+        'group border-none border-border/80 hover:bg-muted/20',
+        isSelected && 'bg-primary/5  '
+      )}
     >
+      {/* Checkbox Column (Bulk Selection) */}
+      {isBulkSelectMode && (
+        <TableCell className="w-10 px-2">
+          <Checkbox
+            checked={isSelected}
+            size='lg'
+            onCheckedChange={() => onToggleSelect?.(tx.id)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </TableCell>
+      )}
+
       {/* Merchant/Payee Cell */}
-      <TableCell className="w-[20%] overflow-hidden">
+      <TableCell className="max-w-[10%] overflow-hidden">
         <MerchantCombobox
           merchantId={tx.merchant?.id}
           merchantName={tx.merchant?.displayName || tx.merchent || tx.description}
@@ -53,7 +77,7 @@ export const TransactionTableRow = memo(
       </TableCell>
 
       {/* Category Cell (hidden on mobile) */}
-      <TableCell className="hidden lg:table-cell w-[20%] overflow-hidden">
+      <TableCell className="table-cell max-w-[10%] overflow-hidden">
         <CategoryCombobox
           categoryId={tx.category}
           categories={categoriesList}
@@ -77,7 +101,7 @@ export const TransactionTableRow = memo(
       )}
 
       {/* Amount Cell */}
-      <TableCell className="text-right w-[10%]">
+      <TableCell className="text-right max-w-[10%]">
         <div className="flex flex-col items-end gap-1">
           <div
             className={cn('font-semibold text-sm', {
@@ -99,24 +123,8 @@ export const TransactionTableRow = memo(
         </div>
       </TableCell>
 
-      {/* Attachments Cell */}
-      <TableCell className="text-center w-[8%]">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAttachmentClick(tx);
-          }}
-          className="flex items-center justify-center gap-1 w-full h-full hover:bg-muted/50 rounded transition-colors group cursor-pointer"
-        >
-          <Paperclip className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          <span className="text-xs text-muted-foreground group-hover:text-foreground font-medium transition-colors">
-            0
-          </span>
-        </button>
-      </TableCell>
-
       {/* Actions Cell */}
-      <TableCell className="text-center w-[5%]">
+      <TableCell className="text-center max-w-[5%]">
         <Button
           variant="outlinemuted"
           size="icon-sm"
@@ -141,6 +149,8 @@ export const TransactionTableRow = memo(
       prevProps.transaction.type === nextProps.transaction.type &&
       prevProps.transaction.status === nextProps.transaction.status &&
       prevProps.hideAccountColumn === nextProps.hideAccountColumn &&
+      prevProps.isBulkSelectMode === nextProps.isBulkSelectMode &&
+      prevProps.isSelected === nextProps.isSelected &&
       prevProps.accountsList.length === nextProps.accountsList.length &&
       prevProps.merchantsList.length === nextProps.merchantsList.length &&
       prevProps.categoriesList.length === nextProps.categoriesList.length
