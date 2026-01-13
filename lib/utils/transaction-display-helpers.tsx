@@ -8,9 +8,6 @@
 
 import React from 'react';
 import {
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
   ChevronUp,
   ChevronDownIcon,
   Wallet,

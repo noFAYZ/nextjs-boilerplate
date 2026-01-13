@@ -91,7 +91,7 @@ export function groupTransactionsByDate(transactions: UnifiedTransaction[]): Rec
 export function getTransactionDate(transaction: UnifiedTransaction): Date {
   try {
     return parseISO(transaction.timestamp);
-  } catch (error) {
+  } catch (_error) {
     console.warn('Failed to parse transaction timestamp:', transaction.timestamp);
     return new Date();
   }
@@ -108,7 +108,7 @@ export function formatTransactionDate(date: Date | string): string {
   try {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     return format(dateObj, 'MMMM dd, yyyy');
-  } catch (error) {
+  } catch (_error) {
     console.warn('Failed to format transaction date:', date);
     return 'Invalid Date';
   }
@@ -125,7 +125,7 @@ export function formatTransactionTime(date: Date | string): string {
   try {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     return format(dateObj, 'h:mm a');
-  } catch (error) {
+  } catch (_error) {
     console.warn('Failed to format transaction time:', date);
     return 'Invalid Time';
   }
