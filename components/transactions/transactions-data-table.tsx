@@ -35,6 +35,7 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   Paperclip,
+  X,
 } from 'lucide-react';
 import { formatDate } from 'date-fns';
 import { cn } from '@/lib/utils';
