@@ -18,6 +18,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
@@ -69,7 +75,7 @@ export default function TransactionsPage() {
   const [limit, setLimit] = useState(50);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isOptionsDrawerOpen, setIsOptionsDrawerOpen] = useState(false);
 
   // Fetch all transactions from global endpoint
   const {
@@ -193,16 +199,14 @@ export default function TransactionsPage() {
                 </div>
               </div>
 
-              {/* Action Buttons Group */}
+              {/* Action Buttons: Auto Categorize, Edit Multiple, Filter */}
               <div className="flex gap-2">
-                {/* PRIMARY ACTIONS GROUP */}
                 {/* Auto Categorize Button */}
                 <Button
                   variant="brand"
                   size="xs"
                   title={uncategorizedCount > 0 ? `Auto categorize ${uncategorizedCount} transaction${uncategorizedCount !== 1 ? 's' : ''}` : 'No uncategorized transactions'}
                   disabled={uncategorizedCount === 0}
-
                 >
                   <Zap className="h-4 w-4" />
                   Auto Categorize ({uncategorizedCount})
@@ -220,186 +224,20 @@ export default function TransactionsPage() {
                   {isBulkSelectMode ? "Cancel" : "Edit Multiple"}
                 </Button>
 
-                {/* DIVIDER SPACE */}
-                <div className="w-px bg-border/50" />
-
-                {/* FILTERING GROUP */}
-                {/* Date Button */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline2"
-                      size="xs"
-                      title={dateRange ? `Date: ${dateRange.from?.toLocaleDateString()} to ${dateRange.to?.toLocaleDateString()}` : "Select date range"}
-                      className={dateRange ? 'bg-muted/40' : ''}
-                    >
-                      <SolarCalendarBoldDuotone className="h-4 w-4 text-muted-foreground" />
-                      Date
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-sm">Date Range</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground mb-1 block">From</label>
-                          <Input
-                            type="date"
-                            value={dateRange?.from ? dateRange.from.toISOString().split('T')[0] : ''}
-                            onChange={(e) => {
-                              const date = e.target.value ? new Date(e.target.value) : null;
-                              setDateRange(date ? { from: date, to: dateRange?.to || null } : null);
-                            }}
-                            className="h-9"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground mb-1 block">To</label>
-                          <Input
-                            type="date"
-                            value={dateRange?.to ? dateRange.to.toISOString().split('T')[0] : ''}
-                            onChange={(e) => {
-                              const date = e.target.value ? new Date(e.target.value) : null;
-                              setDateRange(date ? { from: dateRange?.from || null, to: date } : null);
-                            }}
-                            className="h-9"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => clearDateRange()}
-                        >
-                          Clear
-                        </Button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Filters Popover */}
-                <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline2"
-                      size="xs"
-                      title="Open filters"
-                      className={
-                        (typeFilter !== 'all' || statusFilter !== 'all' || sourceFilter !== 'all')
-                          ? 'bg-muted/40'
-                          : ''
-                      }
-                    >
-                      <StreamlineFlexFilter2 className="h-3.5 w-3.5" />
-                      Filter
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72">
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-sm">Filters</h4>
-
-                      {/* Type Filter */}
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                          Type
-                        </label>
-                        <Select value={typeFilter} onValueChange={setTypeFilter}>
-                          <SelectTrigger className="h-9">
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="SEND">Send</SelectItem>
-                            <SelectItem value="RECEIVE">Receive</SelectItem>
-                            <SelectItem value="SWAP">Swap</SelectItem>
-                            <SelectItem value="DEPOSIT">Deposit</SelectItem>
-                            <SelectItem value="WITHDRAWAL">Withdrawal</SelectItem>
-                            <SelectItem value="TRANSFER">Transfer</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Status Filter */}
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                          Status
-                        </label>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                          <SelectTrigger className="h-9">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                            <SelectItem value="PENDING">Pending</SelectItem>
-                            <SelectItem value="PROCESSING">Processing</SelectItem>
-                            <SelectItem value="FAILED">Failed</SelectItem>
-                            <SelectItem value="COMPLETED">Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Source Filter */}
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                          Source
-                        </label>
-                        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                          <SelectTrigger className="h-9">
-                            <SelectValue placeholder="Select source" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Sources</SelectItem>
-                            <SelectItem value="BANKING">Banking</SelectItem>
-                            <SelectItem value="CRYPTO">Crypto</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Clear Filters Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          setTypeFilter('all');
-                          setStatusFilter('all');
-                          setSourceFilter('all');
-                        }}
-                      >
-                        Clear Filters
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* DIVIDER SPACE */}
-                <div className="w-px bg-border/50" />
-
-                {/* DATA ACTIONS GROUP */}
-                {/* Export Button */}
+                {/* Filter Button - Opens Options Drawer */}
                 <Button
                   variant="outline2"
                   size="xs"
-                  title="Export transactions"
+                  onClick={() => setIsOptionsDrawerOpen(true)}
+                  title="Open filters and options"
+                  className={
+                    (dateRange || typeFilter !== 'all' || statusFilter !== 'all' || sourceFilter !== 'all')
+                      ? 'bg-muted/40'
+                      : ''
+                  }
                 >
-                  <Download className="h-3.5 w-3.5" />
-                  Export
-                </Button>
-
-                {/* Refresh Button */}
-                <Button
-                  variant="outline2"
-                  size="xs"
-                  onClick={handleRefresh}
-                  disabled={isLoading}
-                  title={isLoading ? "Refreshing..." : "Refresh transactions"}
-                >
-                  <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
-                  Refresh
+                  <StreamlineFlexFilter2 className="h-3.5 w-3.5" />
+                  Filter
                 </Button>
               </div>
             </div>
@@ -472,6 +310,154 @@ export default function TransactionsPage() {
         transaction={selectedTransaction}
         onClose={handleCloseDrawer}
       />
+
+      {/* Options Drawer - Date, Filters, Export, Refresh */}
+      <Sheet open={isOptionsDrawerOpen} onOpenChange={setIsOptionsDrawerOpen}>
+        <SheetContent side="right" className="w-full sm:w-96 overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Filters & Options</SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-6">
+            {/* Date Range Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">Date Range</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
+                  <Input
+                    type="date"
+                    value={dateRange?.from ? dateRange.from.toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      const date = e.target.value ? new Date(e.target.value) : null;
+                      setDateRange(date ? { from: date, to: dateRange?.to || null } : null);
+                    }}
+                    className="h-9"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
+                  <Input
+                    type="date"
+                    value={dateRange?.to ? dateRange.to.toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      const date = e.target.value ? new Date(e.target.value) : null;
+                      setDateRange(date ? { from: dateRange?.from || null, to: date } : null);
+                    }}
+                    className="h-9"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => clearDateRange()}
+                  className="w-full"
+                >
+                  Clear Date
+                </Button>
+              </div>
+            </div>
+
+            {/* Filters Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">Filters</h3>
+
+              {/* Type Filter */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Type</label>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="SEND">Send</SelectItem>
+                    <SelectItem value="RECEIVE">Receive</SelectItem>
+                    <SelectItem value="SWAP">Swap</SelectItem>
+                    <SelectItem value="DEPOSIT">Deposit</SelectItem>
+                    <SelectItem value="WITHDRAWAL">Withdrawal</SelectItem>
+                    <SelectItem value="TRANSFER">Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status Filter */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Status</label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="PROCESSING">Processing</SelectItem>
+                    <SelectItem value="FAILED">Failed</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Source Filter */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Source</label>
+                <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    <SelectItem value="BANKING">Banking</SelectItem>
+                    <SelectItem value="CRYPTO">Crypto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  clearFilters();
+                  setIsOptionsDrawerOpen(false);
+                }}
+                className="w-full"
+              >
+                Clear All Filters
+              </Button>
+            </div>
+
+            {/* Data Actions Section */}
+            <div className="space-y-3 border-t pt-6">
+              <h3 className="text-sm font-semibold text-foreground">Actions</h3>
+
+              {/* Export Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                title="Export transactions"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+
+              {/* Refresh Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className="w-full"
+                title={isLoading ? "Refreshing..." : "Refresh transactions"}
+              >
+                <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                Refresh
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

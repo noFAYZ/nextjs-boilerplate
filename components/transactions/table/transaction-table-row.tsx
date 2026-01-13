@@ -65,7 +65,7 @@ export const TransactionTableRow = memo(
       )}
 
       {/* Merchant/Payee Cell */}
-      <TableCell className="max-w-[10%] overflow-hidden">
+      <TableCell className="w-[10%] overflow-hidden">
         <MerchantCombobox
           merchantId={tx.merchant?.id}
           merchantName={tx.merchant?.displayName || tx.merchent || tx.description}
@@ -77,7 +77,7 @@ export const TransactionTableRow = memo(
       </TableCell>
 
       {/* Category Cell (hidden on mobile) */}
-      <TableCell className="table-cell max-w-[10%] overflow-hidden">
+      <TableCell className="table-cell w-[10%] overflow-hidden">
         <CategoryCombobox
           categoryId={tx.category}
           categories={categoriesList}
@@ -89,7 +89,7 @@ export const TransactionTableRow = memo(
 
       {/* Account Cell (hidden if hideAccountColumn) */}
       {!hideAccountColumn && (
-        <TableCell className="hidden md:table-cell max-w-[10%] overflow-hidden">
+        <TableCell className="hidden md:table-cell w-[10%] overflow-hidden">
           <AccountCombobox
             accountId={tx.account?.id || ''}
             accountName={tx.account?.name || 'Unknown'}
@@ -101,7 +101,7 @@ export const TransactionTableRow = memo(
       )}
 
       {/* Amount Cell */}
-      <TableCell className="text-right max-w-[10%]">
+      <TableCell className="text-right w-[10%]">
         <div className="flex flex-col items-end gap-1">
           <div
             className={cn('font-semibold text-sm', {
@@ -124,7 +124,7 @@ export const TransactionTableRow = memo(
       </TableCell>
 
       {/* Actions Cell */}
-      <TableCell className="text-center max-w-[5%]">
+      <TableCell className="text-center w-10">
         <Button
           variant="outlinemuted"
           size="icon-sm"
