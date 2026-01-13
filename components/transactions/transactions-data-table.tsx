@@ -34,7 +34,7 @@ import {
   ChevronDownIcon,
   ChevronsDownUp,
   ChevronsUpDown,
-
+  Paperclip,
 } from 'lucide-react';
 import { formatDate } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -512,6 +512,7 @@ export function TransactionsDataTable({
                       <TableCell className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 w-[20%] overflow-hidden"><div className="h-4 w-24 bg-muted rounded animate-pulse" /></TableCell>
                     )}
                     <TableCell className="px-2 sm:px-4 py-2 sm:py-3 w-[10%]"><div className="h-4 w-16 bg-muted rounded ml-auto animate-pulse" /></TableCell>
+                    <TableCell className="px-2 sm:px-4 py-2 sm:py-3 w-[8%]"><div className="h-4 w-12 bg-muted rounded mx-auto animate-pulse" /></TableCell>
                     <TableCell className="px-1 sm:px-4 py-2 sm:py-3 w-[5%]"><div className="h-6 w-6 bg-muted rounded ml-auto animate-pulse" /></TableCell>
                   </TableRow>
                 ))}
@@ -568,7 +569,7 @@ export function TransactionsDataTable({
                 <Fragment key={date}>
                   {/* Date Separator */}
                   <TableRow className="hover:bg-transparent shadow-none border-0">
-                    <TableCell colSpan={hideAccountColumn ? 4 : 5} className=" bg-background">
+                    <TableCell colSpan={hideAccountColumn ? 5 : 6} className=" bg-background">
                       <p className="text-[10px] font-semibold flex gap-1 tracking-wider text-muted-foreground">
                         <SolarCalendarBoldDuotone className='w-3 h-3' />{date}
                       </p>
@@ -649,6 +650,14 @@ export function TransactionsDataTable({
                               ? 'Transfer'
                               : tx.type}
                           </Badge> */}
+                        </div>
+                      </TableCell>
+
+                      {/* Attachments */}
+                      <TableCell className="text-center w-[8%]">
+                        <div className="flex items-center justify-center gap-1">
+                          <Paperclip className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground font-medium">0</span>
                         </div>
                       </TableCell>
 

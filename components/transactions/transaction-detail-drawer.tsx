@@ -13,13 +13,13 @@ import { useToast } from "@/lib/hooks/useToast";
 import { useCategories } from '@/lib/queries/use-accounts-data';
 import { useAllAccounts } from '@/lib/queries/use-accounts-data';
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerFooter,
-  DrawerClose,
-} from '@/components/ui/drawer';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
 import type { UnifiedTransaction } from './transactions-data-table';
 import { BasilEditOutline, MageCalendar2, MdiPen, SolarCalendarBoldDuotone } from '../icons/icons';
 import { TransactionAttachments, TransactionNotesEditor, TransactionTagsManager, DuplicateDetectionBanner } from '@/app/(protected)/accounts/components';
@@ -180,14 +180,14 @@ export function TransactionDetailDrawer({
   console.log(transaction)
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={onClose}>
 
-      <DrawerContent className="max-w-md mx-auto antialiased-none" style={{ WebkitFontSmoothing: 'auto', textRendering: 'optimizeSpeed' }}>
+      <SheetContent side="right" className="w-full sm:w-[500px] md:w-[600px] overflow-y-auto p-0 bg-card border-l border-border">
         {/* Accessible Title (hidden visually) */}
-         <DrawerTitle className="sr-only">Transaction Details</DrawerTitle>
+         <SheetTitle className="sr-only">Transaction Details</SheetTitle>
 
         {/* Compact Header */}
-        <div className="sticky top-0 bg-background border-b border-border/50 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-card border-b border-border/50 px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Transaction Details</h2>
           {!isEditing && (
             <Button
@@ -663,7 +663,7 @@ export function TransactionDetailDrawer({
         </div>
 
         {/* Footer */}
-        <DrawerFooter className="border-t border-border/50 px-6 py-4">
+        <SheetFooter className="sticky bottom-0 border-t border-border/50 px-6 py-4 bg-card">
           {isEditing ? (
             <div className="flex gap-3 w-full">
               <Button
@@ -683,15 +683,15 @@ export function TransactionDetailDrawer({
               </Button>
             </div>
           ) : (
-            <DrawerClose asChild>
+            <SheetClose asChild>
               <Button variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg">
                 Close
               </Button>
-            </DrawerClose>
+            </SheetClose>
           )}
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
 
