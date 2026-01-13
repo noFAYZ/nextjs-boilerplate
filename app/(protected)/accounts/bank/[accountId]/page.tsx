@@ -79,7 +79,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
-import { TransactionsDataTable, UnifiedTransaction } from "@/components/transactions/transactions-data-table";
+import { TransactionsDataTable } from "@/components/transactions";
+import type { UnifiedTransaction } from "@/lib/types";
 import { AccountSubtypeAndCategoryForm } from "@/components/banking";
 
 const ACCOUNT_TYPE_CONFIG = {

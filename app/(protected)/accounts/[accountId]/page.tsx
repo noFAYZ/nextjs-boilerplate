@@ -72,7 +72,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
-import { TransactionsDataTable, UnifiedTransaction } from "@/components/transactions/transactions-data-table";
+import { TransactionsDataTable } from "@/components/transactions";
+import type { UnifiedTransaction } from "@/lib/types";
 import { TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer";
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";

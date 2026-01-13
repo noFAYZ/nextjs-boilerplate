@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Transaction Display Helper Utilities
  *

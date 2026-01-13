@@ -20,7 +20,7 @@ import {
   SheetFooter,
   SheetClose,
 } from '@/components/ui/sheet';
-import type { UnifiedTransaction } from './transactions-data-table';
+import type { UnifiedTransaction } from '@/lib/types';
 import { BasilEditOutline, MageCalendar2, MdiPen, SolarCalendarBoldDuotone } from '../icons/icons';
 import { TransactionAttachments, TransactionNotesEditor, TransactionTagsManager, DuplicateDetectionBanner } from '@/app/(protected)/accounts/components';
 
