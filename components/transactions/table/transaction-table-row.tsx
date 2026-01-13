@@ -89,7 +89,7 @@ export const TransactionTableRow = memo(
 
       {/* Account Cell (hidden if hideAccountColumn) */}
       {!hideAccountColumn && (
-        <TableCell className="hidden md:table-cell w-[10%] overflow-hidden">
+        <TableCell className="hidden md:table-cell max-w-[10%] overflow-hidden">
           <AccountCombobox
             accountId={tx.account?.id || ''}
             accountName={tx.account?.name || 'Unknown'}
