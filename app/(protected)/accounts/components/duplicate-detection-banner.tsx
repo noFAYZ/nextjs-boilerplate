@@ -21,12 +21,16 @@ interface DuplicateTransaction {
 }
 
 interface DuplicateDetectionBannerProps {
-  duplicateGroupId: string;
-  merchant: string;
-  amount: number;
-  transactions: DuplicateTransaction[];
-  onResolve: (keepTransactionId: string, mergeNotes: boolean) => Promise<void>;
-  onIgnore: (reason?: string) => Promise<void>;
+  // Summary mode (for analytics overview)
+  duplicateCount?: number;
+  onResolve?: () => Promise<void>;
+
+  // Detailed mode (for specific duplicate group)
+  duplicateGroupId?: string;
+  merchant?: string;
+  amount?: number;
+  transactions?: DuplicateTransaction[];
+  onIgnore?: (reason?: string) => Promise<void>;
   className?: string;
 }
 
@@ -38,6 +42,7 @@ export function DuplicateDetectionBanner({
   onResolve,
   onIgnore,
   className,
+  duplicateCount,
 }: DuplicateDetectionBannerProps) {
   const [isResolving, setIsResolving] = useState(false);
   const [isIgnoring, setIsIgnoring] = useState(false);
@@ -45,11 +50,20 @@ export function DuplicateDetectionBanner({
   const [mergeNotes, setMergeNotes] = useState(true);
   const [ignoreReason, setIgnoreReason] = useState("");
 
+  // Check if in summary mode (no transactions provided)
+  const isSummaryMode = !transactions || transactions.length === 0;
+
   const handleResolve = async () => {
-    if (!selectedKeepId) return;
+    if (!isSummaryMode && !selectedKeepId) return;
     setIsResolving(true);
     try {
-      await onResolve(selectedKeepId, mergeNotes);
+      if (isSummaryMode) {
+        await onResolve?.();
+      } else {
+        // Detailed mode - pass transaction ID and merge notes
+        const detailedResolve = onResolve as unknown as (id: string, merge: boolean) => Promise<void>;
+        if (selectedKeepId) await detailedResolve(selectedKeepId, mergeNotes);
+      }
     } finally {
       setIsResolving(false);
     }
@@ -58,7 +72,7 @@ export function DuplicateDetectionBanner({
   const handleIgnore = async () => {
     setIsIgnoring(true);
     try {
-      await onIgnore(ignoreReason);
+      await onIgnore?.(ignoreReason);
     } finally {
       setIsIgnoring(false);
     }
@@ -75,34 +89,37 @@ export function DuplicateDetectionBanner({
 
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-sm text-amber-900 dark:text-amber-100">
-          Potential Duplicate Transaction
+          {isSummaryMode ? "Duplicate Transactions Found" : "Potential Duplicate Transaction"}
         </h3>
         <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
-          {transactions.length} similar transactions found for {merchant} (
-          {amount.toLocaleString("en-US", { style: "currency", currency: "USD" })})
+          {isSummaryMode
+            ? `${duplicateCount || 0} potential duplicate transactions detected in this account`
+            : `${transactions?.length || 0} similar transactions found for ${merchant} (${amount?.toLocaleString("en-US", { style: "currency", currency: "USD" })})`
+          }
         </p>
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="text-xs">
-              Review
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Resolve Duplicate Transactions</DialogTitle>
-            </DialogHeader>
+        {!isSummaryMode ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="text-xs">
+                Review
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Resolve Duplicate Transactions</DialogTitle>
+              </DialogHeader>
 
-            <div className="space-y-4">
-              {/* Duplicate Transactions List */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Select which transaction to keep:
-                </label>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {transactions.map((txn) => (
+              <div className="space-y-4">
+                {/* Duplicate Transactions List */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Select which transaction to keep:
+                  </label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {transactions?.map((txn) => (
                     <div
                       key={txn.id}
                       onClick={() => setSelectedKeepId(txn.id)}
@@ -184,6 +201,16 @@ export function DuplicateDetectionBanner({
             </div>
           </DialogContent>
         </Dialog>
+        ) : (
+          <Button
+            size="sm"
+            onClick={handleResolve}
+            disabled={isResolving}
+            className="text-xs"
+          >
+            {isResolving ? "Processing..." : "Review & Resolve"}
+          </Button>
+        )}
 
         <Button
           size="sm"
