@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import { Plus, LayoutGrid, List } from "lucide-react";
-import { useQueryClient, useIsFetching } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "@/components/subscriptions/subscription-list";
 import { SubscriptionFormModal } from "@/components/subscriptions/subscription-form-modal";
-import { UpcomingCharges } from "@/components/subscriptions/upcoming-charges";
 import { SubscriptionsFloatingToolbar } from "@/components/subscriptions/subscriptions-floating-toolbar";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import { useDeleteSubscription, useSubscriptions } from "@/lib/queries/use-subscription-data";
@@ -29,57 +28,90 @@ export default function SubscriptionsPage() {
   usePostHogPageView('subscriptions');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const isFetching = useIsFetching();
 
-  const [selectedSubscription, setSelectedSubscription] = React.useState<UserSubscription | null>(
-    null
-  );
-  const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [subscriptionToDelete, setSubscriptionToDelete] = React.useState<UserSubscription | null>(
-    null
-  );
+  // ============================================
+  // State: Modals & Dialogs
+  // ============================================
+  const [modals, setModals] = React.useState({
+    formModal: { isOpen: false, subscription: null as UserSubscription | null },
+    deleteDialog: { isOpen: false, subscription: null as UserSubscription | null },
+  });
+
+  // ============================================
+  // State: Selection
+  // ============================================
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
   const { setActiveTab, ui, viewPreferences, setSubscriptionsView } = useSubscriptionUIStore();
-  const { data: subscriptions = [], isLoading: isLoadingSubscriptions } = useSubscriptions();
-
+  const { data: subscriptions = [] } = useSubscriptions();
   const { mutate: deleteSubscription, isPending: isDeleting } = useDeleteSubscription();
 
+  // ============================================
+  // Modal & Dialog Handlers
+  // ============================================
+  const openFormModal = React.useCallback((subscription: UserSubscription | null) => {
+    setModals((prev) => ({
+      ...prev,
+      formModal: { isOpen: true, subscription },
+    }));
+  }, []);
+
+  const closeFormModal = React.useCallback(() => {
+    setModals((prev) => ({
+      ...prev,
+      formModal: { isOpen: false, subscription: null },
+    }));
+  }, []);
+
+  const openDeleteDialog = React.useCallback((subscription: UserSubscription) => {
+    setModals((prev) => ({
+      ...prev,
+      deleteDialog: { isOpen: true, subscription },
+    }));
+  }, []);
+
+  const closeDeleteDialog = React.useCallback(() => {
+    setModals((prev) => ({
+      ...prev,
+      deleteDialog: { isOpen: false, subscription: null },
+    }));
+  }, []);
+
+  // ============================================
+  // Data Handlers
+  // ============================================
   const handleRefresh = React.useCallback(async () => {
     await queryClient.refetchQueries({ queryKey: ['subscriptions'] });
   }, [queryClient]);
 
-  // Calculate total monthly spend for selected
-  const selectedSubscriptions = subscriptions.filter((s) =>
-    selectedIds.includes(s.id)
-  );
-  const totalMonthlySpend = selectedSubscriptions.reduce(
-    (total, sub) => total + (sub.monthlyEquivalent || 0),
-    0
+  const handleEdit = React.useCallback(
+    (subscription: UserSubscription) => {
+      openFormModal(subscription);
+    },
+    [openFormModal]
   );
 
-  const handleEdit = (subscription: UserSubscription) => {
-    setSelectedSubscription(subscription);
-    setIsFormModalOpen(true);
-  };
+  const handleDelete = React.useCallback(
+    (subscription: UserSubscription) => {
+      openDeleteDialog(subscription);
+    },
+    [openDeleteDialog]
+  );
 
-  const handleDelete = (subscription: UserSubscription) => {
-    setSubscriptionToDelete(subscription);
-    setIsDeleteDialogOpen(true);
-  };
+  const handleAddNew = React.useCallback(() => {
+    openFormModal(null);
+  }, [openFormModal]);
 
-  const confirmDelete = () => {
-    if (subscriptionToDelete) {
-      deleteSubscription(subscriptionToDelete.id, {
+  const confirmDelete = React.useCallback(() => {
+    if (modals.deleteDialog.subscription) {
+      deleteSubscription(modals.deleteDialog.subscription.id, {
         onSuccess: () => {
           toast({
             title: "Subscription deleted",
             description: "The subscription has been removed successfully.",
             variant: 'success'
           });
-          setIsDeleteDialogOpen(false);
-          setSubscriptionToDelete(null);
+          closeDeleteDialog();
         },
         onError: () => {
           toast({
@@ -90,12 +122,24 @@ export default function SubscriptionsPage() {
         },
       });
     }
-  };
+  }, [modals.deleteDialog.subscription, deleteSubscription, closeDeleteDialog, toast]);
 
-  const handleAddNew = () => {
-    setSelectedSubscription(null);
-    setIsFormModalOpen(true);
-  };
+  const handleClearSelection = React.useCallback(() => {
+    setSelectedIds([]);
+  }, []);
+
+  // ============================================
+  // Computed Values
+  // ============================================
+  const selectedSubscriptions = React.useMemo(
+    () => subscriptions.filter((s) => selectedIds.includes(s.id)),
+    [subscriptions, selectedIds]
+  );
+
+  const totalMonthlySpend = React.useMemo(
+    () => selectedSubscriptions.reduce((total, sub) => total + (sub.monthlyEquivalent || 0), 0),
+    [selectedSubscriptions]
+  );
 
 
   return (
@@ -151,7 +195,6 @@ export default function SubscriptionsPage() {
             activeTab="all"
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onSelect={(sub) => setSelectedSubscription(sub)}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
           />
@@ -162,7 +205,6 @@ export default function SubscriptionsPage() {
             activeTab="active"
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onSelect={(sub) => setSelectedSubscription(sub)}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
           />
@@ -173,7 +215,6 @@ export default function SubscriptionsPage() {
             activeTab="trial"
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onSelect={(sub) => setSelectedSubscription(sub)}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
           />
@@ -184,7 +225,6 @@ export default function SubscriptionsPage() {
             activeTab="cancelled"
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onSelect={(sub) => setSelectedSubscription(sub)}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
           />
@@ -196,28 +236,25 @@ export default function SubscriptionsPage() {
         selectedCount={selectedIds.length}
         totalMonthlySpend={totalMonthlySpend}
         selectedSubscriptions={selectedSubscriptions}
-        onClearSelection={() => setSelectedIds([])}
+        onClearSelection={handleClearSelection}
         onDelete={handleDelete}
         isLoading={isDeleting}
       />
 
       {/* Modals & Sheets */}
       <SubscriptionFormModal
-        open={isFormModalOpen}
-        onClose={() => {
-          setIsFormModalOpen(false);
-          setSelectedSubscription(null);
-        }}
-        subscription={selectedSubscription}
+        open={modals.formModal.isOpen}
+        onClose={closeFormModal}
+        subscription={modals.formModal.subscription}
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={modals.deleteDialog.isOpen} onOpenChange={closeDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{subscriptionToDelete?.name}&quot;? This action cannot be
+              Are you sure you want to delete &quot;{modals.deleteDialog.subscription?.name}&quot;? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

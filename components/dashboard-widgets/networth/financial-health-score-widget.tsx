@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { Heart } from 'lucide-react';
 
-export function FinancialHealthScoreWidget() {
+function FinancialHealthScoreWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -101,3 +101,5 @@ export function FinancialHealthScoreWidget() {
     </Card>
   );
 }
+
+export const FinancialHealthScoreWidget = memo(FinancialHealthScoreWidgetComponent);

@@ -2,16 +2,18 @@
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Copy, Edit2, Save, X, Calendar, Tag, Building2, MapPin, Hash, ArrowUpRight, ArrowDownLeft, Repeat2, Edit, Paperclip, FileText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, Edit2, Save, X, Calendar, Tag, Building2, MapPin, Hash, ArrowUpRight, ArrowDownLeft, Repeat2, Edit, Paperclip, FileText, AlertCircle, ChevronDown, ChevronUp, CheckSquare, Eye, EyeOff, Settings2, MoreVertical, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
+import { CategoryCombobox } from '@/components/ui/category-combobox';
+import { MerchantCombobox } from '@/components/ui/merchant-combobox';
+import { AccountCombobox } from '@/components/ui/account-combobox';
 import { useToast } from "@/lib/hooks/useToast";
-import { useCategories } from '@/lib/queries/use-accounts-data';
-import { useAllAccounts } from '@/lib/queries/use-accounts-data';
+import { useCategories, useAllAccounts } from '@/lib/queries/use-accounts-data';
+import { useMerchants } from '@/lib/queries/use-transactions-data';
 import {
   Sheet,
   SheetContent,
@@ -93,8 +95,8 @@ export function TransactionDetailDrawer({
   onClose,
 }: TransactionDetailDrawerProps) {
   const { success } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<UnifiedTransaction> | null>(null);
+  const [isReviewed, setIsReviewed] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     attachments: false,
     notes: false,
@@ -111,31 +113,49 @@ export function TransactionDetailDrawer({
 
   // Fetch categories
   const { data: categoriesResponse } = useCategories();
-  const categories = useMemo<ComboboxOption[]>(() => {
+  const categories = useMemo<any[]>(() => {
     const cats = Array.isArray(categoriesResponse)
       ? categoriesResponse
       : categoriesResponse?.data;
 
     if (!cats) return [];
-    return cats.map((cat: { id: string; name: string }) => ({
+    return cats.map((cat: { id: string; name: string; emoji?: string }) => ({
       value: cat.id,
       label: cat.name,
+      emoji: cat.emoji,
     }));
   }, [categoriesResponse]);
 
+  // Fetch merchants
+  const { data: merchantsResponse } = useMerchants();
+  const merchants = useMemo<any[]>(() => {
+    const merch = Array.isArray(merchantsResponse)
+      ? merchantsResponse
+      : merchantsResponse?.data;
+
+    if (!merch) return [];
+    return merch.map((m: { id: string; name: string; logoUrl?: string }) => ({
+      id: m.id,
+      name: m.name,
+      logoUrl: m.logoUrl,
+    }));
+  }, [merchantsResponse]);
+
   // Fetch accounts
   const { data: accountsResponse } = useAllAccounts();
-  const accounts = useMemo<ComboboxOption[]>(() => {
+  const accounts = useMemo<any[]>(() => {
     if (!accountsResponse) return [];
 
-    const allAccounts: ComboboxOption[] = [];
+    const allAccounts: any[] = [];
     if (accountsResponse.groups) {
-      Object.values(accountsResponse.groups).forEach((group: { accounts?: Array<{ id: string; name: string }> }) => {
+      Object.values(accountsResponse.groups).forEach((group: { accounts?: Array<{ id: string; name: string; logo?: string; mask?: string }> }) => {
         if (group.accounts) {
-          group.accounts.forEach((account: { id: string; name: string }) => {
+          group.accounts.forEach((account: { id: string; name: string; logo?: string; mask?: string }) => {
             allAccounts.push({
-              value: account.id,
-              label: account.name,
+              id: account.id,
+              name: account.name,
+              mask: account.mask,
+              logo: account.logo || '',
             });
           });
         }
@@ -151,438 +171,435 @@ export function TransactionDetailDrawer({
     success(`${label} copied to clipboard`);
   };
 
+  const handleSaveField = async (field: string, value: any) => {
+    // TODO: Implement save functionality with mutation
+    success('Transaction updated');
+  };
+
+  const handleDuplicateTransaction = () => {
+    // TODO: Implement duplicate transaction functionality
+    success('Transaction duplicated');
+  };
+
+  const handleHideTransaction = () => {
+    setIsHidden(!isHidden);
+    success(isHidden ? 'Transaction shown' : 'Transaction hidden');
+  };
+
+  const handleCreateRule = () => {
+    // TODO: Implement create rule from transaction
+    success('Rule created from transaction');
+  };
+
+  const handleLinkTransaction = () => {
+    // TODO: Implement transaction linking
+    success('Link transaction feature coming soon');
+  };
+
+  const isRecurring = transaction?.recurrencePattern || transaction?.metadata?.recurring;
   const isIncome =
     transaction.type === 'DEPOSIT' ||
     transaction.type === 'RECEIVE' ||
     transaction.type === 'INCOME';
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditData({
-      category: transaction.category,
-      merchent: transaction.merchent,
-      account: transaction.account,
-    });
-  };
-
-  const handleSave = () => {
-    // TODO: Implement save functionality with mutation
-    success('Transaction updated');
-    setIsEditing(false);
-    setEditData(null);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditData(null);
-  };
-
-  console.log(transaction)
-
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
 
-      <SheetContent side="right" className="w-full sm:min-w-[40%] overflow-y-auto p-0 bg-card border-l border-border">
+      <SheetContent side="right" className="w-full sm:min-w-[40%] overflow-y-auto p-0 bg-background">
         {/* Accessible Title (hidden visually) */}
          <SheetTitle className="sr-only">Transaction Details</SheetTitle>
 
-        {/* Compact Header */}
-        <div className="sticky top-0 z-10 bg-card border-b border-border/50 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Transaction Details</h2>
-          {!isEditing && (
+        {/* Clean Header with Actions */}
+        <div className="sticky top-0 z-10 bg-background px-6 py-3 border-b border-border/10 space-y-3">
+          {/* Title and Badges */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-base font-semibold text-foreground">Transaction</h2>
+              {isReviewed && (
+                <Badge variant="soft" className="text-xs font-semibold bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-0.5">
+                  ✓ Reviewed
+                </Badge>
+              )}
+              {isRecurring && (
+                <Badge variant="soft" className="text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5">
+                  🔄 Recurring
+                </Badge>
+              )}
+              {isHidden && (
+                <Badge variant="soft" className="text-xs font-semibold bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300 px-2 py-0.5">
+                  👁️‍🗨️ Hidden
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-1.5">
+            {/* Mark as Reviewed */}
             <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={handleEdit}
-              className="h-7 w-7  hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+              variant={isReviewed ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setIsReviewed(!isReviewed)}
+              className="h-8 text-xs font-semibold  gap-1"
             >
-              <Edit className="h-4 w-4" />
+              <CheckSquare className="h-3.5 w-3.5" />
+              {isReviewed ? 'Reviewed' : 'Review'}
             </Button>
-          )}
+
+            {/* Hide/Show */}
+            <Button
+              variant={isHidden ? "secondary" : "outline"}
+              size="sm"
+              onClick={handleHideTransaction}
+              className="h-8 text-xs font-semibold   gap-1"
+            >
+              {isHidden ? (
+                <>
+                  <Eye className="h-3.5 w-3.5" />
+                  Show
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-3.5 w-3.5" />
+                  Hide
+                </>
+              )}
+            </Button>
+
+            {/* Duplicate */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDuplicateTransaction}
+              className="h-8 text-xs font-semibold   gap-1"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Duplicate
+            </Button>
+
+            {/* Create Rule */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCreateRule}
+              className="h-8 text-xs font-semibold  gap-1"
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Create Rule
+            </Button>
+
+            {/* Link */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLinkTransaction}
+              className="h-8 text-xs font-semibold  gap-1"
+            >
+              <Link2 className="h-3.5 w-3.5" />
+              Link
+            </Button>
+          </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto max-h-[calc(100vh-150px)] px-6 pb-6 space-y-4">
-          {/* Amount Card - Compact Hero */}
-          <div className={cn(
-            'rounded-lg p-6 transition-all',
-            isIncome
-              ? 'bg-gradient-to-br from-lime-200/50 to-lime-200/20 dark:from-lime-950/30 dark:to-lime-950/10  '
-              : 'bg-gradient-to-br from-rose-200/50 to-rose-200/20 dark:from-red-950/30 dark:to-red-950/10 border-red-200/50 dark:border-red-800/30'
-          )}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2 opacity-75">Amount</p>
-                <div className={cn('text-4xl font-medium tracking-tight flex items-baseline gap-2', getTypeColor(transaction.type))}>
+        <div className="overflow-y-auto max-h-[calc(100vh-250px)] px-5 pb-6 space-y-4">
+          {/* Amount Card */}
+          <div className="rounded-lg p-4 bg-secondary">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-xs text-foreground/60 uppercase tracking-wider mb-1">Amount</p>
+                <div className={cn('text-2xl font-bold flex items-baseline gap-2', getTypeColor(transaction.type))}>
                   {isIncome ? (
                     <>
-                      <ArrowDownLeft className="h-6 w-6 flex-shrink-0" />
-                      <span>+</span>
+                      <ArrowDownLeft className="h-5 w-5 flex-shrink-0" />
+                      <span className="text-2xl">+</span>
                     </>
                   ) : (
                     <>
-                      <ArrowUpRight className="h-6 w-6 flex-shrink-0" />
-                      <span>−</span>
+                      <ArrowUpRight className="h-5 w-5 flex-shrink-0" />
+                      <span className="text-2xl">−</span>
                     </>
                   )}
-                  <CurrencyDisplay amountUSD={transaction.amount} variant='xl' className="inline font-medium" />
+                  <CurrencyDisplay amountUSD={transaction.amount} variant='lg' className="inline font-bold" />
                 </div>
               </div>
-              <Badge size='lg' className={cn('text-xs font-semibold flex-shrink-0', getStatusColor(transaction.status || transaction?.pending ? 'PENDING' :'COMPLETED'))}>
+              <Badge className={cn('text-xs font-semibold px-2.5 py-1 flex-shrink-0', getStatusColor(transaction.status || transaction?.pending ? 'PENDING' :'COMPLETED'))}>
                 {transaction.status || transaction?.pending ? 'Pending' :'Completed'}
               </Badge>
             </div>
           </div>
 
-          {/* Quick Info Row - Description + DateTime Inline */}
-          <div className="space-y-3">
-            <div className="flex items-center bg-card rounded-lg border border-border/80 gap-2 px-3 py-2.5">
-              <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
-                <SolarCalendarBoldDuotone className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground leading-tight">
-                  {format(getTransactionDate(transaction), 'MMM dd, yyyy')} · {format(getTransactionDate(transaction), 'h:mm a')}
-                </p>
-              </div>
+          {/* Transaction Details Section */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider px-1">Details</p>
+            <div className="px-3 py-2.5 rounded-lg border">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Date & Time</p>
+              <p className="text-sm text-foreground">
+                {format(getTransactionDate(transaction), 'MMM dd, yyyy')} at {format(getTransactionDate(transaction), 'h:mm a')}
+              </p>
             </div>
 
+            {/* Description */}
             {transaction.description && (
-              <div className="px-4 py-3 rounded-lg bg-card border border-border/80">
-                <p className="text-sm text-foreground">{transaction.description}</p>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Description</label>
+                <textarea
+                  defaultValue={transaction.description || ''}
+                  onChange={(e) => handleSaveField('description', e.target.value)}
+                  onBlur={(e) => handleSaveField('description', e.target.value)}
+                  placeholder="Enter description"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-border/50 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                  rows={2}
+                />
               </div>
             )}
           </div>
 
           {/* Editable Fields Section */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2.5">
             {/* Account Field */}
-            {isEditing ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Account</label>
-                </div>
-                <Combobox
-                  options={accounts}
-                  value={editData?.account?.id || transaction.account?.id || ''}
-                  onSelect={(value) =>
-                    setEditData({
-                      ...editData,
-                      account: {
-                        id: value,
-                        name: accounts.find((a) => a.value === value)?.label || '',
-                        type: 'BANKING' as const,
-                      },
-                    })
-                  }
-                  placeholder="Select account"
-                  width="w-full"
-                />
-              </div>
-            ) : transaction.account ? (
-              <div className="px-4 py-3 rounded-lg bg-muted/40 border border-border/50 space-y-2">
-                <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground truncate">{transaction.account.name}</p>
-                    <p className="text-xs text-muted-foreground">{transaction.account.type}{transaction.account.institute ? ` • ${transaction.account.institute}` : ''}</p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Account</label>
+              <AccountCombobox
+                accountId={transaction.account?.id || ''}
+                accounts={accounts}
+                onAccountChange={(value) => {
+                  handleSaveField('account', value);
+                }}
+              />
+            </div>
 
             {/* Category Field */}
-            {isEditing ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 ">
-                  <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Category</label>
-                </div>
-                <Combobox
-                  options={categories}
-                  value={editData?.category || transaction.category || ''}
-                  onSelect={(value) =>
-                    setEditData({
-                      ...editData,
-                      category: categories.find((c) => c.value === value)?.label || value,
-                    })
-                  }
-                  placeholder="Select category"
-                  width="w-full"
-                />
-              </div>
-            ) : transaction.category ? (
-              <div className="   items-center  space-y-1">
-                <div className="flex items-center gap-2 ">
-                  <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Category</label>
-                </div>
-                <Badge variant="tag" className="text-xs font-semibold px-1.5 py-0.5"> 
-         
-                  {transaction.category}</Badge>
-              </div>
-            ) : null}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Category</label>
+              <CategoryCombobox
+                categoryId={transaction.category || ''}
+                categories={categories.map((cat: any) => ({
+                  id: cat.value,
+                  displayName: cat.label,
+                  emoji: cat.emoji,
+                }))}
+                onCategoryChange={(value) => {
+                  handleSaveField('category', value);
+                }}
+              />
+            </div>
 
             {/* Merchant Field */}
-            {isEditing ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Merchant</label>
-                </div>
-                <input
-                  type="text"
-                  value={editData?.merchent || transaction.merchent || ''}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      merchent: e.target.value,
-                    })
-                  }
-                  placeholder="Enter merchant name"
-                  className="w-full px-3 py-2 text-xs border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                />
-              </div>
-            ) : transaction.merchant || transaction.merchent ? (
-              <div className="px-4 py-3 rounded-lg bg-muted/40 border border-border/50 space-y-3">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Merchant</label>
-                </div>
-                <div className="flex items-center gap-4">
-                  {(transaction.merchant?.logo || transaction.metadata?.logoUrl) && (
-                    <img
-                      src={transaction.merchant?.logo || transaction.metadata?.logoUrl}
-                      alt={transaction.merchant?.displayName || transaction.merchent}
-                      className="h-10 w-10 rounded-md object-cover flex-shrink-0"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-semibold text-foreground truncate">
-                      {transaction.merchant?.displayName || transaction.merchent}
-                    </p>
-                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                      {transaction.metadata?.pfc?.primary && (
-                        <p className="capitalize">{transaction.metadata.pfc.primary.replace(/_/g, ' ').toLowerCase()}</p>
-                      )}
-                      {transaction.merchant?.website && (
-                        <p className="truncate">{transaction.merchant.website}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Merchant</label>
+              <MerchantCombobox
+                merchantId={transaction.merchant?.id}
+                merchantName={transaction.merchant?.displayName || transaction.merchent || 'Select merchant'}
+                merchantLogo={transaction.merchant?.logo || transaction.metadata?.logoUrl}
+                merchants={merchants}
+                onMerchantChange={(value) => {
+                  handleSaveField('merchant', value);
+                }}
+              />
+              {transaction.metadata?.pfc?.primary && (
+                <p className="text-xs text-foreground/60 px-1">{transaction.metadata.pfc.primary.replace(/_/g, ' ').toLowerCase()}</p>
+              )}
+            </div>
 
             {/* Running Balance - Banking transactions */}
             {transaction.runningBalance !== undefined && transaction.runningBalance !== null && (
-              <div className="px-4 py-3 rounded-lg bg-muted/40 border border-border/50 space-y-2">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Running Balance</label>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-semibold text-foreground">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Running Balance</label>
+                <div className="px-3 py-2 rounded-lg border border-border/50">
+                  <span className="text-sm font-semibold text-foreground">
                     <CurrencyDisplay amountUSD={Math.abs(transaction.runningBalance)} className="inline" />
                   </span>
-                  <span className="text-sm text-muted-foreground">after transaction</span>
                 </div>
               </div>
             )}
 
             {/* Location Info - if available from metadata */}
             {transaction.metadata?.location && (transaction.metadata.location.city || transaction.metadata.location.address) && (
-              <div className="px-4 py-3 rounded-lg bg-muted/40 border border-border/50 space-y-2">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Location</label>
-                </div>
-                <div className="text-sm text-foreground space-y-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wide px-1">Location</label>
+                <div className="px-3 py-2 rounded-lg border border-border/50 text-sm space-y-0.5">
                   {transaction.metadata.location.address && (
-                    <p className="truncate">{transaction.metadata.location.address}</p>
+                    <p className="truncate text-foreground">{transaction.metadata.location.address}</p>
                   )}
                   {transaction.metadata.location.city && (
-                    <p>{transaction.metadata.location.city}{transaction.metadata.location.region ? `, ${transaction.metadata.location.region}` : ''}</p>
+                    <p className="text-foreground/70 text-xs">{transaction.metadata.location.city}{transaction.metadata.location.region ? `, ${transaction.metadata.location.region}` : ''}</p>
                   )}
                   {transaction.metadata.location.country && (
-                    <p className="text-muted-foreground">{transaction.metadata.location.country}</p>
+                    <p className="text-foreground/60 text-xs">{transaction.metadata.location.country}</p>
                   )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Additional Transaction Details */}
+          {/* Metadata & Additional Info */}
           {(transaction.metadata?.pfc?.detailed ||
             transaction.metadata?.counterparties ||
             transaction.status ||
             transaction.currency) && (
-            <div className="pt-3 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Details</p>
-
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider px-1">Metadata</p>
               {/* Transaction Category */}
               {transaction.metadata?.pfc?.detailed && (
-                <div className="px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <Tag className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase">Category</p>
-                        <code className="text-sm text-foreground truncate capitalize">
-                          {transaction.metadata.pfc.detailed.replace(/_/g, ' ').toLowerCase()}
-                        </code>
-                      </div>
-                    </div>
-                  </div>
+                <div className="px-3 py-2 rounded-lg border border-border/50">
+                  <p className="text-xs text-foreground/60 uppercase tracking-wide mb-0.5">Type</p>
+                  <p className="text-sm text-foreground capitalize">
+                    {transaction.metadata.pfc.detailed.replace(/_/g, ' ').toLowerCase()}
+                  </p>
                 </div>
               )}
 
               {/* Counterparty Info */}
               {transaction.metadata?.counterparties && transaction.metadata.counterparties.length > 0 && (
-                <div className="px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="h-3 w-3 text-muted-foreground" />
-                    <p className="text-xs font-semibold text-muted-foreground uppercase">Counterparty</p>
-                  </div>
+                <div className="px-3 py-2 rounded-lg border border-border/50">
+                  <p className="text-xs text-foreground/60 uppercase tracking-wide mb-1.5">Counterparty</p>
                   <div className="space-y-1">
                     {transaction.metadata.counterparties.slice(0, 2).map((cp, idx) => (
-                      <div key={idx} className="text-sm text-foreground">
-                        <p className="font-medium">{cp.name}</p>
-                        {cp.type && <p className="text-muted-foreground capitalize text-xs">{cp.type}</p>}
+                      <div key={idx} className="text-xs">
+                        <p className="font-semibold text-foreground">{cp.name}</p>
+                        {cp.type && <p className="text-foreground/60 text-xs capitalize">{cp.type}</p>}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Currency & Status */}
-              <div className="flex gap-2">
-                {transaction.currency && (
-                  <div className="flex-1 px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Currency</p>
-                    <p className="text-sm font-medium text-foreground">{transaction.currency}</p>
+              {/* Currency */}
+              {transaction.currency && (
+                <div className="px-3 py-2 rounded-lg border border-border/50">
+                  <p className="text-xs text-foreground/60 uppercase tracking-wide mb-0.5">Currency</p>
+                  <p className="text-sm text-foreground">{transaction.currency}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Advanced Details */}
+          {(transaction.hash || transaction.fromAddress || transaction.toAddress || transaction.id) && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider px-1">Advanced</p>
+              {transaction.hash && (
+                <div className="px-3 py-2 rounded-lg border border-border/50">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-md bg-foreground/5 flex items-center justify-center flex-shrink-0">
+                          <Hash className="h-3.5 w-3.5 text-foreground/60" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground/60 uppercase tracking-wide">Hash</p>
+                          <code className="text-xs font-mono text-foreground/70 truncate block mt-0.5">{transaction.hash.slice(0, 24)}...</code>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleCopy(transaction.hash!, 'Hash')}
+                        className="h-7 w-7 flex-shrink-0 hover:bg-foreground/5 transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5 text-foreground/60" />
+                      </Button>
+                    </div>
                   </div>
                 )}
-                {transaction.status && (
-                  <div className="flex-1 px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Status</p>
-                    <p className="text-sm font-medium text-foreground capitalize">{transaction.status}</p>
+
+                {transaction.fromAddress && (
+                  <div className="px-3 py-2 rounded-lg border border-border/50">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-md bg-foreground/5 flex items-center justify-center flex-shrink-0">
+                          <ArrowUpRight className="h-3.5 w-3.5 text-foreground/60" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground/60 uppercase tracking-wide">From</p>
+                          <code className="text-xs font-mono text-foreground/70 truncate block mt-0.5">{transaction.fromAddress.slice(0, 24)}...</code>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleCopy(transaction.fromAddress!, 'From')}
+                        className="h-7 w-7 flex-shrink-0 hover:bg-foreground/5 transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5 text-foreground/60" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {transaction.toAddress && (
+                  <div className="px-3 py-2 rounded-lg border border-border/50">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-md bg-foreground/5 flex items-center justify-center flex-shrink-0">
+                          <ArrowDownLeft className="h-3.5 w-3.5 text-foreground/60" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground/60 uppercase tracking-wide">To</p>
+                          <code className="text-xs font-mono text-foreground/70 truncate block mt-0.5">{transaction.toAddress.slice(0, 24)}...</code>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleCopy(transaction.toAddress!, 'To')}
+                        className="h-7 w-7 flex-shrink-0 hover:bg-foreground/5 transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5 text-foreground/60" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {transaction.id && (
+                  <div className="px-3 py-2 rounded-lg border border-border/50">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-md bg-foreground/5 flex items-center justify-center flex-shrink-0">
+                          <Hash className="h-3.5 w-3.5 text-foreground/60" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground/60 uppercase tracking-wide">ID</p>
+                          <code className="text-xs font-mono text-foreground/70 truncate block mt-0.5">{transaction.id.slice(0, 24)}...</code>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleCopy(transaction.id, 'ID')}
+                        className="h-7 w-7 flex-shrink-0 hover:bg-foreground/5 transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5 text-foreground/60" />
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
           )}
 
-          {/* Advanced Details - Collapsible Feel */}
-          {(transaction.hash || transaction.fromAddress || transaction.toAddress || transaction.id) && (
-            <div className="pt-3 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Advanced</p>
-
-              {transaction.hash && (
-                <div className="group px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50 hover:border-border/80 transition-colors">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <Hash className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <code className="text-sm font-mono text-muted-foreground truncate">{transaction.hash.slice(0, 16)}...</code>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleCopy(transaction.hash!, 'Hash')}
-                      className="h-5 w-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Copy className="h-2.5 w-2.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {transaction.fromAddress && (
-                <div className="group px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50 hover:border-border/80 transition-colors">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <ArrowUpRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <code className="text-sm font-mono text-muted-foreground truncate">{transaction.fromAddress.slice(0, 16)}...</code>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleCopy(transaction.fromAddress!, 'From')}
-                      className="h-5 w-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Copy className="h-2.5 w-2.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {transaction.toAddress && (
-                <div className="group px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50 hover:border-border/80 transition-colors">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <ArrowDownLeft className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <code className="text-sm font-mono text-muted-foreground truncate">{transaction.toAddress.slice(0, 16)}...</code>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleCopy(transaction.toAddress!, 'To')}
-                      className="h-5 w-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Copy className="h-2.5 w-2.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {transaction.id && (
-                <div className="group px-2.5 py-1.5 rounded-lg bg-muted/30 border border-border/50 hover:border-border/80 transition-colors">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <Hash className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <code className="text-sm font-mono text-muted-foreground truncate">{transaction.id.slice(0, 16)}...</code>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleCopy(transaction.id, 'ID')}
-                      className="h-5 w-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Copy className="h-2.5 w-2.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-                  {/* Type & Source - Compact Pills */}
-                  <div className="flex gap-3 justify-end pt-2">
-                    <Badge variant="soft" className="text-xs capitalize font-semibold rounded-lg">
-                      {transaction.type}
-                    </Badge>
-                    <Badge variant="soft" className="text-xs capitalize font-semibold rounded-lg">
-                      {transaction.source}
-                    </Badge>
-                  </div>
+          {/* Type & Source - Compact Pills */}
+          <div className="flex gap-2 justify-start pt-2">
+            <Badge variant="soft" className="text-xs capitalize font-semibold rounded-lg px-2.5 py-1">
+              {transaction.type}
+            </Badge>
+            <Badge variant="soft" className="text-xs capitalize font-semibold rounded-lg px-2.5 py-1">
+              {transaction.source}
+            </Badge>
+          </div>
 
           {/* Enhanced Features Section */}
-          <div className="pt-6 space-y-3 border-t border-border/50">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Enhancements</p>
+          <div className="pt-2 space-y-2.5">
+            <p className="text-xs font-semibold text-foreground/60 uppercase tracking-wider px-1">Enhancements</p>
 
             {/* Duplicate Detection Section */}
             <ExpandableSection
               title="Duplicates"
               section="duplicates"
-              icon={<AlertCircle className="h-4 w-4 text-amber-500" />}
+              icon={<AlertCircle className="h-4 w-4 text-foreground/60" />}
               isExpanded={expandedSections.duplicates}
               onToggle={toggleSection}
             >
-              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+              <div className="px-3 py-2 rounded-lg border border-border/50">
                 <DuplicateDetectionBanner
                   duplicateCount={0}
                   onResolve={async () => {
@@ -597,11 +614,11 @@ export function TransactionDetailDrawer({
             <ExpandableSection
               title="Tags"
               section="tags"
-              icon={<Tag className="h-4 w-4 text-blue-500" />}
+              icon={<Tag className="h-4 w-4 text-foreground/60" />}
               isExpanded={expandedSections.tags}
               onToggle={toggleSection}
             >
-              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+              <div className="px-3 py-2 rounded-lg border border-border/50">
                 <TransactionTagsManager
                   transactionId={transaction.id}
                   initialTags={transaction.tags || []}
@@ -618,11 +635,11 @@ export function TransactionDetailDrawer({
             <ExpandableSection
               title="Notes"
               section="notes"
-              icon={<FileText className="h-4 w-4 text-green-500" />}
+              icon={<FileText className="h-4 w-4 text-foreground/60" />}
               isExpanded={expandedSections.notes}
               onToggle={toggleSection}
             >
-              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+              <div className="px-3 py-2 rounded-lg border border-border/50">
                 <TransactionNotesEditor
                   transactionId={transaction.id}
                   onSave={async (notes) => {
@@ -638,11 +655,11 @@ export function TransactionDetailDrawer({
             <ExpandableSection
               title="Attachments"
               section="attachments"
-              icon={<Paperclip className="h-4 w-4 text-purple-500" />}
+              icon={<Paperclip className="h-4 w-4 text-foreground/60" />}
               isExpanded={expandedSections.attachments}
               onToggle={toggleSection}
             >
-              <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+              <div className="px-3 py-2 rounded-lg border border-border/50">
                 <TransactionAttachments
                   transactionId={transaction.id}
                   onUpload={async (file) => {
@@ -663,32 +680,12 @@ export function TransactionDetailDrawer({
         </div>
 
         {/* Footer */}
-        <SheetFooter className="sticky bottom-0 border-t border-border/50 px-6 py-4 bg-card">
-          {isEditing ? (
-            <div className="flex gap-3 w-full">
-              <Button
-                variant="outline"
-                className="flex-1 h-10 text-sm font-semibold rounded-lg gap-2"
-                onClick={handleCancel}
-              >
-                <X className="h-4 w-4" />
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 h-10 text-sm font-semibold rounded-lg gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
-                onClick={handleSave}
-              >
-                <Save className="h-4 w-4" />
-                Save
-              </Button>
-            </div>
-          ) : (
-            <SheetClose asChild>
-              <Button variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg">
-                Close
-              </Button>
-            </SheetClose>
-          )}
+        <SheetFooter className="sticky bottom-0 border-t border-border/10 px-6 py-4 bg-background">
+          <SheetClose asChild>
+            <Button variant="ghost" className="w-full h-10 text-sm font-semibold rounded-lg">
+              Close
+            </Button>
+          </SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>
@@ -719,20 +716,20 @@ function ExpandableSection({
     <div className="space-y-2">
       <button
         onClick={() => onToggle(section)}
-        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/40 transition-colors text-left group"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/50 hover:bg-foreground/5 transition-colors duration-200 text-left group"
       >
-        <div className="flex items-center gap-2">
-          {icon && <div className="text-muted-foreground">{icon}</div>}
+        <div className="flex items-center gap-3">
+          {icon && <div className="text-foreground/60 group-hover:text-foreground transition-colors duration-200">{icon}</div>}
           <h4 className="font-semibold text-sm text-foreground">{title}</h4>
         </div>
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <ChevronUp className="h-4 w-4 text-foreground/60 group-hover:text-foreground transition-all duration-200 rotate-0" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <ChevronDown className="h-4 w-4 text-foreground/60 group-hover:text-foreground transition-all duration-200" />
         )}
       </button>
 
-      {isExpanded && <div className="space-y-2 pl-0">{children}</div>}
+      {isExpanded && <div className="space-y-2 pl-0 animate-in fade-in-50 duration-150">{children}</div>}
     </div>
   );
 }

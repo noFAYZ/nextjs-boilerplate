@@ -8,7 +8,7 @@
 
 :root {
   /* Claude-like "Paper" Backgrounds (Slightly warm off-white) */
-  --background: oklch(0.98 0.005 60); 
+  --background: #ffff; 
   --foreground: oklch(0.22 0.015 60); /* Deep charcoal ink */
   
   --card: oklch(1 0 0);

@@ -159,7 +159,7 @@ export function BulkEditTransactionsDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:min-w-[40%] overflow-y-auto p-0">
+      <SheetContent side="right" className="w-full sm:min-w-[30%] overflow-y-auto p-0">
         <SheetHeader className="sticky top-0 z-10 bg-card border-b px-6 py-4">
           <SheetTitle>
             Edit {selectedTransactionIds.length} Transaction{selectedTransactionIds.length !== 1 ? 's' : ''}
@@ -215,7 +215,6 @@ export function BulkEditTransactionsDrawer({
             {editFields.merchant.enabled && (
               <MerchantCombobox
                 merchantId={editFields.merchant.value}
-                merchantName=""
                 merchants={merchantsList}
                 onMerchantChange={(value) =>
                   setEditFields(prev => ({
@@ -244,7 +243,6 @@ export function BulkEditTransactionsDrawer({
             {editFields.account.enabled && (
               <AccountCombobox
                 accountId={editFields.account.value}
-                accountName=""
                 accounts={accountsList}
                 onAccountChange={(value) =>
                   setEditFields(prev => ({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { Scale } from 'lucide-react';
 
-export function DebtToAssetRatioWidget() {
+function DebtToAssetRatioWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -101,3 +101,5 @@ export function DebtToAssetRatioWidget() {
     </Card>
   );
 }
+
+export const DebtToAssetRatioWidget = memo(DebtToAssetRatioWidgetComponent);

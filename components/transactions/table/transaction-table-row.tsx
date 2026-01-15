@@ -54,7 +54,7 @@ export const TransactionTableRow = memo(
     >
       {/* Checkbox Column (Bulk Selection) */}
       {isBulkSelectMode && (
-        <TableCell className="w-10 px-2">
+        <TableCell className="w-[1%] px-2">
           <Checkbox
             checked={isSelected}
             size='lg'
@@ -65,11 +65,9 @@ export const TransactionTableRow = memo(
       )}
 
       {/* Merchant/Payee Cell */}
-      <TableCell className="w-[10%] overflow-hidden">
+      <TableCell className="w-[20%] overflow-hidden">
         <MerchantCombobox
           merchantId={tx.merchant?.id}
-          merchantName={tx.merchant?.displayName || tx.merchent || tx.description}
-          merchantLogo={tx.merchant?.logo || tx.metadata?.logoUrl}
           merchants={merchantsList}
           onMerchantChange={(newMerchantId) => onMerchantChange(tx.id, newMerchantId)}
           typeIcon={getTypeIcon(tx.type)}
@@ -77,23 +75,19 @@ export const TransactionTableRow = memo(
       </TableCell>
 
       {/* Category Cell (hidden on mobile) */}
-      <TableCell className="table-cell w-[10%] overflow-hidden">
+      <TableCell className="table-cell w-[20%] overflow-hidden">
         <CategoryCombobox
           categoryId={tx.category}
           categories={categoriesList}
           onCategoryChange={(newCategoryId) => onCategoryChange(tx.id, newCategoryId)}
-          categoryName={categoriesList.find((c) => c.id === tx.category)?.displayName}
-          categoryEmoji={categoriesList.find((c) => c.id === tx.category)?.emoji}
         />
       </TableCell>
 
       {/* Account Cell (hidden if hideAccountColumn) */}
       {!hideAccountColumn && (
-        <TableCell className="hidden md:table-cell w-[10%] overflow-hidden">
+        <TableCell className="hidden md:table-cell w-[20%] overflow-hidden">
           <AccountCombobox
             accountId={tx.account?.id || ''}
-            accountName={tx.account?.name || 'Unknown'}
-            accountMask={tx.account?.mask}
             accounts={accountsList}
             onAccountChange={(newAccountId) => onAccountChange(tx.id, newAccountId)}
           />
@@ -101,7 +95,7 @@ export const TransactionTableRow = memo(
       )}
 
       {/* Amount Cell */}
-      <TableCell className="text-right w-[10%]">
+      <TableCell className="text-right w-[20%]">
         <div className="flex flex-col items-end gap-1">
           <div
             className={cn('font-semibold text-sm', {
@@ -124,7 +118,7 @@ export const TransactionTableRow = memo(
       </TableCell>
 
       {/* Actions Cell */}
-      <TableCell className="text-center w-10">
+      <TableCell className="text-center w-[4%]">
         <Button
           variant="outlinemuted"
           size="icon-sm"

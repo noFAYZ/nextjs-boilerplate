@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import Image from 'next/image';
 import { TrendingUp, TrendingDown, Coins } from 'lucide-react';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
@@ -31,7 +31,7 @@ const TOKEN_COLORS = [
   'bg-indigo-100 dark:bg-indigo-600/70',
 ];
 
-export function CryptoAllocationWidget() {
+function CryptoAllocationWidgetComponent() {
   const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -142,3 +142,5 @@ export function CryptoAllocationWidget() {
     </Card>
   );
 }
+
+export const CryptoAllocationWidget = memo(CryptoAllocationWidgetComponent);

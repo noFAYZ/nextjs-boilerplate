@@ -10,7 +10,7 @@ import {
   PenBoxIcon,
   CheckCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 
 // Import dashboard widgets
 import {
@@ -44,13 +44,28 @@ import { WidgetSettingsModal } from "@/components/dashboard/widget-settings-moda
 
 import { DashboardHeader } from "@/components/home/dashboard-header";
 
-export default function DashboardPage() {
+function DashboardPageComponent() {
   usePostHogPageView("dashboard");
   const { isEditMode, toggleEditMode } = useDashboardLayoutStore();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [modals, setModals] = useState({
+    settings: false,
+  });
 
-  // Define all dashboard widgets
-  const dashboardWidgets = [
+  // Memoized handlers
+  const handleToggleEditMode = useCallback(() => {
+    toggleEditMode();
+  }, [toggleEditMode]);
+
+  const handleOpenSettings = useCallback(() => {
+    setModals((prev) => ({ ...prev, settings: true }));
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setModals((prev) => ({ ...prev, settings: false }));
+  }, []);
+
+  // Define all dashboard widgets with memoized useMemo
+  const dashboardWidgets = useMemo(() => [
     {
       id: "net-worth",
       component: <NetWorthWidget />,
@@ -140,7 +155,7 @@ export default function DashboardPage() {
       id: "cash-position",
       component: <CashPositionWidget />,
     },
-  ];
+  ], []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -155,7 +170,7 @@ export default function DashboardPage() {
               <Button
                 variant={isEditMode ? "brand" : "outline2"}
                 size="icon-xs"
-                onClick={toggleEditMode}
+                onClick={handleToggleEditMode}
                 className=" rounded-none"
                 title={
                   isEditMode
@@ -174,7 +189,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline2"
                 size="icon-xs"
-                onClick={() => setIsSettingsOpen(true)}
+                onClick={handleOpenSettings}
                 className=" rounded-none"
                 title="Manage widgets"
               >
@@ -197,8 +212,8 @@ export default function DashboardPage() {
 
             {/* Widget Settings Modal */}
             <WidgetSettingsModal
-              isOpen={isSettingsOpen}
-              onClose={() => setIsSettingsOpen(false)}
+              isOpen={modals.settings}
+              onClose={handleCloseSettings}
             />
           </div>
         </div>
@@ -206,3 +221,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default memo(DashboardPageComponent);

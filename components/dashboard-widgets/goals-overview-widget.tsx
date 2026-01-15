@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import {
   Target,
   TrendingUp,
@@ -201,7 +201,7 @@ function GoalItem({ goal }: { goal: { currentAmount?: number; targetAmount?: num
 
 type TabType = 'all' | 'on-track' | 'behind' | 'completed';
 
-export function GoalsOverviewWidget() {
+function GoalsOverviewWidgetComponent() {
   const { data: goalsResponse, isLoading: goalsLoading } = useActiveGoals();
   const summary = useGoalSummary();
   const [activeTab, setActiveTab] = useState<TabType>('all');
@@ -434,3 +434,5 @@ export function GoalsOverviewWidget() {
     </Card>
   );
 }
+
+export const GoalsOverviewWidget = memo(GoalsOverviewWidgetComponent);

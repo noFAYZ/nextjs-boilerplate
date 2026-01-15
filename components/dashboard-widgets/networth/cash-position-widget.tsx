@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { Banknote } from 'lucide-react';
 
-export function CashPositionWidget() {
+function CashPositionWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -86,3 +86,5 @@ export function CashPositionWidget() {
     </Card>
   );
 }
+
+export const CashPositionWidget = memo(CashPositionWidgetComponent);

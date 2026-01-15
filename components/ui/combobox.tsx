@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,6 +31,8 @@ export interface ComboboxOption {
   logo?: string | null
 }
 
+type ButtonVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'outline2' | 'outlinemuted' | 'outlinemuted2' | 'ghost' | 'link' | 'brand' | 'soft'
+
 interface ComboboxProps {
   options: ComboboxOption[]
   value?: string
@@ -40,6 +42,8 @@ interface ComboboxProps {
   emptyMessage?: string
   disabled?: boolean
   className?: string
+  buttonVariant?: ButtonVariant
+  buttonClassName?: string
   popoverWidth?: string
   popoverStyle?: React.CSSProperties
 }
@@ -59,10 +63,50 @@ function buildSearchValue(option: ComboboxOption) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Component                                                                  */
+/* ComboboxItem Component                                                     */
 /* -------------------------------------------------------------------------- */
 
-export function Combobox({
+interface ComboboxItemProps {
+  option: ComboboxOption
+  isSelected: boolean
+  onSelect: (value: string) => void
+}
+
+const ComboboxItem = React.memo(function ComboboxItem({
+  option,
+  isSelected,
+  onSelect,
+}: ComboboxItemProps) {
+  const label = normalizeLabel(option.label)
+
+  return (
+    <CommandItem
+      key={option.value}
+      value={buildSearchValue(option)}
+      onSelect={() => onSelect(option.value)}
+      className="cursor-pointer"
+    >
+      <div className="flex items-center flex-1">
+        {option.logo ? (
+          <Avatar className="mr-2 h-6 w-6 border flex-shrink-0">
+            <AvatarImage src={option.logo} alt={label || "Option"} />
+            <AvatarFallback>{label.charAt(0).toUpperCase()}</AvatarFallback>
+          </Avatar>
+        ) : null}
+        <span className="truncate text-xs">{label}</span>
+      </div>
+      <Check
+        className={cn("mr-2 h-4 w-4 flex-shrink-0", isSelected ? "opacity-100" : "opacity-0")}
+      />
+    </CommandItem>
+  )
+})
+
+/* -------------------------------------------------------------------------- */
+/* Combobox Component                                                         */
+/* -------------------------------------------------------------------------- */
+
+function ComboboxComponent({
   options,
   value,
   onSelect,
@@ -71,6 +115,8 @@ export function Combobox({
   emptyMessage = "No results found",
   disabled = false,
   className,
+  buttonVariant = "outlinemuted2",
+  buttonClassName,
   popoverWidth = "w-[320px]",
   popoverStyle,
 }: ComboboxProps) {
@@ -83,89 +129,59 @@ export function Combobox({
 
   const displayLabel = normalizeLabel(selectedOption?.label)
 
+  const handleSelect = React.useCallback(
+    (selectedValue: string) => {
+      if (disabled) return
+      onSelect(selectedValue)
+      setOpen(false)
+    },
+    [disabled, onSelect]
+  )
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild >
+      <PopoverTrigger asChild>
         <Button
-          variant="outlinemuted2"
+          variant={buttonVariant}
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
           className={cn(
             "w-full max-w-full justify-start gap-2 px-2 py-1 h-auto overflow-hidden border border-transparent hover:border-border",
-            className
+            className,
+            buttonClassName
           )}
         >
-   {selectedOption?.logo ?   <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium flex-shrink-0">
-          <Avatar className="h-7 w-7 rounded-full border border-border">
-          <AvatarImage
-           src={selectedOption.logo}
-           alt={selectedOption.label || "Option"}
-            className="rounded-full"
-          />
-          <AvatarFallback className="bg-card rounded-full">
-          {selectedOption.label.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-
-
-          </div> : null}
-
-          <span className="truncate">
-            {displayLabel || placeholder}
-          </span>
-        
+          {selectedOption?.logo && (
+            <Avatar className="h-7 w-7 rounded-full border border-border flex-shrink-0">
+              <AvatarImage
+                src={selectedOption.logo}
+                alt={selectedOption.label || "Option"}
+                className="rounded-full"
+              />
+              <AvatarFallback className="bg-card rounded-full">
+                {selectedOption.label.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          )}
+          <span className="truncate">{displayLabel || placeholder}</span>
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className={cn(popoverWidth, "p-0")} style={popoverStyle}>
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
-
           <CommandList className="max-h-[260px]">
             <CommandEmpty>{emptyMessage}</CommandEmpty>
-
             <CommandGroup>
-              {options.map((option) => {
-                const label = normalizeLabel(option.label)
-                const isSelected = value === option.value
-
-                return (
-                  <CommandItem
-                    key={option.value}
-                    value={buildSearchValue(option)}
-                    onSelect={() => {
-                      if (disabled) return
-                      onSelect(option.value)
-                      setOpen(false)
-                    }}
-                    className="cursor-pointer"
-                  >
-                 
-<div className="flex">
-                    {option.logo ? (
-                      <Avatar className="mr-2 h-6 w-6 border">
-                        <AvatarImage
-                          src={option.logo}
-                          alt={label || "Option"}
-                        />
-                        <AvatarFallback>
-                          {label.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : null}
-
-                    <span className="truncate text-xs">{label}</span>
-</div>
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        isSelected ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                )
-              })}
+              {options.map((option) => (
+                <ComboboxItem
+                  key={option.value}
+                  option={option}
+                  isSelected={value === option.value}
+                  onSelect={handleSelect}
+                />
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>
@@ -173,6 +189,8 @@ export function Combobox({
     </Popover>
   )
 }
+
+export const Combobox = React.memo(ComboboxComponent)
 
 /* -------------------------------------------------------------------------- */
 /* Hook                                                                       */

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { getAccountCategoryConfig, getCategoryType } from '@/components/accounts/account-category-icon';
@@ -25,10 +25,15 @@ interface AccountGroup {
   accounts: UnifiedAccount[];
 }
 
-export function AccountsWidget() {
+function AccountsWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  // Memoized category toggle handler
+  const handleToggleCategory = useCallback((categoryKey: string) => {
+    setExpandedCategory((prev) => (prev === categoryKey ? null : categoryKey));
+  }, []);
 
   const categoriesWithAccounts = useMemo(() => {
     if (!accountsData?.groups) return [];
@@ -67,7 +72,7 @@ export function AccountsWidget() {
       <div key={group.key} className="space-y-1.5">
         {/* Category Header Button */}
         <button
-          onClick={() => setExpandedCategory(isExpanded ? null : group.key)}
+          onClick={() => handleToggleCategory(group.key)}
           className={cn(
             'w-full flex gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left',
             'hover:bg-secondary/60 active:bg-secondary',
@@ -258,3 +263,5 @@ export function AccountsWidget() {
     </Card>
   );
 }
+
+export const AccountsWidget = memo(AccountsWidgetComponent);

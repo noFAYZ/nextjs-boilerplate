@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { ArrowLeftIcon, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useSubscriptions } from '@/lib/queries';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -237,7 +237,7 @@ function DateDetailModal({
   );
 }
 
-export function CalendarSubscriptionWidget() {
+function CalendarSubscriptionWidgetComponent() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -253,7 +253,7 @@ export function CalendarSubscriptionWidget() {
     if (!subscriptionsResponse) return new Map<string, UserSubscription[]>();
 
     const map = new Map<string, UserSubscription[]>();
-    
+
     // Extract the data array from the response object - handle both formats
     let subscriptions: UserSubscription[] = [];
     if (Array.isArray(subscriptionsResponse)) {
@@ -286,45 +286,45 @@ export function CalendarSubscriptionWidget() {
     [currentDate]
   );
 
-  const goToPreviousMonth = () => {
+  const goToPreviousMonth = useCallback(() => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
-  };
+  }, [currentDate]);
 
-  const goToNextMonth = () => {
+  const goToNextMonth = useCallback(() => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     );
-  };
+  }, [currentDate]);
 
-  const goToToday = () => {
+  const goToToday = useCallback(() => {
     setCurrentDate(new Date());
-  };
+  }, []);
 
-  const handleDateClick = (date: Date, subs: UserSubscription[]) => {
+  const handleDateClick = useCallback((date: Date, subs: UserSubscription[]) => {
     if (subs.length > 0) {
       setSelectedDate(date);
       setIsModalOpen(true);
     }
-  };
+  }, []);
 
-  const isCurrentMonth = (date: Date) => {
+  const isCurrentMonth = useCallback((date: Date) => {
     return date.getMonth() === currentDate.getMonth();
-  };
+  }, [currentDate]);
 
-  const isToday = (date: Date) => {
+  const isToday = useCallback((date: Date) => {
     const today = new Date();
     return (
       date.getDate() === today.getDate() &&
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear()
     );
-  };
+  }, []);
 
-  const getDateKey = (date: Date) => {
+  const getDateKey = useCallback((date: Date) => {
     return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-  };
+  }, []);
 
   const selectedDateSubs = selectedDate
     ? subscriptionsByDate.get(getDateKey(selectedDate)) || []
@@ -507,3 +507,5 @@ export function CalendarSubscriptionWidget() {
     </>
   );
 }
+
+export const CalendarSubscriptionWidget = memo(CalendarSubscriptionWidgetComponent);

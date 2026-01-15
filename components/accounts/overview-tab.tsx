@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   DndContext,
@@ -45,7 +45,7 @@ interface AccountGroup {
   totalBalance: number;
 }
 
-export function OverviewTab() {
+function OverviewTabComponent() {
   const router = useRouter();
   const { data: accountsData, isLoading } = useAllAccounts();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
@@ -54,8 +54,6 @@ export function OverviewTab() {
 
   // Reordered accounts state
   const [accountOrder, setAccountOrder] = useState<Record<string, string[]> | null>(null);
-
-  console.log(accountsData)
 
   // dnd-kit sensors
   const sensors = useSensors(
@@ -87,12 +85,12 @@ export function OverviewTab() {
   );
 
   // Handle account click - navigate to account details
-  const handleAccountClick = (accountId: string) => {
+  const handleAccountClick = useCallback((accountId: string) => {
     router.push(`/accounts/${accountId}`);
-  };
+  }, [router]);
 
   // Handle drag end for reordering
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -115,7 +113,7 @@ export function OverviewTab() {
         });
       }
     }
-  };
+  }, [categoriesWithAccounts, accountOrder]);
 
   return (
     <div className="h-full flex flex-col relative space-y-6">
@@ -259,3 +257,5 @@ export function OverviewTab() {
     </div>
   );
 }
+
+export const OverviewTab = memo(OverviewTabComponent);

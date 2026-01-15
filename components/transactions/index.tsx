@@ -5,8 +5,11 @@
  * Exports main component and sub-components for advanced usage
  */
 
-// Main Component (primary export)
+// Main Components
 export { TransactionsDataTable } from './transactions-data-table';
+
+// Drawer Components
+export { TransactionDetailDrawerEnhanced } from './transaction-detail-drawer-enhanced';
 
 // Table Sub-Components (for advanced usage)
 export { TransactionTable } from './table/transaction-table';

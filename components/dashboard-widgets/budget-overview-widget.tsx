@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import {
   TrendingUp,
   AlertCircle,
@@ -163,7 +163,7 @@ function BudgetItem({ budget }: { budget: { spent?: number; limit?: number; name
 
 type TabType = 'all' | 'active' | 'exceeded' | 'paused';
 
-export function BudgetOverviewWidget() {
+function BudgetOverviewWidgetComponent() {
   const { data: budgetsResponse, isLoading: budgetsLoading } = useActiveBudgets();
   const summary = useBudgetSummary();
   const [activeTab, setActiveTab] = useState<TabType>('all');
@@ -393,3 +393,5 @@ export function BudgetOverviewWidget() {
     </Card>
   );
 }
+
+export const BudgetOverviewWidget = memo(BudgetOverviewWidgetComponent);

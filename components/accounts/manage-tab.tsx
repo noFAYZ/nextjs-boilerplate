@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
 import { AccountsDataView } from './accounts-data-view';
@@ -13,10 +13,20 @@ import { Badge } from '@/components/ui/badge';
  * Displays the modern accounts data view with table/card toggle,
  * enhanced filtering, sorting, bulk operations, and lifecycle management
  */
-export function ManageTab() {
+function ManageTabComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
   const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
+
+  // ============================================
+  // Handlers: Expand/Collapse Account
+  // ============================================
+  const handleToggleExpand = useCallback(
+    (accountId: string) => {
+      setExpandedAccountId((prevId) => (prevId === accountId ? null : accountId));
+    },
+    []
+  );
 
   // Flatten accounts for quick actions display
   const allAccounts = useMemo(() => {
@@ -43,7 +53,7 @@ export function ManageTab() {
                 <div
                   key={account.id}
                   className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => setExpandedAccountId(expandedAccountId === account.id ? null : account.id)}
+                  onClick={() => handleToggleExpand(account.id)}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -76,3 +86,5 @@ export function ManageTab() {
     </div>
   );
 }
+
+export const ManageTab = memo(ManageTabComponent);

@@ -39,7 +39,7 @@ import {
 } from "@/lib/utils";
 
 import { useRouter, useParams } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   categoryIcons,
@@ -74,7 +74,7 @@ import {
 import { AccountHeader } from "@/components/accounts/AccountHeader";
 import { TransactionsDataTable } from "@/components/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
-import { TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer";
+import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer-enhanced";
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
@@ -126,19 +126,32 @@ export default function UnifiedAccountDetailsPage() {
   const router = useRouter();
   const accountId = params.accountId as string;
 
-  // State
-  const [selectedTab, setSelectedTab] = useState("transactions");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("all");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [transactionView, setTransactionView] = useState<"list" | "table">(
-    "table"
-  );
-  const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<UnifiedTransaction | null>(null);
-  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
+  // State: UI
+  const [ui, setUi] = useState({
+    selectedTab: "transactions",
+    transactionView: "table" as "list" | "table",
+  });
+
+  // State: Filters
+  const [filters, setFilters] = useState({
+    searchQuery: "",
+    selectedFilter: "all",
+    dateRange: "all",
+    sortOrder: "desc" as "asc" | "desc",
+  });
+
+  // State: Modals
+  const [modals, setModals] = useState({
+    addTransaction: { isOpen: false },
+    drawer: { isOpen: false, transaction: null as UnifiedTransaction | null },
+    attachments: { selectedTransactionId: null as string | null },
+  });
+
+  // State: Sync
+  const [syncState, setSyncState] = useState({
+    showModal: false,
+    isSyncing: false,
+  });
   const { pageClass } = useViewModeClasses();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
 
@@ -196,38 +209,33 @@ export default function UnifiedAccountDetailsPage() {
   }, [transactionsData]);
 
   // Sync state management
-  const [showSyncModal, setShowSyncModal] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const realtimeSync = useRealtimeSync();
   const realtimeSyncStates = realtimeSync?.banking?.accountStates || {};
 
   // Watch for sync state changes
   useEffect(() => {
-    const syncState = realtimeSyncStates[accountId];
+    const currentSyncState = realtimeSyncStates[accountId];
 
-    if (isSyncing && syncState && !showSyncModal) {
-      setShowSyncModal(true);
+    if (syncState.isSyncing && currentSyncState && !syncState.showModal) {
+      setSyncState((prev) => ({ ...prev, showModal: true }));
     }
 
     if (
-      isSyncing &&
-      (syncState?.status === "completed" || syncState?.status === "failed")
+      syncState.isSyncing &&
+      (currentSyncState?.status === "completed" || currentSyncState?.status === "failed")
     ) {
-      setIsSyncing(false);
+      setSyncState((prev) => ({ ...prev, isSyncing: false }));
     }
-  }, [realtimeSyncStates, accountId, isSyncing, showSyncModal]);
+  }, [realtimeSyncStates, accountId, syncState]);
 
-  const handleSync = async () => {
+  const handleSync = useCallback(async () => {
     try {
       if (!account) {
-        console.error("Account not found");
         return;
       }
 
       // Find the connection that matches this account
-      // First, try to match by provider info
       const matchingConnection = connections.find((conn) => {
-        console.log(account, conn.provider)
         // Check if any accounts in this connection match our account
         // For now, we'll use a simple heuristic: match by provider and institution
         if (account.providerType === "PLAID" && conn.provider === "PLAID") {
@@ -240,15 +248,10 @@ export default function UnifiedAccountDetailsPage() {
       });
 
       if (!matchingConnection) {
-        console.error(
-          "No matching connection found for this account",
-          account.source,
-          account.institutionName
-        );
         return;
       }
 
-      setIsSyncing(true);
+      setSyncState((prev) => ({ ...prev, isSyncing: true }));
       syncMutation({
         connectionId: matchingConnection.id,
         options: {
@@ -256,31 +259,88 @@ export default function UnifiedAccountDetailsPage() {
         },
       });
     } catch (error) {
-      console.error("Failed to sync account:", error);
-      setIsSyncing(false);
+      setSyncState((prev) => ({ ...prev, isSyncing: false }));
     }
-  };
+  }, [account, connections, syncMutation]);
 
-  const handleDisconnect = async () => {
+  const handleDisconnect = useCallback(async () => {
     if (window.confirm("Are you sure you want to disconnect this account?")) {
       try {
         // TODO: Implement disconnect for unified accounts
         router.push("/accounts");
       } catch (error) {
-        console.error("Failed to disconnect account:", error);
+        // Error handling
       }
     }
-  };
+  }, [router]);
 
-  const handleRowClick = (transaction: UnifiedTransaction) => {
-    setSelectedTransaction(transaction);
-    setIsDrawerOpen(true);
-  };
+  const handleRowClick = useCallback((transaction: UnifiedTransaction) => {
+    setModals((prev) => ({
+      ...prev,
+      drawer: { isOpen: true, transaction },
+    }));
+  }, []);
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setSelectedTransaction(null);
-  };
+  const handleCloseDrawer = useCallback(() => {
+    setModals((prev) => ({
+      ...prev,
+      drawer: { isOpen: false, transaction: null },
+    }));
+  }, []);
+
+  const handleOpenAddTransaction = useCallback(() => {
+    setModals((prev) => ({
+      ...prev,
+      addTransaction: { isOpen: true },
+    }));
+  }, []);
+
+  const handleCloseAddTransaction = useCallback(() => {
+    setModals((prev) => ({
+      ...prev,
+      addTransaction: { isOpen: false },
+    }));
+  }, []);
+
+  const handleSearchChange = useCallback((query: string) => {
+    setFilters((prev) => ({ ...prev, searchQuery: query }));
+  }, []);
+
+  const handleSelectTransactionView = useCallback((view: "list" | "table") => {
+    setUi((prev) => ({ ...prev, transactionView: view }));
+  }, []);
+
+  const handleSelectTab = useCallback((tab: string) => {
+    setUi((prev) => ({ ...prev, selectedTab: tab }));
+  }, []);
+
+  const handleSelectTransactionId = useCallback((transactionId: string | null) => {
+    setModals((prev) => ({
+      ...prev,
+      attachments: { selectedTransactionId: transactionId },
+    }));
+  }, []);
+
+  const handleResolveAttachmentDuplicates = useCallback(async () => {
+    // TODO: Integrate with getDuplicateTransactions and resolveDuplicate APIs
+  }, []);
+
+  const handleUploadAttachment = useCallback(async (file: File) => {
+    // TODO: Integrate with uploadTransactionAttachment API
+  }, []);
+
+  const handleDeleteAttachment = useCallback(async (attachmentId: string) => {
+    // TODO: Integrate with deleteTransactionAttachment API
+  }, []);
+
+  const handleToggleAttachmentPublic = useCallback(async (attachmentId: string, isPublic: boolean) => {
+    // TODO: Integrate with toggleAttachmentAccess API
+  }, []);
+
+  const handleDownloadAttachment = useCallback(async (attachmentId: string) => {
+    // TODO: Integrate with downloadTransactionAttachment API
+    return '';
+  }, []);
 
   // Helper functions
   const getAccountBalanceColor = (account: Record<string, unknown>) => {
@@ -341,14 +401,14 @@ export default function UnifiedAccountDetailsPage() {
   // Filtered transactions
   const filteredTransactions = useMemo(() => {
     const filtered = filterTransactions(transactions, {
-      searchQuery,
-      category: selectedFilter,
-      dateRange: dateRange,
+      searchQuery: filters.searchQuery,
+      category: filters.selectedFilter,
+      dateRange: filters.dateRange,
     });
 
-    const sorted = sortTransactions(filtered, sortOrder);
+    const sorted = sortTransactions(filtered, filters.sortOrder);
     return sorted;
-  }, [transactions, searchQuery, selectedFilter, dateRange, sortOrder]);
+  }, [transactions, filters]);
 
   // Transform transactions to unified format
   const unifiedTransactions = useMemo(() => {
@@ -462,9 +522,7 @@ export default function UnifiedAccountDetailsPage() {
 
   const accountConfig = ACCOUNT_TYPE_CONFIG[account.type as keyof typeof ACCOUNT_TYPE_CONFIG] || ACCOUNT_TYPE_CONFIG.CHECKING;
   const IconComponent = accountConfig.icon;
-  const syncState = realtimeSyncStates[account.id];
-
-  console.log(transactionsResponse)
+  const currentSyncState = realtimeSyncStates[account.id];
 
   return (
     <div className={`  mx-auto space-y-3`}>
@@ -472,10 +530,10 @@ export default function UnifiedAccountDetailsPage() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setIsAddTransactionModalOpen(true)}
+              onClick={handleOpenAddTransaction}
               variant="outline"
               size="xs"
-             
+
             >
               <MdiDollar className="h-4.5 w-4.5" />
               Add Transaction
@@ -483,21 +541,21 @@ export default function UnifiedAccountDetailsPage() {
             <Button
               onClick={handleSync}
               disabled={
-                isSyncing ||
+                syncState.isSyncing ||
                 isSyncMutationPending ||
                 isLoadingConnections ||
-                syncState?.status === "syncing" ||
-                syncState?.status === "processing" ||
-                syncState?.status === "syncing_transactions"
+                currentSyncState?.status === "syncing" ||
+                currentSyncState?.status === "processing" ||
+                currentSyncState?.status === "syncing_transactions"
               }
               variant="default"
               size="xs"
               className="gap-2"
             >
-              {isSyncing ||
+              {syncState.isSyncing ||
               isSyncMutationPending ||
-              syncState?.status === "syncing" ||
-              syncState?.status === "syncing_transactions" ? (
+              currentSyncState?.status === "syncing" ||
+              currentSyncState?.status === "syncing_transactions" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <RefreshCw className="h-4 w-4" />
@@ -515,8 +573,8 @@ export default function UnifiedAccountDetailsPage() {
 
       {/* Transactions Section with Tabs */}
       <Tabs
-        value={selectedTab}
-        onValueChange={setSelectedTab}
+        value={ui.selectedTab}
+        onValueChange={handleSelectTab}
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
@@ -541,27 +599,27 @@ export default function UnifiedAccountDetailsPage() {
               <Input
               variant="outline"
                 placeholder="Search transactions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={filters.searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-9 h-9"
               />
             </div>
             {/* View Toggle - Only show on transactions tab */}
-            {selectedTab === "transactions" && (
+            {ui.selectedTab === "transactions" && (
               <div className="inline-flex items-center bg-background">
                 <Button
-                  variant={transactionView === "table" ? "secondary" : "ghost"}
+                  variant={ui.transactionView === "table" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setTransactionView("table")}
+                  onClick={() => handleSelectTransactionView("table")}
                   className="h-8 w-8 p-0"
                   title="Table view"
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
                 <Button
-                  variant={transactionView === "list" ? "secondary" : "ghost"}
+                  variant={ui.transactionView === "list" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setTransactionView("list")}
+                  onClick={() => handleSelectTransactionView("list")}
                   className="h-8 w-8 p-0"
                   title="List view"
                 >
@@ -574,7 +632,7 @@ export default function UnifiedAccountDetailsPage() {
 
         {/* Transactions Tab */}
         <TabsContent value="transactions" className="space-y-3">
-          {transactionView === "list" && (
+          {ui.transactionView === "list" && (
             <TransactionsDataTable
               transactions={unifiedTransactions}
               isLoading={transactionsLoading}
@@ -584,7 +642,7 @@ export default function UnifiedAccountDetailsPage() {
           )}
 
           {/* Card View */}
-          {transactionView === "table" && filteredTransactions.length > 0 ? (
+          {ui.transactionView === "table" && filteredTransactions.length > 0 ? (
             <div className="space-y-1.5">
               {filteredTransactions.slice(0, 20).map((transaction) => {
                 // Determine if income based on type field first, then amount
@@ -687,7 +745,7 @@ export default function UnifiedAccountDetailsPage() {
                 );
               })}
             </div>
-          ) : transactionView === "table" ? (
+          ) : ui.transactionView === "table" ? (
             <Card variant="outlined" className="p-12">
               <div className="text-center">
                 <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -707,10 +765,7 @@ export default function UnifiedAccountDetailsPage() {
           {/* Duplicate Detection Banner */}
           <DuplicateDetectionBanner
             duplicateCount={0}
-            onResolve={async () => {
-              // TODO: Integrate with getDuplicateTransactions and resolveDuplicate APIs
-              console.log('Resolve duplicates');
-            }}
+            onResolve={handleResolveAttachmentDuplicates}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -860,10 +915,10 @@ export default function UnifiedAccountDetailsPage() {
                   {unifiedTransactions.slice(0, 10).map((tx) => (
                     <button
                       key={tx.id}
-                      onClick={() => setSelectedTransactionId(tx.id)}
+                      onClick={() => handleSelectTransactionId(tx.id)}
                       className={cn(
                         "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
-                        selectedTransactionId === tx.id
+                        modals.attachments.selectedTransactionId === tx.id
                           ? "bg-primary/10 border-primary"
                           : "border-border hover:bg-muted/50"
                       )}
@@ -885,26 +940,14 @@ export default function UnifiedAccountDetailsPage() {
               </div>
 
               {/* Attachments Component */}
-              {selectedTransactionId && (
+              {modals.attachments.selectedTransactionId && (
                 <div className="mt-6 pt-6 border-t">
                   <TransactionAttachments
-                    transactionId={selectedTransactionId}
-                    onUpload={async (file) => {
-                      // TODO: Integrate with uploadTransactionAttachment API
-                      console.log('Upload attachment:', file);
-                    }}
-                    onDelete={async (attachmentId) => {
-                      // TODO: Integrate with deleteTransactionAttachment API
-                      console.log('Delete attachment:', attachmentId);
-                    }}
-                    onTogglePublic={async (attachmentId, isPublic) => {
-                      // TODO: Integrate with toggleAttachmentAccess API
-                      console.log('Toggle public:', attachmentId, isPublic);
-                    }}
-                    onDownload={async (attachmentId) => {
-                      // TODO: Integrate with downloadTransactionAttachment API
-                      return '';
-                    }}
+                    transactionId={modals.attachments.selectedTransactionId}
+                    onUpload={handleUploadAttachment}
+                    onDelete={handleDeleteAttachment}
+                    onTogglePublic={handleToggleAttachmentPublic}
+                    onDownload={handleDownloadAttachment}
                   />
                 </div>
               )}
@@ -969,15 +1012,15 @@ export default function UnifiedAccountDetailsPage() {
 </div>
       {/* Manual Transaction Form Modal */}
       <ManualTransactionForm
-        isOpen={isAddTransactionModalOpen}
-        onClose={() => setIsAddTransactionModalOpen(false)}
+        isOpen={modals.addTransaction.isOpen}
+        onClose={handleCloseAddTransaction}
         accountId={accountId}
       />
 
       {/* Transaction Detail Drawer */}
       <TransactionDetailDrawer
-        isOpen={isDrawerOpen}
-        transaction={selectedTransaction}
+        isOpen={modals.drawer.isOpen}
+        transaction={modals.drawer.transaction}
         onClose={handleCloseDrawer}
       />
     </div>

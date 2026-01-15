@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { memo } from "react";
 import { Loader2, Inbox } from "lucide-react";
 import { SubscriptionCard } from "./subscription-card";
 import { SubscriptionsDataTable } from "./subscriptions-data-table";
@@ -14,17 +15,15 @@ import { SolarInboxInBoldDuotone } from "../icons/icons";
 interface SubscriptionListProps {
   onEdit?: (subscription: UserSubscription) => void;
   onDelete?: (subscription: UserSubscription) => void;
-  onSelect?: (subscription: UserSubscription) => void;
   activeTab?: "all" | "active" | "trial" | "cancelled";
   className?: string;
   selectedIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
 }
 
-export function SubscriptionList({
+function SubscriptionListComponent({
   onEdit,
   onDelete,
-  onSelect,
   activeTab = "all",
   className,
   selectedIds = [],
@@ -109,12 +108,13 @@ export function SubscriptionList({
           subscription={subscription}
           onEdit={onEdit}
           onDelete={onDelete}
-          onClick={onSelect}
         />
       ))}
     </div>
   );
 }
+
+export const SubscriptionList = memo(SubscriptionListComponent);
 
 function SubscriptionListSkeleton({
   view,

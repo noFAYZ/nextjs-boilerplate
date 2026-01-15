@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { TrendingUp, TrendingDown, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
 import { useMonthlySpendingTrendNew } from '@/lib/queries/banking-queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
@@ -9,7 +9,22 @@ import { CurrencyDisplay } from '../ui/currency-display';
 import SpendingIncomeChart from './SpendingIncomeChart';
 import { CardSkeleton } from '../ui/card-skeleton';
 
-export function MonthlySpendingTrendWidget() {
+// Utility functions at module level (no dependencies)
+const formatCurrencyCompact = (amount: number) => {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`;
+  }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(1)}k`;
+  }
+  return `$${amount.toFixed(0)}`;
+};
+
+const formatMonth = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', { month: 'short' });
+};
+
+function MonthlySpendingTrendWidgetComponent() {
   // Fetch monthly trend data (last 6 months)
   const { data: monthlyTrend = [], isLoading: monthlyTrendLoading } = useMonthlySpendingTrendNew({ months: 6 });
   const { isRefetching } = useOrganizationRefetchState();
@@ -44,20 +59,6 @@ export function MonthlySpendingTrendWidget() {
       sortedMonths: sortedMonths.reverse(), // Oldest to newest for display
     };
   }, [monthlyTrend]);
-
-  const formatCurrencyCompact = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}k`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
-
-  const formatMonth = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short' });
-  };
 
   // Show skeleton when initially loading
   if (monthlyTrendLoading) {
@@ -170,3 +171,5 @@ export function MonthlySpendingTrendWidget() {
     </div>
   );
 }
+
+export const MonthlySpendingTrendWidget = memo(MonthlySpendingTrendWidgetComponent);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ interface DebtItem {
   color: string;
 }
 
-export function DebtSummaryWidget() {
+function DebtSummaryWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -86,3 +86,5 @@ export function DebtSummaryWidget() {
     </Card>
   );
 }
+
+export const DebtSummaryWidget = memo(DebtSummaryWidgetComponent);

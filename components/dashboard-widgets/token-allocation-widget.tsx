@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import {
   ArrowRight,
   TrendingUp,
@@ -99,7 +99,7 @@ function TokenItem({ token, totalValue }: { token: TopAsset; totalValue: number 
 
 type TabType = 'top' | 'gainers' | 'losers';
 
-export function TokenAllocationWidget() {
+function TokenAllocationWidgetComponent() {
   const { data: portfolioResponse, isLoading: portfolioLoading } = useCryptoPortfolio();
   const [activeTab, setActiveTab] = useState<TabType>('top');
   const { isRefetching } = useOrganizationRefetchState();
@@ -354,3 +354,5 @@ export function TokenAllocationWidget() {
     </Card>
   );
 }
+
+export const TokenAllocationWidget = memo(TokenAllocationWidgetComponent);

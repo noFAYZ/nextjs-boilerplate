@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import Image from 'next/image';
 import { Network } from 'lucide-react';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
@@ -42,7 +42,11 @@ const getChainIcon = (network: string): string | null => {
   return chain?.attributes?.icon?.url || null;
 };
 
-export function NetworkDistributionWidget() {
+const formatPercentage = (percentage: number) => {
+  return percentage.toFixed(1) + '%';
+};
+
+function NetworkDistributionWidgetComponent() {
   const { data: portfolio, isLoading: portfolioLoading } = useOrganizationCryptoPortfolio();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -69,10 +73,6 @@ export function NetworkDistributionWidget() {
       })
       .sort((a, b) => b.percentage - a.percentage);
   }, [portfolio]);
-
-  const formatPercentage = (percentage: number) => {
-    return percentage.toFixed(1) + '%';
-  };
 
   // Show skeleton when initially loading
   if (portfolioLoading) {
@@ -153,3 +153,5 @@ export function NetworkDistributionWidget() {
     </div>
   );
 }
+
+export const NetworkDistributionWidget = memo(NetworkDistributionWidgetComponent);

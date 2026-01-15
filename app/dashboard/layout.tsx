@@ -8,7 +8,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <MainLayout showHeader={true} showSidebar={true}>
+      <MainLayout showHeader={false} showSidebar={true}>
         {children}
       </MainLayout>
     </AuthGuard>

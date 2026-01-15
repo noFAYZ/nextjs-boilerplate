@@ -21,8 +21,8 @@ export function TransactionDateSeparator({
   const colSpan = hideAccountColumn ? 5 : 6;
 
   return (
-    <TableRow className="hover:bg-transparent shadow-none border-0">
-      <TableCell colSpan={colSpan} className="bg-background">
+    <TableRow className="  shadow-none border-0 ">
+      <TableCell colSpan={colSpan} className="bg-muted">
         <p className="text-[10px] font-semibold flex gap-1 tracking-wider text-muted-foreground">
           <SolarCalendarBoldDuotone className="w-3 h-3" />
           {date}

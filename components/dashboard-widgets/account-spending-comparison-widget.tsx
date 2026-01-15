@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { CreditCard, TrendingUp, ArrowUpRight, Wallet, Minus } from 'lucide-react';
 import { useAccountSpendingComparison, useBankingGroupedAccountsRaw } from '@/lib/queries/banking-queries';
 import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
@@ -9,7 +9,7 @@ import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { CardSkeleton } from '../ui/card-skeleton';
 
-export function AccountSpendingComparisonWidget() {
+function AccountSpendingComparisonWidgetComponent() {
   const [period, setPeriod] = useState<TimePeriod>('this_month');
   const [hoveredAccount, setHoveredAccount] = useState<string | null>(null);
   const { isRefetching } = useOrganizationRefetchState();
@@ -39,15 +39,13 @@ export function AccountSpendingComparisonWidget() {
       .slice(0, 4); // Show top 4 accounts
   }, [comparisonData]);
 
-  const formatCurrencyCompact = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}k`;
-    }
-    return `$${amount.toFixed(0)}`;
-  };
+  const handleAccountMouseEnter = useCallback((accountId: string) => {
+    setHoveredAccount(accountId);
+  }, []);
+
+  const handleAccountMouseLeave = useCallback(() => {
+    setHoveredAccount(null);
+  }, []);
 
   if (isLoading) {
     return <CardSkeleton variant="chart" />;
@@ -139,8 +137,8 @@ export function AccountSpendingComparisonWidget() {
                   ? ` ring-1 ${color.ring}`
                   : 'border-border bg-muted/20 hover:bg-muted/30'
               }`}
-              onMouseEnter={() => setHoveredAccount(account.accountId)}
-              onMouseLeave={() => setHoveredAccount(null)}
+              onMouseEnter={() => handleAccountMouseEnter(account.accountId)}
+              onMouseLeave={handleAccountMouseLeave}
             >
               <div className='flex gap-2 items-center'> 
               {/* Color indicator */}
@@ -258,3 +256,5 @@ export function AccountSpendingComparisonWidget() {
     </div>
   );
 }
+
+export const AccountSpendingComparisonWidget = memo(AccountSpendingComparisonWidgetComponent);

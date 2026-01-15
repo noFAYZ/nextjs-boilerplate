@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useAllTransactions } from '@/lib/queries/use-accounts-data';
 import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
@@ -18,7 +18,61 @@ import { SolarBillListBoldDuotone, SolarClipboardListBoldDuotone } from '@/compo
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { Separator } from '../ui/separator';
 
-export function RecentActivityWidget() {
+const getTypeColor = (type: string) => {
+  switch (type) {
+    case 'SEND':
+    case 'WITHDRAWAL':
+    case 'EXPENSE':
+      return 'text-red-800 dark:text-red-500';
+    case 'RECEIVE':
+    case 'DEPOSIT':
+    case 'INCOME':
+      return 'text-lime-800 dark:text-lime-800';
+    case 'SWAP':
+    case 'TRANSFER':
+      return 'text-blue-800 dark:text-blue-800';
+    default:
+      return 'text-muted-foreground';
+  }
+};
+
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case 'EXPENSE':
+    case 'SEND':
+    case 'WITHDRAWAL':
+      return <ArrowUp className={cn('h-4 w-4', getTypeColor(type))} />;
+    case 'RECEIVE':
+    case 'DEPOSIT':
+    case 'INCOME':
+      return <ArrowDown className={cn('h-4 w-4', getTypeColor(type))} />;
+    case 'SWAP':
+    case 'TRANSFER':
+      return <ArrowUpDown className={cn('h-4 w-4', getTypeColor(type))} />;
+    default:
+      return null;
+  }
+};
+
+const getTypeBgColor = (type: string) => {
+  switch (type) {
+    case 'SEND':
+    case 'WITHDRAWAL':
+    case 'EXPENSE':
+      return 'bg-rose-300 dark:bg-red-300';
+    case 'RECEIVE':
+    case 'DEPOSIT':
+    case 'INCOME':
+      return 'bg-lime-400 dark:bg-lime-300';
+    case 'SWAP':
+    case 'TRANSFER':
+      return 'bg-blue-300 dark:bg-blue-300';
+    default:
+      return 'bg-muted';
+  }
+};
+
+function RecentActivityWidgetComponent() {
   const { data: transactionsResponse, isLoading } = useAllTransactions({
     limit: 8,
   });
@@ -75,59 +129,6 @@ export function RecentActivityWidget() {
   if (isLoading) {
     return <CardSkeleton variant="list" itemsCount={8} />;
   }
-  const getTypseColor = (type: string) => {
-    switch (type) {
-      case 'SEND':
-      case 'WITHDRAWAL':
-      case 'EXPENSE':
-        return 'text-red-800 dark:text-red-500';
-      case 'RECEIVE':
-      case 'DEPOSIT':
-      case 'INCOME':
-        return 'text-lime-800 dark:text-lime-800';
-      case 'SWAP':
-      case 'TRANSFER':
-        return 'text-blue-800 dark:text-blue-800';
-      default:
-        return 'text-muted-foreground';
-    }
-  };
-  const getT2ypeIcon = (type: string) => {
-    switch (type) {
-      case 'EXPENSE':
-      case 'SEND':
-      case 'WITHDRAWAL':
-        return <ArrowUp className={cn('h-4 w-4', getTypseColor(type))} />;
-      case 'RECEIVE':
-      case 'DEPOSIT':
-      case 'INCOME':  
-        return <ArrowDown className={cn('h-4 w-4', getTypseColor(type))} />;
-      case 'SWAP':
-      case 'TRANSFER':
-        return <ArrowUpDown className={cn('h-4 w-4', getTypseColor(type))} />;
-      default:
-        return null;
-    }
-  };
-
-  const getTyqpeBgColor = (type: string) => {
-
-    switch (type) {
-      case 'SEND':
-      case 'WITHDRAWAL':
-      case 'EXPENSE':
-        return 'bg-rose-300 dark:bg-red-300';
-      case 'RECEIVE':
-      case 'DEPOSIT':
-      case 'INCOME':
-        return 'bg-lime-400 dark:bg-lime-300';
-      case 'SWAP':
-      case 'TRANSFER':
-        return 'bg-blue-300 dark:bg-blue-300';
-      default:
-        return 'bg-muted';
-    }
-  };
 
 
   // Empty State
@@ -226,8 +227,8 @@ export function RecentActivityWidget() {
                         }}
                       />
                     ) : (
-                      <div className={cn('flex justify-center h-8 w-8  items-center flex-shrink-0', getTyqpeBgColor(transaction.type))}>
-                      {getT2ypeIcon(transaction.type)}
+                      <div className={cn('flex justify-center h-8 w-8  items-center flex-shrink-0', getTypeBgColor(transaction.type))}>
+                      {getTypeIcon(transaction.type)}
                     </div>
                     )}
                   </div>
@@ -279,3 +280,5 @@ export function RecentActivityWidget() {
     </Card>
   );
 }
+
+export const RecentActivityWidget = memo(RecentActivityWidgetComponent);

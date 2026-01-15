@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -25,7 +25,7 @@ const ASSET_COLORS = [
   'bg-slate-500',     // other
 ];
 
-export function AssetBreakdownWidget() {
+function AssetBreakdownWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
   const [hoveredAsset, setHoveredAsset] = useState<string>('');
@@ -60,6 +60,14 @@ export function AssetBreakdownWidget() {
   const activeAsset = useMemo(() => {
     return assetData.find(a => a.label === hoveredAsset);
   }, [assetData, hoveredAsset]);
+
+  const handleAssetMouseEnter = useCallback((label: string) => {
+    setHoveredAsset(label);
+  }, []);
+
+  const handleAssetMouseLeave = useCallback(() => {
+    setHoveredAsset('');
+  }, []);
 
   if (isLoading) return <CardSkeleton />;
 
@@ -114,8 +122,8 @@ export function AssetBreakdownWidget() {
                     fill={colorMap[item.color]}
                     opacity={!hoveredAsset || hoveredAsset === item.label ? 1 : 0.3}
                     className="transition-opacity duration-200 cursor-pointer"
-                    onMouseEnter={() => setHoveredAsset(item.label)}
-                    onMouseLeave={() => setHoveredAsset('')}
+                    onMouseEnter={() => handleAssetMouseEnter(item.label)}
+                    onMouseLeave={handleAssetMouseLeave}
                   />
                 );
               })}
@@ -156,3 +164,5 @@ export function AssetBreakdownWidget() {
     </Card>
   );
 }
+
+export const AssetBreakdownWidget = memo(AssetBreakdownWidgetComponent);

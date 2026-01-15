@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,52 +25,43 @@ export default function AccountsPage() {
   const { isLoading, refetch } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Get UI state from store
+  // ============================================
+  // State: Dialogs
+  // ============================================
+  const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
+
+  // ============================================
+  // Store: UI State
+  // ============================================
   const activeTab = useAccountsUIStore((state) => state.ui.activeTab);
   const setActiveTab = useAccountsUIStore((state) => state.setActiveTab);
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
   const setBalanceVisible = useAccountsUIStore((state) => state.setBalanceVisible);
   const defaultOverview = useAccountsUIStore((state) => state.viewPreferences.defaultOverview);
 
-  // Initialize active tab with default overview on mount
-  useEffect(() => {
-    if (activeTab !== defaultOverview && (activeTab === 'overview' || activeTab === 'overview-2')) {
-      setActiveTab(defaultOverview);
-    }
-  }, [defaultOverview]);
+  // ============================================
+  // Handlers: Events
+  // ============================================
+  const handleToggleBalanceVisibility = useCallback(() => {
+    setBalanceVisible(!balanceVisible);
+  }, [balanceVisible, setBalanceVisible]);
 
-  // Dialog state
-  const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleOpenAddAccountDialog = useCallback(() => {
+    setIsAddAccountDialogOpen(true);
+  }, []);
+
+  const handleCloseAddAccountDialog = useCallback(() => {
+    setIsAddAccountDialogOpen(false);
+  }, []);
 
   return (
     <div className="h-full flex flex-col relative space-y-4">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
 
-      {/* Header: Tabs and Actions 
-      <div className="flex items-center justify-end">
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setBalanceVisible(!balanceVisible)}
-            className="h-8 w-8 p-0"
-            title={balanceVisible ? 'Hide balances' : 'Show balances'}
-          >
-            {balanceVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-          </Button>
-
-          <Button variant="outline" size="xs" onClick={refetch} disabled={isLoading}>
-            <RefreshCw className={cn('h-4 w-4 mr-1', isLoading && 'animate-spin')} />
-            Refresh
-          </Button>
-
-          <Button size="xs" onClick={() => setIsAddAccountDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" />
-            Add Account
-          </Button>
-        </div>
-      </div>*/}
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
@@ -94,7 +85,7 @@ export default function AccountsPage() {
       </div>
 
       {/* Add Account Dialog */}
-      <AddAccountDialog open={isAddAccountDialogOpen} onOpenChange={setIsAddAccountDialogOpen} />
+      <AddAccountDialog open={isAddAccountDialogOpen} onOpenChange={handleCloseAddAccountDialog} />
     </div>
   );
 }

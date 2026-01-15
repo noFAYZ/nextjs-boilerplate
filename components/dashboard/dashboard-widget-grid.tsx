@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useCallback, memo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -40,7 +40,7 @@ interface DashboardWidgetGridProps {
  * - Layout persists to localStorage
  * - Responsive on mobile, tablet, and desktop
  */
-export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
+function DashboardWidgetGridComponent({ widgets }: DashboardWidgetGridProps) {
   const { widgets: layoutState, isEditMode, setWidgetOrder } = useDashboardLayoutStore();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -55,25 +55,29 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
   );
 
   // Get ordered and visible widgets - explicitly check for true visibility
-  const visibleWidgets = widgets.filter((w) => {
-    const widgetState = layoutState[w.id as keyof typeof layoutState];
-    // Widget is visible if: explicitly set to true, OR not explicitly set to false (defaults to visible)
-    return widgetState?.visible !== false;
-  });
+  const visibleWidgets = React.useMemo(() => {
+    return widgets.filter((w) => {
+      const widgetState = layoutState[w.id as keyof typeof layoutState];
+      // Widget is visible if: explicitly set to true, OR not explicitly set to false (defaults to visible)
+      return widgetState?.visible !== false;
+    });
+  }, [widgets, layoutState]);
 
-  const orderedWidgets = [...visibleWidgets].sort((a, b) => {
-    const orderA = layoutState[a.id as keyof typeof layoutState]?.order ?? 0;
-    const orderB = layoutState[b.id as keyof typeof layoutState]?.order ?? 0;
-    return orderA - orderB;
-  });
+  const orderedWidgets = React.useMemo(() => {
+    return [...visibleWidgets].sort((a, b) => {
+      const orderA = layoutState[a.id as keyof typeof layoutState]?.order ?? 0;
+      const orderB = layoutState[b.id as keyof typeof layoutState]?.order ?? 0;
+      return orderA - orderB;
+    });
+  }, [visibleWidgets, layoutState]);
 
-  const widgetIds = orderedWidgets.map((w) => w.id);
+  const widgetIds = React.useMemo(() => orderedWidgets.map((w) => w.id), [orderedWidgets]);
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setIsDragging(true);
-  };
+  }, []);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     setIsDragging(false);
     const { active, over } = event;
 
@@ -93,7 +97,7 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
         );
       }
     }
-  };
+  }, [widgetIds, orderedWidgets, layoutState, setWidgetOrder]);
 
   return (
     <DndContext
@@ -146,3 +150,5 @@ export function DashboardWidgetGrid({ widgets }: DashboardWidgetGridProps) {
     </DndContext>
   );
 }
+
+export const DashboardWidgetGrid = memo(DashboardWidgetGridComponent);

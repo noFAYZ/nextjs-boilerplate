@@ -35,7 +35,7 @@
  * - Server-side filtering: Move filtering logic to backend if needed
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { useBankingUIStore } from '@/lib/stores/ui-stores';
 import { useTransactionTable } from '@/lib/hooks/use-transaction-table';
 import { TransactionTable } from './table/transaction-table';
@@ -61,7 +61,7 @@ import type { TransactionsDataTableProps } from '@/lib/types';
  * @param sourceFilter - Transaction source filter (CRYPTO/BANKING)
  * @param hideAccountColumn - Whether to hide account column on smaller screens
  */
-export function TransactionsDataTable({
+function TransactionsDataTableComponent({
   transactions,
   isLoading,
   onRefresh,
@@ -239,3 +239,5 @@ export function TransactionsDataTable({
     </>
   );
 }
+
+export const TransactionsDataTable = memo(TransactionsDataTableComponent);

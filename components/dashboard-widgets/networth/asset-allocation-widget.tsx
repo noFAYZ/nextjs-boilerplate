@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ interface AllocationItem {
   color: string;
 }
 
-export function AssetAllocationWidget() {
+function AssetAllocationWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -88,3 +88,5 @@ export function AssetAllocationWidget() {
     </Card>
   );
 }
+
+export const AssetAllocationWidget = memo(AssetAllocationWidgetComponent);

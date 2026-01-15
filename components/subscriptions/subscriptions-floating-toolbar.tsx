@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
@@ -15,7 +16,7 @@ interface SubscriptionsFloatingToolbarProps {
   isLoading?: boolean;
 }
 
-export function SubscriptionsFloatingToolbar({
+function SubscriptionsFloatingToolbarComponent({
   selectedCount,
   totalMonthlySpend,
   selectedSubscriptions,
@@ -23,6 +24,11 @@ export function SubscriptionsFloatingToolbar({
   onDelete,
   isLoading = false,
 }: SubscriptionsFloatingToolbarProps) {
+  // Handlers with useCallback to prevent recreation on parent re-renders
+  const handleDeleteAll = useCallback(() => {
+    selectedSubscriptions.forEach((sub) => onDelete(sub));
+  }, [selectedSubscriptions, onDelete]);
+
   if (selectedCount === 0) return null;
 
   return (
@@ -95,9 +101,7 @@ export function SubscriptionsFloatingToolbar({
             <Button
               variant="delete"
               size="sm"
-              onClick={() => {
-                selectedSubscriptions.forEach((sub) => onDelete(sub));
-              }}
+              onClick={handleDeleteAll}
               disabled={isLoading}
               icon={<SolarTrashBinTrashOutline className="h-4 w-4" />}
             >
@@ -195,9 +199,7 @@ export function SubscriptionsFloatingToolbar({
             <Button
               variant="delete"
               size="sm"
-              onClick={() => {
-                selectedSubscriptions.forEach((sub) => onDelete(sub));
-              }}
+              onClick={handleDeleteAll}
               disabled={isLoading}
               icon={<SolarTrashBinTrashOutline className="h-4 w-4" />}
               className="col-span-2 text-xs"
@@ -210,3 +212,5 @@ export function SubscriptionsFloatingToolbar({
     </div>
   );
 }
+
+export const SubscriptionsFloatingToolbar = memo(SubscriptionsFloatingToolbarComponent);

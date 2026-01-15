@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Card } from '@/components/ui/card';
@@ -22,7 +22,7 @@ const LIABILITY_COLORS = [
   'bg-amber-500',     // mortgage
 ];
 
-export function LiabilitiesBreakdownWidget() {
+function LiabilitiesBreakdownWidgetComponent() {
   const { data: accountsData, isLoading } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
   const [hoveredLiability, setHoveredLiability] = useState<string>('');
@@ -52,6 +52,14 @@ export function LiabilitiesBreakdownWidget() {
     return liabilityData.find(l => l.label === hoveredLiability);
   }, [liabilityData, hoveredLiability]);
 
+  const handleLiabilityMouseEnter = useCallback((label: string) => {
+    setHoveredLiability(label);
+  }, []);
+
+  const handleLiabilityMouseLeave = useCallback(() => {
+    setHoveredLiability('');
+  }, []);
+
   if (isLoading) return <CardSkeleton />;
 
   return (
@@ -76,8 +84,8 @@ export function LiabilitiesBreakdownWidget() {
             {liabilityData.map(item => (
               <div
                 key={item.label}
-                onMouseEnter={() => setHoveredLiability(item.label)}
-                onMouseLeave={() => setHoveredLiability('')}
+                onMouseEnter={() => handleLiabilityMouseEnter(item.label)}
+                onMouseLeave={handleLiabilityMouseLeave}
                 className="space-y-1"
               >
                 <div className="flex items-center justify-between text-[10px]">
@@ -111,3 +119,5 @@ export function LiabilitiesBreakdownWidget() {
     </Card>
   );
 }
+
+export const LiabilitiesBreakdownWidget = memo(LiabilitiesBreakdownWidgetComponent);

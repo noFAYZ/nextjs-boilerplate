@@ -52,7 +52,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       className={cn(
         buttonVariants({ variant, size }),
-        "flex  items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
+        "flex rounded-xs shadow-none items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
         className, variant == 'outlinemuted2' && 'justify-center'
       )}
       aria-label={!label ? props.placeholder || "select" : undefined}
@@ -100,7 +100,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground z-50 max-h-(--radix-select-content-available-height) min-w-[12rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-md border shadow-md animate-in data-[side=bottom]:slide-in-from-top-2",
+          "bg-popover text-popover-foreground z-50 max-h-(--radix-select-content-available-height) min-w-[12rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-sm border shadow-xs animate-in data-[side=bottom]:slide-in-from-top-2",
           position === "popper" && "translate-y-1",
           className
         )}

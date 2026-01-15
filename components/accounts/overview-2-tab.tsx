@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAllAccounts } from '@/lib/queries';
@@ -25,7 +25,7 @@ interface AccountGroup {
   totalBalance: number;
 }
 
-export function Overview2Tab() {
+function Overview2TabComponent() {
   const router = useRouter();
   const { data: accountsData, isLoading } = useAllAccounts();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
@@ -90,9 +90,29 @@ export function Overview2Tab() {
   }, [selectedGroup, totalBalance]);
 
   // Handle account click - navigate to account details
-  const handleAccountClick = (accountId: string) => {
+  const handleAccountClick = useCallback((accountId: string) => {
     router.push(`/accounts/${accountId}`);
-  };
+  }, [router]);
+
+  // Handle category selection
+  const handleSelectCategory = useCallback((categoryKey: string) => {
+    setSelectedCategory(categoryKey);
+  }, [setSelectedCategory]);
+
+  // Handle grouping toggle
+  const handleToggleGrouping = useCallback(() => {
+    setShowGrouping(!showGrouping);
+  }, [showGrouping]);
+
+  // Handle create group
+  const handleCreateGroup = useCallback(async (groupData: any) => {
+    // TODO: Integrate with createAccountGroup API
+  }, []);
+
+  // Handle delete group
+  const handleDeleteGroup = useCallback(async (groupId: string) => {
+    // TODO: Integrate with deleteAccountGroup API
+  }, []);
 
   if (isLoading) {
     return (
@@ -120,7 +140,7 @@ export function Overview2Tab() {
        <Button
          variant={showGrouping ? "default" : "outline"}
          size="sm"
-         onClick={() => setShowGrouping(!showGrouping)}
+         onClick={handleToggleGrouping}
          className="ml-4"
        >
          {showGrouping ? 'Hide Groups' : 'Manage Groups'}
@@ -133,14 +153,8 @@ export function Overview2Tab() {
          <AccountGroupingPanel
            groups={accountGroups}
            isLoading={isLoading}
-           onCreateGroup={async (groupData) => {
-             // TODO: Integrate with createAccountGroup API
-             console.log('Create group:', groupData);
-           }}
-           onDeleteGroup={async (groupId) => {
-             // TODO: Integrate with deleteAccountGroup API
-             console.log('Delete group:', groupId);
-           }}
+           onCreateGroup={handleCreateGroup}
+           onDeleteGroup={handleDeleteGroup}
          />
        </div>
      )}
@@ -178,7 +192,7 @@ export function Overview2Tab() {
                   return (
                     <Button
                       key={group.key}
-                      onClick={() => setSelectedCategory(group.key)}
+                      onClick={() => handleSelectCategory(group.key)}
                       variant="ghost"
                       className={cn(
                         'w-full flex gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 text-left',
@@ -242,7 +256,7 @@ export function Overview2Tab() {
                   return (
                     <Button
                       key={group.key}
-                      onClick={() => setSelectedCategory(group.key)}
+                      onClick={() => handleSelectCategory(group.key)}
                       variant="ghost"
                       className={cn(
                         'w-full flex gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 text-left',
@@ -449,6 +463,9 @@ export function Overview2Tab() {
           </div>
         )}
       </div>
-    </div>    </div>
+    </div>
+  </div>
   );
 }
+
+export const Overview2Tab = memo(Overview2TabComponent);

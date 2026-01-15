@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { Calendar, DollarSign, AlertCircle, Clock } from 'lucide-react';
 import { useSubscriptions } from '@/lib/queries';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,35 @@ import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 
-export function UpcomingBillsWidget() {
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  if (date.toDateString() === today.toDateString()) return 'Today';
+  if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+  });
+};
+
+const getDaysUntilBilling = (dateString?: string) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  const diffTime = date.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+function UpcomingBillsWidgetComponent() {
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({
     status: 'ACTIVE',
     sortBy: 'nextBillingDate',
@@ -43,34 +71,6 @@ export function UpcomingBillsWidget() {
   const totalUpcoming = useMemo(() => {
     return upcomingBills.reduce((sum, bill) => sum + bill.amount, 0);
   }, [upcomingBills]);
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '—';
-    const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    if (date.toDateString() === today.toDateString()) return 'Today';
-    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
-    });
-  };
-
-  const getDaysUntilBilling = (dateString?: string) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
 
   if (subscriptionsLoading) {
     return <CardSkeleton variant="list" itemsCount={6} />;
@@ -237,3 +237,5 @@ export function UpcomingBillsWidget() {
     </div>
   );
 }
+
+export const UpcomingBillsWidget = memo(UpcomingBillsWidgetComponent);

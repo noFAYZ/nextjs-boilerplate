@@ -13,8 +13,6 @@ import { getTypeIcon } from '@/lib/utils/transaction-display-helpers';
 
 interface MerchantCellProps {
   merchantId?: string;
-  merchantName: string;
-  merchantLogo?: string;
   merchants: Array<{ id: string; name: string; logoUrl?: string; website?: string }>;
   onMerchantChange: (id: string) => void;
   isLoading?: boolean;
@@ -29,8 +27,6 @@ interface MerchantCellProps {
 export const MerchantCell = memo(
   function MerchantCell({
     merchantId,
-    merchantName,
-    merchantLogo,
     merchants,
     onMerchantChange,
     isLoading = false,
@@ -40,8 +36,6 @@ export const MerchantCell = memo(
     return (
       <MerchantCombobox
         merchantId={merchantId}
-        merchantName={merchantName}
-        merchantLogo={merchantLogo}
         merchants={merchants}
         onMerchantChange={onMerchantChange}
         isLoading={isLoading}
@@ -55,8 +49,6 @@ export const MerchantCell = memo(
     // Return false if props changed (do re-render)
     return (
       prevProps.merchantId === nextProps.merchantId &&
-      prevProps.merchantName === nextProps.merchantName &&
-      prevProps.merchantLogo === nextProps.merchantLogo &&
       prevProps.merchants.length === nextProps.merchants.length &&
       prevProps.onMerchantChange === nextProps.onMerchantChange &&
       prevProps.isLoading === nextProps.isLoading &&

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -174,12 +174,24 @@ const MAIN_CATEGORIES = ["CASH", "CREDITCARD", "INVESTMENTS", "CRYPTO", "ASSETS"
 // Categories for "+More"
 const MORE_CATEGORIES = ["LIABILITIES", "OTHER"];
 
-export function NetWorthWidget() {
+function NetWorthWidgetComponent() {
   // Fetch all accounts grouped by category with summary data
   const { data: accountsData, isLoading, refetch } = useAllAccounts();
 
   // Check if organization data is being refetched
   const { isRefetching } = useOrganizationRefetchState();
+
+  // Memoized toggle handler
+  const handleToggleGroup = useCallback((groupName: string) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [groupName]: !prev[groupName],
+    }));
+  }, []);
+
+  const handleToggleMore = useCallback(() => {
+    setShowMore((prev) => !prev);
+  }, []);
 
   /**
    * Get net worth from API summary (pre-calculated by backend)
@@ -231,14 +243,7 @@ export function NetWorthWidget() {
   }>({});
   const [showMore, setShowMore] = useState(false);
 
-  const toggleGroup = (groupName: string) => {
-    setExpandedGroups((prev) => ({
-      ...prev,
-      [groupName]: !prev[groupName],
-    }));
-  };
- 
-  
+
 
   /**
    * Get summary data with asset and liability breakdown
@@ -349,7 +354,7 @@ export function NetWorthWidget() {
               <div key={categoryKey}>
                 {/* Accordion Header */}
                 <button
-                  onClick={() => toggleGroup(categoryKey)}
+                  onClick={() => handleToggleGroup(categoryKey)}
                   className={cn(
                     "group relative  w-full flex items-center gap-2.5  p-1 transition-all duration-75 cursor-pointer  ",
                     "hover:bg-muted/80",
@@ -440,7 +445,7 @@ export function NetWorthWidget() {
           {hasMore && (
             <div>
               <button
-                onClick={() => setShowMore(!showMore)}
+                onClick={handleToggleMore}
                 className={cn(
                   "group relative border border-border/80 w-full flex items-center gap-2.5 p-2.5 rounded-xl transition-all duration-75 cursor-pointer",
                   "hover:bg-muted/50",
@@ -494,7 +499,7 @@ export function NetWorthWidget() {
                     return (
                       <div key={categoryKey}>
                         <button
-                          onClick={() => toggleGroup(categoryKey)}
+                          onClick={() => handleToggleGroup(categoryKey)}
                           className={cn(
                             "group relative border border-border/60 w-full flex items-center gap-2 p-2.5 rounded-lg transition-all duration-75 cursor-pointer",
                             "hover:bg-muted/40",
@@ -591,3 +596,5 @@ export function NetWorthWidget() {
     </Card>
   );
 }
+
+export const NetWorthWidget = memo(NetWorthWidgetComponent);

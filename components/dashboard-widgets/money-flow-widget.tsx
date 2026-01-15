@@ -13,7 +13,7 @@ How to use:
 
 'use client';
 
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -217,7 +217,7 @@ export function layoutFlowNodes(basicNodes: Array<Omit<FlowNode, 'x' | 'y' | 'he
 }
 
 /* ------------------------ React Component (UI) ------------------------ */
-export default function MoneyFlowWidget() {
+function MoneyFlowWidgetComponent() {
   // Data hooks (organization-aware)
   const { data: transactionsResponse, isLoading: transactionsLoading } = useOrganizationBankingTransactions({ limit: 1000 });
   const { data: accountsResponse, isLoading: accountsLoading } = useOrganizationBankingGroupedAccounts();
@@ -245,10 +245,11 @@ export default function MoneyFlowWidget() {
   const loading = transactionsLoading || accountsLoading || cryptoLoading || subscriptionsLoading;
   const totalMoney = totalBankMoney + totalCryptoMoney;
 
-  const handleLinkHover = (e: React.MouseEvent, link: FlowLink) => {
+  const handleLinkHover = useCallback((e: React.MouseEvent, link: FlowLink) => {
     setHoverInfo({ x: e.clientX, y: e.clientY, title: `${(link.value).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}`, body: `From ${link.source} → ${link.target}` });
-  };
-  const clearHover = () => setHoverInfo(null);
+  }, []);
+
+  const clearHover = useCallback(() => setHoverInfo(null), []);
 
   if (loading) {
     return <CardSkeleton variant="chart" />;
@@ -397,3 +398,5 @@ export default function MoneyFlowWidget() {
     </div>
   );
 }
+
+export default memo(MoneyFlowWidgetComponent);

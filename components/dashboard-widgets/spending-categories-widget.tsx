@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import { ShoppingBag, Utensils, Home, Car, Zap, Wallet } from 'lucide-react';
 import { useTopSpendingCategories } from '@/lib/queries/banking-queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
@@ -60,9 +60,23 @@ const CATEGORY_COLORS = [
   },
 ];
 
-export function SpendingCategoriesWidget() {
+// Utility function at module level
+const formatPercentage = (percentage: number) => {
+  return percentage.toFixed(1) + '%';
+};
+
+function SpendingCategoriesWidgetComponent() {
   const [period, setPeriod] = useState<TimePeriod>('this_month');
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+
+  // Memoized handlers
+  const handlePeriodChange = useCallback((newPeriod: TimePeriod) => {
+    setPeriod(newPeriod);
+  }, []);
+
+  const handleCategoryHover = useCallback((category: string | null) => {
+    setHoveredCategory(category);
+  }, []);
 
   // Fetch data directly with selected period - get all categories for total
   const { data: spendingCategories, isLoading: spendingCategoriesLoading } = useTopSpendingCategories({
@@ -103,11 +117,6 @@ export function SpendingCategoriesWidget() {
     ? categoryData.find(cat => cat.category === hoveredCategory)
     : topCategory;
 
-  const formatPercentage = (percentage: number) => {
-    return percentage.toFixed(1) + '%';
-  };
-
-
   // Show skeleton when initially loading
   if (spendingCategoriesLoading) {
     return <CardSkeleton variant="chart" />;
@@ -120,7 +129,7 @@ export function SpendingCategoriesWidget() {
           <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
           <TimePeriodSelector
             value={period}
-            onChange={setPeriod}
+            onChange={handlePeriodChange}
             size="xs"
             variant="ghost"
           />
@@ -230,8 +239,8 @@ export function SpendingCategoriesWidget() {
                     filter: isHovered ? 'url(#glow)' : 'none',
                     opacity: hoveredCategory && !isHovered ? 0.4 : 1
                   }}
-                  onMouseEnter={() => setHoveredCategory(cat.category)}
-                  onMouseLeave={() => setHoveredCategory(null)}
+                  onMouseEnter={() => handleCategoryHover(cat.category)}
+                  onMouseLeave={() => handleCategoryHover(null)}
                 />
               );
             })}
@@ -323,3 +332,5 @@ export function SpendingCategoriesWidget() {
     </div>
   );
 }
+
+export const SpendingCategoriesWidget = memo(SpendingCategoriesWidgetComponent);
