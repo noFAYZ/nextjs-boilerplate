@@ -9,10 +9,9 @@ import {
   useBulkReactivateAccounts,
 } from '@/lib/queries/use-accounts-data';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
-import { AccountsToolbar } from './shared/accounts-toolbar';
-import { BulkSelectHeader, BulkActionsToolbar } from './shared/bulk-select-header';
+import { AccountsFloatingToolbar } from './shared/accounts-floating-toolbar';
 import { EmptyState } from './shared/empty-state';
-import { AccountsTable } from './table-view/accounts-table';
+import { AccountsDataTable } from './table-view/accounts-data-table';
 import { AccountsCardGrid } from './card-view/accounts-card-grid';
 import {
   AlertDialog,
@@ -276,61 +275,47 @@ export function AccountsDataView() {
     bulkReactivateMutation.isPending;
 
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <AccountsToolbar
-        accountCount={allAccounts.length}
-        isLoading={isLoading}
+    <div className="flex flex-col h-full space-y-3">
+      {/* Main content - Full height scrollable */}
+      <div className="flex-1 overflow-auto min-w-0 px-4">
+        {viewPreferences.accountsView === 'table' ? (
+          <AccountsDataTable
+            accounts={sortedAccounts}
+            selectedIds={selectedAccountIds}
+            onToggleSelect={handleToggleSelect}
+            onDelete={handleDeleteClick}
+            onDeactivate={handleDeactivate}
+            onReactivate={handleReactivate}
+            balanceVisible={viewPreferences.balanceVisible}
+            deletingAccountIds={deletingAccountIds}
+            isLoading={isLoading}
+            accountCount={allAccounts.length}
+          />
+        ) : (
+          <AccountsCardGrid
+            accounts={sortedAccounts}
+            selectedIds={selectedAccountIds}
+            onToggleSelect={handleToggleSelect}
+            onDelete={handleDeleteClick}
+            onDeactivate={handleDeactivate}
+            onReactivate={handleReactivate}
+            balanceVisible={viewPreferences.balanceVisible}
+            deletingAccountIds={deletingAccountIds}
+            isLoading={isLoading}
+          />
+        )}
+      </div>
+
+      {/* Floating toolbar */}
+      <AccountsFloatingToolbar
+        selectedCount={selectedAccountIds.length}
+        isProcessing={isProcessing}
+        processedCount={processedCount}
+        onDeactivate={handleBulkDeactivate}
+        onReactivate={handleBulkReactivate}
+        onDelete={() => setBulkDeleteDialogOpen(true)}
+        onClearSelection={clearSelection}
       />
-
-      {/* Bulk select header */}
-      {selectedAccountIds.length > 0 && (
-        <BulkSelectHeader
-          selectedCount={selectedAccountIds.length}
-          totalCount={sortedAccounts.length}
-          onSelectAll={() => selectAllVisible(sortedAccounts.map((a) => a.id))}
-          onClearSelection={clearSelection}
-        />
-      )}
-
-      {/* Main content */}
-      {viewPreferences.accountsView === 'table' ? (
-        <AccountsTable
-          accounts={sortedAccounts}
-          selectedIds={selectedAccountIds}
-          onToggleSelect={handleToggleSelect}
-          onDelete={handleDeleteClick}
-          onDeactivate={handleDeactivate}
-          onReactivate={handleReactivate}
-          balanceVisible={viewPreferences.balanceVisible}
-          deletingAccountIds={deletingAccountIds}
-          isLoading={isLoading}
-        />
-      ) : (
-        <AccountsCardGrid
-          accounts={sortedAccounts}
-          selectedIds={selectedAccountIds}
-          onToggleSelect={handleToggleSelect}
-          onDelete={handleDeleteClick}
-          onDeactivate={handleDeactivate}
-          onReactivate={handleReactivate}
-          balanceVisible={viewPreferences.balanceVisible}
-          deletingAccountIds={deletingAccountIds}
-          isLoading={isLoading}
-        />
-      )}
-
-      {/* Bulk actions toolbar */}
-      {selectedAccountIds.length > 0 && (
-        <BulkActionsToolbar
-          selectedCount={selectedAccountIds.length}
-          isProcessing={isProcessing}
-          processedCount={processedCount}
-          onDelete={() => setBulkDeleteDialogOpen(true)}
-          onDeactivate={handleBulkDeactivate}
-          onReactivate={handleBulkReactivate}
-        />
-      )}
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

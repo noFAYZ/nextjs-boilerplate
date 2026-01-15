@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +23,8 @@ import { ManageTab } from '@/components/accounts/manage-tab';
 /* -------------------------------------------------------------------------- */
 export default function AccountsPage() {
   usePostHogPageView('accounts');
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { isLoading, refetch } = useAllAccounts();
   const { isRefetching } = useOrganizationRefetchState();
 
@@ -31,7 +34,7 @@ export default function AccountsPage() {
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
 
   // ============================================
-  // Store: UI State
+  // Store: UI State (synced with URL)
   // ============================================
   const activeTab = useAccountsUIStore((state) => state.ui.activeTab);
   const setActiveTab = useAccountsUIStore((state) => state.setActiveTab);
@@ -39,9 +42,35 @@ export default function AccountsPage() {
   const setBalanceVisible = useAccountsUIStore((state) => state.setBalanceVisible);
   const defaultOverview = useAccountsUIStore((state) => state.viewPreferences.defaultOverview);
 
+  // Sync active tab from URL on mount only
+  useEffect(() => {
+    const urlTab = searchParams.get('tab');
+    if (urlTab && ['overview', 'overview-2', 'manage'].includes(urlTab)) {
+      setActiveTab(urlTab as 'overview' | 'overview-2' | 'manage');
+    }
+  }, []); // Only run on mount
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const urlTab = searchParams.get('tab');
+    if (activeTab !== urlTab) {
+      const params = new URLSearchParams();
+      if (activeTab !== 'overview') {
+        params.set('tab', activeTab);
+      }
+      const query = params.toString();
+      const url = query ? `/accounts?${query}` : '/accounts';
+      router.replace(url, { scroll: false });
+    }
+  }, [activeTab, router]);
+
   // ============================================
   // Handlers: Events
   // ============================================
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab as 'overview' | 'overview-2' | 'manage');
+  }, [setActiveTab]);
+
   const handleToggleBalanceVisibility = useCallback(() => {
     setBalanceVisible(!balanceVisible);
   }, [balanceVisible, setBalanceVisible]);
@@ -60,29 +89,33 @@ export default function AccountsPage() {
 
   return (
     <div className="h-full flex flex-col relative space-y-4">
-      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating…" />
 
+      {/* Page Header - Semantic structure */}
+      <div className="sr-only">
+        <h1>Accounts</h1>
+      </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden">
         {activeTab === 'overview' && (
-          <div className="space-y-6 h-full overflow-auto">
+          <div className="space-y-6 h-full overflow-auto" role="region" aria-label="Accounts overview">
             <OverviewTab />
           </div>
         )}
 
         {activeTab === 'overview-2' && (
-          <div className="h-full overflow-hidden">
+          <div className="h-full overflow-hidden" role="region" aria-label="Accounts summary">
             <Overview2Tab />
           </div>
         )}
 
         {activeTab === 'manage' && (
-          <div className="h-full overflow-auto">
+          <div className="h-full overflow-auto pb-32" role="region" aria-label="Manage accounts">
             <ManageTab />
           </div>
         )}
-      </div>
+      </main>
 
       {/* Add Account Dialog */}
       <AddAccountDialog open={isAddAccountDialogOpen} onOpenChange={handleCloseAddAccountDialog} />

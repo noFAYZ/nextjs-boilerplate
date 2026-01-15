@@ -47,13 +47,13 @@ export function TableHeader({
   };
 
   return (
-    <thead>
-      <tr className="border-b border-border/50 bg-muted/30 hover:bg-muted/40 transition-colors">
+    <thead className="bg-muted/80 border-b border-border/50">
+      <tr className="hover:bg-transparent border-none">
         {/* Checkbox column */}
         <th className="w-12 px-4 py-3 text-left">
           <Checkbox
             checked={allSelected}
-            indeterminate={partialSelection}
+            indeterminate={partialSelection ? 'indeterminate' : undefined}
             onCheckedChange={(checked) => onSelectAll(!!checked)}
             className="transition-transform hover:scale-110"
             aria-label="Select all accounts"

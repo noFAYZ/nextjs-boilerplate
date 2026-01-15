@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransactionsUIStore } from '@/lib/stores/transactions-ui-store';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -19,9 +20,13 @@ import { CategoriesManagementV2 } from '@/components/transactions/categories-man
 import { SolarCalendarBoldDuotone } from '@/components/icons/icons';
 import { FilterOptionsDrawer } from '@/components/transactions/drawers/filter-options-drawer';
 import { TransactionsToolbar } from '@/components/transactions/toolbars/transactions-toolbar';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function TransactionsPage() {
   usePostHogPageView('transactions');
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Get tab state from store
   const activeTab = useTransactionsUIStore((state) => state.activeTab);
@@ -35,13 +40,13 @@ export default function TransactionsPage() {
   const toggleBulkSelectMode = useBankingUIStore((state) => state.toggleBulkSelectMode);
 
   // ============================================
-  // State: Filters
+  // State: Filters (synced with URL)
   // ============================================
   const [filters, setFilters] = useState({
-    searchTerm: '',
-    typeFilter: 'all',
-    statusFilter: 'all',
-    sourceFilter: 'all',
+    searchTerm: searchParams.get('search') || '',
+    typeFilter: searchParams.get('type') || 'all',
+    statusFilter: searchParams.get('status') || 'all',
+    sourceFilter: searchParams.get('source') || 'all',
   });
 
   const updateFilter = useCallback((key: keyof typeof filters, value: string) => {
@@ -53,13 +58,32 @@ export default function TransactionsPage() {
   }, [updateFilter]);
 
   // ============================================
-  // State: Pagination
+  // State: Pagination (synced with URL)
   // ============================================
-  const [pagination, setPagination] = useState({ page: 1, limit: 50 });
+  const [pagination, setPagination] = useState({
+    page: parseInt(searchParams.get('page') || '1'),
+    limit: parseInt(searchParams.get('limit') || '25')
+  });
 
   const updatePagination = useCallback((key: 'page' | 'limit', value: number) => {
     setPagination(prev => ({ ...prev, [key]: value }));
   }, []);
+
+  // Sync filters and pagination to URL for deep-linking
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (pagination.page > 1) params.set('page', pagination.page.toString());
+    if (pagination.limit !== 25) params.set('limit', pagination.limit.toString());
+    if (filters.searchTerm) params.set('search', filters.searchTerm);
+    if (filters.typeFilter !== 'all') params.set('type', filters.typeFilter);
+    if (filters.statusFilter !== 'all') params.set('status', filters.statusFilter);
+    if (filters.sourceFilter !== 'all') params.set('source', filters.sourceFilter);
+
+    const query = params.toString();
+    const url = query ? `/transactions?${query}` : '/transactions';
+    router.replace(url, { scroll: false });
+  }, [filters, pagination, router]);
 
   // ============================================
   // State: Modals & Drawers
@@ -110,19 +134,18 @@ export default function TransactionsPage() {
   const allTransactions = useMemo(() => {
     return transformTransactionResponse(transactionsResponse);
   }, [transactionsResponse]);
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     await refetch();
-  };
+  }, [refetch]);
 
-  const handleRowClick = (transaction: any) => {
-    setSelectedTransaction(transaction);
-    setIsDrawerOpen(true);
-  };
+  const handleRowClick = useCallback((transaction: UnifiedTransaction) => {
+    openDetailDrawer(transaction);
+  }, [openDetailDrawer]);
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setSelectedTransaction(null);
-  };
+  const handleLimitChange = useCallback((newLimit: number) => {
+    updatePagination('limit', newLimit);
+    updatePagination('page', 1); // Reset to first page when changing limit
+  }, [updatePagination]);
 
   // Count uncategorized transactions
   const uncategorizedCount = useMemo(() => {
@@ -150,10 +173,29 @@ export default function TransactionsPage() {
     setPagination(prev => ({ ...prev, page: 1 }));
   }, [clearDateRange]);
 
+  // Check if we can go to next page (if transactions count equals limit, there might be more)
+  const canGoToNextPage = allTransactions.length === pagination.limit;
+  const canGoPrevPage = pagination.page > 1;
+
+  const handlePrevPage = useCallback(() => {
+    updatePagination('page', Math.max(1, pagination.page - 1));
+  }, [pagination.page, updatePagination]);
+
+  const handleNextPage = useCallback(() => {
+    if (canGoToNextPage) {
+      updatePagination('page', pagination.page + 1);
+    }
+  }, [pagination.page, canGoToNextPage, updatePagination]);
+
 
   return (
-    <div className="h-full flex flex-col relative space-y-2 ">
-      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+    <div className="h-full flex flex-col relative space-y-2">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating…" />
+
+      {/* Page Header - Semantic structure */}
+      <div className="sr-only">
+        <h1>Transactions</h1>
+      </div>
 
       {/* Tabs - TabsList is now in the header, only content here */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
@@ -181,17 +223,74 @@ export default function TransactionsPage() {
           />
 
           {/* Content */}
-          <div className="flex-1 overflow-auto">
-            <TransactionsDataTable
-              transactions={allTransactions}
-              isLoading={isLoading}
-              onRefresh={handleRefresh}
-              onRowClick={openDetailDrawer}
-              searchTerm={filters.searchTerm}
-              typeFilter={filters.typeFilter}
-              statusFilter={filters.statusFilter}
-              sourceFilter={filters.sourceFilter}
-            />
+          <div className="flex-1 flex flex-col overflow-auto">
+            <div className="flex-1 overflow-auto">
+              <TransactionsDataTable
+                transactions={allTransactions}
+                isLoading={isLoading}
+                onRefresh={handleRefresh}
+                onRowClick={handleRowClick}
+                searchTerm={filters.searchTerm}
+                typeFilter={filters.typeFilter}
+                statusFilter={filters.statusFilter}
+                sourceFilter={filters.sourceFilter}
+              />
+            </div>
+
+            {/* Pagination Footer */}
+            <footer className="border-t border-border/40 bg-muted/20 p-3 flex items-center justify-between gap-4" role="contentinfo">
+              {/* Left: Items per page */}
+              <div className="flex items-center gap-3">
+                <label htmlFor="page-size-select" className="text-xs font-medium text-muted-foreground">Show:</label>
+                <div className="flex items-center gap-1" id="page-size-select">
+                  {[25, 50, 100, 200].map((limit) => (
+                    <Button
+                      key={limit}
+                      variant={pagination.limit === limit ? "default" : "outline"}
+                      size="xs"
+                      onClick={() => handleLimitChange(limit)}
+                      className="h-7 px-2.5 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
+                      aria-pressed={pagination.limit === limit}
+                      aria-label={`Show ${limit} items per page`}
+                    >
+                      {limit}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Center: Page info */}
+              <div className="text-xs text-muted-foreground font-medium" aria-live="polite" aria-atomic="true">
+                Page {pagination.page}
+                {allTransactions.length > 0 && ` · ${allTransactions.length} items`}
+              </div>
+
+              {/* Right: Navigation */}
+              <nav className="flex items-center gap-2" aria-label="Pagination navigation">
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={handlePrevPage}
+                  disabled={!canGoPrevPage || isLoading}
+                  className="h-7 w-7 p-0 transition-opacity focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
+                  aria-label="Previous page"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={handleNextPage}
+                  disabled={!canGoToNextPage || isLoading}
+                  className="h-7 w-7 p-0 transition-opacity focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
+                  aria-label="Next page"
+                  title="Next page"
+                >
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </nav>
+            </footer>
           </div>
         </TabsContent>
 

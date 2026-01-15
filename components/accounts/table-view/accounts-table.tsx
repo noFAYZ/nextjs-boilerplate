@@ -80,54 +80,49 @@ export function AccountsTable({
   }
 
   return (
-    <div
-      className={cn(
-        'relative border border-border/50 rounded-xl overflow-auto',
-        'bg-card shadow-sm'
-      )}
-      style={{
-        height: 'calc(100vh - 300px)',
-      }}
-    >
-      <Table className="relative">
-        {/* Sticky header */}
-        <TableHeader
-          allSelected={allSelected}
-          partialSelection={partialSelection}
-          onSelectAll={handleSelectAll}
-          visibleColumns={visibleColumns}
-        />
+    <div className="relative h-full w-full flex flex-col overflow-hidden">
+      {/* Table Container with border and background */}
+      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm flex-1" role="region" aria-label="Accounts data table">
+        <Table aria-label="Accounts list">
+          {/* Sticky header */}
+          <TableHeader
+            allSelected={allSelected}
+            partialSelection={partialSelection}
+            onSelectAll={handleSelectAll}
+            visibleColumns={visibleColumns}
+          />
 
-        {/* Table body */}
-        <TableBody>
-          {accounts.map((account) => {
-            const isDeletingAccount = deletingAccountIds.includes(account.id);
+          {/* Table body */}
+          <TableBody>
+            {accounts.map((account) => {
+              const isDeletingAccount = deletingAccountIds.includes(account.id);
 
-            return (
-              <AccountTableRow
-                key={account.id}
-                account={account}
-                isSelected={selectedIds.includes(account.id)}
-                onSelect={handleRowSelect}
-                onDelete={onDelete}
-                onDeactivate={onDeactivate}
-                onReactivate={onReactivate}
-                onView={onView}
-                balanceVisible={balanceVisible}
-                isDeletingAccount={isDeletingAccount}
-                visibleColumns={visibleColumns}
-              />
-            );
-          })}
-        </TableBody>
-      </Table>
+              return (
+                <AccountTableRow
+                  key={account.id}
+                  account={account}
+                  isSelected={selectedIds.includes(account.id)}
+                  onSelect={handleRowSelect}
+                  onDelete={onDelete}
+                  onDeactivate={onDeactivate}
+                  onReactivate={onReactivate}
+                  onView={onView}
+                  balanceVisible={balanceVisible}
+                  isDeletingAccount={isDeletingAccount}
+                  visibleColumns={visibleColumns}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
           <div className="flex flex-col items-center gap-2">
             <div className="h-8 w-8 border-2 border-primary border-r-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground">Loading accounts...</p>
+            <p className="text-sm text-muted-foreground">Loading accounts…</p>
           </div>
         </div>
       )}

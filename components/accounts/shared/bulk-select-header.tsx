@@ -40,7 +40,7 @@ export function BulkSelectHeader({
       <div className="flex items-center gap-3">
         <Checkbox
           checked={allSelected}
-          indeterminate={partialSelection}
+          indeterminate={partialSelection ? 'indeterminate' : undefined}
           onCheckedChange={(checked) => {
             if (checked || partialSelection) {
               onSelectAll();

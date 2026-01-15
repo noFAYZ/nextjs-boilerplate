@@ -76,10 +76,9 @@ export const AccountTableRow = memo(
     return (
       <tr
         className={cn(
-          'border-b border-border/30 w-full',
-          'hover:bg-muted/30 transition-colors',
+          'group border-b border-border/30 py-2 hover:bg-muted/30',
           isSelected && 'bg-primary/5',
-          'group animate-in fade-in slide-in-from-bottom-2'
+          'animate-in fade-in slide-in-from-bottom-2'
         )}
         style={{
           animationDuration: '300ms',

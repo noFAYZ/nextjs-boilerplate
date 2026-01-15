@@ -336,7 +336,7 @@ export function CategoriesManagement() {
                     <div className="flex items-center gap-2">
                       <Checkbox
                         checked={selectedCategoryIds.size === filteredCategories.length && filteredCategories.length > 0}
-                        indeterminate={selectedCategoryIds.size > 0 && selectedCategoryIds.size < filteredCategories.length}
+                        indeterminate={selectedCategoryIds.size > 0 && selectedCategoryIds.size < filteredCategories.length ? 'indeterminate' : undefined}
                         onCheckedChange={(checked) => {
                           if (checked) {
                             setSelectedCategoryIds(new Set(filteredCategories.map(c => c.id)));

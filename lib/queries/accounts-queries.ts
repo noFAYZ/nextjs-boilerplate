@@ -44,7 +44,7 @@ export const accountsKeys = {
   account: (id: string, orgId?: string) => [...accountsKeys.all, 'account', id, orgId] as const,
   transactions: (accountId: string, orgId?: string) => [...accountsKeys.all, 'transactions', accountId, orgId] as const,
   transaction: (accountId: string, transactionId: string, orgId?: string) => [...accountsKeys.transactions(accountId, orgId), transactionId] as const,
-  allTransactions: (orgId?: string) => [...accountsKeys.all, 'all-transactions', orgId] as const,
+  allTransactions: (params?: { page?: number; limit?: number; startDate?: string; endDate?: string; merchantId?: string; categoryId?: string; type?: string; source?: string; search?: string }, orgId?: string) => [...accountsKeys.all, 'all-transactions', params, orgId] as const,
   categories: (orgId?: string) => [...accountsKeys.all, 'categories', orgId] as const,
   categoryGroups: (organizationId?: string) => [...accountsKeys.all, 'category-groups', organizationId || 'default'] as const,
   accountChart: (accountId: string, period: string, orgId?: string) => [...accountsKeys.all, 'account-chart', accountId, period, orgId] as const,
@@ -275,7 +275,7 @@ export const accountsQueries = {
     search?: string;
   }, orgId?: string) =>
     queryOptions({
-      queryKey: accountsKeys.allTransactions(orgId),
+      queryKey: accountsKeys.allTransactions(params, orgId),
       queryFn: async () => {
         try {
           return await accountsApi.getAllTransactions(params, getCurrentOrganizationId(orgId));
@@ -347,8 +347,10 @@ export const accountsMutations = {
         });
 
         // Also invalidate transactions as balance might have changed
+        // Use exact: false to invalidate all pagination variants
         queryClient.invalidateQueries({
-          queryKey: accountsKeys.allTransactions(),
+          queryKey: ['unified-accounts', 'all-transactions'],
+          exact: false,
         });
       },
       onError: (error) => {

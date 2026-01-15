@@ -31,7 +31,7 @@ export function BulkTransactionHeader({
       <div className="flex items-center gap-4">
         <Checkbox
           checked={selectedCount === totalCount}
-          indeterminate={selectedCount > 0 && selectedCount < totalCount}
+          indeterminate={selectedCount > 0 && selectedCount < totalCount ? 'indeterminate' : undefined}
           onCheckedChange={(checked) => {
             if (checked) {
               onSelectAll();
