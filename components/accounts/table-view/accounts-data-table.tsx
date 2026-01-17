@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useCallback, useMemo, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, Power, PowerOff, Trash2, MoreVertical, Loader2, WifiHigh, Clock, Search, Filter, X, Eye, EyeOff, LayoutList, LayoutGrid } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Power, PowerOff, Trash2, MoreVertical, Loader2, WifiHigh, Clock, Search, Filter, X, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -139,7 +139,7 @@ const AccountTableRow = memo(function AccountTableRow({
   return (
     <TableRow
       className={cn(
-        'group border-b border-border/30 py-2 hover:bg-muted/30',
+        'group border-b border-border/30 py-2 hover:bg-muted/30 transition-colors duration-150',
         isSelected && 'bg-primary/5'
       )}
     >
@@ -245,13 +245,13 @@ const AccountTableRow = memo(function AccountTableRow({
       </TableCell>
 
       <TableCell className="hidden lg:table-cell px-4 py-3 text-right">
-        <span className={cn('text-sm font-medium', account.balance < 0 && 'text-red-600 dark:text-red-500')}>
+        <span className={cn('text-sm font-medium', account.balance < 0 && 'text-destructive')}>
           {formattedBalance}
         </span>
       </TableCell>
 
       <TableCell className="hidden xl:table-cell px-4 py-3 text-right">
-        <Badge variant={getStatusVariant(account.isActive)} className="gap-1.5">
+        <Badge variant={account.isActive ? 'success' : 'secondary'} className="gap-1.5">
           <div className={cn('h-1.5 w-1.5 rounded-full', account.isActive ? 'bg-green-500' : 'bg-gray-500')} />
           <span className="text-xs">{account.isActive ? 'Active' : 'Inactive'}</span>
         </Badge>
@@ -387,7 +387,6 @@ export function AccountsDataTable({
     setCategoryFilter,
     setSourceFilter,
     clearFilters,
-    setAccountsView,
   } = useAccountsUIStore();
 
   // Category and source options
@@ -494,230 +493,208 @@ export function AccountsDataTable({
 
   return (
     <div className="space-y-3">
-      {/* Enhanced Table Header with Search & Filters */}
-      <div className="space-y-3">
-        {/* Search, Filters, and Controls Row */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 bg-card border border-border/50 rounded-lg">
-          {/* Left Section: Search & Filters */}
-          <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
-            {/* Search Input */}
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Search accounts..."
-                value={searchValue}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-9 h-9 text-sm"
-                disabled={isLoading}
-                aria-label="Search accounts"
-              />
-            </div>
-
-            {/* Filters Dropdown */}
-            <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 gap-2 whitespace-nowrap"
-                  disabled={isLoading}
-                  aria-label={`Filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
-                >
-                  <Filter className="h-4 w-4" />
-                  Filters
-                  {activeFilterCount > 0 && (
-                    <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-xs font-semibold">
-                      {activeFilterCount}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel className="text-xs font-semibold">Filter Accounts</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-
-                {/* Category Filter */}
-                <div className="px-2 py-2 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Category</p>
-                  {categories.map((cat) => (
-                    <DropdownMenuCheckboxItem
-                      key={cat.value}
-                      checked={(filters?.categories || []).includes(cat.value as any)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setCategoryFilter([...(filters?.categories || []), cat.value as any]);
-                        } else {
-                          setCategoryFilter((filters?.categories || []).filter((c) => c !== cat.value));
-                        }
-                      }}
-                    >
-                      {cat.label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </div>
-
-                <DropdownMenuSeparator />
-
-                {/* Source Filter */}
-                <div className="px-2 py-2 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</p>
-                  {sources.map((src) => (
-                    <DropdownMenuCheckboxItem
-                      key={src.value}
-                      checked={(filters?.sources || []).includes(src.value as any)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSourceFilter([...(filters?.sources || []), src.value as any]);
-                        } else {
-                          setSourceFilter((filters?.sources || []).filter((s) => s !== src.value));
-                        }
-                      }}
-                    >
-                      {src.label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </div>
-
-                <DropdownMenuSeparator />
-
-                {/* Clear Filters */}
-                {activeFilterCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      clearFilters();
-                      setIsFilterOpen(false);
-                    }}
-                    className="w-full justify-start text-xs text-muted-foreground h-8 px-2"
-                  >
-                    <X className="h-3 w-3 mr-2" />
-                    Clear all filters
-                  </Button>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Clear Filters Button (inline) */}
-            {activeFilterCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="h-9 text-xs gap-1 whitespace-nowrap"
-                disabled={isLoading}
-              >
-                <X className="h-3.5 w-3.5" />
-                Clear
-              </Button>
-            )}
-          </div>
-
-          {/* Right Section: Account Count, Sort, Balance, View Toggle */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Account Count */}
-            <span className="text-xs sm:text-sm text-muted-foreground font-medium hidden xs:inline whitespace-nowrap">
-              {isLoading ? (
-                <span className="flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Loading...
-                </span>
-              ) : (
-                `${accounts.length} ${accounts.length === 1 ? 'account' : 'accounts'}`
-              )}
-            </span>
-
-            {/* Sort Select */}
-            <Select value={filters.sortBy} onValueChange={setSortBy} disabled={isLoading}>
-              <SelectTrigger className="w-32 h-9 text-xs hidden sm:inline-flex" aria-label="Sort accounts">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Balance Visibility Toggle */}
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setBalanceVisible(!viewPreferences.balanceVisible)}
-              title={viewPreferences.balanceVisible ? 'Hide balances' : 'Show balances'}
-              disabled={isLoading}
-              className="h-9 w-9"
-              aria-label={viewPreferences.balanceVisible ? 'Hide balances' : 'Show balances'}
-            >
-              {viewPreferences.balanceVisible ? (
-                <Eye className="h-4 w-4" />
-              ) : (
-                <EyeOff className="h-4 w-4" />
-              )}
-            </Button>
-
-            {/* View Mode Toggle */}
-            <div className="flex items-center border border-border/50 rounded-lg p-0.5 h-9">
-              <Button
-                variant={viewPreferences.accountsView === 'table' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setAccountsView('table')}
-                className="h-7 px-2.5 rounded"
-                disabled={isLoading}
-                title="Table view"
-                aria-label="Table view"
-              >
-                <LayoutList className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewPreferences.accountsView === 'card' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setAccountsView('card')}
-                className="h-7 px-2.5 rounded"
-                disabled={isLoading}
-                title="Card view"
-                aria-label="Card view"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Filter Badges */}
-        {activeFilterCount > 0 && (
-          <div className="flex flex-wrap gap-2 px-1">
-            {filters?.searchQuery && (
-              <Badge variant="secondary" className="gap-1.5 pl-2.5 text-xs">
-                <Search className="h-3 w-3" />
-                {filters.searchQuery}
-              </Badge>
-            )}
-
-            {(filters?.categories || []).length > 0 &&
-              filters?.categories?.map((cat) => (
-                <Badge key={cat} variant="secondary" className="gap-1.5 pl-2.5 text-xs">
-                  {categories.find((c) => c.value === cat)?.label || cat}
-                </Badge>
-              ))}
-
-            {(filters?.sources || []).length > 0 &&
-              filters?.sources?.map((src) => (
-                <Badge key={src} variant="secondary" className="gap-1.5 pl-2.5 text-xs">
-                  {sources.find((s) => s.value === src)?.label || src}
-                </Badge>
-              ))}
-          </div>
-        )}
-      </div>
-
       {/* Data Table */}
-      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm" role="region" aria-label="Accounts data table">
+      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-lg" role="region" aria-label="Accounts data table">
         <Table aria-label="Accounts list">
           <TableHeader className="bg-muted/80 border-b border-border/50">
+            {/* Search & Filters Row - Spans all columns */}
+            <TableRow className="hover:bg-transparent border-none">
+              <TableCell colSpan={7} className="px-4 sm:px-5 py-4 border-b border-border/50">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  {/* Left Section: Search & Filters */}
+                  <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
+                    {/* Search Input */}
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                      <Input
+                        placeholder="Search accounts..."
+                        value={searchValue}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="pl-9 h-8 text-sm"
+                        disabled={isLoading}
+                        aria-label="Search accounts"
+                     
+                      />
+                    </div>
+
+                    {/* Filters Dropdown */}
+                    <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline2"
+                          className="  gap-2 whitespace-nowrap shadow-none border-border rounded-xs"
+                          disabled={isLoading}
+                          aria-label={`Filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
+                        >
+                          <Filter className="h-4 w-4" />
+                          Filters
+                          {activeFilterCount > 0 && (
+                            <Badge className="h-4 w-4 p-0 flex items-center justify-center text-xs font-semibold bg-primary text-primary-foreground">
+                              {activeFilterCount}
+                            </Badge>
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="start" className="w-56">
+                        <DropdownMenuLabel className="text-xs font-semibold">Filter Accounts</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+
+                        {/* Category Filter */}
+                        <div className="px-2 py-1 space-y-1">
+                          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Category</p>
+                          {categories.map((cat) => (
+                            <DropdownMenuCheckboxItem
+                              key={cat.value}
+                              checked={(filters?.categories || []).includes(cat.value as any)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCategoryFilter([...(filters?.categories || []), cat.value as any]);
+                                } else {
+                                  setCategoryFilter((filters?.categories || []).filter((c) => c !== cat.value));
+                                }
+                              }}
+                            >
+                              {cat.label}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                        </div>
+
+                        <DropdownMenuSeparator />
+
+                        {/* Source Filter */}
+                        <div className="px-2 py-1 space-y-2">
+                          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Source</p>
+                          {sources.map((src) => (
+                            <DropdownMenuCheckboxItem
+                              key={src.value}
+                              checked={(filters?.sources || []).includes(src.value as any)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSourceFilter([...(filters?.sources || []), src.value as any]);
+                                } else {
+                                  setSourceFilter((filters?.sources || []).filter((s) => s !== src.value));
+                                }
+                              }}
+                            >
+                              {src.label}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                        </div>
+
+                        <DropdownMenuSeparator />
+
+                        {/* Clear Filters */}
+                        {activeFilterCount > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              clearFilters();
+                              setIsFilterOpen(false);
+                            }}
+                            className="w-full justify-start text-xs text-muted-foreground h-8 px-2"
+                          >
+                            <X className="h-3 w-3 mr-2" />
+                            Clear all filters
+                          </Button>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Clear Filters Button (inline) */}
+                    {activeFilterCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={clearFilters}
+                        className="h-10 text-xs gap-1 whitespace-nowrap text-destructive hover:text-destructive hover:bg-destructive/10"
+                        disabled={isLoading}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Right Section: Account Count, Sort, Balance, View Toggle */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {/* Account Count */}
+                    <span className="text-xs sm:text-sm text-muted-foreground font-medium hidden xs:inline whitespace-nowrap">
+                      {isLoading ? (
+                        <span className="flex items-center gap-1">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Loading...
+                        </span>
+                      ) : (
+                        `${accounts.length} ${accounts.length === 1 ? 'account' : 'accounts'}`
+                      )}
+                    </span>
+
+                    {/* Sort Select */}
+                    <Select value={filters.sortBy} onValueChange={setSortBy} disabled={isLoading}>
+                      <SelectTrigger className=" gap-2   text-xs hidden sm:inline-flex border-border" aria-label="Sort accounts" variant='outline2' size='sm'>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sortOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Balance Visibility Toggle 
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setBalanceVisible(!viewPreferences.balanceVisible)}
+                      title={viewPreferences.balanceVisible ? 'Hide balances' : 'Show balances'}
+                      disabled={isLoading}
+                      className="h-9 w-9"
+                      aria-label={viewPreferences.balanceVisible ? 'Hide balances' : 'Show balances'}
+                    >
+                      {viewPreferences.balanceVisible ? (
+                        <Eye className="h-4 w-4" />
+                      ) : (
+                        <EyeOff className="h-4 w-4" />
+                      )}
+                    </Button>*/}
+
+                  </div>
+                </div>
+
+                {/* Active Filter Badges */}
+                {activeFilterCount > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border/20">
+                    {filters?.searchQuery && (
+                      <Badge variant="secondary" className="gap-1.5 pl-2.5 text-xs">
+                        <Search className="h-3 w-3" />
+                        {filters.searchQuery}
+                      </Badge>
+                    )}
+
+                    {(filters?.categories || []).length > 0 &&
+                      filters?.categories?.map((cat) => (
+                        <Badge key={cat} variant="secondary" className="gap-1.5 pl-2.5 text-xs">
+                          {categories.find((c) => c.value === cat)?.label || cat}
+                        </Badge>
+                      ))}
+
+                    {(filters?.sources || []).length > 0 &&
+                      filters?.sources?.map((src) => (
+                        <Badge key={src} variant="secondary" className="gap-1.5 pl-2.5 text-xs">
+                          {sources.find((s) => s.value === src)?.label || src}
+                        </Badge>
+                      ))}
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+
+            {/* Column Headers Row */}
             <TableRow className="hover:bg-transparent border-none">
               <TableHead className="w-10 px-2 sm:px-4 py-3">
                 <Checkbox

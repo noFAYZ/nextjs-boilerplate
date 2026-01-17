@@ -10,6 +10,7 @@ import {
   TrendingDown,
   Home,
   Package,
+  Plus,
 } from "lucide-react";
 import { useAllAccounts } from "@/lib/queries";
 import { useOrganizationRefetchState } from "@/lib/hooks/use-organization-refetch-state";
@@ -27,7 +28,8 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { RefetchLoadingOverlay } from "../ui/refetch-loading-overlay";
-import { CardSkeleton } from "../ui/card-skeleton";
+import { WidgetSkeleton } from "../ui/widget-skeleton";
+import { AccountsEmptyState } from "../ui/dashboard-empty-state";
 
 // Type definitions for accounts API response
 interface AccountMetadata {
@@ -275,7 +277,7 @@ function NetWorthWidgetComponent() {
 
   // Show skeleton when initially loading
   if (isLoading) {
-    return <CardSkeleton lines={4} />;
+    return <WidgetSkeleton variant="list" itemsCount={5} />;
   }
   // Color palette for allocation bar segments
   const colorMap: Record<string, { bar: string; dot: string; rgbBar: string }> = {
@@ -335,7 +337,7 @@ function NetWorthWidgetComponent() {
 
       {/* Category Accordions - Main 5 + More */}
       {MAIN_CATEGORIES.some((cat) => categoriesData[cat]) || hasMore ? (
-        <div className=" -mx-2">
+        <div className="-mx-2">
           {/* Main 5 Categories */}
           {MAIN_CATEGORIES.map((categoryKey) => {
             if (!categoriesData[categoryKey]) return null;
@@ -581,14 +583,17 @@ function NetWorthWidgetComponent() {
           )}
         </div>
       ) : (
-        <div className="relative p-4 rounded-lg bg-muted/30 border border-border text-center">
-          <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-xs font-medium text-foreground mb-0.5">
-            No Accounts Found
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            Connect your accounts to see net worth breakdown
-          </p>
+        <div className="relative">
+          <AccountsEmptyState
+            icon={<HeroiconsWallet16Solid className="h-6 w-6" />}
+            showCard={false}
+            primaryAction={{
+              label: 'Connect Account',
+              onClick: () => window.location.href = '/dashboard/accounts',
+              variant: 'default',
+              icon: <Plus className="h-3.5 w-3.5" />,
+            }}
+          />
           <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
         </div>
       )}

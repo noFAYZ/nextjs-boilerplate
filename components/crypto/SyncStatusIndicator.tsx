@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import { cn } from "@/lib/utils";
-import { useCryptoWallets } from "@/lib/queries";
+import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context";
 
 interface SyncStatusIndicatorProps {
   variant?: "minimal" | "compact" | "detailed";
@@ -36,7 +36,7 @@ export function SyncStatusIndicator({
   className
 }: SyncStatusIndicatorProps) {
   const { realtimeSyncStates, realtimeSyncConnected, realtimeSyncError } = useCryptoStore();
-  const { data: wallets = [] } = useCryptoWallets();
+  const { data: wallets = [] } = useOrganizationCryptoWallets();
   const { resetConnection } = useRealtimeSync();
   const [isOnline, setIsOnline] = React.useState(true);
 

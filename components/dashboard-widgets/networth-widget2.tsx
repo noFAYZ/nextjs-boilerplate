@@ -27,7 +27,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { RefetchLoadingOverlay } from "../ui/refetch-loading-overlay";
-import { CardSkeleton } from "../ui/card-skeleton";
+import { WidgetSkeleton } from "../ui/widget-skeleton";
 
 // Type definitions for accounts API response
 interface AccountMetadata {
@@ -270,7 +270,7 @@ export function NetWorthWidget() {
 
   // Show skeleton when initially loading
   if (isLoading) {
-    return <CardSkeleton lines={4} />;
+    return <WidgetSkeleton lines={4} />;
   }
   // Color palette for allocation bar segments
   const colorMap: Record<string, { bar: string; dot: string; rgbBar: string }> = {

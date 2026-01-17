@@ -289,7 +289,7 @@ const greeting =
 
         
  {/* Add button */}
- <Button variant="outline"      onClick={handleRefresh}  disabled={isLoading} className='  pl-1  pr-2  ' icon={ <SolarRefreshCircleBoldDuotone className={cn("h-6 w-6", isLoading && "animate-spin")} />}>
+ <Button variant="outline"  size='sm'    onClick={handleRefresh}  disabled={isLoading} className=' font-semibold  pl-1  pr-2  ' icon={ <SolarRefreshCircleBoldDuotone className={cn("h-6 w-6", isLoading && "animate-spin")} />}>
              
               Sync
             </Button>
@@ -297,7 +297,7 @@ const greeting =
             {/* Add menu popover */}
             <Popover open={addMenuOpen} onOpenChange={setAddMenuOpen}>
               <PopoverTrigger asChild>
-                <Button   size='icon' className='rounded-full'  >
+                <Button   size='icon-sm' className='rounded-full'  >
                   <PlusIcon className="h-6 w-6" strokeWidth={2} />
                
                 </Button>

@@ -42,16 +42,15 @@ export function clearInitializationTimeout(walletId: string) {
 // ============================================================================
 // HELPER: Get current organization ID from store (not from closure)
 // ============================================================================
-function getCurrentOrganizationId(explicitOrgId?: string): string | undefined {
+function getCurrentOrganizationId(explicitOrgId?: string | null): string | null {
   // Explicit orgId takes precedence
-  if (explicitOrgId) return explicitOrgId;
+  if (explicitOrgId !== undefined) return explicitOrgId;
 
   // Otherwise get from store (gets current org at execution time, not creation time)
   try {
-    const orgId = useOrganizationStore.getState().selectedOrganizationId;
-    return orgId || undefined;
+    return useOrganizationStore.getState().selectedOrganizationId ?? null;
   } catch {
-    return undefined;
+    return null;
   }
 }
 
@@ -60,40 +59,40 @@ export const cryptoKeys = {
   all: ['crypto'] as const,
 
   // Wallets
-  wallets: (orgId?: string) => [...cryptoKeys.all, 'wallets', orgId] as const,
-  wallet: (id: string, timeRange?: string, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), id, { timeRange }] as const,
-  walletSummary: (id: string, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), id, 'summary'] as const,
-  aggregatedWallet: (orgId?: string) => [...cryptoKeys.all, 'aggregated-wallet', orgId] as const,
+  wallets: (orgId: string | null) => [...cryptoKeys.all, 'wallets', orgId] as const,
+  wallet: (id: string, timeRange?: string, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), id, { timeRange }] as const,
+  walletSummary: (id: string, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), id, 'summary'] as const,
+  aggregatedWallet: (orgId: string | null) => [...cryptoKeys.all, 'aggregated-wallet', orgId] as const,
 
   // Portfolio
-  portfolio: (params?: PortfolioParams, orgId?: string) =>
+  portfolio: (params?: PortfolioParams, orgId?: string | null) =>
     [...cryptoKeys.all, 'portfolio', params, orgId] as const,
 
   // Transactions
-  transactions: (params?: TransactionParams, orgId?: string) =>
+  transactions: (params?: TransactionParams, orgId?: string | null) =>
     [...cryptoKeys.all, 'transactions', params, orgId] as const,
-  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), walletId, 'transactions', params] as const,
+  walletTransactions: (walletId: string, params?: TransactionParams, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), walletId, 'transactions', params] as const,
 
   // NFTs
-  nfts: (params?: NFTParams, orgId?: string) =>
+  nfts: (params?: NFTParams, orgId?: string | null) =>
     [...cryptoKeys.all, 'nfts', params, orgId] as const,
-  walletNfts: (walletId: string, params?: NFTParams, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), walletId, 'nfts', params] as const,
+  walletNfts: (walletId: string, params?: NFTParams, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), walletId, 'nfts', params] as const,
 
   // DeFi
-  defi: (orgId?: string) => [...cryptoKeys.all, 'defi', orgId] as const,
-  walletDefi: (walletId: string, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), walletId, 'defi'] as const,
+  defi: (orgId: string | null) => [...cryptoKeys.all, 'defi', orgId] as const,
+  walletDefi: (walletId: string, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), walletId, 'defi'] as const,
 
   // Sync
-  syncStatus: (walletId: string, jobId?: string, orgId?: string) =>
-    [...cryptoKeys.wallets(orgId), walletId, 'sync', { jobId }] as const,
+  syncStatus: (walletId: string, jobId?: string, orgId?: string | null) =>
+    [...cryptoKeys.wallets(orgId ?? null), walletId, 'sync', { jobId }] as const,
 
   // Analytics
-  analytics: (params?: AnalyticsParams, orgId?: string) =>
+  analytics: (params?: AnalyticsParams, orgId?: string | null) =>
     [...cryptoKeys.all, 'analytics', params, orgId] as const,
 };
 

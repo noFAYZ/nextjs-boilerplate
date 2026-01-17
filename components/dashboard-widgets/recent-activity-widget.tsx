@@ -15,7 +15,8 @@ import { format } from 'date-fns';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { SolarBillListBoldDuotone, SolarClipboardListBoldDuotone } from '@/components/icons/icons';
-import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
+import { ActivitiesEmptyState } from '@/components/ui/dashboard-empty-state';
 import { Separator } from '../ui/separator';
 
 const getTypeColor = (type: string) => {
@@ -127,7 +128,7 @@ function RecentActivityWidgetComponent() {
 
   // Loading State
   if (isLoading) {
-    return <CardSkeleton variant="list" itemsCount={8} />;
+    return <WidgetSkeleton variant="list" itemsCount={8} />;
   }
 
 
@@ -137,8 +138,8 @@ function RecentActivityWidgetComponent() {
       <Card className="relative   w-full flex flex-col border-border h-[450px]">
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-xl bg-green-300 flex items-center justify-center">
-              <SolarClipboardListBoldDuotone className="h-4 w-4 text-green-900" />
+            <div className="h-6 w-6 rounded-sm bg-lime-400 flex items-center justify-center">
+              <SolarBillListBoldDuotone className="h-4 w-4 text-lime-900" />
             </div>
             <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
           </div>
@@ -149,15 +150,10 @@ function RecentActivityWidgetComponent() {
             </Button>
           </Link>
         </div>
-        <div className="py-8 text-center">
-          <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-muted/50 flex items-center justify-center">
-            <SolarClipboardListBoldDuotone className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-xs font-medium text-foreground mb-1">No recent activity</p>
-          <p className="text-[10px] text-muted-foreground">
-            Your transactions will appear here
-          </p>
-        </div>
+        <ActivitiesEmptyState
+          icon={<SolarClipboardListBoldDuotone className="h-6 w-6" />}
+          showCard={false}
+        />
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
       </Card>
     );

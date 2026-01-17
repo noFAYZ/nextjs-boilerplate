@@ -21,7 +21,7 @@ import Link from 'next/link';
 import { MageCalendar2, SolarCalendarBoldDuotone } from '@/components/icons/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
-import { CardSkeleton } from '../ui/card-skeleton';
+import { WidgetSkeleton } from '../ui/widget-skeleton';
 import { Separator } from '../ui/separator';
 
 // Helper to get days in a month
@@ -332,7 +332,7 @@ function CalendarSubscriptionWidgetComponent() {
 
   // Loading State
   if (isLoading) {
-    return <CardSkeleton variant="chart" />;
+    return <WidgetSkeleton variant="chart" />;
   }
 
   return (

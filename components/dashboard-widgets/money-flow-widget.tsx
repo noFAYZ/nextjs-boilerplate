@@ -17,13 +17,15 @@ import React, { useMemo, useState, useRef, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRightLeft } from 'lucide-react';
+import { ArrowRightLeft, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { useOrganizationBankingTransactions, useOrganizationBankingGroupedAccounts } from '@/lib/queries/use-organization-data-context';
 import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import { useSubscriptions } from '@/lib/queries';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
-import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 
 /* ------------------------ Types ------------------------ */
 export interface FlowNodeBase {
@@ -252,46 +254,62 @@ function MoneyFlowWidgetComponent() {
   const clearHover = useCallback(() => setHoverInfo(null), []);
 
   if (loading) {
-    return <CardSkeleton variant="chart" />;
+    return <WidgetSkeleton variant="chart" />;
   }
 
   const sourceCount = nodes.filter(n => n.level === 'source').length;
   if (sourceCount === 0 && totalExpenses === 0) {
     return (
-      <div className="relative rounded-2xl border border-border bg-background p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground">Money Flow</h3>
-          <Link href="/dashboard/accounts">
-            <Badge variant="outline" className="text-[11px]">Connect</Badge>
-          </Link>
-        </div>
-        <div className="py-12 text-center">
-          <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground/60" />
-          <p className="mt-3 text-sm text-muted-foreground">No flows to show — link a bank or wallet to visualize money flow.</p>
-        </div>
+      <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex items-center justify-between gap-2 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-7 w-7 rounded-sm bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <ArrowRightLeft className="h-5 w-5 text-amber-600" />
+              </div>
+              <h3 className="text-xs font-semibold text-foreground truncate">Money Flow</h3>
+            </div>
+            <Link href="/accounts" className="flex-shrink-0">
+              <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+                <span className="hidden sm:inline">View All</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center">
+            <div className="py-12 text-center">
+              <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground/60" />
+              <p className="mt-3 text-sm text-muted-foreground">No flows to show — link a bank or wallet to visualize money flow.</p>
+            </div>
+          </div>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div className="relative rounded-2xl border border-border bg-background p-4 shadow-sm">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">Money Flow</h3>
-          <p className="text-[11px] text-muted-foreground/80">Interactive sankey — sources → payment methods → expenses</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-muted-foreground mr-2">Total</div>
-          <div className="text-sm font-semibold">{(totalMoney).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}</div>
-          <Link href="/dashboard/accounts">
-            <Badge variant="outline" className="text-[11px]">Details</Badge>
+    <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex items-center justify-between gap-2 pb-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-7 w-7 rounded-sm bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+              <ArrowRightLeft className="h-5 w-5 text-amber-600" />
+            </div>
+            <h3 className="text-xs font-semibold text-foreground truncate">Money Flow</h3>
+          </div>
+          <Link href="/accounts" className="flex-shrink-0">
+            <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+              <span className="hidden sm:inline">View All</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
           </Link>
         </div>
-      </div>
 
-      <div className="w-full overflow-x-auto">
-        <svg ref={svgRef} viewBox="0 0 980 420" width="980" height="420" preserveAspectRatio="xMidYMid meet" className="w-full h-[420px]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="w-full overflow-x-auto">
+            <svg ref={svgRef} viewBox="0 0 980 420" width="980" height="420" preserveAspectRatio="xMidYMid meet" className="w-full h-[420px]">
           <defs>
             <linearGradient id="orangeA" x1="0%" x2="100%">
               <stop offset="0%" stopColor="#ff7a18" stopOpacity="0.95" />
@@ -377,25 +395,26 @@ function MoneyFlowWidgetComponent() {
               );
             })}
           </g>
-        </svg>
-      </div>
+            </svg>
+          </div>
 
-      {/* Mini legend */}
-      <div className="absolute right-4 bottom-4 bg-background/90 border border-border rounded-lg px-3 py-2 text-xs shadow-sm flex gap-3 items-center">
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-gradient-to-r from-[#ff7a18] to-[#ffb86b] block" /> Bank</div>
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#fb923c] block" /> Crypto</div>
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#f59e0b] block" /> Payments</div>
-      </div>
+          {/* Mini legend */}
+          <div className="absolute right-4 bottom-4 bg-background/90 border border-border rounded-lg px-3 py-2 text-xs shadow-sm flex gap-3 items-center">
+            <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-gradient-to-r from-[#ff7a18] to-[#ffb86b] block" /> Bank</div>
+            <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#fb923c] block" /> Crypto</div>
+            <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#f59e0b] block" /> Payments</div>
+          </div>
 
-      {/* Tooltip (HTML overlay for crisp text) */}
-      {hoverInfo && (
-        <div style={{ left: hoverInfo.x + 12, top: hoverInfo.y + 8 }} className="pointer-events-none fixed z-50 px-3 py-2 rounded-md text-xs bg-card border border-border shadow-lg">
-          <div className="font-semibold">{hoverInfo.title}</div>
-          {hoverInfo.body && <div className="text-[11px] text-muted-foreground mt-1">{hoverInfo.body}</div>}
+          {/* Tooltip (HTML overlay for crisp text) */}
+          {hoverInfo && (
+            <div style={{ left: hoverInfo.x + 12, top: hoverInfo.y + 8 }} className="pointer-events-none fixed z-50 px-3 py-2 rounded-md text-xs bg-card border border-border shadow-lg">
+              <div className="font-semibold">{hoverInfo.title}</div>
+              {hoverInfo.body && <div className="text-[11px] text-muted-foreground mt-1">{hoverInfo.body}</div>}
+            </div>
+          )}
         </div>
-      )}
-      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+      </div>
+    </Card>
   );
 }
 

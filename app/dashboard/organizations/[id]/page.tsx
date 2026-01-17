@@ -1,17 +1,18 @@
 'use client';
 
 import { Suspense, use, useMemo, useState, useCallback } from 'react';
-import { ChevronLeft, Users, Clock, CheckCircle2, AlertCircle, Trash2, Edit2, Copy, Check, Plus } from 'lucide-react';
+import { ChevronLeft, Clock, CheckCircle2, AlertCircle, Trash2, Copy, Check } from 'lucide-react';
 import {
   useOrganization,
   useOrganizationMembers,
   usePendingInvitations,
 } from '@/lib/queries/use-organization-data';
 import { useCurrentUser } from '@/lib/queries/use-auth-data';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
+import { InviteMemberDialog } from '@/components/organization/invite-member-dialog';
+import { QuickStats, MembersSection, InvitationsSection, SettingsSidebar } from './components';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ interface PageProps {
 }
 
 // ============================================================================
-// HELPER COMPONENTS
+// HELPER COMPONENTS (Page-specific display components)
 // ============================================================================
 
 interface DetailRowProps {
@@ -35,16 +36,16 @@ interface DetailRowProps {
 
 function DetailRow({ label, value, icon, copyable, onCopy, copied, mono }: DetailRowProps) {
   return (
-    <div className="flex items-center justify-between py-3 px-2 group hover:bg-muted/30 rounded-md transition-colors">
+    <div className="flex items-center justify-between p-2  group hover:bg-muted/30 rounded-md transition-colors">
       <div className="flex items-center gap-2">
         {icon && <div className="text-muted-foreground">{icon}</div>}
-        <span className="text-sm text-muted-foreground font-medium">{label}</span>
+        <span className="text-xs   font-medium">{label}</span>
       </div>
       <div className="flex items-center gap-2 ml-4">
-        <span className={cn('text-sm font-medium text-right', mono ? 'font-mono text-xs' : '')}>
+        <span className={cn('text-xs font-semibold text-right')}>
           {value}
         </span>
-        {copyable && onCopy && (
+       {/*  {copyable && onCopy && (
           <Button
             variant="ghost"
             size="sm"
@@ -57,13 +58,12 @@ function DetailRow({ label, value, icon, copyable, onCopy, copied, mono }: Detai
               <Copy className="h-3.5 w-3.5" />
             )}
           </Button>
-        )}
+        )} */}
       </div>
     </div>
   );
 }
 
-// Member Row Component
 function MemberRow({
   member,
   isOwner,
@@ -74,7 +74,7 @@ function MemberRow({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="group flex items-center justify-between py-3 px-3 border-b border-border/50 last:border-0 hover:bg-muted/40 transition-colors rounded-md">
+    <div className="group flex items-center justify-between py-3 px-3 border-b border-border last:border-0 hover:bg-secondary transition-colors rounded-md">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/40 to-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
           {String(member.name)[0]?.toUpperCase() || '?'}
@@ -86,17 +86,17 @@ function MemberRow({
       </div>
 
       <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-        <Badge variant="outline" className="text-xs">
+        <Badge variant="soft" className="text-xs">
           {String(member.role)}
         </Badge>
         {isOwner && (
           <Button
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => onRemove(String(member.id))}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -104,7 +104,6 @@ function MemberRow({
   );
 }
 
-// Invitation Row Component
 function InvitationRow({ invitation }: { invitation: Record<string, unknown> }) {
   const status = String(invitation.status);
   const expiresAt = new Date(String(invitation.expiresAt));
@@ -150,8 +149,6 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('MEMBER');
 
   const { data: organization, isLoading: isLoadingOrg } = useOrganization(organizationId);
   const { data: members = [] } = useOrganizationMembers(organizationId);
@@ -180,16 +177,9 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
     }
   }, []);
 
-  const handleSendInvite = useCallback(() => {
-    if (!inviteEmail.trim()) {
-      alert('Please enter an email address');
-      return;
-    }
-    console.log('Invite member:', { email: inviteEmail, role: inviteRole, organizationId });
-    setInviteEmail('');
-    setInviteRole('MEMBER');
-    setShowInviteModal(false);
-  }, [inviteEmail, inviteRole, organizationId]);
+  const handleSendInvite = useCallback((email: string, role: string) => {
+    console.log('Invite member:', { email, role, organizationId });
+  }, [organizationId]);
 
   const handleDeleteOrg = useCallback(() => {
     if (confirm(`Permanently delete "${organization?.name}"? This cannot be undone.`)) {
@@ -244,16 +234,10 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {organization.isActive && (
-            <Badge className="bg-green-500/10 text-green-700 dark:text-green-400">
-              <div className="h-1.5 w-1.5 rounded-full bg-green-500 mr-2" />
+            <Badge variant='success' >
+             
               Active
             </Badge>
-          )}
-          {isOwner && (
-            <Button variant="outline" size="sm" disabled className="gap-1.5">
-              <Edit2 className="h-3.5 w-3.5" />
-              Edit
-            </Button>
           )}
         </div>
       </div>
@@ -262,231 +246,55 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Overview */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Quick Stats */}
-          <div className="grid gap-3 grid-cols-3">
-            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-xs text-muted-foreground font-medium mb-1">Members</div>
-              <div className="text-2xl font-bold">{members.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">{ownerCount} owner{ownerCount !== 1 ? 's' : ''}</p>
-            </Card>
-            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-xs text-muted-foreground font-medium mb-1">Pending</div>
-              <div className="text-2xl font-bold">{pending.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">Awaiting response</p>
-            </Card>
-            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-xs text-muted-foreground font-medium mb-1">Created</div>
-              <div className="text-sm font-bold">{new Date(organization.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-              <p className="text-xs text-muted-foreground mt-1">{new Date(organization.createdAt).getFullYear()}</p>
-            </Card>
-          </div>
+          {/* Quick Stats 
+          <QuickStats
+            organization={organization}
+            memberCount={members.length}
+            pendingCount={pending.length}
+            ownerCount={ownerCount}
+          />*/}
 
           {/* Members Section */}
-          <Card className="p-6 bg-card">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-semibold">Members</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {members.length} member{members.length !== 1 ? 's' : ''} in this organization
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5"
-                onClick={() => setShowInviteModal(true)}
-                disabled={!isOwner}
-              >
-                <Plus className="h-4 w-4" />
-                Invite Member
-              </Button>
-            </div>
-
-            {members.length > 0 ? (
-              <div className="divide-y divide-border/50">
-                {members.map((member: Record<string, unknown>) => (
-                  <MemberRow key={String(member.id)} member={member} isOwner={isOwner} onRemove={handleRemoveMember} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm font-medium text-foreground">No members yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Invite team members to collaborate</p>
-              </div>
-            )}
-          </Card>
+          <MembersSection
+            members={members}
+            isOwner={isOwner}
+            onRemove={handleRemoveMember}
+            onInvite={() => setShowInviteModal(true)}
+            MemberRowComponent={MemberRow}
+          />
 
           {/* Invitations Section */}
-          {invitations.length > 0 && (
-            <Card className="p-6 bg-card">
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold">Invitations</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {pending.length} pending, {accepted.length} accepted
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {invitations.map((inv: Record<string, unknown>) => (
-                  <InvitationRow key={String(inv.id)} invitation={inv} />
-                ))}
-              </div>
-            </Card>
-          )}
+          <InvitationsSection
+            invitations={invitations}
+            pending={pending}
+            accepted={accepted}
+            InvitationRowComponent={InvitationRow}
+          />
         </div>
 
         {/* Right Column - Settings & Info */}
-        <div className="space-y-6">
-          {/* Organization Settings */}
-          <Card className="p-6 bg-card">
-            <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-muted-foreground">Settings</h3>
-
-            <div className="space-y-4 divide-y divide-border/50">
-              <DetailRow
-                label="Organization Type"
-                value={organization.isPersonal ? 'Personal' : 'Team'}
-              />
-              <DetailRow
-                label="URL Slug"
-                value={<code className="text-xs bg-muted/50 px-1.5 py-0.5 rounded">{organization.slug}</code>}
-                copyable
-                onCopy={() => copyToClipboard(organization.slug, 'Slug')}
-                copied={copiedField === 'Slug'}
-              />
-              <DetailRow
-                label="Created"
-                value={new Date(organization.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              />
-            </div>
-          </Card>
-
-          {/* Danger Zone */}
-          {isOwner && !organization.isPersonal && (
-            <Card className="p-6 bg-red-50/50 dark:bg-red-950/20">
-              <div className="flex items-center gap-2 mb-4">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <h3 className="text-sm font-semibold text-red-600">Danger Zone</h3>
-              </div>
-
-              {showDeleteConfirm ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-foreground font-medium">Delete this organization?</p>
-                  <p className="text-xs text-muted-foreground">This action cannot be undone. All members and data will be permanently removed.</p>
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowDeleteConfirm(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={handleDeleteOrg}
-                    >
-                      Delete Organization
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  Delete Organization
-                </Button>
-              )}
-            </Card>
+        <SettingsSidebar
+          organization={organization}
+          isOwner={isOwner}
+          showDeleteConfirm={showDeleteConfirm}
+          onShowDeleteConfirm={setShowDeleteConfirm}
+          onDelete={handleDeleteOrg}
+          DetailRowComponent={(props) => (
+            <DetailRow
+              {...props}
+              onCopy={
+                props.copyable
+                  ? () => copyToClipboard(String(props.value?.props?.children || props.value), props.label)
+                  : undefined
+              }
+              copied={copiedField === props.label}
+            />
           )}
-
-          {/* Technical Details */}
-          <Card className="p-6 bg-card">
-            <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide text-muted-foreground">Technical</h3>
-
-            <div className="space-y-3 divide-y divide-border/50 text-xs">
-              <DetailRow
-                label="Organization ID"
-                value={<code className="bg-muted/50 px-1 py-0.5 rounded text-[10px]">{organization.id}</code>}
-                copyable
-                onCopy={() => copyToClipboard(organization.id, 'Organization ID')}
-                copied={copiedField === 'Organization ID'}
-                mono
-              />
-              <DetailRow
-                label="Owner ID"
-                value={<code className="bg-muted/50 px-1 py-0.5 rounded text-[10px]">{organization.ownerId}</code>}
-                mono
-              />
-            </div>
-          </Card>
-        </div>
+        />
       </div>
 
       {/* Invite Member Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md p-6 space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold">Invite Member</h2>
-              <p className="text-xs text-muted-foreground mt-1">Send an invitation to join this organization</p>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium">Email Address *</label>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="member@example.com"
-                  className="w-full px-3 py-2 text-sm rounded-md bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium">Role</label>
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-md bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1"
-                >
-                  <option value="MEMBER">Member</option>
-                  <option value="EDITOR">Editor</option>
-                  <option value="VIEWER">Viewer</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => setShowInviteModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                className="flex-1"
-                onClick={handleSendInvite}
-              >
-                Send Invite
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      <InviteMemberDialog isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} onInvite={handleSendInvite} />
     </div>
   );
 }

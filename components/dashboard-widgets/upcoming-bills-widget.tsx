@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, memo } from 'react';
-import { Calendar, DollarSign, AlertCircle, Clock } from 'lucide-react';
+import { Calendar, DollarSign, AlertCircle, Clock, ArrowRight } from 'lucide-react';
 import { useSubscriptions } from '@/lib/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -9,7 +9,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
-import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
+import { BillsEmptyState } from '@/components/ui/dashboard-empty-state';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
@@ -73,40 +76,61 @@ function UpcomingBillsWidgetComponent() {
   }, [upcomingBills]);
 
   if (subscriptionsLoading) {
-    return <CardSkeleton variant="list" itemsCount={6} />;
+    return <WidgetSkeleton variant="list" itemsCount={6} />;
   }
 
   if (upcomingBills.length === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-medium text-muted-foreground">Upcoming bills</h3>
-          <Link href="/subscriptions">
-            <Badge variant="outline" className="text-[10px] cursor-pointer hover:bg-muted">
-              Manage
-            </Badge>
-          </Link>
-        </div>
-        <div className="py-8 text-center">
-          <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-xs text-muted-foreground">No bills due in the next 30 days</p>
-        </div>
+      <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
         <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </div>
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex items-center justify-between gap-2 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-7 w-7 rounded-sm bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+                <Calendar className="h-5 w-5 text-rose-600" />
+              </div>
+              <h3 className="text-xs font-semibold text-foreground truncate">Upcoming Bills</h3>
+            </div>
+            <Link href="/subscriptions" className="flex-shrink-0">
+              <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+                <span className="hidden sm:inline">View All</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <BillsEmptyState
+              icon={<Calendar className="h-6 w-6" />}
+              showCard={false}
+            />
+          </div>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-medium text-muted-foreground">Upcoming bills</h3>
-        <Link href="/subscriptions">
-          <Badge variant="outline" className="text-[10px] cursor-pointer hover:bg-muted">
-            View All
-          </Badge>
-        </Link>
-      </div>
+    <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-2 pb-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-7 w-7 rounded-sm bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+              <Calendar className="h-5 w-5 text-rose-600" />
+            </div>
+            <h3 className="text-xs font-semibold text-foreground truncate">Upcoming Bills</h3>
+          </div>
+          <Link href="/subscriptions" className="flex-shrink-0">
+            <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+              <span className="hidden sm:inline">View All</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
 
       {/* Total Upcoming */}
       <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500/5 to-orange-500/10 border border-orange-500/20 mb-3">
@@ -224,17 +248,18 @@ function UpcomingBillsWidgetComponent() {
         })}
       </div>
 
-      {/* Warning for high upcoming bills */}
-      {totalUpcoming > 500 && (
-        <div className="mt-3 p-2 rounded-lg bg-yellow-500/5 border border-yellow-500/20 flex items-center gap-2">
-          <AlertCircle className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
-          <p className="text-[10px] text-yellow-600 dark:text-yellow-400 font-medium">
-            High upcoming expenses - plan accordingly
-          </p>
+          {/* Warning for high upcoming bills */}
+          {totalUpcoming > 500 && (
+            <div className="mt-3 p-2 rounded-lg bg-yellow-500/5 border border-yellow-500/20 flex items-center gap-2">
+              <AlertCircle className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+              <p className="text-[10px] text-yellow-600 dark:text-yellow-400 font-medium">
+                High upcoming expenses - plan accordingly
+              </p>
+            </div>
+          )}
         </div>
-      )}
-      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+      </div>
+    </Card>
   );
 }
 

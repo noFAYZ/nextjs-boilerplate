@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,8 @@ import {
 } from '@/lib/queries/use-organization-data';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
-import { authClient } from '@/lib/auth-client';
+import { useOrgSwitcher } from '@/lib/hooks/use-org-switcher';
+import { OrgSwitchingOverlay } from './org-switching-overlay';
 
 import type { Organization } from '@/lib/types/organization';
 import { PhUsersDuotone } from '../icons/icons';
@@ -71,6 +72,9 @@ export function OrganizationSwitcher({
 }: OrganizationSwitcherProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+  const [isSwitching, setIsSwitching] = React.useState(false);
+  const [switchingOrg, setSwitchingOrg] = React.useState<Organization | null>(null);
+  const [switchError, setSwitchError] = React.useState<string | null>(null);
 
   const { data: organizations = [], isLoading: orgsLoading } =
     useOrganizations();
@@ -84,6 +88,7 @@ export function OrganizationSwitcher({
   } = useOrganizationUIStore();
 
   const { setSelectedOrganization } = useOrganizationStore();
+  const { switchOrganization } = useOrgSwitcher();
 
   const isLoading = orgsLoading || personalLoading;
 
@@ -101,20 +106,49 @@ export function OrganizationSwitcher({
         return;
       }
 
-      selectOrganization(org.id);
-      setSelectedOrganization(org.id);
-      setOpen(false);
+      setIsSwitching(true);
+      setSwitchingOrg(org);
+      setSwitchError(null);
 
-      await authClient.organization.setActive({
-        organizationId: org.id,
-      });
+      try {
+        // Step 1: Update UI store optimistically
+        selectOrganization(org.id);
 
-      onOrgSelect?.(org);
+        // Step 2: Switch organization (backend-aware)
+        // This:
+        // - Updates Better Auth session.activeOrganizationId
+        // - Invalidates session cache
+        // - Refetches all org-scoped queries
+        const result = await switchOrganization(org.id);
+
+        if (!result.success) {
+          // Rollback on failure
+          selectOrganization(selectedOrganizationId);
+          setSwitchError(result.error || 'Failed to switch organization');
+          return;
+        }
+
+        // Success - close popover and clear overlay after a brief delay
+        setOpen(false);
+        onOrgSelect?.(org);
+
+        // Clear overlay state after animation completes
+        setTimeout(() => {
+          setIsSwitching(false);
+          setSwitchingOrg(null);
+          setSwitchError(null);
+        }, 500);
+      } catch (error) {
+        // Rollback on error
+        selectOrganization(selectedOrganizationId);
+        console.error('Organization switch error:', error);
+        setSwitchError('An error occurred while switching organizations');
+      }
     },
     [
       selectOrganization,
-      setSelectedOrganization,
       selectedOrganizationId,
+      switchOrganization,
       onOrgSelect,
     ]
   );
@@ -122,17 +156,30 @@ export function OrganizationSwitcher({
   if (!currentOrg) return null;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <>
+      <OrgSwitchingOverlay
+        isOpen={isSwitching && !!switchingOrg}
+        organization={switchingOrg}
+        isError={!!switchError}
+        errorMessage={switchError}
+        onDismiss={() => {
+          setIsSwitching(false);
+          setSwitchingOrg(null);
+          setSwitchError(null);
+        }}
+      />
+      <Popover open={open} onOpenChange={setOpen}>
       {/* Trigger */}
       <PopoverTrigger asChild>
         <Button
           variant={compact ? 'outline2' : 'outline2'}
           size={compact ? 'icon' : 'lg'}
+          disabled={isSwitching}
           className={cn(
             'group ',
             compact
               ? 'rounded-full'
-              : 'flex w-full items-center justify-between gap-3 px-1.5 rounded-lg shadow-none hover:bg-muted/60',
+              : 'flex w-full items-center justify-between gap-3 px-1.5 rounded-lg shadow-none hover:bg-muted/60 disabled:opacity-50',
             className
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}
@@ -149,10 +196,13 @@ export function OrganizationSwitcher({
                       ? 'Personal Workspace'
                       : currentOrg.name}
                   </p>
-                  
                 </div>
               </div>
-              <ChevronsUpDown className="h-4 w-4 text-muted-foreground transition group-hover:opacity-80" />
+              {isSwitching ? (
+                <Loader2 className="h-4 w-4 animate-spin ml-auto text-muted-foreground" />
+              ) : (
+                <ChevronsUpDown className="h-4 w-4 text-muted-foreground transition group-hover:opacity-80" />
+              )}
             </>
           )}
         </Button>
@@ -191,12 +241,12 @@ export function OrganizationSwitcher({
                   role="option"
                   aria-selected={active}
                   onClick={() => handleSelect(org)}
+                  disabled={isSwitching}
                   variant='ghost'
                   className={cn(
                     'relative flex items-center gap-3 rounded-md w-full  text-start',
-                    'transition hover:bg-muted focus-visible:outline-none ',
+                    'transition hover:bg-muted focus-visible:outline-none disabled:opacity-50',
                     active && 'bg-muted'
-
                   )}
                 >
                   {active && (
@@ -222,6 +272,7 @@ export function OrganizationSwitcher({
           <Button
             size="xs"
             variant="secondary"
+            disabled={isSwitching}
             className="w-full"
             onClick={() => {
               setOpen(false);
@@ -233,12 +284,10 @@ export function OrganizationSwitcher({
 
           <Button
             variant="ghost"
-        
+            disabled={isSwitching}
             className={cn(
               'relative flex items-center gap-3 rounded-md w-full  text-start',
-              'transition hover:bg-muted focus-visible:outline-none justify-start',
-           
-
+              'transition hover:bg-muted focus-visible:outline-none justify-start disabled:opacity-50',
             )}
             onClick={() => {
               setOpen(false);
@@ -253,5 +302,6 @@ export function OrganizationSwitcher({
         </div>
       </PopoverContent>
     </Popover>
+    </>
   );
 }

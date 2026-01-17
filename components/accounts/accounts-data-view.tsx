@@ -12,7 +12,6 @@ import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
 import { AccountsFloatingToolbar } from './shared/accounts-floating-toolbar';
 import { EmptyState } from './shared/empty-state';
 import { AccountsDataTable } from './table-view/accounts-data-table';
-import { AccountsCardGrid } from './card-view/accounts-card-grid';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -278,32 +277,18 @@ export function AccountsDataView() {
     <div className="flex flex-col h-full space-y-3">
       {/* Main content - Full height scrollable */}
       <div className="flex-1 overflow-auto min-w-0 px-4">
-        {viewPreferences.accountsView === 'table' ? (
-          <AccountsDataTable
-            accounts={sortedAccounts}
-            selectedIds={selectedAccountIds}
-            onToggleSelect={handleToggleSelect}
-            onDelete={handleDeleteClick}
-            onDeactivate={handleDeactivate}
-            onReactivate={handleReactivate}
-            balanceVisible={viewPreferences.balanceVisible}
-            deletingAccountIds={deletingAccountIds}
-            isLoading={isLoading}
-            accountCount={allAccounts.length}
-          />
-        ) : (
-          <AccountsCardGrid
-            accounts={sortedAccounts}
-            selectedIds={selectedAccountIds}
-            onToggleSelect={handleToggleSelect}
-            onDelete={handleDeleteClick}
-            onDeactivate={handleDeactivate}
-            onReactivate={handleReactivate}
-            balanceVisible={viewPreferences.balanceVisible}
-            deletingAccountIds={deletingAccountIds}
-            isLoading={isLoading}
-          />
-        )}
+        <AccountsDataTable
+          accounts={sortedAccounts}
+          selectedIds={selectedAccountIds}
+          onToggleSelect={handleToggleSelect}
+          onDelete={handleDeleteClick}
+          onDeactivate={handleDeactivate}
+          onReactivate={handleReactivate}
+          balanceVisible={viewPreferences.balanceVisible}
+          deletingAccountIds={deletingAccountIds}
+          isLoading={isLoading}
+          accountCount={allAccounts.length}
+        />
       </div>
 
       {/* Floating toolbar */}

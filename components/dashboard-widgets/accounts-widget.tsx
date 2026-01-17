@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
-import { CardSkeleton } from '../ui/card-skeleton';
+import { WidgetSkeleton } from '../ui/widget-skeleton';
 import { SolarLibraryBoldDuotone } from '../icons/icons';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -61,7 +61,7 @@ function AccountsWidgetComponent() {
   }, [categoriesWithAccounts]);
 
   if (isLoading) {
-    return <CardSkeleton className="h-96" />;
+    return <WidgetSkeleton className="h-96" />;
   }
 
   const renderCategoryButton = (group: AccountGroup) => {
@@ -188,10 +188,10 @@ function AccountsWidgetComponent() {
         {/* Header */}
         <div className="flex items-center justify-between gap-2  pb-3  ">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-6 w-6 rounded-lg bg-blue-400/20 flex items-center justify-center flex-shrink-0">
-              <SolarLibraryBoldDuotone className="h-4 w-4 text-blue-600" />
+            <div className="h-7 w-7 rounded-sm bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+              <SolarLibraryBoldDuotone className="h-5 w-5 text-blue-600" />
             </div>
-            <h3 className="text-sm font-semibold text-foreground truncate">Account Categories</h3>
+            <h3 className="text-xs font-semibold text-foreground truncate">Account Categories</h3>
           </div>
           <Link href="/accounts" className="flex-shrink-0">
             <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
@@ -206,13 +206,13 @@ function AccountsWidgetComponent() {
           {categoriesWithAccounts.length === 0 ? (
             <div className="flex items-center justify-center h-full px-4">
               <div className="text-center space-y-3">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-muted/40 flex items-center justify-center">
+                <div className="w-12 h-12 mx-auto rounded-lg bg-muted flex items-center justify-center">
                   <SolarLibraryBoldDuotone className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-medium text-foreground">No accounts yet</p>
+                <p className="text-sm font-medium text-foreground">No accounts</p>
                 <p className="text-xs text-muted-foreground">Add your first account to get started</p>
                 <Link href="/accounts" className="inline-block mt-2">
-                  <Button size="sm" variant="outline" className="text-xs">
+                  <Button size="xs"   className="text-[11px]">
                     Add Account
                   </Button>
                 </Link>

@@ -32,7 +32,8 @@
       "Bash(drawer \")",
       "Bash(git diff:*)",
       "Skill(web-design-guidelines)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(timeout 15 npm run dev)"
     ],
     "deny": [],
     "ask": []

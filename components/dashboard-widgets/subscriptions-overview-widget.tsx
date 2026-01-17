@@ -1,17 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import {
-  CreditCard,
   Calendar,
   ArrowRight,
-  Clock,
-  Sparkles,
   Zap,
-  CheckCircle2,
-  TrendingDown
 } from 'lucide-react';
-import { useSubscriptions, useSubscriptionSummary } from '@/lib/queries';
+import { useSubscriptions } from '@/lib/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,14 +15,14 @@ import { getLogoUrl } from '@/lib/services/logo-service';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
-import { DuoIconsAlertOctagon, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarInboxInBoldDuotone } from '../icons/icons';
-import { Button } from '../ui/button';
-import { Card } from '../ui/card';
+import { SolarInboxInBoldDuotone } from '../icons/icons';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
-import { CardSkeleton } from '../ui/card-skeleton';
+import { WidgetSkeleton } from '../ui/widget-skeleton';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
-// Compact Subscription List Item
+// Subscription List Item
 function SubscriptionItem({ subscription }: { subscription: UserSubscription }) {
   const daysUntil = useMemo(() => {
     if (!subscription.nextBillingDate) return null;
@@ -56,7 +51,7 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
   return (
     <Link href={`/subscriptions/${subscription.id}`}>
       <div className={cn(
-        "group relative  flex items-center gap-2.5 p-2  transition-all duration-75",
+        "group relative flex items-center gap-2.5 p-2 rounded-lg transition-all duration-75",
         "hover:bg-muted/60 cursor-pointer",
         isDueToday && "bg-destructive/5 hover:bg-destructive/10",
         isUrgent && !isDueToday && "bg-orange-500/5 hover:bg-orange-500/10"
@@ -68,7 +63,7 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
               <AvatarImage
                 src={getLogoUrl(subscription.websiteUrl) || ""}
                 alt={subscription.name}
-                className="object-contain  bg-background rounded-full"
+                className="object-contain bg-background rounded-full"
               />
             ) : (
               <AvatarFallback className="bg-muted text-[10px] font-bold text-muted-foreground">
@@ -85,14 +80,9 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <h4 className="font-semibold text-sm truncate text-foreground">
-              {subscription.name}
-            </h4>
-            {subscription.status === 'TRIAL' && (
-              <Sparkles className="h-3 w-3 text-blue-500 flex-shrink-0" />
-            )}
-          </div>
+          <h4 className="font-semibold text-sm truncate text-foreground">
+            {subscription.name}
+          </h4>
           {subscription.nextBillingDate ? (
             <div className="flex items-center gap-1 text-xs">
               <Calendar className="h-2.5 w-2.5 text-muted-foreground flex-shrink-0" />
@@ -143,78 +133,57 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
 
 type TabType = 'upcoming' | 'active' | 'trial';
 
-export function SubscriptionsOverviewWidget() {
-  // Use the same hook as the subscriptions page (no custom filters)
+function SubscriptionsOverviewWidgetComponent() {
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions();
-
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const { isRefetching } = useOrganizationRefetchState();
 
-  // Get subscriptions array (handle both array and wrapped response)
   const allSubscriptions = useMemo(() => {
     if (!subscriptionsResponse) return [];
-    // If it's an array, use it directly
     if (Array.isArray(subscriptionsResponse)) {
       return subscriptionsResponse;
     }
-    // If it's a SubscriptionListResponse object with data property
     if (subscriptionsResponse.data && Array.isArray(subscriptionsResponse.data)) {
       return subscriptionsResponse.data;
     }
     return [];
   }, [subscriptionsResponse]);
 
-  // Get subscriptions to display based on active tab
   const subscriptionsToShow = useMemo(() => {
     if (!allSubscriptions || allSubscriptions.length === 0) return [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(today.getDate() + 7);
 
     if (activeTab === 'upcoming') {
-      // Show upcoming bills (next 7 days)
       const upcoming = allSubscriptions
         .filter((sub) => {
           if (sub.status !== 'ACTIVE' || !sub.nextBillingDate) return false;
-
           const billingDate = new Date(sub.nextBillingDate);
           billingDate.setHours(0, 0, 0, 0);
-
           return billingDate >= today && billingDate <= sevenDaysFromNow;
         })
-        .slice(0, 5);
+        .slice(0, 4);
 
-      // If no upcoming, show active instead
       if (upcoming.length === 0) {
-        return allSubscriptions
-          .filter(sub => sub.status === 'ACTIVE')
-          .slice(0, 5);
+        return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 4);
       }
-
       return upcoming;
     }
 
     if (activeTab === 'active') {
-      // Show all active subscriptions
-      return allSubscriptions
-        .filter(sub => sub.status === 'ACTIVE')
-        .slice(0, 5);
+      return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 4);
     }
 
     if (activeTab === 'trial') {
-      // Show trial subscriptions
-      return allSubscriptions
-        .filter(sub => sub.status === 'TRIAL')
-        .slice(0, 5);
+      return allSubscriptions.filter(sub => sub.status === 'TRIAL').slice(0, 4);
     }
 
     return [];
   }, [allSubscriptions, activeTab]);
 
-  // Calculate tab counts
   const tabCounts = useMemo(() => {
     if (!allSubscriptions || allSubscriptions.length === 0) {
       return { upcoming: 0, active: 0, trial: 0 };
@@ -237,213 +206,98 @@ export function SubscriptionsOverviewWidget() {
 
     return { upcoming: upcomingCount, active: activeCount, trial: trialCount };
   }, [allSubscriptions]);
- 
-  // Loading State
+
   if (subscriptionsLoading) {
-    return <CardSkeleton variant="list" itemsCount={4} />;
-  }
-
-  // Empty State
-  if (allSubscriptions.length === 0) {
-    return (
-      <Card className="relative rounded-xl border border-border lg:col-span-2">
-         <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2">
-       
-        
-          <div className="h-6 w-6 rounded-xl bg-violet-300  flex items-center justify-center">
-            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
-  
-       
-            
-         
-         
-        </div>
-        <Link href="/subscriptions">
-          <Button variant="outline" className="text-[11px] cursor-pointer  transition-colors  h-7" size='sm'>
-          Add Subscription
-            <ArrowRight className="h-3 w-3 " />
-          </Button>
-        </Link>
-      </div>
-
-       
-        <div className="py-6 text-center">
-          <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-muted/50 flex items-center justify-center">
-            <SolarInboxInBoldDuotone className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <p className="text-xs font-medium text-foreground mb-1">No subscriptions yet</p>
-          <p className="text-[10px] text-muted-foreground mb-3">
-            Track your subscriptions to manage spending
-          </p>
-     
-        </div>
-        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-      </Card>
-    );
-  }
-
-  const summary = {
-    total: allSubscriptions?.length,
-    active: allSubscriptions?.filter((s) => s.status === 'ACTIVE')?.length,
-    trial: allSubscriptions?.filter((s) => s.status === 'TRIAL')?.length,
-    cancelled: allSubscriptions?.filter((s) => s.status === 'CANCELLED')?.length,
-    totalMonthlySpend: allSubscriptions?.reduce((sum, s) => sum + s.monthlyEquivalent, 0),
-    totalYearlySpend: allSubscriptions?.reduce((sum, s) => sum + s?.yearlyEstimate, 0),
+    return <WidgetSkeleton variant="list" itemsCount={3} />;
   }
 
   return (
-    <Card className="relative  w-full flex flex-col border-border h-[450px] "  >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2">
-       
-        
-          <div className="h-6 w-6 rounded-xl bg-violet-300  flex items-center justify-center">
-            <SolarInboxInBoldDuotone className="h-4 w-4 text-violet-900" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground">Subscriptions</h3>
-  
-       
-            
-         
-         
-        </div>
-        <Link href="/subscriptions">
-          <Button variant="link" className="text-[11px] cursor-pointer  transition-colors  h-7" size='sm'>
-            View All
-            <ArrowRight className="h-3 w-3 " />
-          </Button>
-        </Link>
-      </div>
-
-      {/* Stats Grid */}
-    
-
-        
-                  {/* Monthly Spend */}
-                  <div className="mb-4  border-b border-border/50">
-                    <div className="text-xs text-muted-foreground mb-1">Total Monthly Spend</div>
-                    <div className="flex items-baseline gap-2">
-                    <CurrencyDisplay
-                          amountUSD={summary.totalMonthlySpend}
-                          variant="xl"
-                          className=" font-semibold "
-
-                        />
-                      <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                        <TrendingDown className="h-3 w-3" />
-                        <span>12% vs last month</span>
-                      </div>
-                    </div>
-            
-                  </div>
-
-                  {/* Tabs */}
-                  <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="mb-4">
-                    <TabsList variant="pill" size="sm" >
-                      <TabsTrigger value="upcoming" variant="pill" size="sm" className="flex-1">
-                        <SolarClockCircleBoldDuotone className="h-4 w-4" />
-                        <span>Upcoming</span>
-                        {tabCounts.upcoming > 0 && (
-                          <Badge variant="new" className="h-4 px-1 text-[10px] ">
-                            {tabCounts.upcoming}
-                          </Badge>
-                        )}
-                      </TabsTrigger>
-                      <TabsTrigger value="active" variant="pill" size="sm" className="flex-1">
-                        <SolarCheckCircleBoldDuotone className="h-4 w-4" />
-                        <span>Active</span>
-                        {tabCounts.active > 0 && (
-                          <Badge variant="new" className="h-4 px-1 text-[9px] ml-0.5">
-                            {tabCounts.active}
-                          </Badge>
-                        )}
-                      </TabsTrigger>
-                      <TabsTrigger value="trial" variant="pill" size="sm" className="flex-1">
-                        <DuoIconsAlertOctagon className="h-4 w-4" />
-                        <span>Trial</span>
-                        {tabCounts.trial > 0 && (
-                          <Badge variant="new" className="h-4 px-1 text-[9px] ml-0.5">
-                            {tabCounts.trial}
-                          </Badge>
-                        )}
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-
-
-    
-
-
-      {/* Subscriptions List */}
-      {subscriptionsToShow.length > 0 ? (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-1">
-              {activeTab === 'upcoming' && <Clock className="h-4 w-4 text-muted-foreground" />}
-              {activeTab === 'active' && <CheckCircle2 className="h-4 w-4 text-muted-foreground" />}
-              {activeTab === 'trial' && <Sparkles className="h-4 w-4 text-muted-foreground" />}
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                {activeTab === 'upcoming' && 'Upcoming Bills'}
-                {activeTab === 'active' && 'Active Subscriptions'}
-                {activeTab === 'trial' && 'Trial Subscriptions'}
-              </span>
-            </div>
-            <span className="text-[10px] text-muted-foreground">
-              {subscriptionsToShow.length} of {
-                activeTab === 'upcoming' ? tabCounts.upcoming :
-                activeTab === 'active' ? tabCounts.active :
-                tabCounts.trial
-              }
-            </span>
-          </div>
-
-          <div className="flex flex-col space-y-1 -mx-2">
-            {subscriptionsToShow.map((subscription) => (
-              <SubscriptionItem
-                key={subscription.id}
-                subscription={subscription}
-              />
-            ))}
-          </div>
-
-    
-        </div>
-      ) : (
-        <div className="p-4 rounded-lg bg-muted/30 border border-border text-center">
-          {activeTab === 'upcoming' && (
-            <>
-              <CheckCircle2 className="h-5 w-5 mx-auto mb-1.5 text-emerald-600 dark:text-emerald-400" />
-              <p className="text-[10px] font-medium text-foreground mb-0.5">All clear!</p>
-              <p className="text-[9px] text-muted-foreground">
-                No bills due in the next 7 days
-              </p>
-            </>
-          )}
-          {activeTab === 'active' && (
-            <>
-              <CreditCard className="h-5 w-5 mx-auto mb-1.5 text-muted-foreground" />
-              <p className="text-[10px] font-medium text-foreground mb-0.5">No active subscriptions</p>
-              <p className="text-[9px] text-muted-foreground">
-                Add subscriptions to start tracking
-              </p>
-            </>
-          )}
-          {activeTab === 'trial' && (
-            <>
-              <Sparkles className="h-5 w-5 mx-auto mb-1.5 text-muted-foreground" />
-              <p className="text-[10px] font-medium text-foreground mb-0.5">No trial subscriptions</p>
-              <p className="text-[9px] text-muted-foreground">
-                Start free trials to see them here
-              </p>
-            </>
-          )}
-        </div>
-      )}
+    <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-2 pb-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-7 w-7 rounded-sm bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+              <SolarInboxInBoldDuotone className="h-5 w-5 text-violet-600" />
+            </div>
+            <h3 className="text-xs font-semibold text-foreground truncate">Subscriptions</h3>
+          </div>
+          <Link href="/subscriptions" className="flex-shrink-0">
+            <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+              <span className="hidden sm:inline">View All</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          {allSubscriptions.length === 0 ? (
+            <div className="flex items-center justify-center h-full px-4">
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-lg bg-muted flex items-center justify-center">
+                  <SolarInboxInBoldDuotone className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-foreground">No subscriptions</p>
+                <p className="text-xs text-muted-foreground">Add your first subscription to get started</p>
+                <Link href="/subscriptions" className="inline-block mt-2">
+                  <Button size="xs" className="text-[11px]">
+                    Add Subscription
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Tabs */}
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="px-2">
+                <TabsList variant="pill" size="sm" className="w-full">
+                  <TabsTrigger value="upcoming" variant="pill" size="sm" className="flex-1">
+                    <span>Upcoming</span>
+                    {tabCounts.upcoming > 0 && (
+                      <Badge variant="new" className="h-4 px-1 text-[10px]">{tabCounts.upcoming}</Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="active" variant="pill" size="sm" className="flex-1">
+                    <span>Active</span>
+                    {tabCounts.active > 0 && (
+                      <Badge variant="new" className="h-4 px-1 text-[10px]">{tabCounts.active}</Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="trial" variant="pill" size="sm" className="flex-1">
+                    <span>Trial</span>
+                    {tabCounts.trial > 0 && (
+                      <Badge variant="new" className="h-4 px-1 text-[10px]">{tabCounts.trial}</Badge>
+                    )}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {/* Subscriptions List */}
+              {subscriptionsToShow.length > 0 ? (
+                <div className="space-y-1.5 px-2">
+                  {subscriptionsToShow.map((subscription) => (
+                    <SubscriptionItem
+                      key={subscription.id}
+                      subscription={subscription}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-foreground">No subscriptions in this category</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </Card>
   );
 }
+
+export const SubscriptionsOverviewWidget = memo(SubscriptionsOverviewWidgetComponent);

@@ -1,14 +1,17 @@
 'use client';
 
 import { useMemo, useState, useCallback, memo } from 'react';
-import { ShoppingBag, Utensils, Home, Car, Zap, Wallet } from 'lucide-react';
+import { ShoppingBag, Utensils, Home, Car, Zap, Wallet, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { useTopSpendingCategories } from '@/lib/queries/banking-queries';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { Badge } from '../ui/badge';
 import { TimePeriodSelector, TimePeriod } from '../ui/time-period-selector';
 import { CurrencyDisplay } from '../ui/currency-display';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
-import { CardSkeleton } from '../ui/card-skeleton';
+import { WidgetSkeleton } from '../ui/widget-skeleton';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import type { LucideIcon } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -119,43 +122,67 @@ function SpendingCategoriesWidgetComponent() {
 
   // Show skeleton when initially loading
   if (spendingCategoriesLoading) {
-    return <CardSkeleton variant="chart" />;
+    return <WidgetSkeleton variant="chart" />;
   }
 
   if (categoryData.length === 0) {
     return (
-      <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
-          <TimePeriodSelector
-            value={period}
-            onChange={handlePeriodChange}
-            size="xs"
-            variant="ghost"
-          />
+      <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
+        <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex items-center justify-between gap-2 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-7 w-7 rounded-sm bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <ShoppingBag className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="text-xs font-semibold text-foreground truncate">Spending Categories</h3>
+            </div>
+            <Link href="/accounts" className="flex-shrink-0">
+              <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+                <span className="hidden sm:inline">View All</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden flex items-center justify-center">
+            <div className="py-12 text-center">
+              <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+              <p className="text-xs text-muted-foreground">
+                No spending data available.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="relative py-12 text-center">
-          <Wallet className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-xs text-muted-foreground">
-            No spending data available.
-          </p>
-          <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-        </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="relative rounded-xl border border-border bg-background dark:bg-card p-3 shadow-xs dark:shadow-none h-full w-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-medium text-muted-foreground">Spending categories</h3>
-        <TimePeriodSelector
-          value={period}
-          onChange={setPeriod}
-          size="xs"
-          variant="ghost"
-        />
-      </div>
+    <Card className="relative w-full flex flex-col border-border h-[450px] overflow-hidden">
+      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex items-center justify-between gap-2 pb-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-7 w-7 rounded-sm bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+              <ShoppingBag className="h-5 w-5 text-emerald-600" />
+            </div>
+            <h3 className="text-xs font-semibold text-foreground truncate">Spending Categories</h3>
+          </div>
+          <Link href="/accounts" className="flex-shrink-0">
+            <Button variant="link" className="text-xs cursor-pointer transition-colors h-7 px-1.5 hover:text-primary" size="sm">
+              <span className="hidden sm:inline">View All</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <TimePeriodSelector
+            value={period}
+            onChange={setPeriod}
+            size="xs"
+            variant="ghost"
+          />
 
       {/* Modern Donut Chart */}
       <div className="flex flex-col items-center mb-4">
@@ -275,61 +302,62 @@ function SpendingCategoriesWidgetComponent() {
       </div>
 
 
-      {/* Other Categories - Compact Grid */}
-      {otherCategories.length > 0 && (
-        <div className=" grid grid-cols-2 gap-2">
-          {otherCategories.map((category) => {
-            const Icon = category.icon;
-            const isHovered = hoveredCategory === category.category;
+          {/* Other Categories - Compact Grid */}
+          {otherCategories.length > 0 && (
+            <div className=" grid grid-cols-2 gap-2">
+              {otherCategories.map((category) => {
+                const Icon = category.icon;
+                const isHovered = hoveredCategory === category.category;
 
-            return (
-              <div
-                key={category.category}
-                className={`group relative  items-center gap-2 p-2 rounded-lg border transition-all duration-75 cursor-pointer ${
-                  isHovered
-                    ? 'bg-muted/80 border-border shadow-sm'
-                    : 'bg-muted/60 border-border/40 hover:border-border hover:bg-card/70'
-                }`}
-                onMouseEnter={() => setHoveredCategory(category.category)}
-                onMouseLeave={() => setHoveredCategory(null)}
-              >
-             
+                return (
+                  <div
+                    key={category.category}
+                    className={`group relative  items-center gap-2 p-2 rounded-lg border transition-all duration-75 cursor-pointer ${
+                      isHovered
+                        ? 'bg-muted/80 border-border shadow-sm'
+                        : 'bg-muted/60 border-border/40 hover:border-border hover:bg-card/70'
+                    }`}
+                    onMouseEnter={() => setHoveredCategory(category.category)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                  >
+
 <div className='flex items-center gap-2'>
-                {/* Icon */}
-                <div className={`w-7 h-7 rounded-md flex items-center justify-center ${category.color.bg} shadow-sm transition-transform duration-75`}>
-                  <Icon className="h-4 w-4 text-white" />
-                </div>
+                    {/* Icon */}
+                    <div className={`w-7 h-7 rounded-md flex items-center justify-center ${category.color.bg} shadow-sm transition-transform duration-75`}>
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-[11px] font-semibold text-foreground capitalize truncate">
-                      {category.category}
-                    </span>
-                
-                  </div>
-                   {/* Amount */}
-                <div className="text-xs font-bold text-muted-foreground shrink-0">
-                  <CurrencyDisplay
-                    amountUSD={category.amount}
-                    variant="compact"
-                    className="inline"
-                    formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-                  />     <Badge variant="outline" size="sm" className="text-[10px] h-3.5 ml-1 px-1 font-semibold shrink-0">
-                      {formatPercentage(category.percentage)}
-                    </Badge>
-                </div>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[11px] font-semibold text-foreground capitalize truncate">
+                          {category.category}
+                        </span>
 
-                </div>
+                      </div>
+                       {/* Amount */}
+                    <div className="text-xs font-bold text-muted-foreground shrink-0">
+                      <CurrencyDisplay
+                        amountUSD={category.amount}
+                        variant="compact"
+                        className="inline"
+                        formatOptions={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+                      />     <Badge variant="outline" size="sm" className="text-[10px] h-3.5 ml-1 px-1 font-semibold shrink-0">
+                        {formatPercentage(category.percentage)}
+                      </Badge>
+                    </div>
+
+                    </div>
 </div>
-               
-              </div>
-            );
-          })}
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
-      <RefetchLoadingOverlay isLoading={isRefetching} label="Updating..." />
-    </div>
+      </div>
+    </Card>
   );
 }
 

@@ -47,7 +47,7 @@ import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { useBankingAccounts, useCryptoWallets } from "@/lib/queries"
+import { useOrganizationBankingAccounts, useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context"
 import { useCreateGoal, useUpdateGoal } from "@/lib/queries/use-goal-data"
 import { useToast } from '@/lib/hooks/useToast'
 import type {
@@ -208,8 +208,8 @@ export function CreateGoalDialog({
   const [milestones, setMilestones] = React.useState<Milestone[]>([])
   const [currentTag, setCurrentTag] = React.useState("")
   const [currentStep, setCurrentStep] = React.useState(0)
-  const { data: bankAccounts = [] } = useBankingAccounts()
-  const { data: cryptoWallets = [] } = useCryptoWallets()
+  const { data: bankAccounts = [] } = useOrganizationBankingAccounts()
+  const { data: cryptoWallets = [] } = useOrganizationCryptoWallets()
   const isEditing = !!goal
 
   // TanStack Query mutations

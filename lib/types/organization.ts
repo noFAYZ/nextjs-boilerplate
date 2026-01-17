@@ -15,6 +15,7 @@ export interface Organization {
   ownerId: string;
   isActive: boolean;
   isPersonal: boolean;
+  memberCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,11 +34,13 @@ export interface Invitation {
   id: string;
   email: string;
   role: OrganizationRole;
-  status: 'PENDING' | 'ACCEPTED';
-  code: string;
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'REVOKED' | 'CANCELLED';
+  code?: string;
   emailToken?: string;
   expiresAt: string;
+  acceptedAt?: string;
   createdAt: string;
+  invitedBy?: string;
   organizationId?: string;
   organization?: {
     id: string;

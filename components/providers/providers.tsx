@@ -15,6 +15,7 @@ import { CurrencyProvider } from "@/lib/contexts/currency-context";
 import { GlobalErrorHandler } from "./global-error-handler";
 import { OrganizationModalsProvider } from "./organization-modals-provider";
 import { OrganizationDataSyncProvider } from "./organization-data-sync-provider";
+import { OrganizationQuerySyncProvider } from "./organization-query-sync-provider";
 import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
 import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-overlay";
 import { RealtimeSyncProvider } from "./realtime-sync-provider";
@@ -54,7 +55,8 @@ export default function Providers({ children }: { children: ReactNode }) {
               <CurrencyProvider defaultCurrency="USD">
                 <StoreProvider>
                 <RealtimeSyncProvider>
-                 
+                  {/* Automatic query invalidation on organization change */}
+                  <OrganizationQuerySyncProvider />
                   <OrganizationDataSyncProvider />
                   <GlobalRefetchOverlay />
                   <ViewModeProvider>
