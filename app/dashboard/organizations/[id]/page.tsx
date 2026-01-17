@@ -149,6 +149,9 @@ function InvitationRow({ invitation }: { invitation: Record<string, unknown> }) 
 function OrganizationContent({ organizationId }: { organizationId: string }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('MEMBER');
 
   const { data: organization, isLoading: isLoadingOrg } = useOrganization(organizationId);
   const { data: members = [] } = useOrganizationMembers(organizationId);
@@ -176,6 +179,17 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
       console.log('Remove member:', memberId);
     }
   }, []);
+
+  const handleSendInvite = useCallback(() => {
+    if (!inviteEmail.trim()) {
+      alert('Please enter an email address');
+      return;
+    }
+    console.log('Invite member:', { email: inviteEmail, role: inviteRole, organizationId });
+    setInviteEmail('');
+    setInviteRole('MEMBER');
+    setShowInviteModal(false);
+  }, [inviteEmail, inviteRole, organizationId]);
 
   const handleDeleteOrg = useCallback(() => {
     if (confirm(`Permanently delete "${organization?.name}"? This cannot be undone.`)) {
@@ -276,9 +290,15 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
                   {members.length} member{members.length !== 1 ? 's' : ''} in this organization
                 </p>
               </div>
-              <Button size="sm" disabled variant="outline" className="gap-1.5">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setShowInviteModal(true)}
+                disabled={!isOwner}
+              >
                 <Plus className="h-4 w-4" />
-                Add Member
+                Invite Member
               </Button>
             </div>
 
@@ -409,6 +429,64 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
           </Card>
         </div>
       </div>
+
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md p-6 space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold">Invite Member</h2>
+              <p className="text-xs text-muted-foreground mt-1">Send an invitation to join this organization</p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium">Email Address *</label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="member@example.com"
+                  className="w-full px-3 py-2 text-sm rounded-md bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium">Role</label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-md bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1"
+                >
+                  <option value="MEMBER">Member</option>
+                  <option value="EDITOR">Editor</option>
+                  <option value="VIEWER">Viewer</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setShowInviteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="flex-1"
+                onClick={handleSendInvite}
+              >
+                Send Invite
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
