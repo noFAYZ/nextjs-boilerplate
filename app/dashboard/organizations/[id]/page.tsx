@@ -249,21 +249,21 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
         {/* Left Column - Overview */}
         <div className="lg:col-span-2 space-y-6">
           {/* Quick Stats */}
-          <div className="grid gap-4 grid-cols-3">
-            <Card className="p-4 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-sm text-muted-foreground font-medium mb-2">Members</div>
-              <div className="text-3xl font-bold">{members.length}</div>
-              <p className="text-xs text-muted-foreground mt-2">{ownerCount} owner{ownerCount !== 1 ? 's' : ''}</p>
+          <div className="grid gap-3 grid-cols-3">
+            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
+              <div className="text-xs text-muted-foreground font-medium mb-1">Members</div>
+              <div className="text-2xl font-bold">{members.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">{ownerCount} owner{ownerCount !== 1 ? 's' : ''}</p>
             </Card>
-            <Card className="p-4 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-sm text-muted-foreground font-medium mb-2">Pending</div>
-              <div className="text-3xl font-bold">{pending.length}</div>
-              <p className="text-xs text-muted-foreground mt-2">Awaiting response</p>
+            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
+              <div className="text-xs text-muted-foreground font-medium mb-1">Pending</div>
+              <div className="text-2xl font-bold">{pending.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Awaiting response</p>
             </Card>
-            <Card className="p-4 bg-card hover:shadow-sm transition-shadow">
-              <div className="text-sm text-muted-foreground font-medium mb-2">Created</div>
-              <div className="text-lg font-bold">{new Date(organization.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-              <p className="text-xs text-muted-foreground mt-2">{new Date(organization.createdAt).getFullYear()}</p>
+            <Card className="p-3 bg-card hover:shadow-sm transition-shadow">
+              <div className="text-xs text-muted-foreground font-medium mb-1">Created</div>
+              <div className="text-sm font-bold">{new Date(organization.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+              <p className="text-xs text-muted-foreground mt-1">{new Date(organization.createdAt).getFullYear()}</p>
             </Card>
           </div>
 
