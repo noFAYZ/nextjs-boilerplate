@@ -41,7 +41,8 @@ import { CSRFProvider } from "./csrf-provider";
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary>
-      <PostHogProvider>
+      <GlobalErrorHandler>
+        <PostHogProvider>
         <AuthProvider>
           <LoadingProvider>
           <QueryProvider>
@@ -77,7 +78,8 @@ export default function Providers({ children }: { children: ReactNode }) {
           </QueryProvider>
         </LoadingProvider>
         </AuthProvider>
-      </PostHogProvider>
+        </PostHogProvider>
+      </GlobalErrorHandler>
     </ErrorBoundary>
   )
 }
