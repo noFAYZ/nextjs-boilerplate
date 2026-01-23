@@ -22,7 +22,9 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
       : 0
 
   return (
-    <Card className="border-border/80 border-b-0 rounded-none hover:shadow-xs p-0">
+    <Card className="border-none rounded-none shadow-none p-0">
+
+       
       <div className="p-3 "  >
         <div className="flex flex-col gap-4">
           {/* TOP ROW: Identity & Balance */}
@@ -201,9 +203,9 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
 
         
       </div>
-      <Separator className="bg-border/50" />
-      {/* <NetWorthChart mode='demo'  height={200} className='border-0 shadow-none'/> */}
-      <AccountBalanceChart accountId={account.id} balanceVisible={true} />
+ <AccountBalanceChart accountId={account.id} balanceVisible={true} />
+      {/*  <NetWorthChart mode='demo'  height={200} className='border-0 shadow-none' compact/>*/}
+     
     </Card>
   )
 }

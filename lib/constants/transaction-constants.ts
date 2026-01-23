@@ -56,23 +56,23 @@ export const TYPE_COLORS = {
  */
 export const TYPE_BG_COLORS = {
   // Money Out
-  SEND: 'bg-rose-400 dark:bg-red-300',
-  WITHDRAWAL: 'bg-rose-400 dark:bg-red-300',
-  CARD_PAYMENT: 'bg-rose-400 dark:bg-red-300',
-  ATM: 'bg-rose-400 dark:bg-red-300',
-  PAYMENT: 'bg-rose-400 dark:bg-red-300',
-  DIGITAL_PAYMENT: 'bg-rose-400 dark:bg-red-300',
-  EXPENSE: 'bg-rose-400 dark:bg-red-300',
+  SEND: 'bg-rose-200 dark:bg-red-200',
+  WITHDRAWAL: 'bg-rose-200 dark:bg-red-200',
+  CARD_PAYMENT: 'bg-rose-200 dark:bg-red-200',
+  ATM: 'bg-rose-200 dark:bg-red-200',
+  PAYMENT: 'bg-rose-200 dark:bg-red-200',
+  DIGITAL_PAYMENT: 'bg-rose-200 dark:bg-red-200',
+  EXPENSE: 'bg-rose-200 dark:bg-red-200',
 
   // Money In
-  RECEIVE: 'bg-lime-300 dark:bg-lime-300',
-  DEPOSIT: 'bg-lime-300 dark:bg-lime-300',
-  INCOME: 'bg-lime-300 dark:bg-lime-300',
+  RECEIVE: 'bg-lime-300 dark:bg-lime-400',
+  DEPOSIT: 'bg-lime-300 dark:bg-lime-400',
+  INCOME: 'bg-lime-300 dark:bg-lime-400',
 
   // Transfers / Neutral
-  SWAP: 'bg-blue-300 dark:bg-blue-300',
-  TRANSFER: 'bg-blue-300 dark:bg-blue-300',
-  ACH: 'bg-blue-300 dark:bg-blue-300',
+  SWAP: 'bg-blue-300 dark:bg-blue-400',
+  TRANSFER: 'bg-blue-300 dark:bg-blue-400',
+  ACH: 'bg-blue-300 dark:bg-blue-400',
 
   // Default
   DEFAULT: 'bg-muted',

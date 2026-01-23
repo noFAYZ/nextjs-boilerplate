@@ -228,7 +228,7 @@ const CustomNetWorthDot = ({ cx, cy, fill }: CustomDotProps) => {
                   <Area
                     type="linear"
                     dataKey="value"
-                    stroke="var(--chart-primary)"
+                    stroke="var(--chart-1)"
                     strokeWidth={3}
                     fill="url(#networthGradient)"
                     aria-label="Net worth area"

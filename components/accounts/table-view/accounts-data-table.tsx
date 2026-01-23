@@ -47,6 +47,7 @@ import {
 } from '@/lib/utils/account-helpers';
 import { MdiPen, HeroiconsWallet, MdiDollar } from '@/components/icons/icons';
 import type { UnifiedAccount } from '@/lib/types';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 
 interface AccountsDataTableProps {
   accounts: UnifiedAccount[];
@@ -139,8 +140,8 @@ const AccountTableRow = memo(function AccountTableRow({
   return (
     <TableRow
       className={cn(
-        'group border-b border-border/30 py-2 hover:bg-muted/30 transition-colors duration-150',
-        isSelected && 'bg-primary/5'
+        'group border-b border-border/30 py-2 hover:bg-secondary/30 transition-colors duration-75',
+        isSelected && 'bg-secondary/60'
       )}
     >
       <TableCell className="px-2 sm:px-4 py-3 w-10" onClick={(e) => e.stopPropagation()}>
@@ -245,14 +246,13 @@ const AccountTableRow = memo(function AccountTableRow({
       </TableCell>
 
       <TableCell className="hidden lg:table-cell px-4 py-3 text-right">
-        <span className={cn('text-sm font-medium', account.balance < 0 && 'text-destructive')}>
-          {formattedBalance}
-        </span>
+        
+        <CurrencyDisplay amountUSD={account?.balance} className='font-semibold' />
       </TableCell>
 
       <TableCell className="hidden xl:table-cell px-4 py-3 text-right">
         <Badge variant={account.isActive ? 'success' : 'secondary'} className="gap-1.5">
-          <div className={cn('h-1.5 w-1.5 rounded-full', account.isActive ? 'bg-green-500' : 'bg-gray-500')} />
+         
           <span className="text-xs">{account.isActive ? 'Active' : 'Inactive'}</span>
         </Badge>
       </TableCell>
@@ -494,9 +494,9 @@ export function AccountsDataTable({
   return (
     <div className="space-y-3">
       {/* Data Table */}
-      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-lg" role="region" aria-label="Accounts data table">
+      <div className=" border rounded-3xl overflow-x-auto" role="region" aria-label="Accounts data table">
         <Table aria-label="Accounts list">
-          <TableHeader className="bg-muted/80 border-b border-border/50">
+          <TableHeader className="bg-muted border-b border-border/80">
             {/* Search & Filters Row - Spans all columns */}
             <TableRow className="hover:bg-transparent border-none">
               <TableCell colSpan={7} className="px-4 sm:px-5 py-4 border-b border-border/50">

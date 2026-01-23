@@ -21,12 +21,10 @@ function ManageTabComponent() {
   }, [accountsData]);
 
   return (
-    <div className="flex flex-col h-full space-y-4">
-      {/* Main Accounts Data View */}
-      <section className="flex-1 overflow-hidden min-w-0">
+ 
         <AccountsDataView />
-      </section>
-    </div>
+  
+ 
   );
 }
 

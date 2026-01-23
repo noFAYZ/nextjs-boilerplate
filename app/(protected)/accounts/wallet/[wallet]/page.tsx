@@ -207,7 +207,7 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   };
 
-  const { mutate: syncWallet } = useOrganizationSyncCryptoWallet();
+  const syncWallet = useOrganizationSyncCryptoWallet();
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 

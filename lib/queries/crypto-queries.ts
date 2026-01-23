@@ -321,7 +321,6 @@ export const cryptoMutations = {
   // Wallet mutations
   useCreateWallet: () => {
     const queryClient = useQueryClient();
-    const { addWallet } = useCryptoStore();
 
     return useMutation({
       mutationKey: ['createWallet'],
@@ -371,8 +370,6 @@ export const cryptoMutations = {
       },
       onSuccess: (response) => {
         if (response.success) {
-          // Update Zustand store
-          addWallet(response.data);
           // Background invalidation will refetch updated data
           invalidateByDependency(queryClient, 'crypto:createWallet');
         }
@@ -382,7 +379,6 @@ export const cryptoMutations = {
 
   useUpdateWallet: () => {
     const queryClient = useQueryClient();
-    const { updateWallet } = useCryptoStore();
 
     return useMutation({
       mutationKey: ['updateWallet'],
@@ -434,8 +430,6 @@ export const cryptoMutations = {
       },
       onSuccess: (response, variables) => {
         if (response.success) {
-          // Update Zustand store
-          updateWallet(variables.id, response.data);
           // Background invalidation will refetch updated data
           invalidateByDependency(queryClient, 'crypto:updateWallet');
         }
@@ -445,7 +439,6 @@ export const cryptoMutations = {
 
   useDeleteWallet: () => {
     const queryClient = useQueryClient();
-    const { removeWallet } = useCryptoStore();
 
     return useMutation({
       mutationKey: ['deleteWallet'],
@@ -489,8 +482,6 @@ export const cryptoMutations = {
       },
       onSuccess: (response, walletId) => {
         if (response.success) {
-          // Update Zustand store
-          removeWallet(walletId);
           // Background invalidation will refetch updated data
           invalidateByDependency(queryClient, 'crypto:deleteWallet');
         }

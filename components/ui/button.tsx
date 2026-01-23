@@ -41,7 +41,7 @@ const buttonVariants = cva(
           outlinemuted2:"  hover:border    hover:bg-muted  hover:text-accent-foreground  shadow-none   ",
           outlinepressed:
           "border-2 border-border bg-gray-50 dark:bg-[#3E3C3C] text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-mdhover:shadow-md  border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)]  shadow-[0_2px_0_0_rgb(254,215,170)]  translate-y-[2px] active:shadow-none translate-y-[4px] transition-all duration-100  dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
-      outline2:"border border-border/80  bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow   "
+      outline2:"border border-border  bg-card      hover:bg-muted  hover:text-accent-foreground  shadow   "
 ,
 outlinebrand:" bg-muted      hover:bg-muted/80  hover:text-accent-foreground  shadow-xs   ",
 outlinecard:" bg-muted dark:bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow-xs   ",

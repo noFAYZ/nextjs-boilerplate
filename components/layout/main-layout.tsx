@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Header } from './header';
-import { SidebarLayout } from '@/components/sidebar';
+import { SidebarLayoutV2 } from '@/components/sidebar-v2';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { useUnifiedAutoSync } from '@/lib/hooks/use-unified-auto-sync';
 import { AddMenuDialog } from '@/components/ui/add-menu-dialog';
@@ -54,9 +54,9 @@ export function MainLayout({
       {shouldShowHeader && <Header />}
 
       <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))]" : "h-screen"}>
-        <SidebarLayout showHeader={showHeader}>
+        <SidebarLayoutV2 showHeader={showHeader}>
           {children}
-        </SidebarLayout>
+        </SidebarLayoutV2>
       </div>
 
       <AddMenuDialog />

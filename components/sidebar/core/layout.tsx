@@ -92,7 +92,7 @@ export function SidebarLayout({
     </div>
   )} */}
 
-<div className="flex-1   ">
+<div className="flex-1   container mx-auto">
 {showHeader && (
     <div className="w-full">
       <MainHeader
@@ -105,7 +105,7 @@ export function SidebarLayout({
     </div>
   )}
 
-          <div className="  mx-auto p-3 md:p-6">{children}</div>
+          <div className="   p-3 md:p-6">{children}</div>
         </div>
 </main>
 

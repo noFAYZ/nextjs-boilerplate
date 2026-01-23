@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -18,33 +11,29 @@ import {
   ArrowLeft,
   RefreshCw,
   Trash2,
-  DollarSign,
   Search,
-  ArrowUpRight,
-  Loader2,
-  Download,
-  Settings,
   LayoutGrid,
   List,
   Paperclip,
+  Download,
+  Settings,
+  Loader2,
+  ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-
 import {
   filterTransactions,
   sortTransactions,
   calculateTransactionAnalytics,
   getBalanceColor,
 } from "@/lib/utils";
+import { useCategoriesMap } from "@/lib/hooks/use-categories-map";
+import { useMerchantsMap } from "@/lib/hooks/use-merchants-map";
+import { TransactionCardList } from "@/components/transactions/card-view";
 
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  categoryIcons,
-  type Category,
-} from "@/lib/constants/transaction-categories";
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import {
   useCurrencyFormat,
@@ -52,25 +41,13 @@ import {
 } from "@/lib/contexts/currency-context";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import {
-  HugeiconsCreditCard,
   LetsIconsCreditCardDuotone,
-  MageCaretDownFill,
   MdiDollar,
   SolarBillListBoldDuotone,
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
 } from "@/components/icons/icons";
-import { LetsIconsSettingLineDuotone } from "@/components/icons";
-import { useViewModeClasses } from "@/lib/contexts/view-mode-context";
 import { useAccountsUIStore } from "@/lib/stores/accounts-ui-store";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { AccountHeader } from "@/components/accounts/AccountHeader";
 import { TransactionsDataTable } from "@/components/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
@@ -79,8 +56,10 @@ import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-acc
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
 import { useProviderConnections, useSyncConnection } from "@/lib/queries/banking-queries";
-import { AccountBalanceChart } from "@/components/accounts/account-balance-chart";
-import { TransactionAttachments, DuplicateDetectionBanner, TransactionNotesEditor, TransactionTagsManager } from "@/app/(protected)/accounts/components";
+import { TransactionAttachments, DuplicateDetectionBanner } from "@/app/(protected)/accounts/components";
+import { useMerchants, useTransactionCategories } from "@/lib/queries/use-transactions-data";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -152,7 +131,7 @@ export default function UnifiedAccountDetailsPage() {
     showModal: false,
     isSyncing: false,
   });
-  const { pageClass } = useViewModeClasses();
+ 
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
 
   // Currency context
@@ -181,6 +160,18 @@ export default function UnifiedAccountDetailsPage() {
     isLoading: isLoadingConnections,
   } = useProviderConnections();
 
+  // Fetch merchants for logo display
+  const {
+    data: merchantsResponse,
+    isLoading: isLoadingMerchants,
+  } = useMerchants();
+
+  // Fetch categories for display
+  const {
+    data: categoriesResponse,
+    isLoading: isLoadingCategories,
+  } = useTransactionCategories();
+
   // Sync connection mutation
   const { mutate: syncMutation, isPending: isSyncMutationPending } = useSyncConnection();
 
@@ -188,6 +179,11 @@ export default function UnifiedAccountDetailsPage() {
   const transactionsData = Array.isArray(transactionsResponse)
     ? transactionsResponse
     : (transactionsResponse?.data || []);
+
+  // Transform categories and merchants to Maps for O(1) lookups
+  // using custom hooks with memoization
+  const categoriesMap = useCategoriesMap(categoriesResponse);
+  const merchantsMap = useMerchantsMap(merchantsResponse);
 
   // Transform unified transactions to match the filter/analytics function interface
   const transactions = useMemo(() => {
@@ -526,7 +522,7 @@ export default function UnifiedAccountDetailsPage() {
 
   return (
     <div className={`  mx-auto space-y-3`}>
-      <div className="flex items-center justify-end">
+    {/*   <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
             <Button
@@ -566,7 +562,7 @@ export default function UnifiedAccountDetailsPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
 <div className="grid grid-cols-12 gap-4  w-full">
 
 <div className="col-span-8">
@@ -643,108 +639,13 @@ export default function UnifiedAccountDetailsPage() {
 
           {/* Card View */}
           {ui.transactionView === "table" && filteredTransactions.length > 0 ? (
-            <div className="space-y-1.5">
-              {filteredTransactions.slice(0, 20).map((transaction) => {
-                // Determine if income based on type field first, then amount
-                let isIncome = false;
-                if (transaction.type && typeof transaction.type === 'string') {
-                  isIncome = transaction.type === 'INCOME' || transaction.type === 'DEPOSIT';
-                } else {
-                  isIncome = parseFloat(transaction.amount.toString()) > 0;
-                }
-
-                const categoryConfig =
-                  categoryIcons[transaction.category as Category] ||
-                  categoryIcons.general;
-                const Icon = categoryConfig.icon;
-
-                return (
-                  <Card
-                    key={transaction.id}
-                    interactive
-                    className="shadow-xs border-border/50 cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleRowClick(transaction as UnifiedTransaction)}
-                  >
-                    <div className="flex items-center gap-4">
-                      {/* Category Icon */}
-                      <div
-                        className={cn(
-                          "h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
-                          transaction.category
-                            ? categoryConfig.gradient
-                            : "bg-muted"
-                        )}
-                      >
-                        <Icon
-                          className={cn(
-                            "h-8 w-8",
-                            transaction.category
-                              ? "text-foreground"
-                              : isIncome
-                              ? "text-green-600"
-                              : "text-red-600"
-                          )}
-                        />
-                      </div>
-
-                      {/* Transaction Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm truncate">
-                              {transaction.description || "Transaction"}
-                            </h4>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                              <span>
-                                {format(
-                                  new Date(transaction.date),
-                                  "MMM d, yyyy"
-                                )}
-                              </span>
-                              <Separator
-                                orientation="vertical"
-                                className="h-3"
-                              />
-                              <Badge
-                                variant="secondary"
-                                className="text-xs capitalize"
-                              >
-                                {transaction.category || "General"}
-                              </Badge>
-                            </div>
-                          </div>
-
-                          {/* Amount */}
-                          <div className="text-right">
-                            <div
-                              className={cn(
-                                "font-bold text-base",
-                                isIncome
-                                  ? "text-lime-700 dark:text-lime-500"
-                                  : "text-red-700 dark:text-rose-500"
-                              )}
-                            >
-                              {isIncome ? "+" : "-"}
-                              <CurrencyDisplay
-                                amountUSD={Math.abs(
-                                  parseFloat(transaction.amount.toString())
-                                )}
-                                className="inline text-base font-semibold"
-
-                                formatOptions={{
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+            <TransactionCardList
+              transactions={filteredTransactions}
+              categoriesMap={categoriesMap}
+              merchantsMap={merchantsMap}
+              onRowClick={handleRowClick}
+              maxCards={20}
+            />
           ) : ui.transactionView === "table" ? (
             <Card variant="outlined" className="p-12">
               <div className="text-center">
@@ -960,19 +861,14 @@ export default function UnifiedAccountDetailsPage() {
 <div className="col-span-4 space-y-3 ">
       <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent}  />
      {/*  <AccountBalanceChart accountId={accountId} balanceVisible={balanceVisible} /> */}
-      <Card variant="outlined">
-              <CardHeader className="p-4">
-                <CardTitle className="text-base">Account Actions</CardTitle>
-                <CardDescription className="text-xs">
-                  Manage your account
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-2 pt-0 space-y-2">
-                <div className="grid grid-cols-2 gap-2">
+
+       
+           
+                <div className="grid grid-cols-2 justify-center gap-1">
                   <Button
                     variant="outline2"
                     size="xs"
-                    className=" gap-2"
+                    className="rounded-sm shadow-xs gap-2"
                   >
                     <ArrowUpRight className="h-4 w-4" />
                     Transfer
@@ -980,7 +876,7 @@ export default function UnifiedAccountDetailsPage() {
                   <Button
                     variant="outline2"
                     size="xs"
-                    className="   gap-2"
+                    className=" rounded-sm shadow-xs  gap-2"
                   >
                     <Download className="h-4 w-4" />
                     Export 
@@ -988,24 +884,23 @@ export default function UnifiedAccountDetailsPage() {
                   <Button
                     variant="outline2"
                     size="xs"
-                    className="   gap-2"
+                    className=" rounded-sm shadow-xs  gap-2"
                   >
                     <Settings className="h-4 w-4" />
                     Settings 
                   </Button>
-                  
-                </div><Separator />
-                  <Button
-                    variant="delete"
+                     <Button
+                    variant="destructive"
                     size="xs"
-                    className="w-full  gap-2 "
+                    className=" rounded-sm    gap-2 "
                     onClick={handleDisconnect}
                   >
                     <Trash2 className="h-4 w-4" />
                     Disconnect
                   </Button>
-              </CardContent>
-            </Card>
+                </div>
+               
+     
 
       
        </div>

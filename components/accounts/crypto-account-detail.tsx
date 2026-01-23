@@ -60,7 +60,7 @@ interface CryptoAccountDetailProps {
 }
 
 export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
-  const { success, error: showError } = useToast();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('tokens');
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -108,12 +108,12 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
     ) {
       setTimeout(() => {
         refetch();
-        success('Wallet data updated!');
+        toast({ title: 'Wallet data updated!', variant: 'success' });
       }, 1000);
     }
 
     prevSyncStatusRef.current = currentStatus;
-  }, [walletSyncState?.status, refetch]);
+  }, [walletSyncState?.status, refetch, toast]);
 
   // Memoize stats
   const walletStats = useMemo(() => {
@@ -133,11 +133,11 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
 
     try {
       await navigator.clipboard.writeText(wallet.walletData.address);
-      success('Address copied to clipboard');
+      toast({ title: 'Address copied to clipboard', variant: 'success' });
     } catch (error) {
-      showError('Failed to copy address');
+      toast({ title: 'Failed to copy address', variant: 'destructive' });
     }
-  }, [wallet?.walletData?.address]);
+  }, [wallet?.walletData?.address, toast]);
 
   const handleSync = useCallback(() => {
     if (!accountId || syncWalletMutation.isPending) return;
@@ -154,20 +154,20 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
       },
       {
         onSuccess: () => {
-          success('Wallet sync started');
+          toast({ title: 'Wallet sync started', variant: 'success' });
           setShowSyncModal(true);
         },
         onError: (error: Error) => {
-          showError(error.message || 'Failed to start sync');
+          toast({ title: error.message || 'Failed to start sync', variant: 'destructive' });
         },
       }
     );
-  }, [accountId, syncWalletMutation]);
+  }, [accountId, syncWalletMutation, toast]);
 
   const handleSyncComplete = useCallback(() => {
-    success('Wallet sync completed successfully!');
+    toast({ title: 'Wallet sync completed successfully!', variant: 'success' });
     refetch();
-  }, [refetch]);
+  }, [refetch, toast]);
 
   const getNetworkExplorerUrl = useCallback(
     (network: string, address: string) => {

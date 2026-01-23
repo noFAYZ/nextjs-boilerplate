@@ -18,7 +18,7 @@ import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
 import { AccountCombobox } from '@/components/ui/account-combobox';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { getTypeIcon } from '@/lib/utils/transaction-display-helpers';
+import { getTypeIcon, getTypeBgColor } from '@/lib/utils/transaction-display-helpers';
 import type { UnifiedTransaction, TransactionTableRowProps } from '@/lib/types';
 
 /**
@@ -71,6 +71,8 @@ export const TransactionTableRow = memo(
           merchants={merchantsList}
           onMerchantChange={(newMerchantId) => onMerchantChange(tx.id, newMerchantId)}
           typeIcon={getTypeIcon(tx.type)}
+          typeBgColor={getTypeBgColor(tx.type)}
+
         />
       </TableCell>
 
@@ -102,7 +104,7 @@ export const TransactionTableRow = memo(
               'text-foreground': ['SEND', 'WITHDRAWAL', 'EXPENSE'].includes(
                 tx.type.toUpperCase()
               ),
-              'text-lime-600 dark:text-lime-500': [
+              'text-lime-700 dark:text-lime-600': [
                 'RECEIVE',
                 'DEPOSIT',
                 'INCOME',

@@ -152,7 +152,7 @@ export function SidebarMainColumn({
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          "flex h-full flex-col  bg-sidebar border-r border-border/70 shadow-lg   inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-75 space-y-2",
+          "flex h-full flex-col border-r border-border/80  bg-sidebar  shadow-lg   inset-shadow-2xs    inset-shadow-white/20 text-shadow-2xs text-shadow-white/25 transition-all duration-100 space-y-2",
           mainColumnExpanded ? "w-74" : "w-16"
         )}
       >

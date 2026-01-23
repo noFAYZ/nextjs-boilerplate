@@ -81,7 +81,7 @@
 
 .dark {
   /* The "Claude" Dark Palette: Warm, deep charcoal/onyx */
-  --background: oklch(0.16 0.006 60); /* Deep Matte Slate */
+  --background: oklch(0.10 0.003 0); /* Deep Matte Slate */
   --foreground: oklch(0.92 0.01 60);  /* Soft Bone White */
   
   /* Cards: Slightly lifted from background (Warm Graphite) */
@@ -114,7 +114,7 @@
   --ring: oklch(0.68 0.11 45);
 
   /* Sidebar: Often slightly darker or lighter than main content for depth */
-  --sidebar: oklch(0.14 0.006 60);
+  --sidebar: oklch(0.14 0.01 60);
   --sidebar-foreground: oklch(0.88 0.01 60);
   --sidebar-primary: oklch(0.68 0.11 45);
   --sidebar-primary-foreground: oklch(0.98 0 0);

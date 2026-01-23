@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertCircle, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { CategoryCombobox } from '@/components/ui/category-combobox';
 import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { AccountCombobox } from '@/components/ui/account-combobox';
 import { useCategories, useAllAccounts } from '@/lib/queries/use-accounts-data';
@@ -205,20 +204,25 @@ export function DetailsTab({ transaction, onFieldChange }: DetailsTabProps) {
         />
       </div>
 
-      {/* Category */}
+      {/* Category - Read-only Badge */}
       <div className="space-y-2">
         <label className="text-xs font-semibold text-foreground uppercase tracking-wide">Category</label>
-        <CategoryCombobox
-          categoryId={transaction.category || ''}
-          categories={categories.map((cat: any) => ({
-            id: cat.id,
-            displayName: cat.name,
-            emoji: cat.emoji,
-          }))}
-          buttonVariant='outline2'
-          buttonClassName='border-border shadow-xs rounded-xs'
-          onCategoryChange={() => onFieldChange()}
-        />
+        <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-border/50 bg-muted/30">
+          {transaction.category ? (
+            <>
+              {categories.find((cat: any) => cat.id === transaction.category)?.emoji && (
+                <span className="text-base flex-shrink-0">
+                  {categories.find((cat: any) => cat.id === transaction.category)?.emoji}
+                </span>
+              )}
+              <span className="text-sm font-semibold text-foreground">
+                {categories.find((cat: any) => cat.id === transaction.category)?.name || transaction.category}
+              </span>
+            </>
+          ) : (
+            <span className="text-sm text-muted-foreground">No category assigned</span>
+          )}
+        </div>
       </div>
 
       {/* Account */}

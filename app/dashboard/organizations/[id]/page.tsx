@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, use, useMemo, useState, useCallback } from 'react';
-import { ChevronLeft, Clock, CheckCircle2, AlertCircle, Trash2, Copy, Check } from 'lucide-react';
+import { ChevronLeft, Clock, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
 import {
   useOrganization,
   useOrganizationMembers,
@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { InviteMemberDialog } from '@/components/organization/invite-member-dialog';
-import { QuickStats, MembersSection, InvitationsSection, SettingsSidebar } from './components';
+import { MembersSection, InvitationsSection, SettingsSidebar } from './components';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -28,37 +28,19 @@ interface DetailRowProps {
   label: string;
   value: React.ReactNode;
   icon?: React.ReactNode;
-  copyable?: boolean;
-  onCopy?: () => void;
-  copied?: boolean;
-  mono?: boolean;
 }
 
-function DetailRow({ label, value, icon, copyable, onCopy, copied, mono }: DetailRowProps) {
+function DetailRow({ label, value, icon }: DetailRowProps) {
   return (
-    <div className="flex items-center justify-between p-2  group hover:bg-muted/30 rounded-md transition-colors">
+    <div className="flex items-center justify-between p-2 group hover:bg-muted/30 rounded-md transition-colors">
       <div className="flex items-center gap-2">
         {icon && <div className="text-muted-foreground">{icon}</div>}
-        <span className="text-xs   font-medium">{label}</span>
+        <span className="text-xs font-medium">{label}</span>
       </div>
       <div className="flex items-center gap-2 ml-4">
-        <span className={cn('text-xs font-semibold text-right')}>
+        <span className="text-xs font-semibold text-right">
           {value}
         </span>
-       {/*  {copyable && onCopy && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={onCopy}
-          >
-            {copied ? (
-              <Check className="h-3.5 w-3.5 text-green-600" />
-            ) : (
-              <Copy className="h-3.5 w-3.5" />
-            )}
-          </Button>
-        )} */}
       </div>
     </div>
   );
@@ -147,7 +129,6 @@ function InvitationRow({ invitation }: { invitation: Record<string, unknown> }) 
 
 function OrganizationContent({ organizationId }: { organizationId: string }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const { data: organization, isLoading: isLoadingOrg } = useOrganization(organizationId);
@@ -162,13 +143,12 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
 
   const isOwner = useMemo(() => organization?.ownerId === currentUser?.id, [organization?.ownerId, currentUser?.id]);
 
-  const { pending, accepted, ownerCount } = useMemo(
+  const { pending, accepted } = useMemo(
     () => ({
       pending: invitations.filter((inv: Record<string, unknown>) => inv.status === 'PENDING'),
       accepted: invitations.filter((inv: Record<string, unknown>) => inv.status === 'ACCEPTED'),
-      ownerCount: members.filter((m: Record<string, unknown>) => m.role === 'OWNER').length,
     }),
-    [invitations, members]
+    [invitations]
   );
 
   const handleRemoveMember = useCallback((memberId: string) => {
@@ -186,12 +166,6 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
       console.log('Delete organization:', organizationId);
     }
   }, [organization?.name, organizationId]);
-
-  const copyToClipboard = useCallback((text: string, fieldName: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(fieldName);
-    setTimeout(() => setCopiedField(null), 2000);
-  }, []);
 
   if (isLoadingOrg) {
     return <WidgetSkeleton variant="chart" />;
@@ -279,17 +253,7 @@ function OrganizationContent({ organizationId }: { organizationId: string }) {
           showDeleteConfirm={showDeleteConfirm}
           onShowDeleteConfirm={setShowDeleteConfirm}
           onDelete={handleDeleteOrg}
-          DetailRowComponent={(props) => (
-            <DetailRow
-              {...props}
-              onCopy={
-                props.copyable
-                  ? () => copyToClipboard(String(props.value?.props?.children || props.value), props.label)
-                  : undefined
-              }
-              copied={copiedField === props.label}
-            />
-          )}
+          DetailRowComponent={(props) => <DetailRow {...props} />}
         />
       </div>
 

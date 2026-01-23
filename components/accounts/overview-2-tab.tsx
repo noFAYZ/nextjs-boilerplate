@@ -137,35 +137,19 @@ function Overview2TabComponent() {
        <div className="flex-1">
          <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
        </div>
-       <Button
-         variant={showGrouping ? "default" : "outline"}
-         size="sm"
-         onClick={handleToggleGrouping}
-         className="ml-4"
-       >
-         {showGrouping ? 'Hide Groups' : 'Manage Groups'}
-       </Button>
+     
      </div>
 
-     {/* Account Grouping Section */}
-     {showGrouping && (
-       <div className="bg-card rounded-lg border border-border/50 p-4">
-         <AccountGroupingPanel
-           groups={accountGroups}
-           isLoading={isLoading}
-           onCreateGroup={handleCreateGroup}
-           onDeleteGroup={handleDeleteGroup}
-         />
-       </div>
-     )}
+  
 
    <div className="h-full flex  gap-4">
 
       {/* Sidebar: Enterprise Navigation */}
-      <Card className="w-[22%] flex flex-col h-full shadow-none hover:shadow-none  overflow-hidden ">
+      <Card className="w-[22%] flex flex-col h-full shadow-none hover:shadow-none  overflow-hidden space-y-4 ">
 
         {/* Scrollable Categories */}
         <div className="flex-1 overflow-y-auto p-2 space-y-6">
+     
           {/* Assets Section */}
           {groupedByType.assets.length > 0 && (
             <div className="space-y-3">
@@ -294,12 +278,32 @@ function Overview2TabComponent() {
             </div>
           )}
         </div>
+   <Button
+         variant={showGrouping ? "default" : "outline"}
+         size="sm"
+         onClick={handleToggleGrouping}
+         className="ml-4"
+       >
+         {showGrouping ? 'Hide Groups' : 'Manage Groups'}
+       </Button>
+   {/* Account Grouping Section */}
+     {showGrouping && (
+      
+         <AccountGroupingPanel
+           groups={accountGroups}
+           isLoading={isLoading}
+           onCreateGroup={handleCreateGroup}
+           onDeleteGroup={handleDeleteGroup}
+         />
+     
+     )}
       </Card>
 
       {/* Main Content: Account Rows and Right Widget Wrapper */}
       <div className="flex-1 flex gap-4 min-w-0">
         {/* Center: Account Rows */}
-        <div className="flex-1 flex flex-col  min-w-0 h-fit bg-card  rounded-2xl border overflow-hidden">
+        <div className="flex-1 flex flex-col  min-w-0 h-fit bg-card  rounded-2xl border overflow-hidden"> 
+          
           {/* Header with Selected Category Info
           {selectedGroup && (
             <div className="flex items-center justify-between p-2 px-4 bg-primary/5 border-b ">
@@ -337,7 +341,7 @@ function Overview2TabComponent() {
           {/* Accounts List */}
           <div className="flex-1 overflow-y-auto  ">
             {selectedAccounts.length > 0 ? (
-              <div className="divide-y divide-border/90">
+              <div className="divide-y divide-border/80">
                 {selectedAccounts.map((account) => (
                   <AccountRow
                     key={account.id}

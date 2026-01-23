@@ -80,9 +80,7 @@ export const TransactionTable = memo(
     onToggleSelect,
   }: TransactionTableProps) {
     return (
-      <div className="rounded-xl overflow-hidden">
-        <div className="w-full overflow-x-auto">
-          <Table className="w-full">
+          <Table className="w-full border border-border overflow-x-auto bg-card ">
             <TableBody>
               {Object.entries(groupedTransactions).map(([date, txs]) => {
                 // Filter transactions for current page
@@ -118,8 +116,6 @@ export const TransactionTable = memo(
               })}
             </TableBody>
           </Table>
-        </div>
-      </div>
     );
   },
   (prevProps, nextProps) => {

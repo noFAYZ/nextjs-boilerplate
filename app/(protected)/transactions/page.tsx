@@ -189,7 +189,7 @@ export default function TransactionsPage() {
 
 
   return (
-    <div className="h-full flex flex-col relative space-y-2">
+    <div className=" flex flex-col relative space-y-2">
       <RefetchLoadingOverlay isLoading={isRefetching} label="Updating…" />
 
       {/* Page Header - Semantic structure */}

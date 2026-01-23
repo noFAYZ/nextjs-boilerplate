@@ -245,7 +245,7 @@ export function OrganizationSwitcher({
                   variant='ghost'
                   className={cn(
                     'relative flex items-center gap-3 rounded-md w-full  text-start',
-                    'transition hover:bg-muted focus-visible:outline-none disabled:opacity-50',
+                    'transition hover:bg-secondary focus-visible:outline-none disabled:opacity-50',
                     active && 'bg-muted'
                   )}
                 >
