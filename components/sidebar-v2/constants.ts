@@ -26,20 +26,20 @@ export const MENU_ITEM_STYLES = {
   PADDING_X: 'px-2',
   ROUNDED: 'rounded-md',
   ICON_SIZE: 'h-7 w-7',
-  TRANSITION: 'transition-colors duration-100',
+  TRANSITION: 'transition-colors duration-150',
 } as const;
 
 export const FOOTER_BUTTON_STYLES = {
   HEIGHT: 'h-10',
   PADDING_X: 'px-2',
   ROUNDED: 'rounded-lg',
-  TRANSITION: 'transition-colors duration-100',
+  TRANSITION: 'transition-colors duration-150',
 } as const;
 
 export const LOGO_STYLES = {
-  ICON_SIZE: 'w-10 h-10',
+  ICON_SIZE: 'w-9 h-9',
   ICON_COLOR: 'text-orange-500',
-  TRANSITION: 'transition-all duration-100',
+  TRANSITION: 'transition-all duration-250',
 } as const;
 
 export const AVATAR_STYLES = {

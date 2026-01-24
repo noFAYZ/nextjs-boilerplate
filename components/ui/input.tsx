@@ -9,7 +9,7 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "  bg-card rounded-xs shadow-none  ",
+        default: "  rounded-sm shadow-none  ",
         filled: "bg-muted border-transparent rounded-lg hover:bg-muted/80",
         underlined: "border-0 border-b-2 border-input rounded-none bg-transparent hover:border-border focus-visible:border-primary shadow-none",
         primary:"border-2 rounded-md border-border bg-gray-50 dark:bg-[#3E3C3C] backdrop-blur-sm  hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)]  transition-all duration-100  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",

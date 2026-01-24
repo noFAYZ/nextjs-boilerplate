@@ -19,20 +19,18 @@ import {
   ChevronRight,
   Edit,
   Trash2,
-  MoreHorizontal,
   DollarSign,
   Loader2,
+  Search,
+  Settings2,
+  Filter,
+  Power,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { UserSubscription } from "@/lib/types/subscription";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
+import { Input } from "@/components/ui/input";
 import styles from "./subscriptions-data-table.module.css";
 
 interface SubscriptionsDataTableProps {
@@ -84,22 +82,26 @@ const SubscriptionTableRow = memo(function SubscriptionTableRow({
   subscription,
   isSelected,
   isDeleting,
+  isExpanded,
   onSelectRow,
   onEdit,
   onDelete,
   router,
   imageError,
   onImageError,
+  onToggleExpand,
 }: {
   subscription: UserSubscription;
   isSelected: boolean;
   isDeleting: boolean;
+  isExpanded: boolean;
   onSelectRow: (id: string, checked: boolean) => void;
   onEdit?: (subscription: UserSubscription) => void;
   onDelete?: (subscription: UserSubscription) => void;
   router: ReturnType<typeof useRouter>;
   imageError: boolean;
   onImageError: (subscriptionId: string) => void;
+  onToggleExpand: (id: string) => void;
 }) {
   const handleSelectChange = useCallback(
     (checked: boolean) => {
@@ -120,23 +122,45 @@ const SubscriptionTableRow = memo(function SubscriptionTableRow({
     router.push(`/subscriptions/${subscription.id}`);
   }, [subscription.id, router]);
 
+  const handleToggleExpand = useCallback(() => {
+    onToggleExpand(subscription.id);
+  }, [subscription.id, onToggleExpand]);
+
   return (
-    <TableRow
-      className={cn(
-        styles.tableRow,
-        "group border-b border-border/30 py-2 hover:bg-muted/30",
-        isDeleting && styles.rowDeleting,
-        isSelected && "bg-primary/5"
-      )}
-      data-testid={`subscription-row-${subscription.id}`}
-    >
-      <TableCell className="px-2 sm:px-4 py-3" onClick={(e) => e.stopPropagation()}>
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={handleSelectChange}
-          aria-label={`Select ${subscription.name}`}
-        />
-      </TableCell>
+    <>
+      <TableRow
+        className={cn(
+          styles.tableRow,
+          "group  items-center   hover:bg-muted/30",
+          isDeleting && styles.rowDeleting,
+          isSelected && "bg-primary/5"
+        )}
+        data-testid={`subscription-row-${subscription.id}`}
+      >
+        <TableCell className="px-2 sm:px-4 py-2 " onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="h-6 w-6 p-0"
+            onClick={handleToggleExpand}
+            aria-label={isExpanded ? "Collapse row" : "Expand row"}
+          >
+            <ChevronRight
+              className={cn(
+                "h-5 w-5 transition-transform duration-100",
+                isExpanded && "rotate-90"
+              )}
+            />
+          </Button>
+        </TableCell>
+
+        <TableCell className="px-2 sm:px-4 py-2" onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={handleSelectChange}
+            aria-label={`Select ${subscription.name}`}
+          />
+        </TableCell>
 
       <TableCell
         onClick={handleNameClick}
@@ -150,7 +174,7 @@ const SubscriptionTableRow = memo(function SubscriptionTableRow({
         }}
       >
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-muted flex-shrink-0 overflow-hidden">
+          <div className="relative h-8 w-8  rounded-lg bg-muted flex-shrink-0 overflow-hidden">
             {subscription.logoUrl && !imageError ? (
               <Image
                 src={subscription.logoUrl}
@@ -173,65 +197,47 @@ const SubscriptionTableRow = memo(function SubscriptionTableRow({
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <p className="font-semibold text-xs sm:text-sm truncate">
-                {subscription.name}
-              </p>
-              {subscription.category && (
-                <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
-                  {subscription.category.replace(/_/g, " ")}
-                </Badge>
-              )}
-            </div>
-            {subscription.description && (
-              <p className="text-xs text-muted-foreground truncate hidden sm:block">
-                {subscription.description}
-              </p>
-            )}
+            <p className="font-semibold text-xs sm:text-sm truncate">
+              {subscription.name}
+            </p>
           </div>
         </div>
       </TableCell>
 
-      <TableCell className="hidden sm:table-cell text-right px-4 py-3">
+      <TableCell className="hidden sm:table-cell text-right px-4 py-2">
+        {subscription.category && (
+          <Badge variant="outline" className="text-xs rounded-sm">
+            {subscription.category.replace(/_/g, " ")}
+          </Badge>
+        )}
+      </TableCell>
+
+      <TableCell className="hidden sm:table-cell text-right px-4 py-2">
         <Badge
           className={cn(
-            "text-xs rounded-md font-medium",
-            getStatusColor(subscription.status)
+            " font-semibold",
+
           )}
+
+          variant="success"
         >
           {subscription.status}
         </Badge>
       </TableCell>
 
-      <TableCell className="hidden lg:table-cell text-right px-4 py-3">
+      <TableCell className="hidden lg:table-cell text-right px-4 py-2">
         <p className="text-sm font-medium">
           {getBillingCycleDisplay(subscription.billingCycle)}
         </p>
       </TableCell>
 
-      <TableCell className="hidden xl:table-cell text-right px-4 py-3">
-        <span className="text-sm font-semibold">
-          <CurrencyDisplay amountUSD={subscription.amount} variant="small" />
+      <TableCell className="hidden xl:table-cell text-right px-4 py-2">
+        <span >
+          <CurrencyDisplay amountUSD={subscription.amount} className="  font-semibold" />
         </span>
       </TableCell>
 
-      <TableCell className="text-right px-2 sm:px-4 py-3 whitespace-nowrap">
-        <div className="flex items-center justify-end gap-1 sm:gap-2">
-          <span className="text-xs sm:text-sm font-semibold">
-            <CurrencyDisplay
-              amountUSD={subscription.monthlyEquivalent}
-              variant="small"
-            />
-          </span>
-          {subscription.monthlyEquivalent >= 20 && (
-            <Badge variant="outline" className="hidden sm:inline-flex text-xs font-medium">
-              High
-            </Badge>
-          )}
-        </div>
-      </TableCell>
-
-      <TableCell className="hidden lg:table-cell text-right px-4 py-3">
+      <TableCell className="hidden lg:table-cell text-right px-4 py-2">
         {subscription.nextBillingDate ? (
           <div>
             <p className="text-sm font-semibold">
@@ -252,45 +258,171 @@ const SubscriptionTableRow = memo(function SubscriptionTableRow({
         )}
       </TableCell>
 
-      <TableCell
-        className="text-center px-2 sm:px-4 py-3"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {isDeleting ? (
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <div className={styles.actionsContainer}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+        <TableCell
+          className="text-center px-2 sm:px-4 py-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {isDeleting ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                onClick={handleEditClick}
+                aria-label={`Edit ${subscription.name}`}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                onClick={handleDeleteClick}
+                aria-label={`Delete ${subscription.name}`}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </TableCell>
+      </TableRow>
+
+      {/* Expanded Details Row */}
+      {isExpanded && (
+        <TableRow className="border-b border-border  bg-secondary dark:bg-background hover:bg-secondary">
+          <TableCell colSpan={9} className="p-2">
+            <div className="space-y-2">
+              {/* Subscription Details Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+                {/* Category */}
+                {subscription.category && (
+                  <div className="p-2 ">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Category</p>
+                    <p className="text-sm font-semibold">{subscription.category.replace(/_/g, " ")}</p>
+                  </div>
+                )}
+
+                {/* Status */}
+                <div className="p-2 ">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Status</p>
+                  <Badge
+                    className={cn(
+                      "text-xs rounded-md font-medium",
+                      getStatusColor(subscription.status)
+                    )}
+                  >
+                    {subscription.status}
+                  </Badge>
+                </div>
+
+                {/* Billing Cycle */}
+                <div className="p-2 ">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Billing Cycle</p>
+                  <p className="text-sm font-semibold">{getBillingCycleDisplay(subscription.billingCycle)}</p>
+                </div>
+
+                {/* Monthly Amount */}
+                <div className="p-2 ">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Monthly Cost</p>
+                  <p className="text-sm font-semibold">
+                    <CurrencyDisplay amountUSD={subscription.monthlyEquivalent} variant="small" />
+                  </p>
+                </div>
+
+                {/* Subscription Amount */}
+                <div className="p-2 ">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Subscription Amount</p>
+                  <p className="text-sm font-semibold">
+                    <CurrencyDisplay amountUSD={subscription.amount} variant="small" />
+                  </p>
+                </div>
+
+                {/* Next Billing Date */}
+                {subscription.nextBillingDate && (
+                  <div className="p-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Next Billing</p>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {new Date(subscription.nextBillingDate).toLocaleDateString()}
+                      </p>
+                      {subscription.daysUntilNextBilling !== undefined && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {subscription.daysUntilNextBilling === 0
+                            ? "Today"
+                            : subscription.daysUntilNextBilling === 1
+                              ? "Tomorrow"
+                              : `in ${subscription.daysUntilNextBilling} days`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Start Date */}
+                {subscription.startDate && (
+                  <div className="p-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Started</p>
+                    <p className="text-sm font-semibold">
+                      {new Date(subscription.startDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              {subscription.description && (
+                <div className="p-2">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Description</p>
+                  <p className="text-sm text-foreground">{subscription.description}</p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2  px-4 pb-2 items-center">
                 <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="h-8 w-8"
-                  aria-label={`Actions for ${subscription.name}`}
+                  variant="outline"
+                  size="xs"
+                  onClick={handleEditClick}
+                  className="flex items-center gap-2"
                 >
-                  <MoreHorizontal className="h-4 w-4" />
+                  <Edit className="h-4 w-4" />
+                  Edit
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEditClick}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit {subscription.name}
-                </DropdownMenuItem>
-                <DropdownMenuItem
+
+                {subscription.status !== "ACTIVE" && (
+                  <Button
+                    variant="outline3"
+                    size="xs"
+                    onClick={() => {
+                      // This would trigger activate action
+                      // You may need to add this functionality
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Power className="h-4 w-4" />
+                    Activate
+                  </Button>
+                )}
+
+                <Button
+                  variant="delete"
+                  size="xs"
                   onClick={handleDeleteClick}
-                  className="text-destructive focus:text-destructive"
+                  className="flex items-center gap-2"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete {subscription.name}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-      </TableCell>
-    </TableRow>
+                  <Trash2 className="h-4 w-4" />
+                  Remove
+                </Button>
+              </div>
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 });
 
@@ -307,10 +439,24 @@ export function SubscriptionsDataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>(externalSelectedIds);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const deletingSubscriptionIds = useSubscriptionUIStore((state) => state.deletingSubscriptionIds);
 
   const handleImageError = useCallback((subscriptionId: string) => {
     setImageErrors((prev) => new Set(prev).add(subscriptionId));
+  }, []);
+
+  const handleToggleExpand = useCallback((subscriptionId: string) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(subscriptionId)) {
+        newSet.delete(subscriptionId);
+      } else {
+        newSet.add(subscriptionId);
+      }
+      return newSet;
+    });
   }, []);
 
   // Sync with external selectedIds
@@ -318,14 +464,26 @@ export function SubscriptionsDataTable({
     setSelectedIds(externalSelectedIds);
   }, [externalSelectedIds]);
 
+  // Filter subscriptions based on search query
+  const filteredSubscriptions = useMemo(() => {
+    if (!searchQuery.trim()) return subscriptions;
+    const query = searchQuery.toLowerCase();
+    return subscriptions.filter(
+      (sub) =>
+        sub.name.toLowerCase().includes(query) ||
+        sub.description?.toLowerCase().includes(query) ||
+        sub.category?.toLowerCase().includes(query)
+    );
+  }, [subscriptions, searchQuery]);
+
   // Paginate subscriptions with memoization
-  const totalPages = Math.ceil(subscriptions.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredSubscriptions.length / ITEMS_PER_PAGE);
   const paginatedSubscriptions = useMemo(
-    () => subscriptions.slice(
+    () => filteredSubscriptions.slice(
       (currentPage - 1) * ITEMS_PER_PAGE,
       currentPage * ITEMS_PER_PAGE
     ),
-    [subscriptions, currentPage]
+    [filteredSubscriptions, currentPage]
   );
 
   // Notify parent of selection changes (decoupled from state update)
@@ -389,61 +547,108 @@ export function SubscriptionsDataTable({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Data Table */}
-      <div className="bg-card border border-border/80 rounded-xl overflow-x-auto shadow-sm" role="region" aria-label="Subscriptions data table">
-        <Table aria-label="Subscriptions list">
-          <TableHeader className="bg-muted/80 border-b border-border/50">
-            <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="w-10 px-2 sm:px-4 py-3">
-                <Checkbox
-                  checked={isAllSelected}
-                  indeterminate={isSomeSelected ? "indeterminate" : undefined}
-                  onCheckedChange={handleSelectAll}
-                  aria-label="Select all subscriptions"
-                />
-              </TableHead>
-              <TableHead className="font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3 min-w-[200px] sm:w-auto">Subscription</TableHead>
-              <TableHead className="hidden sm:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Status</TableHead>
-              <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Billing</TableHead>
-              <TableHead className="hidden xl:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Amount</TableHead>
-              <TableHead className="text-right font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3">Monthly</TableHead>
-              <TableHead className="hidden lg:table-cell text-right font-semibold text-xs uppercase tracking-wider px-4 py-3">Next Billing</TableHead>
-              <TableHead className="text-center font-semibold text-xs uppercase tracking-wider px-2 sm:px-4 py-3">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedSubscriptions.map((subscription) => {
-              const isDeleting = deletingSubscriptionIds.includes(subscription.id);
-              const isSelected = selectedIds.includes(subscription.id);
-              const hasImageError = imageErrors.has(subscription.id);
+      <div className="bg-card border   rounded-lg overflow-hidden shadow-xs" role="region" aria-label="Subscriptions data table">
+        {/* Search & Filter Toolbar - Inside datatable */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border/50 p-3">
+          <div className="flex-1 w-full sm:max-w-sm">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10" />
+              <Input
+                placeholder="Search subscriptions..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // Reset to first page on search
+                }}
+                className="pl-9  "
+              />
+            </div>
+          </div>
 
-              return (
-                <SubscriptionTableRow
-                  key={subscription.id}
-                  subscription={subscription}
-                  isSelected={isSelected}
-                  isDeleting={isDeleting}
-                  onSelectRow={handleSelectRow}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  router={router}
-                  imageError={hasImageError}
-                  onImageError={handleImageError}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline3"
+              size="xs"
+              className="flex items-center gap-2 rounded-sm"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+            <Button
+              variant="outline3"
+              size="xs"
+              className="flex items-center gap-2 rounded-sm"
+            >
+              <Settings2 className="h-4 w-4" />
+              Settings
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <Table aria-label="Subscriptions list">
+            <TableHeader className="bg-muted  border-y">
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="w-10 px-2 sm:px-4 py-2"></TableHead>
+                <TableHead className="w-10 px-2 sm:px-4 py-2">
+                  <Checkbox
+                    checked={isAllSelected}
+                    indeterminate={isSomeSelected ? "indeterminate" : undefined}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all subscriptions"
+                  />
+                </TableHead>
+                <TableHead className=" px-2 sm:px-4 py-2 min-w-[200px] sm:w-auto">Subscription</TableHead>
+                <TableHead className="hidden sm:table-cell text-right   px-4 py-2">Category</TableHead>
+                <TableHead className="hidden sm:table-cell text-right   px-4 py-2">Status</TableHead>
+                <TableHead className="hidden lg:table-cell text-right  px-4 py-2">Billing</TableHead>
+                <TableHead className="hidden xl:table-cell text-right   px-4 py-2">Amount</TableHead>
+                <TableHead className="hidden lg:table-cell text-right     px-4 py-2">Next Billing</TableHead>
+                <TableHead className="text-center    px-2 sm:px-4 py-2">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedSubscriptions.map((subscription) => {
+                const isDeleting = deletingSubscriptionIds.includes(subscription.id);
+                const isSelected = selectedIds.includes(subscription.id);
+                const hasImageError = imageErrors.has(subscription.id);
+                const isExpanded = expandedRows.has(subscription.id);
+
+                return (
+                  <SubscriptionTableRow
+                    key={subscription.id}
+                    subscription={subscription}
+                    isSelected={isSelected}
+                    isDeleting={isDeleting}
+                    isExpanded={isExpanded}
+                    onSelectRow={handleSelectRow}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    router={router}
+                    imageError={hasImageError}
+                    onImageError={handleImageError}
+                    onToggleExpand={handleToggleExpand}
+                  />
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {/* Empty State */}
-      {subscriptions.length === 0 && (
+      {filteredSubscriptions.length === 0 && (
         <div className="text-center py-16 border border-border/50 rounded-xl bg-muted/20">
           <DollarSign className="h-14 w-14 text-muted-foreground/50 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No subscriptions found</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {searchQuery ? "No matching subscriptions" : "No subscriptions found"}
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Add your first subscription to start tracking recurring expenses
+            {searchQuery
+              ? "Try adjusting your search criteria"
+              : "Add your first subscription to start tracking recurring expenses"}
           </p>
         </div>
       )}
@@ -453,8 +658,8 @@ export function SubscriptionsDataTable({
         <nav aria-label="Subscriptions pagination" className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-4">
           <p className="text-xs sm:text-sm font-medium text-muted-foreground order-2 sm:order-1">
             Showing <span className="text-foreground">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–
-            {Math.min(currentPage * ITEMS_PER_PAGE, subscriptions.length)}</span> of{" "}
-            <span className="text-foreground">{subscriptions.length}</span> subscriptions
+            {Math.min(currentPage * ITEMS_PER_PAGE, filteredSubscriptions.length)}</span> of{" "}
+            <span className="text-foreground">{filteredSubscriptions.length}</span> subscriptions
           </p>
 
           <div className="flex items-center gap-2 order-1 sm:order-2">

@@ -46,7 +46,7 @@ const OrgAvatar = React.memo(function OrgAvatar({
     <div
       className={cn(
         'flex shrink-0 items-center justify-center rounded-full',
-        'bg-primary/40 text-foreground font-medium border',
+        'bg-secondary text-foreground font-medium border',
         sizeClasses[size]
       )}
     >
@@ -173,13 +173,13 @@ export function OrganizationSwitcher({
       <PopoverTrigger asChild>
         <Button
           variant={compact ? 'outline2' : 'outline2'}
-          size={compact ? 'icon' : 'lg'}
+          size={compact ? 'icon-lg' : 'lg'}
           disabled={isSwitching}
           className={cn(
             'group ',
             compact
               ? 'rounded-full'
-              : 'flex w-full items-center justify-between gap-3 px-1.5 rounded-lg shadow-none hover:bg-muted/60 disabled:opacity-50',
+              : 'flex w-full items-center justify-between gap-3 px-1 rounded-lg shadow-none hover:bg-muted/60 disabled:opacity-50',
             className
           )}
           aria-label={`Current workspace: ${currentOrg.name}`}

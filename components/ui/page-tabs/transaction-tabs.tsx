@@ -25,9 +25,9 @@ export function TransactionTabs() {
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={cn(
-              'flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors duration-0 cursor-pointer',
+              'flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-sm transition-colors duration-75 cursor-pointer',
               isActive
-                ? 'bg-muted text-foreground'
+                ? 'bg-secondary text-foreground'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             )}
           >

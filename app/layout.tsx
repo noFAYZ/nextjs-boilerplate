@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {  Readex_Pro, Sora, Bricolage_Grotesque, Newsreader,DM_Sans, Funnel_Display, Noto_Sans } from "next/font/google";
+import {  Readex_Pro, Sora, Bricolage_Grotesque, Newsreader,DM_Sans, Funnel_Display, Noto_Sans, Urbanist } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
@@ -12,7 +12,7 @@ import "@/lib/config/env";
 import localFont from 'next/font/local'
 
 
-const geistSans = Noto_Sans({
+const geistSans = Urbanist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: 'swap',
@@ -23,7 +23,7 @@ const readexPro = Readex_Pro({
   variable: "--font-readex",
   subsets: ["latin"],
   display: 'swap',
-  weight: ['400', '700'],
+  weight: ['400', '500', '600','700'],
   preload: true,
 });
 
@@ -37,7 +37,16 @@ const myFont = localFont({
   variable: '--font-archia',
   display: 'swap',
 })
-
+const myFont2 = localFont({
+  src: [
+    {
+      path: '../public/fonts/matter/Matter-Regular.otf',
+      weight: '400',
+    },
+  ],
+  variable: '--font-archia',
+  display: 'swap',
+})
 
 
 export const metadata: Metadata = {

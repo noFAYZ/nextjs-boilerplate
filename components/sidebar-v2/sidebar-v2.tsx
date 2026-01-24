@@ -273,7 +273,7 @@ export function SidebarV2({
   const sidebarClasses = useMemo(
     () =>
       cn(
-        'flex flex-col h-full bg-none p-4 transition-all',
+        'flex flex-col h-full justify-between bg-none p-4 transition-all',
         SIDEBAR_TRANSITIONS.DURATION,
         SIDEBAR_TRANSITIONS.EASING,
         isExpanded ? SIDEBAR_WIDTHS.EXPANDED : SIDEBAR_WIDTHS.COLLAPSED
@@ -289,7 +289,10 @@ export function SidebarV2({
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className={cn('flex items-center mb-4', isExpanded ? 'justify-between' : 'justify-center')}>
+      <div className=' flex flex-col'>
+
+     
+      <div className={cn('flex items-center ', isExpanded ? 'justify-between' : 'justify-center')}>
         <Link href="/" className={cn('flex items-center', LOGO_STYLES.TRANSITION, isExpanded && 'gap-3')} aria-label="Home">
           <WalletLogoIconOpen className={cn(LOGO_STYLES.ICON_SIZE, LOGO_STYLES.ICON_COLOR)} aria-hidden="true" />
           {isExpanded && (
@@ -300,15 +303,15 @@ export function SidebarV2({
           )}
         </Link>
         {isExpanded && <ThemeSwitcher />}
+
+
       </div>
 
-      <div className="mt-4 flex items-center justify-center w-full flex-shrink-0">
+        <div className="mt-8 flex items-center justify-center w-full flex-shrink-0">
         <OrganizationSwitcher compact={!isExpanded} />
       </div>
 
-      <div className="flex-1" />
-
-      <nav className="flex flex-col gap-2 overflow-y-auto scrollbar-hide" aria-label="Navigation menu">
+        <nav className="flex mt-20 flex-col gap-1.5 overflow-y-auto scrollbar-hide" aria-label="Navigation menu">
         {MENU_ITEMS_V2.map((item) => (
           <SidebarMenuButton
             key={item.id}
@@ -319,7 +322,11 @@ export function SidebarV2({
         ))}
       </nav>
 
-      <div className="flex-1" />
+      </div>
+
+
+    
+     
 
       <footer className="flex flex-col gap-2 flex-shrink-0  ">
         <Popover>
@@ -328,8 +335,8 @@ export function SidebarV2({
               variant="ghost"
               size="sm"
               className={cn(
-                'relative flex items-center gap-3 h-10 px-1 rounded-lg transition-colors duration-100 text-muted-foreground',
-                isExpanded ? 'w-full justify-start' : 'w-10 justify-center p-0'
+                'relative flex items-center gap-3 h-10 rounded-lg transition-colors duration-100 text-muted-foreground',
+                isExpanded ? 'w-full justify-start px-3' : 'w-10 justify-center p-0'
               )}
               aria-label="Menu"
             >
@@ -378,8 +385,8 @@ export function SidebarV2({
               variant="ghost"
               size="sm"
               className={cn(
-                'relative flex items-center gap-3 h-11 px-3 rounded-lg p-0 transition-colors duration-150',
-                isExpanded ? 'w-full justify-start' : 'w-11 justify-center'
+                'relative flex items-center gap-3 h-10 rounded-lg transition-colors duration-150',
+                isExpanded ? 'w-full justify-start px-3' : 'w-10 justify-center p-0'
               )}
               aria-label="User menu"
             >

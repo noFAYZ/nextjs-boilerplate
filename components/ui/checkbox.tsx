@@ -30,11 +30,10 @@ export function Checkbox({
   }
 
   const baseClasses = cn(
-    "peer relative inline-flex items-center justify-center rounded-none border border-input cursor-pointer",
-    "transition-all duration-75 ease-out",
+    "peer relative inline-flex items-center justify-center rounded-xs border cursor-pointer",
+    "transition-colors duration-75 ease-out",
     "focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
     "disabled:cursor-not-allowed disabled:opacity-50",
-    "data-[state=checked]:scale-95",
     sizeClasses[size],
     {
       "bg-background data-[state=checked]:bg-primary data-[state=checked]:border-primary":
@@ -54,9 +53,9 @@ export function Checkbox({
       <CheckboxPrimitive.Indicator
         className={cn(
           "flex items-center justify-center text-primary-foreground",
-          "transition-all duration-75 ease-out",
-          "data-[state=unchecked]:scale-0 data-[state=unchecked]:opacity-0",
-          "data-[state=checked]:scale-100 data-[state=checked]:opacity-100"
+          "transition-opacity duration-75 ease-out",
+          "data-[state=unchecked]:opacity-0",
+          "data-[state=checked]:opacity-100"
         )}
       >
         <Check className={cn("stroke-[4px]", iconSizes[size])} />

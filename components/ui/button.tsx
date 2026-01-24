@@ -23,25 +23,49 @@ const buttonVariants = cva(
             " overflow-hidden dark:from-[#FF8C1A] dark:via-[#E66A00] dark:to-[#B84D00]",
             brand: "bg-linear-to-b from-[var(--primary-light)] to-[var(--primary-dark)] to-70% text-primary-foreground         text-shadow-2xs text-shadow-white/25",
             
-        
             delete:
-            "relative bg-gradient-to-b from-[#FF3333] via-[#FF1A1A] to-[#E60000] text-white font-semibold " +
-            "shadow-[0_4px_0_0_rgb(153,0,0)] border-2 border-[rgb(153,0,0)] " +
-            "hover:shadow-[0_2px_0_0_rgb(153,0,0)] hover:translate-y-[2px] " +
-            "active:shadow-none active:translate-y-[4px] transition-all duration-150 " +
-            "before:absolute before:inset-0 before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] before:opacity-0 before:transition-opacity before:duration-75 " +
-            "hover:before:opacity-100 " +
+            "relative border-2 box-border   text-white " +
+            "bg-gradient-to-b from-[#FF3333] via-[#FF1A1A] to-[#E60000] " +
+            "border-[rgb(153,0,0)] " +
+            "shadow-[0_4px_0_0_rgb(153,0,0)] " +
+            "hover:shadow-[0_2px_0_0_rgb(153,0,0)] " +
+            "active:shadow-none " +
+            "hover:translate-y-[2px] active:translate-y-[4px] " +
+            "transition-all duration-75 " +
+            "before:absolute before:inset-0 " +
+            "before:bg-[linear-gradient(145deg,rgba(255,255,255,0.3)_0%,transparent_60%)] " +
+            "before:opacity-0 hover:before:opacity-100 before:transition-opacity " +
             "overflow-hidden " +
-            "dark:from-[#FF5252] dark:via-[#FF3333] dark:to-[#CC0000]",
+            "dark:from-[#FF5252] dark:via-[#FF3333] dark:to-[#CC0000]"
+          
+,          
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md  focus-visible:ring-destructive/70 before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
-        outline:
-          "border-2 border-[rgb(218,217,212)] dark:border-[rgb(47,47,41)] bg-white dark:bg-[#3E3C3C] backdrop-blur-sm hover:bg-gray-200 hover:text-accent-foreground   shadow-sm hover:shadow-md   shadow-[0_4px_0_0_rgb(218,217,212)] hover:shadow-[0_2px_0_0_rgb(218,217,212)] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] transition-all duration-75  dark:shadow-[0_4px_0_0_rgb(47,47,41)] dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]",
+          outline:
+          "relative border-2 box-border  " +
+          "bg-white dark:bg-[#3E3C3C] backdrop-blur-sm " +
+          "border-[rgb(218,217,212)] dark:border-[rgb(47,47,41)] " +
+          "shadow-[0_4px_0_0_rgb(218,217,212)] " +
+          "hover:shadow-[0_2px_0_0_rgb(218,217,212)] " +
+          "active:shadow-none " +
+          "hover:translate-y-[2px] active:translate-y-[4px] " +
+          "transition-all duration-75 " +
+          "before:absolute before:inset-0 " +
+          "before:bg-[linear-gradient(145deg,rgba(255,255,255,0.25)_0%,transparent_60%)] " +
+          "before:opacity-0 hover:before:opacity-100 before:transition-opacity " +
+          "overflow-hidden " +
+          "hover:bg-gray-200 hover:text-accent-foreground " +
+          "dark:shadow-[0_4px_0_0_rgb(47,47,41)] " +
+          "dark:hover:shadow-[0_2px_0_0_rgb(47,47,41)]"
+        
+,        
           outlinemuted:"border border-border/80  bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow-none   ",
           outlinemuted2:"  hover:border    hover:bg-muted  hover:text-accent-foreground  shadow-none   ",
           outlinepressed:
           "border-2 border-border bg-gray-50 dark:bg-[#3E3C3C] text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-mdhover:shadow-md  border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)]  shadow-[0_2px_0_0_rgb(254,215,170)]  translate-y-[2px] active:shadow-none translate-y-[4px] transition-all duration-100  dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
       outline2:"border border-border  bg-card      hover:bg-muted  hover:text-accent-foreground  shadow   "
+,
+outline3:"border border-border  bg-card dark:bg-[#3E3C3C]       hover:bg-muted  hover:text-accent-foreground  shadow-none   "
 ,
 outlinebrand:" bg-muted      hover:bg-muted/80  hover:text-accent-foreground  shadow-xs   ",
 outlinecard:" bg-muted dark:bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow-xs   ",

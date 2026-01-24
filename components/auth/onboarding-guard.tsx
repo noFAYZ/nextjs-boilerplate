@@ -16,6 +16,21 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
+  const [authLoadingTimeout, setAuthLoadingTimeout] = useState(false);
+
+  // Timeout for auth loading to prevent indefinite loading spinner
+  useEffect(() => {
+    if (!authLoading) {
+      setAuthLoadingTimeout(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setAuthLoadingTimeout(true);
+    }, 5000); // 5 second timeout
+
+    return () => clearTimeout(timer);
+  }, [authLoading]);
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -75,7 +90,8 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
   }, [user, isAuthenticated, authLoading, pathname, router]);
 
   // Show loading spinner while checking auth or onboarding status
-  if (authLoading || isCheckingOnboarding) {
+  // But allow frontend to load if auth takes too long (backend down scenario)
+  if ((authLoading && !authLoadingTimeout) || isCheckingOnboarding) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
