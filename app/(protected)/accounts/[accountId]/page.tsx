@@ -55,7 +55,7 @@ import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/co
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
 import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
-import { useProviderConnections, useSyncConnection } from "@/lib/queries/banking-queries";
+import { useProviderConnections, useSyncConnection } from "@/lib/queries/use-banking-data";
 import { TransactionAttachments, DuplicateDetectionBanner } from "@/app/(protected)/accounts/components";
 import { useMerchants, useTransactionCategories } from "@/lib/queries/use-transactions-data";
 import { Badge } from "@/components/ui/badge";

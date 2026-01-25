@@ -206,30 +206,6 @@ class BankingApiService {
   }
 
   // Banking Overview (removed - use accounts module instead)
-  async getOverview(organizationId?: string): Promise<ApiResponse<BankingOverview>> {
-    console.warn('getOverview is deprecated. Use accounts module instead.');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use accounts module' } } as ApiResponse<BankingOverview>;
-  }
-
-  async getDashboardData(organizationId?: string): Promise<ApiResponse<BankingDashboardData>> {
-    console.warn('getDashboardData is deprecated. Use accounts module instead.');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use accounts module' } } as ApiResponse<BankingDashboardData>;
-  }
-
-  // Transaction Management (moved to transactions module)
-  async getTransactions(params: BankTransactionParams = {}, organizationId?: string): Promise<ApiResponse<BankTransaction[]>> {
-    console.warn('getTransactions is deprecated. Use transactions module instead.');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<BankTransaction[]>;
-  }
-
-  async getAccountTransactions(
-    accountId: string,
-    params: Omit<BankTransactionParams, 'accountId'> = {},
-    organizationId?: string
-  ): Promise<ApiResponse<BankTransaction[]>> {
-    console.warn('getAccountTransactions is deprecated. Use transactions module instead.');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<BankTransaction[]>;
-  }
 
   // Sync Operations (updated)
   async syncAccount(connectionId: string, syncData: BankSyncRequest = {}, organizationId?: string): Promise<ApiResponse<{ jobId: string }>> {
@@ -311,109 +287,9 @@ class BankingApiService {
     return response as ApiResponse<{ success: boolean }>;
   }
 
-  // Stripe Financial Connections (deprecated)
-  async createStripeSession(organizationId?: string): Promise<ApiResponse<{ clientSecret: string }>> {
-    console.warn('createStripeSession deprecated - use generatePlaidLinkToken instead');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use Plaid instead' } } as ApiResponse<{ clientSecret: string }>;
-  }
-
-  async connectStripeAccounts(data: { sessionId: string; selectedAccountIds?: string[] }, organizationId?: string): Promise<ApiResponse<BankAccount[]>> {
-    console.warn('connectStripeAccounts deprecated - use exchangePlaidToken instead');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use Plaid instead' } } as ApiResponse<BankAccount[]>;
-  }
-
-  async getStripeAccountsPreview(sessionId: string, organizationId?: string): Promise<ApiResponse<{
-    sessionId: string;
-    accounts: Array<Record<string, unknown>>;
-    totalAccounts: number;
-  }>> {
-    console.warn('getStripeAccountsPreview deprecated');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Not available in new API' } } as ApiResponse<any>;
-  }
-
-  async syncStripeAccount(accountId: string, organizationId?: string): Promise<ApiResponse<BankSyncJob>> {
-    console.warn('syncStripeAccount deprecated');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Not available in new API' } } as ApiResponse<BankSyncJob>;
-  }
-
-  // Plaid Integration (deprecated - use new methods)
-  async getPlaidLinkToken(organizationId?: string): Promise<ApiResponse<{ linkToken: string }>> {
-    const response = await this.generatePlaidLinkToken(undefined, organizationId);
-    if (response.success) {
-      return { success: true, data: { linkToken: response.data.linkToken } };
-    }
-    return response as ApiResponse<{ linkToken: string }>;
-  }
-
-  async addPlaidAccount(publicToken: string, organizationId?: string): Promise<ApiResponse<{ itemId: string; accountsCreated: number; accounts: BankAccount[] }>> {
-    const response = await this.exchangePlaidToken(publicToken, undefined, organizationId);
-    if (response.success) {
-      return {
-        success: true,
-        data: {
-          itemId: response.data.connectionId,
-          accountsCreated: response.data.accountCount,
-          accounts: [] as BankAccount[]
-        }
-      };
-    }
-    return response as ApiResponse<{ itemId: string; accountsCreated: number; accounts: BankAccount[] }>;
-  }
-
-  async syncPlaidAccounts(organizationId?: string): Promise<ApiResponse<{ synced: number; errors: number; lastSync: string }>> {
-    const response = await this.batchSync([], 'full', organizationId);
-    if (response.success) {
-      return {
-        success: true,
-        data: {
-          synced: response.data.connectionCount,
-          errors: 0,
-          lastSync: new Date().toISOString()
-        }
-      };
-    }
-    return response as ApiResponse<{ synced: number; errors: number; lastSync: string }>;
-  }
-
-  async syncPlaidTransactions(
-    startDate: string,
-    endDate: string,
-    organizationId?: string
-  ): Promise<ApiResponse<{ transactionsImported: number; accountsSynced: number; dateRange: { start: string; end: string }; lastSync: string }>> {
-    const response = await this.batchSync([], 'partial', organizationId);
-    if (response.success) {
-      return {
-        success: true,
-        data: {
-          transactionsImported: 0,
-          accountsSynced: response.data.connectionCount,
-          dateRange: { start: startDate, end: endDate },
-          lastSync: new Date().toISOString()
-        }
-      };
-    }
-    return response as ApiResponse<any>;
-  }
-
-  // Transaction Sync (deprecated - moved to transactions module)
-  async syncAccountTransactions(
-    accountId: string,
-    options?: {
-      startDate?: string;
-      endDate?: string;
-      limit?: number;
-      force?: boolean;
-    },
-    organizationId?: string
-  ): Promise<ApiResponse<{
-    syncJobId: string;
-    processed: number;
-    skipped: number;
-    totalFromTeller: number;
-  }>> {
-    console.warn('syncAccountTransactions is deprecated. Use transactions module instead.');
-    return { success: false, error: { code: 'DEPRECATED', message: 'Use transactions module' } } as ApiResponse<any>;
-  }
+  // ============================================================================
+  // DEPRECATED METHODS - Removed, use connections endpoint instead
+  // ============================================================================
 
   // Utility methods for common operations
   async refreshAllAccounts(organizationId?: string): Promise<ApiResponse<{ syncJobs: { accountId: string; jobId: string }[] }>> {

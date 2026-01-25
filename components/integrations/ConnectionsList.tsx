@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useProviderConnections, useReconnectConnection, useDeleteConnection } from '@/lib/queries/banking-queries';
+import { useProviderConnections, useReconnectConnection, useDeleteConnection } from '@/lib/queries/use-banking-data';
 import {
   Loader2,
   RefreshCw,

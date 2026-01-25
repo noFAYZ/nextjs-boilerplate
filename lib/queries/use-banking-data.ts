@@ -23,8 +23,6 @@ import {
   bankingKeys,
   bankingQueries,
   bankingMutations,
-  useBankingOverview as useBaseBankingOverview,
-  useBankingDashboard as useBaseBankingDashboard,
 } from './banking-queries';
 import { bankingApi } from '@/lib/services/banking-api';
 import { invalidateByDependency } from '@/lib/query-invalidation';
@@ -135,84 +133,10 @@ export function useBankAccountSummary(accountId: string | null, organizationId?:
 }
 
 // ============================================================================
-// DASHBOARD QUERIES
+// DEPRECATED HOOKS REMOVED
+// overview, dashboard, transactions, accountTransactions, selectedAccountTransactions
+// Use transactions module instead for transaction queries
 // ============================================================================
-
-/**
- * Get banking overview with aggregated metrics
- * @param organizationId - Optional organization ID to scope data (future support)
- * @returns Overview data
- */
-export function useBankingOverview(organizationId?: string) {
-  // Banking API doesn't support organization scoping yet
-  // organizationId is accepted for future backend support
-  return useBaseBankingOverview();
-}
-
-/**
- * Get dashboard data for banking section
- * @param organizationId - Optional organization ID to scope data (future support)
- * @returns Dashboard data
- */
-export function useBankingDashboard(organizationId?: string) {
-  // Banking API doesn't support organization scoping yet
-  // organizationId is accepted for future backend support
-  return useBaseBankingDashboard();
-}
-
-// ============================================================================
-// TRANSACTION QUERIES
-// ============================================================================
-
-/**
- * Get all transactions with optional filtering
- * @param params - Transaction filter parameters
- * @param organizationId - Optional organization ID to scope data (future support)
- * @returns Transactions with pagination
- */
-export function useBankingTransactions(params?: BankTransactionParams, organizationId?: string) {
-  const { isAuthReady } = useAuthReady();
-
-  // Banking API doesn't support organization scoping yet
-  // organizationId is accepted for future backend support
-  return useQuery({
-    ...bankingQueries.transactions(params),
-    enabled: isAuthReady,
-  });
-}
-
-/**
- * Get transactions for a specific account
- * @param accountId - Account ID
- * @param params - Transaction filter parameters
- * @param organizationId - Optional organization ID to scope data (future support)
- * @returns Account transactions with pagination
- */
-export function useAccountTransactions(
-  accountId: string | null,
-  params?: Omit<BankTransactionParams, 'accountId'>,
-  organizationId?: string
-) {
-  const { isAuthReady } = useAuthReady();
-
-  // Banking API doesn't support organization scoping yet
-  // organizationId is accepted for future backend support
-  return useQuery({
-    ...bankingQueries.accountTransactions(accountId!, params),
-    enabled: isAuthReady && !!accountId,
-  });
-}
-
-/**
- * Get transactions for the currently selected account
- * @param params - Transaction filter parameters
- * @param organizationId - Optional organization ID to scope data (future support)
- * @returns Selected account transactions
- */
-export function useSelectedAccountTransactions(params?: Omit<BankTransactionParams, 'accountId'>, organizationId?: string) {
-  const selectedAccountId = useBankingUIStore((state) => state.selectedAccountId);
-  return useAccountTransactions(selectedAccountId, params, organizationId);
-}
 
 // ============================================================================
 // ENROLLMENT QUERIES

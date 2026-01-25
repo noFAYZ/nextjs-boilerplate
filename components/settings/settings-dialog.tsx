@@ -57,7 +57,7 @@ import type { UserPreferences } from '@/lib/types/settings';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { PlanType } from '@/lib/types';
 import { Card } from '../ui/card';
-import { useProviderConnections, useDisconnectConnection, useSyncConnection, useReconnectConnection, useDeleteConnection } from '@/lib/queries/banking-queries';
+import { useProviderConnections, useDisconnectConnection, useSyncConnection, useReconnectConnection, useDeleteConnection } from '@/lib/queries/use-banking-data';
 import {
   useCurrentBillingSubscription,
   usePaymentHistory,
