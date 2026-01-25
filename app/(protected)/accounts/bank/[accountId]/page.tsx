@@ -40,7 +40,6 @@ import {
 
 import {
   useBankAccount,
-  useAccountTransactions,
   bankingMutations,
 } from "@/lib/queries/banking-queries";
 import { useRouter, useParams } from "next/navigation";
@@ -148,8 +147,9 @@ export default function BankAccountDetailsPage() {
     isLoading: accountLoading,
     error: accountError,
   } = useBankAccount(accountId);
-  const { data: transactionsData = [], isLoading: transactionsLoading } =
-    useAccountTransactions(accountId);
+  // Transactions are no longer fetched from banking module - use transactions module instead
+  const transactionsData: any[] = [];
+  const transactionsLoading = false;
 
   const transactions = useMemo(
     () => transactionsData || [],

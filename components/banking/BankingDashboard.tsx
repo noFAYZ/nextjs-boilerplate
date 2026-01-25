@@ -46,8 +46,6 @@ import { BankTransactionList } from './BankTransactionCard';
 import { BankingGlobalSyncStatus } from './BankAccountSyncProgress';
 import {
   useBankingGroupedAccounts,
-  useBankingOverview,
-  useBankingTransactions,
   useTopSpendingCategories,
   useMonthlySpendingTrend
 } from '@/lib/queries/use-banking-data';
@@ -102,11 +100,6 @@ export function BankingDashboard({
 
   // Queries (banking endpoints)
   const { data: groupedAccountsRaw = {}, isLoading: accountsLoading, refetch: refetchAccounts } = useBankingGroupedAccounts();
-  const { data: overview, isLoading: overviewLoading, refetch: refetchOverview } = useBankingOverview();
-  const { data: transactionsData = [], isLoading: transactionsLoading } = useBankingTransactions({
-    limit: 10,
-    startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd')
-  });
 
   // Extract all accounts from grouped data
   const accounts = useMemo(() => {
@@ -115,10 +108,8 @@ export function BankingDashboard({
 
   console.log('Grouped accounts raw:', groupedAccountsRaw);
 
-  // Extract transactions from the response
-  const recentTransactions = Array.isArray(transactionsData)
-    ? transactionsData
-    : transactionsData?.data || [];
+  // Transactions are no longer fetched separately - use transactions module for transaction queries
+  const recentTransactions: BankTransaction[] = [];
   const { data: spendingCategories = [] } = useTopSpendingCategories({ timeRange: selectedTimeRange });
   const { data: monthlyTrend = [] } = useMonthlySpendingTrend({ timeRange: selectedTimeRange });
 
@@ -210,7 +201,7 @@ export function BankingDashboard({
       try {
         await disconnectAccount.mutateAsync(account.id);
         refetchAccounts();
-        refetchOverview();
+        refetchAccounts();
       } catch (error) {
         console.error('Failed to disconnect account:', error);
       }
@@ -227,7 +218,7 @@ export function BankingDashboard({
 
   const handleConnectSuccess = () => {
     refetchAccounts();
-    refetchOverview();
+    refetchAccounts();
   };
 
   const enterManageMode = () => {
@@ -274,7 +265,7 @@ export function BankingDashboard({
     // Force refresh of all data after deletion
     setTimeout(() => {
       refetchAccounts();
-      refetchOverview();
+      refetchAccounts();
     }, 500);
 
     return { success: successEnrollments, failed: failedEnrollments };
