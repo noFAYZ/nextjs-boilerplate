@@ -1,19 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
+import { cn } from "@/lib/utils";
 import type { SubscriptionCategory, SubscriptionStatus, BillingCycle } from "@/lib/types/subscription";
 
 interface SubscriptionFiltersSheetProps {
@@ -91,25 +91,30 @@ export function SubscriptionFiltersSheet({
     (filters?.billingCycles?.length || 0) > 0;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Filter Subscriptions</SheetTitle>
-          <SheetDescription>
+    <Drawer open={open} onOpenChange={onClose}>
+      <DrawerContent className="max-w-xl mx-auto rounded-b-none">
+        <DrawerHeader className="pb-4">
+          <DrawerTitle className="text-lg">Filters</DrawerTitle>
+          <DrawerDescription className="mt-1">
             Refine your subscription list by category, status, and billing cycle
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
-        <div className="space-y-6 p-6">
-          {/* Categories */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">Categories</Label>
+        <div className="flex-1 overflow-y-auto">
+          {/* Categories Section */}
+          <div className="px-4 pt-6 pb-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Filter className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm">Categories</h3>
+              </div>
               {(filters?.categories?.length || 0) > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 text-xs"
+                  className="h-auto p-0 text-xs hover:text-destructive"
                   onClick={() => setCategoryFilter([])}
                 >
                   Clear
@@ -123,7 +128,10 @@ export function SubscriptionFiltersSheet({
                   <Badge
                     key={category.value}
                     variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer"
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      isSelected && "bg-primary text-primary-foreground"
+                    )}
                     onClick={() => toggleCategory(category.value)}
                   >
                     {category.label}
@@ -134,17 +142,22 @@ export function SubscriptionFiltersSheet({
             </div>
           </div>
 
-          <Separator />
+          <Separator className="my-2 mx-4" />
 
-          {/* Status */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">Status</Label>
+          {/* Status Section */}
+          <div className="px-4 py-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Filter className="h-4 w-4 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm">Status</h3>
+              </div>
               {(filters?.statuses?.length || 0) > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 text-xs"
+                  className="h-auto p-0 text-xs hover:text-destructive"
                   onClick={() => setStatusFilter([])}
                 >
                   Clear
@@ -158,7 +171,10 @@ export function SubscriptionFiltersSheet({
                   <Badge
                     key={status.value}
                     variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer"
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      isSelected && "bg-primary text-primary-foreground"
+                    )}
                     onClick={() => toggleStatus(status.value)}
                   >
                     {status.label}
@@ -169,17 +185,22 @@ export function SubscriptionFiltersSheet({
             </div>
           </div>
 
-          <Separator />
+          <Separator className="my-2 mx-4" />
 
-          {/* Billing Cycle */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">Billing Cycle</Label>
+          {/* Billing Cycle Section */}
+          <div className="px-4 py-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Filter className="h-4 w-4 text-green-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm">Billing Cycle</h3>
+              </div>
               {(filters?.billingCycles?.length || 0) > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 text-xs"
+                  className="h-auto p-0 text-xs hover:text-destructive"
                   onClick={() => setBillingCycleFilter([])}
                 >
                   Clear
@@ -193,7 +214,10 @@ export function SubscriptionFiltersSheet({
                   <Badge
                     key={cycle.value}
                     variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer"
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      isSelected && "bg-primary text-primary-foreground"
+                    )}
                     onClick={() => toggleBillingCycle(cycle.value)}
                   >
                     {cycle.label}
@@ -203,26 +227,23 @@ export function SubscriptionFiltersSheet({
               })}
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-2 pt-4 border-t">
-          <Button variant="outline" className="flex-1" onClick={onClose}>
-            Close
-          </Button>
           {hasActiveFilters && (
-            <Button
-              variant="destructive"
-              className="flex-1"
-              onClick={() => {
-                clearFilters();
-                onClose();
-              }}
-            >
-              Clear All
-            </Button>
+            <div className="px-4 py-4">
+              <Button
+                variant="outline"
+                className="w-full text-destructive hover:bg-destructive/5"
+                onClick={() => {
+                  clearFilters();
+                  onClose();
+                }}
+              >
+                Clear All Filters
+              </Button>
+            </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

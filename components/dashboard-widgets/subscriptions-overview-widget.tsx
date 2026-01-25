@@ -5,6 +5,7 @@ import {
   Calendar,
   ArrowRight,
   Zap,
+  RefreshCcw,
 } from 'lucide-react';
 import { useSubscriptions } from '@/lib/queries';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +16,7 @@ import { getLogoUrl } from '@/lib/services/logo-service';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
-import { SolarInboxInBoldDuotone } from '../icons/icons';
+import { SolarInboxInBoldDuotone, SolarRefreshCircleBoldDuotone } from '../icons/icons';
 import { RefetchLoadingOverlay } from '../ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
 import { WidgetSkeleton } from '../ui/widget-skeleton';
@@ -51,19 +52,19 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
   return (
     <Link href={`/subscriptions/${subscription.id}`}>
       <div className={cn(
-        "group relative flex items-center gap-2.5 p-2 rounded-lg transition-all duration-75",
-        "hover:bg-muted/60 cursor-pointer",
-        isDueToday && "bg-destructive/5 hover:bg-destructive/10",
-        isUrgent && !isDueToday && "bg-orange-500/5 hover:bg-orange-500/10"
+        "group relative flex items-center gap-2.5 p-2.5 rounded-lg transition-all duration-75",
+        "hover:bg-muted cursor-pointer",
+        isDueToday && "bg-destructive/15 hover:bg-destructive/10",
+        isUrgent && !isDueToday && "bg-orange-500/15 hover:bg-orange-500/10"
       )}>
         {/* Logo */}
         <div className="relative flex-shrink-0">
-          <Avatar className="h-10 w-10 rounded-full">
+          <Avatar className="h-8 w-8 rounded-md">
             {subscription.websiteUrl ? (
               <AvatarImage
                 src={getLogoUrl(subscription.websiteUrl) || ""}
                 alt={subscription.name}
-                className="object-contain bg-background rounded-full"
+                className="object-contain bg-background rounded-md"
               />
             ) : (
               <AvatarFallback className="bg-muted text-[10px] font-bold text-muted-foreground">
@@ -72,8 +73,8 @@ function SubscriptionItem({ subscription }: { subscription: UserSubscription }) 
             )}
           </Avatar>
           {subscription.autoRenew && (
-            <div className="absolute -bottom-0.5 -right-0.5 rounded-full p-[4px] bg-emerald-500 ring-1 ring-background">
-              <Zap className="h-2 w-2 text-white" fill="currentColor" />
+            <div className="absolute -bottom-0.5 -right-0.5 rounded-full p-[3px] bg-emerald-600 ring-1 ring-background">
+              <RefreshCcw className="h-2 w-2 text-white" fill="currentColor" />
             </div>
           )}
         </div>
@@ -165,20 +166,20 @@ function SubscriptionsOverviewWidgetComponent() {
           billingDate.setHours(0, 0, 0, 0);
           return billingDate >= today && billingDate <= sevenDaysFromNow;
         })
-        .slice(0, 4);
+        .slice(0, 6);
 
       if (upcoming.length === 0) {
-        return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 4);
+        return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 6);
       }
       return upcoming;
     }
 
     if (activeTab === 'active') {
-      return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 4);
+      return allSubscriptions.filter(sub => sub.status === 'ACTIVE').slice(0, 6);
     }
 
     if (activeTab === 'trial') {
-      return allSubscriptions.filter(sub => sub.status === 'TRIAL').slice(0, 4);
+      return allSubscriptions.filter(sub => sub.status === 'TRIAL').slice(0, 6);
     }
 
     return [];
@@ -250,9 +251,9 @@ function SubscriptionsOverviewWidgetComponent() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="px-2">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className=" ">
                 <TabsList variant="pill" size="sm" className="w-full">
                   <TabsTrigger value="upcoming" variant="pill" size="sm" className="flex-1">
                     <span>Upcoming</span>
@@ -277,7 +278,7 @@ function SubscriptionsOverviewWidgetComponent() {
 
               {/* Subscriptions List */}
               {subscriptionsToShow.length > 0 ? (
-                <div className="space-y-1.5 px-2">
+                <div>
                   {subscriptionsToShow.map((subscription) => (
                     <SubscriptionItem
                       key={subscription.id}

@@ -88,7 +88,7 @@ export function SubscriptionCard({
         onClick={handleCardClick}
         interactive
         className={cn(
-          "group relative flex flex-col justify-between border border-border/50 ",
+          "group relative flex flex-col justify-between border  ",
           "cursor-pointer"
         )}
       >
@@ -109,18 +109,22 @@ export function SubscriptionCard({
               <h3 className="font-semibold text-sm truncate flex gap-2">
                 {subscription.name}
                 {subscription.autoRenew && (
-                  <div className="text-[10px] bg-primary/10 text-primary px-1 rounded-full border border-primary/20">
+                  <Badge className="text-[10px]   rounded-sm"
+                  variant="muted"
+                  >
                     Auto-renew
-                  </div>
+                  </Badge>
                 )}
                        <Badge
               className={cn(
-                "flex items-center gap-1 px-1  text-[10px] font-medium rounded-full",
-                statusColor[subscription.status]
+                "flex items-center gap-1 px-1  text-[10px] font-semibold rounded-sm",
+              
               )}
+              size="sm"
+              variant="success"
             >
-              {getStatusIcon()}
-              {subscription.status.toLowerCase()}
+     
+              {subscription.status.toUpperCase()}
             </Badge>
               </h3>
               <p className="text-xs text-muted-foreground truncate">

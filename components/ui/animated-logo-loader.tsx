@@ -51,7 +51,7 @@ export const AnimatedLogoLoader = React.memo(function AnimatedLogoLoader({
           sizeConfig.container,
           'flex items-center justify-center',
           'will-change-transform', // GPU acceleration hint
-          animationClass,
+ 
         )}
         aria-hidden="true"
       >

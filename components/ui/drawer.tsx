@@ -97,7 +97,7 @@ function DrawerContent({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "group/drawer-content fixed z-50 flex flex-col bg-background sm:rounded-lg",
+          "group/drawer-content fixed z-50 flex flex-col bg-background sm:rounded-t-xl ",
           "transition-transform duration-75 ease-out",
           // Top drawer
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:max-h-[85vh] data-[vaul-drawer-direction=top]:border-b",

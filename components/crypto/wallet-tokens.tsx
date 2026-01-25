@@ -119,7 +119,7 @@ const TokenIcon = ({ token, isLoading }: { token: TokenPosition; isLoading?: boo
   }
 
   return (
-    <div className="relative h-10 w-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
+    <div className="relative h-9 w-9 rounded-full overflow-hidden bg-muted flex-shrink-0">
       {token.asset.logoUrl ? (
         <Image
           src={token.asset.logoUrl}

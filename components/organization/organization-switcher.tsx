@@ -172,7 +172,7 @@ export function OrganizationSwitcher({
       {/* Trigger */}
       <PopoverTrigger asChild>
         <Button
-          variant={compact ? 'outline2' : 'outline2'}
+          variant={compact ? 'ghost' : 'ghost'}
           size={compact ? 'icon-lg' : 'lg'}
           disabled={isSwitching}
           className={cn(

@@ -98,7 +98,7 @@ function CryptoAllocationWidgetComponent() {
                     key={token.symbol}
                     className={`rounded-lg p-3 ${token.color} cursor-pointer ${isFirstToken ? 'row-span-2' : ''}`}
                     style={{
-                      minHeight: isFirstToken ? '140px' : '68px',
+                      minHeight: isFirstToken ? '240px' : '126px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between'

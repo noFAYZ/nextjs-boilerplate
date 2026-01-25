@@ -7,11 +7,11 @@ import { AccountTabs } from './page-tabs/account-tabs';
 export function PageTabs() {
   const pathname = usePathname();
 
-  // Only show tabs on main pages, not on sub-pages
-  const isAccountsMainPage = pathname === '/accounts';
+  // Show AccountTabs on all /accounts/* routes
+  const isAccountsSection = pathname.startsWith('/accounts');
   const isTransactionsMainPage = pathname === '/transactions';
 
-  if (!isAccountsMainPage && !isTransactionsMainPage) {
+  if (!isAccountsSection && !isTransactionsMainPage) {
     return null;
   }
 
@@ -20,8 +20,8 @@ export function PageTabs() {
     return <TransactionTabs />;
   }
 
-  // Accounts tabs
-  if (isAccountsMainPage) {
+  // Accounts tabs - show on all /accounts/* routes
+  if (isAccountsSection) {
     return <AccountTabs />;
   }
 

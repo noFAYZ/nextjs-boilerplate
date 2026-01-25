@@ -1134,7 +1134,7 @@ export function NetWorthChart({
         </div>
 
         {/* Chart container */}
-        <div className="relative rounded-md overflow-visible bg-muted/30 border-0 -mr-4" style={{ height }}>
+        <div className="relative overflow-visible border-0 -mr-4" style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (

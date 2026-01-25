@@ -128,10 +128,11 @@ export function BankAccountsDataTable({
 
   // Filter and search accounts
   const filteredAccounts = accounts.filter((account) => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
-      account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.institutionName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.accountNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      (account.name?.toLowerCase().includes(searchLower) ?? false) ||
+      (account.institutionName?.toLowerCase().includes(searchLower) ?? false) ||
+      (account.accountNumber?.toLowerCase().includes(searchLower) ?? false);
 
     if (!matchesSearch) return false;
 
@@ -145,12 +146,18 @@ export function BankAccountsDataTable({
   // Sort accounts
   const sortedAccounts = [...filteredAccounts].sort((a, b) => {
     switch (sortBy) {
-      case "balance":
-        return parseFloat(b.balance.toString()) - parseFloat(a.balance.toString());
+      case "balance": {
+        const balanceA = parseFloat((a.balance ?? 0).toString());
+        const balanceB = parseFloat((b.balance ?? 0).toString());
+        return balanceB - balanceA;
+      }
       case "name":
-        return a.name.localeCompare(b.name);
-      case "lastSync":
-        return new Date(b.lastTellerSync).getTime() - new Date(a.lastTellerSync).getTime();
+        return (a.name ?? "").localeCompare(b.name ?? "");
+      case "lastSync": {
+        const dateA = a.lastTellerSync ? new Date(a.lastTellerSync).getTime() : 0;
+        const dateB = b.lastTellerSync ? new Date(b.lastTellerSync).getTime() : 0;
+        return dateB - dateA;
+      }
       default:
         return 0;
     }
@@ -341,9 +348,9 @@ export function BankAccountsDataTable({
               const gradient = bankTypeGradients[account.type] || bankTypeGradients.DEFAULT;
               const accountLabel = accountTypeLabels[account.type] || account.type;
               const lastFour = account.accountNumber?.slice(-4);
-              const balance = parseFloat(account.availableBalance || account.balance.toString() || "0");
+              const balance = parseFloat((account.availableBalance ?? account.balance ?? 0).toString());
               const isCreditCard = account.type === "CREDIT_CARD";
-              const creditLimit = isCreditCard ? parseFloat(account.ledgerBalance || "0") : 0;
+              const creditLimit = isCreditCard ? parseFloat((account.ledgerBalance ?? 0).toString()) : 0;
               const creditUsed = isCreditCard && creditLimit > 0 ? creditLimit - balance : 0;
 
               const isSelected = selectedIds.includes(account.id);
@@ -389,14 +396,14 @@ export function BankAccountsDataTable({
                           <>
                             <div className="flex items-center gap-1 sm:gap-2">
                               <p className="font-semibold text-xs sm:text-sm truncate">
-                                {account.name}
+                                {account.name ?? "Unnamed Account"}
                               </p>
                               <Badge variant="outline" className="hidden sm:inline-flex text-xs rounded-sm">
                                 {accountLabel}
                               </Badge>
                             </div>
                             <p className="text-xs text-muted-foreground truncate hidden sm:block">
-                              {account.institutionName} • ****{lastFour}
+                              {account.institutionName ?? "Unknown Bank"} • {lastFour ? `****${lastFour}` : "No account number"}
                             </p>
                           </>
                         )}
@@ -450,13 +457,15 @@ export function BankAccountsDataTable({
                   <TableCell className="hidden lg:table-cell text-right px-4 py-3">
                     {isOperating ? (
                       <div className="h-5 bg-muted animate-pulse rounded w-32 ml-auto" />
-                    ) : (
+                    ) : account.lastTellerSync ? (
                       <div className="flex items-center justify-end gap-1.5">
                         <SolarClockCircleBoldDuotone className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(account.lastTellerSync), { addSuffix: true })}
                         </span>
                       </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Never</span>
                     )}
                   </TableCell>
 

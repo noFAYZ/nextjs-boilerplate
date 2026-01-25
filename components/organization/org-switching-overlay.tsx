@@ -33,7 +33,7 @@ export function OrgSwitchingOverlay({
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 flex items-center justify-center',
+        'fixed inset-0 z-60 flex items-center justify-center',
         'bg-black/40 backdrop-blur-sm',
         'animate-in fade-in-0 duration-200',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none'

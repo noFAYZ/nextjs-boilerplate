@@ -31,6 +31,19 @@ import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { UserSubscription } from "@/lib/types/subscription";
 import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
 import { Input } from "@/components/ui/input";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import { SubscriptionFiltersSheet } from "./subscription-filters-sheet";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import styles from "./subscriptions-data-table.module.css";
 
 interface SubscriptionsDataTableProps {
@@ -441,7 +454,10 @@ export function SubscriptionsDataTable({
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const deletingSubscriptionIds = useSubscriptionUIStore((state) => state.deletingSubscriptionIds);
+  const { viewPreferences, setWalletsView } = useSubscriptionUIStore();
 
   const handleImageError = useCallback((subscriptionId: string) => {
     setImageErrors((prev) => new Set(prev).add(subscriptionId));
@@ -572,6 +588,7 @@ export function SubscriptionsDataTable({
               variant="outline3"
               size="xs"
               className="flex items-center gap-2 rounded-sm"
+              onClick={() => setIsFiltersOpen(true)}
             >
               <Filter className="h-4 w-4" />
               Filters
@@ -580,6 +597,7 @@ export function SubscriptionsDataTable({
               variant="outline3"
               size="xs"
               className="flex items-center gap-2 rounded-sm"
+              onClick={() => setIsSettingsOpen(true)}
             >
               <Settings2 className="h-4 w-4" />
               Settings
@@ -698,6 +716,134 @@ export function SubscriptionsDataTable({
           </div>
         </nav>
       )}
+
+      {/* Filters Drawer */}
+      <SubscriptionFiltersSheet
+        open={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+      />
+
+      {/* Settings Drawer */}
+      <Drawer open={isSettingsOpen} onOpenChange={setIsSettingsOpen}  >
+        <DrawerContent  className="  max-w-xl mx-auto rounded-b-none">
+          <DrawerHeader className="  pb-4">
+        
+                <DrawerTitle className="text-lg">Preferences</DrawerTitle>
+                <DrawerDescription className="mt-1">
+                  Customize how the table looks and behaves
+                </DrawerDescription>
+             
+          </DrawerHeader>
+
+          <div className="flex-1 overflow-y-auto">
+            {/* View Preferences Section */}
+            <div className="px-4 pt-6 pb-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Settings2 className="h-4 w-4 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm">View Preferences</h3>
+              </div>
+
+              <div className="space-y-2">
+                {/* Show Cancelled */}
+                <div className={cn(
+                  "flex items-center justify-between p-3 rounded-lg transition-all",
+                  "bg-muted/40 hover:bg-muted/60 cursor-pointer"
+                )}>
+                  <div className="flex-1 pr-3">
+                    <p className="text-sm font-medium text-foreground">
+                      Show Cancelled
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Include cancelled subscriptions
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+
+                {/* Show Trials */}
+                <div className={cn(
+                  "flex items-center justify-between p-3 rounded-lg transition-all",
+                  "bg-muted/40 hover:bg-muted/60 cursor-pointer"
+                )}>
+                  <div className="flex-1 pr-3">
+                    <p className="text-sm font-medium text-foreground">
+                      Show Trials
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Display trial subscriptions
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+
+                {/* Compact View */}
+                <div className={cn(
+                  "flex items-center justify-between p-3 rounded-lg transition-all",
+                  "bg-muted/40 hover:bg-muted/60 cursor-pointer"
+                )}>
+                  <div className="flex-1 pr-3">
+                    <p className="text-sm font-medium text-foreground">
+                      Compact View
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Reduce spacing for more rows
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Display Options Section */}
+            <div className="px-4 py-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Filter className="h-4 w-4 text-blue-500" />
+                </div>
+                <h3 className="font-semibold text-sm">Display Options</h3>
+              </div>
+
+              <div className="space-y-3">
+                {/* Show Logo */}
+                <div className={cn(
+                  "flex items-center justify-between p-3 rounded-lg transition-all",
+                  "bg-muted/40 hover:bg-muted/60 cursor-pointer"
+                )}>
+                  <div className="flex-1 pr-3">
+                    <p className="text-sm font-medium text-foreground">
+                      Show Logos
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Display service logos in table
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+
+                {/* Show Description */}
+                <div className={cn(
+                  "flex items-center justify-between p-3 rounded-lg transition-all",
+                  "bg-muted/40 hover:bg-muted/60 cursor-pointer"
+                )}>
+                  <div className="flex-1 pr-3">
+                    <p className="text-sm font-medium text-foreground">
+                      Show Descriptions
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Show details on hover
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
