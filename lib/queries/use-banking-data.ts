@@ -677,6 +677,154 @@ export function useInvalidateBankingCache() {
   };
 }
 
+// ============================================================================
+// PROVIDER CONNECTION QUERIES
+// ============================================================================
+
+/**
+ * Get all provider connections (banks, credit unions, etc.)
+ * @param organizationId - Optional organization ID to scope data
+ * @returns All provider connections with loading/error states
+ */
+export function useProviderConnections(organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+
+  // organizationId is accepted for future backend support
+  return useQuery({
+    ...bankingQueries.connections(organizationId),
+    enabled: isAuthReady,
+  });
+}
+
+/**
+ * Get a specific provider connection by ID
+ * @param connectionId - Connection ID to fetch
+ * @param organizationId - Optional organization ID to scope data
+ * @returns Connection data with loading/error states
+ */
+export function useProviderConnection(connectionId: string | null, organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+
+  // organizationId is accepted for future backend support
+  return useQuery({
+    ...bankingQueries.connection(connectionId!, organizationId),
+    enabled: isAuthReady && !!connectionId,
+  });
+}
+
+/**
+ * Get connection health status
+ * @param connectionId - Connection ID to check
+ * @param organizationId - Optional organization ID to scope data
+ * @returns Connection health status
+ */
+export function useConnectionHealth(connectionId: string | null, organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+
+  // organizationId is accepted for future backend support
+  return useQuery({
+    ...bankingQueries.connectionHealth(connectionId!, organizationId),
+    enabled: isAuthReady && !!connectionId,
+  });
+}
+
+/**
+ * Get connection sync status
+ * @param connectionId - Connection ID to check
+ * @param organizationId - Optional organization ID to scope data
+ * @returns Connection sync progress/status
+ */
+export function useConnectionSyncStatus(connectionId: string | null, organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+
+  // organizationId is accepted for future backend support
+  return useQuery({
+    ...bankingQueries.connectionSyncStatus(connectionId!, organizationId),
+    enabled: isAuthReady && !!connectionId,
+  });
+}
+
+// ============================================================================
+// PROVIDER CONNECTION MUTATIONS
+// ============================================================================
+
+/**
+ * Disconnect a provider connection
+ * @param organizationId - Optional organization ID to scope data (for future support)
+ * @returns Mutation hook with automatic cache invalidation
+ */
+export function useDisconnectConnection(organizationId?: string) {
+  // organizationId is accepted for future backend support
+  return bankingMutations.useDisconnectConnection();
+}
+
+/**
+ * Sync a provider connection
+ * @param organizationId - Optional organization ID to scope data (for future support)
+ * @returns Mutation hook
+ */
+export function useSyncConnection(organizationId?: string) {
+  // organizationId is accepted for future backend support
+  return bankingMutations.useSyncConnection();
+}
+
+/**
+ * Batch sync multiple provider connections
+ * @param organizationId - Optional organization ID to scope data (for future support)
+ * @returns Mutation hook
+ */
+export function useBatchSyncConnections(organizationId?: string) {
+  // organizationId is accepted for future backend support
+  return bankingMutations.useBatchSyncConnections();
+}
+
+/**
+ * Reconnect a provider connection
+ * @param organizationId - Optional organization ID to scope data (for future support)
+ * @returns Mutation hook
+ */
+export function useReconnectConnection(organizationId?: string) {
+  // organizationId is accepted for future backend support
+  return (bankingMutations as any).useReconnectConnection?.() || bankingMutations.useSyncConnection();
+}
+
+/**
+ * Delete a provider connection
+ * @param organizationId - Optional organization ID to scope data (for future support)
+ * @returns Mutation hook
+ */
+export function useDeleteConnection(organizationId?: string) {
+  // organizationId is accepted for future backend support
+  return (bankingMutations as any).useDeleteConnection?.() || {
+    mutate: () => console.warn('Delete not implemented'),
+    mutateAsync: () => Promise.reject('Delete not implemented'),
+    isPending: false,
+  };
+}
+
+// ============================================================================
+// UTILITY HOOKS
+// ============================================================================
+
+/**
+ * Invalidate all banking-related queries
+ * @returns Invalidation functions
+ */
+export function useInvalidateBankingCache() {
+  const queryClient = useQueryClient();
+
+  return {
+    invalidateAll: () => queryClient.invalidateQueries({ queryKey: bankingKeys.all }),
+    invalidateAccounts: () => queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() }),
+    invalidateAccount: (id: string) => queryClient.invalidateQueries({ queryKey: bankingKeys.account(id) }),
+    invalidateOverview: () => queryClient.invalidateQueries({ queryKey: bankingKeys.overview() }),
+    invalidateDashboard: () => queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() }),
+    invalidateTransactions: () => queryClient.invalidateQueries({ queryKey: bankingKeys.transactions() }),
+    invalidateAnalytics: () => queryClient.invalidateQueries({ queryKey: [...bankingKeys.all, 'analytics'] }),
+    invalidateConnections: () => queryClient.invalidateQueries({ queryKey: bankingKeys.connections() }),
+  };
+}
+
 /**
  * Prefetch banking data for performance
  * @returns Prefetch functions
@@ -704,6 +852,11 @@ export function usePrefetchBankingData() {
     prefetchDashboard: () => {
       if (isAuthReady) {
         queryClient.prefetchQuery(bankingQueries.dashboard());
+      }
+    },
+    prefetchConnections: () => {
+      if (isAuthReady) {
+        queryClient.prefetchQuery(bankingQueries.connections());
       }
     },
   };

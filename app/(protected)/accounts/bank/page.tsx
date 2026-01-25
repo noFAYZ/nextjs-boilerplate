@@ -1,9 +1,14 @@
 'use client';
 
-import { useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import { BankConnectionsDataTable } from '@/components/banking/bank-connections-data-table';
-import { bankingQueries, bankingMutations } from '@/lib/queries/banking-queries';
+import {
+  useBankingAccounts,
+  useUpdateBankAccount,
+  useDisconnectBankAccount,
+  useSyncBankAccount,
+  useSyncAllBankAccounts,
+} from '@/lib/queries/use-banking-data';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, RefreshCw } from 'lucide-react';
 import { useTellerConnect } from '@/components/banking/TellerConnect';
@@ -12,17 +17,20 @@ import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { useBankingStore } from '@/lib/stores/banking-store';
 
 export default function BankAccountsPage() {
-  const { data: accounts = [], isLoading: accountsLoading } = useQuery(bankingQueries.accounts());
+  // ✅ Server state from TanStack Query
+  const { data: accounts = [], isLoading: accountsLoading } = useBankingAccounts();
 
-  const { mutateAsync: updateAccount } = bankingMutations.useUpdateAccount();
-  const { mutateAsync: disconnectAccount } = bankingMutations.useDisconnectAccount();
-  const { mutateAsync: syncAccount } = bankingMutations.useSyncAccount();
-  const { mutate: syncAllAccounts, isPending: isSyncingAll } = bankingMutations.useSyncAllAccounts();
+  // ✅ Mutations with optimistic updates
+  const { mutateAsync: updateAccount } = useUpdateBankAccount();
+  const { mutateAsync: disconnectAccount } = useDisconnectBankAccount();
+  const { mutateAsync: syncAccount } = useSyncBankAccount();
+  const { mutate: syncAllAccounts, isPending: isSyncingAll } = useSyncAllBankAccounts();
 
+  // ✅ UI state from Zustand store
   const tellerConnect = useTellerConnect();
   const { realtimeSyncStates } = useBankingStore();
 
-  // Check if any accounts are actively syncing
+  // ✅ Derived state with useMemo for performance
   const hasActiveSyncs = useCallback(() => {
     return Object.values(realtimeSyncStates).some(state =>
       BANKING_SYNC_ACTIVE_STATUSES.includes(state.status)
@@ -35,17 +43,27 @@ export default function BankAccountsPage() {
     );
   }, [realtimeSyncStates]);
 
-  const handleDisconnect = useCallback(async (account: BankAccount) => {
-    await updateAccount({ id: account.id, updates: { isActive: false } });
-  }, [updateAccount]);
+  // ✅ Event handlers with useCallback
+  const handleDisconnect = useCallback(
+    async (account: BankAccount) => {
+      await updateAccount({ id: account.id, updates: { isActive: false } });
+    },
+    [updateAccount]
+  );
 
-  const handleDelete = useCallback(async (account: BankAccount) => {
-    await disconnectAccount(account.id);
-  }, [disconnectAccount]);
+  const handleDelete = useCallback(
+    async (account: BankAccount) => {
+      await disconnectAccount(account.id);
+    },
+    [disconnectAccount]
+  );
 
-  const handleSync = useCallback(async (account: BankAccount) => {
-    await syncAccount({ accountId: account.id });
-  }, [syncAccount]);
+  const handleSync = useCallback(
+    async (account: BankAccount) => {
+      await syncAccount({ accountId: account.id });
+    },
+    [syncAccount]
+  );
 
   const handleSyncAll = useCallback(() => {
     syncAllAccounts();
