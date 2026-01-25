@@ -656,28 +656,6 @@ export function useDeleteBankEnrollment() {
 }
 
 // ============================================================================
-// UTILITY HOOKS
-// ============================================================================
-
-/**
- * Invalidate all banking-related queries
- * @returns Invalidation functions
- */
-export function useInvalidateBankingCache() {
-  const queryClient = useQueryClient();
-
-  return {
-    invalidateAll: () => queryClient.invalidateQueries({ queryKey: bankingKeys.all }),
-    invalidateAccounts: () => queryClient.invalidateQueries({ queryKey: bankingKeys.accounts() }),
-    invalidateAccount: (id: string) => queryClient.invalidateQueries({ queryKey: bankingKeys.account(id) }),
-    invalidateOverview: () => queryClient.invalidateQueries({ queryKey: bankingKeys.overview() }),
-    invalidateDashboard: () => queryClient.invalidateQueries({ queryKey: bankingKeys.dashboard() }),
-    invalidateTransactions: () => queryClient.invalidateQueries({ queryKey: bankingKeys.transactions() }),
-    invalidateAnalytics: () => queryClient.invalidateQueries({ queryKey: [...bankingKeys.all, 'analytics'] }),
-  };
-}
-
-// ============================================================================
 // PROVIDER CONNECTION QUERIES
 // ============================================================================
 
