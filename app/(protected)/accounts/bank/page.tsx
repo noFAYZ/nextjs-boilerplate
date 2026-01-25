@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { BankConnectionsDataTable } from '@/components/banking/bank-connections-data-table';
 import {
-  useBankingAccounts,
+  useProviderConnectionsWithAccounts,
   useUpdateBankAccount,
   useDisconnectBankAccount,
   useSyncBankAccount,
@@ -17,8 +17,13 @@ import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { useBankingStore } from '@/lib/stores/banking-store';
 
 export default function BankAccountsPage() {
-  // ✅ Server state from TanStack Query
-  const { data: accounts = [], isLoading: accountsLoading } = useBankingAccounts();
+  // ✅ Server state from connections endpoint (includes both connections and their accounts)
+  const { data: connections = [], isLoading: connectionsLoading } = useProviderConnectionsWithAccounts();
+
+  // ✅ Transform connections data to flat accounts for existing handlers
+  const accounts = useMemo(() => {
+    return connections.flatMap((connection: any) => connection.accounts || []);
+  }, [connections]);
 
   // ✅ Mutations with optimistic updates
   const { mutateAsync: updateAccount } = useUpdateBankAccount();
@@ -112,7 +117,7 @@ export default function BankAccountsPage() {
       {/* Bank Connections Table */}
       <BankConnectionsDataTable
         accounts={accounts}
-        isLoading={accountsLoading}
+        isLoading={connectionsLoading}
         onDisconnect={handleDisconnect}
         onDelete={handleDelete}
         onSync={handleSync}

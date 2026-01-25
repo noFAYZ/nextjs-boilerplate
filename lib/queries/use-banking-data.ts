@@ -23,10 +23,10 @@ import {
   bankingKeys,
   bankingQueries,
   bankingMutations,
-  useBankingAccounts as useBaseBankingAccounts,
   useBankingOverview as useBaseBankingOverview,
   useBankingDashboard as useBaseBankingDashboard,
 } from './banking-queries';
+import { bankingApi } from '@/lib/services/banking-api';
 import { invalidateByDependency } from '@/lib/query-invalidation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
@@ -661,6 +661,7 @@ export function useDeleteBankEnrollment() {
 
 /**
  * Get all provider connections (banks, credit unions, etc.)
+ * Note: Returns basic connection info. Use useProviderConnectionsWithAccounts() to get accounts.
  * @param organizationId - Optional organization ID to scope data
  * @returns All provider connections with loading/error states
  */
@@ -670,6 +671,54 @@ export function useProviderConnections(organizationId?: string) {
   // organizationId is accepted for future backend support
   return useQuery({
     ...bankingQueries.connections(organizationId),
+    enabled: isAuthReady,
+  });
+}
+
+/**
+ * Get all provider connections with their accounts
+ * Fetches all connections and their accounts in parallel for efficiency
+ * @param organizationId - Optional organization ID to scope data
+ * @returns All connections with their accounts
+ */
+export function useProviderConnectionsWithAccounts(organizationId?: string) {
+  const { isAuthReady } = useAuthReady();
+  const contextOrgId = useContextOrganizationId(organizationId);
+
+  return useQuery({
+    queryKey: ['banking', 'connections-with-accounts', contextOrgId],
+    queryFn: async () => {
+      try {
+        // Step 1: Get all connections
+        const connectionsResponse = await bankingApi.getConnections({}, contextOrgId);
+
+        if (!connectionsResponse.success || !connectionsResponse.data?.data) {
+          return [];
+        }
+
+        // Step 2: Fetch detailed info for each connection (which includes accounts)
+        const connectionsWithAccounts = await Promise.all(
+          connectionsResponse.data.data.map(async (connection: any) => {
+            try {
+              const detailResponse = await bankingApi.getConnection(connection.id, contextOrgId);
+              if (detailResponse.success && detailResponse.data) {
+                return detailResponse.data;
+              }
+              return { ...connection, accounts: [] };
+            } catch (error) {
+              console.warn(`Failed to fetch connection details for ${connection.id}`, error);
+              return { ...connection, accounts: [] };
+            }
+          })
+        );
+
+        return connectionsWithAccounts;
+      } catch (error) {
+        console.error('Failed to fetch connections with accounts:', error);
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: isAuthReady,
   });
 }
