@@ -193,67 +193,99 @@ const BankConnectionRow = memo(function BankConnectionRow({
         </TableCell>
       </TableRow>
 
-      {/* Expanded Accounts Row */}
+      {/* Expanded Accounts Rows */}
+      {isExpanded &&
+        connection.accounts.map((account) => (
+          <TableRow
+            key={account.id}
+            className="border-b border-border bg-secondary/20 dark:bg-background/50 hover:bg-secondary/30"
+          >
+            <TableCell className="px-2 sm:px-4 py-2"></TableCell>
+
+            <TableCell className="px-2 sm:px-4 py-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Badge variant="outline" className="text-xs rounded-sm whitespace-nowrap">
+                  {account.type}
+                </Badge>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm truncate text-muted-foreground">
+                    {account.name || "Unnamed Account"}
+                  </p>
+                </div>
+              </div>
+            </TableCell>
+
+            <TableCell className="hidden sm:table-cell text-right px-4 py-2">
+              <Badge
+                className={cn("text-xs rounded-md font-medium", getSyncStatusColor(account.syncStatus || "disconnected"))}
+              >
+                {getSyncStatusLabel(account.syncStatus || "disconnected")}
+              </Badge>
+            </TableCell>
+
+            <TableCell className="hidden lg:table-cell text-right px-4 py-2">
+              <p className="text-sm font-medium">
+                <CurrencyDisplay amountUSD={account.balance ?? 0} />
+              </p>
+            </TableCell>
+
+            <TableCell className="hidden lg:table-cell text-right px-4 py-2">
+              <span className="text-xs text-muted-foreground">
+                {account.accountNumber ? `****${account.accountNumber.slice(-4)}` : "No account #"}
+              </span>
+            </TableCell>
+
+            <TableCell className="text-center px-2 sm:px-4 py-2">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => onDelete?.(account)}
+                title="Remove account"
+                aria-label="Remove account"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+
+      {/* Action Buttons Row */}
       {isExpanded && (
-        <TableRow className="border-b border-border bg-secondary dark:bg-background hover:bg-secondary">
-          <TableCell colSpan={6} className="p-2">
-            <div className="space-y-2">
-              {/* Accounts Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
-                {connection.accounts.map((account) => (
-                  <div key={account.id} className="p-2">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">
-                      {account.name || "Unnamed Account"}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs rounded-sm">
-                        {account.type}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {account.accountNumber ? `****${account.accountNumber.slice(-4)}` : "No account #"}
-                    </p>
-                    <p className="text-sm font-semibold mt-1">
-                      <CurrencyDisplay amountUSD={account.balance ?? 0} variant="small" />
-                    </p>
-                  </div>
-                ))}
-              </div>
+        <TableRow className="border-b border-border bg-secondary/20 dark:bg-background/50">
+          <TableCell colSpan={6} className="px-4 py-2">
+            <div className="flex flex-wrap gap-2 items-center">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => onSync?.(primaryAccount)}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Sync All
+              </Button>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 px-4 pb-2 items-center">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => onDisconnect?.(primaryAccount)}
+                className="flex items-center gap-2"
+              >
+                <Power className="h-4 w-4" />
+                Disconnect
+              </Button>
+
+              {connection.accounts.length > 1 && (
                 <Button
-                  variant="outline"
+                  variant="delete"
                   size="xs"
-                  onClick={() => onSync?.(primaryAccount)}
+                  onClick={() => onDelete?.(primaryAccount)}
                   className="flex items-center gap-2"
                 >
-                  <RefreshCw className="h-4 w-4" />
-                  Sync All
+                  <Trash2 className="h-4 w-4" />
+                  Remove All
                 </Button>
-
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => onDisconnect?.(primaryAccount)}
-                  className="flex items-center gap-2"
-                >
-                  <Power className="h-4 w-4" />
-                  Disconnect
-                </Button>
-
-                {connection.accounts.length > 1 && (
-                  <Button
-                    variant="delete"
-                    size="xs"
-                    onClick={() => onDelete?.(primaryAccount)}
-                    className="flex items-center gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Remove All
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
           </TableCell>
         </TableRow>
