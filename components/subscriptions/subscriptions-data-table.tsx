@@ -565,9 +565,9 @@ export function SubscriptionsDataTable({
   return (
     <div className="space-y-2">
       {/* Data Table */}
-      <div className="bg-card border   rounded-lg overflow-hidden shadow-xs" role="region" aria-label="Subscriptions data table">
+      <div className=" overflow-hidden" role="region" aria-label="Subscriptions data table">
         {/* Search & Filter Toolbar - Inside datatable */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border/50 p-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border   ">
           <div className="flex-1 w-full sm:max-w-sm">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10" />
@@ -586,7 +586,7 @@ export function SubscriptionsDataTable({
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
               variant="outline3"
-              size="xs"
+              size="sm"
               className="flex items-center gap-2 rounded-sm"
               onClick={() => setIsFiltersOpen(true)}
             >
@@ -595,7 +595,7 @@ export function SubscriptionsDataTable({
             </Button>
             <Button
               variant="outline3"
-              size="xs"
+              size="sm"
               className="flex items-center gap-2 rounded-sm"
               onClick={() => setIsSettingsOpen(true)}
             >
@@ -607,10 +607,10 @@ export function SubscriptionsDataTable({
 
         <div className="overflow-x-auto">
           <Table aria-label="Subscriptions list">
-            <TableHeader className="bg-muted  border-y">
+            <TableHeader  >
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-10 px-2 sm:px-4 py-2"></TableHead>
-                <TableHead className="w-10 px-2 sm:px-4 py-2">
+                <TableHead className="w-10 "></TableHead>
+                <TableHead className="w-10  ">
                   <Checkbox
                     checked={isAllSelected}
                     indeterminate={isSomeSelected ? "indeterminate" : undefined}
@@ -618,13 +618,13 @@ export function SubscriptionsDataTable({
                     aria-label="Select all subscriptions"
                   />
                 </TableHead>
-                <TableHead className=" px-2 sm:px-4 py-2 min-w-[200px] sm:w-auto">Subscription</TableHead>
-                <TableHead className="hidden sm:table-cell text-right   px-4 py-2">Category</TableHead>
-                <TableHead className="hidden sm:table-cell text-right   px-4 py-2">Status</TableHead>
-                <TableHead className="hidden lg:table-cell text-right  px-4 py-2">Billing</TableHead>
-                <TableHead className="hidden xl:table-cell text-right   px-4 py-2">Amount</TableHead>
-                <TableHead className="hidden lg:table-cell text-right     px-4 py-2">Next Billing</TableHead>
-                <TableHead className="text-center    px-2 sm:px-4 py-2">Actions</TableHead>
+                <TableHead className="  min-w-[200px] sm:w-auto">Subscription</TableHead>
+                <TableHead className="hidden sm:table-cell text-right  ">Category</TableHead>
+                <TableHead className="hidden sm:table-cell text-right ">Status</TableHead>
+                <TableHead className="hidden lg:table-cell text-right ">Billing</TableHead>
+                <TableHead className="hidden xl:table-cell text-right ">Amount</TableHead>
+                <TableHead className="hidden lg:table-cell text-right ">Next Billing</TableHead>
+                <TableHead className="text-center   ">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

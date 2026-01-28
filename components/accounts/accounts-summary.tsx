@@ -22,7 +22,7 @@ export function AccountsSummary({ summary }: AccountsSummaryProps) {
 
   return (
     <div className="sticky top-4">
-      <Card className="relative border border-border/50 shadow-xs gap-4 h-full w-full flex flex-col">
+      <Card className="relative border border-border  shadow-xs gap-4 h-full w-full flex flex-col">
         {/* Glassmorphic Main Card */}
         <div className="relative">
           <Card className="p-3 bg-gradient-to-br from-accent/50 via-accent/60 to-accent/50 dark:from-accent/80 dark:via-accent/50 dark:to-accent/80 border-dashed border-2 border-accent/80">

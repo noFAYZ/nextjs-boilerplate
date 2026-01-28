@@ -37,7 +37,7 @@ export const FOOTER_BUTTON_STYLES = {
 } as const;
 
 export const LOGO_STYLES = {
-  ICON_SIZE: 'w-9 h-9',
+  ICON_SIZE: 'w-8 h-8',
   ICON_COLOR: 'text-orange-500',
   TRANSITION: 'transition-all duration-250',
 } as const;

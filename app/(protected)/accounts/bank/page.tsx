@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { BankConnectionsDataTable } from '@/components/banking/bank-connections-data-table';
 import {
-  useProviderConnectionsWithAccounts,
+  useProviderConnections,
   useUpdateBankAccount,
   useDisconnectBankAccount,
   useSyncBankAccount,
@@ -15,15 +15,28 @@ import { useTellerConnect } from '@/components/banking/TellerConnect';
 import { BankAccount } from '@/lib/types/banking';
 import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { useBankingStore } from '@/lib/stores/banking-store';
+import { getLogoUrl } from '@/lib/services/logo-service';
 
 export default function BankAccountsPage() {
-  // ✅ Server state from connections endpoint (includes both connections and their accounts)
-  const { data: connections = [], isLoading: connectionsLoading } = useProviderConnectionsWithAccounts();
+  // ✅ Server state from TanStack Query (provider connections)
+  const { data: connections = [], isLoading: connectionsLoading } = useProviderConnections();
 
-  // ✅ Transform connections data to flat accounts for existing handlers
+  // ✅ Transform connections with nested accounts to flat BankAccount array
   const accounts = useMemo(() => {
-    return connections.flatMap((connection: any) => connection.accounts || []);
+    return connections.flatMap((connection: any) =>
+      (connection.accounts || []).map((account: any) => ({
+        ...account,
+        institutionName: connection.institutionName,
+        institutionLogo: (connection.institutionUrl ? getLogoUrl(connection.institutionUrl) : undefined),
+        provider: connection.provider,
+        autoSync: connection.autoSync,
+        lastSyncAt:connection.lastSyncAt,
+        status:connection.status
+      }))
+    );
   }, [connections]);
+
+  console.log(connections)
 
   // ✅ Mutations with optimistic updates
   const { mutateAsync: updateAccount } = useUpdateBankAccount();
@@ -74,8 +87,10 @@ export default function BankAccountsPage() {
     syncAllAccounts();
   }, [syncAllAccounts]);
 
+ 
+
   return (
-    <div className="mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-4">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
@@ -89,7 +104,7 @@ export default function BankAccountsPage() {
             onClick={handleSyncAll}
             disabled={isSyncingAll || hasActiveSyncs()}
             variant="outline"
-            size="sm"
+            size="xs"
           >
             {isSyncingAll || hasActiveSyncs() ? (
               <>
@@ -105,7 +120,7 @@ export default function BankAccountsPage() {
           </Button>
           <Button
             onClick={() => tellerConnect.openConnect()}
-            size="sm"
+            size="xs"
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />

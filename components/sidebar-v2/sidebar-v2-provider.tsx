@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState, useEffect } from 'react';
 import {
   SidebarStateContext,
   SidebarStateDispatchContext,
@@ -41,9 +41,27 @@ const SidebarV2Provider = React.memo(function SidebarV2Provider({
 }: SidebarV2ProviderProps) {
   // State management
   const [isHovering, setIsHoveringState] = useState(false);
+  const [isPinned, setIsPinnedState] = useState(() => {
+    // Initialize from localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('sidebar-v2-pinned');
+      return stored === 'true';
+    }
+    return false;
+  });
 
   /**
-   * Memoized dispatch function
+   * Persist pin state to localStorage
+   * - Survives page navigation and browser refresh
+   */
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar-v2-pinned', isPinned.toString());
+    }
+  }, [isPinned]);
+
+  /**
+   * Memoized dispatch functions
    * - Prevents function recreation on every render
    * - Stable reference for dispatch context consumers
    * - Won't trigger re-renders of dispatch-only consumers
@@ -52,11 +70,16 @@ const SidebarV2Provider = React.memo(function SidebarV2Provider({
     setIsHoveringState(value);
   }, []);
 
+  const setIsPinned = useCallback((value: boolean) => {
+    setIsPinnedState(value);
+  }, []);
+
   /**
    * Compute expanded state
    * Memoized to prevent re-computation on every render
+   * Sidebar is expanded if: hovering OR pinned OR defaultExpanded
    */
-  const isExpanded = useMemo(() => isHovering || defaultExpanded, [isHovering, defaultExpanded]);
+  const isExpanded = useMemo(() => isHovering || isPinned || defaultExpanded, [isHovering, isPinned, defaultExpanded]);
 
   /**
    * Memoize state context value
@@ -67,20 +90,22 @@ const SidebarV2Provider = React.memo(function SidebarV2Provider({
     () => ({
       isHovering,
       isExpanded,
+      isPinned,
     }),
-    [isHovering, isExpanded]
+    [isHovering, isExpanded, isPinned]
   );
 
   /**
    * Memoize dispatch context value
    * - Stable reference across renders
-   * - Only recreate if setIsHovering changes (shouldn't happen)
+   * - Only recreate if dispatch functions change (shouldn't happen)
    */
   const dispatchContextValue = useMemo<SidebarStateDispatchContextType>(
     () => ({
       setIsHovering,
+      setIsPinned,
     }),
-    [setIsHovering]
+    [setIsHovering, setIsPinned]
   );
 
   return (

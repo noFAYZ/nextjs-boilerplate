@@ -603,7 +603,7 @@ export function useProviderConnections(organizationId?: string) {
  * Get all provider connections with their accounts
  * Fetches all connections and their accounts in parallel for efficiency
  * @param organizationId - Optional organization ID to scope data
- * @returns All connections with their accounts
+ * @returns Flat array of all accounts from all connections
  */
 export function useProviderConnectionsWithAccounts(organizationId?: string) {
   const { isAuthReady } = useAuthReady();
@@ -615,28 +615,41 @@ export function useProviderConnectionsWithAccounts(organizationId?: string) {
       try {
         // Step 1: Get all connections
         const connectionsResponse = await bankingApi.getConnections({}, contextOrgId);
+        const connections = connectionsResponse?.data || [];
 
-        if (!connectionsResponse.success || !connectionsResponse.data?.data) {
+        if (!connections.length) {
           return [];
         }
 
-        // Step 2: Fetch detailed info for each connection (which includes accounts)
-        const connectionsWithAccounts = await Promise.all(
-          connectionsResponse.data.data.map(async (connection: any) => {
-            try {
-              const detailResponse = await bankingApi.getConnection(connection.id, contextOrgId);
-              if (detailResponse.success && detailResponse.data) {
-                return detailResponse.data;
-              }
-              return { ...connection, accounts: [] };
-            } catch (error) {
-              console.warn(`Failed to fetch connection details for ${connection.id}`, error);
-              return { ...connection, accounts: [] };
-            }
+        // Step 2: Fetch each connection's accounts in parallel
+        const connectionDetailsPromises = connections.map(conn =>
+          bankingApi.getConnection(conn.id, contextOrgId).catch(error => {
+            console.error(`Failed to fetch connection ${conn.id}:`, error);
+            return null;
           })
         );
 
-        return connectionsWithAccounts;
+        const connectionDetails = await Promise.all(connectionDetailsPromises);
+
+        // Step 3: Flatten accounts from all connections
+        const allAccounts: BankAccount[] = [];
+        connectionDetails.forEach(response => {
+          if (response?.data?.accounts) {
+            // Map API response accounts to BankAccount format
+            const accounts = response.data.accounts.map((acc: any) => ({
+              id: acc.id,
+              name: acc.name,
+              type: acc.type,
+              balance: acc.balance,
+              currency: acc.currency,
+              institutionName: response.data.provider,
+              provider: response.data.provider,
+            })) as BankAccount[];
+            allAccounts.push(...accounts);
+          }
+        });
+
+        return allAccounts;
       } catch (error) {
         console.error('Failed to fetch connections with accounts:', error);
         return [];

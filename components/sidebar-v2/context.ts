@@ -16,6 +16,7 @@ import { createContext } from 'react';
 export interface SidebarStateContextType {
   isHovering: boolean;
   isExpanded: boolean;
+  isPinned: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export interface SidebarStateContextType {
  */
 export interface SidebarStateDispatchContextType {
   setIsHovering: (value: boolean) => void;
+  setIsPinned: (value: boolean) => void;
 }
 
 /**

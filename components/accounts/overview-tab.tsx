@@ -23,20 +23,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { useAllAccounts } from '@/lib/queries';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
-import { getAccountCategoryConfig } from './account-category-icon';
+import { getAccountCategoryConfig, getCategoryType } from './account-category-icon';
 import { AccountRow } from './account-row';
 import { AccountsSummary } from './accounts-summary';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
 import { NetWorthCard, AccountsOverviewSection } from '@/app/(protected)/accounts/components';
 import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 import type { AccountCategory } from '@/lib/types';
+import { NetWorthChart } from '../networth/networth-chart';
 
 interface AccountGroup {
   key: string;
@@ -118,135 +118,164 @@ function OverviewTabComponent() {
   return (
     <div className="h-full flex flex-col relative space-y-6">
       {/* Body Layout */}
+      <div className="flex items-center justify-between">
+       <div className="flex-1">
+         <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
+       </div>
+     
+     </div>
       {/* Two-column layout: Accordions left, Summary right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Accordions Column */}
-        <div className="lg:col-span-8 bg-card h-fit rounded-lg">
+        <div className="lg:col-span-8  h-fit rounded-lg">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <Accordion type="multiple" defaultValue={categoriesWithAccounts.map((c) => c.key)} className="space-y-1">
-              {categoriesWithAccounts.map((group) => {
-                const config = getAccountCategoryConfig(group.category);
-                const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
+            {/* Assets Section */}
+            <div className="space-y-2 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-semibold" style={{ color: 'rgb(120,150,60)' }}>ASSETS</span>
+              </div>
+              <Accordion type="multiple" defaultValue={categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'ASSET').map((c) => c.key)} className="space-y-2">
+                {categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'ASSET').map((group) => {
+                  const config = getAccountCategoryConfig(group.category);
+                  const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
 
-                // Get accounts for this group (use reordered if available)
-                const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
-                const orderedAccounts = accountIds
-                  .map((id) => group.accounts.find((a) => a.id === id))
-                  .filter((a): a is UnifiedAccount => a !== undefined);
+                  // Get accounts for this group (use reordered if available)
+                  const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
+                  const orderedAccounts = accountIds
+                    .map((id) => group.accounts.find((a) => a.id === id))
+                    .filter((a): a is UnifiedAccount => a !== undefined);
 
-                return (
-                  <AccordionItem
-                    key={group.key}
-                    value={group.key}
-                    className="overflow-hidden  [&[data-state=open]]:border-b border-border/50"
-                  >
-                    <AccordionTrigger className="group relative  flex items-center gap-3 p-2 transition-all duration-0    [&[data-state=open]]:rounded-b-none cursor-pointer">
-                      {/* Icon */}
-                      <div className="h-9 w-9 rounded-full    flex items-center justify-center flex-shrink-0">
-                        {config.icon}
-                      </div>
+                  return (
+                    <AccordionItem
+                      key={group.key}
+                      value={group.key}
+                      className="overflow-hidden   border  rounded"
+                    >
+                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 transition-all duration-0   [&[data-state=open]]:rounded-b-none cursor-pointer">
+                        {/* Icon */}
+                        <div className="h-9 w-9 rounded-full    flex items-center justify-center flex-shrink-0">
+                          {config.icon}
+                        </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="flex items-center gap-2">
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 text-left">
                           <h3 className="font-semibold text-[15px] text-foreground truncate">{config.label}</h3>
-                          <Badge variant="subtle" size="sm" className="rounded-full w-5 h-5 p-0.5">
-                            {group?.accounts?.length}
-                          </Badge>
                         </div>
-                      </div>
 
-                      {/* Amount and Chevron */}
-                      <div className="flex flex-col items-end flex-shrink-0 gap-1">
-                        <div className="text-right">
-                          {balanceVisible ? (
-                            <CurrencyDisplay amountUSD={group.totalBalance} variant="lg" className=" text-foreground font-semibold" />
-                          ) : (
-                            <span className="text-muted-foreground font-semibold text-sm">••••••</span>
-                          )}
+                        {/* Amount and Chevron */}
+                        <div className="flex flex-col items-end flex-shrink-0 gap-1">
+                          <div className="text-right">
+                            {balanceVisible ? (
+                              <CurrencyDisplay amountUSD={group.totalBalance} variant="lg" className=" text-foreground font-semibold" />
+                            ) : (
+                              <span className="text-muted-foreground font-semibold text-sm">••••••</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </AccordionTrigger>
+                      </AccordionTrigger>
 
-                    <AccordionContent className="p-0 relative">
-                      {/* Tree lines SVG */}
-                      <svg
-                        className="absolute left-0 top-0 w-full h-full pointer-events-none"
-                        style={{ overflow: 'visible' }}
-                      >
-                        {orderedAccounts.length > 0 && (
-                          <>
-                            {/* Vertical line from category icon */}
-                            <line
-                              x1="18"
-                              y1="0"
-                              x2="18"
-                              y2={orderedAccounts.length * 60 + 20}
-                              stroke="currentColor"
-                              strokeWidth="1"
-                              className="text-border/50"
-                              opacity="0.5"
-                            />
-                            {/* Horizontal lines to each account */}
-                            {orderedAccounts.map((_, index) => (
-                              <g key={`line-${index}`}>
-                                <line
-                                  x1="18"
-                                  y1={index * 60 + 30}
-                                  x2="44"
-                                  y2={index * 60 + 30}
-                                  stroke="currentColor"
-                                  strokeWidth="1"
-                                  className="text-border/50"
-                                  opacity="0.5"
+                      <AccordionContent className="p-0 relative bg-background">
+                        <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+                          <div className="relative">
+                            {orderedAccounts.map((account) => {
+                              const isCrypto =
+                                account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
+
+                              return (
+                                <AccountRow
+                                  key={account.id}
+                                  account={account}
+                                  isDraggable={true}
+                                  balanceVisible={balanceVisible}
+                                  onAccountClick={handleAccountClick}
                                 />
-                              </g>
-                            ))}
-                          </>
-                        )}
-                      </svg>
+                              );
+                            })}
+                          </div>
+                        </SortableContext>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </div>
 
-                      <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                        <div className="relative">
-                          {orderedAccounts.map((account) => {
-                            const isCrypto =
-                              account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
+            {/* Liabilities Section */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-semibold" style={{ color: '#D4745A' }}>LIABILITIES</span>
+              </div>
+              <Accordion type="multiple" defaultValue={categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'LIABILITY').map((c) => c.key)} className="space-y-2">
+                {categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'LIABILITY').map((group) => {
+                  const config = getAccountCategoryConfig(group.category);
+                  const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
 
-                            return (
-                              <AccountRow
-                                key={account.id}
-                                account={account}
-                                isDraggable={true}
-                                balanceVisible={balanceVisible}
-                                onAccountClick={handleAccountClick}
-                              />
-                            );
-                          })}
+                  // Get accounts for this group (use reordered if available)
+                  const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
+                  const orderedAccounts = accountIds
+                    .map((id) => group.accounts.find((a) => a.id === id))
+                    .filter((a): a is UnifiedAccount => a !== undefined);
+
+                  return (
+                    <AccordionItem
+                      key={group.key}
+                      value={group.key}
+                      className="overflow-hidden   border  rounded"
+                    >
+                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 transition-all duration-0   [&[data-state=open]]:rounded-b-none cursor-pointer">
+                        {/* Icon */}
+                        <div className="h-9 w-9 rounded-full    flex items-center justify-center flex-shrink-0">
+                          {config.icon}
                         </div>
-                      </SortableContext>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 text-left">
+                          <h3 className="font-semibold text-[15px] text-foreground truncate">{config.label}</h3>
+                        </div>
+
+                        {/* Amount and Chevron */}
+                        <div className="flex flex-col items-end flex-shrink-0 gap-1">
+                          <div className="text-right">
+                            {balanceVisible ? (
+                              <CurrencyDisplay amountUSD={group.totalBalance} variant="lg" className=" text-foreground font-semibold" />
+                            ) : (
+                              <span className="text-muted-foreground font-semibold text-sm">••••••</span>
+                            )}
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+
+                      <AccordionContent className="p-0 relative bg-background">
+                        <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+                          <div className="relative">
+                            {orderedAccounts.map((account) => {
+                              const isCrypto =
+                                account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
+
+                              return (
+                                <AccountRow
+                                  key={account.id}
+                                  account={account}
+                                  isDraggable={true}
+                                  balanceVisible={balanceVisible}
+                                  onAccountClick={handleAccountClick}
+                                />
+                              );
+                            })}
+                          </div>
+                        </SortableContext>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </div>
           </DndContext>
         </div>
 
         {/* Right Sidebar Summary with Enhanced Overview */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Net Worth Overview Section */}
-          <AccountsOverviewSection
-            netWorth={summaryData ? {
-              totalNetWorth: summaryData.totalNetWorth || 0,
-              totalAssets: summaryData.totalAssets || 0,
-              totalLiabilities: summaryData.totalLiabilities || 0,
-              previousNetWorth: summaryData.previousNetWorth,
-              currency: 'USD'
-            } : undefined}
-            connections={[]}
-            isLoadingNetWorth={false}
-            isLoadingConnections={false}
-          />
+  
 
           {/* Traditional Summary Cards */}
           <AccountsSummary summary={summaryData} />

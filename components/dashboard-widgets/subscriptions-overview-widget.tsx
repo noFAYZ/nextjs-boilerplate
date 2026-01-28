@@ -278,7 +278,7 @@ function SubscriptionsOverviewWidgetComponent() {
 
               {/* Subscriptions List */}
               {subscriptionsToShow.length > 0 ? (
-                <div>
+                <div className='space-y-2'>
                   {subscriptionsToShow.map((subscription) => (
                     <SubscriptionItem
                       key={subscription.id}

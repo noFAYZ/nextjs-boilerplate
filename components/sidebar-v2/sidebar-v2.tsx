@@ -22,7 +22,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { authClient } from '@/lib/auth-client';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
-import { Settings, LogOut, User, Crown, MoreVertical, HelpCircle, Settings2 } from 'lucide-react';
+import { Settings, LogOut, User, Crown, MoreVertical, HelpCircle, Settings2, Pin, PinOff } from 'lucide-react';
 import {
   SolarHomeSmileBoldDuotone,
   SolarLibraryBoldDuotone,
@@ -233,7 +233,11 @@ export function SidebarV2({
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   const user = useAuthStore((state) => state.user);
-  const { isHovering, isExpanded } = state;
+  const { isHovering, isExpanded, isPinned } = state;
+
+  const handleTogglePin = useCallback(() => {
+    dispatch.setIsPinned(!isPinned);
+  }, [isPinned, dispatch]);
 
   const getActiveMenuItem = useCallback((): string | null => {
     return MENU_ITEMS_V2.find(
@@ -298,11 +302,30 @@ export function SidebarV2({
           {isExpanded && (
             <div className="min-w-0">
               <div className="text-sm font-bold text-foreground">MAPPR</div>
-              <div className="text-[10px] text-muted-foreground leading-none">Intelligence</div>
+              <div className="text-[10px] text-muted-foreground leading-none -mt-0.5">Intelligence</div>
             </div>
           )}
         </Link>
-        {isExpanded && <ThemeSwitcher />}
+        {isExpanded && (
+          <div className="flex items-center gap-1">
+            <ThemeSwitcher />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 p-0 hover:bg-muted"
+              onClick={handleTogglePin}
+              title={isPinned ? "Unpin sidebar" : "Pin sidebar"}
+              aria-label={isPinned ? "Unpin sidebar" : "Pin sidebar"}
+              aria-pressed={isPinned}
+            >
+              {isPinned ? (
+                <Pin className="h-5 w-5 text-primary" />
+              ) : (
+                <PinOff className="h-5 w-5 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
+        )}
 
 
       </div>
