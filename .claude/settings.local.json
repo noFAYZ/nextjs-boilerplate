@@ -55,7 +55,8 @@
       "Bash([ ! -f \"$dir/index.ts\" ])",
       "Bash(for dir in budgets-v3 onboarding onboarding-v2 landing landing-v2 sidebar sidebar-v2 dashboard-widgets)",
       "Bash(do rm -rf \"$dir\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(git show:*)"
     ],
     "deny": [],
     "ask": []
