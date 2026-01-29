@@ -11,10 +11,10 @@ import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
-import { ForecastChart } from '@/components/budgets-v3/forecasting/forecast-chart';
-import { ForecastEnvelopeSelector } from '@/components/budgets-v3/forecasting/forecast-envelope-selector';
-import { ForecastPeriodSelector } from '@/components/budgets-v3/forecasting/forecast-period-selector';
-import { SpendingInsightsCard } from '@/components/budgets-v3/forecasting/spending-insights-card';
+import { ForecastChart } from '@/components/modules/budgets/components/forecasting/forecast-chart';
+import { ForecastEnvelopeSelector } from '@/components/modules/budgets/components/forecasting/forecast-envelope-selector';
+import { ForecastPeriodSelector } from '@/components/modules/budgets/components/forecasting/forecast-period-selector';
+import { SpendingInsightsCard } from '@/components/modules/budgets/components/forecasting/spending-insights-card';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 
 export function ForecastingTab() {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "../ui/card";
-import { BgGradient } from "../landing/bg/bg-gradient";
+import { BgGradient } from './bg/bg-gradient';
 
 const features = [
   {

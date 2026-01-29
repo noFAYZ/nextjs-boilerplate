@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '../ui/theme-switcher';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, MageGoals, PhUsersDuotone, GameIconsDeathStar, GameIconsTyre, GameIconsMetalDisc, GameIconsIceCube, GameIconsHops, GameIconsFairyWings, LogoMapprsss, GhostLogo, GhostLogoDark, SimpleIconsWebmoney, WalletLogoIconOpen } from '../icons/icons';
+import { DuoIconsBank, SolarWalletMoneyBoldDuotone, SolarInboxInBoldDuotone, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, MageGoals, PhUsersDuotone, GameIconsDeathStar, GameIconsTyre, GameIconsMetalDisc, GameIconsIceCube, GameIconsHops, GameIconsFairyWings, LogoMapprsss, GhostLogo, GhostLogoDark, SimpleIconsWebmoney, WalletLogoIconOpen } from '@/components/icons/icons';
 import { LogoMappr } from '../icons';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {

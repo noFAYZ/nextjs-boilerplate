@@ -12,31 +12,15 @@ import {
 } from "lucide-react";
 import { useState, useCallback, useMemo, memo } from "react";
 
-// Import dashboard widgets
-import {
-  NetWorthWidget,
-  AccountsWidget,
-  NetWorthPerformanceWidget,
-  MonthlySpendingTrendWidget,
-  SpendingCategoriesWidget,
-  CryptoAllocationWidget,
-  NetworkDistributionWidget,
-  AccountSpendingComparisonWidget,
-  SubscriptionsOverviewWidget,
-  CalendarSubscriptionWidget,
-  UpcomingBillsWidget,
-  RecentActivityWidget,
-  GoalsOverviewWidget,
-  BudgetOverviewWidget,
-  AssetBreakdownWidget,
-  LiabilitiesBreakdownWidget,
-  AssetsVsLiabilitiesWidget,
-  DebtToAssetRatioWidget,
-  AssetAllocationWidget,
-  FinancialHealthScoreWidget,
-  DebtSummaryWidget,
-  CashPositionWidget,
-} from "@/components/dashboard-widgets";
+// Import dashboard widgets from modules
+import { NetWorthWidget, NetWorthPerformanceWidget } from "@/components/modules/networth/widgets";
+import { AccountsWidget, AccountSpendingComparisonWidget } from "@/components/modules/accounts/widgets";
+import { MonthlySpendingTrendWidget, SpendingCategoriesWidget, RecentActivityWidget } from "@/components/modules/banking/widgets";
+import { CryptoAllocationWidget, NetworkDistributionWidget } from "@/components/modules/crypto/widgets";
+import { SubscriptionsOverviewWidget, CalendarSubscriptionWidget, UpcomingBillsWidget } from "@/components/modules/subscriptions/widgets";
+import { GoalsOverviewWidget } from "@/components/modules/goals/widgets";
+import { BudgetOverviewWidget } from "@/components/modules/budgets/widgets";
+import { AssetBreakdownWidget, LiabilitiesBreakdownWidget, AssetsVsLiabilitiesWidget, DebtToAssetRatioWidget, AssetAllocationWidget, FinancialHealthScoreWidget, DebtSummaryWidget, CashPositionWidget } from "@/components/modules/networth/widgets";
 
 // Import dashboard components
 import { DashboardWidgetGrid } from "@/components/dashboard/dashboard-widget-grid";

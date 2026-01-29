@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
-import { WalletLogoIconOpenRed } from "../icons/icons";
+import { WalletLogoIconOpenRed } from '@/components/icons/icons';
 import { cn } from "@/lib/utils";
 
 const FeatureSection = ({

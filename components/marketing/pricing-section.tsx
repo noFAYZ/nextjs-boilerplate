@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Check, Sparkles, Zap, Crown, CrownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SolarCheckCircleBoldDuotone } from '../icons/icons';
+import { SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
 import { GameIconsUpgrade } from '../icons';
 import { ScrollReveal } from './scroll-reveal';
 import Image from 'next/image';

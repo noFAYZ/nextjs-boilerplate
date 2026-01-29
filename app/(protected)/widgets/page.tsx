@@ -1,11 +1,11 @@
 'use client';
 
-import { NetWorthWidget } from '@/components/dashboard-widgets/net-worth-widget';
-import { CryptoAllocationWidget } from '@/components/dashboard-widgets/crypto-allocation-widget';
-import { NetworkDistributionWidget } from '@/components/dashboard-widgets/network-distribution-widget';
-import { SpendingCategoriesWidget } from '@/components/dashboard-widgets/spending-categories-widget';
-import { MonthlySpendingTrendWidget } from '@/components/dashboard-widgets/monthly-spending-trend-widget';
-import { AccountSpendingComparisonWidget } from '@/components/dashboard-widgets/account-spending-comparison-widget';
+import { NetWorthWidget } from '@/components/modules/networth/widgets/net-worth-widget';
+import { CryptoAllocationWidget } from '@/components/modules/crypto/widgets/crypto-allocation-widget';
+import { NetworkDistributionWidget } from '@/components/modules/crypto/widgets/network-distribution-widget';
+import { SpendingCategoriesWidget } from '@/components/modules/banking/widgets/spending-categories-widget';
+import { MonthlySpendingTrendWidget } from '@/components/modules/banking/widgets/monthly-spending-trend-widget';
+import { AccountSpendingComparisonWidget } from '@/components/modules/accounts/widgets/account-spending-comparison-widget';
 import { RefreshAnalyticsButton } from '@/components/ui/refresh-analytics-button';
 import Link from 'next/link';
 import {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { UserPlus, Link2, LineChart, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhUser } from '../icons';
-import { BarChartIcon, HugeiconsAnalytics02, MingcutePlugin2Fill, PhUsersDuotone, SolarCheckCircleBoldDuotone, SolarPieChart2BoldDuotone, SolarPieChartBold, TablerPlugConnected } from '../icons/icons';
+import { BarChartIcon, HugeiconsAnalytics02, MingcutePlugin2Fill, PhUsersDuotone, SolarCheckCircleBoldDuotone, SolarPieChart2BoldDuotone, SolarPieChartBold, TablerPlugConnected } from '@/components/icons/icons';
 
 export function HowItWorks() {
   const steps = [

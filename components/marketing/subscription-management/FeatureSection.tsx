@@ -29,7 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PhUsersDuotone, SolarPieChart2BoldDuotone, SolarWalletBoldDuotone } from "@/components/icons/icons";
 import WalletCard from "@/components/crypto/WalletCard";
-import { BudgetCard } from "@/components/budgets-v3/shared/budget-card";
+import { BudgetCard } from "@/components/modules/budgets/components/shared/budget-card";
 import { GoalCard } from "@/components/goals/goal-card";
 import { SubscriptionCard } from "@/components/subscriptions/subscription-card";
 import { Card } from "@/components/ui/card";

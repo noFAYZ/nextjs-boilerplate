@@ -37,7 +37,6 @@ import {
 } from '@/components/icons/icons';
 import { SettingsDialog } from '@/components/settings/settings-dialog';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
-import NotificationsPopover from '@/components/sidebar/widgets/notifications';
 import { OrganizationSwitcher } from '@/components/organization/organization-switcher';
 import { SIDEBAR_WIDTHS, SIDEBAR_TRANSITIONS, LOGO_STYLES, POPOVER_STYLES } from './constants';
 

@@ -16,10 +16,10 @@ import {
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PeriodComparisonChart } from '@/components/budgets-v3/analytics/period-comparison-chart';
-import { EnvelopeRanking } from '@/components/budgets-v3/analytics/envelope-ranking';
-import { HealthScoreBreakdown } from '@/components/budgets-v3/analytics/health-score-breakdown';
-import { SpendingVelocityIndicator } from '@/components/budgets-v3/analytics/spending-velocity-indicator';
+import { PeriodComparisonChart } from '@/components/modules/budgets/components/analytics/period-comparison-chart';
+import { EnvelopeRanking } from '@/components/modules/budgets/components/analytics/envelope-ranking';
+import { HealthScoreBreakdown } from '@/components/modules/budgets/components/analytics/health-score-breakdown';
+import { SpendingVelocityIndicator } from '@/components/modules/budgets/components/analytics/spending-velocity-indicator';
 
 export function AnalyticsTab() {
   const organizationId = useOrganizationStore((state) => state.selectedOrganizationId);

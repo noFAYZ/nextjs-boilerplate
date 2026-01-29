@@ -1,11 +1,11 @@
 'use client'
 
-import { FAQSection, PricingSection } from "@/components/landing";
-import { Footer } from "@/components/landing-v2/animated-footer";
-import { LandingHero } from "@/components/landing-v2/landing-hero";
-import { LandingNav } from "@/components/landing-v2/landing-nav";
-import FinanceHeroDubStyle from '@/components/landing/subscription-management/about-section';
-import Skiper16 from "@/components/landing/subscription-management/skiper-feature";
+import { FAQSection, PricingSection } from "@/components/marketing";
+import { Footer } from "@/components/marketing/animated-footer";
+import { LandingHero } from "@/components/marketing/landing-hero";
+import { LandingNav } from "@/components/marketing/landing-nav";
+import FinanceHeroDubStyle from '@/components/marketing/subscription-management/about-section';
+import Skiper16 from "@/components/marketing/subscription-management/skiper-feature";
 import { Twitter, Linkedin, Github, Mail } from "lucide-react";
 
 export default function LandingPage() {

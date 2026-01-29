@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { SparklesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLogoUrl } from "@/lib/services/logo-service";
-import { DuoIconsBank, FluentPlugConnectedCheckmark20Filled, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, SolarChartSquareBoldDuotone, TablerPlugConnected } from "../icons/icons";
-import { BgGradient } from "../landing/bg/bg-gradient";
-import { ScrollReveal } from "../landing/scroll-reveal";
+import { DuoIconsBank, FluentPlugConnectedCheckmark20Filled, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, SolarChartSquareBoldDuotone, TablerPlugConnected } from '@/components/icons/icons';
+import { BgGradient } from './bg/bg-gradient';
+import { ScrollReveal } from './scroll-reveal';
 import Image from "next/image";
 
 interface DatabaseWithRestApiProps {

@@ -4,7 +4,7 @@ import { CreditCard, Calendar, TrendingDown, AlertCircle, Check, ArrowUpRight } 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScrollReveal } from './scroll-reveal';
-import { SolarInboxInBoldDuotone } from '../icons/icons';
+import { SolarInboxInBoldDuotone } from '@/components/icons/icons';
 
 export function SubscriptionsShowcase() {
   return (

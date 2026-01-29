@@ -22,15 +22,15 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 // New components
-import { IncomeSummary } from '@/components/budgets-v3/sections/income-summary';
-import { QuickAllocate } from '@/components/budgets-v3/sections/quick-allocate';
-import { BudgetCategoriesList } from '@/components/budgets-v3/sections/budget-categories-list';
-import { CategoryDetailsDrawer } from '@/components/budgets-v3/sections/category-details-drawer';
-import { InsightsCards } from '@/components/budgets-v3/sections/insights-cards';
+import { IncomeSummary } from '@/components/modules/budgets/components/sections/income-summary';
+import { QuickAllocate } from '@/components/modules/budgets/components/sections/quick-allocate';
+import { BudgetCategoriesList } from '@/components/modules/budgets/components/sections/budget-categories-list';
+import { CategoryDetailsDrawer } from '@/components/modules/budgets/components/sections/category-details-drawer';
+import { InsightsCards } from '@/components/modules/budgets/components/sections/insights-cards';
 
 // Modals
-import { CreateEnvelopeModal } from '@/components/budgets-v3/modals/create-envelope-modal';
-import { CreateBudgetModal } from '@/components/budgets-v3/modals/create-budget-modal';
+import { CreateEnvelopeModal } from '@/components/modules/budgets/components/modals/create-envelope-modal';
+import { CreateBudgetModal } from '@/components/modules/budgets/components/modals/create-budget-modal';
 
 // Store
 import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';

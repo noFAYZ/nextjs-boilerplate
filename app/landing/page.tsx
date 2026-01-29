@@ -3,21 +3,21 @@ import {
   PricingSection,
   FAQSection,
   FinalCTASection,
-} from '@/components/landing';
+} from '@/components/marketing';
 
-import FinanceHeroDubStyle from '@/components/landing/subscription-management/about-section';
-import MoneyMapprFeatureSection from '@/components/landing/subscription-management/FeatureSection';
+import FinanceHeroDubStyle from '@/components/marketing/subscription-management/about-section';
+import MoneyMapprFeatureSection from '@/components/marketing/subscription-management/FeatureSection';
 
-import { TestimonialsDemo } from '@/components/landing/subscription-management/testimonials-section';
-import { LandingNav } from '@/components/landing-v2/landing-nav';
-import { Footer } from '@/components/landing-v2/animated-footer';
+import { TestimonialsDemo } from '@/components/marketing/subscription-management/testimonials-section';
+import { LandingNav } from '@/components/marketing/landing-nav';
+import { Footer } from '@/components/marketing/animated-footer';
 import { Twitter, Linkedin, Github, Mail, NotepadTextDashed } from 'lucide-react';
 
-import DatabaseWithRestApi from '@/components/landing-v2/integrations-section';
-import { LandingHero } from '@/components/landing/subscription-management/landing-hero2';
-import { Example } from '@/components/landing/section-widgets/features-tabs';
-import Features from '@/components/landing-v2/features';
-import MapprFeatures from '@/components/landing-v2/features';
+import DatabaseWithRestApi from '@/components/marketing/integrations-section';
+import { LandingHero } from '@/components/marketing/subscription-management/landing-hero2';
+import { Example } from '@/components/marketing/section-widgets/features-tabs';
+import Features from '@/components/marketing/features';
+import MapprFeatures from '@/components/marketing/features';
 
 
 export default function LandingPage() {

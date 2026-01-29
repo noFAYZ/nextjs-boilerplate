@@ -7,7 +7,7 @@ import { ScrollReveal } from './scroll-reveal';
 import Image from 'next/image';
 import DecryptedText from '../ui/shadcn-io/decrypted-text';
 import { cn } from '@/lib/utils';
-import { MemoryArrowTopRight } from '../icons/icons';
+import { MemoryArrowTopRight } from '@/components/icons/icons';
 
 export function CryptoShowcase() {
   return (

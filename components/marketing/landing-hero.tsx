@@ -24,13 +24,13 @@ import {
   SolarPieChart2BoldDuotone,
   SolarWalletMoneyBoldDuotone,
   SolarClipboardListBoldDuotone,
-} from '../icons/icons';
-import { TextRotate } from "../landing/section-widgets/text-rotate";
-import { AvatarCircles } from "../landing/section-widgets/avatar-circles";
-import { WaitlistFormCompact } from "../coming-soon/waitlist-form-compact";
-import { ScrollReveal } from "../landing/scroll-reveal";
-import { Example } from "../landing/section-widgets/features-tabs";
-import { Mockup, MockupFrame } from "../landing/section-widgets/hero-mockup";
+} from '@/components/icons/icons';
+import { TextRotate } from './section-widgets/text-rotate';
+import { AvatarCircles } from './section-widgets/avatar-circles';
+import { WaitlistFormCompact } from '@/components/coming-soon/waitlist-form-compact';
+import { ScrollReveal } from './scroll-reveal';
+import { Example } from './section-widgets/features-tabs';
+import { Mockup, MockupFrame } from './section-widgets/hero-mockup';
 
 const FEATURES = [
   { Icon: SolarShieldBoldDuotone, label: "Bank-Level Encryption" },

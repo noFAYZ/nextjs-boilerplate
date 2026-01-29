@@ -6,10 +6,10 @@ import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
 import { useOnboardingV2Storage, getDefaultData, type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
 import { useCurrentUser } from '@/lib/queries/use-auth-data';
 
-import { WelcomeStep } from '@/components/onboarding-v2/steps/welcome-step';
-import { OnboardingStepper } from '@/components/onboarding-v2/onboarding-stepper';
-import { OnboardingContent } from '@/components/onboarding-v2/onboarding-content';
-import { OnboardingPreview } from '@/components/onboarding-v2/onboarding-preview';
+import { WelcomeStep } from '@/components/modules/onboarding/components/steps/welcome-step';
+import { OnboardingStepper } from '@/components/modules/onboarding/components/onboarding-stepper';
+import { OnboardingContent } from '@/components/modules/onboarding/components/onboarding-content';
+import { OnboardingPreview } from '@/components/modules/onboarding/components/onboarding-preview';
 
 export default function OnboardingV2Page() {
   const router = useRouter();
