@@ -34,7 +34,18 @@
       "Skill(web-design-guidelines)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(timeout 15 npm run dev)",
-      "Skill(vercel-react-best-practices)"
+      "Skill(vercel-react-best-practices)",
+      "Bash(git -C \"F:\\\\moneymappr\\\\frontend\" log --oneline --all --since=\"2024-12-01\" -- \"app/\\(protected\\)/budgets*\")",
+      "Bash(xargs -I {} bash -c 'count=$\\(find \"\"{}\"\" -maxdepth 2 -type f -name \"\"*.tsx\"\" -o -name \"\"*.ts\"\" 2>/dev/null | wc -l\\); echo \"\"$\\(basename {}\\): $count\"\"')",
+      "Bash(if [ -d \"components/budgets\" ])",
+      "Bash(then mv components/budgets UNUSED/component-versions/budgets-v1)",
+      "Bash(else echo \"budgets v1 not found\")",
+      "Bash(fi)",
+      "Bash(powershell -Command:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -NoProfile -Command:*)",
+      "Bash(__NEW_LINE_51d4b29555833105__ mv budget-queries.ts budgets/budget-queries.ts)",
+      "Bash(__NEW_LINE_51d4b29555833105__ echo \"Moved budget-queries.ts to budgets/\")"
     ],
     "deny": [],
     "ask": []

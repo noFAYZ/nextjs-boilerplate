@@ -28,7 +28,7 @@ export function SidebarLayoutV2({
         <main className="flex-1 flex flex-col overflow-hidden relative">
           {showHeader && <MainHeader mainColumnExpanded={false} onToggleMainColumn={() => {}} onMobileMenuToggle={() => {}} isMobileMenuOpen={false} />}
           <div className="flex-1 overflow-y-auto">
-            <div className="container mx-auto p-3 md:p-6">
+            <div className="max-w-7xl mx-auto p-3 ">
               {children}
             </div>
           </div>

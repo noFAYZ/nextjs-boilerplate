@@ -23,9 +23,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { useAllAccounts } from '@/lib/queries';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
@@ -33,10 +30,11 @@ import { getAccountCategoryConfig, getCategoryType } from './account-category-ic
 import { AccountRow } from './account-row';
 import { AccountsSummary } from './accounts-summary';
 import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
-import { NetWorthCard, AccountsOverviewSection } from '@/app/(protected)/accounts/components';
+import { NetWorthChart } from '../networth/networth-chart';
 import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 import type { AccountCategory } from '@/lib/types';
-import { NetWorthChart } from '../networth/networth-chart';
+import { cn } from '@/lib/utils';
+import { Badge } from '../ui/badge';
 
 interface AccountGroup {
   key: string;
@@ -45,21 +43,135 @@ interface AccountGroup {
   totalBalance: number;
 }
 
+// Memoized Category Accordion Item
+const CategoryAccordionItem = memo(function CategoryAccordionItem({
+  group,
+  accountOrder,
+  balanceVisible,
+  onAccountClick,
+}: {
+  group: AccountGroup;
+  accountOrder: Record<string, string[]> | null;
+  balanceVisible: boolean;
+  onAccountClick: (id: string) => void;
+}) {
+  const config = getAccountCategoryConfig(group.category);
+
+  // Get accounts for this group (use reordered if available)
+  const orderedAccounts = useMemo(() => {
+    const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
+    return accountIds
+      .map((id) => group.accounts.find((a) => a.id === id))
+      .filter((a): a is UnifiedAccount => a !== undefined);
+  }, [group, accountOrder]);
+
+  return (
+    <AccordionItem value={group.key} className="  rounded-none overflow-hidden  hover:shadow-sm">
+      <AccordionTrigger className=" py-1 px-2 hover:bg-muted   rounded-none [&[data-state=open]]:rounded-b-none [&[data-state=open]]:bg-muted">
+        <div className="flex items-center justify-between w-full gap-4">
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+            <div className="h-9 w-9 flex items-center justify-center flex-shrink-0  ">
+              {config.icon}
+            </div>
+            <span className="font-semibold text-sm truncate text-foreground">{config.label}</span>
+          </div>
+          <div className="flex-shrink-0">
+            {balanceVisible ? (
+              <CurrencyDisplay amountUSD={group.totalBalance}  className="text-foreground font-bold" />
+            ) : (
+              <span className="text-muted-foreground font-semibold text-sm">••••••</span>
+            )}
+          </div>
+        </div>
+      </AccordionTrigger>
+
+      <AccordionContent className="px-0 py-0  ">
+        <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+          <div className="divide-y divide-border/50">
+            {orderedAccounts.map((account) => (
+              <AccountRow
+                key={account.id}
+                account={account}
+                isDraggable={true}
+                balanceVisible={balanceVisible}
+                onAccountClick={onAccountClick}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </AccordionContent>
+    </AccordionItem>
+  );
+});
+
+// Memoized Account Section
+const AccountSection = memo(function AccountSection({
+  title,
+  color,
+  groups,
+  accountOrder,
+  balanceVisible,
+  onAccountClick,
+  defaultOpenGroups,
+}: {
+  title: string;
+  color: string;
+  groups: AccountGroup[];
+  accountOrder: Record<string, string[]> | null;
+  balanceVisible: boolean;
+  onAccountClick: (id: string) => void;
+  defaultOpenGroups: string[];
+}) {
+  if (groups.length === 0) return null;
+
+  // Calculate total for this section
+  const sectionTotal = useMemo(
+    () => groups.reduce((sum, group) => sum + group.totalBalance, 0),
+    [groups]
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Header with badge and total */}
+      <div className="flex items-center justify-between">
+        <Badge className={cn("font-bold tracking-widest rounded-xs  " )} variant={title=='ASSETS' ? 'success' : 'destructive'} size='sm' >
+          {title}
+        </Badge>
+        <div className="flex items-center gap-2">
+          {balanceVisible ? (
+            <CurrencyDisplay amountUSD={sectionTotal} variant="lg" className="font-bold" style={{ color }} />
+          ) : (
+            <span className="text-sm font-bold" style={{ color }}>••••••</span>
+          )}
+        </div>
+      </div>
+
+      {/* Accordions */}
+      <Accordion type="multiple" defaultValue={defaultOpenGroups} className="  border divide-y">
+        {groups.map((group) => (
+          <CategoryAccordionItem
+            key={group.key}
+            group={group}
+            accountOrder={accountOrder}
+            balanceVisible={balanceVisible}
+            onAccountClick={onAccountClick}
+          />
+        ))}
+      </Accordion>
+    </div>
+  );
+});
+
 function OverviewTabComponent() {
   const router = useRouter();
-  const { data: accountsData, isLoading } = useAllAccounts();
+  const { data: accountsData } = useAllAccounts();
   const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
-  const setBalanceVisible = useAccountsUIStore((state) => state.setBalanceVisible);
   const [isAddAccountDialogOpen, setIsAddAccountDialogOpen] = useState(false);
-
-  // Reordered accounts state
   const [accountOrder, setAccountOrder] = useState<Record<string, string[]> | null>(null);
 
   // dnd-kit sensors
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      distance: 8,
-    }),
+    useSensor(PointerSensor, { distance: 8 }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -76,13 +188,22 @@ function OverviewTabComponent() {
     return Object.entries(accountsData.groups)
       .filter(([, group]) => group.accounts.length > 0)
       .map(([key, group]) => ({ key, ...group })) as (AccountGroup & { key: string })[];
-  }, [accountsData]);
+  }, [accountsData?.groups]);
 
-  // Total for progress calculation
-  const totalBalance = useMemo(
-    () => categoriesWithAccounts.reduce((sum, g) => sum + g.totalBalance, 0),
+  // Separate assets and liabilities
+  const assetGroups = useMemo(
+    () => categoriesWithAccounts.filter((c) => getCategoryType(c.category) === 'ASSET'),
     [categoriesWithAccounts]
   );
+
+  const liabilityGroups = useMemo(
+    () => categoriesWithAccounts.filter((c) => getCategoryType(c.category) === 'LIABILITY'),
+    [categoriesWithAccounts]
+  );
+
+  // Default open groups
+  const defaultAssetGroups = useMemo(() => assetGroups.map((c) => c.key), [assetGroups]);
+  const defaultLiabilityGroups = useMemo(() => liabilityGroups.map((c) => c.key), [liabilityGroups]);
 
   // Handle account click - navigate to account details
   const handleAccountClick = useCallback((accountId: string) => {
@@ -94,7 +215,6 @@ function OverviewTabComponent() {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      // Find which accordion contains both items
       const sourceGroup = categoriesWithAccounts.find((group) =>
         group.accounts.some((a) => a.id === active.id)
       );
@@ -117,167 +237,42 @@ function OverviewTabComponent() {
 
   return (
     <div className="h-full flex flex-col relative space-y-6">
-      {/* Body Layout */}
-      <div className="flex items-center justify-between">
-       <div className="flex-1">
-         <NetWorthChart mode="demo" height={300} className="pl-4 pt-4"  />
-       </div>
-     
-     </div>
+      {/* Net Worth Chart */}
+      <div className="flex-1">
+        <NetWorthChart mode="demo" height={300} className="pl-4 pt-4" />
+      </div>
+
       {/* Two-column layout: Accordions left, Summary right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Accordions Column */}
-        <div className="lg:col-span-8  h-fit rounded-lg">
+        <div className="lg:col-span-8 h-fit">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            {/* Assets Section */}
-            <div className="space-y-2 mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm font-semibold" style={{ color: 'rgb(120,150,60)' }}>ASSETS</span>
-              </div>
-              <Accordion type="multiple" defaultValue={categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'ASSET').map((c) => c.key)} className="space-y-2">
-                {categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'ASSET').map((group) => {
-                  const config = getAccountCategoryConfig(group.category);
-                  const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
+            <div className="space-y-10">
+              <AccountSection
+                title="ASSETS"
+                color="rgb(120,150,60)"
+                groups={assetGroups}
+                accountOrder={accountOrder}
+                balanceVisible={balanceVisible}
+                onAccountClick={handleAccountClick}
+                defaultOpenGroups={defaultAssetGroups}
+              />
 
-                  // Get accounts for this group (use reordered if available)
-                  const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
-                  const orderedAccounts = accountIds
-                    .map((id) => group.accounts.find((a) => a.id === id))
-                    .filter((a): a is UnifiedAccount => a !== undefined);
-
-                  return (
-                    <AccordionItem
-                      key={group.key}
-                      value={group.key}
-                      className="overflow-hidden   border  rounded"
-                    >
-                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 transition-all duration-0   [&[data-state=open]]:rounded-b-none cursor-pointer">
-                        {/* Icon */}
-                        <div className="h-9 w-9 rounded-full    flex items-center justify-center flex-shrink-0">
-                          {config.icon}
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0 text-left">
-                          <h3 className="font-semibold text-[15px] text-foreground truncate">{config.label}</h3>
-                        </div>
-
-                        {/* Amount and Chevron */}
-                        <div className="flex flex-col items-end flex-shrink-0 gap-1">
-                          <div className="text-right">
-                            {balanceVisible ? (
-                              <CurrencyDisplay amountUSD={group.totalBalance} variant="lg" className=" text-foreground font-semibold" />
-                            ) : (
-                              <span className="text-muted-foreground font-semibold text-sm">••••••</span>
-                            )}
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-
-                      <AccordionContent className="p-0 relative bg-background">
-                        <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                          <div className="relative">
-                            {orderedAccounts.map((account) => {
-                              const isCrypto =
-                                account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
-
-                              return (
-                                <AccountRow
-                                  key={account.id}
-                                  account={account}
-                                  isDraggable={true}
-                                  balanceVisible={balanceVisible}
-                                  onAccountClick={handleAccountClick}
-                                />
-                              );
-                            })}
-                          </div>
-                        </SortableContext>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </div>
-
-            {/* Liabilities Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm font-semibold" style={{ color: '#D4745A' }}>LIABILITIES</span>
-              </div>
-              <Accordion type="multiple" defaultValue={categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'LIABILITY').map((c) => c.key)} className="space-y-2">
-                {categoriesWithAccounts.filter(c => getCategoryType(c.category) === 'LIABILITY').map((group) => {
-                  const config = getAccountCategoryConfig(group.category);
-                  const progress = totalBalance ? (group.totalBalance / totalBalance) * 100 : 0;
-
-                  // Get accounts for this group (use reordered if available)
-                  const accountIds = accountOrder?.[group.key] || group.accounts.map((a) => a.id);
-                  const orderedAccounts = accountIds
-                    .map((id) => group.accounts.find((a) => a.id === id))
-                    .filter((a): a is UnifiedAccount => a !== undefined);
-
-                  return (
-                    <AccordionItem
-                      key={group.key}
-                      value={group.key}
-                      className="overflow-hidden   border  rounded"
-                    >
-                      <AccordionTrigger className="group relative  flex items-center gap-3 p-2 transition-all duration-0   [&[data-state=open]]:rounded-b-none cursor-pointer">
-                        {/* Icon */}
-                        <div className="h-9 w-9 rounded-full    flex items-center justify-center flex-shrink-0">
-                          {config.icon}
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0 text-left">
-                          <h3 className="font-semibold text-[15px] text-foreground truncate">{config.label}</h3>
-                        </div>
-
-                        {/* Amount and Chevron */}
-                        <div className="flex flex-col items-end flex-shrink-0 gap-1">
-                          <div className="text-right">
-                            {balanceVisible ? (
-                              <CurrencyDisplay amountUSD={group.totalBalance} variant="lg" className=" text-foreground font-semibold" />
-                            ) : (
-                              <span className="text-muted-foreground font-semibold text-sm">••••••</span>
-                            )}
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-
-                      <AccordionContent className="p-0 relative bg-background">
-                        <SortableContext items={orderedAccounts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                          <div className="relative">
-                            {orderedAccounts.map((account) => {
-                              const isCrypto =
-                                account.category === 'CRYPTO' || account.type === 'CRYPTO' || account.source === 'crypto';
-
-                              return (
-                                <AccountRow
-                                  key={account.id}
-                                  account={account}
-                                  isDraggable={true}
-                                  balanceVisible={balanceVisible}
-                                  onAccountClick={handleAccountClick}
-                                />
-                              );
-                            })}
-                          </div>
-                        </SortableContext>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+              <AccountSection
+                title="LIABILITIES"
+                color="#D4745A"
+                groups={liabilityGroups}
+                accountOrder={accountOrder}
+                balanceVisible={balanceVisible}
+                onAccountClick={handleAccountClick}
+                defaultOpenGroups={defaultLiabilityGroups}
+              />
             </div>
           </DndContext>
         </div>
 
-        {/* Right Sidebar Summary with Enhanced Overview */}
-        <div className="lg:col-span-4 space-y-4">
-  
-
-          {/* Traditional Summary Cards */}
+        {/* Right Sidebar Summary */}
+        <div className="lg:col-span-4">
           <AccountsSummary summary={summaryData} />
         </div>
       </div>
