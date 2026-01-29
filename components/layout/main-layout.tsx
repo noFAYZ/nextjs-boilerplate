@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Header } from './header';
-import { SidebarLayoutV2 } from '@/components/sidebar-v2';
+import { SidebarLayoutV2 } from './sidebar';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { useUnifiedAutoSync } from '@/lib/hooks/use-unified-auto-sync';
 import { AddMenuDialog } from '@/components/ui/add-menu-dialog';
