@@ -1,2 +1,2 @@
-// Backward compatibility re-export
-export * from '@/components/features/auth';
+// Re-export from modules for backward compatibility
+export * from '@/components/modules/auth';

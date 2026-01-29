@@ -1,2 +1,3 @@
-// Backward compatibility re-export
-export * from '@/components/features/budgets';
+// Re-export from new modular structure
+// This provides backward compatibility for existing imports
+export * from '@/components/modules';

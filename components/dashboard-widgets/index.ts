@@ -1,39 +1,8 @@
-// Financial Overview Widgets
-export { NetWorthWidget } from './net-worth-widget';
-export { NetWorthPerformanceWidget } from './networth-performance-widget';
-export { MonthlySpendingTrendWidget } from './monthly-spending-trend-widget';
-export { SpendingCategoriesWidget } from './spending-categories-widget';
-
-// Net Worth Widgets
-export {
-  AssetBreakdownWidget,
-  LiabilitiesBreakdownWidget,
-  AssetsVsLiabilitiesWidget,
-  DebtToAssetRatioWidget,
-  AssetAllocationWidget,
-  FinancialHealthScoreWidget,
-  DebtSummaryWidget,
-  CashPositionWidget,
-} from './networth';
-
-
-// Crypto Widgets
-export { CryptoAllocationWidget } from './crypto-allocation-widget';
-export { NetworkDistributionWidget } from './network-distribution-widget';
-
-// Banking Widgets
-export { AccountsWidget } from './accounts-widget';
-export { AccountSpendingComparisonWidget } from './account-spending-comparison-widget';
-
-// Goals, Budgets & Subscriptions Widgets
-export { GoalsOverviewWidget } from './goals-overview-widget';
-export { BudgetOverviewWidget } from './budget-overview-widget';
-export { SubscriptionsOverviewWidget } from './subscriptions-overview-widget';
-export { CalendarSubscriptionWidget } from './calendar-subscription-widget';
-export { UpcomingBillsWidget } from './upcoming-bills-widget';
-
-// Activity Widgets
-export { RecentActivityWidget } from './recent-activity-widget';
-
-// Examples
-export { AnalyticsRefreshExample } from './analytics-refresh-example';
+// Re-export dashboard widget components from modules
+export * from '@/components/modules/accounts/widgets';
+export * from '@/components/modules/banking/widgets';
+export * from '@/components/modules/budgets/widgets';
+export * from '@/components/modules/crypto/widgets';
+export * from '@/components/modules/goals/widgets';
+export * from '@/components/modules/networth/widgets';
+export * from '@/components/modules/subscriptions/widgets';

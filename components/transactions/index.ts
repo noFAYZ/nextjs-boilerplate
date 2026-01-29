@@ -1,2 +1,2 @@
-// Backward compatibility re-export
-export * from '@/components/features/transactions';
+// Re-export from modules for backward compatibility
+export * from '@/components/modules/transactions';

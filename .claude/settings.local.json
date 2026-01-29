@@ -46,7 +46,10 @@
       "Bash(powershell -NoProfile -Command:*)",
       "Bash(__NEW_LINE_51d4b29555833105__ mv budget-queries.ts budgets/budget-queries.ts)",
       "Bash(__NEW_LINE_51d4b29555833105__ echo \"Moved budget-queries.ts to budgets/\")",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(xargs -I {} sh -c 'echo -n \"\"{}: \"\"; find \"\"{}\"\" -type f \\\\\\( -name \"\"*.tsx\"\" -o -name \"\"*.ts\"\" \\\\\\) | wc -l')",
+      "Bash(node migrate-components.js:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
