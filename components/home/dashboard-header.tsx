@@ -3,12 +3,12 @@
 import { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Target, ArrowUpLeft, ArrowDownLeft } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { Card } from '../ui/card';
-import { MemoryArrowTopRight, SolarPieChart2BoldDuotone } from '../icons/icons';
-import { CurrencyDisplay } from '../ui/currency-display';
+import { Card } from '@/components/ui/card';
+import { MemoryArrowTopRight, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
+import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { useAllAccounts } from '@/lib/queries';
-import { NetWorthChart } from '../networth/networth-chart';
-import { NetWorthBreakdownShowcase } from '../charts/networth-breakdown-showcase';
+import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
+import { NetWorthBreakdownShowcase } from '@/components/charts/networth-breakdown-showcase';
 
 /**
  * Dashboard Header Component - Matches exact design from reference image

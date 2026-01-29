@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Merchant } from '@/components/transactions/card-view/types';
+import type { Merchant } from '@/components/modules/transactions/components/card-view/types';
 
 export function useMerchantsMap(merchantsResponse: any): Map<string, Merchant> {
   return useMemo(() => {

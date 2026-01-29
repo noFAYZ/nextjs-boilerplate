@@ -7,7 +7,7 @@ import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Plus, AlertCircle, Check, ChevronDown, Building2, Wallet, Bitcoin } from 'lucide-react';
-import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
+import { AddAccountDialog } from '@/components/modules/accounts/components/add-account-dialog';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import {
   Accordion,

@@ -9,7 +9,7 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { SolarWalletBoldDuotone } from "@/components/icons/icons";
-import { AccountGroupsGrid } from "@/components/accounts/AccountGroupsGrid";
+import { AccountGroupsGrid } from "@/components/modules/accounts/components/AccountGroupsGrid";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

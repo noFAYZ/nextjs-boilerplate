@@ -45,12 +45,12 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import {  HeroiconsWallet16Solid, SolarCheckCircleBoldDuotone, SolarClockCircleBoldDuotone, SolarWalletBoldDuotone, StreamlineFlexWallet } from '@/components/icons/icons';
-import { AddWalletModal } from '@/components/crypto/AddWalletModal';
-import { SyncStatusIndicator } from '@/components/crypto/SyncStatusIndicator';
-import { WalletSyncModal } from '@/components/crypto/wallet-sync-modal';
+import { AddWalletModal } from '@/components/modules/crypto/components/AddWalletModal';
+import { SyncStatusIndicator } from '@/components/modules/crypto/components/SyncStatusIndicator';
+import { WalletSyncModal } from '@/components/modules/crypto/components/wallet-sync-modal';
 import { LogoLoader } from '@/components/icons';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
-import { ChainBadge } from '@/components/crypto/ui/ChainBadge';
+import { ChainBadge } from '@/components/modules/crypto/components/ui/ChainBadge';
 
 
 interface WalletCardProps {

@@ -1,4 +1,4 @@
-import { TimePeriod } from '@/components/crypto/wallet-chart';
+import { TimePeriod } from '@/components/modules/crypto/components/wallet-chart';
 import  ZerionSDK  from 'zerion-sdk-ts';
 
 interface ChartDataPoint {

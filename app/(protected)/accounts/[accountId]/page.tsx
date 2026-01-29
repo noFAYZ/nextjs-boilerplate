@@ -29,7 +29,7 @@ import {
 } from "@/lib/utils";
 import { useCategoriesMap } from "@/lib/hooks/use-categories-map";
 import { useMerchantsMap } from "@/lib/hooks/use-merchants-map";
-import { TransactionCardList } from "@/components/transactions/card-view";
+import { TransactionCardList } from "@/components/modules/transactions/components/card-view";
 
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect, useCallback } from "react";
@@ -48,13 +48,13 @@ import {
   SolarClipboardListBoldDuotone,
 } from "@/components/icons/icons";
 import { useAccountsUIStore } from "@/lib/stores/accounts-ui-store";
-import { AccountHeader } from "@/components/accounts/AccountHeader";
-import { TransactionsDataTable } from "@/components/transactions";
+import { AccountHeader } from "@/components/modules/accounts/components/AccountHeader";
+import { TransactionsDataTable } from "@/components/modules/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
-import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/components/transactions/transaction-detail-drawer-enhanced";
+import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/components/modules/transactions/components/transaction-detail-drawer-enhanced";
 import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
-import { ManualTransactionForm } from "@/components/accounts/manual-transaction-form";
-import { CryptoAccountDetail } from "@/components/accounts/crypto-account-detail";
+import { ManualTransactionForm } from "@/components/modules/accounts/components/manual-transaction-form";
+import { CryptoAccountDetail } from "@/components/modules/accounts/components/crypto-account-detail";
 import { useProviderConnections, useSyncConnection } from "@/lib/queries/use-banking-data";
 import { TransactionAttachments, DuplicateDetectionBanner } from "@/app/(protected)/accounts/components";
 import { useMerchants, useTransactionCategories } from "@/lib/queries/use-transactions-data";

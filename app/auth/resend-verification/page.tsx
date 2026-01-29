@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useResendVerificationEmail } from '@/lib/queries/use-auth-data';
-import AuthForm from '@/components/auth/auth-form';
+import AuthForm from '@/components/modules/auth/components/auth-form';
 import { PageLoader } from '@/components/ui/page-loader';
 
 interface ResendEmailFormData {

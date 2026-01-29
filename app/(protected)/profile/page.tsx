@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
-import AuthGuard from '@/components/auth/AuthGuard';
+import AuthGuard from '@/components/modules/auth/components/AuthGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

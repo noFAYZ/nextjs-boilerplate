@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ACCOUNT_TYPE_INFO } from '@/components/account-type-selector';
+import { ACCOUNT_TYPE_INFO } from '../account-type-selector';
 import { AccountType } from '@/lib/types/banking';
 import { ACCOUNT_TYPES_BY_CATEGORY } from './account-types-by-category';
 

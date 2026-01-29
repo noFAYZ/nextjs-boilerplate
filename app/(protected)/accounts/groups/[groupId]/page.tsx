@@ -27,9 +27,9 @@ import Link from 'next/link';
 import { useAccountGroup } from '@/lib/hooks/use-account-groups';
 import { useToast } from "@/lib/hooks/useToast";
 import { formatCurrency } from '@/lib/utils';
-import { EditGroupDialog } from '@/components/accounts/EditGroupDialog';
-import { GroupSettings } from '@/components/accounts/GroupSettings';
-import { GroupAnalytics } from '@/components/accounts/GroupAnalytics';
+import { EditGroupDialog } from '@/components/modules/accounts/components/EditGroupDialog';
+import { GroupSettings } from '@/components/modules/accounts/components/GroupSettings';
+import { GroupAnalytics } from '@/components/modules/accounts/components/GroupAnalytics';
 import type { AccountGroup, FinancialAccount, CryptoWallet } from '@/lib/types/account-groups';
 
 export default function GroupDetailsPage() {

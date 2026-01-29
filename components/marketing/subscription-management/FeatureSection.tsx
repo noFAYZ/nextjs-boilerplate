@@ -28,10 +28,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PhUsersDuotone, SolarPieChart2BoldDuotone, SolarWalletBoldDuotone } from "@/components/icons/icons";
-import WalletCard from "@/components/crypto/WalletCard";
+import WalletCard from "@/components/modules/crypto/components/WalletCard";
 import { BudgetCard } from "@/components/modules/budgets/components/shared/budget-card";
-import { GoalCard } from "@/components/goals/goal-card";
-import { SubscriptionCard } from "@/components/subscriptions/subscription-card";
+import { GoalCard } from "@/components/modules/goals/components/goal-card";
+import { SubscriptionCard } from "@/components/modules/subscriptions/components/subscription-card";
 import { Card } from "@/components/ui/card";
 import { NetWorthWidget } from "@/components/dashboard-widgets";
 import { SpendingCategoriesWidget } from "@/components/dashboard-widgets";

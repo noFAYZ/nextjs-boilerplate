@@ -35,7 +35,7 @@ import {
   FluentWrenchSettings24Regular,
   SolarInboxInBoldDuotone,
 } from '@/components/icons/icons';
-import { SettingsDialog } from '@/components/settings/settings-dialog';
+import { SettingsDialog } from '@/components/modules/settings/components/settings-dialog';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { OrganizationSwitcher } from '@/components/organization/organization-switcher';
 import { SIDEBAR_WIDTHS, SIDEBAR_TRANSITIONS, LOGO_STYLES, POPOVER_STYLES } from './constants';

@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/auth-client';
-import AuthForm from '@/components/auth/auth-form';
+import AuthForm from '@/components/modules/auth/components/auth-form';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 
 interface ResetPasswordFormData {

@@ -5,7 +5,7 @@ import { useDockContext } from "@/components/providers/dock-provider"
 import { ExpandableItem } from "@/components/ui/dock"
 import { useCryptoStore } from "@/lib/stores/crypto-store"
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider"
-import type { WalletSyncProgressProps } from "@/components/crypto/SyncProgressIndicator"
+import type { WalletSyncProgressProps } from "@/components/modules/crypto/components/SyncProgressIndicator"
 
 export interface WalletSyncProgress {
   walletId: string;

@@ -59,9 +59,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { MageGoals, SolarCheckCircleBoldDuotone, SolarCalendarBoldDuotone } from "@/components/icons/icons";
-import { CircularProgress } from "@/components/goals/goal-card";
-import { GoalContributionsChart } from "@/components/goals/goal-contributions-chart";
-import { GoalHeader } from "@/components/goals/goal-header";
+import { CircularProgress } from "@/components/modules/goals/components/goal-card";
+import { GoalContributionsChart } from "@/components/modules/goals/components/goal-contributions-chart";
+import { GoalHeader } from "@/components/modules/goals/components/goal-header";
 
 export default function GoalDetailPage() {
   const params = useParams();

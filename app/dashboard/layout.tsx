@@ -1,5 +1,5 @@
 import { MainLayout } from '@/components/layout';
-import AuthGuard from '@/components/auth/AuthGuard';
+import AuthGuard from '@/components/modules/auth/components/AuthGuard';
 
 export default function DashboardLayout({
   children,

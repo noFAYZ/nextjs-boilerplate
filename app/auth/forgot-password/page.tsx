@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import posthog from 'posthog-js';
 import { forgetPassword } from '@/lib/auth-client';
-import AuthForm from '@/components/auth/auth-form';
+import AuthForm from '@/components/modules/auth/components/auth-form';
 import { useLoading } from '@/lib/contexts/loading-context';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
 

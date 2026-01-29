@@ -33,7 +33,7 @@ import React from 'react';
 
 import { useCreateCryptoWallet } from '@/lib/queries';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
-import { NetworkSelector } from '@/components/crypto/ui/network-selector';
+import { NetworkSelector } from '@/components/modules/crypto/components/ui/network-selector';
 import { cn } from '@/lib/utils';
 import { SolarWalletBoldDuotone } from '@/components/icons/icons';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';

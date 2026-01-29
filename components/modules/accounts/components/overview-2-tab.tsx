@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, TrendingUp, Wallet, PieChart, PlusIcon, MinusIcon } from 'lucide-react';
 import { SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
 import { Card } from '@/components/ui/card';
-import { NetWorthChart } from '@/components/networth/networth-chart';
+import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
 import { AccountGroupingPanel } from '@/app/(protected)/accounts/components';
 
 interface AccountGroup {

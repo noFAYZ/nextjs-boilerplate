@@ -36,7 +36,7 @@ import {
   getWithTimestamp,
 } from '@/lib/utils';
 import { CreateOrganizationModal, OrganizationSettings } from '@/components/organization';
-import { CategoryManagementModal } from '@/components/banking';
+import { CategoryManagementModal } from '@/components/modules/banking';
 import { HeroiconsWallet16Solid } from '@/components/icons/icons';
 
 const PREFERENCES_STORAGE_KEY = 'moneymappr_user_preferences';

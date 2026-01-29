@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import AuthForm from '@/components/auth/auth-form';
-import { AuthLayout } from '@/components/auth/auth-layout';
+import AuthForm from '@/components/modules/auth/components/auth-form';
+import { AuthLayout } from '@/components/modules/auth/components/auth-layout';
 import { SignUpFormData } from '@/lib/types';
 import { useAuthStore, selectIsAuthenticated, selectSession } from '@/lib/stores';
 import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';

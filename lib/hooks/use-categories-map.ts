@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Category } from '@/components/transactions/card-view/types';
+import type { Category } from '@/components/modules/transactions/components/card-view/types';
 
 export function useCategoriesMap(categoriesResponse: any): Map<string, Category> {
   return useMemo(() => {

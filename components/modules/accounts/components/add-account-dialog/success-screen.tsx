@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SolarCheckCircleBoldDuotone, AlertCircle } from '@/components/icons/icons';
-import { ACCOUNT_TYPE_INFO } from '@/components/account-type-selector';
+import { ACCOUNT_TYPE_INFO } from '../account-type-selector';
 import { AccountType } from '@/lib/types/banking';
 
 interface SuccessScreenProps {

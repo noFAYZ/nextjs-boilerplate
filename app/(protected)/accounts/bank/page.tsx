@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { BankConnectionsDataTable } from '@/components/banking/bank-connections-data-table';
+import { BankConnectionsDataTable } from '@/components/modules/banking/components/bank-connections-data-table';
 import {
   useProviderConnections,
   useUpdateBankAccount,
@@ -11,7 +11,7 @@ import {
 } from '@/lib/queries/use-banking-data';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, RefreshCw } from 'lucide-react';
-import { useTellerConnect } from '@/components/banking/TellerConnect';
+import { useTellerConnect } from '@/components/modules/banking/components/TellerConnect';
 import { BankAccount } from '@/lib/types/banking';
 import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { useBankingStore } from '@/lib/stores/banking-store';

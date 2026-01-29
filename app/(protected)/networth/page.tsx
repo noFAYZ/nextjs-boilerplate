@@ -20,8 +20,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { NetWorthChart } from '@/components/networth/networth-chart';
-import { NetWorthBreakdown } from '@/components/networth/networth-breakdown';
+import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
+import { NetWorthBreakdown } from '@/components/modules/networth/components/networth-breakdown';
 import { AssetList } from '@/components/assets/asset-list';
 import { AssetFormModal } from '@/components/assets/asset-form-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

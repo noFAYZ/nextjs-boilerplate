@@ -46,7 +46,7 @@ import {
   DeleteTransactionsDialog,
   ExportTransactionsDialog,
   UpdateTransactionsDialog
-} from '@/components/crypto/TransactionOperationsDialog';
+} from '@/components/modules/crypto/components/TransactionOperationsDialog';
 
 interface Transaction {
   id: string;

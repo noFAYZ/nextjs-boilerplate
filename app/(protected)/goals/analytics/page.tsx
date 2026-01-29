@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { GoalAnalyticsDashboard } from '@/components/goals/goal-analytics';
+import { GoalAnalyticsDashboard } from '@/components/modules/goals/components/goal-analytics';
 import { useGoalsStore } from '@/lib/stores';
 import { goalsApi } from '@/lib/services/goals-api';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';

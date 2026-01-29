@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { NetWorthChart } from '@/components/networth/networth-chart';
+import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -225,7 +225,7 @@ export default function NetWorthDemoPage() {
         <CardContent>
           <div className="bg-muted/50 rounded-lg p-4 font-mono text-xs overflow-x-auto">
             <pre>{`// Import the component
-import { NetWorthChart } from '@/components/networth/networth-chart';
+import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
 
 // Use demo mode
 <NetWorthChart

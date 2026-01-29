@@ -11,12 +11,12 @@ import { useAllAccounts } from '@/lib/queries';
 import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
-import { AddAccountDialog } from '@/components/accounts/add-account-dialog';
+import { AddAccountDialog } from '@/components/modules/accounts/components/add-account-dialog';
 
 // Extracted tab components
-import { OverviewTab } from '@/components/accounts/overview-tab';
-import { Overview2Tab } from '@/components/accounts/overview-2-tab';
-import { ManageTab } from '@/components/accounts/manage-tab';
+import { OverviewTab } from '@/components/modules/accounts/components/overview-tab';
+import { Overview2Tab } from '@/components/modules/accounts/components/overview-2-tab';
+import { ManageTab } from '@/components/modules/accounts/components/manage-tab';
 
 /* -------------------------------------------------------------------------- */
 /*                               MAIN PAGE EXPORT                             */

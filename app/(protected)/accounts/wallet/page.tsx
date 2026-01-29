@@ -19,10 +19,10 @@ import { useSyncAllCryptoWallets } from "@/lib/queries";
 import { getTopPerformingAssets, getTopNetworks } from "@/lib/utils";
 
 // Import components
-import { WalletTokens } from "@/components/crypto/wallet-tokens";
-import { WalletNFTs } from "@/components/crypto/wallet-nfts";
-import { WalletTransactions } from "@/components/crypto/wallet-transactions";
-import { WalletDeFi } from "@/components/crypto/wallet-defi";
+import { WalletTokens } from "@/components/modules/crypto/components/wallet-tokens";
+import { WalletNFTs } from "@/components/modules/crypto/components/wallet-nfts";
+import { WalletTransactions } from "@/components/modules/crypto/components/wallet-transactions";
+import { WalletDeFi } from "@/components/modules/crypto/components/wallet-defi";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import {
   StreamlineFlexWallet,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Settings2, LayoutDashboard } from "lucide-react";
-import { AccountsDataView } from "@/components/accounts/accounts-data-view";
+import { AccountsDataView } from "@/components/modules/accounts/components/accounts-data-view";
 import { AccountsOverviewSection } from "./accounts-overview-section";
 import { AccountGroupingPanel } from "./account-grouping-panel";
 

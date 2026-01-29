@@ -25,7 +25,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { TransactionsDataTable } from '@/components/transactions';
+import { TransactionsDataTable } from '@/components/modules/transactions';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 

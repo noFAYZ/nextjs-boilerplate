@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, BarChart, TrendingUp } from "lucide-react";
-import { NetWorthChart } from "@/components/networth/networth-chart";
+import { NetWorthChart } from "@/components/modules/networth/components/networth-chart";
 import Link from "next/link";
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

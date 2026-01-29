@@ -20,8 +20,8 @@ import { useWalletDock } from "@/lib/hooks/use-wallet-dock";
 import { useSession } from "@/lib/auth-client";
 import { useDockContext } from "@/components/providers/dock-provider";
 import { useCryptoStore } from "@/lib/stores/crypto-store";
-import { SyncProgressIndicator } from "@/components/crypto/SyncProgressIndicator";
-import { WalletSyncItem } from "@/components/crypto/WalletSyncItem";
+import { SyncProgressIndicator } from "@/components/modules/crypto/components/SyncProgressIndicator";
+import { WalletSyncItem } from "@/components/modules/crypto/components/WalletSyncItem";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/lib/hooks/useToast";
 

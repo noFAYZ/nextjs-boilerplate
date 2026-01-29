@@ -45,7 +45,7 @@ import {
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BankAccountSyncModal } from "@/components/banking/BankAccountSyncModal";
+import { BankAccountSyncModal } from "@/components/modules/banking/components/BankAccountSyncModal";
 import {
   categoryIcons,
   type Category,
@@ -77,10 +77,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AccountHeader } from "@/components/accounts/AccountHeader";
-import { TransactionsDataTable } from "@/components/transactions";
+import { AccountHeader } from "@/components/modules/accounts/components/AccountHeader";
+import { TransactionsDataTable } from "@/components/modules/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
-import { AccountSubtypeAndCategoryForm } from "@/components/banking";
+import { AccountSubtypeAndCategoryForm } from "@/components/modules/banking";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
