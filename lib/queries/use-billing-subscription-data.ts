@@ -22,7 +22,7 @@ import {
   type QueryClient,
 } from '@tanstack/react-query';
 import { subscriptionService } from '@/lib/services/subscription-service';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthReady } from './query-helpers';
 import type {
   SubscriptionPlan,
   CurrentSubscription,
@@ -49,19 +49,6 @@ export const billingSubscriptionKeys = {
   usage: () => [...billingSubscriptionKeys.all, 'usage'] as const,
   featureLimit: (feature: string) => [...billingSubscriptionKeys.all, 'feature', feature] as const,
 };
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-/**
- * Ensures queries only run when user is authenticated and initialized
- */
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
 
 // ============================================================================
 // SUBSCRIPTION PLAN QUERIES

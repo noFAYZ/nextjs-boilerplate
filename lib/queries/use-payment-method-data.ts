@@ -20,20 +20,7 @@ import {
   paymentMethodQueries,
   paymentMethodMutations,
 } from './payment-method-queries';
-import { useAuthStore } from '@/lib/stores/auth-store';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-/**
- * Ensures queries only run when user is authenticated and initialized
- */
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
+import { useAuthReady } from './query-helpers';
 
 // ============================================================================
 // PAYMENT METHOD QUERIES

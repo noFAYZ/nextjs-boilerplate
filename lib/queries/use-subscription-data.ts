@@ -23,26 +23,13 @@ import {
   subscriptionQueries,
   subscriptionMutations,
 } from './subscription-queries';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthReady } from './query-helpers';
 import { useSubscriptionUIStore } from '@/lib/stores/subscription-ui-store';
 import type {
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
   SubscriptionFilters,
 } from '@/lib/types/subscription';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-/**
- * Ensures queries only run when user is authenticated and initialized
- */
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
 
 // ============================================================================
 // SUBSCRIPTION QUERIES

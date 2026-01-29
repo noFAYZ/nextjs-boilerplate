@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { accountsApi } from '@/lib/services/accounts-api';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useContextOrganizationId as useContextOrganizationIdHelper } from './query-helpers';
 import { useOrganizationStore } from '@/lib/stores/organization-store';
 import type {
   UnifiedAccountsResponse,
@@ -512,10 +513,10 @@ export const accountsMutations = {
 
 /**
  * Helper to get organization ID from context store or explicit parameter
+ * Re-exported from centralized query-helpers for backward compatibility
  */
 function useContextOrganizationId(organizationId?: string) {
-  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  return organizationId || contextOrgId;
+  return useContextOrganizationIdHelper(organizationId);
 }
 
 // Pre-configured hooks for common queries

@@ -24,8 +24,7 @@ import {
   networthQueries,
   networthMutations,
 } from './networth-queries';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthReady, useContextOrganizationId } from './query-helpers';
 import type {
   NetWorthAggregation,
   NetWorthSummary,
@@ -47,24 +46,6 @@ import type {
   AssetAccountsQueryParams,
   AssetCategoriesQueryParams,
 } from '@/lib/types/networth';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
-
-/**
- * Helper to get organization ID from context store or explicit parameter
- */
-function useContextOrganizationId(organizationId?: string) {
-  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  return organizationId || contextOrgId;
-}
 
 // ============================================================================
 // NET WORTH QUERIES

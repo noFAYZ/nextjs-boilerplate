@@ -29,6 +29,7 @@ import {
   useCategories as useBaseCategoriesQuery,
   useCategoryGroups as useBaseCategoryGroupsQuery,
 } from './accounts-queries';
+import { useAuthReady } from './query-helpers';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import type {
   CreateManualAccountRequest,
@@ -36,16 +37,6 @@ import type {
   AddTransactionRequest,
   GetAccountTransactionsParams,
 } from '@/lib/types/unified-accounts';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
 
 // ============================================================================
 // ACCOUNT QUERIES
@@ -296,3 +287,6 @@ export function useAccountsSummary() {
     ...rest,
   };
 }
+
+// Alias for backward compatibility
+export const useUnifiedAccounts = useAllAccounts;

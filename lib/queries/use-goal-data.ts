@@ -20,7 +20,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { goalsApi } from '@/lib/services/goals-api';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthReady } from './query-helpers';
 import type {
   CreateGoalRequest,
   UpdateGoalRequest,
@@ -40,19 +40,6 @@ export const goalKeys = {
   detail: (id: string, orgId?: string) => [...goalKeys.details(orgId), id] as const,
   analytics: (orgId?: string) => [...goalKeys.all, 'analytics', orgId] as const,
 };
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-/**
- * Ensures queries only run when user is authenticated and initialized
- */
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
 
 // ============================================================================
 // GOAL QUERIES

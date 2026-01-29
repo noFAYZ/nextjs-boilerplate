@@ -26,31 +26,12 @@ import {
 } from './banking-queries';
 import { bankingApi } from '@/lib/services/banking-api';
 import { invalidateByDependency } from '@/lib/query-invalidation';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthReady, useContextOrganizationId } from './query-helpers';
 import { useBankingUIStore } from '@/lib/stores/banking-ui-store';
 import type {
   BankAccount,
   BankTransactionParams,
 } from '@/lib/types/banking';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
-
-/**
- * Helper to get organization ID from context store or explicit parameter
- */
-function useContextOrganizationId(organizationId?: string) {
-  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  return organizationId || contextOrgId;
-}
 
 // ============================================================================
 // ACCOUNT QUERIES

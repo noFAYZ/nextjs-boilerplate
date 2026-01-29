@@ -15,14 +15,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { settingsQueries, settingsMutations } from './settings-queries';
-import { useAuthStore } from '@/lib/stores/auth-store';
-
-// Auth-ready wrapper
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
+import { useAuthReady } from './query-helpers';
 
 // ============================================================================
 // SETTINGS QUERIES

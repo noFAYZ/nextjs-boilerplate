@@ -3,30 +3,26 @@
  *
  * PURPOSE: Central export for all TanStack Query data hooks
  * - Single source of truth for ALL server data fetching
+ * - Organized by domain for better discoverability
  * - No useEffect patterns - React Query handles everything
  * - Optimistic updates and automatic cache invalidation built-in
  *
- * ARCHITECTURE:
- * ┌──────────────────────────────────────────────────────────┐
- * │                    COMPONENTS                             │
- * │  (use hooks from this file for ALL server data)          │
- * └─────────────────────┬────────────────────────────────────┘
- *                       │
- *                       ▼
- * ┌──────────────────────────────────────────────────────────┐
- * │              TANSTACK QUERY HOOKS                         │
- * │  • use-crypto-data.ts   (crypto wallets, portfolio)      │
- * │  • use-banking-data.ts  (bank accounts, transactions)    │
- * │  • use-auth-data.ts     (user profile, session)          │
- * └─────────────────────┬────────────────────────────────────┘
- *                       │
- *                       ▼
- * ┌──────────────────────────────────────────────────────────┐
- * │                  API SERVICES                             │
- * │  • crypto-api.ts    (HTTP requests to backend)           │
- * │  • banking-api.ts   (HTTP requests to backend)           │
- * │  • api-client.ts    (centralized fetch with auth)        │
- * └──────────────────────────────────────────────────────────┘
+ * DOMAIN ORGANIZATION:
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │ CRYPTO        - Wallets, portfolio, transactions, NFTs, DeFi    │
+ * │ BANKING       - Accounts, connections, transactions             │
+ * │ AUTH          - User profile, session, authentication            │
+ * │ BUDGETS       - Budgets, envelopes, forecasting, analytics      │
+ * │ ACCOUNTS      - Unified account management                       │
+ * │ TRANSACTIONS  - Transaction data, categorization rules           │
+ * │ CATEGORIES    - Custom categories, groups, envelope types       │
+ * │ SUBSCRIPTIONS - User subscriptions, billing, payments            │
+ * │ ASSETS        - Net worth, goals, payment methods               │
+ * │ SETTINGS      - User settings and preferences                    │
+ * │ ORGANIZATION  - Multi-tenant organization data                   │
+ * │ INTEGRATIONS  - Plaid, QuickBooks, external integrations       │
+ * │ UTILITIES     - Currency, waitlist, misc utilities              │
+ * └─────────────────────────────────────────────────────────────────┘
  *
  * USAGE EXAMPLE:
  * ```tsx
@@ -49,558 +45,76 @@
  */
 
 // ============================================================================
-// CRYPTO DATA HOOKS
+// QUERY HELPER UTILITIES
 // ============================================================================
-
-export {
-  // Wallet Queries
-  useCryptoWallets,
-  useCryptoWallet,
-  useSelectedCryptoWallet,
-  useAggregatedCryptoWallet,
-
-  // Portfolio Queries
-  useCryptoPortfolio,
-
-  // Transaction Queries
-  useCryptoTransactions,
-  useWalletTransactions,
-  useSelectedWalletTransactions,
-
-  // NFT Queries
-  useCryptoNFTs,
-  useWalletNFTs,
-
-  // DeFi Queries
-  useCryptoDeFi,
-  useWalletDeFi,
-
-  // Sync Queries
-  useWalletSyncStatus,
-
-  // Analytics Queries
-  useCryptoAnalytics,
-
-  // Wallet Mutations
-  useCreateCryptoWallet,
-  useUpdateCryptoWallet,
-  useDeleteCryptoWallet,
-
-  // Sync Mutations
-  useSyncCryptoWallet,
-  useSyncAllCryptoWallets,
-
-  // Utilities
-  useInvalidateCryptoCache,
-  usePrefetchCryptoData,
-} from './use-crypto-data';
+export * from './query-helpers';
 
 // ============================================================================
-// BANKING DATA HOOKS
+// CRYPTO DOMAIN (wallets, portfolio, transactions, NFTs, DeFi)
 // ============================================================================
-
-export {
-  // Account Queries
-  useBankingAccounts,
-  useBankingGroupedAccounts,
-  useBankingAccount,
-  useSelectedBankAccount,
-  useBankAccountSummary,
-
-  // Dashboard Queries
-  useBankingOverview,
-  useBankingDashboard,
-
-  // Transaction Queries
-  useBankingTransactions,
-  useAccountTransactions,
-  useSelectedAccountTransactions,
-
-  // Enrollment Queries
-  useBankingEnrollments,
-  useBankingEnrollment,
-
-  // Sync Queries
-  useAccountSyncStatus,
-
-  // Analytics Queries
-  useTopSpendingCategories,
-  useMonthlySpendingTrend,
-  useAccountSpendingComparison,
-  useSpendingByCategory,
-
-  // Account Mutations
-  useConnectBankAccount,
-  useUpdateBankAccount,
-  useDisconnectBankAccount,
-
-  // Sync Mutations
-  useSyncBankAccount,
-  useSyncAllBankAccounts,
-  useSyncAccountTransactions,
-
-  // Enrollment Mutations
-  useDeleteBankEnrollment,
-
-  // Utilities
-  useInvalidateBankingCache,
-  usePrefetchBankingData,
-} from './use-banking-data';
+export * from './use-crypto-data';
 
 // ============================================================================
-// PLAID DATA HOOKS
+// BANKING DOMAIN (accounts, connections, transactions)
 // ============================================================================
-
-export {
-  // Plaid Queries
-  usePlaidLinkToken,
-
-  // Plaid Mutations
-  useAddPlaidAccount,
-  useSyncPlaidAccounts,
-  useSyncPlaidTransactions,
-} from './plaid-queries';
+export * from './use-banking-data';
 
 // ============================================================================
-// TRANSACTION DATA HOOKS
+// AUTHENTICATION DOMAIN (user profile, session)
 // ============================================================================
-
-export {
-  // Transaction Queries
-  useTransactions,
-  useTransaction,
-  useTransactionStats,
-  useTransactionCategories,
-  useTransactionCategoryGroups,
-  useMerchants,
-  useSearchCategories,
-
-  // Transaction Mutations
-  useCreateTransaction,
-  useBulkCreateTransactions,
-  useUpdateTransaction,
-  useDeleteTransaction,
-  useBulkUpdateTransactions,
-
-  // Utilities
-  useInvalidateTransactionCache,
-  usePrefetchTransactionData,
-} from './use-transactions-data';
-
-export {
-  transactionKeys,
-  transactionQueries,
-  transactionMutations,
-} from './transactions-queries';
+export * from './use-auth-data';
 
 // ============================================================================
-// UNIFIED ACCOUNTS DATA HOOKS
+// BUDGET DOMAIN (budgets, envelopes, forecasting, analytics)
 // ============================================================================
-
-export {
-  // Account Queries
-  useAllAccounts,
-  useAccountDetails,
-
-  // Category Queries
-  useAccountsByCategory,
-  useAccountsSummary,
-
-  // Account Mutations
-  useCreateManualAccount,
-  useUpdateAccount,
-  useDeleteAccount as useDeleteUnifiedAccount,
-  useBulkDeactivateAccounts,
-  useBulkReactivateAccounts,
-  useBulkDeleteAccounts,
-} from './use-accounts-data';
-
-export {
-  accountsKeys,
-  accountsQueries,
-  accountsMutations,
-  useUnifiedAccounts,
-} from './accounts-queries';
+export * from './budgets';
 
 // ============================================================================
-// AUTH DATA HOOKS
+// ACCOUNTS DOMAIN (unified account management)
 // ============================================================================
-
-export {
-  // User Queries
-  useCurrentUser,
-  useCurrentSession,
-  useUserProfile,
-  useUserStats,
-
-  // Auth Mutations
-  useUpdateUserProfile,
-  useUploadProfilePicture,
-  useDeleteUserAccount,
-
-  // Session Utilities
-  useSessionStatus,
-  useRefreshSession,
-
-  // Utilities
-  useInvalidateAuthCache,
-  useAuthStatus,
-} from './use-auth-data';
+export * from './use-accounts-data';
 
 // ============================================================================
-// LEGACY EXPORTS (for backward compatibility during migration)
+// TRANSACTIONS DOMAIN (transaction data)
 // ============================================================================
-
-// These re-export the base query factories for advanced use cases
-// Most components should use the hooks above instead
-
-export {
-  cryptoKeys,
-  cryptoQueries,
-  cryptoMutations,
-  useInvalidateCryptoQueries,
-} from './crypto-queries';
-
-export {
-  bankingKeys,
-  bankingQueries,
-  bankingMutations,
-  useInvalidateBankingQueries,
-} from './banking-queries';
-
-export {
-  integrationsQueryKeys,
-  useAvailableProviders,
-  useProvidersHealth,
-  useUserIntegrations,
-  useIntegrationsSummary,
-  useQuickBooksStatus,
-  useQuickBooksCompany,
-  useQuickBooksAccounts,
-  useQuickBooksTransactions,
-  useQuickBooksInvoices,
-  useQuickBooksSyncStatus,
-  useConnectQuickBooks,
-  useDisconnectQuickBooks,
-  useSyncQuickBooks,
-  useConnectProvider,
-  useDisconnectProvider,
-  useSyncProvider,
-  useRefreshAllIntegrations,
-} from './integrations-queries';
+export * from './use-transactions-data';
 
 // ============================================================================
-// SETTINGS DATA HOOKS
+// CATEGORIES DOMAIN (custom categories, groups, envelope types)
 // ============================================================================
-
-export {
-  // Settings Queries
-  useUserSettings,
-  useTrustedDevices,
-
-  // Settings Mutations
-  useUpdateSettings,
-  useResetSettings,
-  useExportData,
-  useDeleteAccount,
-  useEnable2FA,
-  useVerify2FA,
-  useDisable2FA,
-  useRemoveTrustedDevice,
-  useTestNotification,
-  useClearCache,
-  useDownloadAllData,
-} from './use-settings-data';
-
-export {
-  settingsKeys,
-  settingsQueries,
-  settingsMutations,
-  useInvalidateSettingsQueries,
-} from './settings-queries';
+export * from './categories';
 
 // ============================================================================
-// GOAL DATA HOOKS
+// SUBSCRIPTIONS DOMAIN (user subscriptions, billing)
 // ============================================================================
-
-export {
-  // Goal Queries
-  useGoals,
-  useGoal,
-  useGoalAnalytics,
-  useActiveGoals,
-  useOnTrackGoals,
-  useUrgentGoals,
-
-  // Goal Mutations
-  useCreateGoal,
-  useUpdateGoal,
-  useDeleteGoal,
-  useCalculateGoalProgress,
-  useAddContribution,
-
-  // Utilities
-  useInvalidateGoalCache,
-  useGoalSummary,
-  goalKeys,
-} from './use-goal-data';
+export * from './use-subscription-data';
+export * from './use-billing-subscription-data';
 
 // ============================================================================
-// SUBSCRIPTION DATA HOOKS
+// ASSETS DOMAIN (net worth, goals, payment methods)
 // ============================================================================
-
-export {
-  // Subscription Queries
-  useSubscriptions,
-  useSubscription,
-  useSelectedSubscription,
-  useSubscriptionAnalytics,
-
-  // Subscription Mutations
-  useCreateSubscription,
-  useUpdateSubscription,
-  useDeleteSubscription,
-  useAddCharge,
-  useDetectSubscriptions,
-
-  // Utilities
-  useInvalidateSubscriptionCache,
-  usePrefetchSubscriptionData,
-  useSubscriptionSummary,
-} from './use-subscription-data';
-
-export {
-  subscriptionKeys,
-  subscriptionQueries,
-  subscriptionMutations,
-} from './subscription-queries';
+export * from './use-networth-data';
+export * from './use-goal-data';
+export * from './use-payment-method-data';
 
 // ============================================================================
-// BILLING SUBSCRIPTION DATA HOOKS (Plans, Current Billing, Usage)
+// SETTINGS DOMAIN (user settings & preferences)
 // ============================================================================
-
-export {
-  // Plan Queries
-  useSubscriptionPlans,
-  useSubscriptionPlansComparison,
-
-  // Current Subscription Queries
-  useCurrentBillingSubscription,
-
-  // History Queries
-  usePaymentHistory,
-
-  // Usage Queries
-  useUsageStats,
-  useFeatureLimit,
-
-  // Billing Mutations
-  useCreateBillingSubscription,
-  useUpgradeBillingSubscription,
-  useCancelBillingSubscription,
-  useRetryPayment,
-
-  // Utilities
-  useInvalidateBillingSubscriptionCache,
-  usePrefetchBillingSubscriptionData,
-  useCanAccessFeature,
-  billingSubscriptionKeys,
-} from './use-billing-subscription-data';
+export * from './use-settings-data';
 
 // ============================================================================
-// NET WORTH DATA HOOKS
+// ORGANIZATION DOMAIN (multi-tenant organization data)
 // ============================================================================
-
-export {
-  // Net Worth Queries
-  useNetWorth,
-  useNetWorthSummary,
-  useNetWorthBreakdown,
-  useNetWorthPerformance,
-  useNetWorthHistory,
-
-  // Asset Account Queries
-  useAssetAccounts,
-  useAssetAccount,
-  useAssetValuations,
-
-  // Asset Category Queries
-  useAssetCategories,
-  useAssetCategory,
-
-  // Net Worth Goals
-  useNetWorthGoals,
-
-  // Asset Account Mutations
-  useCreateAssetAccount,
-  useUpdateAssetAccount,
-  useDeleteAssetAccount,
-  useCreateValuation,
-
-  // Asset Category Mutations
-  useCreateAssetCategory,
-  useUpdateAssetCategory,
-  useDeleteAssetCategory,
-} from './use-networth-data';
-
-export {
-  networthKeys,
-  networthQueries,
-  networthMutations,
-} from './networth-queries';
+export * from './organization';
 
 // ============================================================================
-// ENVELOPE DATA HOOKS
+// INTEGRATIONS DOMAIN (Plaid, QuickBooks, etc)
 // ============================================================================
-
-export {
-  // Envelope Queries
-  useEnvelopes,
-  useEnvelope,
-  useEnvelopePeriodAnalytics,
-  useEnvelopePeriodHistory,
-  useEnvelopeAllocationHistory,
-  useEnvelopeSpendingHistory,
-  useAllocationRules,
-  useEnvelopeRules,
-  useAllocationRule,
-  useAllEnvelopesWithStats,
-  useEnvelopeQuickStats,
-  useAvailableToAllocate,
-  useDashboardSummary,
-
-  // Envelope Mutations
-  useCreateEnvelope,
-  useUpdateEnvelope,
-  useDeleteEnvelope,
-  useAllocateToEnvelope,
-  useRecordEnvelopeSpending,
-  useCreateAllocationRule,
-  useUpdateAllocationRule,
-  useDeleteAllocationRule,
-  useSplitSpending,
-} from './use-envelope-data';
+export * from './plaid-queries';
+export * from './integrations-queries';
 
 // ============================================================================
-// BUDGET DATA HOOKS (Income Allocation, Forecasting, Analytics, etc.)
+// UTILITIES DOMAIN (currency, waitlist, misc utilities)
 // ============================================================================
-
-export {
-  // Budget Queries
-  useBudgets,
-  useBudget,
-  useBudgetAnalytics,
-  useBudgetSummary,
-  useCreateBudget,
-  useUpdateBudget,
-  useDeleteBudget,
-  useAddBudgetTransaction,
-} from './use-budget-data';
-
-export {
-  budgetKeys,
-  budgetQueries,
-  budgetMutations,
-} from './budget-queries';
-
-export {
-  // Income Allocation Queries & Mutations
-  useIncomeAllocationSuggestions,
-  useAllocateIncome,
-  useIncomeAllocationHistory,
-  useIncomeRecommendations,
-  useRecordAllocationFeedback,
-} from './use-income-allocation-data';
-
-export {
-  incomeAllocationKeys,
-  incomeAllocationQueries,
-  incomeAllocationMutations,
-} from './income-allocation-queries';
-
-export {
-  // Budget Forecasting Queries & Mutations
-  useEnvelopeForecast,
-  useBudgetForecast,
-  useSpendingInsights,
-  useForecastSpending,
-} from './use-budget-forecasting-data';
-
-export {
-  budgetForecastingKeys,
-  budgetForecastingQueries,
-  budgetForecastingMutations,
-} from './budget-forecasting-queries';
-
-export {
-  // Category Matching Queries & Mutations
-  useEnvelopeSuggestions,
-  useCategorySuggestions,
-  useMerchantMatches,
-  useGetBulkSuggestions,
-  useCreateCategoryMappingRule,
-  useApplyMappingRules,
-} from './use-category-matching-data';
-
-export {
-  categoryMatchingKeys,
-  categoryMatchingQueries,
-  categoryMatchingMutations,
-} from './category-matching-queries';
-
-export {
-  // Budget Alerts Queries & Mutations
-  usePendingAlerts,
-  useAlertHistory,
-  useProcessAlerts,
-  useDismissAlert,
-} from './use-budget-alerts-data';
-
-export {
-  budgetAlertsKeys,
-  budgetAlertsQueries,
-  budgetAlertsMutations,
-} from './budget-alerts-queries';
-
-export {
-  // Budget Analytics Queries
-  useDashboardMetrics,
-
-  usePeriodComparison,
-  useEnvelopeRanking,
-  useSpendingVelocity,
-  useFinancialHealthScore,
-} from './use-budget-analytics-data';
-
-export {
-  budgetAnalyticsKeys,
-  budgetAnalyticsQueries,
-} from './budget-analytics-queries';
-
-export {
-  // Budget Reports Mutations & Utilities
-  useGenerateEnvelopeReportCSV,
-  useGenerateTransactionReportCSV,
-  useGenerateAnalyticsReportJSON,
-  useGenerateBudgetComparisonReport,
-  useGenerateMonthlySummaryReport,
-} from './use-budget-reports-data';
-
-export {
-  budgetReportsKeys,
-  budgetReportsMutations,
-  downloadBlob,
-} from './budget-reports-queries';
-
-export {
-  // Budget Templates Queries & Mutations
-  useBudgetTemplates,
-  useBudgetTemplate,
-  useApplyBudgetTemplate,
-} from './use-budget-templates-data';
-
-export {
-  budgetTemplatesKeys,
-  budgetTemplatesQueries,
-  budgetTemplatesMutations,
-} from './budget-templates-queries';
+export * from './use-currency-data';
+export * from './use-waitlist-data';

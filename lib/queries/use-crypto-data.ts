@@ -20,8 +20,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { cryptoKeys, cryptoQueries, cryptoMutations } from './crypto-queries';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthReady, useContextOrganizationId } from './query-helpers';
 import { useCryptoUIStore } from '@/lib/stores/crypto-ui-store';
 import type {
   CryptoWallet,
@@ -29,27 +28,6 @@ import type {
   TransactionParams,
   NFTParams,
 } from '@/lib/types/crypto';
-
-// ============================================================================
-// AUTH-READY WRAPPER
-// ============================================================================
-
-/**
- * Ensures queries only run when user is authenticated and initialized
- */
-function useAuthReady() {
-  const user = useAuthStore((state) => state.user);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-  return { isAuthReady: !!user && isInitialized };
-}
-
-/**
- * Helper to get organization ID from context store or explicit parameter
- */
-function useContextOrganizationId(organizationId?: string) {
-  const contextOrgId = useOrganizationStore((state) => state.selectedOrganizationId);
-  return organizationId || contextOrgId;
-}
 
 // ============================================================================
 // WALLET QUERIES
