@@ -19,6 +19,3 @@ export { PortfolioShowcase } from './portfolio-showcase';
 export { RealtimeTracking } from './realtime-tracking';
 export { AutomationShowcase } from './automation-showcase';
 export { SubscriptionsShowcase } from './subscriptions-showcase';
-
-// Re-export from new marketing location
-export * from '@/components/marketing';

@@ -45,7 +45,8 @@
       "Bash(findstr:*)",
       "Bash(powershell -NoProfile -Command:*)",
       "Bash(__NEW_LINE_51d4b29555833105__ mv budget-queries.ts budgets/budget-queries.ts)",
-      "Bash(__NEW_LINE_51d4b29555833105__ echo \"Moved budget-queries.ts to budgets/\")"
+      "Bash(__NEW_LINE_51d4b29555833105__ echo \"Moved budget-queries.ts to budgets/\")",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
