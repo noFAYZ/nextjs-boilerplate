@@ -11,7 +11,7 @@ import { useCurrentUser } from '@/lib/queries/use-auth-data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
-import { InviteMemberDialog } from '@/components/organization/invite-member-dialog';
+import { InviteMemberDialog } from '@/components/modules/organization/components/invite-member-dialog';
 import { MembersSection, InvitationsSection, SettingsSidebar } from './components';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';

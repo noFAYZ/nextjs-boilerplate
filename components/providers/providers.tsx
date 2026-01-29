@@ -17,7 +17,7 @@ import { OrganizationModalsProvider } from "./organization-modals-provider";
 import { OrganizationDataSyncProvider } from "./organization-data-sync-provider";
 import { OrganizationQuerySyncProvider } from "./organization-query-sync-provider";
 import { OrganizationURLSyncProvider } from "./organization-url-sync-provider";
-import { GlobalRefetchOverlay } from "@/components/organization/global-refetch-overlay";
+import { GlobalRefetchOverlay } from '@/components/modules/organization/components/global-refetch-overlay';
 import { RealtimeSyncProvider } from "./realtime-sync-provider";
 import {  ToastProvider } from "../ui/toast";
 import { CSRFProvider } from "./csrf-provider";
@@ -52,7 +52,7 @@ export default function Providers({ children }: { children: ReactNode }) {
               disableTransitionOnChange
             >
          <ToastProvider>
-              <CurrencyProvider defaultCurrency="USD">
+              <CurrencyProvider defaultCurrency='USD'>
                 <StoreProvider>
                 <RealtimeSyncProvider>
                   {/* Automatic query invalidation on organization change */}

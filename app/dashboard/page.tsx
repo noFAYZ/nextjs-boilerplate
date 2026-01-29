@@ -23,8 +23,8 @@ import { BudgetOverviewWidget } from "@/components/modules/budgets/widgets";
 import { AssetBreakdownWidget, LiabilitiesBreakdownWidget, AssetsVsLiabilitiesWidget, DebtToAssetRatioWidget, AssetAllocationWidget, FinancialHealthScoreWidget, DebtSummaryWidget, CashPositionWidget } from "@/components/modules/networth/widgets";
 
 // Import dashboard components
-import { DashboardWidgetGrid } from "@/components/dashboard/dashboard-widget-grid";
-import { WidgetSettingsModal } from "@/components/dashboard/widget-settings-modal";
+import { DashboardWidgetGrid } from '@/components/utilities/dashboard/dashboard-widget-grid';
+import { WidgetSettingsModal } from '@/components/utilities/dashboard/widget-settings-modal'
 
 import { DashboardHeader } from "@/components/home/dashboard-header";
 
@@ -184,7 +184,7 @@ function DashboardPageComponent() {
             {/* Edit Mode Info Banner */}
             {isEditMode && (
               <div className="p-2   bg-secondary   animate-in fade-in slide-in-from-top-2 duration-300">
-                <p className="text-xs font-semibold text-foreground">
+                <p className='text-xs font-semibold text-foreground'>
                   ✏️ Drag to reorder widgets • Drag the corner to resize • Use
                   &quot;Widgets&quot; button to show/hide
                 </p>

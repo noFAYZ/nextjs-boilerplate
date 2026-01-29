@@ -35,8 +35,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { IntegrationSyncProgress } from '@/components/integrations/IntegrationSyncProgress';
-import { IntegrationDisconnectDialog } from '@/components/integrations/IntegrationDisconnectDialog';
+import { IntegrationSyncProgress } from '@/components/modules/integrations/components/IntegrationSyncProgress';
+import { IntegrationDisconnectDialog } from '@/components/modules/integrations/components/IntegrationDisconnectDialog';
 import {
   useQuickBooksStatus,
   useQuickBooksCompany,

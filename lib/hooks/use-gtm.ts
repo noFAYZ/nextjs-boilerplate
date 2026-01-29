@@ -25,7 +25,7 @@
  */
 
 import { useCallback } from 'react';
-import { pushToDataLayer } from '@/components/analytics/google-tag-manager';
+import { pushToDataLayer } from '@/components/utilities/analytics/google-tag-manager';
 
 // ============================================================================
 // TYPES

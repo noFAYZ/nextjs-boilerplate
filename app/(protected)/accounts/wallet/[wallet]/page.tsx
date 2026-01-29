@@ -41,7 +41,7 @@ import { CRYPTO_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status";
 import { WalletTokens } from "@/components/modules/crypto/components/wallet-tokens";
 import { WalletNFTs } from "@/components/modules/crypto/components/wallet-nfts";
 import { WalletTransactions } from "@/components/modules/crypto/components/wallet-transactions";
-import { PortfolioChart } from "@/components/charts/portfolio-chart";
+import { PortfolioChart } from '@/components/utilities/charts/portfolio-chart'
 import { WalletDeFi } from "@/components/modules/crypto/components/wallet-defi";
 import {
   BalanceSkeleton,
@@ -183,7 +183,7 @@ function WalletSkeleton() {
 function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
   const router = useRouter();
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState("tokens");
+  const [activeTab, setActiveTab] = useState('tokens');
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const { pageClass } = useViewModeClasses();

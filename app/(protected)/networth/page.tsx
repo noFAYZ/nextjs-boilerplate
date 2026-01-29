@@ -22,8 +22,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
 import { NetWorthBreakdown } from '@/components/modules/networth/components/networth-breakdown';
-import { AssetList } from '@/components/assets/asset-list';
-import { AssetFormModal } from '@/components/assets/asset-form-modal';
+import { AssetList } from '@/components/modules/assets/components/asset-list';
+import { AssetFormModal } from '@/components/modules/assets/components/asset-form-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { AssetAccount } from '@/lib/types/networth';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

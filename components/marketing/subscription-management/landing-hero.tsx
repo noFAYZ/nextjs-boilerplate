@@ -27,7 +27,7 @@ import {
   SolarClipboardListBoldDuotone,
 } from '../../icons/icons';
 import { FlickeringGrid } from "../bg/FlickeringGrid";
-import { WaitlistFormCompact } from "@/components/coming-soon/waitlist-form-compact";
+import { WaitlistFormCompact } from '@/components/marketing/coming-soon/waitlist-form-compact'
 import { TextRotate } from "../section-widgets/text-rotate";
 import { Mockup, MockupFrame } from "../section-widgets/hero-mockup";
 import { AvatarCircles } from "../section-widgets/avatar-circles";
@@ -95,13 +95,13 @@ export function LandingHero() {
   const fadeUp = {
     initial: { opacity: 0, y: reduceMotion ? 0 : 16 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeOut" },
+    transition: { duration: 0.6, ease: 'easeOut' },
   };
 
   const scaleIn = {
     initial: { opacity: 0, scale: reduceMotion ? 1 : 0.96 },
     animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.65, ease: "easeOut" },
+    transition: { duration: 0.65, ease: 'easeOut' },
   };
   const rotatingItems: Item[] = [
     { label: 'Finances', icon: FinancesIconDuotone },

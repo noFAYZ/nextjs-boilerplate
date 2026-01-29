@@ -8,7 +8,7 @@ import { MemoryArrowTopRight, SolarPieChart2BoldDuotone } from '@/components/ico
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { useAllAccounts } from '@/lib/queries';
 import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
-import { NetWorthBreakdownShowcase } from '@/components/charts/networth-breakdown-showcase';
+import { NetWorthBreakdownShowcase } from '@/components/utilities/charts/networth-breakdown-showcase';
 
 /**
  * Dashboard Header Component - Matches exact design from reference image

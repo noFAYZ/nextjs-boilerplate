@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from 'react';
 import { v4 as uuid } from 'uuid';
-import { PromptInputBox } from '@/components/ai/ai-prompt-box';
+import { PromptInputBox } from '@/components/modules/ai/components/ai-prompt-box';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';

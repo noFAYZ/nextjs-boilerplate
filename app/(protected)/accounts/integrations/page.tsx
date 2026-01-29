@@ -28,7 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUserIntegrations } from "@/lib/queries/integrations-queries";
-import { RequestIntegrationDialog } from "@/components/integrations/RequestIntegrationDialog";
+import { RequestIntegrationDialog } from '@/components/modules/integrations/components/RequestIntegrationDialog'
 
 type Integration = {
   id: string;
@@ -64,7 +64,7 @@ import {
   StripeLogo,
   TellerLogo,
   XeroLogo,
-} from "@/components/icons/icons";
+} from '@/components/icons/icons';
 
 // Integration data
 const INTEGRATION_DATA = {

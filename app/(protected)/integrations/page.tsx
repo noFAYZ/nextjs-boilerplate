@@ -25,11 +25,11 @@ import {
   Plug,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IntegrationCard } from '@/components/integrations/IntegrationCard';
-import { IntegrationSyncProgress } from '@/components/integrations/IntegrationSyncProgress';
-import { IntegrationConnectPopup } from '@/components/integrations/IntegrationConnectPopup';
-import { IntegrationDisconnectDialog } from '@/components/integrations/IntegrationDisconnectDialog';
-import { ConnectionsList } from '@/components/integrations/ConnectionsList';
+import { IntegrationCard } from '@/components/modules/integrations/components/IntegrationCard';
+import { IntegrationSyncProgress } from '@/components/modules/integrations/components/IntegrationSyncProgress';
+import { IntegrationConnectPopup } from '@/components/modules/integrations/components/IntegrationConnectPopup';
+import { IntegrationDisconnectDialog } from '@/components/modules/integrations/components/IntegrationDisconnectDialog';
+import { ConnectionsList } from '@/components/modules/integrations/components/ConnectionsList';
 import {
   useAvailableProviders,
   useUserIntegrations,

@@ -37,7 +37,7 @@ import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { WalletTokens } from '@/components/modules/crypto/components/wallet-tokens';
 import { WalletNFTs } from '@/components/modules/crypto/components/wallet-nfts';
 import { WalletTransactions } from '@/components/modules/crypto/components/wallet-transactions';
-import { PortfolioChart } from '@/components/charts/portfolio-chart';
+import { PortfolioChart } from '@/components/utilities/charts/portfolio-chart';
 import { WalletDeFi } from '@/components/modules/crypto/components/wallet-defi';
 import { WalletSyncModal } from '@/components/modules/crypto/components/wallet-sync-modal';
 import { ChainFilters } from '@/components/modules/crypto/components/chain-filters';

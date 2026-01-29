@@ -9,7 +9,7 @@ import { ArrowLeft, CheckCircle2, Lock, CreditCard, Loader2, Building2, AlertCir
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
 import { Stepper, useStepper, type Step } from '@/components/ui/stepper';
-import { DataSelectionAccordion } from '@/components/integrations/DataSelectionAccordion';
+import { DataSelectionAccordion } from '@/components/modules/integrations/components/DataSelectionAccordion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from "@/lib/hooks/useToast";
 import { cn } from '@/lib/utils';

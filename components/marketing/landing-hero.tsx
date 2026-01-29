@@ -27,7 +27,7 @@ import {
 } from '@/components/icons/icons';
 import { TextRotate } from './section-widgets/text-rotate';
 import { AvatarCircles } from './section-widgets/avatar-circles';
-import { WaitlistFormCompact } from '@/components/coming-soon/waitlist-form-compact';
+import { WaitlistFormCompact } from '@/components/marketing/coming-soon/waitlist-form-compact';
 import { ScrollReveal } from './scroll-reveal';
 import { Example } from './section-widgets/features-tabs';
 import { Mockup, MockupFrame } from './section-widgets/hero-mockup';

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WaitlistFormCompact } from "@/components/coming-soon/waitlist-form-compact";
+import { WaitlistFormCompact } from '@/components/marketing/coming-soon/waitlist-form-compact';
 import { TextRotate } from "../section-widgets/text-rotate";
 import { BgGradient } from "../bg/bg-gradient";
 import { LogoCloud } from "./logo-cld-section";

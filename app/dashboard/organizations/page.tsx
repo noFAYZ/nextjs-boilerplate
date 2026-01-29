@@ -5,8 +5,8 @@ import { Plus, Search } from 'lucide-react';
 import { useOrganizations } from '@/lib/queries/use-organization-data';
 import { Button } from '@/components/ui/button';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
-import { CreateOrgDialog } from '@/components/organization/create-org-dialog';
-import { OrgCard } from '@/components/organization/org-card';
+import { CreateOrgDialog } from '@/components/modules/organization/components/create-org-dialog';
+import { OrgCard } from '@/components/modules/organization/components/org-card';
 import { Input } from '@/components/ui/input';
 
 // ============================================================================

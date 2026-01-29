@@ -3,11 +3,11 @@ import {  Readex_Pro, Sora, Bricolage_Grotesque, Newsreader,DM_Sans, Funnel_Disp
 import "./globals.css";
 import Providers from "@/components/providers/providers";
 import { GlobalDocks } from "@/components/layout/global-docks";
-import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
-import { GoogleAnalytics4 } from "@/components/analytics/google-analytics";
-import { ConsentBanner } from "@/components/consent/consent-banner";
+import { GoogleTagManager, GoogleTagManagerNoScript } from '@/components/utilities/analytics/google-tag-manager';
+import { GoogleAnalytics4 } from '@/components/utilities/analytics/google-analytics';
+import { ConsentBanner } from '@/components/utilities/consent/consent-banner'
 // Import environment validation to ensure it runs at startup
-import "@/lib/config/env";
+import '@/lib/config/env';
 
 import localFont from 'next/font/local'
 

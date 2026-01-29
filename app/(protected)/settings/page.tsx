@@ -35,7 +35,7 @@ import {
   saveWithTimestamp,
   getWithTimestamp,
 } from '@/lib/utils';
-import { CreateOrganizationModal, OrganizationSettings } from '@/components/organization';
+import { CreateOrganizationModal, OrganizationSettings } from '@/components/modules/organization';
 import { CategoryManagementModal } from '@/components/modules/banking';
 import { HeroiconsWallet16Solid } from '@/components/icons/icons';
 

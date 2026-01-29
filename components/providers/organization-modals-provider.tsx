@@ -8,7 +8,7 @@
  * from anywhere in the app using the useOrganizationUIStore hook.
  */
 
-import { CreateOrganizationModal } from '@/components/organization';
+import { CreateOrganizationModal } from '@/components/modules/organization';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
 
 export function OrganizationModalsProvider() {
