@@ -18,6 +18,15 @@ import { currencyService } from '@/lib/services/currency-api';
 import type { FiatRates, CurrencyInfo } from '@/lib/services/currency-api';
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+/**
+ * Most commonly used currencies for quick selection
+ */
+export const POPULAR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'CHF', 'AUD', 'CNY'];
+
+// ============================================================================
 // QUERY KEYS
 // ============================================================================
 

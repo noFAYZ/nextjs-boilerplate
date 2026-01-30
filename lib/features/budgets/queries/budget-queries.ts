@@ -3,4 +3,4 @@
  *
  * Re-exports budget query factories from the budgets module
  */
-export * from '@/lib/features/budgets/queries';
+export * from './envelope-query-options';

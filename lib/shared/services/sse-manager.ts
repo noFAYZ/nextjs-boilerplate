@@ -433,5 +433,6 @@ class SSEManager {
   }
 }
 
-// Export singleton instance
+// Export the class and singleton instance
+export { SSEManager };
 export const sseManager = SSEManager.getInstance();
