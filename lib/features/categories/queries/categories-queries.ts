@@ -1,6 +1,13 @@
 /**
- * Categories Queries - Backward Compatibility Re-export
+ * Categories Queries - Query factory functions
  *
- * Re-exports category query factories from the categories module
+ * Query key factories and option builders for category queries
  */
-export * from '@/lib/features/categories/queries';
+
+// Query Keys Factory
+export const categoriesKeys = {
+  all: ['categories'] as const,
+  lists: () => [...categoriesKeys.all, 'list'] as const,
+  list: (params?: any) => [...categoriesKeys.lists(), params] as const,
+  detail: (id: string) => [...categoriesKeys.all, 'detail', id] as const,
+};
