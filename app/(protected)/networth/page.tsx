@@ -27,7 +27,7 @@ import { AssetFormModal } from '@/components/modules/assets/components/asset-for
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { AssetAccount } from '@/lib/types/networth';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 
 export default function NetWorthPage() {
   const { pageClass } = useViewModeClasses();

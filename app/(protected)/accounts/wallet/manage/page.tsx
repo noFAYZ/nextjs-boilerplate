@@ -39,8 +39,8 @@ import {
   useOrganizationSyncCryptoWallet,
 } from '@/lib/queries/use-organization-data-context';
 import { useSyncAllCryptoWallets } from '@/lib/queries';
-import { useCryptoUIStore } from '@/lib/stores/ui-stores';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoUIStore } from '@/lib/features/accounts/stores';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';

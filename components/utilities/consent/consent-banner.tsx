@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useConsentManager } from '@/lib/hooks/useConsentManager';
+import { useConsentManager } from '@/lib/shared/hooks';
 import { ConsentPreferenceModal } from './consent-preference-modal';
 
 /**

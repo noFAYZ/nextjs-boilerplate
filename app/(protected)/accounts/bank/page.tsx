@@ -14,7 +14,7 @@ import { Plus, Loader2, RefreshCw } from 'lucide-react';
 import { useTellerConnect } from '@/components/modules/banking/components/TellerConnect';
 import { BankAccount } from '@/lib/types/banking';
 import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
-import { useBankingStore } from '@/lib/stores/banking-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
 import { getLogoUrl } from '@/lib/services/logo-service';
 
 export default function BankAccountsPage() {

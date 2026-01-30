@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { Card } from '@/components/ui/card';
 import { MageGoals, SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';

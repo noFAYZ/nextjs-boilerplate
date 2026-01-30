@@ -8,9 +8,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAllAccounts } from '@/lib/queries';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { AddAccountDialog } from '@/components/modules/accounts/components/add-account-dialog';
 
 // Extracted tab components

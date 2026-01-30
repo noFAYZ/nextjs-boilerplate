@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Budget } from "@/lib/types/budget"
-import { useBudgetUIStore } from "@/lib/stores/budget-ui-store"
+import { useBudgetUIStore } from '@/lib/features/budgets/stores'
 
 interface BudgetCardProps {
   budget: Budget

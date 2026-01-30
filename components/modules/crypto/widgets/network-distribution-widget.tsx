@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Network, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

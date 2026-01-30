@@ -11,8 +11,8 @@ import { CheckCircle, Loader2, Mail, Sparkles, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
-import { useToast } from '@/lib/hooks/useToast';
-import { useGTM } from '@/lib/hooks/use-gtm';
+import { useToast } from '@/lib/shared/hooks';
+import { useGTM } from '@/lib/shared/hooks';
 
 const waitlistSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

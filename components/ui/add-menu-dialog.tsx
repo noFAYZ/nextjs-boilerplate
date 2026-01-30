@@ -8,11 +8,11 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useGlobalUIStore } from '@/lib/stores/ui-stores';
-import { useBankingUIStore } from '@/lib/stores/ui-stores';
-import { useSubscriptionUIStore } from '@/lib/stores/ui-stores';
-import { useCryptoUIStore } from '@/lib/stores/ui-stores';
-import { useGoalsStore } from '@/lib/stores/ui-stores';
+import { useGlobalUIStore } from '@/lib/features/accounts/stores';
+import { useBankingUIStore } from '@/lib/features/accounts/stores';
+import { useSubscriptionUIStore } from '@/lib/features/accounts/stores';
+import { useCryptoUIStore } from '@/lib/features/accounts/stores';
+import { useGoalsStore } from '@/lib/features/accounts/stores';
 import {
   DuoIconsBank,
   MageGoals,

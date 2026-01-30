@@ -10,7 +10,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
-import { useOrganizationRefetchStore } from '@/lib/stores/organization-refetch-store';
+import { useOrganizationRefetchStore } from '@/lib/features/organization/stores';
 
 export function OrganizationDataSyncProvider() {
   const queryClient = useQueryClient();

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Target, ArrowUpLeft, ArrowDownLeft } from 'lucide-react';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { Card } from '@/components/ui/card';
 import { MemoryArrowTopRight, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
 import { CurrencyDisplay } from '@/components/ui/currency-display';

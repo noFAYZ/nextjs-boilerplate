@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import { BudgetAccountGroup } from '@/lib/types/budget';
 
 export function AssignAmountPopover({

@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { cryptoKeys } from "@/lib/queries/crypto-queries";
-import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 
 /**
  * Cache management utilities for manual cache operations

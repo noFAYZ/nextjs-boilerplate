@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
-import { useOnboardingV2Storage } from '@/lib/hooks/use-onboarding-v2';
+import { useOnboardingV2Storage } from '@/lib/features/onboarding/hooks';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, SkipForward } from 'lucide-react';
 

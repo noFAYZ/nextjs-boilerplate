@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransactionsUIStore } from '@/lib/stores/transactions-ui-store';
+import { useTransactionsUIStore } from '@/lib/features/transactions/stores';
 import { History, Tag, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

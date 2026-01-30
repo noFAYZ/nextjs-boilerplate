@@ -22,7 +22,7 @@ import {
   useAllocateFunds,
 } from '@/lib/queries/use-category-groups-data';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import { EditCategoryPopover } from '../popovers/edit-category-popover';
 
 export function CategoryRow({

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import {
   Search,
   RefreshCw,

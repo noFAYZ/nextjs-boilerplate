@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, memo } from 'react';
 import { ShoppingBag, Utensils, Home, Car, Zap, Wallet, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useTopSpendingCategories } from '@/lib/queries/banking-queries';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { Badge } from '@/components/ui/badge';
 import { TimePeriodSelector, TimePeriod } from '@/components/ui/time-period-selector';
 import { CurrencyDisplay } from '@/components/ui/currency-display';

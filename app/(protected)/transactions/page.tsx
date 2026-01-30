@@ -2,18 +2,18 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTransactionsUIStore } from '@/lib/stores/transactions-ui-store';
+import { useTransactionsUIStore } from '@/lib/features/transactions/stores';
 import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAllTransactions } from '@/lib/features/accounts/queries';
 import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
-import { useBankingUIStore } from '@/lib/stores/ui-stores';
+import { useBankingUIStore } from '@/lib/features/accounts/stores';
 import { TransactionsDataTable } from '@/components/modules/transactions';
 import type { UnifiedTransaction } from '@/lib/types';
 import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from '@/components/modules/transactions/components/transaction-detail-drawer-enhanced';
 import { transformTransactionResponse } from '@/lib/transformers';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { RulesManagement } from '@/components/modules/transactions/components/rules-management';
 import { CategoriesManagement } from '@/components/modules/transactions/components/categories-management';
 import { CategoriesManagementV2 } from '@/components/modules/transactions/components/categories-management-v2';

@@ -27,7 +27,7 @@
 
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
-import { useConsentManager } from '@/lib/hooks/useConsentManager';
+import { useConsentManager } from '@/lib/shared/hooks';
 
 export function GoogleTagManager() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;

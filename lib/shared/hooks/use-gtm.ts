@@ -8,7 +8,7 @@
  *
  * USAGE:
  * ```tsx
- * import { useGTM } from '@/lib/hooks/use-gtm';
+ * import { useGTM } from '@/lib/shared/hooks';
  *
  * function WaitlistForm() {
  *   const { trackEvent } = useGTM();

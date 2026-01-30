@@ -7,7 +7,7 @@
  * Uses the useOrganizationRefetch hook for robust handling.
  */
 
-import { useOrganizationRefetch } from '@/lib/hooks/use-organization-refetch';
+import { useOrganizationRefetch } from '@/lib/features/organization/hooks';
 
 export function OrganizationQuerySyncProvider() {
   // Trigger refetch when org changes

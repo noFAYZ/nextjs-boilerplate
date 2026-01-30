@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect, useState } from 'react';
 import { useAllAccounts } from '@/lib/queries';
-import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
+import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { FINANCIAL_GOALS } from '@/lib/constants/financial-goals';
 import { BUDGET_TEMPLATES } from '@/lib/constants/budget-templates';

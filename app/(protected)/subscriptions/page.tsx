@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "@/components/modules/subscriptions/components/subscription-list";
 import { SubscriptionFormModal } from "@/components/modules/subscriptions/components/subscription-form-modal";
 import { SubscriptionsFloatingToolbar } from "@/components/modules/subscriptions/components/subscriptions-floating-toolbar";
-import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
+import { useSubscriptionUIStore } from '@/lib/features/subscriptions/stores';
 import { useDeleteSubscription, useSubscriptions } from "@/lib/queries/use-subscription-data";
 import type { UserSubscription } from "@/lib/types/subscription";
 import {

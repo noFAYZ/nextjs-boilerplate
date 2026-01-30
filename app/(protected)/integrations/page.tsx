@@ -39,7 +39,7 @@ import {
   useSyncProvider,
   useRefreshAllIntegrations,
 } from '@/lib/queries/integrations-queries';
-import { useIntegrationsStore, integrationsSelectors } from '@/lib/stores/integrations-store';
+import { useIntegrationsStore, integrationsSelectors } from '@/lib/features/integrations/stores';
 import { IntegrationProvider, IntegrationStatus } from '@/lib/types/integrations';
 import Link from 'next/link';
 import {

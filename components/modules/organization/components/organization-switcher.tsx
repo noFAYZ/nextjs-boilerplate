@@ -17,7 +17,7 @@ import {
   useOrganizations,
   usePersonalOrganization,
 } from '@/lib/features/organization/queries';
-import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
+import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useOrgSwitcher } from '@/lib/features/organization/hooks';
 import { OrgSwitchingOverlay } from './org-switching-overlay';

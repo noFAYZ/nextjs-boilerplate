@@ -18,7 +18,7 @@ import {
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { SidebarMenuButton } from './sidebar-menu-button';
 import { MenuItemV2 } from './types';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { authClient } from '@/lib/auth-client';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';

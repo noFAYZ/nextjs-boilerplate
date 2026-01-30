@@ -36,7 +36,7 @@
  */
 
 import { useState, useCallback, useMemo, memo } from 'react';
-import { useBankingUIStore } from '@/lib/stores/ui-stores';
+import { useBankingUIStore } from '@/lib/features/accounts/stores';
 import { useTransactionTable } from '@/lib/features/transactions/hooks';
 import { TransactionTable } from './table/transaction-table';
 import { TransactionTableSkeleton } from './table/transaction-table-skeleton';

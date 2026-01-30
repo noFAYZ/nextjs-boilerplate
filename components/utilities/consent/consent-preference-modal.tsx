@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useConsentManager, type ConsentState } from '@/lib/hooks/useConsentManager';
+import { useConsentManager, type ConsentState } from '@/lib/shared/hooks';
 import { useState } from 'react';
 
 interface ConsentPreferenceModalProps {

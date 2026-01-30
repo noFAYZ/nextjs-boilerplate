@@ -16,7 +16,7 @@ import type { TopAsset } from '@/lib/types/crypto';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { TokensEmptyState } from '@/components/ui/dashboard-empty-state';
 

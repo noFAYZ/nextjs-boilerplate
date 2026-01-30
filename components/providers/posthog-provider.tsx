@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect } from 'react';
 import { initPostHog } from '@/instrumentation-client';
-import { useConsentManager } from '@/lib/hooks/useConsentManager';
+import { useConsentManager } from '@/lib/shared/hooks';
 
 export function PostHogProvider({ children }: { children: ReactNode }) {
   const { consent, isLoaded } = useConsentManager();

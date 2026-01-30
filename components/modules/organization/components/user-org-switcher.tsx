@@ -27,7 +27,7 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip';
 import { useOrganizations, usePersonalOrganization } from '@/lib/features/organization/queries';
-import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
+import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { authClient } from '@/lib/core/auth';

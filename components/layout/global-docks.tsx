@@ -19,7 +19,7 @@ import { useAuth } from "@/lib/contexts/AuthContext"
 import { useViewMode } from "@/lib/contexts/view-mode-context"
 import { SyncIndicator } from "./sync-indicator"
 import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context"
-import { useCryptoStore } from "@/lib/stores/crypto-store"
+import { useCryptoStore } from '@/lib/features/crypto/stores'
 import { LetsIconsSettingLineDuotone } from "../icons"
 
 // Wallet icon configurations

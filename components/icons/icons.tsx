@@ -2,7 +2,7 @@ import React from 'react';
 import type { SVGProps } from 'react';
 import Image from "next/image";
 import tellerLogo from "@/public/banks/logos/tellerLogo.png"; // adjust the path as needed
-import { useCursorVector } from '@/lib/hooks/useCursorVector';
+import { useCursorVector } from '@/lib/shared/hooks';
 
 
 export function MageDashboard(props: SVGProps<SVGSVGElement>) {

@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SSEManager, SSEChannel, SSEMessage } from '@/lib/services/sse-manager';
 import { SSECacheHandler } from '@/lib/services/sse-cache-handler';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 
 export function useSSECacheInvalidation() {
   const queryClient = useQueryClient();

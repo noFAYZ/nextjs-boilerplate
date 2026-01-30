@@ -8,7 +8,7 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { BillsEmptyState } from '@/components/ui/dashboard-empty-state';
 import { Card } from '@/components/ui/card';

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { signIn, signUp, signOut, getSession } from "@/lib/auth-client";
 import { logger } from "@/lib/utils/logger";
-import { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from "@/lib/stores/auth-store";
+import { useAuthStore, selectUser, selectSession, selectIsAuthenticated } from '@/lib/features/auth/stores';
 
 interface User {
   id: string;

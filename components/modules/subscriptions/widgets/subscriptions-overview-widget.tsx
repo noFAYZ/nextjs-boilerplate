@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
 import { SolarInboxInBoldDuotone, SolarRefreshCircleBoldDuotone } from '@/components/icons/icons';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

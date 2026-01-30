@@ -13,7 +13,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useAllAccounts } from "@/lib/queries";
-import { useOrganizationRefetchState } from "@/lib/hooks/use-organization-refetch-state";
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import {
   DuoIconsCreditCard,
   HeroiconsWallet,

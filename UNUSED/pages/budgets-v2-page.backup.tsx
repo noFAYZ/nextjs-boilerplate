@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,11 +34,11 @@ import {
   useAllocateToEnvelope,
 } from '@/lib/queries/use-envelope-data';
 import { envelopeApi } from '@/lib/services/envelope-api';
-import { useEnvelopeUIStore } from '@/lib/stores/envelope-ui-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useEnvelopeUIStore } from '@/lib/features/budgets/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { CreateEnvelopeModal } from '@/components/budgets-v2/create-envelope-modal';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 
 /**
  * ARCHIVED: This file has been moved to UNUSED/pages/budgets-v2-page.backup.tsx

@@ -24,7 +24,7 @@ import { useOrganizationBankingTransactions, useOrganizationBankingGroupedAccoun
 import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import { useSubscriptions } from '@/lib/queries';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 
 /* ------------------------ Types ------------------------ */

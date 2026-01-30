@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { PageLoader } from '@/components/ui/page-loader';
-import { useSubscription } from '@/lib/hooks/use-subscription';
+import { useSubscription } from '@/lib/features/subscriptions/hooks';
 import { useToast } from '@/lib/shared/hooks';
 import { useLoading } from '@/lib/contexts/loading-context';
 import { 

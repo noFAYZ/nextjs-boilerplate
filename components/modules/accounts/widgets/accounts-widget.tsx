@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { getAccountCategoryConfig, getCategoryType } from '@/components/modules/accounts/components/account-category-icon';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Badge } from '@/components/ui/badge';

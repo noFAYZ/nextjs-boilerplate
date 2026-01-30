@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { SolarBillListBoldDuotone, SolarClipboardListBoldDuotone } from '@/components/icons/icons';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { ActivitiesEmptyState } from '@/components/ui/dashboard-empty-state';

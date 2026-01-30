@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '@/components/icons';
 import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '@/components/icons/icons';
 import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
-import { useToast } from "@/lib/hooks/useToast";
-import { useGTM } from '@/lib/hooks/use-gtm';
+import { useToast } from '@/lib/shared/hooks';
+import { useGTM } from '@/lib/shared/hooks';
 import { Card } from '@/components/ui/card';
 
 const waitlistSchema = z.object({

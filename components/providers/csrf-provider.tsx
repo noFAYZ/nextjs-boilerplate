@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useCSRFInitialization } from '@/lib/hooks/use-csrf-initialization';
+import { useCSRFInitialization } from '@/lib/shared/hooks';
 
 /**
  * CSRF Provider Component

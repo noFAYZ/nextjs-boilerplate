@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { cn } from '@/lib/utils';
 
 type TabType = 'overview' | 'overview-2' | 'manage' | 'wallet' | 'bank';

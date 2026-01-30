@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUpdateCategoryGroup } from '@/lib/queries/use-category-groups-data';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 
 export function EditGroupPopover({
   group,

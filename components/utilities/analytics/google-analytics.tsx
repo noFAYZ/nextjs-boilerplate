@@ -28,7 +28,7 @@
 
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
-import { useConsentManager } from '@/lib/hooks/useConsentManager';
+import { useConsentManager } from '@/lib/shared/hooks';
 
 export function GoogleAnalytics4() {
   const measurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;

@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useDashboardLayoutStore, WIDGET_SIZE_CONFIG } from '@/lib/stores/ui-stores';
+import { useDashboardLayoutStore, WIDGET_SIZE_CONFIG } from '@/lib/features/accounts/stores';
 import { DashboardWidgetContainer } from './dashboard-widget-container';
 import { cn } from '@/lib/utils';
 

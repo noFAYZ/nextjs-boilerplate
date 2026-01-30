@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, ReactNode } from 'react';
-import { useStoreInitialization } from '@/lib/hooks/use-store-initialization';
+import { useStoreInitialization } from '@/lib/shared/hooks';
 
 interface StoreProviderProps {
   children: ReactNode;

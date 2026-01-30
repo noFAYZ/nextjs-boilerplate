@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { AlertCircle, Zap } from 'lucide-react';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 
 interface AddEnvelopeBudgetModalProps {
   isOpen: boolean;

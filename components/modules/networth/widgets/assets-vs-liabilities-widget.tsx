@@ -2,7 +2,7 @@
 
 import { useMemo, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { Card } from '@/components/ui/card';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

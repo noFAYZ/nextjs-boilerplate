@@ -34,13 +34,13 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useBankingStore } from '@/lib/stores/banking-store';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useBankingStore } from '@/lib/features/banking/stores';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
 import { cryptoKeys } from '@/lib/queries/crypto-queries';
 import { bankingKeys } from '@/lib/queries/banking-queries';
-import { WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
+import { WalletSyncProgress } from '@/lib/shared/hooks';
 
 interface RealtimeSyncConnectionOptions {
   enableCrypto?: boolean;

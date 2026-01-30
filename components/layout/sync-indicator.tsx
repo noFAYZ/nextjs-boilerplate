@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { RefreshCw, WifiOff, Clock, AlertCircle } from "lucide-react"
-import { useCryptoStore } from "@/lib/stores/crypto-store"
-import { useBankingStore } from "@/lib/stores/banking-store"
+import { useCryptoStore } from '@/lib/features/crypto/stores'
+import { useBankingStore } from '@/lib/features/banking/stores'
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { cn } from "@/lib/utils"
 import { CRYPTO_SYNC_ACTIVE_STATUSES, BANKING_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status"

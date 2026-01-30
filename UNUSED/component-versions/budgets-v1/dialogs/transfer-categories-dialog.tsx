@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCategoryGroup } from '@/lib/queries/use-category-groups-data';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import type { CustomCategoryGroup } from '@/lib/services/category-groups-api';
 
 export function TransferCategoriesDialog({

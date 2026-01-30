@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Header } from './header';
 import { SidebarLayoutV2 } from './sidebar';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
-import { useUnifiedAutoSync } from '@/lib/hooks/use-unified-auto-sync';
+import { useUnifiedAutoSync } from '@/lib/shared/hooks';
 import { AddMenuDialog } from '@/components/ui/add-menu-dialog';
 
 interface MainLayoutProps {

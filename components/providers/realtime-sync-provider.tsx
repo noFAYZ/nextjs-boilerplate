@@ -2,11 +2,11 @@
 
 import React, { createContext, useContext, ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { WalletSyncProgress } from '@/lib/hooks/use-realtime-sync';
-import { useBankingStore } from '@/lib/stores/banking-store';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useToast } from '@/lib/hooks/useToast';
+import { WalletSyncProgress } from '@/lib/shared/hooks';
+import { useBankingStore } from '@/lib/features/banking/stores';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useToast } from '@/lib/shared/hooks';
 import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
 import { cryptoKeys, clearInitializationTimeout as clearCryptoInitTimeout } from '@/lib/queries/crypto-queries';
 import { bankingKeys, clearInitializationTimeout as clearBankingInitTimeout } from '@/lib/queries/banking-queries';

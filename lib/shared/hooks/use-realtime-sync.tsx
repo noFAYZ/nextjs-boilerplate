@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useCallback, useRef } from 'react';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useAuthStore, selectSession } from '@/lib/stores/auth-store';
-import { useInvalidateCryptoCache } from '@/lib/features;
+import { useCryptoStore } from '@/lib/features/crypto/stores';
+import { useAuthStore, selectSession } from '@/lib/features/auth/stores';
+import { useInvalidateCryptoCache } from '@/lib/features/crypto/queries';
 
 export interface WalletSyncProgress {
   walletId: string;

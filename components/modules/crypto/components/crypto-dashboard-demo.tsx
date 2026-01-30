@@ -17,7 +17,7 @@ import {
   useOrganizationCreateCryptoWallet,
   useSyncAllCryptoWallets,
 } from '@/lib/queries/use-organization-data-context';
-import { useCryptoUIStore } from '@/lib/stores/ui-stores';
+import { useCryptoUIStore } from '@/lib/features/accounts/stores';
 
 // Import types
 import type { NetworkType, WalletType } from '@/lib/types/crypto';

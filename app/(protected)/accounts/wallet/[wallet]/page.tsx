@@ -34,7 +34,7 @@ import {
   useOrganizationWalletDeFi,
   useOrganizationSyncCryptoWallet
 } from '@/lib/queries/use-organization-data-context';
-import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status";
 
 // Import new components

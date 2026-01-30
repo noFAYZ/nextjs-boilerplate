@@ -7,7 +7,7 @@ import { useAccountSpendingComparison, useBankingGroupedAccountsRaw } from '@/li
 import { TimePeriodSelector, TimePeriod } from '@/components/ui/time-period-selector';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

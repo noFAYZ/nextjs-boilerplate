@@ -4,7 +4,7 @@ import { useMemo, memo } from 'react';
 import Image from 'next/image';
 import { TrendingUp, TrendingDown, Coins, ArrowRight } from 'lucide-react';
 import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';

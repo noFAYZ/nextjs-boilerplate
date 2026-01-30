@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { BUDGET_TEMPLATES, type BudgetTemplateId } from '@/lib/constants/budget-templates';
-import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
+import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { cn } from '@/lib/utils';
 import { Check, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

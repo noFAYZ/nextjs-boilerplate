@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useCallback, useRef, useState } from 'react';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
-import { useBankingStore, selectActiveRealtimeSyncCount } from '@/lib/stores/banking-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
+import { useBankingStore, selectActiveRealtimeSyncCount } from '@/lib/features/banking/stores';
 import { cryptoApi } from '@/lib/services/crypto-api';
 import { bankingApi } from '@/lib/services/banking-api';
 

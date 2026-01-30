@@ -27,8 +27,8 @@ import {
   calculateTransactionAnalytics,
   getBalanceColor,
 } from "@/lib/utils";
-import { useCategoriesMap } from "@/lib/hooks/use-categories-map";
-import { useMerchantsMap } from "@/lib/hooks/use-merchants-map";
+import { useCategoriesMap } from '@/lib/features/categories/hooks';
+import { useMerchantsMap } from '@/lib/features/transactions/hooks';
 import { TransactionCardList } from "@/components/modules/transactions/components/card-view";
 
 import { useRouter, useParams } from "next/navigation";
@@ -47,7 +47,7 @@ import {
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
 } from "@/components/icons/icons";
-import { useAccountsUIStore } from "@/lib/stores/accounts-ui-store";
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { AccountHeader } from "@/components/modules/accounts/components/AccountHeader";
 import { TransactionsDataTable } from "@/components/modules/transactions";
 import type { UnifiedTransaction } from "@/lib/types";

@@ -10,7 +10,7 @@ import { LogoMappr } from '@/components/icons';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { useCallback, useEffect, useRef } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,7 +26,7 @@ import { ActionSearchBar } from '@/components/ui/action-search-bar';
 import { useCommandPalette } from '@/components/utilities/command';
 import { DuoIconsBank, HeroiconsWallet16Solid, LetsIconsAddDuotone, MageDashboard, SolarHomeSmileBoldDuotone, TablerLayoutSidebarLeftExpandFilled, WalletLogoIconOpen } from '@/components/icons/icons';
 import { UserOrgSwitcher } from '@/components/modules/organization/components';
-import { useGlobalUIStore } from '@/lib/stores/global-ui-store';
+import { useGlobalUIStore } from '@/lib/shared/stores';
 
 interface HeaderProps {
   className?: string;

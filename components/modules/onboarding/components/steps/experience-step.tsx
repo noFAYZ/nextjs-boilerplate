@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
-import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
+import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { cn } from '@/lib/utils';
 import { Zap, BarChart3, Gauge } from 'lucide-react';
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
-import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
+import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { Loader2 } from 'lucide-react';
 
 import { ProfileStep } from './steps/profile-step';

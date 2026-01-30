@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Inbox } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Budget } from "@/lib/types/budget"
-import { useBudgetUIStore } from "@/lib/stores/budget-ui-store"
+import { useBudgetUIStore } from '@/lib/features/budgets/stores'
 import { Card } from "../ui/card"
 
 interface BudgetListProps {

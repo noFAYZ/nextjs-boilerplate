@@ -24,7 +24,7 @@ import {
   Download,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAccountGroup } from '@/lib/hooks/use-account-groups';
+import { useAccountGroup } from '@/lib/features/accounts/hooks';
 import { useToast } from '@/lib/shared/hooks';
 import { formatCurrency } from '@/lib/utils';
 import { EditGroupDialog } from '@/components/modules/accounts/components/EditGroupDialog';
