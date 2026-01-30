@@ -682,11 +682,13 @@ export const useAuthStore = create<AuthStore>()(
 export const selectUser = (state: AuthStore) => state.user;
 export const selectSession = (state: AuthStore) => state.session;
 export const selectIsAuthenticated = (state: AuthStore) => state.isAuthenticated;
-export const selectIsLoading = (state: AuthStore) => 
+export const selectIsLoading = (state: AuthStore) =>
   state.loading || state.loginLoading || state.signupLoading || state.refreshLoading;
-export const selectHasError = (state: AuthStore) => 
+export const selectAuthLoading = (state: AuthStore) =>
+  state.loading || state.loginLoading || state.signupLoading || state.refreshLoading;
+export const selectHasError = (state: AuthStore) =>
   !!(state.error || state.loginError || state.signupError);
-export const selectAuthError = (state: AuthStore) => 
+export const selectAuthError = (state: AuthStore) =>
   state.error || state.loginError || state.signupError;
 export const selectPreferences = (state: AuthStore) => state.preferences;
 export const selectIsInitialized = (state: AuthStore) => state.isInitialized;

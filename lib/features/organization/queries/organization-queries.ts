@@ -293,3 +293,69 @@ export function useRemoveMember() {
     error: null,
   };
 }
+
+export function useCreateOrganization() {
+  return {
+    mutate: async (data: any) => {
+      try {
+        const response = await fetch(`/api/organizations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error('Failed to create organization');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to create organization:', error);
+        throw error;
+      }
+    },
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useUpdateOrganization() {
+  return {
+    mutate: async (organizationId: string, data: any) => {
+      try {
+        const response = await fetch(`/api/organizations/${organizationId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error('Failed to update organization');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to update organization:', error);
+        throw error;
+      }
+    },
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useInviteUser() {
+  return {
+    mutate: async (organizationId: string, email: string, role?: string) => {
+      try {
+        const response = await fetch(
+          `/api/organizations/${organizationId}/invite`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, role }),
+          }
+        );
+        if (!response.ok) throw new Error('Failed to invite user');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to invite user:', error);
+        throw error;
+      }
+    },
+    isLoading: false,
+    error: null,
+  };
+}

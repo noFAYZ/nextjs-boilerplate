@@ -17,6 +17,109 @@ export const budgetKeys = {
   summary: () => [...budgetKeys.all, 'summary'] as const,
 };
 
+// Budget Alerts Query Keys Factory
+export const budgetAlertsKeys = {
+  all: ['budget-alerts'] as const,
+  pending: () => [...budgetAlertsKeys.all, 'pending'] as const,
+  history: () => [...budgetAlertsKeys.all, 'history'] as const,
+  detail: (id: string) => [...budgetAlertsKeys.all, 'detail', id] as const,
+};
+
+// Budget Alerts Query Options Factory
+export const budgetAlertsQueries = {
+  pending: (params?: any, orgId?: string) => ({
+    queryKey: [...budgetAlertsKeys.pending(), params, orgId] as const,
+    queryFn: async () => {
+      try {
+        const url = new URL('/api/budget-alerts/pending', window.location.origin);
+        if (params) Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, String(v)));
+        if (orgId) url.searchParams.set('organizationId', orgId);
+        const response = await fetch(url.toString());
+        if (!response.ok) throw new Error('Failed to fetch pending alerts');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to fetch pending alerts:', error);
+        return { success: false, data: [] };
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  }),
+
+  history: (params?: any, orgId?: string) => ({
+    queryKey: [...budgetAlertsKeys.history(), params, orgId] as const,
+    queryFn: async () => {
+      try {
+        const url = new URL('/api/budget-alerts/history', window.location.origin);
+        if (params) Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, String(v)));
+        if (orgId) url.searchParams.set('organizationId', orgId);
+        const response = await fetch(url.toString());
+        if (!response.ok) throw new Error('Failed to fetch alert history');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to fetch alert history:', error);
+        return { success: false, data: [] };
+      }
+    },
+    staleTime: 1000 * 60 * 10,
+    retry: false,
+  }),
+
+  detail: (id: string, orgId?: string) => ({
+    queryKey: budgetAlertsKeys.detail(id),
+    queryFn: async () => {
+      try {
+        let url = `/api/budget-alerts/${id}`;
+        if (orgId) url += `?organizationId=${orgId}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch alert');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to fetch alert:', error);
+        return { success: false, data: null };
+      }
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  }),
+};
+
+// Budget Alerts Mutations Factory
+export const budgetAlertsMutations = {
+  acknowledge: () => ({
+    mutationFn: async (alertId: string) => {
+      const response = await fetch(`/api/budget-alerts/${alertId}/acknowledge`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to acknowledge alert');
+      return response.json();
+    },
+  }),
+
+  dismiss: () => ({
+    mutationFn: async (alertId: string) => {
+      const response = await fetch(`/api/budget-alerts/${alertId}/dismiss`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to dismiss alert');
+      return response.json();
+    },
+  }),
+
+  updatePreferences: () => ({
+    mutationFn: async (data: any) => {
+      const response = await fetch(`/api/budget-alerts/preferences`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update preferences');
+      return response.json();
+    },
+  }),
+};
+
 // Query Keys Factory
 export const envelopeKeys = {
   all: ['envelopes'] as const,

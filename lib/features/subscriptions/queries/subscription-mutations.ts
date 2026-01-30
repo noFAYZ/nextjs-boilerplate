@@ -42,3 +42,21 @@ export function useUpgradeBillingSubscription() {
     error: null,
   };
 }
+
+export function useUsageStats() {
+  return useQuery({
+    queryKey: ['subscriptions', 'usage'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/subscriptions/usage`);
+        if (!response.ok) throw new Error('Failed to fetch usage stats');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to fetch usage stats:', error);
+        return { success: false, data: null };
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
+}
