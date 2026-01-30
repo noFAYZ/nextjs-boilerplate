@@ -298,3 +298,11 @@ export const envelopeSpendingHistoryQueryOptions = envelopeQueries.envelopeSpend
 export const allocationRulesQueryOptions = envelopeQueries.allocationRules;
 export const allocationRuleQueryOptions = envelopeQueries.allocationRule;
 export const envelopeRulesQueryOptions = envelopeQueries.envelopeRules;
+
+// Additional Query Keys Factories
+export const incomeAllocationKeys = {
+  all: ['income-allocations'] as const,
+  lists: () => [...incomeAllocationKeys.all, 'list'] as const,
+  list: (params?: any) => [...incomeAllocationKeys.lists(), params] as const,
+  detail: (id: string) => [...incomeAllocationKeys.all, 'detail', id] as const,
+};

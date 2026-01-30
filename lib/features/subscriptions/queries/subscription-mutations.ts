@@ -4,6 +4,14 @@
 
 import { useQuery } from '@tanstack/react-query';
 
+// Payment Method Query Keys Factory
+export const paymentMethodKeys = {
+  all: ['payment-methods'] as const,
+  lists: () => [...paymentMethodKeys.all, 'list'] as const,
+  list: (params?: any) => [...paymentMethodKeys.lists(), params] as const,
+  detail: (id: string) => [...paymentMethodKeys.all, 'detail', id] as const,
+};
+
 export function useSubscriptionPlans() {
   return useQuery({
     queryKey: ['subscriptions', 'plans'],
