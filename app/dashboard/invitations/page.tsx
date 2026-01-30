@@ -14,7 +14,7 @@ import { Mail, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { InvitationsPanel } from '@/components/modules/organization/components/invitations-panel';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { Card } from '@/components/ui/card';
-import { usePendingInvitations } from '@/lib/queries/use-organization-data';
+import { usePendingInvitations } from '@/lib/features/organization/queries';
 
 // ============================================================================
 // CONTENT COMPONENT

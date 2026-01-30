@@ -6,8 +6,8 @@ import {
   queryOptions,
 } from '@tanstack/react-query';
 import { networthApi } from '@/lib/services/networth-api';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import type {
   NetWorthAggregation,
   NetWorthSummary,

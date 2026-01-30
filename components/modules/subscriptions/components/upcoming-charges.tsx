@@ -5,11 +5,11 @@ import { CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { useSubscriptionAnalytics } from "@/lib/queries/use-subscription-data";
-import { subscriptionsApi } from "@/lib/services/subscriptions-api";
+import { useSubscriptionAnalytics } from "@/lib/features/subscriptions/queries";
+import { subscriptionsApi } from "@/lib/features/subscriptions/services";
 import { DuoIconsAlertOctagon } from '@/components/icons/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/shared/services";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function UpcomingCharges() {

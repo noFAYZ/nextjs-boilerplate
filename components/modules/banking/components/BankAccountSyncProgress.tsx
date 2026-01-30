@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBankingStore, selectAccountSyncState } from '@/lib/stores/banking-store';
+import { useBankingStore, selectAccountSyncState } from '@/lib/features/banking/stores';
 import { useRealtimeSync } from '@/components/providers/realtime-sync-provider';
 import { Button } from '@/components/ui/button';
 

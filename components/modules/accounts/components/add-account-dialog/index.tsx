@@ -6,7 +6,7 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,7 +16,7 @@ import {
   useCreateCryptoWallet,
   useInvalidateTransactionCache,
 } from '@/lib/queries';
-import { usePlaidIntegration } from '@/lib/hooks/use-plaid-integration';
+import { usePlaidIntegration } from '@/lib/features/integrations/hooks';
 import { AccountForm } from './account-form';
 import { StatementUpload } from './statement-upload';
 import { SuccessScreen } from './success-screen';

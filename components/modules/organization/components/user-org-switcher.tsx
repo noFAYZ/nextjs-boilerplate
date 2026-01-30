@@ -26,11 +26,11 @@ import {
   TooltipContent,
   TooltipProvider
 } from '@/components/ui/tooltip';
-import { useOrganizations, usePersonalOrganization } from '@/lib/queries/use-organization-data';
+import { useOrganizations, usePersonalOrganization } from '@/lib/features/organization/queries';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { authClient } from '@/lib/auth-client';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { authClient } from '@/lib/core/auth';
 import type { Organization } from '@/lib/types/organization';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';

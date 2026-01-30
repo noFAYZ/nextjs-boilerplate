@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useIntegrationSync } from '@/lib/hooks/useIntegrationSync';
-import { useToast } from "@/lib/hooks/useToast";
+import { useIntegrationSync } from '@/lib/features/integrations/hooks';
+import { useToast } from "@/lib/shared/hooks";
 import type {
   IntegrationProvider,
   IntegrationSyncProgressEvent,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { useAllAccounts } from '@/lib/queries';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
 import { Button } from '@/components/ui/button';

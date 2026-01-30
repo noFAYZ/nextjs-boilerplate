@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useCryptoStore, selectWalletSyncState } from '@/lib/stores/crypto-store';
+import { useCryptoStore, selectWalletSyncState } from '@/lib/features/crypto/stores';
 
 interface WalletSyncModalProps {
   isOpen: boolean;

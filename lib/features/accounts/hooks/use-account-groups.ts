@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { AccountGroupsAPI } from '@/lib/api/account-groups';
+import { AccountGroupsAPI } from '@/lib/core/api/account-groups';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import type {
   AccountGroup,

@@ -29,7 +29,7 @@ export { BulkTransactionHeader } from './bulk/bulk-transaction-header';
 export { BulkEditTransactionsDrawer } from './bulk/bulk-edit-transactions-drawer';
 
 // Hooks (for building custom implementations)
-export { useTransactionTable } from '@/lib/hooks/use-transaction-table';
+export { useTransactionTable } from '@/lib/features/transactions/hooks';
 
 // Types (re-exported for convenience)
 export type {

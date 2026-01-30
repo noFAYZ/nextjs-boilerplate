@@ -6,7 +6,7 @@
  */
 
 import { Button } from '@/components/ui/button';
-import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';
+import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 import { PlusIcon, ArrowDownIcon, FileDownIcon, Zap } from 'lucide-react';
 
 export function BudgetsV3Header() {

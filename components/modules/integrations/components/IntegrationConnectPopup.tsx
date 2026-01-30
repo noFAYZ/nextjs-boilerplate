@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { IntegrationProvider } from '@/lib/types/integrations';
-import { integrationsApi } from '@/lib/services/integrations-api';
+import { integrationsApi } from '@/lib/features/integrations/services';
 
 interface IntegrationConnectPopupProps {
   open: boolean;

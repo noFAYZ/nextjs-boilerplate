@@ -5,7 +5,7 @@ import posthog from 'posthog-js';
 import { forgetPassword } from '@/lib/auth-client';
 import AuthForm from '@/components/modules/auth/components/auth-form';
 import { useLoading } from '@/lib/contexts/loading-context';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 
 interface ForgotPasswordFormData {
   email: string;

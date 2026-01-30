@@ -5,9 +5,9 @@ import {
   queryOptions,
 } from '@tanstack/react-query';
 import { accountsApi } from '@/lib/services/accounts-api';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { useContextOrganizationId as useContextOrganizationIdHelper } from '@/lib/core/query';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import type {
   UnifiedAccountsResponse,
   UnifiedAccountDetails,

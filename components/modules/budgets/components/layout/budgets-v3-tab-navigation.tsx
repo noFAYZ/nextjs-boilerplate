@@ -5,7 +5,7 @@
  * Displays tabs for different budgeting views
  */
 
-import { useBudgetsV3UIStore, type BudgetsV3Tab } from '@/lib/stores/budgets-v3-ui-store';
+import { useBudgetsV3UIStore, type BudgetsV3Tab } from '@/lib/features/budgets/stores';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,

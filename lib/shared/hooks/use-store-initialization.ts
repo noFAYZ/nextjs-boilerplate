@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { useAuthStore, useAccountGroupsStore, useCryptoStore } from '@/lib/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useAccountGroupsStore } from '@/lib/features/accounts/stores';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
 /**

@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '@/lib/services/transactions-api';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import type { ApiResponse } from '@/lib/types/crypto';
 
 // ============================================================================

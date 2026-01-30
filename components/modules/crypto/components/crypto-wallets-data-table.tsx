@@ -56,7 +56,7 @@ import { useRouter } from "next/navigation";
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral } from "@dicebear/collection";
 import { ChainBadge } from "./ui/ChainBadge";
-import { useCryptoStore } from "@/lib/stores";
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 
 interface CryptoWalletsDataTableProps {
   wallets: CryptoWallet[];

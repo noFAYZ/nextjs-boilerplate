@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SolarLockKeyholeBoldDuotone } from '@/components/icons/icons';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/shared/services';
 import { POPULAR_CONNECTIONS } from './constants';
 
 interface InitialViewProps {

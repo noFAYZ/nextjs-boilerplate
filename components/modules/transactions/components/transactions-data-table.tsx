@@ -37,7 +37,7 @@
 
 import { useState, useCallback, useMemo, memo } from 'react';
 import { useBankingUIStore } from '@/lib/stores/ui-stores';
-import { useTransactionTable } from '@/lib/hooks/use-transaction-table';
+import { useTransactionTable } from '@/lib/features/transactions/hooks';
 import { TransactionTable } from './table/transaction-table';
 import { TransactionTableSkeleton } from './table/transaction-table-skeleton';
 import { TransactionTableEmpty } from './table/transaction-table-empty';

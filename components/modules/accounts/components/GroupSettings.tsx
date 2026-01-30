@@ -33,7 +33,7 @@ import {
   Unlock,
   Loader2,
 } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import type { AccountGroup } from '@/lib/types/account-groups';
 import {
   getGroupSettings,
@@ -41,8 +41,8 @@ import {
   exportGroupSettings,
   importGroupSettings,
   archiveGroup,
-} from '@/lib/api/account-groups-settings';
-import { deleteAccountGroup } from '@/lib/api/account-groups';
+} from '@/lib/features/accounts/services/accounts-api';
+import { deleteAccountGroup } from '@/lib/features/accounts/services/accounts-api';
 
 // Extended settings interface for group preferences
 export interface GroupSettings {

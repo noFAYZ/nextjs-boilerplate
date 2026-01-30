@@ -4,7 +4,7 @@
  */
 
 import { useCallback } from 'react';
-import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';
+import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 
 export function useBudgetModals() {
   const {

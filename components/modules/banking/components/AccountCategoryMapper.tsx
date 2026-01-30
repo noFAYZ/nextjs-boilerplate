@@ -15,7 +15,7 @@ import {
   useCategories,
   useMapAccountToCategory,
   useUnmapAccountFromCategory,
-} from '@/lib/queries/use-categories-data';
+} from '@/lib/features/categories/queries';
 import type { BankAccount } from '@/lib/types/banking';
 
 interface AccountCategoryMapperProps {

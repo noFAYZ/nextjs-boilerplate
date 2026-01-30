@@ -48,7 +48,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import {
   Breadcrumb,

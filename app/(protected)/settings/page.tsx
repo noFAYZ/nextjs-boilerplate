@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import posthog from 'posthog-js';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Settings, Palette, Bell, Shield, Eye, Database, Wallet, TrendingUp, Activity, Globe, Save, RotateCcw, AlertCircle, Loader2, Moon, Sun, Monitor } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import { cn } from '@/lib/utils';
 import { useUserProfile, useUpdateUserProfile } from '@/lib/queries';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import AuthGuard from '@/components/modules/auth/components/AuthGuard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,8 @@ import {
   useUpdateUserProfile,
   useUploadProfilePicture,
   useDeleteUserAccount
-} from '@/lib/queries/use-auth-data';
-import { useToast } from "@/lib/hooks/useToast";
+} from '@/lib/features/auth/queries';
+import { useToast } from '@/lib/shared/hooks';
 import { useLoading } from '@/lib/contexts/loading-context';
 import { User, Mail, Phone, Calendar, DollarSign, Globe, Camera, Trash2 } from 'lucide-react';
 import type { UserProfileUpdateData } from '@/lib/types';

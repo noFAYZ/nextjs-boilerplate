@@ -48,11 +48,11 @@ import {
   useBankingGroupedAccounts,
   useTopSpendingCategories,
   useMonthlySpendingTrend
-} from '@/lib/queries/use-banking-data';
+} from '@/lib/features/banking/queries';
 import {
   bankingMutations
 } from '@/lib/queries/banking-queries';
-import { useBankingStore } from '@/lib/stores/banking-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
 import type { BankAccount, BankTransaction, TellerEnrollment } from '@/lib/types/banking';
 import { ArcticonsEverydollar, EmojioneMonotoneDollarBanknote, FluentBuildingBank28Regular, HugeiconsCreditCard, HugeiconsMoneyExchange02, LetsIconsCreditCardDuotone, StreamlinePlumpBuildingOffice } from '@/components/icons/icons';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
@@ -69,9 +69,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/shared/services';
 
 interface BankingDashboardProps {
   onAccountView?: (account: BankAccount) => void;

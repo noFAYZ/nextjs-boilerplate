@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 
 interface AccountsToolbarProps {
   accountCount: number;

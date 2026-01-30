@@ -21,8 +21,8 @@ import {
 import {
   useOrganization,
   useOrganizationMembers,
-} from '@/lib/queries/use-organization-data';
-import { useCurrentUser } from '@/lib/queries/use-auth-data';
+} from '@/lib/features/organization/queries';
+import { useCurrentUser } from '@/lib/features/auth/queries';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';

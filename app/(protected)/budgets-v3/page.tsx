@@ -11,10 +11,10 @@
  */
 
 import { useState } from 'react';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useBudgets, useDashboardMetrics } from '@/lib/queries';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { useBudgetAllocation } from '@/lib/hooks/use-budget-allocation';
 import { useAvailableToBudget } from '@/lib/hooks/use-available-to-budget';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -33,7 +33,7 @@ import { CreateEnvelopeModal } from '@/components/modules/budgets/components/mod
 import { CreateBudgetModal } from '@/components/modules/budgets/components/modals/create-budget-modal';
 
 // Store
-import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';
+import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 
 export default function BudgetsV3Page() {
   usePostHogPageView('budgets-v3-hybrid');

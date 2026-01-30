@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, Check } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import { useCreateEnvelope } from '@/lib/queries';
 
 interface CreateEnvelopeModalProps {

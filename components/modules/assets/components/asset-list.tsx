@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Home, Car, Package } from 'lucide-react';
 import { AssetCard } from './asset-card';
-import { useAssetAccounts } from '@/lib/queries/use-networth-data';
+import { useAssetAccounts } from '@/lib/features/networth/queries';
 import type { AssetAccount, AccountType } from '@/lib/types/networth';
 
 interface AssetListProps {

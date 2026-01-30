@@ -6,8 +6,8 @@
  */
 
 import { useDashboardMetrics, usePeriodComparison } from '@/lib/queries';
-import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Progress } from '@/components/ui/progress';

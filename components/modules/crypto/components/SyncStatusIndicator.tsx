@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { useCryptoStore } from "@/lib/stores/crypto-store";
+import { useCryptoStore } from "@/lib/features/crypto/stores";
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import { cn } from "@/lib/utils";
 import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context";

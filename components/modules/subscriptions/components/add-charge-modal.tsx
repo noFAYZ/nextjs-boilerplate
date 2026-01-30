@@ -30,8 +30,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/lib/hooks/useToast";
-import { useAddCharge } from "@/lib/queries/use-subscription-data";
+import { useToast } from "@/lib/shared/hooks";
+import { useAddCharge } from "@/lib/features/subscriptions/queries";
 import { ChargeStatus } from "@/lib/types/subscription";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

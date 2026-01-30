@@ -13,7 +13,7 @@ import {
   usePeriodComparison,
   useEnvelopeRanking,
 } from '@/lib/queries';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PeriodComparisonChart } from '@/components/modules/budgets/components/analytics/period-comparison-chart';

@@ -16,10 +16,10 @@ import { Separator } from '@/components/ui/separator';
 import {
   useOrganizations,
   usePersonalOrganization,
-} from '@/lib/queries/use-organization-data';
+} from '@/lib/features/organization/queries';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
-import { useOrgSwitcher } from '@/lib/hooks/use-org-switcher';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
+import { useOrgSwitcher } from '@/lib/features/organization/hooks';
 import { OrgSwitchingOverlay } from './org-switching-overlay';
 
 import type { Organization } from '@/lib/types/organization';

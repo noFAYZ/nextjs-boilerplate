@@ -33,7 +33,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 import type { BankAccount, BankingSyncStatus } from '@/lib/types/banking';
-import { useBankingStore } from '@/lib/stores/banking-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
 import { AccountCategoryBadges } from './AccountCategoryBadges';
 
 interface BankAccountCardProps {

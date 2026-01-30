@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/shared/services';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';

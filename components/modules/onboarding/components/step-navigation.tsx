@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { useOnboardingV2Storage } from '@/lib/hooks/use-onboarding-v2';
-import { useCategoryTemplates } from '@/lib/queries/use-category-groups-data';
+import { useCategoryTemplates } from '@/lib/features/categories/queries';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';

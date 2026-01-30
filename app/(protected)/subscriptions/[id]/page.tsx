@@ -62,7 +62,7 @@ import { useSubscription, useDeleteSubscription } from "@/lib/queries/use-subscr
 import { subscriptionsApi } from "@/lib/services/subscriptions-api";
 import { getLogoUrl } from "@/lib/services/logo-service";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import { SubscriptionFormModal } from "@/components/modules/subscriptions/components/subscription-form-modal";
 import { AddChargeModal } from "@/components/modules/subscriptions/components/add-charge-modal";
 import Link from "next/link";

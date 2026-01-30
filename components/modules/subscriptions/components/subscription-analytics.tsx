@@ -14,11 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { useSubscriptionAnalytics } from "@/lib/queries/use-subscription-data";
-import { subscriptionsApi } from "@/lib/services/subscriptions-api";
+import { useSubscriptionAnalytics } from "@/lib/features/subscriptions/queries";
+import { subscriptionsApi } from "@/lib/features/subscriptions/services";
 import { DuoIconsAlertOctagon, FluentMoneyHand20Regular, PhPiggyBankDuotone, SolarChatRoundMoneyBoldDuotone, SolarFireBoldDuotone, SolarInboxInBoldDuotone } from '@/components/icons/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/shared/services";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from "@/lib/utils";
 

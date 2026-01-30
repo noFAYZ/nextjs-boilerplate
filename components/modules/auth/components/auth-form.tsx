@@ -20,7 +20,7 @@ import { useBruteForceProtection, formatTimeRemaining } from '@/lib/security/bru
 import { logger } from '@/lib/utils/logger';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { useLoading } from '@/lib/contexts/loading-context';
 
 // Validation schemas

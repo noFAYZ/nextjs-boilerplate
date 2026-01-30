@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore, selectUser, selectAuthLoading, selectAuthError } from "@/lib/stores";
+import { useAuthStore, selectUser, selectAuthLoading, selectAuthError } from '@/lib/features/auth/stores';
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
 import { RefreshCcw, User2 } from "lucide-react";

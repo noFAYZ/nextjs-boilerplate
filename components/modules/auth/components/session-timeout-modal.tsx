@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Clock, AlertTriangle, RefreshCw, LogOut } from 'lucide-react';
-import { useSessionWarning } from '@/lib/hooks/use-session-timeout';
+import { useSessionWarning } from '@/lib/features/auth/hooks';
 
 interface SessionTimeoutModalProps {
   // Optional props for customization

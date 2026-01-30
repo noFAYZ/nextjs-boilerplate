@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verifyEmail, useSession } from '@/lib/auth-client';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, AlertCircle, Mail } from 'lucide-react';

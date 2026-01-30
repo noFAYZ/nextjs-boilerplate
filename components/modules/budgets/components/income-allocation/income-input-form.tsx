@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { TemplateType } from '@/lib/stores/budgets-v3-ui-store';
+import type { TemplateType } from '@/lib/features/budgets/stores';
 import { Info } from 'lucide-react';
 
 interface IncomeInputFormProps {

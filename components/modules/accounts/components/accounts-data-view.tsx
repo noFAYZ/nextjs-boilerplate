@@ -7,8 +7,8 @@ import {
   useBulkDeleteAccounts,
   useBulkDeactivateAccounts,
   useBulkReactivateAccounts,
-} from '@/lib/queries/use-accounts-data';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+} from '@/lib/features/accounts/queries';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { AccountsFloatingToolbar } from './shared/accounts-floating-toolbar';
 import { EmptyState } from './shared/empty-state';
 import { AccountsDataTable } from './table-view/accounts-data-table';

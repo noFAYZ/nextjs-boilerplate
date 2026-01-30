@@ -12,8 +12,8 @@
 
 import { useState } from 'react';
 import { Trash2, MoreVertical, UserPlus, AlertCircle } from 'lucide-react';
-import { useOrganizationMembers, useUpdateMemberRole, useRemoveMember } from '@/lib/queries/use-organization-data';
-import { useCurrentUser } from '@/lib/queries/use-auth-data';
+import { useOrganizationMembers, useUpdateMemberRole, useRemoveMember } from '@/lib/features/organization/queries';
+import { useCurrentUser } from '@/lib/features/auth/queries';
 import type { OrganizationMember, OrganizationRole } from '@/lib/types/organization';
 import { InviteUserModal } from './invite-user-modal';
 

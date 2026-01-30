@@ -36,8 +36,8 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { EmojiPicker } from '@/components/ui/emoji-picker';
 import { Palette, Smile } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
-import { useAccountGroupMutations } from '@/lib/hooks/use-account-groups';
+import { useToast } from "@/lib/shared/hooks";
+import { useAccountGroupMutations } from '@/lib/features/accounts/hooks';
 import type { AccountGroup, UpdateAccountGroupRequest } from '@/lib/types/account-groups';
 
 // Validation schema

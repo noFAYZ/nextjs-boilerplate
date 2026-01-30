@@ -14,8 +14,8 @@ import {
   useCategories,
   useMapAccountToCategory,
   useUnmapAccountFromCategory,
-} from '@/lib/queries/use-categories-data';
-import { useUpdateBankAccount } from '@/lib/queries/use-banking-data';
+} from '@/lib/features/categories/queries';
+import { useUpdateBankAccount } from '@/lib/features/banking/queries';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { BankAccount } from '@/lib/types/banking';
 

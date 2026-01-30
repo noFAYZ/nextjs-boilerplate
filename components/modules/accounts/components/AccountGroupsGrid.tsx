@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAccountGroupsStore } from "@/lib/stores";
+import { useAccountGroupsStore } from '@/lib/features/accounts/stores';
 import type { AccountGroup } from "@/lib/types/account-groups";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateGroupDialog } from "./CreateGroupDialog";
@@ -38,7 +38,7 @@ import AvatarGroup from '@/components/ui/avatar-group';
 import { createAvatar } from "@dicebear/core";
 import { botttsNeutral } from "@dicebear/collection";
 import Image from "next/image";
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/shared/services";
 interface AccountGroupsGridProps {
   onGroupSelect?: (group: AccountGroup) => void;
   limit?: number; // Limit number of groups shown

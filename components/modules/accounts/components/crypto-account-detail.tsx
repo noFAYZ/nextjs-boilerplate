@@ -19,7 +19,7 @@ import {
   TrendingUp,
   ArrowDownRight,
 } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 import Image from 'next/image';
@@ -30,7 +30,7 @@ import {
   useOrganizationCryptoWallet,
   useOrganizationSyncCryptoWallet,
 } from '@/lib/queries/use-organization-data-context';
-import { useCryptoStore } from '@/lib/stores/crypto-store';
+import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 
 // Import crypto components

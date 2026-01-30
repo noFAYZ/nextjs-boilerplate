@@ -25,7 +25,7 @@ import {
   Loader2,
   PlusIcon
 } from 'lucide-react';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 import { SolarWalletBoldDuotone } from '@/components/icons/icons';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/features/subscriptions/queries';
 
 // Form validation schema
 const walletSchema = z.object({

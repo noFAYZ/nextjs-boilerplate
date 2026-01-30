@@ -7,9 +7,9 @@ import posthog from 'posthog-js';
 import AuthForm from '@/components/modules/auth/components/auth-form';
 import { AuthLayout } from '@/components/modules/auth/components/auth-layout';
 import { SignInFormData } from '@/lib/types';
-import { useAuthStore, selectSession, selectIsAuthenticated } from '@/lib/stores';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
-import { useToast } from "@/lib/hooks/useToast";
+import { useAuthStore, selectSession, selectIsAuthenticated } from '@/lib/features/auth/stores';
+import { usePostHogPageView } from '@/lib/shared/hooks';
+import { useToast } from '@/lib/shared/hooks';
 function LoginForm() {
   usePostHogPageView('auth_login');
   const router = useRouter();

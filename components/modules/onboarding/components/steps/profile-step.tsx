@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
-import { useCurrentUser } from '@/lib/queries/use-auth-data';
+import { useCurrentUser } from '@/lib/features/auth/queries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import {
   Sparkles,
   Send,

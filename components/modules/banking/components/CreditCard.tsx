@@ -11,7 +11,7 @@ export interface UIAccount {
     color?: string | null
   }
 
-import { getLogoUrl } from "@/lib/services/logo-service"
+import { getLogoUrl } from "@/lib/shared/services"
   import React, { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { HeroiconsWallet, MdiDollar } from '@/components/icons/icons'

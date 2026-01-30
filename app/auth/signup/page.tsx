@@ -6,9 +6,9 @@ import posthog from 'posthog-js';
 import AuthForm from '@/components/modules/auth/components/auth-form';
 import { AuthLayout } from '@/components/modules/auth/components/auth-layout';
 import { SignUpFormData } from '@/lib/types';
-import { useAuthStore, selectIsAuthenticated, selectSession } from '@/lib/stores';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
-import { useToast } from '@/lib/hooks/useToast';
+import { useAuthStore, selectIsAuthenticated, selectSession } from '@/lib/features/auth/stores';
+import { usePostHogPageView } from '@/lib/shared/hooks';
+import { useToast } from '@/lib/shared/hooks';
 
 export default function SignUpPage() {
   usePostHogPageView('auth_signup');

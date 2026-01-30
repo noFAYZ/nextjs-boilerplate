@@ -52,12 +52,12 @@ import { AccountHeader } from "@/components/modules/accounts/components/AccountH
 import { TransactionsDataTable } from "@/components/modules/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
 import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/components/modules/transactions/components/transaction-detail-drawer-enhanced";
-import { useAccountDetails, useAccountTransactions } from "@/lib/queries/use-accounts-data";
+import { useAccountDetails, useAccountTransactions } from '@/lib/features/accounts/queries';
 import { ManualTransactionForm } from "@/components/modules/accounts/components/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/modules/accounts/components/crypto-account-detail";
-import { useProviderConnections, useSyncConnection } from "@/lib/queries/use-banking-data";
+import { useProviderConnections, useSyncConnection } from '@/lib/features/banking/queries';
 import { TransactionAttachments, DuplicateDetectionBanner } from "@/app/(protected)/accounts/components";
-import { useMerchants, useTransactionCategories } from "@/lib/queries/use-transactions-data";
+import { useMerchants, useTransactionCategories } from '@/lib/features/transactions/queries';
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 

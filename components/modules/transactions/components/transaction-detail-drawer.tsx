@@ -11,9 +11,9 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
 import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { AccountCombobox } from '@/components/ui/account-combobox';
-import { useToast } from "@/lib/hooks/useToast";
-import { useCategories, useAllAccounts } from '@/lib/queries/use-accounts-data';
-import { useMerchants } from '@/lib/queries/use-transactions-data';
+import { useToast } from "@/lib/shared/hooks";
+import { useCategories, useAllAccounts } from '@/lib/features/accounts/queries';
+import { useMerchants } from '@/lib/features/transactions/queries';
 import {
   Sheet,
   SheetContent,

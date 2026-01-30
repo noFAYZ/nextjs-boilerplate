@@ -16,8 +16,8 @@ import type {
   GetIncomeRecommendationsParams,
   AllocationFeedback,
 } from '@/lib/types/income-allocation';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 
 /**
  * Helper to get organization ID from context store or explicit parameter

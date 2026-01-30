@@ -45,7 +45,7 @@ import {
   Filter,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAccountGroupMutations } from '@/lib/hooks/use-account-groups';
+import { useAccountGroupMutations } from '@/lib/features/accounts/hooks';
 import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
 import type { AccountGroup } from '@/lib/types/account-groups';
 import type { CryptoWallet } from '@/lib/types/crypto';

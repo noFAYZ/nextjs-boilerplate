@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useMemo } from 'react';
 import { Plus, Search } from 'lucide-react';
-import { useOrganizations } from '@/lib/queries/use-organization-data';
+import { useOrganizations } from '@/lib/features/organization/queries';
 import { Button } from '@/components/ui/button';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
 import { CreateOrgDialog } from '@/components/modules/organization/components/create-org-dialog';

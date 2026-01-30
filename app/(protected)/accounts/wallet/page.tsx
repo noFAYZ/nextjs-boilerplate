@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, memo } from "react";
-import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

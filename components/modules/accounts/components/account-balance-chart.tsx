@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAccountChart } from '@/lib/queries/use-accounts-data';
+import { useAccountChart } from '@/lib/features/accounts/queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { cn, formatCurrency } from '@/lib/utils';

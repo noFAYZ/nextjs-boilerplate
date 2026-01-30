@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/accordion';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { useAllAccounts } from '@/lib/queries';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { getAccountCategoryConfig, getCategoryType } from './account-category-icon';
 import { AccountRow } from './account-row';
 import { AccountsSummary } from './accounts-summary';

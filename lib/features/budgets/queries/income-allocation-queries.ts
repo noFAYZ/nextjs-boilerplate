@@ -5,7 +5,7 @@
 
 import { queryOptions } from '@tanstack/react-query';
 import { incomeAllocationApi } from '@/lib/services/income-allocation-api';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import type {
   GetIncomeAllocationSuggestionsParams,
   GetIncomeAllocationHistoryParams,

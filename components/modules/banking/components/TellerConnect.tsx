@@ -20,16 +20,16 @@ import {
   Lock,
   X
 } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import React from 'react';
 
-import { useBankingStore } from '@/lib/stores/banking-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
 import { bankingMutations } from '@/lib/queries/banking-queries';
 import type { TellerConnectEnrollment, TellerConnectConfig } from '@/lib/types/banking';
 import { cn } from '@/lib/utils';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/features/subscriptions/queries';
 
 // Teller Connect Widget Interface
 declare global {

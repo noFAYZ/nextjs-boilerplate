@@ -10,8 +10,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import { useAcceptInvitationByToken, usePendingInvitations } from '@/lib/queries/use-organization-data';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useAcceptInvitationByToken, usePendingInvitations } from '@/lib/features/organization/queries';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 
 interface PageProps {
   params: { token: string };

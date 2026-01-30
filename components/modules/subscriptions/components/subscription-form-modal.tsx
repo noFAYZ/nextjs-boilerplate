@@ -21,11 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import {
   useCreateSubscription,
   useUpdateSubscription,
-} from "@/lib/queries/use-subscription-data";
+} from "@/lib/features/subscriptions/queries";
 import type {
   UserSubscription,
   CreateSubscriptionRequest,
@@ -35,7 +35,7 @@ import type {
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SUBSCRIPTION_SERVICES } from "@/lib/constants/subscription-services-metadata";
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/shared/services";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";

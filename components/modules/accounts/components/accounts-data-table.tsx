@@ -30,7 +30,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/shared/services';
 import { timestampzPresets } from '@/lib/utils/time';
 import type { UnifiedAccount } from '@/lib/types/unified-accounts';
 import {
@@ -39,7 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { HeroiconsWallet, MdiDollar, SolarLibraryBoldDuotone, MdiPen } from '@/components/icons/icons';
 import styles from './accounts-data-table.module.css';
 

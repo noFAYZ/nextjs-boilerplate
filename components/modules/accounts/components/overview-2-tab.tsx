@@ -4,7 +4,7 @@ import React, { useMemo, useState, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAllAccounts } from '@/lib/queries';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { getAccountCategoryConfig, getCategoryType } from './account-category-icon';
 import { AccountRow } from './account-row';
 import { CurrencyDisplay } from '@/components/ui/currency-display';

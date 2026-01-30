@@ -51,7 +51,7 @@ import {
   useDisableRule,
   useDuplicateRule,
   useTestAllRules,
-} from '@/lib/queries/use-categorization-rules-data';
+} from '@/lib/features/categories/queries';
 import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
 import { SolarCheckCircleBoldDuotone, StreamlineFlexFilter2 } from '@/components/icons/icons';
 import { CategoryCombobox } from '@/components/ui/category-combobox';

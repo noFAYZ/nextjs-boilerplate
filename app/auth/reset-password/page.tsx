@@ -5,7 +5,7 @@ import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/auth-client';
 import AuthForm from '@/components/modules/auth/components/auth-form';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 
 interface ResetPasswordFormData {
   password: string;

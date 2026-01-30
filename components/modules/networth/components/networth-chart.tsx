@@ -28,7 +28,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { cn, formatDate, formatDateTime } from '@/lib/utils';
-import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/queries/use-networth-data';
+import { useNetWorthHistory, useNetWorthPerformance } from '@/lib/features/networth/queries';
 import type { TimePeriod } from '@/lib/types/networth';
 import { SnapshotGranularity } from '@/lib/types/networth';
 import {

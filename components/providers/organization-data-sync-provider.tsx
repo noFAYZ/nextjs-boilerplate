@@ -9,7 +9,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useOrganizationRefetchStore } from '@/lib/stores/organization-refetch-store';
 
 export function OrganizationDataSyncProvider() {

@@ -19,7 +19,7 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { authClient } from '@/lib/core/auth';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 
 interface OrgSwitchResult {
   success: boolean;

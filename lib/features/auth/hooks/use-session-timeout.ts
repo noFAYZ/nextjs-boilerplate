@@ -8,9 +8,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/core/auth';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { logger } from '@/lib/utils/logger';
-import { config } from '@/lib/config/env';
+import { config } from '@/lib/core/config';
 
 interface SessionTimeoutState {
   isActive: boolean;

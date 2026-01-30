@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch"
 import { DatePicker } from "@/components/ui/date-picker"
 import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
 import { Separator } from "@/components/ui/separator"
-import { useGoalsStore } from "@/lib/stores/goals-store"
+import { useGoalsStore } from "@/lib/features/goals/stores"
 import type {
   GoalType,
   GoalCategory,

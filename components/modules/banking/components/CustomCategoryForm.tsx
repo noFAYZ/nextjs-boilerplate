@@ -15,7 +15,7 @@ import {
 import {
   useCreateCategory,
   useUpdateCategory,
-} from '@/lib/queries/use-categories-data';
+} from '@/lib/features/categories/queries';
 import type { CustomAccountCategory, CreateCustomCategoryRequest } from '@/lib/types/custom-categories';
 
 const ACCOUNT_TYPES = [

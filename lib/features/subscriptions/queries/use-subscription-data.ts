@@ -24,7 +24,7 @@ import {
   subscriptionMutations,
 } from './subscription-queries';
 import { useAuthReady } from '@/lib/core/query';
-import { useSubscriptionUIStore } from '@/lib/stores/subscription-ui-store';
+import { useSubscriptionUIStore } from '@/lib/features/subscriptions/stores';
 import type {
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,

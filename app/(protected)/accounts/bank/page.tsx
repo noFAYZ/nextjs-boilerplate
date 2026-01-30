@@ -8,7 +8,7 @@ import {
   useDisconnectBankAccount,
   useSyncBankAccount,
   useSyncAllBankAccounts,
-} from '@/lib/queries/use-banking-data';
+} from '@/lib/features/banking/queries';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, RefreshCw } from 'lucide-react';
 import { useTellerConnect } from '@/components/modules/banking/components/TellerConnect';

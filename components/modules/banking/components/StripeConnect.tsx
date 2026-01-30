@@ -19,15 +19,15 @@ import {
   CreditCard,
   Lock,
 } from 'lucide-react';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import React from 'react';
 
-import { useBankingStore } from '@/lib/stores/banking-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
 import { bankingMutations } from '@/lib/queries/banking-queries';
-import { bankingApi } from '@/lib/services/banking-api';
+import { bankingApi } from '@/lib/features/banking/services';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/features/subscriptions/queries';
 
 // Stripe.js Financial Connections Interface (from official docs)
 interface StripeFinancialConnectionsAccount {

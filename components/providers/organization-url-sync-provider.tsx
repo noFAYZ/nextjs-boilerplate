@@ -14,7 +14,7 @@
  */
 
 import { useEffect } from 'react';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useOrganizations } from '@/lib/queries/use-organization-data';
 import { logger } from '@/lib/utils/logger';
 

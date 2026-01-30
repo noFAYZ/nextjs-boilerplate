@@ -42,13 +42,13 @@ import {
   Banknote
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuthStore, selectUser } from '@/lib/stores';
+import { useAuthStore, selectUser } from '@/lib/features/auth/stores';
 import { useViewMode } from '@/lib/contexts/view-mode-context';
 import { SkipOnboardingButton } from '@/components/modules/onboarding/components/skip-onboarding-button';
 import { CategoryTemplatesStep } from '@/components/modules/onboarding/components/steps/category-templates-step';
 import { LogoMappr } from '@/components/icons';
 import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone, PhPiggyBankDuotone, CircumBank, DuoIconsBank, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { categoryGroupsApi } from '@/lib/services/category-groups-api';
 import Link from 'next/link';
 import Image from 'next/image';

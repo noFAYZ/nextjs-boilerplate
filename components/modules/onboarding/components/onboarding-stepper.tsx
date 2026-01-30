@@ -1,6 +1,6 @@
 'use client';
 
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

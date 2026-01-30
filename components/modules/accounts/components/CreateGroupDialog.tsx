@@ -43,7 +43,7 @@ import {
   Building2,
   ArrowRight,
 } from "lucide-react";
-import { useAccountGroupsStore } from "@/lib/stores";
+import { useAccountGroupsStore } from '@/lib/features/accounts/stores';
 import type {
   AccountGroup,
   CreateAccountGroupRequest,

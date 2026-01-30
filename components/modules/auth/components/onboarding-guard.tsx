@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore, selectUser, selectIsAuthenticated, selectAuthLoading } from '@/lib/stores';
+import { useAuthStore, selectUser, selectIsAuthenticated, selectAuthLoading } from '@/lib/features/auth/stores';
 import { Loader2 } from 'lucide-react';
 
 interface OnboardingGuardProps {

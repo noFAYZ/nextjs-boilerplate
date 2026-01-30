@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import {
   RefreshCw,
   Loader2,
@@ -25,7 +25,7 @@ import {
   FluentBuildingBank28Regular,
 } from '@/components/icons/icons';
 import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import Link from 'next/link';
 import {
   Breadcrumb,

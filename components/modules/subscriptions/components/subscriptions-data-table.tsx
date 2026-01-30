@@ -29,7 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import type { UserSubscription } from "@/lib/types/subscription";
-import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
+import { useSubscriptionUIStore } from "@/lib/features/subscriptions/stores";
 import { Input } from "@/components/ui/input";
 import {
   Drawer,

@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { apiClient } from '@/lib/core/api';
-import { useIntegrationsStore } from '@/lib/stores/integrations-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useIntegrationsStore } from '@/lib/features/integrations/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { logger } from '@/lib/utils/logger';
 import type {
   IntegrationSyncEvent,

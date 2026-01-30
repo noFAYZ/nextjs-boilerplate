@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationRefetchState } from '@/lib/hooks/use-organization-refetch-state';
+import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { LogoLoader } from '@/components/icons';
 
 /**

@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback, memo } from 'react';
 import { useAllAccounts } from '@/lib/queries';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { AccountsDataView } from './accounts-data-view';
 
 /**

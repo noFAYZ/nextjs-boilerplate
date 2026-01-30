@@ -32,9 +32,9 @@ import {
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { UserSubscription } from "@/lib/types/subscription"
-import { subscriptionsApi } from "@/lib/services/subscriptions-api"
+import { subscriptionsApi } from "@/lib/features/subscriptions/services"
 import { SolarCheckCircleBoldDuotone } from '@/components/icons/icons'
-import { getLogoUrl } from "@/lib/services/logo-service"
+import { getLogoUrl } from "@/lib/shared/services"
 
 interface SubscriptionDetailsModalProps {
   subscription: UserSubscription | null

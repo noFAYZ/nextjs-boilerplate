@@ -3,7 +3,7 @@
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 
 interface TableHeaderProps {
   allSelected: boolean;

@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { useGoalsStore, selectFilteredGoals, selectActiveGoals, selectCompletedGoals, selectOffTrackGoals } from '@/lib/stores';
-import { useGoals, useDeleteGoal, useCalculateGoalProgress, useAddContribution } from '@/lib/queries/use-goal-data';
-import { goalsApi } from '@/lib/services/goals-api';
+import { useGoalsStore, selectFilteredGoals, selectActiveGoals, selectCompletedGoals, selectOffTrackGoals } from '@/lib/features/goals/stores';
+import { useGoals, useDeleteGoal, useCalculateGoalProgress, useAddContribution } from '@/lib/features/goals/queries';
+import { goalsApi } from '@/lib/features/goals/services';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import { AddContributionDialog } from './add-contribution-dialog';
 import Link from 'next/link';
 import { GoalFiltersSheet } from './goal-filters-sheet';
 import { GoalCardSkeleton } from './goal-card-skeleton';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import type { Goal } from '@/lib/types/goals';
 import { GoalCardList } from './GoalList';
 import { IcTwotoneEnergySavingsLeaf, MageGoals, NotoMoneyBag, StreamlinePlumpMoneyCashBill1 } from '@/components/icons/icons';

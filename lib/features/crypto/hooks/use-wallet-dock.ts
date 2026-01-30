@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useDockContext } from "@/components/providers/dock-provider"
 import { ExpandableItem } from "@/components/ui/dock"
-import { useCryptoStore } from "@/lib/stores/crypto-store"
+import { useCryptoStore } from "@/lib/features/crypto/stores"
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider"
 import type { WalletSyncProgressProps } from "@/components/modules/crypto/components/SyncProgressIndicator"
 

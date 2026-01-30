@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCreateOrganization } from '@/lib/queries/use-organization-data';
+import { useCreateOrganization } from '@/lib/features/organization/queries';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 

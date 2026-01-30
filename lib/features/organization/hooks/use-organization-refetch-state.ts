@@ -13,7 +13,7 @@
  * ```
  */
 
-import { useOrganizationRefetchStore } from '@/lib/stores/organization-refetch-store';
+import { useOrganizationRefetchStore } from '@/lib/features/organization/stores';
 
 export function useOrganizationRefetchState() {
   const isRefetching = useOrganizationRefetchStore((state) => state.isRefetching);

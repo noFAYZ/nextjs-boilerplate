@@ -37,7 +37,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AccountGroupCard } from './AccountGroupCard';
 import { CreateGroupDialog } from './CreateGroupDialog';
 import { DeleteGroupsDialog } from './DeleteGroupsDialog';
-import { useAccountGroupsStore } from '@/lib/stores';
+import { useAccountGroupsStore } from '@/lib/features/accounts/stores';
 import type { AccountGroup } from '@/lib/types/account-groups';
 
 interface AccountGroupsListProps {

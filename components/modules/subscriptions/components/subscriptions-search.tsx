@@ -5,7 +5,7 @@ import Fuse from "fuse.js";
 import { Command, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup } from "@/components/ui/command"; // shadcn
 import { SUBSCRIPTION_SERVICES } from "@/lib/constants/subscription-services-metadata";
 import { CalendarIcon } from "lucide-react";
-import { SubscriptionService } from "@/lib/services/subscription-service";
+import { SubscriptionService } from "@/lib/features/subscriptions/services";
 
 
 

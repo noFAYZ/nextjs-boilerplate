@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   useDashboardLayoutStore,
 } from "@/lib/stores";
-import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import {
   Settings2,
   PenBoxIcon,

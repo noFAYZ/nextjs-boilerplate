@@ -5,7 +5,7 @@
 
 import { authClient } from '@/lib/core/auth';
 import { logger } from '@/lib/utils/logger';
-import { config } from '@/lib/config/env';
+import { config } from '@/lib/core/config';
 
 interface RefreshState {
   isRefreshing: boolean;

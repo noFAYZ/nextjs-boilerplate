@@ -4,7 +4,7 @@ import { useRef, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { cn } from '@/lib/utils';
 import { AccountCard } from './account-card';
-import { useBreakpointValue } from '@/lib/hooks/use-breakpoint-value';
+import { useBreakpointValue } from '@/lib/shared/hooks';
 import type { UnifiedAccount } from '@/lib/types';
 
 interface AccountsCardGridProps {

@@ -7,7 +7,7 @@ import { GoogleTagManager, GoogleTagManagerNoScript } from '@/components/utiliti
 import { GoogleAnalytics4 } from '@/components/utilities/analytics/google-analytics';
 import { ConsentBanner } from '@/components/utilities/consent/consent-banner'
 // Import environment validation to ensure it runs at startup
-import '@/lib/config/env';
+import '@/lib/core/config';
 
 import localFont from 'next/font/local'
 

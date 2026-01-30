@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Plus, LayoutGrid, List } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePostHogPageView } from "@/lib/hooks/usePostHogPageView";
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "@/components/modules/subscriptions/components/subscription-list";
@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 
 export default function SubscriptionsPage() {
   usePostHogPageView('subscriptions');

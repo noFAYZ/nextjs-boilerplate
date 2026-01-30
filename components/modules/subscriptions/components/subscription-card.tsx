@@ -13,11 +13,11 @@ import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import type { UserSubscription } from "@/lib/types/subscription"
-import { subscriptionsApi } from "@/lib/services/subscriptions-api"
+import { subscriptionsApi } from "@/lib/features/subscriptions/services"
 import { SolarCheckCircleBoldDuotone } from '@/components/icons/icons'
-import { getLogoUrl } from "@/lib/services/logo-service"
+import { getLogoUrl } from "@/lib/shared/services"
 import { SubscriptionCardSkeleton } from "./subscription-card-skeleton"
-import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store"
+import { useSubscriptionUIStore } from "@/lib/features/subscriptions/stores"
 import { CurrencyDisplay } from '@/components/ui/currency-display'
 
 interface SubscriptionCardProps {

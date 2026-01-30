@@ -16,7 +16,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNetWorthBreakdown } from '@/lib/queries/use-networth-data';
+import { useNetWorthBreakdown } from '@/lib/features/networth/queries';
 import type { AccountBreakdown } from '@/lib/types/networth';
 
 interface BreakdownCardProps {

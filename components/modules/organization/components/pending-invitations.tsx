@@ -9,7 +9,7 @@
  * - Displays expiration date
  */
 
-import { usePendingInvitations, useAcceptInvitationByToken } from '@/lib/queries/use-organization-data';
+import { usePendingInvitations, useAcceptInvitationByToken } from '@/lib/features/organization/queries';
 import { Clock, CheckCircle, Trash2 } from 'lucide-react';
 
 interface PendingInvitationsProps {

@@ -21,7 +21,7 @@ import {
 } from '@tanstack/react-query';
 import { cryptoKeys, cryptoQueries, cryptoMutations } from './crypto-queries';
 import { useAuthReady, useContextOrganizationId } from '@/lib/core/query';
-import { useCryptoUIStore } from '@/lib/stores/crypto-ui-store';
+import { useCryptoUIStore } from '@/lib/features/crypto/stores';
 import type {
   CryptoWallet,
   PortfolioParams,

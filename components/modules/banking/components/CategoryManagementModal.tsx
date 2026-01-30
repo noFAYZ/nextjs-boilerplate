@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CustomCategoryForm } from './CustomCategoryForm';
 import { CategoryTreeView } from './CategoryTreeView';
-import { useDeleteCategory } from '@/lib/queries/use-categories-data';
+import { useDeleteCategory } from '@/lib/features/categories/queries';
 import type { CustomAccountCategory } from '@/lib/types/custom-categories';
 
 interface CategoryManagementModalProps {

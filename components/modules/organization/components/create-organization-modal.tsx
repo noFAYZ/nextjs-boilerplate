@@ -26,9 +26,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { useCreateOrganization, useUpdateOrganization } from '@/lib/queries/use-organization-data';
+import { useCreateOrganization, useUpdateOrganization } from '@/lib/features/organization/queries';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import type { Organization, CreateOrganizationInput, UpdateOrganizationInput } from '@/lib/types/organization';
 
 interface CreateOrganizationModalProps {

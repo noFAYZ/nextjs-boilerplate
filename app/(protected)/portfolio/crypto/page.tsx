@@ -32,7 +32,7 @@ import { useViewModeClasses } from '@/lib/contexts/view-mode-context';
 import Image from 'next/image';
 import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import Link from 'next/link';
 import {
   Breadcrumb,

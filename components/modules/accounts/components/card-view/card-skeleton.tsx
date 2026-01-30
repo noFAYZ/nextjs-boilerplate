@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useBreakpointValue } from '@/lib/hooks/use-breakpoint-value';
+import { useBreakpointValue } from '@/lib/shared/hooks';
 
 /**
  * Skeleton card for loading states in grid view

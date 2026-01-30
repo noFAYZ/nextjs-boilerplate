@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import { X, Copy, Check } from 'lucide-react';
-import { useInviteUser } from '@/lib/queries/use-organization-data';
+import { useInviteUser } from '@/lib/features/organization/queries';
 import { useOrganizationUIStore } from '@/lib/stores/ui-stores';
 import type { OrganizationRole, Invitation } from '@/lib/types/organization';
 

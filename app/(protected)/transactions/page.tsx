@@ -3,9 +3,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransactionsUIStore } from '@/lib/stores/transactions-ui-store';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { useAllTransactions } from '@/lib/queries/use-accounts-data';
+import { useAllTransactions } from '@/lib/features/accounts/queries';
 import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
 import { useBankingUIStore } from '@/lib/stores/ui-stores';
 import { TransactionsDataTable } from '@/components/modules/transactions';

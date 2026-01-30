@@ -12,7 +12,7 @@ import { PromptInputBox } from '@/components/modules/ai/components/ai-prompt-box
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { createAvatar } from '@dicebear/core';
 import { avataaarsNeutral } from '@dicebear/collection';
 

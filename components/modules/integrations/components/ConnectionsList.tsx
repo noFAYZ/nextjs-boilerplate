@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/lib/hooks/useToast';
+import { useToast } from '@/lib/shared/hooks';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useProviderConnections, useReconnectConnection, useDeleteConnection } from '@/lib/queries/use-banking-data';
+import { useProviderConnections, useReconnectConnection, useDeleteConnection } from '@/lib/features/banking/queries';
 import {
   Loader2,
   RefreshCw,

@@ -20,8 +20,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2, Home, Car, Package } from 'lucide-react';
-import { useCreateAssetAccount, useUpdateAssetAccount } from '@/lib/queries/use-networth-data';
-import { useToast } from '@/lib/hooks/useToast';
+import { useCreateAssetAccount, useUpdateAssetAccount } from '@/lib/features/networth/queries';
+import { useToast } from '@/lib/shared/hooks';
 import type { AssetAccount, CreateAssetAccountRequest } from '@/lib/types/networth';
 
 interface AssetFormModalProps {

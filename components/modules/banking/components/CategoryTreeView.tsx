@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Trash2, Edit2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCategoryTree, useDeleteCategory } from '@/lib/queries/use-categories-data';
+import { useCategoryTree, useDeleteCategory } from '@/lib/features/categories/queries';
 import type { CustomAccountCategory } from '@/lib/types/custom-categories';
 
 interface CategoryTreeViewProps {

@@ -29,7 +29,7 @@ import {
   SolarClockCircleBoldDuotone,
 } from '@/components/icons/icons';
 import { useSyncBankAccount } from "@/lib/queries";
-import { useBankingStore } from "@/lib/stores";
+import { useBankingStore } from '@/lib/features/banking/stores';
 import { Card } from '@/components/ui/card';
 
 const bankTypeGradients: Record<string, string> = {

@@ -34,7 +34,7 @@ import {
   useDisconnectProvider,
   useSyncProvider,
 } from '@/lib/queries/integrations-queries';
-import { useIntegrationsStore } from '@/lib/stores/integrations-store';
+import { useIntegrationsStore } from '@/lib/features/integrations/stores';
 import { IntegrationProvider } from '@/lib/types/integrations';
 
 interface IntegrationsDialogProps {

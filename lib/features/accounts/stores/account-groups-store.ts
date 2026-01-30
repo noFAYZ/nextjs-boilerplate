@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { AccountGroupsAPI } from '@/lib/api/account-groups';
+import { AccountGroupsAPI } from '@/lib/core/api/account-groups';
 import type {
   AccountGroup,
   AccountGroupHierarchy,

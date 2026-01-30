@@ -11,8 +11,8 @@
  * - Analytics and reporting
  */
 
-import { useBudgetsV3UIStore } from '@/lib/stores/budgets-v3-ui-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { BudgetsV3Header } from '@/components/budgets-v3/layout/budgets-v3-header';
 import { BudgetsV3TabNavigation } from '@/components/budgets-v3/layout/budgets-v3-tab-navigation';
 import { OverviewTab } from '@/components/budgets-v3/tabs/overview-tab';
@@ -23,7 +23,7 @@ import { ForecastingTab } from '@/components/budgets-v3/tabs/forecasting-tab';
 import { IncomeAllocationTab } from '@/components/budgets-v3/tabs/income-allocation-tab';
 import { CreateEnvelopeModal } from '@/components/budgets-v3/modals/create-envelope-modal';
 import { CreateBudgetModal } from '@/components/budgets-v3/modals/create-budget-modal';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 
 export default function BudgetsV3Page() {
   // Track page view

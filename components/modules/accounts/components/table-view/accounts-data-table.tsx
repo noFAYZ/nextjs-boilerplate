@@ -38,8 +38,8 @@ import {
 } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { getLogoUrl } from '@/lib/services/logo-service';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { getLogoUrl } from '@/lib/shared/services';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import {
   getAccountTypeDisplayName,
   getAccountTypeIcon,

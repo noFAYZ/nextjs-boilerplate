@@ -26,7 +26,7 @@ import {
   ArrowLeft,
   Lock,
 } from 'lucide-react';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/lib/shared/hooks";
 import { useCreateCryptoWallet } from '@/lib/queries';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

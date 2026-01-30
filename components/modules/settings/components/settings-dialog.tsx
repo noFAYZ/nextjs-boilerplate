@@ -50,14 +50,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/lib/hooks/useToast';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useAccountsUIStore } from '@/lib/stores/accounts-ui-store';
+import { useToast } from '@/lib/shared/hooks';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import type { UserPreferences } from '@/lib/types/settings';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { PlanType } from '@/lib/types';
 import { Card } from '@/components/ui/card';
-import { useProviderConnections, useDisconnectConnection, useSyncConnection, useReconnectConnection, useDeleteConnection } from '@/lib/queries/use-banking-data';
+import { useProviderConnections, useDisconnectConnection, useSyncConnection, useReconnectConnection, useDeleteConnection } from '@/lib/features/banking/queries';
 import {
   useCurrentBillingSubscription,
   usePaymentHistory,
@@ -65,12 +65,12 @@ import {
   useDowngradeBillingSubscription,
   useCancelBillingSubscription,
   useReactivateBillingSubscription,
-} from '@/lib/queries/use-billing-subscription-data';
+} from '@/lib/features/subscriptions/queries';
 import { Badge } from '@/components/ui/badge';
 import { SolarCheckCircleBoldDuotone } from '@/components/icons/icons';
 import { batchTimestampzToReadable, timestampzPresets, timestampzToReadable } from '@/lib/utils/time';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/shared/services';
 import { getBankingProviderMetadata } from '@/lib/utils/banking-utils';
 import { Pill } from '@/components/ui/pill';
 

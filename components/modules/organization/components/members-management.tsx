@@ -28,8 +28,8 @@ import {
   useUpdateMemberRole,
   useRemoveMember,
   useRevokeInvitation,
-} from '@/lib/queries/use-organization-data';
-import { useCurrentUser } from '@/lib/queries/use-auth-data';
+} from '@/lib/features/organization/queries';
+import { useCurrentUser } from '@/lib/features/auth/queries';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

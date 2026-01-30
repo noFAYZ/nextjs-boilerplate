@@ -13,7 +13,7 @@ import { Globe, XCircle, Bell, Sparkles, Tag, RefreshCw, Repeat, AlertCircle, Ch
 import { Dropdown } from "react-day-picker";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { HugeiconsCreditCard, MageCalendar2, MdiDollar } from "@/components/icons/icons";
-import { subscriptionsApi } from "@/lib/services/subscriptions-api";
+import { subscriptionsApi } from "@/lib/features/subscriptions/services";
 
 
 // Types

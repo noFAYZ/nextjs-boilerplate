@@ -25,7 +25,7 @@ import {
   PlusIcon
 } from 'lucide-react';
 import Link from 'next/link';
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from '@/lib/shared/hooks';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

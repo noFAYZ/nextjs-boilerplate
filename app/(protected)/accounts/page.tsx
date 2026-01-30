@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, memo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { usePostHogPageView } from '@/lib/hooks/usePostHogPageView';
+import { usePostHogPageView } from '@/lib/shared/hooks';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, RefreshCw, Eye, EyeOff } from 'lucide-react';

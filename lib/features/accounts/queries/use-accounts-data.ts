@@ -30,7 +30,7 @@ import {
   useCategoryGroups as useBaseCategoryGroupsQuery,
 } from './accounts-queries';
 import { useAuthReady } from '@/lib/core/query';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import type {
   CreateManualAccountRequest,
   UpdateAccountRequest,

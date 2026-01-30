@@ -5,9 +5,9 @@ import {
   keepPreviousData
 } from '@tanstack/react-query';
 import { bankingApi } from '@/lib/services/banking-api';
-import { useBankingStore } from '@/lib/stores/banking-store';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useOrganizationStore } from '@/lib/stores/organization-store';
+import { useBankingStore } from '@/lib/features/banking/stores';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 
 // Module-level map to track initialization timeouts (30s "no SSE response" timeouts)
 // Keyed by accountId, stores the timeout ID so it can be cleared when SSE messages arrive

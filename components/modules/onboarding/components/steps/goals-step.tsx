@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
 import { FINANCIAL_GOALS, type FinancialGoalId } from '@/lib/constants/financial-goals';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
 import { cn } from '@/lib/utils';

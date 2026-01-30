@@ -1,6 +1,7 @@
 import { ApiResponse, AUTH_ERROR_CODES, API_ERROR_CODES, AuthError, BetterAuthResponse } from './types';
 import { logger } from './utils/logger';
 import { errorHandler } from './utils/error-handler';
+// Use this relative path for error-handler since lib/utils doesn't export it
 import { getCSRFTokenFromCookie, isCSRFProtectionRequired, getCSRFTokenFromResponseHeader, isCSRFValidationError } from './utils/csrf';
 
 class ApiClient {
@@ -40,7 +41,7 @@ class ApiClient {
     if (!orgId && typeof window !== 'undefined') {
       try {
         // Dynamically import to avoid circular dependencies
-        const { useOrganizationStore } = await import('@/lib/stores/organization-store');
+        const { useOrganizationStore } = await import('@/lib/features/organization/stores');
         const selectedOrgId = useOrganizationStore.getState().selectedOrganizationId;
         if (selectedOrgId) {
           orgId = selectedOrgId;
@@ -104,7 +105,7 @@ class ApiClient {
       let orgId = organizationId;
       if (!orgId && typeof window !== 'undefined') {
         try {
-          const { useOrganizationStore } = require('@/lib/stores/organization-store');
+          const { useOrganizationStore } = require('@/lib/features/organization/stores');
           const selectedOrgId = useOrganizationStore.getState().selectedOrganizationId;
           if (selectedOrgId) {
             orgId = selectedOrgId;

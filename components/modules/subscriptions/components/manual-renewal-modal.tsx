@@ -24,10 +24,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/lib/hooks/useToast";
-import { useRenewSubscription } from "@/lib/queries/use-subscription-data";
+import { useToast } from "@/lib/shared/hooks";
+import { useRenewSubscription } from "@/lib/features/subscriptions/queries";
 import { Loader2, RefreshCw, Calendar } from "lucide-react";
-import { subscriptionsApi } from "@/lib/services/subscriptions-api";
+import { subscriptionsApi } from "@/lib/features/subscriptions/services";
 
 const renewalSchema = z.object({
   amount: z.string().optional().refine(

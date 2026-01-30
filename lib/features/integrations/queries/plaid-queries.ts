@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { bankingApi } from '@/lib/services/banking-api';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore } from '@/lib/features/auth/stores';
 import { bankingKeys } from '@/lib/features/banking/queries';
 import type { BankAccount } from '@/lib/types/banking';
 import type { ApiResponse } from '@/lib/types/crypto';

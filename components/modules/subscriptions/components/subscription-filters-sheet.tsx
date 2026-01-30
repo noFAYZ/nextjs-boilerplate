@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useSubscriptionUIStore } from "@/lib/stores/subscription-ui-store";
+import { useSubscriptionUIStore } from "@/lib/features/subscriptions/stores";
 import { cn } from "@/lib/utils";
 import type { SubscriptionCategory, SubscriptionStatus, BillingCycle } from "@/lib/types/subscription";
 

@@ -27,7 +27,7 @@ import {
 import { bankingApi } from '@/lib/services/banking-api';
 import { invalidateByDependency } from '@/lib/core/query';
 import { useAuthReady, useContextOrganizationId } from '@/lib/core/query';
-import { useBankingUIStore } from '@/lib/stores/banking-ui-store';
+import { useBankingUIStore } from '@/lib/features/banking/stores';
 import type {
   BankAccount,
   BankTransactionParams,

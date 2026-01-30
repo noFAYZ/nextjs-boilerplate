@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBankingStore, selectAccountSyncState } from '@/lib/stores/banking-store';
+import { useBankingStore, selectAccountSyncState } from '@/lib/features/banking/stores';
 
 interface BankAccountSyncModalProps {
   isOpen: boolean;

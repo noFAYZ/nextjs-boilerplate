@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useOnboardingUIStore } from '@/lib/stores/onboarding-ui-store';
-import { useCategoryTemplates } from '@/lib/queries/use-category-groups-data';
+import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
+import { useCategoryTemplates } from '@/lib/features/categories/queries';
 import { type OnboardingV2Data } from '@/lib/hooks/use-onboarding-v2';
 import { cn } from '@/lib/utils';
 import { Check, BarChart3 } from 'lucide-react';
