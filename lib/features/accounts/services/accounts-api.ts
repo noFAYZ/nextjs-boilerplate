@@ -685,6 +685,71 @@ class AccountsApiService {
     const query = searchParams.toString();
     return apiClient.get(`${this.basePath}/${accountId}/history${query ? `?${query}` : ''}`, organizationId);
   }
+
+  // ============================================================================
+  // ACCOUNT GROUP SETTINGS
+  // ============================================================================
+
+  /**
+   * Get group settings
+   */
+  async getGroupSettings(groupId: string, organizationId?: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/groups/${groupId}/settings`, organizationId);
+  }
+
+  /**
+   * Update group settings
+   */
+  async updateGroupSettings(groupId: string, settings: Record<string, any>, organizationId?: string): Promise<ApiResponse<any>> {
+    return apiClient.put(`/groups/${groupId}/settings`, settings, organizationId);
+  }
+
+  /**
+   * Export group settings
+   */
+  async exportGroupSettings(groupId: string, organizationId?: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/groups/${groupId}/export`, organizationId);
+  }
+
+  /**
+   * Import group settings
+   */
+  async importGroupSettings(groupId: string, data: any, organizationId?: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/groups/${groupId}/import`, data, organizationId);
+  }
+
+  /**
+   * Archive an account group
+   */
+  async archiveGroup(groupId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.post(`/groups/${groupId}/archive`, {}, organizationId);
+  }
+
+  /**
+   * Delete an account group
+   */
+  async deleteAccountGroup(groupId: string, organizationId?: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.delete(`/groups/${groupId}`, organizationId);
+  }
 }
 
 export const accountsApi = new AccountsApiService();
+
+// Convenience exports for group-related functions
+export const getGroupSettings = (groupId: string, organizationId?: string) =>
+  accountsApi.getGroupSettings(groupId, organizationId);
+
+export const updateGroupSettings = (groupId: string, settings: Record<string, any>, organizationId?: string) =>
+  accountsApi.updateGroupSettings(groupId, settings, organizationId);
+
+export const exportGroupSettings = (groupId: string, organizationId?: string) =>
+  accountsApi.exportGroupSettings(groupId, organizationId);
+
+export const importGroupSettings = (groupId: string, data: any, organizationId?: string) =>
+  accountsApi.importGroupSettings(groupId, data, organizationId);
+
+export const archiveGroup = (groupId: string, organizationId?: string) =>
+  accountsApi.archiveGroup(groupId, organizationId);
+
+export const deleteAccountGroup = (groupId: string, organizationId?: string) =>
+  accountsApi.deleteAccountGroup(groupId, organizationId);

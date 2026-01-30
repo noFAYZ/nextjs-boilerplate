@@ -7,6 +7,16 @@
 import { envelopeApi } from '@/lib/services/envelope-api';
 import type { ApiResponse } from '@/lib/types/crypto';
 
+// Budget Query Keys Factory
+export const budgetKeys = {
+  all: ['budgets'] as const,
+  lists: () => [...budgetKeys.all, 'list'] as const,
+  list: (params?: any) => [...budgetKeys.lists(), params] as const,
+  detail: (id: string) => [...budgetKeys.all, 'detail', id] as const,
+  analytics: () => [...budgetKeys.all, 'analytics'] as const,
+  summary: () => [...budgetKeys.all, 'summary'] as const,
+};
+
 // Query Keys Factory
 export const envelopeKeys = {
   all: ['envelopes'] as const,
