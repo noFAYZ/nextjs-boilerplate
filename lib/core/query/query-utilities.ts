@@ -5,7 +5,10 @@
  * Minimal, focused tools for better cache management and debugging.
  */
 
+import { useEffect, useState } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/lib/features/auth/stores';
+import { useOrganizationStore } from '@/lib/features/organization/stores';
 
 // ============================================================================
 // CACHE MONITORING
@@ -231,6 +234,47 @@ export function getQueryMemory(queryClient: QueryClient) {
       sizeKB: (size / 1024).toFixed(2),
     }))
     .sort((a, b) => parseFloat(b.sizeKB) - parseFloat(a.sizeKB));
+}
+
+// ============================================================================
+// AUTH & ORGANIZATION HOOKS
+// ============================================================================
+
+/**
+ * Hook to check if authentication is ready for data fetching
+ * Returns true once auth has completed initialization
+ */
+export function useAuthReady() {
+  const { user, isInitialized } = useAuthStore();
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
+  useEffect(() => {
+    // Auth is ready when we've completed initialization
+    setIsAuthReady(isInitialized);
+  }, [isInitialized]);
+
+  return {
+    isAuthReady,
+    user,
+    isInitialized,
+  };
+}
+
+/**
+ * Helper to get organization ID from context store or explicit parameter
+ * Falls back to selected organization from store if not provided
+ */
+export function useContextOrganizationId(organizationId?: string): string | undefined {
+  // Explicit orgId takes precedence
+  if (organizationId) return organizationId;
+
+  // Otherwise get from store (gets current org at execution time, not creation time)
+  try {
+    const orgId = useOrganizationStore.getState().selectedOrganizationId;
+    return orgId || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 // ============================================================================

@@ -1,0 +1,44 @@
+/**
+ * Subscription Mutations - Stub implementations for subscription operations
+ */
+
+import { useQuery } from '@tanstack/react-query';
+
+export function useSubscriptionPlans() {
+  return useQuery({
+    queryKey: ['subscriptions', 'plans'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/subscriptions/plans`);
+        if (!response.ok) throw new Error('Failed to fetch plans');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to fetch subscription plans:', error);
+        return { success: false, data: [] };
+      }
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour
+    retry: false,
+  });
+}
+
+export function useUpgradeBillingSubscription() {
+  return {
+    mutate: async (planId: string) => {
+      try {
+        const response = await fetch(`/api/subscriptions/upgrade`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId }),
+        });
+        if (!response.ok) throw new Error('Failed to upgrade subscription');
+        return response.json();
+      } catch (error) {
+        console.error('Failed to upgrade subscription:', error);
+        throw error;
+      }
+    },
+    isLoading: false,
+    error: null,
+  };
+}
