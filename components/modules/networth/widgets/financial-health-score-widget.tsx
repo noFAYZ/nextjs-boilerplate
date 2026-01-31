@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, memo } from 'react';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { Card } from '@/components/ui/card';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

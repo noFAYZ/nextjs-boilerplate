@@ -5,7 +5,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { settingsApi } from '@/lib/services/settings-api';
+import { settingsApi } from '@/lib/features/settings/services';
 import type {
   UserSettings,
   UpdateSettingsRequest,

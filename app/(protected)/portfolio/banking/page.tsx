@@ -14,7 +14,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useOrganizationBankingAccounts } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationBankingAccounts } from '@/lib/features/organization/queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import {

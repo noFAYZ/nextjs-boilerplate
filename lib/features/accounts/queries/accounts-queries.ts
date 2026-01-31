@@ -4,7 +4,7 @@ import {
   useQueryClient,
   queryOptions,
 } from '@tanstack/react-query';
-import { accountsApi } from '@/lib/services/accounts-api';
+import { accountsApi } from '@/lib/features/accounts/services';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useContextOrganizationId as useContextOrganizationIdHelper } from '@/lib/core/query';
 import { useOrganizationStore } from '@/lib/features/organization/stores';

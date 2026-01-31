@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback, memo } from 'react';
 import { ArrowLeftIcon, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { useSubscriptions } from '@/lib/queries';
+import { useSubscriptions } from '@/lib/features/subscriptions/queries';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/features/subscriptions/services';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';
 import Link from 'next/link';

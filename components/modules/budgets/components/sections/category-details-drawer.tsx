@@ -5,7 +5,7 @@
  * Shows detailed view of a budget category with transactions
  */
 
-import { useBudget } from '@/lib/queries';
+// TODO: Import useBudget when query hook is implemented
 import {
   Sheet,
   SheetContent,
@@ -37,7 +37,9 @@ export function CategoryDetailsDrawer({
   organizationId,
   onEdit,
 }: CategoryDetailsDrawerProps) {
-  const { data: budget, isLoading } = useBudget(budgetId, {}, organizationId);
+  // TODO: Implement useBudget query hook
+  const budget = null;
+  const isLoading = false;
 
   if (!budget && !isLoading) {
     return null;

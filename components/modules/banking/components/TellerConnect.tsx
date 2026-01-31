@@ -24,7 +24,7 @@ import { useToast } from "@/lib/shared/hooks";
 import React from 'react';
 
 import { useBankingStore } from '@/lib/features/banking/stores';
-import { bankingMutations } from '@/lib/queries/banking-queries';
+import { bankingMutations } from '@/lib/features/banking/queries';
 import type { TellerConnectEnrollment, TellerConnectConfig } from '@/lib/types/banking';
 import { cn } from '@/lib/utils';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';

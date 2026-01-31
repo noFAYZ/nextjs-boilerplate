@@ -40,12 +40,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
-  useTransactionCategories,
+  useCategories as useTransactionCategories,
   useCreateCustomCategory,
   useUpdateCategory,
   useDeleteCategory,
   useToggleCategoryStatus,
-} from '@/lib/queries/use-transaction-categories-data';
+} from '@/lib/features/categories/queries';
 
 interface Category {
   id: string;

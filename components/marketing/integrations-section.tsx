@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { SparklesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/features/subscriptions/services";
 import { DuoIconsBank, FluentPlugConnectedCheckmark20Filled, HeroiconsWallet16Solid, SolarCalculatorBoldDuotone, SolarChartSquareBoldDuotone, TablerPlugConnected } from '@/components/icons/icons';
 import { BgGradient } from './bg/bg-gradient';
 import { ScrollReveal } from './scroll-reveal';

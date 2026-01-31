@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { ResponsiveContainer, Area, AreaChart, Tooltip } from 'recharts';
 import { cn } from '@/lib/utils';
-import { zerionChartService, ChartDataPoint as ZerionDataPoint } from '@/lib/services/zerion-chart-api';
+import { zerionChartService, ChartDataPoint as ZerionDataPoint } from '@/lib/features/crypto/services';
 
 export type TimePeriod = '1D' | '7D' | '1M' | '3M' | '6M' | '1Y' | 'ALL';
 

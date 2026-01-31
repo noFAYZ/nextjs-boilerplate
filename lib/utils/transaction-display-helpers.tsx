@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { STATUS_COLORS, TYPE_COLORS, TYPE_BG_COLORS } from '@/lib/constants/transaction-constants';
 import type { UnifiedTransaction } from '@/lib/types';
 import { GgArrowsExchange } from '@/components/icons/icons';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/features/subscriptions/services';
 
 /**
  * Gets the CSS classes for a transaction status badge

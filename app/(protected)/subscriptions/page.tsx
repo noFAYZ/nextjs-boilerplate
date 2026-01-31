@@ -10,7 +10,7 @@ import { SubscriptionList } from "@/components/modules/subscriptions/components/
 import { SubscriptionFormModal } from "@/components/modules/subscriptions/components/subscription-form-modal";
 import { SubscriptionsFloatingToolbar } from "@/components/modules/subscriptions/components/subscriptions-floating-toolbar";
 import { useSubscriptionUIStore } from '@/lib/features/subscriptions/stores';
-import { useDeleteSubscription, useSubscriptions } from "@/lib/queries/use-subscription-data";
+import { useDeleteSubscription, useSubscriptions } from "@/lib/features/subscriptions/queries";
 import type { UserSubscription } from "@/lib/types/subscription";
 import {
   AlertDialog,

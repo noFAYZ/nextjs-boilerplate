@@ -37,9 +37,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useBankingStore } from '@/lib/features/banking/stores';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
-import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
-import { cryptoKeys } from '@/lib/queries/crypto-queries';
-import { bankingKeys } from '@/lib/queries/banking-queries';
+import { sseManager, SSEMessage } from '@/lib/shared/services/sse-manager';
+import { cryptoKeys } from '@/lib/features/crypto/queries';
+import { bankingKeys } from '@/lib/features/banking/queries';
 import { WalletSyncProgress } from '@/lib/shared/hooks';
 
 interface RealtimeSyncConnectionOptions {

@@ -28,15 +28,36 @@ console.log('Global error handler caught an error:', appError);
       }
     };
 
+    // Suppress async_hooks module error
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('async_hooks') || event.reason?.toString?.().includes('async_hooks')) {
+        console.warn('Suppressing async_hooks dynamic import error');
+        event.preventDefault();
+      }
+    };
+
+    const handleError = (event: ErrorEvent) => {
+      if (event.message?.includes('async_hooks') || event.filename?.includes('async_hooks')) {
+        console.warn('Suppressing async_hooks error');
+        event.preventDefault();
+        return true;
+      }
+      return false;
+    };
+
     // Attach to window for API client to trigger
     if (typeof window !== 'undefined') {
       (window as Window & { showBackendError?: (error: unknown) => void }).showBackendError = handleBackendError;
+      window.addEventListener('unhandledrejection', handleUnhandledRejection);
+      window.addEventListener('error', handleError);
     }
 
     return () => {
       // Cleanup
       if (typeof window !== 'undefined') {
         delete (window as Window & { showBackendError?: (error: unknown) => void }).showBackendError;
+        window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        window.removeEventListener('error', handleError);
       }
     };
   }, []);

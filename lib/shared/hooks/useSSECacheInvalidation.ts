@@ -10,8 +10,8 @@
 
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { SSEManager, SSEChannel, SSEMessage } from '@/lib/services/sse-manager';
-import { SSECacheHandler } from '@/lib/services/sse-cache-handler';
+import { SSEManager, SSEChannel, SSEMessage } from '@/lib/shared/services';
+import { SSECacheHandler } from '@/lib/shared/services';
 import { useAuthStore } from '@/lib/features/auth/stores';
 
 export function useSSECacheInvalidation() {

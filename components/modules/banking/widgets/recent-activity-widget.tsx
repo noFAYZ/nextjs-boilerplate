@@ -2,9 +2,9 @@
 
 import { useMemo, memo } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { useAllTransactions } from '@/lib/queries/use-accounts-data';
-import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
-import { useMerchants } from '@/lib/queries/use-transactions-data';
+import { useAllTransactions } from '@/lib/features/accounts/queries';
+import { useCategories as useTransactionCategories } from '@/lib/features/categories/queries';
+import { useMerchants } from '@/lib/features/transactions/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Button } from '@/components/ui/button';

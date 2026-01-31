@@ -13,7 +13,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
-import { useBudgets, useDashboardMetrics } from '@/lib/queries';
+// TODO: Add query hooks for useBudgets and useDashboardMetrics
 import { usePostHogPageView } from '@/lib/shared/hooks';
 import { useBudgetAllocation } from '@/lib/features/budgets/hooks';
 import { useAvailableToBudget } from '@/lib/features/budgets/hooks';
@@ -51,14 +51,17 @@ export default function BudgetsV3Page() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Data queries
-  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics(organizationId);
-  const { data: budgets, isLoading: budgetsLoading } = useBudgets({}, organizationId);
+  // TODO: Implement useDashboardMetrics and useBudgets query hooks
+  const metrics = null;
+  const metricsLoading = false;
+  const budgets = null;
+  const budgetsLoading = false;
   const { availableToBudget, isLoading: accountsLoading } = useAvailableToBudget(organizationId);
 
   // Mutations
   const { mutate: allocateBudget, isPending: isAllocating } = useBudgetAllocation();
 
-  const isLoading = !isAuthReady || metricsLoading || budgetsLoading || accountsLoading;
+  const isLoading = !isAuthReady || accountsLoading;
 
   if (!isAuthReady) {
     return null;

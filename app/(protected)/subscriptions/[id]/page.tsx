@@ -58,9 +58,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSubscription, useDeleteSubscription } from "@/lib/queries/use-subscription-data";
-import { subscriptionsApi } from "@/lib/services/subscriptions-api";
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { useSubscription, useDeleteSubscription } from "@/lib/features/subscriptions/queries";
+import { subscriptionsApi } from "@/lib/features/subscriptions/services";
+import { getLogoUrl } from "@/lib/features/subscriptions/services";
 import { cn } from "@/lib/utils";
 import { useToast } from '@/lib/shared/hooks';
 import { SubscriptionFormModal } from "@/components/modules/subscriptions/components/subscription-form-modal";

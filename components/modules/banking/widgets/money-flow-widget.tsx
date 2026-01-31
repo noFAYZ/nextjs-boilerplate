@@ -20,9 +20,9 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRightLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useOrganizationBankingTransactions, useOrganizationBankingGroupedAccounts } from '@/lib/queries/use-organization-data-context';
-import { useOrganizationCryptoWallets } from '@/lib/queries/use-organization-data-context';
-import { useSubscriptions } from '@/lib/queries';
+// TODO: useOrganizationBankingTransactions and useOrganizationBankingGroupedAccounts need to be implemented
+import { useOrganizationCryptoWallets } from '@/lib/features/organization/queries';
+import { useSubscriptions } from '@/lib/features/subscriptions/queries';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';
 import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { WidgetSkeleton } from '@/components/ui/widget-skeleton';
@@ -221,8 +221,11 @@ export function layoutFlowNodes(basicNodes: Array<Omit<FlowNode, 'x' | 'y' | 'he
 /* ------------------------ React Component (UI) ------------------------ */
 function MoneyFlowWidgetComponent() {
   // Data hooks (organization-aware)
-  const { data: transactionsResponse, isLoading: transactionsLoading } = useOrganizationBankingTransactions({ limit: 1000 });
-  const { data: accountsResponse, isLoading: accountsLoading } = useOrganizationBankingGroupedAccounts();
+  // TODO: Implement useOrganizationBankingTransactions and useOrganizationBankingGroupedAccounts query hooks
+  const transactionsResponse = null;
+  const transactionsLoading = false;
+  const accountsResponse = null;
+  const accountsLoading = false;
   const { data: cryptoWalletsResponse, isLoading: cryptoLoading } = useOrganizationCryptoWallets();
   const { data: subscriptionsResponse, isLoading: subscriptionsLoading } = useSubscriptions({ status: 'ACTIVE' });
   const { isRefetching } = useOrganizationRefetchState();

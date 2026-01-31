@@ -135,57 +135,76 @@
 }
 
 .light-pro {
-  --background: oklch(0.9856 0.0084 56.3169);
-  --foreground: oklch(0.3471 0.0299 97.0894);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2174 0.0019 106.5582);
-  --popover: oklch(1.0000 0 0);
-  --popover-foreground: oklch(0.2699 0.0211 103.7300);
-  --primary: oklch(0.6571 0.1369 40.4555);
-  --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.98 0.01 30);
-  --secondary-foreground: oklch(0.4358 0.0191 103.2508);
-  --muted: oklch(0.9566 0.0068 92.6877);
-  --muted-foreground: oklch(0.6059 0.0075 97.4233);
-  --accent: oklch(0.9248 0.0125 91.5235);
-  --accent-foreground: oklch(0.2699 0.0211 103.7300);
-  --destructive: #d60000;
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.8847 0.0069 97.3627);
-  --input: oklch(0.8118 0.0152 102.5130);
-  --ring: oklch(0.8507 0.0536 40.1324);
-  --chart-1: oklch(0.5654 0.1326 44.2407);
-  --chart-2: oklch(0.3816 0.0713 76.6811);
-  --chart-3: oklch(0.8842 0.0302 94.3733);
-  --chart-4: oklch(0.8806 0.0432 298.7728);
-  --chart-5: oklch(0.5677 0.1418 42.7476);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.3590 0.0051 106.6524);
-  --sidebar-primary: oklch(0.6236 0.1448 40.2213);
-  --sidebar-primary-foreground: oklch(0.9881 0 0);
-  --sidebar-accent: oklch(0.9245 0.0138 92.9892);
-  --sidebar-accent-foreground: oklch(0.3250 0 0);
-  --sidebar-border: oklch(0.9401 0 0);
-  --sidebar-ring: oklch(0.7731 0 0);
-  --font-sans: Readex Pro, ui-sans-serif, sans-serif, system-ui;
-
-  --radius: 0.2rem;
-
-  --tracking-normal: -0.025em;
-  --spacing: 0.23rem;
-  --shadow-x: 0px;
-  --shadow-y: 3px;
-  --shadow-blur: 1px;
-  --shadow-spread: -1.5px;
-  --shadow-opacity: 0.45;
-  --shadow-color: #c7c7c7;
-  --shadow-2xs: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.23);
-  --shadow-xs: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.23);
-  --shadow-sm: 0px 3px 1px -1.5px hsl(0 0% 78.0392% / 0.45), 0px 1px 2px -2.5px hsl(0 0% 78.0392% / 0.45);
-
-  --primary-light: oklch(0.75 0.183 55.934);
-    --primary-dark: oklch(0.705 0.213 47.604);
-    --primary-ring: oklch(0.646 0.222 41.116);
+   /* Claude-like "Paper" Backgrounds (Slightly warm off-white) */
+   --background: #ffff; 
+   --foreground: oklch(0.22 0.015 60); /* Deep charcoal ink */
+   
+   --card: oklch(1 0 0);
+   --card-foreground: oklch(0.22 0.015 60);
+   
+   --popover: oklch(1 0 0);
+   --popover-foreground: oklch(0.22 0.015 60);
+ 
+   /* Anthropic-style Primary (Subtle, professional orange/terracotta) */
+   --primary: oklch(0.58 0.12 45); 
+   --primary-foreground: oklch(0.99 0 0);
+   --primary-light: oklch(0.72 0.10 50);
+   --primary-dark: oklch(0.45 0.14 40);
+   --primary-ring: oklch(0.58 0.12 45 / 0.3);
+ 
+   /* Secondary (The "Claude" beige/stone) */
+   --secondary: oklch(0.94 0.01 60);
+   --secondary-foreground: oklch(0.35 0.02 60);
+ 
+   --muted: oklch(0.96 0.005 60);
+   --muted-foreground: oklch(0.52 0.02 60); 
+ 
+   --accent: oklch(0.92 0.015 60);
+   --accent-foreground: oklch(0.22 0.015 60);
+ 
+   --destructive: oklch(0.55 0.18 25);
+   --destructive-foreground: oklch(0.99 0 0);
+ 
+   --border: oklch(0.89 0.02 60);
+   --input: oklch(0.91 0.01 60);
+   --ring: oklch(0.58 0.12 45);
+ 
+   /* Sidebar (Claude's cleaner UI) */
+   --sidebar: oklch(0.97 0.005 60);
+   --sidebar-foreground: oklch(0.25 0.02 60);
+   --sidebar-primary: oklch(0.58 0.12 45);
+   --sidebar-primary-foreground: oklch(1 0 0);
+   --sidebar-accent: oklch(0.94 0.01 60);
+   --sidebar-accent-foreground: oklch(0.22 0.015 60);
+   --sidebar-border: oklch(0.91 0.01 60);
+   --sidebar-ring: oklch(0.58 0.12 45 / 0.5);
+ 
+   /* --- Missing Chart Variables --- */
+   --chart-1: oklch(0.58 0.12 45);
+   --chart-2: oklch(0.65 0.10 160);
+   --chart-3: oklch(0.55 0.08 250);
+   --chart-4: oklch(0.82 0.08 90);
+   --chart-5: oklch(0.60 0.12 300);
+   --chart-accent: oklch(0.58 0.12 220); /* Missing in your set */
+   --chart-positive: oklch(0.62 0.14 150);
+   --chart-negative: oklch(0.58 0.18 25);
+   --chart-neutral: oklch(0.75 0.02 60);
+   
+ 
+   /* Typography & Layout */
+   --font-sans: 'Readex Pro', ui-sans-serif, sans-serif;
+   --radius: 0.75rem;
+   --spacing: 0.23rem;
+   --tracking-normal: -0.015em;
+ 
+   /* --- Full Standardized Shadow Scale --- */
+   --shadow-2xs: 0 1px 2px oklch(0 0 0 / 0.05);
+   --shadow-xs: 0 1px 3px oklch(0 0 0 / 0.1);
+   --shadow-sm: 0 2px 4px oklch(0 0 0 / 0.08);
+   --shadow: 0 4px 6px -1px oklch(0 0 0 / 0.1), 0 2px 4px -2px oklch(0 0 0 / 0.1);
+   --shadow-md: 0 10px 15px -3px oklch(0 0 0 / 0.08);
+   --shadow-lg: 0 20px 25px -5px oklch(0 0 0 / 0.1);
+   --shadow-xl: 0 25px 50px -12px oklch(0 0 0 / 0.2);
 }
 
 .dark-pro {

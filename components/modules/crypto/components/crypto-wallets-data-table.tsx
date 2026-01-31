@@ -50,7 +50,7 @@ import {
 import { Toggle } from '@/components/ui/toggle';
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { CryptoWallet } from "@/lib/types/crypto";
-import { useDeleteCryptoWallet, useSyncCryptoWallet } from "@/lib/queries";
+import { useDeleteCryptoWallet, useSyncCryptoWallet } from "@/lib/features/crypto/queries";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { createAvatar } from "@dicebear/core";

@@ -59,7 +59,7 @@ import {
 import { Toggle } from '@/components/ui/toggle';
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { BankAccount } from "@/lib/types/banking";
-import { bankingMutations } from "@/lib/queries/banking-queries";
+import { bankingMutations } from "@/lib/features/banking/queries";
 import { formatDistanceToNow } from "date-fns";
 
 interface BankAccountsDataTableProps {

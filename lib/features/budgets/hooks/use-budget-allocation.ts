@@ -6,8 +6,8 @@
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { budgetApi } from '@/lib/services/budget-api';
-import { budgetKeys } from '@/lib/queries/budget-queries';
+import { budgetApi } from '@/lib/features/budgets/services';
+import { budgetKeys } from '@/lib/features/budgets/queries';
 
 interface AllocateRequest {
   budgetId: string;

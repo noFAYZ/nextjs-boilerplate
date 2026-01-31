@@ -15,9 +15,8 @@ import { Separator } from '@/components/ui/separator';
 
 import {
   useOrganizations,
-  usePersonalOrganization,
 } from '@/lib/features/organization/queries';
-import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
+import { useOrganizationUIStore } from '@/lib/features/organization/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useOrgSwitcher } from '@/lib/features/organization/hooks';
 import { OrgSwitchingOverlay } from './org-switching-overlay';
@@ -50,7 +49,7 @@ const OrgAvatar = React.memo(function OrgAvatar({
         sizeClasses[size]
       )}
     >
-      {org.icon ?? org.name[0]?.toUpperCase()}
+      {org.icon ?? org.name?.[0]?.toUpperCase()}
     </div>
   );
 });
@@ -76,10 +75,13 @@ export function OrganizationSwitcher({
   const [switchingOrg, setSwitchingOrg] = React.useState<Organization | null>(null);
   const [switchError, setSwitchError] = React.useState<string | null>(null);
 
-  const { data: organizations = [], isLoading: orgsLoading } =
+  const { data: orgsResponse, isLoading: orgsLoading } =
     useOrganizations();
-  const { data: personalOrg, isLoading: personalLoading } =
-    usePersonalOrganization();
+
+  // Extract data from API responses
+  const organizations = Array.isArray(orgsResponse)
+    ? orgsResponse
+    : (orgsResponse as any)?.data ?? [];
 
   const {
     selectedOrganizationId,
@@ -90,13 +92,13 @@ export function OrganizationSwitcher({
   const { setSelectedOrganization } = useOrganizationStore();
   const { switchOrganization } = useOrgSwitcher();
 
-  const isLoading = orgsLoading || personalLoading;
+  const isLoading = orgsLoading;
 
   const currentOrg = React.useMemo(
     () =>
       organizations.find((o) => o.id === selectedOrganizationId) ??
-      personalOrg,
-    [organizations, selectedOrganizationId, personalOrg]
+      organizations[0],
+    [organizations, selectedOrganizationId]
   );
 
   const handleSelect = React.useCallback(

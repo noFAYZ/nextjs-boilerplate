@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Settings, Palette, Bell, Shield, Eye, Database, Wallet, TrendingUp, Activity, Globe, Save, RotateCcw, AlertCircle, Loader2, Moon, Sun, Monitor } from 'lucide-react';
 import { useToast } from '@/lib/shared/hooks';
 import { cn } from '@/lib/utils';
-import { useUserProfile, useUpdateUserProfile } from '@/lib/queries';
+import { useUserProfile, useUpdateUserProfile } from '@/lib/features/auth/queries';
 import { DEFAULT_USER_PREFERENCES } from '@/lib/types/settings';
 import type { UserPreferences } from '@/lib/types/settings';
 import { LetsIconsSettingLineDuotone } from '@/components/icons';

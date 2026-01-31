@@ -25,7 +25,7 @@ import { botttsNeutral } from "@dicebear/collection";
 import { ChainBadge } from "./ui/ChainBadge";
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { CryptoWallet } from "@/lib/types/crypto";
-import { useSyncCryptoWallet } from "@/lib/queries";
+import { useSyncCryptoWallet } from "@/lib/features/crypto/queries";
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { useRouter } from "next/navigation";
 import {

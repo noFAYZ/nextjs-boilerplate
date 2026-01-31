@@ -24,7 +24,7 @@ import {
   bankingQueries,
   bankingMutations,
 } from '@/lib/features/banking/queries';
-import { bankingApi } from '@/lib/services/banking-api';
+import { bankingApi } from '@/lib/features/banking/services';
 import { invalidateByDependency } from '@/lib/core/query';
 import { useAuthReady, useContextOrganizationId } from '@/lib/core/query';
 import { useBankingUIStore } from '@/lib/features/banking/stores';

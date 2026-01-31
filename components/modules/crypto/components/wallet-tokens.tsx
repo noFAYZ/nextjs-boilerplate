@@ -253,7 +253,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
       {!isBeginnerMode && (
         <div className="flex flex-col sm:flex-row gap-2 px-4 py-2">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
                 placeholder="Search tokens..."
                 value={searchTerm}
@@ -263,7 +263,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
             </div>
             <div className="flex gap-2">
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'value' | 'change' | 'name')}>
-                <SelectTrigger className="w-[100px] h-8 text-xs">
+                <SelectTrigger className="  text-xs" size='sm' variant='outline3'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -272,8 +272,8 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                   <SelectItem value="name">Name</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterBy} onValueChange={(value) => setFilterBy(value as 'all' | 'profitable' | 'losing' | 'major')}>
-                <SelectTrigger className="w-[90px] h-8 text-xs">
+              <Select value={filterBy} onValueChange={(value) => setFilterBy(value as 'all' | 'profitable' | 'losing' | 'major')} >
+                <SelectTrigger className=" text-xs" size='sm' variant='outline3'>
                   <Filter className="h-3 w-3" />
                   <SelectValue />
                 </SelectTrigger>
@@ -292,17 +292,17 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
       {/* Conditional Rendering based on View Mode */}
       {!isBeginnerMode ? (
         /* Beginner View - Cards */
-        <div className="space-y-3 ">
+        <div className="space-y-2 ">
           {paginatedTokens?.map((token) => (
           <Card key={token.id} className={cn(
-            "group transition-all duration-100 hover:shadow-md relative py-2",
+            "group transition-all duration-75 hover:shadow-md relative   ",
             token.dayChangePct && token.dayChangePct > 0 ? "bg-green-50/50 dark:bg-green-950/20" :
             token.dayChangePct && token.dayChangePct < 0 ? "bg-red-50/50 dark:bg-red-950/20" :
             "bg-background"
           )}>
-            <PerformanceBadge token={token} />
+         {/*    <PerformanceBadge token={token} /> */}
             
-            <CardContent >
+     
               <div className="flex items-center gap-3">
                 <TokenIcon token={token} isLoading={isLoading} />
 
@@ -316,14 +316,16 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                     {isLoading ? (
                       <TokenSymbolSkeleton />
                     ) : (
-                      <Badge variant="outline" className="text-xs px-1 py-0">
+                      <Badge variant="max" className="text-xs rounded-xs px-1 py-0">
                         {token.asset.symbol}
                       </Badge>
                     )}
-                    <div className="flex items-center gap-1">
-                    <div className="w-12 bg-muted rounded-full h-2">
+             
+                  </div>
+                     <div className="flex items-center gap-1 ">
+                    <div className="w-12 bg-muted rounded-xs h-3">
                       <div
-                        className="bg-primary h-2 rounded-full transition-all duration-100"
+                        className="bg-primary h-2 rounded-xs transition-all duration-100"
                         style={{ width: isLoading ? '0%' : `${Math.min(((token.balanceUsd / totalValue) * 100), 100)}%` }}
                       />
                     </div>
@@ -331,14 +333,8 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                       {isLoading ? '—' : `${((token.balanceUsd / totalValue) * 100).toFixed(1)}%`}
                     </span>
                   </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {isLoading ? (
-                      <TokenBalanceSkeleton className="h-3 w-24" />
-                    ) : (
-                      `${Number(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} ${token.asset.symbol}`
-                    )}
-                  </p>
+
+
                   {isAggregated && Array.isArray(token?.walletAddresses) && token.walletAddresses.length > 0 && (
                     <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
                       <Wallet className="h-3 w-3 shrink-0" />
@@ -354,7 +350,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                   )}
                 </div>
 
-                <div className="text-right">
+                <div className="flex flex-col text-right items-end">
                   <div className="flex items-center gap-2 mb-1">
                     {isLoading ? (
                       <TokenBalanceSkeleton />
@@ -368,7 +364,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                     )}
                     {!isLoading && token.dayChangePct !== undefined && (
                       <div className={cn(
-                        "flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs",
+                        "  flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs",
                         token.dayChangePct >= 0
                           ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                           : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
@@ -395,6 +391,14 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                       {((token.balanceUsd / totalValue) * 100).toFixed(1)}%
                     </span>
                   </div>*/}
+    <p className="text-xs text-muted-foreground truncate">
+                    {isLoading ? (
+                      <TokenBalanceSkeleton className="h-3 w-24" />
+                    ) : (
+                      `${Number(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} ${token.asset.symbol}`
+                    )}
+                  </p>
+                  
                 </div>
                 
            
@@ -419,7 +423,7 @@ export function WalletTokens({ tokens, isLoading, selectedChain, isAggregated = 
                   </div>
                 </div>
               )}
-            </CardContent>
+         
           </Card>
           ))}
         </div>

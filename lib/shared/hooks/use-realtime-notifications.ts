@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useNotifications } from "./use-notifications"
-import { useCryptoWallets } from "@/lib/queries"
+import { useCryptoWallets } from "@/lib/features/crypto/queries"
 
 export function useRealtimeNotifications() {
   const notifications = useNotifications()

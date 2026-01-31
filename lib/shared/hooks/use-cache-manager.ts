@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { cryptoKeys } from "@/lib/queries/crypto-queries";
+import { cryptoKeys } from "@/lib/features/crypto/queries";
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 
 /**

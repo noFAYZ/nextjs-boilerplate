@@ -19,7 +19,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { goalsApi } from '@/lib/services/goals-api';
+import { goalsApi } from '@/lib/features/goals/services';
 import { useAuthReady } from '@/lib/core/query';
 import type {
   CreateGoalRequest,

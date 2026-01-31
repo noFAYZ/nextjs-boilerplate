@@ -11,7 +11,7 @@ import { CheckCircle, Loader2, Mail, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '@/components/icons';
 import { SolarCheckCircleBoldDuotone, SolarInboxInBoldDuotone } from '@/components/icons/icons';
-import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
+import { useJoinWaitlist } from '@/lib/shared/queries';
 import { useToast } from '@/lib/shared/hooks';
 import { useGTM } from '@/lib/shared/hooks';
 import { Card } from '@/components/ui/card';

@@ -68,7 +68,7 @@ export const QUERY_DEPENDENCIES: Record<string, InvalidationConfig> = {
   'categories:create': {
     keys: [
       categoriesKeys.list(),
-      categoriesKeys.tree(),
+      // TODO: categoriesKeys.tree() needs to be implemented
     ],
     refetchType: 'background',
   },
@@ -76,7 +76,7 @@ export const QUERY_DEPENDENCIES: Record<string, InvalidationConfig> = {
   'categories:update': {
     keys: [
       categoriesKeys.list(),
-      categoriesKeys.tree(),
+      // TODO: categoriesKeys.tree() needs to be implemented
     ],
     refetchType: 'background',
   },
@@ -84,14 +84,15 @@ export const QUERY_DEPENDENCIES: Record<string, InvalidationConfig> = {
   'categories:delete': {
     keys: [
       categoriesKeys.list(),
-      categoriesKeys.tree(),
+      // TODO: categoriesKeys.tree() needs to be implemented
     ],
     refetchType: 'background',
   },
 
   'categories:mapAccount': {
     keys: [
-      categoriesKeys.withAccounts?.(undefined) || categoriesKeys.list?.() || [],
+      categoriesKeys.list(),
+      // TODO: categoriesKeys.withAccounts() needs to be implemented
       bankingKeys.accounts?.() || [],
     ] as (readonly unknown[])[],
     refetchType: 'background',
@@ -99,7 +100,8 @@ export const QUERY_DEPENDENCIES: Record<string, InvalidationConfig> = {
 
   'categories:unmapAccount': {
     keys: [
-      categoriesKeys.withAccounts?.(undefined) || categoriesKeys.list?.() || [],
+      categoriesKeys.list(),
+      // TODO: categoriesKeys.withAccounts() needs to be implemented
       bankingKeys.accounts?.() || [],
     ] as (readonly unknown[])[],
     refetchType: 'background',

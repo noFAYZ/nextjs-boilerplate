@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { currencyService, type FiatRates, type CurrencyInfo } from '@/lib/services/currency-api';
-import { useFiatRates, useAvailableCurrencies } from '@/lib/queries/use-currency-data';
+import { currencyService, type FiatRates, type CurrencyInfo } from '@/lib/shared/services';
+import { useFiatRates, useAvailableCurrencies } from '@/lib/shared/queries';
 
 interface CurrencyContextValue {
   // Current state

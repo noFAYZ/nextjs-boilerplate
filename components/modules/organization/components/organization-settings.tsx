@@ -11,9 +11,10 @@
 
 import { useState } from 'react';
 import { Trash2, Edit2 } from 'lucide-react';
-import { useOrganization, useDeleteOrganization } from '@/lib/features/organization/queries';
+import { useOrganization } from '@/lib/features/organization/queries';
+// TODO: useDeleteOrganization needs to be implemented
 import { useCurrentUser } from '@/lib/features/auth/queries';
-import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
+import { useOrganizationUIStore } from '@/lib/features/organization/stores';
 import { CreateOrganizationModal } from './create-organization-modal';
 import { MembersList } from './members-list';
 import type { Organization } from '@/lib/types/organization';

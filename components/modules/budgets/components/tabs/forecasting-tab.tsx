@@ -5,7 +5,7 @@
  * Budget forecasting and predictions view
  */
 
-import { useEnvelopeForecast, useSpendingInsights, useBudgetForecast, useEnvelopes } from '@/lib/queries';
+// TODO: Import forecast and insights query hooks when implemented
 import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,17 +22,17 @@ export function ForecastingTab() {
   const organizationId = useOrganizationStore((state) => state.selectedOrganizationId);
   const { selectedEnvelopeId, daysAhead, showConfidence, showRecommendations } = forecasting;
 
+  // TODO: Implement useEnvelopes, useEnvelopeForecast, and useSpendingInsights query hooks
   // Fetch all envelopes for the selector
-  const { data: envelopesData, isLoading: envelopesLoading } = useEnvelopes();
+  const envelopesData = null;
+  const envelopesLoading = false;
   const envelopes = envelopesData?.data || [];
 
-  const { data: forecast, isLoading: forecastLoading } = useEnvelopeForecast(
-    selectedEnvelopeId,
-    daysAhead,
-    organizationId
-  );
+  const forecast = null;
+  const forecastLoading = false;
 
-  const { data: insights, isLoading: insightsLoading } = useSpendingInsights(selectedEnvelopeId, organizationId);
+  const insights = null;
+  const insightsLoading = false;
 
   const isLoading = forecastLoading || insightsLoading || envelopesLoading;
 

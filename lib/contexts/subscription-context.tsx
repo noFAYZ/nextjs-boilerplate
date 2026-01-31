@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
-import { subscriptionService } from '@/lib/services/subscription-service';
+import { subscriptionService } from '@/lib/features/subscriptions/services';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import type { 
   SubscriptionPlan,

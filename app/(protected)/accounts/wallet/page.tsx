@@ -11,9 +11,8 @@ import Link from "next/link";
 import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts";
 
 // ✅ Import TanStack Query hooks
-import { useAggregatedCryptoWallet } from "@/lib/queries";
-import { useOrganizationCryptoPortfolio } from "@/lib/queries/use-organization-data-context";
-import { useSyncAllCryptoWallets } from "@/lib/queries";
+import { useAggregatedCryptoWallet, useSyncAllCryptoWallets } from "@/lib/features/crypto/queries";
+import { useOrganizationCryptoPortfolio } from '@/lib/features/organization/queries';
 
 // ✅ Use centralized utilities
 import { getTopPerformingAssets, getTopNetworks } from "@/lib/utils";

@@ -38,7 +38,7 @@ import {
   useDisconnectProvider,
   useSyncProvider,
   useRefreshAllIntegrations,
-} from '@/lib/queries/integrations-queries';
+} from '@/lib/features/integrations/queries';
 import { useIntegrationsStore, integrationsSelectors } from '@/lib/features/integrations/stores';
 import { IntegrationProvider, IntegrationStatus } from '@/lib/types/integrations';
 import Link from 'next/link';

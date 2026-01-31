@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { envelopeApi } from '@/lib/services/envelope-api';
+import { envelopeApi } from '@/lib/features/budgets/services';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import {
   envelopesQueryOptions,
@@ -14,7 +14,7 @@ import {
   envelopeRulesQueryOptions,
   allocationRuleQueryOptions,
   envelopeKeys,
-} from '@/lib/queries/envelope-queries';
+} from '@/lib/features/budgets/queries';
 import type {
   Envelope,
   CreateEnvelopeRequest,
@@ -24,7 +24,7 @@ import type {
   CreateAllocationRuleRequest,
   EnvelopePeriod,
   PeriodAnalytics,
-} from '@/lib/services/envelope-api';
+} from '@/lib/features/budgets/services';
 
 /**
  * Helper to get organization ID from context store or explicit parameter

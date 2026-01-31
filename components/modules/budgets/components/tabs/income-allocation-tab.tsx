@@ -5,7 +5,7 @@
  * AI-powered income distribution wizard
  */
 
-import { useIncomeAllocationSuggestions } from '@/lib/queries';
+import { useIncomeAllocationSuggestions } from '@/lib/features/budgets/queries';
 import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

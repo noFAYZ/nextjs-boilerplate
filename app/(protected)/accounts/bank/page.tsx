@@ -15,7 +15,7 @@ import { useTellerConnect } from '@/components/modules/banking/components/Teller
 import { BankAccount } from '@/lib/types/banking';
 import { BANKING_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 import { useBankingStore } from '@/lib/features/banking/stores';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/features/subscriptions/services';
 
 export default function BankAccountsPage() {
   // ✅ Server state from TanStack Query (provider connections)

@@ -47,7 +47,7 @@ import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { useOrganizationBankingAccounts, useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context"
+import { useOrganizationBankingAccounts, useOrganizationCryptoWallets } from '@/lib/features/organization/queries'
 import { useCreateGoal, useUpdateGoal } from "@/lib/features/goals/queries"
 import { useToast } from '@/lib/shared/hooks'
 import type {

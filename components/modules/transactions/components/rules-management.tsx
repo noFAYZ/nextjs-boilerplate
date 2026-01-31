@@ -52,7 +52,7 @@ import {
   useDuplicateRule,
   useTestAllRules,
 } from '@/lib/features/categories/queries';
-import { useTransactionCategories } from '@/lib/queries/use-transaction-categories-data';
+import { useCategories as useTransactionCategories } from '@/lib/features/categories/queries';
 import { SolarCheckCircleBoldDuotone, StreamlineFlexFilter2 } from '@/components/icons/icons';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
 

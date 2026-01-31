@@ -6,7 +6,7 @@ import {
   keepPreviousData,
   type InfiniteData
 } from '@tanstack/react-query';
-import { cryptoApi } from '@/lib/services/crypto-api';
+import { cryptoApi } from '@/lib/features/crypto/services';
 import { invalidateByDependency } from '@/lib/core/query';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';

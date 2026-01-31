@@ -17,7 +17,7 @@ import {
   Tooltip as RechartsTooltip,
 } from 'recharts';
 import { cn } from '@/lib/utils';
-import { zerionChartService } from '@/lib/services/zerion-chart-api';
+import { zerionChartService } from '@/lib/features/crypto/services';
 import {
   ChartContainer,
   ChartTooltip,

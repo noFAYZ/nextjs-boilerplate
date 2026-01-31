@@ -13,9 +13,9 @@ import * as z from 'zod';
 import {
   useCreateManualAccount,
   useAllAccounts,
-  useCreateCryptoWallet,
   useInvalidateTransactionCache,
-} from '@/lib/queries';
+} from '@/lib/features/accounts/queries';
+import { useCreateCryptoWallet } from '@/lib/features/crypto/queries';
 import { usePlaidIntegration } from '@/lib/features/integrations/hooks';
 import { AccountForm } from './account-form';
 import { StatementUpload } from './statement-upload';

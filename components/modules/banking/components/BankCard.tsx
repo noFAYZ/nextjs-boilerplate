@@ -28,7 +28,7 @@ import {
   SolarCheckCircleBoldDuotone,
   SolarClockCircleBoldDuotone,
 } from '@/components/icons/icons';
-import { useSyncBankAccount } from "@/lib/queries";
+import { useSyncBankAccount } from "@/lib/features/banking/queries";
 import { useBankingStore } from '@/lib/features/banking/stores';
 import { Card } from '@/components/ui/card';
 

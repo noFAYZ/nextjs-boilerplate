@@ -3,8 +3,8 @@
  * This file contains utilities to test the integration with backend APIs
  */
 
-import { userService } from '@/lib/services/user-service';
-import { subscriptionService } from '@/lib/services/subscription-service';
+import { userService } from '@/lib/features/auth/services';
+import { subscriptionService } from '@/lib/features/subscriptions/services';
 
 /**
  * Test user service integration

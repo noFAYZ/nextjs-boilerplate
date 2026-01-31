@@ -16,7 +16,12 @@ import { Input } from '@/components/ui/input';
 function OrganizationsContent() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: organizations = [], isLoading } = useOrganizations();
+  const { data: orgsResponse, isLoading } = useOrganizations();
+
+  // Extract data from API response
+  const organizations = Array.isArray(orgsResponse)
+    ? orgsResponse
+    : (orgsResponse as any)?.data ?? [];
 
   const { personalOrg, teamOrgs } = useMemo(() => {
     const personal = organizations.find((org) => org.isPersonal);

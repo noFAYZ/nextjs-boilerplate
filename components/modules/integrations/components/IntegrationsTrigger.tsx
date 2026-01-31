@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link as LinkIcon, Sparkles, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IntegrationsDialog } from './IntegrationsDialog';
-import { useUserIntegrations } from '@/lib/queries/integrations-queries';
+import { useUserIntegrations } from '@/lib/features/integrations/queries';
 
 interface IntegrationsTriggerProps {
   variant?: 'default' | 'outline' | 'ghost' | 'link';

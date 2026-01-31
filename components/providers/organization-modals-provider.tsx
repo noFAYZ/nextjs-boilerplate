@@ -9,7 +9,7 @@
  */
 
 import { CreateOrganizationModal } from '@/components/modules/organization';
-import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
+import { useOrganizationUIStore } from '@/lib/features/organization/stores';
 
 export function OrganizationModalsProvider() {
   // Get modal states from Zustand store

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useOnboardingUIStore } from '@/lib/features/onboarding/stores';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

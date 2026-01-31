@@ -3,7 +3,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { bankingApi } from '@/lib/services/banking-api';
+import { bankingApi } from '@/lib/features/banking/services';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { bankingKeys } from '@/lib/features/banking/queries';
 import type { BankAccount } from '@/lib/types/banking';

@@ -140,10 +140,10 @@ export function TokensDataTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Filters */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Left: Value */}
 
         <div className=" ">
@@ -185,7 +185,7 @@ export function TokensDataTable({
       </div>
       {/* Sort & Filter */}
       <div
-        className={`px-4 gap-2 sm:justify-end ${
+        className={` gap-2 sm:justify-end ${
           toggleFilters ? "flex" : "hidden"
         } `}
       >
@@ -217,7 +217,7 @@ export function TokensDataTable({
         </Select>
       </div>
       {/* Data Table */}
-      <div className=" bg-card p-4 rounded-2xl">
+ 
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-none ">
@@ -407,7 +407,7 @@ export function TokensDataTable({
             ))}
           </TableBody>
         </Table>
-      </div>
+ 
 
       {/* Sub-assets expansion for DeFi tokens */}
       {paginatedTokens.some(

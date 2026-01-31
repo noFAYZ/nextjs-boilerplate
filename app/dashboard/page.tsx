@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   useDashboardLayoutStore,
-} from "@/lib/stores";
+} from "@/lib/features/accounts/stores";
 import { usePostHogPageView } from '@/lib/shared/hooks';
 import {
   Settings2,

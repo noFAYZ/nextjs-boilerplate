@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import { integrationsApi } from '@/lib/services/integrations-api';
+import { integrationsApi } from '@/lib/features/integrations/services';
 import { useIntegrationsStore } from '@/lib/features/integrations/stores';
 import { useToast } from '@/lib/shared/hooks';
 import type {

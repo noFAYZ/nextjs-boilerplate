@@ -54,13 +54,13 @@ import { useState, useMemo, useCallback } from 'react';
 import { ITEMS_PER_PAGE } from '@/lib/constants/transaction-constants';
 import { groupTransactionsByDate } from '@/lib/utils/transaction-helpers';
 import {
-  useAllAccounts,
   useMerchants,
   useTransactionCategories,
   useUpdateTransaction,
-} from '@/lib/queries';
+} from '@/lib/features/transactions/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import type { UnifiedTransaction, SortOption } from '@/lib/types';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/features/subscriptions/services';
 
 /**
  * Options for configuring the useTransactionTable hook

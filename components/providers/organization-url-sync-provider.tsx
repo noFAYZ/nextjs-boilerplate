@@ -15,7 +15,7 @@
 
 import { useEffect } from 'react';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
-import { useOrganizations } from '@/lib/queries/use-organization-data';
+import { useOrganizations } from '@/lib/features/organization/queries';
 import { logger } from '@/lib/utils/logger';
 
 export function OrganizationURLSyncProvider() {
@@ -24,9 +24,12 @@ export function OrganizationURLSyncProvider() {
   const isInitialized = useOrganizationStore((state) => state.isInitialized);
 
   // Load user's organizations
-  const { data: organizations, isLoading: isLoadingOrgs } = useOrganizations({
-    enabled: !isInitialized
-  });
+  const { data: orgsResponse, isLoading: isLoadingOrgs } = useOrganizations();
+
+  // Extract data from API response
+  const organizations = Array.isArray(orgsResponse)
+    ? orgsResponse
+    : (orgsResponse as any)?.data ?? [];
 
   // Initialize organization from URL, persisted storage, or default to personal org
   useEffect(() => {
@@ -35,7 +38,7 @@ export function OrganizationURLSyncProvider() {
     }
 
     // Only proceed if organizations are loaded
-    if (!organizations || isLoadingOrgs) {
+    if (!organizations?.length || isLoadingOrgs) {
       return;
     }
 

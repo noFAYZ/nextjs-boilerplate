@@ -13,9 +13,9 @@ import { DataSelectionAccordion } from '@/components/modules/integrations/compon
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/lib/shared/hooks';
 import { cn } from '@/lib/utils';
-import { bankingMutations } from '@/lib/queries/banking-queries';
-import { bankingApi } from '@/lib/services/banking-api';
-import { useConnectProvider, useSyncProvider } from '@/lib/queries/integrations-queries';
+import { bankingMutations } from '@/lib/features/banking/queries';
+import { bankingApi } from '@/lib/features/banking/services';
+import { useConnectProvider, useSyncProvider } from '@/lib/features/integrations/queries';
 import type { IntegrationProvider } from '@/lib/types/integrations';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';

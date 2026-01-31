@@ -51,7 +51,7 @@ import {
 } from '@/lib/features/banking/queries';
 import {
   bankingMutations
-} from '@/lib/queries/banking-queries';
+} from '@/lib/features/banking/queries';
 import { useBankingStore } from '@/lib/features/banking/stores';
 import type { BankAccount, BankTransaction, TellerEnrollment } from '@/lib/types/banking';
 import { ArcticonsEverydollar, EmojioneMonotoneDollarBanknote, FluentBuildingBank28Regular, HugeiconsCreditCard, HugeiconsMoneyExchange02, LetsIconsCreditCardDuotone, StreamlinePlumpBuildingOffice } from '@/components/icons/icons';

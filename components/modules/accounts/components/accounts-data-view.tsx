@@ -9,6 +9,7 @@ import {
   useBulkReactivateAccounts,
 } from '@/lib/features/accounts/queries';
 import { useAccountsUIStore } from '@/lib/features/accounts/stores';
+import { AccountsToolbar } from './shared/accounts-toolbar';
 import { AccountsFloatingToolbar } from './shared/accounts-floating-toolbar';
 import { EmptyState } from './shared/empty-state';
 import { AccountsDataTable } from './table-view/accounts-data-table';

@@ -27,9 +27,12 @@ import { cn } from '@/lib/utils';
 
 // Import crypto hooks
 import {
-  useOrganizationCryptoWallet,
-  useOrganizationSyncCryptoWallet,
-} from '@/lib/queries/use-organization-data-context';
+  useCryptoWallet,
+  useWalletTransactions,
+  useWalletNFTs,
+  useWalletDeFi,
+  useSyncCryptoWallet
+} from '@/lib/features/crypto/queries';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from '@/lib/constants/sync-status';
 
@@ -66,10 +69,10 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
   const [showSyncModal, setShowSyncModal] = useState(false);
 
   // Fetch wallet data
-  const walletQuery = useOrganizationCryptoWallet(accountId);
+  const walletQuery = useCryptoWallet(accountId);
   const { data: wallet, isLoading, error, refetch } = walletQuery;
 
-  const syncWalletMutation = useOrganizationSyncCryptoWallet();
+  const syncWalletMutation = useSyncCryptoWallet();
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 
@@ -226,7 +229,7 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-3">
+    <div className="max-w-7xl mx-auto space-y-3">
       {/* Sync Button */}
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -250,268 +253,270 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
         </div>
       </div>
 
-      {/* Header */}
-      <Card className="border-border/80 border-b-0 rounded-none hover:shadow-xs p-0">
-        <div className="p-3">
-          <div className="flex flex-col gap-4">
-            {/* TOP ROW: Identity & Balance */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              {/* Left: Icon & Name */}
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                  <Image
-                    src={avataUrl}
-                    fill
-                    alt="wallet"
-                    className="rounded-full object-cover"
-                    unoptimized
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
-                      {wallet?.walletData?.name}
-                    </h1>
-                    <Badge
-                      variant="new"
-                      className="text-[10px] px-1.5 py-0 h-4.5 font-normal flex-shrink-0"
-                    >
-                      {wallet?.walletData?.network}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="font-mono truncate">
-                      {`${wallet?.walletData?.address?.slice(0, 6)}...${wallet?.walletData?.address?.slice(-4)}`}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={handleCopyAddress}
-                        className="h-4 w-4 p-0"
-                        title="Copy address"
-                        disabled={isSyncing}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        asChild
-                        className="h-4 w-4 p-0"
-                        title="View in explorer"
-                      >
-                        <a
-                          href={
-                            isSyncing
-                              ? '#'
-                              : getNetworkExplorerUrl(
-                                  wallet?.walletData?.network,
-                                  wallet?.walletData?.address
-                                )
-                          }
-                          target={isSyncing ? undefined : '_blank'}
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center"
-                          onClick={
-                            isSyncing
-                              ? (e) => e.preventDefault()
-                              : undefined
-                          }
+      <div className="grid grid-cols-12 gap-4">
+        {/* Left Column: Tabs Content */}
+        <div className="col-span-8">
+          {/* Wallet Details Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex items-center justify-between mb-2">
+              <TabsList variant="pill">
+                <TabsTrigger value="tokens" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                  <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
+                  <span className="inline">Tokens</span>
+                </TabsTrigger>
+                <TabsTrigger value="defi" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                  <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
+                  <span className="inline">Defi</span>
+                </TabsTrigger>
+                <TabsTrigger value="nfts" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                  <SolarGalleryWideOutline className="w-5 h-5" />
+                  <span className="inline">NFTs</span>
+                </TabsTrigger>
+                <TabsTrigger value="transactions" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                  <MynauiActivitySquare className="w-5.5 h-5.5" />
+                  <span className="inline">Transactions</span>
+                </TabsTrigger>
+              </TabsList>
+              <ChainFilters
+                portfolio={wallet?.portfolio || {}}
+                selectedChain={selectedChain}
+                onChainSelect={setSelectedChain}
+                isLoading={isLoading || isSyncing}
+                viewMode="dropdown"
+              />
+            </div>
+
+            <TabsContent value="tokens" key={`tokens-${selectedChain || 'all'}`}>
+              <WalletTokens
+                tokens={wallet?.assets || []}
+                isLoading={isLoading || isSyncing}
+                selectedChain={selectedChain}
+              />
+            </TabsContent>
+
+            <TabsContent value="defi" key={`defi-${selectedChain || 'all'}`}>
+              <WalletDeFi
+                defiApps={wallet?.defiApps || []}
+                isLoading={isLoading || isSyncing}
+                selectedChain={selectedChain}
+              />
+            </TabsContent>
+
+            <TabsContent value="nfts" key={`nfts-${selectedChain || 'all'}`}>
+              <WalletNFTs
+                nfts={wallet?.nfts || []}
+                isLoading={isLoading || isSyncing}
+                selectedChain={selectedChain}
+              />
+            </TabsContent>
+            <TabsContent value="transactions" key={`transactions-${selectedChain || 'all'}`}>
+              <WalletTransactions
+                transactions={wallet?.transactions || []}
+                isLoading={isLoading || isSyncing}
+                walletAddress={wallet?.walletData?.address}
+                selectedChain={selectedChain}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Right Column: Header Card */}
+        <div className="col-span-4">
+          <Card className="border-border rounded-none p-0 sticky top-0">
+            <div className="p-3">
+              <div className="flex flex-col gap-4">
+                {/* TOP ROW: Identity & Balance */}
+                <div className="flex flex-col gap-4">
+                  {/* Left: Icon & Name */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full border shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                      <Image
+                        src={avataUrl}
+                        fill
+                        alt="wallet"
+                        className="rounded-full object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
+                          {wallet?.walletData?.name}
+                        </h1>
+                        <Badge
+                          variant="new"
+                          className="text-[10px] px-1.5 py-0 h-4.5 font-normal flex-shrink-0"
                         >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
+                          {wallet?.walletData?.network}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="font-mono truncate">
+                          {`${wallet?.walletData?.address?.slice(0, 6)}...${wallet?.walletData?.address?.slice(-4)}`}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            onClick={handleCopyAddress}
+                            className="h-4 w-4 p-0"
+                            title="Copy address"
+                            disabled={isSyncing}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            asChild
+                            className="h-4 w-4 p-0"
+                            title="View in explorer"
+                          >
+                            <a
+                              href={
+                                isSyncing
+                                  ? '#'
+                                  : getNetworkExplorerUrl(
+                                      wallet?.walletData?.network,
+                                      wallet?.walletData?.address
+                                    )
+                              }
+                              target={isSyncing ? undefined : '_blank'}
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center"
+                              onClick={
+                                isSyncing
+                                  ? (e) => e.preventDefault()
+                                  : undefined
+                              }
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Balance & 24h Change */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                        Total Balance
+                      </span>
+                      <CurrencyDisplay
+                        amountUSD={walletStats?.totalBalance || 0}
+                        className="text-2xl font-bold text-foreground"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground">24h Change:</span>
+                      {wallet?.portfolio?.percent24hChange !== undefined ? (
+                        <Badge
+                          className={cn(
+                            'flex items-center h-5 gap-1 rounded-xs px-1.5 font-medium',
+                            wallet?.portfolio?.percent24hChange >= 0
+                              ? 'bg-green-500/20 text-green-700 dark:text-green-400'
+                              : 'bg-red-500/20 text-red-700 dark:text-red-400'
+                          )}
+                        >
+                          {wallet?.portfolio?.percent24hChange >= 0 ? (
+                            <MageCaretUpFill className="h-3.5 w-3.5" />
+                          ) : (
+                            <MageCaretDownFill className="h-3.5 w-3.5" />
+                          )}
+                          <span className="text-xs">
+                            {Math.abs(wallet?.portfolio?.percent24hChange).toFixed(
+                              2
+                            )}
+                            %
+                          </span>
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats Group */}
+                <div className="flex flex-col gap-2">
+                  {/* Staked */}
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-sm bg-blue-500/30 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                        Staked
+                      </p>
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.stakedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Locked */}
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-sm bg-orange-500/30 flex items-center justify-center flex-shrink-0">
+                      <SolarLockKeyholeBoldDuotone className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                        Locked
+                      </p>
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.lockedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Borrowed */}
+                  <div className="flex items-center gap-2 pl-2 border-l border-border/50">
+                    <div className="h-8 w-8 rounded-sm bg-red-500/30 flex items-center justify-center flex-shrink-0">
+                      <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                        Borrowed
+                      </p>
+                      <CurrencyDisplay
+                        amountUSD={wallet?.portfolio?.borrowedValue || 0}
+                        className="text-sm font-semibold text-foreground"
+                        formatOptions={{
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
+              <Separator className="bg-border/50 mt-4" />
 
-              {/* Right: Balance & 24h Change */}
-              <div className="flex flex-col sm:items-end gap-2">
-                <div className="flex flex-col items-end">
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                    Total Balance
-                  </span>
-                  <CurrencyDisplay
-                    amountUSD={walletStats?.totalBalance || 0}
-                    className="text-2xl font-bold text-foreground"
-                  />
-                </div>
-                <div className="flex items-center gap-1.5 text-xs">
-                  <span className="text-muted-foreground">24h Change:</span>
-                  {wallet?.portfolio?.percent24hChange !== undefined ? (
-                    <Badge
-                      className={cn(
-                        'flex items-center h-5 gap-1 rounded-xs px-1.5 font-medium',
-                        wallet?.portfolio?.percent24hChange >= 0
-                          ? 'bg-green-500/20 text-green-700 dark:text-green-400'
-                          : 'bg-red-500/20 text-red-700 dark:text-red-400'
-                      )}
-                    >
-                      {wallet?.portfolio?.percent24hChange >= 0 ? (
-                        <MageCaretUpFill className="h-3.5 w-3.5" />
-                      ) : (
-                        <MageCaretDownFill className="h-3.5 w-3.5" />
-                      )}
-                      <span className="text-xs">
-                        {Math.abs(wallet?.portfolio?.percent24hChange).toFixed(
-                          2
-                        )}
-                        %
-                      </span>
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </div>
-              </div>
+              {/* Chart */}
+              <PortfolioChart
+                walletAddress={wallet?.walletData?.address}
+                height={200}
+                showPeriodFilter={true}
+                enableArea={true}
+                enableBreakdown={false}
+                className="w-full border-none -m-2 shadow-none"
+              />
             </div>
-
-            {/* BOTTOM ROW: Stats Group */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
-              {/* Stats Group */}
-              <div className="flex items-center gap-6 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-                {/* Staked */}
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
-                      Staked
-                    </p>
-                    <CurrencyDisplay
-                      amountUSD={wallet?.portfolio?.stakedValue || 0}
-                      className="text-sm font-semibold text-foreground"
-                      formatOptions={{
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Locked */}
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                    <SolarLockKeyholeBoldDuotone className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
-                      Locked
-                    </p>
-                    <CurrencyDisplay
-                      amountUSD={wallet?.portfolio?.lockedValue || 0}
-                      className="text-sm font-semibold text-foreground"
-                      formatOptions={{
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Borrowed */}
-                <div className="flex items-center gap-2 pl-2 border-l border-border/50">
-                  <div className="h-8 w-8 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                    <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase">
-                      Borrowed
-                    </p>
-                    <CurrencyDisplay
-                      amountUSD={wallet?.portfolio?.borrowedValue || 0}
-                      className="text-sm font-semibold text-foreground"
-                      formatOptions={{
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <Separator className="bg-border/50 mt-4" />
-
-          {/* Chart */}
-          <PortfolioChart
-            walletAddress={wallet?.walletData?.address}
-            height={200}
-            showPeriodFilter={true}
-            enableArea={true}
-            enableBreakdown={false}
-            className="w-full border-none *:shadow-none"
-          />
+          </Card>
         </div>
-      </Card>
-
-      {/* Chain Filters */}
-      <Card className="">
-        <ChainFilters
-          portfolio={wallet?.portfolio || {}}
-          selectedChain={selectedChain}
-          onChainSelect={setSelectedChain}
-          isLoading={isLoading || isSyncing}
-        />
-      </Card>
-
-      {/* Wallet Details Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mt-2" variant="pill">
-          <TabsTrigger value="tokens" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
-            <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
-            <span className="inline">Tokens</span>
-          </TabsTrigger>
-          <TabsTrigger value="defi" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
-            <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
-            <span className="inline">Defi</span>
-          </TabsTrigger>
-          <TabsTrigger value="nfts" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
-            <SolarGalleryWideOutline className="w-5 h-5" />
-            <span className="inline">NFTs</span>
-          </TabsTrigger>
-          <TabsTrigger value="transactions" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
-            <MynauiActivitySquare className="w-5.5 h-5.5" />
-            <span className="inline">Transactions</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="tokens" key={`tokens-${selectedChain || 'all'}`}>
-          <WalletTokens
-            tokens={wallet?.assets || []}
-            isLoading={isLoading || isSyncing}
-            selectedChain={selectedChain}
-          />
-        </TabsContent>
-
-        <TabsContent value="defi" key={`defi-${selectedChain || 'all'}`}>
-          <WalletDeFi
-            defiApps={wallet?.defiApps || []}
-            isLoading={isLoading || isSyncing}
-            selectedChain={selectedChain}
-          />
-        </TabsContent>
-
-        <TabsContent value="nfts" key={`nfts-${selectedChain || 'all'}`}>
-          <WalletNFTs
-            nfts={wallet?.nfts || []}
-            isLoading={isLoading || isSyncing}
-            selectedChain={selectedChain}
-          />
-        </TabsContent>
-
-        <TabsContent value="transactions" key={`transactions-${selectedChain || 'all'}`}>
-          <WalletTransactions
-            transactions={wallet?.transactions || []}
-            isLoading={isLoading || isSyncing}
-            walletAddress={wallet?.walletData?.address}
-            selectedChain={selectedChain}
-          />
-        </TabsContent>
-      </Tabs>
+      </div>
 
       {/* Sync Modal */}
       <WalletSyncModal

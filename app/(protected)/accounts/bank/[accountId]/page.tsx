@@ -41,7 +41,7 @@ import {
 import {
   useBankAccount,
   bankingMutations,
-} from "@/lib/queries/banking-queries";
+} from "@/lib/features/banking/queries";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";

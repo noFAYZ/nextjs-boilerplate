@@ -4,6 +4,49 @@ const nextConfig: NextConfig = {
   /* Core configuration */
   devIndicators: false,
 
+  /* Webpack configuration for Node.js built-ins and better-auth compatibility */
+  webpack: (config, { isServer }) => {
+    const webpack = require('webpack');
+
+    if (!isServer) {
+      // Disable Node.js built-ins for client-side
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'async_hooks': false,
+        'fs': false,
+        'path': false,
+        'crypto': false,
+        'stream': false,
+        'util': false,
+        'http': false,
+        'https': false,
+        'net': false,
+        'tls': false,
+        'os': false,
+        'zlib': false,
+        'buffer': false,
+      };
+
+      // Mock environment variables to prevent Node.js detection
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          'process.versions.node': JSON.stringify(null),
+          'process.versions': JSON.stringify({}),
+          'process.env.NODE_ENV': JSON.stringify('browser'),
+        })
+      );
+
+      // Replace async_hooks with empty module
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/async_hooks/, (resource) => {
+          resource.request = require.resolve('./lib/shared/services/empty-module.js');
+        })
+      );
+    }
+
+    return config;
+  },
+
   /* Image Optimization */
   images: {
     dangerouslyAllowSVG: true,

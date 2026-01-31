@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { bankingApi } from '@/lib/services/banking-api';
-import { bankingKeys } from '@/lib/queries/banking-queries';
+import { bankingApi } from '@/lib/features/banking/services';
+import { bankingKeys } from '@/lib/features/banking/queries';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 

@@ -20,7 +20,7 @@ import {
 import {
   usePendingInvitations,
   useAcceptInvitationByToken,
-  useAcceptInvitationByCode,
+  // TODO: useAcceptInvitationByCode needs to be implemented
 } from '@/lib/features/organization/queries';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

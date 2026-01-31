@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { GoalAnalyticsDashboard } from '@/components/modules/goals/components/goal-analytics';
 import { useGoalsStore } from '@/lib/features/goals/stores';
-import { goalsApi } from '@/lib/services/goals-api';
+import { goalsApi } from '@/lib/features/goals/services';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useToast } from '@/lib/shared/hooks';
 import Link from 'next/link';

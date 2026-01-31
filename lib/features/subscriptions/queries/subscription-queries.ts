@@ -13,7 +13,7 @@ import {
   useQueryClient,
   keepPreviousData,
 } from '@tanstack/react-query';
-import { subscriptionsApi } from '@/lib/services/subscriptions-api';
+import { subscriptionsApi } from '@/lib/features/subscriptions/services';
 import type {
   UserSubscription,
   CreateSubscriptionRequest,

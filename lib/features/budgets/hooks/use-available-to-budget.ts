@@ -10,7 +10,7 @@
  * Available to Budget = Cash/Checking/Savings - Credit Card Balances
  */
 
-import { useUnifiedAccounts } from '@/lib/queries';
+import { useUnifiedAccounts } from '@/lib/features/accounts/queries';
 import { useMemo } from 'react';
 
 export function useAvailableToBudget(organizationId?: string) {

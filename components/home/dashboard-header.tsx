@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/features/auth/stores';
 import { Card } from '@/components/ui/card';
 import { MemoryArrowTopRight, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { NetWorthChart } from '@/components/modules/networth/components/networth-chart';
 import { NetWorthBreakdownShowcase } from '@/components/utilities/charts/networth-breakdown-showcase';
 

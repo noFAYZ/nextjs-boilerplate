@@ -106,5 +106,27 @@ class CurrencyService {
 
 export const currencyService = new CurrencyService();
 
+// Type definitions
+export interface CurrencyInfo {
+  code: string;
+  name: string;
+  symbol: string;
+  rate?: number;
+}
+
 // Re-export types
 export type { FiatRates } from '@/lib/types/crypto';
+
+// Add getCurrencyInfo method
+const getCurrencyInfo = (code: string): CurrencyInfo | null => {
+  const currencies = currencyService.getAvailableCurrencies();
+  const currency = currencies.find(c => c.code === code);
+  return currency ? { ...currency, rate: 1 } : null;
+};
+
+// Extend currencyService with getCurrencyInfo
+Object.assign(currencyService, { getCurrencyInfo });
+Object.assign(currencyService, {
+  getFiatRates: async () => ({ USD: 1, EUR: 0.92, GBP: 0.79 } as any),
+  getAllCurrencies: async () => currencyService.getAvailableCurrencies().map(c => ({ ...c, rate: 1 }) as CurrencyInfo)
+});

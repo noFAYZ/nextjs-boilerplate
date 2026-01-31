@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { CheckCircle, Loader2, Mail, Sparkles, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GameIconsUpgrade } from '../icons';
-import { useJoinWaitlist } from '@/lib/queries/use-waitlist-data';
+import { useJoinWaitlist } from '@/lib/shared/queries';
 import { useToast } from '@/lib/shared/hooks';
 import { useGTM } from '@/lib/shared/hooks';
 

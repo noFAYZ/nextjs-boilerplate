@@ -4,8 +4,8 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { useBankingStore, selectActiveRealtimeSyncCount } from '@/lib/features/banking/stores';
-import { cryptoApi } from '@/lib/services/crypto-api';
-import { bankingApi } from '@/lib/services/banking-api';
+import { cryptoApi } from '@/lib/features/crypto/services';
+import { bankingApi } from '@/lib/features/banking/services';
 
 // Global flag to prevent multiple auto-sync hooks from running
 let globalAutoSyncInstance: string | null = null;

@@ -49,7 +49,7 @@ import { CategoryTemplatesStep } from '@/components/modules/onboarding/component
 import { LogoMappr } from '@/components/icons';
 import { HugeiconsBriefcase02, SolarWalletBoldDuotone, GuidanceBank, HugeiconsMoneyExchange02, SolarCheckCircleBoldDuotone, PhPiggyBankDuotone, CircumBank, DuoIconsBank, SolarPieChart2BoldDuotone } from '@/components/icons/icons';
 import { usePostHogPageView } from '@/lib/shared/hooks';
-import { categoryGroupsApi } from '@/lib/services/category-groups-api';
+import { categoryGroupsApi } from '@/lib/features/categories/services';
 import Link from 'next/link';
 import Image from 'next/image';
 

@@ -4,7 +4,7 @@ import {
   useQueryClient,
   keepPreviousData
 } from '@tanstack/react-query';
-import { bankingApi } from '@/lib/services/banking-api';
+import { bankingApi } from '@/lib/features/banking/services';
 import { useBankingStore } from '@/lib/features/banking/stores';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';

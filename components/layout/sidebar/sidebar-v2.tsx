@@ -38,6 +38,7 @@ import {
 import { SettingsDialog } from '@/components/modules/settings/components/settings-dialog';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { OrganizationSwitcher } from '@/components/modules/organization/components/organization-switcher';
+import { GlobalViewSwitcher } from '@/components/ui/global-view-switcher';
 import { SIDEBAR_WIDTHS, SIDEBAR_TRANSITIONS, LOGO_STYLES, POPOVER_STYLES } from './constants';
 
 /**
@@ -377,25 +378,31 @@ export function SidebarV2({
               POPOVER_STYLES.PADDING
             )}
           >
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-                onClick={() => setSettingsOpen(true)}
-              >
-                <Settings className="h-4 w-4" aria-hidden="true" />
-                <span>Settings</span>
-              </Button>
+            <div className="space-y-3">
+              <div>
+                <GlobalViewSwitcher />
+              </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-              >
-                <HelpCircle className="h-4 w-4" aria-hidden="true" />
-                <span>Help & Feedback</span>
-              </Button>
+              <div className="space-y-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                  onClick={() => setSettingsOpen(true)}
+                >
+                  <Settings className="h-4 w-4" aria-hidden="true" />
+                  <span>Settings</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                >
+                  <HelpCircle className="h-4 w-4" aria-hidden="true" />
+                  <span>Help & Feedback</span>
+                </Button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>

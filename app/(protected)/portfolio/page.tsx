@@ -13,7 +13,7 @@ import {
   Package,
   Building2,
 } from 'lucide-react';
-import { useNetWorth } from '@/lib/queries/use-networth-data';
+import { useNetWorth } from '@/lib/features/networth/queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';

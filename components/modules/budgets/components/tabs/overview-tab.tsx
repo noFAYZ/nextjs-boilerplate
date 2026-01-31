@@ -5,7 +5,7 @@
  * Hybrid dashboard showing key metrics and quick actions
  */
 
-import { useFinancialHealthScore, useDashboardMetrics, usePeriodComparison } from '@/lib/queries';
+// TODO: Import useFinancialHealthScore, useDashboardMetrics, usePeriodComparison when query hooks are implemented
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,9 +18,13 @@ export function OverviewTab() {
 
   console.log("asdasdasd",organizationId)
   
-  const { data: healthScore, isLoading: healthScoreLoading } = useFinancialHealthScore(organizationId);
-  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics(organizationId);
-  const { data: comparison, isLoading: comparisonLoading } = usePeriodComparison(organizationId);
+  // TODO: Implement useFinancialHealthScore, useDashboardMetrics, usePeriodComparison query hooks
+  const healthScore = null;
+  const healthScoreLoading = false;
+  const metrics = null;
+  const metricsLoading = false;
+  const comparison = null;
+  const comparisonLoading = false;
 
   const isLoading = healthScoreLoading || metricsLoading || comparisonLoading;
 

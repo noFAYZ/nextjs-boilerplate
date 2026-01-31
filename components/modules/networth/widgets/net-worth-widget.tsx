@@ -12,7 +12,7 @@ import {
   Package,
   Plus,
 } from "lucide-react";
-import { useAllAccounts } from "@/lib/queries";
+import { useAllAccounts } from "@/lib/features/accounts/queries";
 import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import {
   DuoIconsCreditCard,

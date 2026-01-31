@@ -7,12 +7,12 @@ import {
   Zap,
   RefreshCcw,
 } from 'lucide-react';
-import { useSubscriptions } from '@/lib/queries';
+import { useSubscriptions } from '@/lib/features/subscriptions/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getLogoUrl } from '@/lib/services/logo-service';
+import { getLogoUrl } from '@/lib/features/subscriptions/services';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { UserSubscription } from '@/lib/types/subscription';

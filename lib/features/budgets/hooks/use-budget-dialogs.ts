@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CustomCategory } from '@/lib/services/category-groups-api';
+import type { CustomCategory } from '@/lib/features/categories/services';
 
 export type DeleteTargetType = { type: 'category' | 'group'; id: string; name: string } | null;
 

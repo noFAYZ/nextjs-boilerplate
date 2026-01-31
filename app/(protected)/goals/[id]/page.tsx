@@ -22,7 +22,7 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-import { useGoal, useDeleteGoal } from "@/lib/queries/use-goal-data";
+import { useGoal, useDeleteGoal } from "@/lib/features/goals/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

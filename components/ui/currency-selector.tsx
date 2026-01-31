@@ -27,7 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useCurrency } from '@/lib/contexts/currency-context';
-import { POPULAR_CURRENCIES } from '@/lib/services/currency-api';
+import { POPULAR_CURRENCIES } from '@/lib/shared/services';
 
 interface CurrencySelectorProps {
   variant?: 'default' | 'compact' | 'minimal';

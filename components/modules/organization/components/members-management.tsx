@@ -27,7 +27,7 @@ import {
   useInviteUser,
   useUpdateMemberRole,
   useRemoveMember,
-  useRevokeInvitation,
+  // TODO: useRevokeInvitation needs to be implemented
 } from '@/lib/features/organization/queries';
 import { useCurrentUser } from '@/lib/features/auth/queries';
 import { Card } from '@/components/ui/card';

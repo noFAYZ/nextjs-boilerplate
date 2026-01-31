@@ -12,7 +12,7 @@ import {
   useSpendingVelocity,
   usePeriodComparison,
   useEnvelopeRanking,
-} from '@/lib/queries';
+} from '@/lib/features/budgets/queries';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

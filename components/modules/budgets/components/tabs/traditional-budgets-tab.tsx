@@ -5,7 +5,7 @@
  * Traditional budget management view
  */
 
-import { useDashboardMetrics, usePeriodComparison } from '@/lib/queries';
+// TODO: Import useDashboardMetrics and usePeriodComparison when query hooks are implemented
 import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +18,11 @@ export function TraditionalBudgetsTab() {
   const { openCreateBudgetModal } = useBudgetsV3UIStore();
   const organizationId = useOrganizationStore((state) => state.selectedOrganizationId);
 
-  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics(organizationId);
-  const { data: comparison, isLoading: comparisonLoading } = usePeriodComparison(organizationId);
+  // TODO: Implement useDashboardMetrics and usePeriodComparison query hooks
+  const metrics = null;
+  const metricsLoading = false;
+  const comparison = null;
+  const comparisonLoading = false;
 
   const isLoading = metricsLoading || comparisonLoading;
 

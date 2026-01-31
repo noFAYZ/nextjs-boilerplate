@@ -4,7 +4,7 @@
  * These factories create TanStack Query options for envelope queries
  */
 
-import { envelopeApi } from '@/lib/services/envelope-api';
+import { envelopeApi } from '@/lib/features/budgets/services';
 import type { ApiResponse } from '@/lib/types/crypto';
 
 // Budget Query Keys Factory

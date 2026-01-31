@@ -2,7 +2,7 @@
 
 import { useMemo, memo } from 'react';
 import { Calendar, DollarSign, AlertCircle, Clock, ArrowRight } from 'lucide-react';
-import { useSubscriptions } from '@/lib/queries';
+import { useSubscriptions } from '@/lib/features/subscriptions/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import Link from 'next/link';

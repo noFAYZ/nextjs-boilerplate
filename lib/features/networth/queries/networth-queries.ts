@@ -5,7 +5,7 @@ import {
   keepPreviousData,
   queryOptions,
 } from '@tanstack/react-query';
-import { networthApi } from '@/lib/services/networth-api';
+import { networthApi } from '@/lib/features/networth/services';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import type {

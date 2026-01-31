@@ -23,7 +23,7 @@ import { useToast } from '@/lib/shared/hooks';
 import React from 'react';
 
 import { useBankingStore } from '@/lib/features/banking/stores';
-import { bankingMutations } from '@/lib/queries/banking-queries';
+import { bankingMutations } from '@/lib/features/banking/queries';
 import { bankingApi } from '@/lib/features/banking/services';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';

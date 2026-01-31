@@ -19,7 +19,7 @@ import {
   SortAsc,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useOrganizationCryptoWallets, useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationCryptoWallets, useOrganizationCryptoPortfolio } from '@/lib/features/organization/queries';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import {

@@ -8,6 +8,13 @@ import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { cn } from '@/lib/utils';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
 import { MageDashboard, RivetIconsCheckAll } from '@/components/icons/icons';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ChainConfig {
   name: string;
@@ -50,13 +57,15 @@ interface ChainFiltersProps {
   selectedChain: string | null;
   onChainSelect: (chain: string | null) => void;
   isLoading?: boolean;
+  viewMode?: 'buttons' | 'dropdown';
 }
 
 export function ChainFilters({
   portfolio,
   selectedChain,
   onChainSelect,
-  isLoading = false
+  isLoading = false,
+  viewMode = 'buttons'
 }: ChainFiltersProps) {
   // Extract chain values from portfolio
   const chainData = React.useMemo(() => {
@@ -109,6 +118,53 @@ export function ChainFilters({
     });
   }
 
+  // Dropdown view
+  if (viewMode === 'dropdown') {
+    const selectedChainName = selectedChain === null
+      ? 'All Chains'
+      : chainData.find(c => c.key === selectedChain)?.name || 'Select Chain';
+
+    return (
+      <Select value={selectedChain || 'all'} onValueChange={(value) => {
+        onChainSelect(value === 'all' ? null : value);
+      }}>
+        <SelectTrigger className="" variant='outline2' size='sm'>
+          <SelectValue placeholder="Select chain" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">
+            <div className="flex items-center text-xs font-medium gap-2">
+              <MageDashboard className='w-4 h-4'/>
+              <span>All Chains</span>
+            </div>
+          </SelectItem>
+          {chainData.map((chain) => (
+            <SelectItem key={chain.key} value={chain.key}>
+              <div className="flex items-center gap-2">
+                {chain.icon ? (
+                  <Image
+                    src={chain.icon}
+                    alt={chain.name}
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 rounded-full"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-4 h-4 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {chain.name.charAt(0)}
+                  </div>
+                )}
+                <span>{chain.name}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
+
+  // Button view (default)
   return (
     <div className="">
       <div className="flex flex-wrap gap-2">
@@ -117,12 +173,12 @@ export function ChainFilters({
            variant={selectedChain === null ? "secondary" : "outline"}
           size="xs"
           onClick={() => {
-    
+
             onChainSelect(null);
           }}
           className={cn(
             "px-2 h-8 flex items-center gap-2 duration-0 ",
-      
+
           )}
         >
           <div className="flex items-center gap-2">
@@ -130,7 +186,7 @@ export function ChainFilters({
               <MageDashboard className='w-5 h-5'/>
             </div>
             <div className="text-left">
-    
+
               <div className="text-[10px] ">
                 <CurrencyDisplay
                   amountUSD={totalValue}
@@ -154,7 +210,7 @@ export function ChainFilters({
             }}
             className={cn(
               "px-2 h-8 flex items-center gap-2 duration-0",
-           
+
             )}
           >
             <div className="flex items-center gap-2">
@@ -185,7 +241,7 @@ export function ChainFilters({
                 </div>
               </div>
             </div>
-       
+
           </Button>
         ))}
       </div>

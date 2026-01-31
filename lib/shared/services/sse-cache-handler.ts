@@ -7,8 +7,8 @@
  */
 
 import { QueryClient } from '@tanstack/react-query';
-import { bankingKeys } from '@/lib/queries/banking-queries';
-import { cryptoKeys } from '@/lib/queries/crypto-queries';
+import { bankingKeys } from '@/lib/features/banking/queries';
+import { cryptoKeys } from '@/lib/features/crypto/queries';
 import type { SSEMessage } from './sse-manager';
 
 export class SSECacheHandler {

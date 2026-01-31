@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useCallback, memo } from 'react';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { useOrganizationRefetchState } from '@/lib/features/organization/hooks';
 import { getAccountCategoryConfig, getCategoryType } from '@/components/modules/accounts/components/account-category-icon';
 import { CurrencyDisplay } from '@/components/ui/currency-display';

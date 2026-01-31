@@ -7,9 +7,9 @@ import { useBankingStore } from '@/lib/features/banking/stores';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { useToast } from '@/lib/shared/hooks';
-import { sseManager, SSEMessage } from '@/lib/services/sse-manager';
-import { cryptoKeys, clearInitializationTimeout as clearCryptoInitTimeout } from '@/lib/queries/crypto-queries';
-import { bankingKeys, clearInitializationTimeout as clearBankingInitTimeout } from '@/lib/queries/banking-queries';
+import { sseManager, SSEMessage } from '@/lib/shared/services';
+import { cryptoKeys, clearInitializationTimeout as clearCryptoInitTimeout } from '@/lib/features/crypto/queries';
+import { bankingKeys, clearInitializationTimeout as clearBankingInitTimeout } from '@/lib/features/banking/queries';
 
 interface BankingSyncState {
   progress: number;

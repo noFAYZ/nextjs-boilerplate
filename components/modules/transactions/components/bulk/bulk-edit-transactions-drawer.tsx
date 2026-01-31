@@ -16,8 +16,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
 import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { AccountCombobox } from '@/components/ui/account-combobox';
-import { useBulkUpdateTransactions } from '@/lib/queries';
-import { useTransactionCategories, useMerchants, useAllAccounts } from '@/lib/queries';
+import { useBulkUpdateTransactions, useTransactionCategories, useMerchants } from '@/lib/features/transactions/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import type { UnifiedTransaction } from '@/lib/types';
 import { toast } from 'sonner';
 

@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { AlertCircle, Check } from 'lucide-react';
 import { useToast } from "@/lib/shared/hooks";
-import { useCreateEnvelope } from '@/lib/queries';
+import { useCreateEnvelope } from '@/lib/features/budgets/queries';
 
 interface CreateEnvelopeModalProps {
   isOpen: boolean;

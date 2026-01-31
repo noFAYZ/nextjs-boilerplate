@@ -2,7 +2,8 @@
  * Organization Queries - Query factory functions for organization-related data
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api-client';
 
 // Query Keys Factory
 export const organizationKeys = {
@@ -21,14 +22,7 @@ export const organizationQueries = {
   organization: (id: string) => ({
     queryKey: organizationKeys.detail(id),
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/organizations/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch organization');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch organization:', error);
-        return { success: false, data: null };
-      }
+      return apiClient.get(`/organizations/${id}`);
     },
     enabled: !!id,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -38,14 +32,7 @@ export const organizationQueries = {
   organizationMembers: (id: string) => ({
     queryKey: organizationKeys.members(id),
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/organizations/${id}/members`);
-        if (!response.ok) throw new Error('Failed to fetch members');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch organization members:', error);
-        return { success: false, data: [] };
-      }
+      return apiClient.get(`/organizations/${id}/members`);
     },
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
@@ -55,14 +42,7 @@ export const organizationQueries = {
   pendingInvitations: () => ({
     queryKey: organizationKeys.invitations(),
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/invitations/pending`);
-        if (!response.ok) throw new Error('Failed to fetch invitations');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch pending invitations:', error);
-        return { success: false, data: [] };
-      }
+      return apiClient.get(`/invitations/pending`);
     },
     staleTime: 1000 * 60 * 5,
     retry: false,
@@ -71,17 +51,10 @@ export const organizationQueries = {
   organizationCryptoWallets: (id?: string) => ({
     queryKey: id ? organizationKeys.wallets(id) : ['crypto', 'wallets'],
     queryFn: async () => {
-      try {
-        const url = id
-          ? `/api/organizations/${id}/crypto-wallets`
-          : `/api/crypto-wallets`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch wallets');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch crypto wallets:', error);
-        return { success: false, data: [] };
-      }
+      const endpoint = id
+        ? `/organizations/${id}/crypto-wallets`
+        : `/crypto-wallets`;
+      return apiClient.get(endpoint);
     },
     enabled: !id || !!id,
     staleTime: 1000 * 60 * 5,
@@ -91,17 +64,10 @@ export const organizationQueries = {
   organizationCryptoPortfolio: (id?: string) => ({
     queryKey: id ? organizationKeys.portfolio(id) : ['crypto', 'portfolio'],
     queryFn: async () => {
-      try {
-        const url = id
-          ? `/api/organizations/${id}/crypto-portfolio`
-          : `/api/crypto-portfolio`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch portfolio');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch crypto portfolio:', error);
-        return { success: false, data: null };
-      }
+      const endpoint = id
+        ? `/organizations/${id}/crypto-portfolio`
+        : `/crypto-portfolio`;
+      return apiClient.get(endpoint);
     },
     enabled: !id || !!id,
     staleTime: 1000 * 60 * 10, // 10 minutes (portfolio data changes less frequently)
@@ -135,50 +101,19 @@ export function useOrganizations() {
   return useQuery({
     queryKey: organizationKeys.lists(),
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/organizations`);
-        if (!response.ok) throw new Error('Failed to fetch organizations');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch organizations:', error);
-        return { success: false, data: [] };
-      }
+      return apiClient.get(`/organizations`);
     },
     staleTime: 1000 * 60 * 5,
     retry: false,
   });
 }
 
-export function usePersonalOrganization() {
-  return useQuery({
-    queryKey: [...organizationKeys.all, 'personal'],
-    queryFn: async () => {
-      try {
-        const response = await fetch(`/api/organizations/personal`);
-        if (!response.ok) throw new Error('Failed to fetch personal organization');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch personal organization:', error);
-        return { success: false, data: null };
-      }
-    },
-    staleTime: 1000 * 60 * 5,
-    retry: false,
-  });
-}
 
 export function useAcceptInvitationByToken(token: string) {
   return useQuery({
     queryKey: [...organizationKeys.invitations(), 'accept', token],
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/invitations/${token}`);
-        if (!response.ok) throw new Error('Failed to fetch invitation');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch invitation:', error);
-        return { success: false, data: null };
-      }
+      return apiClient.get(`/invitations/${token}`);
     },
     enabled: !!token,
     staleTime: 1000 * 60,
@@ -190,16 +125,7 @@ export function useOrganizationSyncCryptoWallet(organizationId: string, walletId
   return useQuery({
     queryKey: [...organizationKeys.wallets(organizationId), 'sync', walletId],
     queryFn: async () => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/crypto-wallets/${walletId}/sync`
-        );
-        if (!response.ok) throw new Error('Failed to fetch sync status');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch sync status:', error);
-        return { success: false, data: null };
-      }
+      return apiClient.get(`/organizations/${organizationId}/crypto-wallets/${walletId}/sync`);
     },
     enabled: !!organizationId && !!walletId,
     staleTime: 1000 * 10, // 10 seconds for sync status
@@ -208,20 +134,11 @@ export function useOrganizationSyncCryptoWallet(organizationId: string, walletId
   });
 }
 
-export function useOrganizationCryptoWallet(organizationId: string, walletId: string) {
+export function useOrganizationCryptoWallet(organizationId: string | null | undefined, walletId: string) {
   return useQuery({
-    queryKey: [...organizationKeys.wallets(organizationId), walletId],
+    queryKey: [...organizationKeys.wallets(organizationId || ''), walletId],
     queryFn: async () => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/crypto-wallets/${walletId}`
-        );
-        if (!response.ok) throw new Error('Failed to fetch wallet');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch wallet:', error);
-        return { success: false, data: null };
-      }
+      return apiClient.get(`/organizations/${organizationId}/crypto-wallets/${walletId}`);
     },
     enabled: !!organizationId && !!walletId,
     staleTime: 1000 * 60 * 5,
@@ -233,16 +150,7 @@ export function useOrganizationBankingAccounts(organizationId: string) {
   return useQuery({
     queryKey: [...organizationKeys.detail(organizationId), 'banking-accounts'],
     queryFn: async () => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/banking-accounts`
-        );
-        if (!response.ok) throw new Error('Failed to fetch banking accounts');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to fetch banking accounts:', error);
-        return { success: false, data: [] };
-      }
+      return apiClient.get(`/organizations/${organizationId}/banking-accounts`);
     },
     enabled: !!organizationId,
     staleTime: 1000 * 60 * 5,
@@ -253,21 +161,7 @@ export function useOrganizationBankingAccounts(organizationId: string) {
 export function useUpdateMemberRole() {
   return {
     mutate: async (organizationId: string, memberId: string, role: string) => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/members/${memberId}/role`,
-          {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role }),
-          }
-        );
-        if (!response.ok) throw new Error('Failed to update member role');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to update member role:', error);
-        throw error;
-      }
+      return apiClient.put(`/organizations/${organizationId}/members/${memberId}/role`, { role });
     },
     isLoading: false,
     error: null,
@@ -277,17 +171,7 @@ export function useUpdateMemberRole() {
 export function useRemoveMember() {
   return {
     mutate: async (organizationId: string, memberId: string) => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/members/${memberId}`,
-          { method: 'DELETE' }
-        );
-        if (!response.ok) throw new Error('Failed to remove member');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to remove member:', error);
-        throw error;
-      }
+      return apiClient.delete(`/organizations/${organizationId}/members/${memberId}`);
     },
     isLoading: false,
     error: null,
@@ -297,18 +181,7 @@ export function useRemoveMember() {
 export function useCreateOrganization() {
   return {
     mutate: async (data: any) => {
-      try {
-        const response = await fetch(`/api/organizations`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) throw new Error('Failed to create organization');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to create organization:', error);
-        throw error;
-      }
+      return apiClient.post(`/organizations`, data);
     },
     isLoading: false,
     error: null,
@@ -318,42 +191,32 @@ export function useCreateOrganization() {
 export function useUpdateOrganization() {
   return {
     mutate: async (organizationId: string, data: any) => {
-      try {
-        const response = await fetch(`/api/organizations/${organizationId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) throw new Error('Failed to update organization');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to update organization:', error);
-        throw error;
-      }
+      return apiClient.put(`/organizations/${organizationId}`, data);
     },
     isLoading: false,
     error: null,
   };
 }
 
+export function useOrganizationDeleteCryptoWallet() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ organizationId, walletId }: { organizationId: string; walletId: string }) => {
+      return apiClient.delete(`/organizations/${organizationId}/crypto-wallets/${walletId}`);
+    },
+    onSuccess: (_, { organizationId, walletId }) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: organizationKeys.wallets(organizationId) });
+      queryClient.invalidateQueries({ queryKey: organizationKeys.portfolio(organizationId) });
+    },
+  });
+}
+
 export function useInviteUser() {
   return {
     mutate: async (organizationId: string, email: string, role?: string) => {
-      try {
-        const response = await fetch(
-          `/api/organizations/${organizationId}/invite`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, role }),
-          }
-        );
-        if (!response.ok) throw new Error('Failed to invite user');
-        return response.json();
-      } catch (error) {
-        console.error('Failed to invite user:', error);
-        throw error;
-      }
+      return apiClient.post(`/organizations/${organizationId}/invite`, { email, role });
     },
     isLoading: false,
     error: null,

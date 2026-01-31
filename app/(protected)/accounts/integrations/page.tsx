@@ -27,7 +27,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useUserIntegrations } from "@/lib/queries/integrations-queries";
+import { useUserIntegrations } from "@/lib/features/integrations/queries";
 import { RequestIntegrationDialog } from '@/components/modules/integrations/components/RequestIntegrationDialog'
 
 type Integration = {

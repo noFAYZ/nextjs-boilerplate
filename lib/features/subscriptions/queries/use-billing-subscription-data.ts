@@ -21,7 +21,7 @@ import {
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query';
-import { subscriptionService } from '@/lib/services/subscription-service';
+import { subscriptionService } from '@/lib/features/subscriptions/services';
 import { useAuthReady } from '@/lib/core/query';
 import type {
   SubscriptionPlan,

@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import React from 'react';
 
-import { useCreateCryptoWallet } from '@/lib/queries';
+import { useCreateCryptoWallet } from '@/lib/features/crypto/queries';
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
 import { NetworkSelector } from '@/components/modules/crypto/components/ui/network-selector';
 import { cn } from '@/lib/utils';

@@ -15,7 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useNetWorthHistory, useNetWorthPerformance } from "@/lib/queries"
+import { useNetWorthHistory, useNetWorthPerformance } from "@/lib/features/networth/queries"
 import { SnapshotGranularity } from "@/lib/types/networth"
 export const description = "A linear area chart"
 

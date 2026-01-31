@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { betterAuth } from "better-auth";
 import { logger } from "@/lib/utils/logger";
 

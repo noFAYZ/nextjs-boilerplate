@@ -26,8 +26,8 @@ import {
   TooltipContent,
   TooltipProvider
 } from '@/components/ui/tooltip';
-import { useOrganizations, usePersonalOrganization } from '@/lib/features/organization/queries';
-import { useOrganizationUIStore } from '@/lib/features/accounts/stores';
+import { useOrganizations } from '@/lib/features/organization/queries';
+import { useOrganizationUIStore } from '@/lib/features/organization/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { useAuthStore } from '@/lib/features/auth/stores';
 import { authClient } from '@/lib/core/auth';
@@ -69,8 +69,13 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
   const router = useRouter();
 
   // Data hooks
-  const { data: organizations = [], isLoading: orgsLoading } = useOrganizations();
-  const { data: personalOrg, isLoading: personalOrgLoading } = usePersonalOrganization();
+  const { data: orgsResponse, isLoading: orgsLoading } = useOrganizations();
+
+  // Extract data from API responses
+  const organizations = Array.isArray(orgsResponse)
+    ? orgsResponse
+    : (orgsResponse as any)?.data ?? [];
+
   const user = useAuthStore((state) => state.user);
 
   // UI store (for modal states, selections)
@@ -80,12 +85,12 @@ export function UserOrgSwitcher({ compact = false, className = '' }: UserOrgSwit
   // Context store (for data scoping)
   const { setSelectedOrganization } = useOrganizationStore();
 
-  const isLoading = orgsLoading || personalOrgLoading;
+  const isLoading = orgsLoading;
 
   // Find current organization
   let currentOrg = organizations.find((org) => org.id === selectedOrganizationId);
   if (!currentOrg) {
-    currentOrg = personalOrg;
+    currentOrg = organizations[0];
   }
 
   const handleSignOut = async () => {

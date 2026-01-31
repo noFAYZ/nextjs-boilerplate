@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { transactionsApi } from '@/lib/services/transactions-api';
+import { transactionsApi } from '@/lib/features/transactions/services';
 import { transactionQueries, transactionMutations, transactionKeys } from './transactions-queries';
 import { invalidateByDependency } from '@/lib/core/query';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';

@@ -4,7 +4,7 @@ import { useState, useMemo, memo } from 'react';
 import {
   ArrowRight,
 } from 'lucide-react';
-import { useActiveGoals } from '@/lib/queries';
+import { useActiveGoals } from '@/lib/features/goals/queries';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';

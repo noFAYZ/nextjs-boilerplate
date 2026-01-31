@@ -3,7 +3,7 @@
 import { useMemo, useState, useCallback, memo } from 'react';
 import { CreditCard, TrendingUp, ArrowUpRight, Wallet, Minus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useAccountSpendingComparison, useBankingGroupedAccountsRaw } from '@/lib/queries/banking-queries';
+import { useAccountSpendingComparison, useBankingGroupedAccountsRaw } from '@/lib/features/banking/queries';
 import { TimePeriodSelector, TimePeriod } from '@/components/ui/time-period-selector';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { RefetchLoadingOverlay } from '@/components/ui/refetch-loading-overlay';

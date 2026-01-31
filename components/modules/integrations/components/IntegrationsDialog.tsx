@@ -33,7 +33,7 @@ import {
   useConnectProvider,
   useDisconnectProvider,
   useSyncProvider,
-} from '@/lib/queries/integrations-queries';
+} from '@/lib/features/integrations/queries';
 import { useIntegrationsStore } from '@/lib/features/integrations/stores';
 import { IntegrationProvider } from '@/lib/types/integrations';
 

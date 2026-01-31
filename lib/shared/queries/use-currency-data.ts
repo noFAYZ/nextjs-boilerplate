@@ -14,8 +14,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { currencyService } from '@/lib/services/currency-api';
-import type { FiatRates, CurrencyInfo } from '@/lib/services/currency-api';
+import { currencyService } from '@/lib/shared/services';
+import type { FiatRates, CurrencyInfo } from '@/lib/shared/services';
 
 // ============================================================================
 // CONSTANTS

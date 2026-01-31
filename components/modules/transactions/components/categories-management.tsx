@@ -40,13 +40,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
-  useTransactionCategories,
+  useCategories as useTransactionCategories,
   useCreateCustomCategory,
   useUpdateCategory,
   useDeleteCategory,
   useToggleCategoryStatus,
   useCreateCategoryGroup,
-} from '@/lib/queries/use-transaction-categories-data';
+} from '@/lib/features/categories/queries';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';

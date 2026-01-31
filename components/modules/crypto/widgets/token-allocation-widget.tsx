@@ -5,7 +5,7 @@ import {
   ArrowRight,
   Coins,
 } from 'lucide-react';
-import { useOrganizationCryptoPortfolio } from '@/lib/queries/use-organization-data-context';
+import { useOrganizationCryptoPortfolio } from '@/lib/features/organization/queries';
 import { Badge } from '@/components/ui/badge';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

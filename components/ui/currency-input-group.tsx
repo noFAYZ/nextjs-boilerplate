@@ -6,7 +6,7 @@ import { ChevronDown, Loader2, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useCurrency } from '@/lib/contexts/currency-context';
-import { POPULAR_CURRENCIES } from '@/lib/services/currency-api';
+import { POPULAR_CURRENCIES } from '@/lib/shared/services';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 const currencyInputVariants = cva(

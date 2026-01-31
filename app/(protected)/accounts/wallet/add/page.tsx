@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import posthog from 'posthog-js';
 
-import { useOrganizationCreateCryptoWallet } from '@/lib/queries/use-organization-data-context';
+// TODO: useOrganizationCreateCryptoWallet needs to be implemented
 import type { WalletType, NetworkType } from '@/lib/types/crypto';
 import React from 'react';
 import { ZERION_CHAINS } from '@/lib/constants/chains';
@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 import { SolarWalletBoldDuotone } from '@/components/icons/icons';
 import { PlanLimitDialog, usePlanLimitDialog } from '@/components/ui/plan-limit-dialog';
 import { handlePlanLimitError } from '@/lib/utils/plan-limit-handler';
-import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/queries/use-billing-subscription-data';
+import { useSubscriptionPlans, useUpgradeBillingSubscription } from '@/lib/features/subscriptions/queries';
 import { DebugPlanLimit } from '@/components/ui/debug-plan-limit';
 
 // Form validation schema

@@ -5,7 +5,7 @@
  * Envelope-based budgeting system view
  */
 
-import { useEnvelopeRanking, useDashboardMetrics } from '@/lib/queries';
+// TODO: Import useEnvelopeRanking and useDashboardMetrics when query hooks are implemented
 import { useBudgetsV3UIStore } from '@/lib/features/budgets/stores';
 import { useOrganizationStore } from '@/lib/features/organization/stores';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +18,11 @@ export function EnvelopesTab() {
   const { openCreateEnvelopeModal } = useBudgetsV3UIStore();
   const organizationId = useOrganizationStore((state) => state.selectedOrganizationId);
 
-  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics(organizationId);
-  const { data: ranking, isLoading: rankingLoading } = useEnvelopeRanking({ limit: 10 }, organizationId);
+  // TODO: Implement useDashboardMetrics and useEnvelopeRanking query hooks
+  const metrics = null;
+  const metricsLoading = false;
+  const ranking = null;
+  const rankingLoading = false;
 
   const isLoading = metricsLoading || rankingLoading;
 

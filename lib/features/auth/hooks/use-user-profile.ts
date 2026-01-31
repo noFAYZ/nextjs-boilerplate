@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { userService } from '@/lib/services/user-service';
+import { userService } from '@/lib/features/auth/services';
 import type { UserProfile, UserProfileUpdateData, UserStats, ApiResponse } from '@/lib/types';
 
 interface UseUserProfileReturn {

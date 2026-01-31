@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Settings2, X, Maximize, Maximize2, Square, Minimize } from 'lucide-react';
-import { useDashboardLayoutStore, dashboardLayoutSelectors, WidgetId, WidgetSize, WIDGET_SIZE_CONFIG } from '@/lib/features/accounts/stores';
+import { useDashboardLayoutStore, dashboardLayoutSelectors, WidgetId, WidgetSize, WIDGET_SIZE_CONFIG } from '@/lib/shared/stores';
 import {
   Dialog,
   DialogContent,

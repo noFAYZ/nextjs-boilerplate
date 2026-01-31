@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useEffect, useState } from 'react';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { type OnboardingV2Data } from '@/lib/features/onboarding/hooks';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { FINANCIAL_GOALS } from '@/lib/constants/financial-goals';

@@ -28,12 +28,12 @@ import { createAvatar } from '@dicebear/core';
 import { botttsNeutral } from '@dicebear/collection';
 // ✅ Import TanStack Query hooks (organization-aware)
 import {
-  useOrganizationCryptoWallet,
-  useOrganizationWalletTransactions,
-  useOrganizationWalletNFTs,
-  useOrganizationWalletDeFi,
-  useOrganizationSyncCryptoWallet
-} from '@/lib/queries/use-organization-data-context';
+  useWalletTransactions,
+  useWalletNFTs,
+  useWalletDeFi,
+  useSyncCryptoWallet
+} from '@/lib/features/crypto/queries';
+import { useOrganizationCryptoWallet } from '@/lib/features/organization/queries';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CRYPTO_SYNC_ACTIVE_STATUSES } from "@/lib/constants/sync-status";
 
@@ -194,8 +194,13 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
       radius: 20,
     }).toDataUri();
 
-  // ✅ NEW: Use TanStack Query hooks for parallel data fetching (organization-aware)
-  const walletQuery = useOrganizationCryptoWallet(walletIdentifier);
+  // ✅ NEW: Use TanStack Query hooks for parallel data fetching
+  // Get current organization from context/store for organization-scoped data
+  const { selectedOrganizationId } = useOrganizationStore();
+  const walletQuery = useOrganizationCryptoWallet(
+    selectedOrganizationId,
+    walletIdentifier
+  );
 
   // Combine data and states
   const wallet = walletQuery.data;
@@ -207,12 +212,12 @@ function WalletPageContent({ walletIdentifier }: { walletIdentifier: string }) {
 
   };
 
-  const syncWallet = useOrganizationSyncCryptoWallet();
+  const syncWallet = useSyncCryptoWallet();
   const { realtimeSyncStates } = useCryptoStore();
   const prevSyncStatusRef = useRef<string>();
 
-  
- 
+
+
 
   // Get SSE-based sync status for this wallet
   const walletSyncState = realtimeSyncStates[walletIdentifier];

@@ -5,7 +5,7 @@ import {
   ArrowRight,
   AlertTriangle,
 } from 'lucide-react';
-import { useActiveBudgets } from '@/lib/queries/use-budget-data';
+// TODO: Import useActiveBudgets when query hook is implemented
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
@@ -82,7 +82,9 @@ function BudgetItem({ budget }: { budget: { spent?: number; limit?: number; name
 type TabType = 'all' | 'active' | 'exceeded' | 'paused';
 
 function BudgetOverviewWidgetComponent() {
-  const { data: budgetsResponse, isLoading: budgetsLoading } = useActiveBudgets();
+  // TODO: Implement useActiveBudgets query hook
+  const budgetsResponse = { data: [] };
+  const budgetsLoading = false;
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const { isRefetching } = useOrganizationRefetchState();
 

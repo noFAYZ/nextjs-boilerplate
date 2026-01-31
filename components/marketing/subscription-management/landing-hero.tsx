@@ -34,7 +34,7 @@ import { AvatarCircles } from "../section-widgets/avatar-circles";
 import { Example } from "../section-widgets/features-tabs";
 import { LogoCloud } from "./logo-cld-section";
 import { BgGradient } from "../bg/bg-gradient";
-import { getLogoUrl } from "@/lib/services/logo-service";
+import { getLogoUrl } from "@/lib/features/subscriptions/services";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const FEATURES = [

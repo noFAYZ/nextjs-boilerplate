@@ -22,7 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import type { AddTransactionRequest, TransactionSplit as TransactionSplitType } from '@/lib/types/unified-accounts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SolarCheckCircleBoldDuotone, SolarShieldCrossBoldDuotone } from '@/components/icons/icons';
-import { useCategories } from '@/lib/queries/accounts-queries';
+import { useCategories } from '@/lib/features/accounts/queries';
 
 interface ManualTransactionFormProps {
   isOpen: boolean;

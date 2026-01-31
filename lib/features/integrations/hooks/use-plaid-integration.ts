@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
-import { usePlaidLinkToken, useAddPlaidAccount } from '@/lib/queries/plaid-queries';
+import { usePlaidLinkToken, useAddPlaidAccount } from '@/lib/features/integrations/queries';
 import type { BankAccount } from '@/lib/types/banking';
 
 export interface PlaidError {

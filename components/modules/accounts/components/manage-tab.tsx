@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, memo } from 'react';
-import { useAllAccounts } from '@/lib/queries';
+import { useAllAccounts } from '@/lib/features/accounts/queries';
 import { useAccountsUIStore } from '@/lib/features/accounts/stores';
 import { AccountsDataView } from './accounts-data-view';
 

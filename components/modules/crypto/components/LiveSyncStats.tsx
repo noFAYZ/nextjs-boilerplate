@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCryptoStore } from "@/lib/features/crypto/stores";
-import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context";
+import { useOrganizationCryptoWallets } from '@/lib/features/organization/queries';
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 

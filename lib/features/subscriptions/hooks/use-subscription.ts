@@ -9,8 +9,8 @@ import {
   useUpgradeBillingSubscription,
   useCancelBillingSubscription,
   useInvalidateBillingSubscriptionCache,
-} from '@/lib/queries/use-billing-subscription-data';
-import { subscriptionService } from '@/lib/services/subscription-service';
+} from '@/lib/features/subscriptions/queries';
+import { subscriptionService } from '@/lib/features/subscriptions/services';
 import type {
   SubscriptionPlan,
   CurrentSubscription,

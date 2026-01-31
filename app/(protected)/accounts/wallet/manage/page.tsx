@@ -35,11 +35,11 @@ import { botttsNeutral } from '@dicebear/collection';
 // Import TanStack Query hooks and UI store
 import {
   useOrganizationCryptoWallets,
-  useOrganizationDeleteCryptoWallet,
   useOrganizationSyncCryptoWallet,
-} from '@/lib/queries/use-organization-data-context';
-import { useSyncAllCryptoWallets } from '@/lib/queries';
-import { useCryptoUIStore } from '@/lib/features/accounts/stores';
+  // TODO: useOrganizationDeleteCryptoWallet needs to be implemented
+} from '@/lib/features/organization/queries';
+import { useSyncAllCryptoWallets } from '@/lib/features/crypto/queries';
+import { useCryptoUIStore } from '@/lib/features/crypto/stores';
 import { useCryptoStore } from '@/lib/features/crypto/stores';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import type { CryptoWallet } from '@/lib/types/crypto';

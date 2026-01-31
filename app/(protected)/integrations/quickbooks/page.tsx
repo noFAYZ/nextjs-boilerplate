@@ -45,7 +45,7 @@ import {
   useQuickBooksInvoices,
   useSyncQuickBooks,
   useDisconnectQuickBooks,
-} from '@/lib/queries/integrations-queries';
+} from '@/lib/features/integrations/queries';
 import { IntegrationProvider, QuickBooksAccount } from '@/lib/types/integrations';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Pagination, PaginationInfo, usePagination } from '@/components/ui/pagination';

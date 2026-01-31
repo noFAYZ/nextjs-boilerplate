@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { useCryptoStore } from "@/lib/features/crypto/stores";
 import { useRealtimeSync } from "@/components/providers/realtime-sync-provider";
 import { cn } from "@/lib/utils";
-import { useOrganizationCryptoWallets } from "@/lib/queries/use-organization-data-context";
+import { useOrganizationCryptoWallets } from '@/lib/features/organization/queries';
 
 interface SyncStatusIndicatorProps {
   variant?: "minimal" | "compact" | "detailed";

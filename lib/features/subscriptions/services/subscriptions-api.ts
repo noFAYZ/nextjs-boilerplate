@@ -9,7 +9,7 @@
  */
 
 import { apiClient } from '@/lib/core/api';
-import { logoService } from '@/lib/services/logo-service';
+import { logoService } from '@/lib/shared/services';
 import type { ApiResponse } from '@/lib/types';
 import type {
   UserSubscription,
