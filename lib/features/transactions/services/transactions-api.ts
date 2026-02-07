@@ -2,107 +2,127 @@ import { apiClient } from '@/lib/core/api';
 import type { ApiResponse } from '@/lib/types/crypto';
 
 /**
- * Transaction API Service
- * Handles all transaction-related operations including CRUD, filtering, categorization, and analytics
+ * Transaction API Service - Complete Implementation
  *
- * Base path: /transactions
+ * Comprehensive transaction management with 60+ endpoints covering:
+ * - Core transactions (CRUD, search, bulk operations)
+ * - Transaction notes, attachments, and reconciliation
+ * - Categories and category groups management
+ * - Category-based and custom categorization rules
+ * - Advanced analytics and pattern detection
+ * - Merchant tracking and management
+ *
+ * Base paths:
+ * - /api/v1/transactions (18 endpoints)
+ * - /api/v1/categories (6 endpoints)
+ * - /api/v1/category-groups (5 endpoints)
+ * - /api/v1/category-rules (10 endpoints)
+ * - /api/v1/categorization-rules (14 endpoints)
+ * - /api/v1/findings (6 endpoints)
+ * - /api/v1/merchants (1 endpoint)
  */
 class TransactionsApiService {
   private readonly basePath = '/transactions';
+  private readonly categoriesPath = '/categories';
+  private readonly categoryGroupsPath = '/category-groups';
+  private readonly categoryRulesPath = '/category-rules';
+  private readonly categorizationRulesPath = '/categorization-rules';
+  private readonly findingsPath = '/findings';
+  private readonly merchantsPath = '/merchants';
 
   // ============================================================================
-  // TRANSACTION CRUD OPERATIONS
+  // 1. CORE TRANSACTIONS - CRUD OPERATIONS
   // ============================================================================
 
   /**
-   * Create a single transaction
+   * List all transactions with filtering and pagination
+   *
+   * Supported filters:
+   * - accountId: Filter by account
+   * - categoryId: Filter by category
+   * - type: INCOME, EXPENSE, TRANSFER
+   * - dateFrom/dateTo: Date range (ISO format)
+   * - page/limit: Pagination
    */
-  async createTransaction(data: {
-    accountId: string;
-    amount: number;
-    currency?: string;
-    date: string;
-    description: string;
-    categoryId?: string;
-    merchantId?: string;
-    type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-    status?: 'PENDING' | 'POSTED' | 'CLEARED' | 'RECONCILED';
-    isTransfer?: boolean;
-    isPending?: boolean;
-    relatedTransactionId?: string;
-    notes?: string;
-    tags?: string[];
-    metadata?: Record<string, any>;
-  }, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    accountId: string;
-    amount: number;
-    currency: string;
-    date: string;
-    description: string;
-    type: string;
-    status: string;
-    categoryId?: string;
-    merchantId?: string;
-    notes?: string;
-    tags?: string[];
-    createdAt: string;
-    updatedAt: string;
-  }>> {
-    return apiClient.post(`${this.basePath}`, data, organizationId);
+  async listTransactions(
+    params?: {
+      accountId?: string;
+      categoryId?: string;
+      type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+      dateFrom?: string;
+      dateTo?: string;
+      page?: number;
+      limit?: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      data: Array<{
+        id: string;
+        accountId: string;
+        amount: number;
+        date: string;
+        description: string;
+        type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        status: string;
+        categoryId: string;
+        notes?: string;
+        tags?: string[];
+        createdAt: string;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+      };
+      timestamp: string;
+    }>
+  > {
+    const searchParams = new URLSearchParams();
+    if (params?.accountId) searchParams.set('accountId', params.accountId);
+    if (params?.categoryId) searchParams.set('categoryId', params.categoryId);
+    if (params?.type) searchParams.set('type', params.type);
+    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+
+    const query = searchParams.toString();
+    return apiClient.get(
+      `${this.basePath}${query ? `?${query}` : ''}`,
+      organizationId
+    );
   }
 
   /**
-   * Create multiple transactions at once
+   * Create a new transaction
+   *
+   * Supported fields:
+   * - accountId (required)
+   * - amount (required)
+   * - date (required, ISO format)
+   * - description (required)
+   * - type (required): INCOME, EXPENSE, TRANSFER
+   * - status: POSTED, PENDING, CLEARED
+   * - categoryId (required)
+   * - notes (optional)
+   * - tags (optional): Array of tag strings
    */
-  async bulkCreateTransactions(data: {
-    transactions: Array<{
+  async createTransaction(
+    data: {
       accountId: string;
       amount: number;
-      currency?: string;
       date: string;
       description: string;
-      categoryId?: string;
-      merchantId?: string;
       type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-      status?: 'PENDING' | 'POSTED' | 'CLEARED' | 'RECONCILED';
-      isTransfer?: boolean;
-      isPending?: boolean;
-      relatedTransactionId?: string;
+      status?: 'POSTED' | 'PENDING' | 'CLEARED';
+      categoryId: string;
       notes?: string;
       tags?: string[];
-      metadata?: Record<string, any>;
-    }>;
-  }, organizationId?: string): Promise<ApiResponse<{
-    created: number;
-    createdTransactions: Array<{ id: string; amount: number; description: string }>;
-    errors: number;
-    errorDetails: Array<{ index: number; error: string }>;
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk`, data, organizationId);
-  }
-
-  /**
-   * Get transactions with advanced filtering
-   */
-  async getTransactions(params?: {
-    accountId?: string;
-    categoryId?: string;
-    merchantId?: string;
-    type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-    status?: 'PENDING' | 'POSTED' | 'CLEARED' | 'RECONCILED';
-    isTransfer?: boolean;
-    isPending?: boolean;
-    search?: string;
-    dateFrom?: string;
-    dateTo?: string;
-    amountMin?: number;
-    amountMax?: number;
-    page?: number;
-    limit?: number;
-    sortBy?: 'date' | 'amount' | 'description';
-  }, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
       id: string;
       accountId: string;
       amount: number;
@@ -110,868 +130,1380 @@ class TransactionsApiService {
       description: string;
       type: string;
       status: string;
-      categoryId?: string;
-    }>;
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.accountId) searchParams.set('accountId', params.accountId);
-    if (params?.categoryId) searchParams.set('categoryId', params.categoryId);
-    if (params?.merchantId) searchParams.set('merchantId', params.merchantId);
-    if (params?.type) searchParams.set('type', params.type);
-    if (params?.status) searchParams.set('status', params.status);
-    if (params?.isTransfer !== undefined) searchParams.set('isTransfer', params.isTransfer.toString());
-    if (params?.isPending !== undefined) searchParams.set('isPending', params.isPending.toString());
-    if (params?.search) searchParams.set('search', params.search);
-    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
-    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
-    if (params?.amountMin !== undefined) searchParams.set('amountMin', params.amountMin.toString());
-    if (params?.amountMax !== undefined) searchParams.set('amountMax', params.amountMax.toString());
-    if (params?.page) searchParams.set('page', params.page.toString());
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
-
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Get transaction statistics
-   */
-  async getTransactionStats(params?: {
-    accountId?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  }, organizationId?: string): Promise<ApiResponse<{
-    totalTransactions: number;
-    totalIncome: number;
-    totalExpense: number;
-    netFlow: number;
-    averageTransaction: number;
-    byCategory: Array<{
       categoryId: string;
-      categoryName: string;
-      amount: number;
-      count: number;
-    }>;
-    byMerchant: Array<{
-      merchantId: string;
-      merchantName: string;
-      amount: number;
-      count: number;
-    }>;
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.accountId) searchParams.set('accountId', params.accountId);
-    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
-    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
-
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/stats${query ? `?${query}` : ''}`, organizationId);
+      notes?: string;
+      tags?: string[];
+      createdAt: string;
+    }>
+  > {
+    return apiClient.post(`${this.basePath}`, data, organizationId);
   }
 
   /**
-   * Get single transaction
+   * Get a single transaction by ID
    */
-  async getTransaction(id: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    accountId: string;
-    amount: number;
-    currency: string;
-    date: string;
-    description: string;
-    type: string;
-    status: string;
-    categoryId?: string;
-    merchantId?: string;
-    notes?: string;
-    tags?: string[];
-    metadata?: Record<string, any>;
-    createdAt: string;
-    updatedAt: string;
-  }>> {
+  async getTransaction(
+    id: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      accountId: string;
+      amount: number;
+      date: string;
+      description: string;
+      type: string;
+      status: string;
+      categoryId: string;
+      notes?: string;
+      tags?: string[];
+      createdAt: string;
+      updatedAt: string;
+    }>
+  > {
     return apiClient.get(`${this.basePath}/${id}`, organizationId);
   }
 
   /**
-   * Update transaction
+   * Update a transaction
+   *
+   * Updatable fields:
+   * - description
+   * - categoryId
+   * - status
+   * - notes
    */
-  async updateTransaction(id: string, data: {
-    description?: string;
-    categoryId?: string;
-    status?: 'PENDING' | 'POSTED' | 'CLEARED' | 'RECONCILED';
-    notes?: string;
-    tags?: string[];
-    accountId?: string;
-    metadata?: Record<string, any>;
-  }, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    description: string;
-    categoryId?: string;
-    status: string;
-    accountId?: string;
-    updatedAt: string;
-  }>> {
+  async updateTransaction(
+    id: string,
+    data: {
+      description?: string;
+      categoryId?: string;
+      status?: 'POSTED' | 'PENDING' | 'CLEARED';
+      notes?: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      accountId: string;
+      amount: number;
+      date: string;
+      description: string;
+      categoryId: string;
+      notes?: string;
+      updatedAt: string;
+    }>
+  > {
     return apiClient.put(`${this.basePath}/${id}`, data, organizationId);
   }
 
   /**
-   * Delete transaction
+   * Delete a transaction
    */
-  async deleteTransaction(id: string, organizationId?: string): Promise<ApiResponse<void>> {
+  async deleteTransaction(
+    id: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
     return apiClient.delete(`${this.basePath}/${id}`, organizationId);
   }
 
   // ============================================================================
-  // TRANSACTION CATEGORIES & MERCHANTS
+  // 2. SEARCH & FILTERING
   // ============================================================================
 
   /**
-   * Get transaction category groups with categories
+   * Search transactions by query, amount range, date range, etc.
+   *
+   * Supports advanced filtering:
+   * - q: Search query (merchant/description/notes)
+   * - accountIds: Comma-separated account IDs
+   * - categories: Comma-separated category IDs
+   * - merchants: Comma-separated merchant IDs
+   * - minAmount/maxAmount: Amount range
+   * - dateFrom/dateTo: Date range (YYYY-MM-DD)
+   * - isDuplicate: Filter by duplicate status
    */
-  async getCategoryGroups(organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
-      name: string;
-      displayName?: string;
-      emoji?: string;
-      color?: string;
-      categories?: Array<{
+  async searchTransactions(
+    params: {
+      q?: string;
+      accountIds?: string;
+      categories?: string;
+      merchants?: string;
+      minAmount?: number;
+      maxAmount?: number;
+      dateFrom?: string;
+      dateTo?: string;
+      isDuplicate?: boolean;
+      limit?: number;
+      offset?: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
         id: string;
-        name: string;
-        displayName?: string;
-        emoji?: string;
-        color?: string;
+        accountId: string;
+        amount: number;
+        date: string;
+        description: string;
+        type: string;
+        status: string;
+        categoryId: string;
+        notes?: string;
+        createdAt: string;
+      }>
+    >
+  > {
+    const searchParams = new URLSearchParams();
+    if (params.q) searchParams.set('q', params.q);
+    if (params.accountIds) searchParams.set('accountIds', params.accountIds);
+    if (params.categories) searchParams.set('categories', params.categories);
+    if (params.merchants) searchParams.set('merchants', params.merchants);
+    if (params.minAmount !== undefined)
+      searchParams.set('minAmount', params.minAmount.toString());
+    if (params.maxAmount !== undefined)
+      searchParams.set('maxAmount', params.maxAmount.toString());
+    if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params.dateTo) searchParams.set('dateTo', params.dateTo);
+    if (params.isDuplicate !== undefined)
+      searchParams.set('isDuplicate', params.isDuplicate.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.offset) searchParams.set('offset', params.offset.toString());
+
+    const query = searchParams.toString();
+    return apiClient.get(
+      `${this.basePath}/search?${query}`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 3. BULK OPERATIONS
+  // ============================================================================
+
+  /**
+   * Create multiple transactions in a single request
+   */
+  async createTransactionsBulk(
+    data: {
+      transactions: Array<{
+        accountId: string;
+        amount: number;
+        date: string;
+        description: string;
+        type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+        categoryId: string;
+        notes?: string;
+        tags?: string[];
       }>;
-    }>;
-  }>> {
-    return apiClient.get(`/category-groups`, organizationId);
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      data: Array<{
+        id: string;
+        accountId: string;
+        amount: number;
+        date: string;
+        description: string;
+        createdAt: string;
+      }>;
+    }>
+  > {
+    return apiClient.post(
+      `${this.basePath}/bulk`,
+      data,
+      organizationId
+    );
   }
 
   /**
-   * Get flat list of all transaction categories
+   * Validate transactions before bulk creation
    */
-  async getCategories(params?: {
-    groupId?: string;
-    page?: number;
-    limit?: number;
-    activeOnly?: boolean;
-    search?: string;
-  }, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
-      name: string;
-      displayName?: string;
-      emoji?: string;
-      color?: string;
-      groupId: string;
-    }>;
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.groupId) searchParams.set('groupId', params.groupId);
-    if (params?.page) searchParams.set('page', params.page.toString());
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    if (params?.activeOnly !== undefined) searchParams.set('activeOnly', params.activeOnly.toString());
-    if (params?.search) searchParams.set('search', params.search);
-
-    const query = searchParams.toString();
-    return apiClient.get(`/categories${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Search categories by name
-   */
-  async searchCategories(query: string, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
-      name: string;
-      displayName?: string;
-      emoji?: string;
-      color?: string;
-      groupId: string;
-    }>;
-  }>> {
-    return apiClient.get(`/categories/search?q=${encodeURIComponent(query)}`, organizationId);
-  }
-
-  /**
-   * Get merchants
-   */
-  async getMerchants(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
-      name: string;
-      category: string;
-      logoUrl?: string;
-      isVerified: boolean;
-    }>;
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.set('page', params.page.toString());
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    if (params?.search) searchParams.set('search', params.search);
-
-    const query = searchParams.toString();
-    return apiClient.get(`/merchants${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  // ============================================================================
-  // TRANSACTION NOTES & TAGS
-  // ============================================================================
-
-  /**
-   * Get transaction notes
-   */
-  async getTransactionNotes(transactionId: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    notes: string;
-    createdAt: string;
-    updatedAt: string;
-  }>> {
-    return apiClient.get(`${this.basePath}/${transactionId}/notes`, organizationId);
-  }
-
-  /**
-   * Add/update transaction notes
-   */
-  async updateTransactionNotes(transactionId: string, notes: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    notes: string;
-    updatedAt: string;
-  }>> {
-    return apiClient.put(`${this.basePath}/${transactionId}/notes`, { notes }, organizationId);
-  }
-
-  /**
-   * Delete transaction notes
-   */
-  async deleteTransactionNotes(transactionId: string, organizationId?: string): Promise<ApiResponse<{
-    success: boolean;
-    message: string;
-  }>> {
-    return apiClient.delete(`${this.basePath}/${transactionId}/notes`, organizationId);
-  }
-
-  /**
-   * Add tags to a transaction
-   */
-  async addTransactionTags(transactionId: string, tags: string[], organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    tags: string[];
-    updatedAt: string;
-  }>> {
-    return apiClient.post(`${this.basePath}/${transactionId}/tags/add`, { tags }, organizationId);
-  }
-
-  /**
-   * Remove tags from a transaction
-   */
-  async removeTransactionTags(transactionId: string, tags: string[], organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    tags: string[];
-    updatedAt: string;
-  }>> {
-    return apiClient.post(`${this.basePath}/${transactionId}/tags/remove`, { tags }, organizationId);
-  }
-
-  /**
-   * Replace all tags for a transaction
-   */
-  async replaceTransactionTags(transactionId: string, tags: string[], organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    tags: string[];
-    updatedAt: string;
-  }>> {
-    return apiClient.put(`${this.basePath}/${transactionId}/tags`, { tags }, organizationId);
-  }
-
-  /**
-   * Get all user tags
-   */
-  async getAllUserTags(organizationId?: string, sort?: 'name' | 'count' | 'count_desc'): Promise<ApiResponse<Array<{
-    tag: string;
-    count: number;
-    lastUsed: string;
-  }>>> {
-    const query = sort ? `?sort=${sort}` : '';
-    return apiClient.get(`/transactions/user/tags${query}`, organizationId);
-  }
-
-  /**
-   * Get transactions by tag
-   */
-  async getTransactionsByTag(tag: string, params?: { limit?: number; offset?: number }, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-    metadata: {
-      tag: string;
-      totalTransactions: number;
-      totalAmount: number;
-    };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    if (params?.offset) searchParams.set('offset', params.offset.toString());
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/tags/${tag}${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Search transactions by notes
-   */
-  async searchTransactionsByNotes(query: string, limit?: number, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-  }>> {
-    return apiClient.post(`${this.basePath}/search/notes`, { query, limit }, organizationId);
-  }
-
-  // ============================================================================
-  // BULK OPERATIONS
-  // ============================================================================
-
-  /**
-   * Bulk categorize transactions
-   */
-  async bulkCategorizeTransactions(transactionIds: string[], category: string, organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalUpdated: number;
-    failed: string[];
-    updatedIds: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/categorize`, { transactionIds, category }, organizationId);
-  }
-
-  /**
-   * Bulk add tags
-   */
-  async bulkAddTransactionTags(transactionIds: string[], tags: string[], organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalUpdated: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/tag`, { transactionIds, tags, operation: 'add' }, organizationId);
-  }
-
-  /**
-   * Bulk remove tags
-   */
-  async bulkRemoveTransactionTags(transactionIds: string[], tags: string[], organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalUpdated: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/tag`, { transactionIds, tags, operation: 'remove' }, organizationId);
-  }
-
-  /**
-   * Bulk replace tags
-   */
-  async bulkReplaceTransactionTags(transactionIds: string[], tags: string[], organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalUpdated: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/tag`, { transactionIds, tags, operation: 'replace' }, organizationId);
-  }
-
-  /**
-   * Bulk add notes
-   */
-  async bulkAddTransactionNotes(transactionIds: string[], notes: string, organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalUpdated: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/notes`, { transactionIds, notes, operation: 'add' }, organizationId);
-  }
-
-  /**
-   * Bulk delete transactions
-   */
-  async bulkDeleteTransactions(transactionIds: string[], organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalDeleted: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/delete`, { transactionIds }, organizationId);
-  }
-
-  /**
-   * Bulk restore transactions
-   */
-  async bulkRestoreTransactions(transactionIds: string[], organizationId?: string): Promise<ApiResponse<{
-    totalRequested: number;
-    totalRestored: number;
-    failed: string[];
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/restore`, { transactionIds }, organizationId);
-  }
-
-  /**
-   * Validate bulk operation
-   */
-  async validateBulkOperation(transactionIds: string[], organizationId?: string): Promise<ApiResponse<{
-    valid: string[];
-    invalid: string[];
-    validCount: number;
-    invalidCount: number;
-  }>> {
-    return apiClient.post(`${this.basePath}/bulk/validate`, { transactionIds }, organizationId);
-  }
-
-  // ============================================================================
-  // TRANSACTION STATUS & RECONCILIATION
-  // ============================================================================
-
-  /**
-   * Get transaction status
-   */
-  async getTransactionStatus(transactionId: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    status: string;
-    reconciliationStatus: string;
-    statusHistory: Array<{
-      status: string;
-      timestamp: string;
-    }>;
-  }>> {
-    return apiClient.get(`${this.basePath}/${transactionId}/status`, organizationId);
-  }
-
-  /**
-   * Update transaction status
-   */
-  async updateTransactionStatus(transactionId: string, status: string, reconciliationStatus?: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    status: string;
-    reconciliationStatus?: string;
-    updatedAt: string;
-  }>> {
-    return apiClient.put(`${this.basePath}/${transactionId}/status`, { status, reconciliationStatus }, organizationId);
-  }
-
-  /**
-   * Get status history
-   */
-  async getTransactionStatusHistory(transactionId: string, organizationId?: string): Promise<ApiResponse<Array<{
-    id: string;
-    status: string;
-    fromStatus: string | null;
-    toStatus: string;
-    timestamp: string;
-  }>>> {
-    return apiClient.get(`${this.basePath}/${transactionId}/status-history`, organizationId);
-  }
-
-  /**
-   * Get category history
-   */
-  async getTransactionCategoryHistory(transactionId: string, organizationId?: string): Promise<ApiResponse<Array<{
-    id: string;
-    timestamp: string;
-    previousCategory: string | null;
-    newCategory: string;
-    changedBy: string;
-    changeMethod: string;
-    confidence: number;
-  }>>> {
-    return apiClient.get(`${this.basePath}/${transactionId}/category-history`, organizationId);
-  }
-
-  /**
-   * Update transaction category
-   */
-  async updateTransactionCategory(transactionId: string, category: string, notes?: string, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    category: string;
-    updatedAt: string;
-  }>> {
-    return apiClient.put(`${this.basePath}/${transactionId}/category`, { category, notes }, organizationId);
-  }
-
-  /**
-   * Revert category to previous
-   */
-  async revertTransactionCategory(transactionId: string, steps?: number, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    previousCategory: string;
-    newCategory: string;
-    stepsReverted?: number;
-    revertedAt: string;
-  }>> {
-    const path = steps ? `${this.basePath}/${transactionId}/category/revert/${steps}` : `${this.basePath}/${transactionId}/category/revert`;
-    return apiClient.post(path, {}, organizationId);
-  }
-
-  // ============================================================================
-  // TRANSACTION ATTACHMENTS
-  // ============================================================================
-
-  /**
-   * Upload attachment to transaction
-   */
-  async uploadTransactionAttachment(transactionId: string, file: File, description?: string, isPublic?: boolean, organizationId?: string): Promise<ApiResponse<{
-    id: string;
-    transactionId: string;
-    fileName: string;
-    fileSize: number;
-    fileType: string;
-    uploadedAt: string;
-    description?: string;
-    isPublic: boolean;
-  }>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (description) formData.append('description', description);
-    if (isPublic !== undefined) formData.append('isPublic', isPublic.toString());
-    return apiClient.post(`${this.basePath}/${transactionId}/attachments`, formData, organizationId);
-  }
-
-  /**
-   * Get transaction attachments
-   */
-  async getTransactionAttachments(transactionId: string, organizationId?: string): Promise<ApiResponse<{
-    attachments: Array<{
-      id: string;
-      fileName: string;
-      fileSize: number;
-      fileType: string;
-      uploadedAt: string;
-      description?: string;
-      isPublic: boolean;
-    }>;
-    total: number;
-  }>> {
-    return apiClient.get(`${this.basePath}/${transactionId}/attachments`, organizationId);
-  }
-
-  /**
-   * Get presigned URL for downloading attachment
-   */
-  async getAttachmentDownloadUrl(attachmentId: string, organizationId?: string): Promise<ApiResponse<{
-    downloadUrl: string;
-    expiresIn: number;
-  }>> {
-    return apiClient.get(`/attachments/${attachmentId}/download`, organizationId);
-  }
-
-  /**
-   * Delete attachment
-   */
-  async deleteAttachment(attachmentId: string, organizationId?: string): Promise<ApiResponse<{
-    success: boolean;
-    message: string;
-  }>> {
-    return apiClient.delete(`/attachments/${attachmentId}`, organizationId);
-  }
-
-  /**
-   * Make attachment public
-   */
-  async makeAttachmentPublic(attachmentId: string, organizationId?: string): Promise<ApiResponse<{
-    attachmentId: string;
-    isPublic: boolean;
-    updatedAt: string;
-  }>> {
-    return apiClient.put(`/attachments/${attachmentId}/public`, {}, organizationId);
-  }
-
-  /**
-   * Make attachment private
-   */
-  async makeAttachmentPrivate(attachmentId: string, organizationId?: string): Promise<ApiResponse<{
-    attachmentId: string;
-    isPublic: boolean;
-    updatedAt: string;
-  }>> {
-    return apiClient.delete(`/attachments/${attachmentId}/public`, organizationId);
-  }
-
-  /**
-   * Get attachment quota usage
-   */
-  async getAttachmentQuotaUsage(organizationId?: string): Promise<ApiResponse<{
-    used: number;
-    quota: number;
-    remaining: number;
-    percentageUsed: string;
-  }>> {
-    return apiClient.get(`/accounts/attachment-quota`, organizationId);
-  }
-
-  // ============================================================================
-  // DUPLICATE DETECTION & RESOLUTION
-  // ============================================================================
-
-  /**
-   * Get all duplicates
-   */
-  async getDuplicates(params?: { status?: string; accountId?: string; limit?: number; offset?: number }, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
+  async validateBulkTransactions(
+    data: {
       transactionIds: string[];
-      merchant: string;
-      amount: number;
-      status: string;
-      detectedAt: string;
-      transactions: any[];
-    }>;
-    pagination: { total: number; limit: number; offset: number };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set('status', params.status);
-    if (params?.accountId) searchParams.set('accountId', params.accountId);
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    if (params?.offset) searchParams.set('offset', params.offset.toString());
-    const query = searchParams.toString();
-    return apiClient.get(`/banking/duplicates${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Get duplicate statistics
-   */
-  async getDuplicateStats(organizationId?: string): Promise<ApiResponse<{
-    totalDuplicates: number;
-    pendingDuplicates: number;
-    resolvedDuplicates: number;
-    ignoredDuplicates: number;
-    totalDuplicateAmount: number;
-    averageDuplicateAmount: number;
-  }>> {
-    return apiClient.get(`/banking/duplicates/stats`, organizationId);
-  }
-
-  /**
-   * Resolve duplicate
-   */
-  async resolveDuplicate(duplicateId: string, keepTransactionId: string, mergeNotes?: boolean, organizationId?: string): Promise<ApiResponse<{
-    duplicateId: string;
-    status: string;
-    keptTransaction: string;
-    deletedTransactions: string[];
-    resolvedAt: string;
-  }>> {
-    return apiClient.post(`/banking/duplicates/resolve`, {
-      duplicateId,
-      keepTransactionId,
-      mergeNotes,
-    }, organizationId);
-  }
-
-  /**
-   * Ignore duplicate
-   */
-  async ignoreDuplicate(duplicateId: string, reason?: string, organizationId?: string): Promise<ApiResponse<{
-    duplicateId: string;
-    status: string;
-    reason?: string;
-    ignoredAt: string;
-  }>> {
-    return apiClient.post(`/banking/duplicates/${duplicateId}/ignore`, { reason }, organizationId);
-  }
-
-  /**
-   * Get account duplicates
-   */
-  async getAccountDuplicates(accountId: string, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-    statistics: {
-      totalDuplicates: number;
-      pendingDuplicates: number;
-      totalDuplicateAmount: number;
-    };
-  }>> {
-    return apiClient.get(`/banking/accounts/${accountId}/duplicates`, organizationId);
-  }
-
-  // ============================================================================
-  // BALANCE HISTORY
-  // ============================================================================
-
-  /**
-   * Get account balance history
-   */
-  async getBalanceHistory(accountId: string, params?: { dateFrom?: string; dateTo?: string; limit?: number }, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      id: string;
-      accountId: string;
-      date: string;
-      currentBalance: number;
-      availableBalance: number;
-      limitBalance?: number;
-      currency: string;
-      source: string;
-      createdAt: string;
-    }>;
-    metadata: {
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      valid: number;
+      invalid: number;
       total: number;
-      limit: number;
-      offset: number;
-      dateRange: { from: string; to: string };
-    };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
-    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    const query = searchParams.toString();
-    return apiClient.get(`/banking/accounts/${accountId}/balance-history${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Get balance trend
-   */
-  async getBalanceTrend(accountId: string, params?: { days?: number; granularity?: string }, organizationId?: string): Promise<ApiResponse<{
-    accountId: string;
-    period: string;
-    startDate: string;
-    endDate: string;
-    trend: Array<{
-      date: string;
-      balance: number;
-      change: number;
-      changePercent: number;
-    }>;
-    summary: {
-      startBalance: number;
-      endBalance: number;
-      totalChange: number;
-      totalChangePercent: number;
-      highBalance: number;
-      lowBalance: number;
-      averageBalance: number;
-      volatility: number;
-    };
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.days) searchParams.set('days', params.days.toString());
-    if (params?.granularity) searchParams.set('granularity', params.granularity);
-    const query = searchParams.toString();
-    return apiClient.get(`/banking/accounts/${accountId}/balance-trend${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Import balance history (CSV)
-   */
-  async importBalanceHistory(accountId: string, file: File, organizationId?: string): Promise<ApiResponse<{
-    accountId: string;
-    totalRecords: number;
-    importedRecords: number;
-    skippedRecords: number;
-    duplicateRecords: number;
-    dateRange: { from: string; to: string };
-    importedAt: string;
-  }>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return apiClient.post(`/banking/accounts/${accountId}/balance-history/import`, formData, organizationId);
-  }
-
-  /**
-   * Export balance history (CSV)
-   */
-  async exportBalanceHistory(accountId: string, params?: { dateFrom?: string; dateTo?: string }, organizationId?: string): Promise<ApiResponse<Blob>> {
-    const searchParams = new URLSearchParams();
-    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
-    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
-    const query = searchParams.toString();
-    return apiClient.get(`/banking/accounts/${accountId}/balance-history/export${query ? `?${query}` : ''}`, organizationId);
+    }>
+  > {
+    return apiClient.post(
+      `${this.basePath}/bulk/validate`,
+      data,
+      organizationId
+    );
   }
 
   // ============================================================================
-  // ADVANCED SEARCH
+  // 4. STATISTICS
   // ============================================================================
 
   /**
-   * Advanced search with multiple filters
+   * Get transaction statistics for a period
+   *
+   * Returns:
+   * - totalTransactions
+   * - totalAmount
+   * - averageAmount
+   * - largestTransaction
+   * - smallestTransaction
    */
-  async advancedSearch(filters: {
-    merchants?: string[];
-    categories?: string[];
-    dateRange?: { from: string; to: string };
-    amountRange?: { min: number; max: number };
-    statuses?: string[];
-    reconciliationStatus?: string;
-    accounts?: string[];
-    isDuplicate?: boolean;
-    tags?: string[];
-  }, pagination?: { limit?: number; offset?: number }, sort?: string, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-    pagination: { total: number; limit: number; offset: number; pages: number };
-  }>> {
-    return apiClient.post(`${this.basePath}/search/advanced`, {
-      filters,
-      pagination,
-      sort,
-    }, organizationId);
-  }
-
-  /**
-   * Search by merchant
-   */
-  async searchByMerchant(merchant: string, params?: { limit?: number }, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-  }>> {
-    const searchParams = new URLSearchParams();
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/search/merchant/${merchant}${query ? `?${query}` : ''}`, organizationId);
-  }
-
-  /**
-   * Search by category
-   */
-  async searchByCategory(categoryId: string, params?: { limit?: number }, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-    summary: {
+  async getTransactionStats(
+    params?: {
+      accountId?: string;
+      dateFrom?: string;
+      dateTo?: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
       totalTransactions: number;
       totalAmount: number;
       averageAmount: number;
-      categoryName: string;
-    };
-  }>> {
+      largestTransaction: number;
+      smallestTransaction: number;
+    }>
+  > {
     const searchParams = new URLSearchParams();
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.accountId)
+      searchParams.set('accountId', params.accountId);
+    if (params?.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) searchParams.set('dateTo', params.dateTo);
+
     const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/search/category/${categoryId}${query ? `?${query}` : ''}`, organizationId);
+    return apiClient.get(
+      `${this.basePath}/stats${query ? `?${query}` : ''}`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 5. NOTES & ATTACHMENTS
+  // ============================================================================
+
+  /**
+   * Get notes for a transaction
+   */
+  async getTransactionNotes(
+    transactionId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      transactionId: string;
+      notes: string[];
+    }>
+  > {
+    return apiClient.get(
+      `${this.basePath}/${transactionId}/notes`,
+      organizationId
+    );
   }
 
   /**
-   * Search by similar amount
+   * Add a note to a transaction
    */
-  async searchBySimilarAmount(amount: number, tolerance?: number, organizationId?: string): Promise<ApiResponse<{
-    data: any[];
-  }>> {
-    const searchParams = new URLSearchParams();
-    searchParams.set('amount', amount.toString());
-    if (tolerance) searchParams.set('tolerance', tolerance.toString());
-    const query = searchParams.toString();
-    return apiClient.get(`${this.basePath}/search/similar-amount?${query}`, organizationId);
+  async addTransactionNote(
+    transactionId: string,
+    data: {
+      text: string;
+    },
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; text: string; createdAt: string }>> {
+    return apiClient.post(
+      `${this.basePath}/${transactionId}/notes`,
+      data,
+      organizationId
+    );
   }
 
   /**
-   * Get merchant suggestions (autocomplete)
+   * Upload an attachment to a transaction
+   * Note: This is a multipart form-data request, may require special handling
    */
-  async getMerchantSuggestions(query: string, limit?: number, organizationId?: string): Promise<ApiResponse<{
-    data: Array<{
-      merchant: string;
-      count: number;
+  async uploadTransactionAttachment(
+    transactionId: string,
+    file: File,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      filename: string;
+      fileSize: number;
+      uploadedAt: string;
+    }>
+  > {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post(
+      `${this.basePath}/${transactionId}/attachments`,
+      formData,
+      organizationId
+    );
+  }
+
+  /**
+   * Get attachments for a transaction
+   */
+  async getTransactionAttachments(
+    transactionId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        filename: string;
+        fileSize: number;
+        uploadedAt: string;
+      }>
+    >
+  > {
+    return apiClient.get(
+      `${this.basePath}/${transactionId}/attachments`,
+      organizationId
+    );
+  }
+
+  /**
+   * Download an attachment
+   */
+  async downloadAttachment(
+    attachmentId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ downloadUrl: string }>> {
+    return apiClient.get(
+      `/attachments/${attachmentId}/download`,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete an attachment
+   */
+  async deleteAttachment(
+    attachmentId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `/attachments/${attachmentId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Make an attachment public
+   */
+  async makeAttachmentPublic(
+    attachmentId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isPublic: boolean }>> {
+    return apiClient.put(
+      `/attachments/${attachmentId}/public`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Make an attachment private
+   */
+  async makeAttachmentPrivate(
+    attachmentId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isPublic: boolean }>> {
+    return apiClient.delete(
+      `/attachments/${attachmentId}/public`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 6. RECONCILIATION
+  // ============================================================================
+
+  /**
+   * Mark a transaction as reconciled
+   *
+   * Links two transactions together (e.g., bank statement and manual entry)
+   */
+  async reconcileTransaction(
+    transactionId: string,
+    data: {
+      matchedTransactionId: string;
+      notes?: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      reconciled: boolean;
+      matchedTransactionId: string;
+    }>
+  > {
+    return apiClient.post(
+      `${this.basePath}/${transactionId}/reconcile`,
+      data,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 7. CATEGORIES - CRUD OPERATIONS
+  // ============================================================================
+
+  /**
+   * List all categories (default and custom)
+   *
+   * Returns:
+   * - default: System default categories
+   * - custom: User-created categories
+   */
+  async listCategories(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      default: Array<{
+        id: string;
+        name: string;
+        icon: string;
+        color: string;
+        groupId: string;
+      }>;
+      custom: Array<{
+        id: string;
+        name: string;
+        icon: string;
+        color: string;
+      }>;
+    }>
+  > {
+    return apiClient.get(this.categoriesPath, organizationId);
+  }
+
+  /**
+   * Create a custom category
+   */
+  async createCategory(
+    data: {
+      name: string;
+      categoryGroupId: string;
+      icon: string;
+      color: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+    }>
+  > {
+    return apiClient.post(this.categoriesPath, data, organizationId);
+  }
+
+  /**
+   * Initialize default categories for user
+   */
+  async initializeDefaultCategories(
+    organizationId?: string
+  ): Promise<ApiResponse<{ message: string }>> {
+    return apiClient.post(
+      `${this.categoriesPath}/initialize`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Update a category
+   */
+  async updateCategory(
+    categoryId: string,
+    data: {
+      name?: string;
+      icon?: string;
+      color?: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+    }>
+  > {
+    return apiClient.put(
+      `${this.categoriesPath}/${categoryId}`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete a category
+   */
+  async deleteCategory(
+    categoryId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `${this.categoriesPath}/${categoryId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Toggle category status (enable/disable)
+   */
+  async toggleCategoryStatus(
+    categoryId: string,
+    data: {
+      isEnabled: boolean;
+    },
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isEnabled: boolean }>> {
+    return apiClient.patch(
+      `${this.categoriesPath}/${categoryId}/status`,
+      data,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 8. CATEGORY GROUPS - CRUD OPERATIONS
+  // ============================================================================
+
+  /**
+   * List all category groups
+   */
+  async listCategoryGroups(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        name: string;
+        icon: string;
+        color: string;
+        categories?: Array<{
+          id: string;
+          name: string;
+          icon: string;
+          color: string;
+        }>;
+      }>
+    >
+  > {
+    return apiClient.get(this.categoryGroupsPath, organizationId);
+  }
+
+  /**
+   * Create a category group
+   */
+  async createCategoryGroup(
+    data: {
+      name: string;
+      icon: string;
+      color: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+    }>
+  > {
+    return apiClient.post(this.categoryGroupsPath, data, organizationId);
+  }
+
+  /**
+   * Update a category group
+   */
+  async updateCategoryGroup(
+    groupId: string,
+    data: {
+      name?: string;
+      icon?: string;
+      color?: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+    }>
+  > {
+    return apiClient.put(
+      `${this.categoryGroupsPath}/${groupId}`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete a category group
+   */
+  async deleteCategoryGroup(
+    groupId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `${this.categoryGroupsPath}/${groupId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Toggle category group status
+   */
+  async toggleCategoryGroupStatus(
+    groupId: string,
+    data: {
+      isEnabled: boolean;
+    },
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isEnabled: boolean }>> {
+    return apiClient.patch(
+      `${this.categoryGroupsPath}/${groupId}/status`,
+      data,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 9. CATEGORY RULES - AUTO-CATEGORIZATION RULES
+  // ============================================================================
+
+  /**
+   * Create a category rule
+   *
+   * Rules match transaction descriptions and automatically assign categories
+   */
+  async createCategoryRule(
+    data: {
+      pattern: string;
+      categoryId: string;
+      description: string;
+      priority: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      priority: number;
+    }>
+  > {
+    return apiClient.post(this.categoryRulesPath, data, organizationId);
+  }
+
+  /**
+   * List all category rules
+   */
+  async listCategoryRules(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        pattern: string;
+        categoryId: string;
+        description: string;
+        priority: number;
+      }>
+    >
+  > {
+    return apiClient.get(this.categoryRulesPath, organizationId);
+  }
+
+  /**
+   * Get a single category rule
+   */
+  async getCategoryRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      description: string;
+      priority: number;
+    }>
+  > {
+    return apiClient.get(`${this.categoryRulesPath}/${ruleId}`, organizationId);
+  }
+
+  /**
+   * Update a category rule
+   */
+  async updateCategoryRule(
+    ruleId: string,
+    data: {
+      pattern?: string;
+      categoryId?: string;
+      description?: string;
+      priority?: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      priority: number;
+    }>
+  > {
+    return apiClient.put(
+      `${this.categoryRulesPath}/${ruleId}`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete a category rule
+   */
+  async deleteCategoryRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `${this.categoryRulesPath}/${ruleId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Create a merchant rule
+   *
+   * Links a merchant name to a category for automatic categorization
+   */
+  async createMerchantRule(
+    data: {
+      merchantName: string;
+      categoryId: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      merchantName: string;
+      categoryId: string;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categoryRulesPath}/merchant-rules`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * List all merchant rules
+   */
+  async listMerchantRules(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        merchantName: string;
+        categoryId: string;
+      }>
+    >
+  > {
+    return apiClient.get(
+      `${this.categoryRulesPath}/merchant-rules`,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete a merchant rule
+   */
+  async deleteMerchantRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `${this.categoryRulesPath}/merchant-rules/${ruleId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Bulk recategorize transactions
+   *
+   * Changes the category for multiple transactions at once
+   */
+  async bulkRecategorize(
+    data: {
+      transactionIds: string[];
+      categoryId: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      updated: number;
+      failed: number;
+      total: number;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categoryRulesPath}/bulk-recategorize`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Get categorization statistics
+   *
+   * Shows how many transactions have been categorized by rules
+   */
+  async getCategorizationStats(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      totalRules: number;
+      transactionsCategorized: number;
+      successRate: number;
+    }>
+  > {
+    return apiClient.get(
+      `${this.categoryRulesPath}/stats/categorization`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 10. CUSTOM CATEGORIZATION RULES - ADVANCED PATTERN MATCHING
+  // ============================================================================
+
+  /**
+   * Create a custom categorization rule
+   *
+   * Supports regex patterns for flexible matching
+   * Priority: 0-100 (higher priority matches first)
+   */
+  async createCategorizationRule(
+    data: {
+      pattern: string;
+      categoryId: string;
+      description: string;
+      priority: number;
+      isEnabled?: boolean;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      priority: number;
+      isEnabled: boolean;
+    }>
+  > {
+    return apiClient.post(
+      this.categorizationRulesPath,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * List all custom categorization rules
+   */
+  async listCategorizationRules(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        pattern: string;
+        categoryId: string;
+        description: string;
+        priority: number;
+        isEnabled: boolean;
+      }>
+    >
+  > {
+    return apiClient.get(this.categorizationRulesPath, organizationId);
+  }
+
+  /**
+   * Get a single categorization rule
+   */
+  async getCategorizationRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      description: string;
+      priority: number;
+      isEnabled: boolean;
+    }>
+  > {
+    return apiClient.get(
+      `${this.categorizationRulesPath}/${ruleId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Update a categorization rule
+   */
+  async updateCategorizationRule(
+    ruleId: string,
+    data: {
+      pattern?: string;
+      categoryId?: string;
+      description?: string;
+      priority?: number;
+      isEnabled?: boolean;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      priority: number;
+      isEnabled: boolean;
+    }>
+  > {
+    return apiClient.put(
+      `${this.categorizationRulesPath}/${ruleId}`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Delete a categorization rule
+   */
+  async deleteCategorizationRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<void>> {
+    return apiClient.delete(
+      `${this.categorizationRulesPath}/${ruleId}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Test a single rule against a merchant name
+   *
+   * Returns whether the rule matches and what category it would assign
+   */
+  async testCategorizationRule(
+    ruleId: string,
+    data: {
+      merchantName: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      matches: boolean;
+      categoryId: string;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/${ruleId}/test`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Test all rules against a merchant name
+   *
+   * Returns the first matching rule (by priority)
+   */
+  async testAllCategorizationRules(
+    data: {
+      merchantName: string;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      matches: boolean;
+      ruleId: string;
+      categoryId: string;
+      priority: number;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/test-all`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Enable a categorization rule
+   */
+  async enableCategorizationRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isEnabled: boolean }>> {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/${ruleId}/enable`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Disable a categorization rule
+   */
+  async disableCategorizationRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; isEnabled: boolean }>> {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/${ruleId}/disable`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Set rule priority
+   *
+   * Priority 0-100, higher priority matches first
+   */
+  async setCategorizationRulePriority(
+    ruleId: string,
+    data: {
+      priority: number;
+    },
+    organizationId?: string
+  ): Promise<ApiResponse<{ id: string; priority: number }>> {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/${ruleId}/priority`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Get rule statistics
+   *
+   * Shows how many times a rule has matched and its success rate
+   */
+  async getCategorizationRuleStats(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      matches: number;
+      successRate: number;
       lastUsed: string;
-      category: string;
-    }>;
-  }>> {
+    }>
+  > {
+    return apiClient.get(
+      `${this.categorizationRulesPath}/${ruleId}/stats`,
+      organizationId
+    );
+  }
+
+  /**
+   * Duplicate a categorization rule
+   *
+   * Creates a copy of an existing rule
+   */
+  async duplicateCategorizationRule(
+    ruleId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      id: string;
+      pattern: string;
+      categoryId: string;
+      priority: number;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/${ruleId}/duplicate`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Import categorization rules from JSON
+   *
+   * Bulk import multiple rules at once
+   */
+  async importCategorizationRules(
+    data: {
+      rules: Array<{
+        pattern: string;
+        categoryId: string;
+        description: string;
+        priority: number;
+        isEnabled?: boolean;
+      }>;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      imported: number;
+      failed: number;
+      total: number;
+    }>
+  > {
+    return apiClient.post(
+      `${this.categorizationRulesPath}/import`,
+      data,
+      organizationId
+    );
+  }
+
+  /**
+   * Export all categorization rules
+   *
+   * Download all user rules as JSON
+   */
+  async exportCategorizationRules(
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      data: Array<{
+        id: string;
+        pattern: string;
+        categoryId: string;
+        description: string;
+        priority: number;
+        isEnabled: boolean;
+      }>;
+    }>
+  > {
+    return apiClient.get(
+      `${this.categorizationRulesPath}/export`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 11. FINDINGS & ANALYTICS
+  // ============================================================================
+
+  /**
+   * Auto-categorize uncategorized transactions in an account
+   *
+   * Uses rules to automatically assign categories
+   */
+  async autoCategorizeAccount(
+    accountId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      categorized: number;
+      skipped: number;
+      total: number;
+    }>
+  > {
+    return apiClient.post(
+      `${this.findingsPath}/accounts/${accountId}/auto-categorize`,
+      {},
+      organizationId
+    );
+  }
+
+  /**
+   * Detect recurring transaction patterns
+   *
+   * Identifies subscriptions and regular payments
+   */
+  async detectRecurringPatterns(
+    accountId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      patterns: Array<{
+        merchant: string;
+        amount: number;
+        frequency: string;
+        occurrences: number;
+        nextExpected: string;
+      }>;
+    }>
+  > {
+    return apiClient.get(
+      `${this.findingsPath}/accounts/${accountId}/recurring`,
+      organizationId
+    );
+  }
+
+  /**
+   * Get expected upcoming transactions
+   *
+   * Based on recurring patterns, predicts next transactions
+   */
+  async getExpectedTransactions(
+    accountId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        merchant: string;
+        amount: number;
+        expectedDate: string;
+        confidence: number;
+      }>
+    >
+  > {
+    return apiClient.get(
+      `${this.findingsPath}/accounts/${accountId}/expected-transactions`,
+      organizationId
+    );
+  }
+
+  /**
+   * Export account transactions
+   *
+   * Supports CSV, JSON, and PDF formats
+   */
+  async exportAccountTransactions(
+    accountId: string,
+    params: {
+      format: 'CSV' | 'JSON' | 'PDF';
+      dateFrom: string;
+      dateTo: string;
+    },
+    organizationId?: string
+  ): Promise<ApiResponse<{ downloadUrl: string }>> {
     const searchParams = new URLSearchParams();
-    searchParams.set('q', query);
-    if (limit) searchParams.set('limit', limit.toString());
-    const queryStr = searchParams.toString();
-    return apiClient.get(`${this.basePath}/search/merchant-suggestions?${queryStr}`, organizationId);
+    searchParams.set('format', params.format);
+    searchParams.set('dateFrom', params.dateFrom);
+    searchParams.set('dateTo', params.dateTo);
+
+    return apiClient.get(
+      `${this.findingsPath}/accounts/${accountId}/export?${searchParams.toString()}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Find matching transactions for reconciliation
+   *
+   * Finds potential duplicate or matching transactions within a window
+   */
+  async findMatchingTransactions(
+    params: {
+      accountId: string;
+      transactionId: string;
+      windowDays?: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<
+      Array<{
+        id: string;
+        amount: number;
+        merchant: string;
+        date: string;
+        matchScore: number;
+      }>
+    >
+  > {
+    const searchParams = new URLSearchParams();
+    searchParams.set('accountId', params.accountId);
+    searchParams.set('transactionId', params.transactionId);
+    if (params.windowDays)
+      searchParams.set('windowDays', params.windowDays.toString());
+
+    return apiClient.get(
+      `${this.findingsPath}/find-matches?${searchParams.toString()}`,
+      organizationId
+    );
+  }
+
+  /**
+   * Get reconciliation progress
+   *
+   * Shows how many transactions have been reconciled
+   */
+  async getReconciliationProgress(
+    accountId: string,
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      total: number;
+      reconciled: number;
+      pending: number;
+      percentage: number;
+    }>
+  > {
+    const searchParams = new URLSearchParams();
+    searchParams.set('accountId', accountId);
+
+    return apiClient.get(
+      `${this.findingsPath}/reconciliation-progress?${searchParams.toString()}`,
+      organizationId
+    );
+  }
+
+  // ============================================================================
+  // 12. MERCHANTS
+  // ============================================================================
+
+  /**
+   * Get unique merchants with statistics
+   *
+   * Lists all merchants the user has transactions with
+   */
+  async getMerchants(
+    params?: {
+      page?: number;
+      limit?: number;
+    },
+    organizationId?: string
+  ): Promise<
+    ApiResponse<{
+      data: Array<{
+        id: string;
+        name: string;
+        transactionCount: number;
+        totalAmount: number;
+        frequency: string;
+        lastTransaction: string;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+      };
+    }>
+  > {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+
+    const query = searchParams.toString();
+    return apiClient.get(
+      `${this.merchantsPath}${query ? `?${query}` : ''}`,
+      organizationId
+    );
   }
 }
 
 export const transactionsApi = new TransactionsApiService();
-export default transactionsApi;

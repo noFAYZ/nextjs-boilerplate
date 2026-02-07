@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback, ChangeEvent } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -12,22 +11,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { Plus, X, Loader2, icons } from 'lucide-react';
-import { useAddTransaction } from '@/lib/features/accounts/queries';
+import { Loader2 } from 'lucide-react';
+import { useAddTransaction, useCategories } from '@/lib/features/accounts/queries';
 import { useToast } from "@/lib/shared/hooks";
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
-import type { AddTransactionRequest, TransactionSplit as TransactionSplitType } from '@/lib/types/unified-accounts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SolarCheckCircleBoldDuotone, SolarShieldCrossBoldDuotone } from '@/components/icons/icons';
-import { useCategories } from '@/lib/features/accounts/queries';
 
 interface ManualTransactionFormProps {
   isOpen: boolean;
   onClose: () => void;
   accountId: string;
+}
+
+// Transaction data matching backend's POST /transactions endpoint
+interface TransactionFormData {
+  description: string;
+  date: string;
+  amount: number;
+  categoryId: string;
+  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  notes: string;
 }
 
 export function ManualTransactionForm({
@@ -39,121 +43,86 @@ export function ManualTransactionForm({
   const { mutate: addTransaction, isPending } = useAddTransaction();
   const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
-  const [formData, setFormData] = useState<AddTransactionRequest>({
+  const [formData, setFormData] = useState<TransactionFormData>({
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
-    type: 'EXPENSE',
-    merchantId: '',
     categoryId: '',
-    pending: false,
+    type: 'EXPENSE',
     notes: '',
   });
 
-  const [splits, setSplits] = useState<TransactionSplitType[]>([]);
-  const [useSplits, setUseSplits] = useState(false);
-
   // Transform API categories into ComboboxOption format
-  const customCategories = useMemo<ComboboxOption[]>(() => {
-    if (!apiCategories || !apiCategories) return [];
+  const categoryOptions = useMemo<ComboboxOption[]>(() => {
+    if (!apiCategories?.length) return [];
 
-    return apiCategories?.map((cat) => ({
+    return apiCategories.map((cat) => ({
       value: cat.id,
-      label: cat.icon +' ' + cat.name,
-      icon:cat.icon
+      label: `${cat.icon} ${cat.name}`,
+      icon: cat.icon,
     }));
   }, [apiCategories]);
 
-  const [customMerchants, setCustomMerchants] = useState<ComboboxOption[]>([]);
-  const [newMerchantName, setNewMerchantName] = useState('');
-  const [showNewMerchantInput, setShowNewMerchantInput] = useState(false);
+  // Optimized handlers with useCallback
+  const handleDescriptionChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, description: e.target.value }));
+  }, []);
 
-  // Combine default and custom merchants
-  const allMerchants = useMemo(() => {
-    return customMerchants.length > 0 ? customMerchants : [];
-  }, [customMerchants]);
+  const handleDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, date: e.target.value }));
+  }, []);
 
-  // Calculate split totals and remaining balance
-  const splitTotal = useMemo(() => {
-    return splits.reduce((sum, split) => sum + split.amount, 0);
-  }, [splits]);
+  const handleAmountChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }));
+  }, []);
 
-  const totalAmount = formData.amount || 0;
-  const remainingBalance = totalAmount - splitTotal;
-  const isBalanced = Math.abs(remainingBalance) < 0.01;
+  const handleCategoryChange = useCallback((categoryId: string) => {
+    setFormData(prev => ({ ...prev, categoryId }));
+  }, []);
 
+  const handleTypeChange = useCallback((type: 'INCOME' | 'EXPENSE' | 'TRANSFER') => {
+    setFormData(prev => ({ ...prev, type }));
+  }, []);
 
-  const handleAddMerchant = () => {
-    if (!newMerchantName.trim()) {
-      error('Please enter a merchant name');
-      return;
-    }
+  const handleNotesChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, notes: e.target.value }));
+  }, []);
 
-    const merchantId = newMerchantName;
-    const newMerchant: ComboboxOption = {
-      value: merchantId,
-      label: newMerchantName,
-    };
+  const resetForm = useCallback(() => {
+    setFormData({
+      amount: 0,
+      description: '',
+      date: new Date().toISOString().split('T')[0],
+      categoryId: '',
+      type: 'EXPENSE',
+      notes: '',
+    });
+  }, []);
 
-    setCustomMerchants([...customMerchants, newMerchant]);
-    setFormData({ ...formData, merchantId: newMerchantName });
-    setNewMerchantName('');
-    setShowNewMerchantInput(false);
-    success('Merchant added');
-  };
-
-  const handleAddSplit = () => {
-    setSplits([...splits, { customCategoryId: '', amount: 0, description: '' }]);
-  };
-
-  const handleRemoveSplit = (index: number) => {
-    setSplits(splits.filter((_, i) => i !== index));
-  };
-
-  const handleSplitChange = (index: number, field: keyof TransactionSplitType, value: string | number) => {
-    const newSplits = [...splits];
-    newSplits[index] = { ...newSplits[index], [field]: value };
-    setSplits(newSplits);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
+    // Validate required fields (backend requires these)
     if (!formData.description || !formData.date || !formData.amount || formData.amount <= 0) {
       error('Description, date, and positive amount are required');
       return;
     }
 
-    // Validate splits if used
-    if (useSplits && splits.length > 0) {
-      const activeSplits = splits.filter((s) => s.customCategoryId);
-      if (activeSplits.length > 0 && !isBalanced) {
-        error(`Splits total ($${splitTotal.toFixed(2)}) doesn't match transaction amount ($${totalAmount.toFixed(2)})`);
-        return;
-      }
+    if (!formData.categoryId) {
+      error('Category is required');
+      return;
     }
 
     try {
+      // Match backend's POST /transactions endpoint
       const submitData: AddTransactionRequest = {
-        amount: formData.amount,
         description: formData.description,
         date: formData.date,
-        type: formData.type || 'EXPENSE',
-        ...(formData.merchantId && { merchantId: formData.merchantId }),
-        ...(formData.categoryId && { categoryId: formData.categoryId }),
-        ...(formData.pending !== undefined && { pending: formData.pending }),
+        amount: formData.amount,
+        categoryId: formData.categoryId,
+        type: formData.type,
         ...(formData.notes && { notes: formData.notes }),
       };
-
-      // Add splits if enabled and any are filled
-      if (useSplits) {
-        const activeSplits = splits.filter((s) => s.customCategoryId);
-        if (activeSplits.length > 0) {
-          submitData.splits = activeSplits;
-          submitData.ensureTotalMatches = true;
-        }
-      }
 
       addTransaction(
         { accountId, data: submitData },
@@ -163,38 +132,29 @@ export function ManualTransactionForm({
             resetForm();
             onClose();
           },
-          onError: (error) => {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to add transaction';
+          onError: (mutationError) => {
+            const errorMessage = mutationError instanceof Error ? mutationError.message : 'Failed to add transaction';
             error(errorMessage);
           },
         }
       );
-    } catch (error) {
+    } catch {
       error('An error occurred while adding the transaction');
     }
-  };
+  }, [
+    formData,
+    accountId,
+    addTransaction,
+    success,
+    error,
+    resetForm,
+    onClose
+  ]);
 
-  const resetForm = () => {
-    setFormData({
-      amount: 0,
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      type: 'EXPENSE',
-      merchantId: '',
-      categoryId: '',
-      pending: false,
-      notes: '',
-    });
-    setSplits([]);
-    setUseSplits(false);
-  };
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     resetForm();
-    setShowNewMerchantInput(false);
-    setNewMerchantName('');
     onClose();
-  };
+  }, [resetForm, onClose]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -206,444 +166,103 @@ export function ManualTransactionForm({
         <div className="flex-1 overflow-y-auto">
           <form id="add-transaction-form" onSubmit={handleSubmit} className="space-y-3 px-6 py-4">
             {/* Description */}
-          <div className="space-y-1">
-            <Label htmlFor="description" className="text-sm font-medium">
-              Description <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="description"
-              type="text"
-              placeholder="Grocery shopping"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="h-8"
-              required
-            />
-          </div>
-
-          {/* Date & Amount in 2 columns */}
-          <div className="flex gap-2">
             <div className="space-y-1">
-              <Label htmlFor="date" className="text-sm font-medium">
-                Date <span className="text-red-500">*</span>
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
+                id="description"
+                type="text"
+                placeholder="Grocery shopping"
+                value={formData.description}
+                onChange={handleDescriptionChange}
                 className="h-8"
                 required
               />
             </div>
 
-            {/* Amount & Type 
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">Amount</Label>
-              <div className="grid grid-cols-2 gap-1">
+            {/* Date & Amount in 2 columns */}
+            <div className="flex gap-2">
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="date" className="text-sm font-medium">
+                  Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleDateChange}
+                  className="h-8"
+                  required
+                />
+              </div>
+
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="amount" className="text-sm font-medium">
+                  Amount <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="amount"
                   type="number"
                   step="0.01"
                   min="0"
                   placeholder="0.00"
                   value={formData.amount || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })
-                  }
+                  onChange={handleAmountChange}
                   className="h-8"
                   required
-                />
-                <select
-                  value={formData.type || 'EXPENSE'}
-                  onChange={(e) =>
-                    setFormData({ ...formData, type: e.target.value as 'INCOME' | 'EXPENSE' | 'TRANSFER' })
-                  }
-                  className="h-8 px-2 text-xs border rounded-md bg-background"
-                >
-                  <option value="EXPENSE">Expense</option>
-                  <option value="INCOME">Income</option>
-                  <option value="TRANSFER">Transfer</option>
-                </select>
-              </div>
-            </div>*/}
-
-
-            {/* Amount & Type */}
-<div className="space-y-1">
-  <Label className="text-sm font-medium">Amount</Label>
-
-  <div className="grid grid-cols-2 gap-1">
-    {/* Amount Input */}
-    <Input
-      type="number"
-      step="0.01"
-      min="0"
-      placeholder="0.00"
-      value={formData.amount || ''}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          amount: parseFloat(e.target.value) || 0,
-        })
-      }
-      className="h-8"
-      required
-    />
-
-    {/* ShadCN Select for Type */}
-    <Select
-      value={formData.type || 'EXPENSE'}
-      onValueChange={(value) =>
-        setFormData({
-          ...formData,
-          type: value as 'INCOME' | 'EXPENSE' | 'TRANSFER',
-        })
-      }
-    >
-      <SelectTrigger size='sm' variant='outline2'>
-        <SelectValue placeholder="Select type" />
-      </SelectTrigger>
-
-      <SelectContent>
-        <SelectItem value="EXPENSE" className="text-xs">
-          Expense
-        </SelectItem>
-        <SelectItem value="INCOME" className="text-xs">
-          Income
-        </SelectItem>
-        <SelectItem value="TRANSFER" className="text-xs">
-          Transfer
-        </SelectItem>
-      </SelectContent>
-    </Select>
-  </div>
-</div>
-
-          </div>
-
-          {/* Merchant Name with Combobox */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Merchant</Label>
-            {showNewMerchantInput ? (
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="Merchant name"
-                  value={newMerchantName}
-                  onChange={(e) => setNewMerchantName(e.target.value)}
-                  className="h-8 flex-1"
-                  autoFocus
-                />
-                <Button
-                  type="button"
-                  size="xs"
-                  onClick={handleAddMerchant}
-                >
-                  Add
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => {
-                    setShowNewMerchantInput(false);
-                    setNewMerchantName('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                {allMerchants.length > 0 ? (
-                  <>
-                    <div className="flex-1">
-                      <Combobox
-                        options={allMerchants}
-                        value={formData.merchantId || ''}
-                        onSelect={(value) =>
-                          setFormData({ ...formData, merchantId: value })
-                        }
-                        placeholder="Select a merchant"
-                        width="w-full"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline2"
-                      size="xs"
-                      className="gap-1"
-                      onClick={() => setShowNewMerchantInput(true)}
-                      title="Add a new merchant"
-                    >
-                      <Plus className="h-3 w-3" />
-                      Add
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline2"
-                    size="xs"
-                    className="w-full gap-1"
-                    onClick={() => setShowNewMerchantInput(true)}
-                  >
-                    <Plus className="h-3 w-3" />
-                    Add Merchant
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Pending switch */}
-          <div className="flex items-center justify-between">
-            <Label htmlFor="pending" className="text-sm font-medium">
-              Mark as Pending
-            </Label>
-            <Switch
-              id="pending"
-              checked={formData.pending || false}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, pending: checked })
-              }
-            />
-          </div>
-
-       
-
-          {/* Unified Category / Split Categories Section */}
-          <Separator className="my-2" />
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Category</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Split</span>
-                <Switch
-                  checked={useSplits}
-                  onCheckedChange={(checked) => setUseSplits(checked)}
                 />
               </div>
             </div>
 
-            {!useSplits ? (
-              <Combobox
-                options={customCategories}
-                value={formData.categoryId}
-                onSelect={(value) =>
-                  setFormData({ ...formData, categoryId: value })
-                }
-                placeholder={isCategoriesLoading ? "Loading categories..." : "Select a category"}
-                width="w-full"
-                disabled={isCategoriesLoading}
-              />
-            ) : (
-              <div className="space-y-1 bg-muted/30 p-2 rounded-lg border border-muted z-40">
-                {/* Split Items */}
-                {splits.length > 0 && (
-                  <div className="space-y-2">
-                    {splits.map((split, idx) => {
-                      const percentage =
-                        totalAmount > 0
-                          ? ((split.amount / totalAmount) * 100).toFixed(1)
-                          : '0';
-
-                      return (
-                        <div
-                          key={idx}
-                          className="p-2 bg-card rounded border border-border hover:border-primary/20 transition-colors"
-                        >
-                          {/* Header with index and remove button */}
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1.5">
-                              <div className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold leading-none">
-                                {idx + 1}
-                              </div>
-                              <span className="text-xs font-semibold text-muted-foreground">
-                                #{idx + 1}
-                              </span>
-                            </div>
-                            {splits.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => handleRemoveSplit(idx)}
-                                className="h-4 w-4 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              >
-                                <X className="h-2.5 w-2.5" />
-                              </Button>
-                            )}
-                          </div>
-
-                          {/* Category Selection & Amount */}
-                          <div className="flex gap-2 mb-2 items-start">
-                            <div className="flex-1">
-                              <Combobox
-                                options={customCategories}
-                                value={split.customCategoryId}
-                                onSelect={(value) =>
-                                  handleSplitChange(idx, 'customCategoryId', value)
-                                }
-                                placeholder={isCategoriesLoading ? "Loading..." : "Select category"}
-                                width="w-full"
-                                disabled={isCategoriesLoading}
-                              />
-                            </div>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              placeholder="0.00"
-                              value={split.amount || ''}
-                              onChange={(e) =>
-                                handleSplitChange(
-                                  idx,
-                                  'amount',
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="text-xs w-20"
-                            />
-                            {split.amount > 0 && (
-                              <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1.5 rounded whitespace-nowrap">
-                                {percentage}%
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Amount & Description */}
-                          <div className=" mb-1">
-                        
-
-                            <Input
-                              type="text"
-                              placeholder="Detail"
-                              value={split.description || ''}
-                              onChange={(e) =>
-                                handleSplitChange(idx, 'description', e.target.value)
-                              }
-                              className=" w-full "
-                            />
-                          </div>
-
-                          {/* Visual amount bar */}
-                          {split.amount > 0 && totalAmount > 0 && (
-                            <div className="h-1 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary rounded-full transition-all"
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Add Split Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full  gap-1"
-                  onClick={handleAddSplit}
-                >
-                  <Plus className="h-3 w-3" />
-                  Add Split
-                </Button>
-
-                {/* Split Summary */}
-                {splits.some((s) => s.customCategoryId) && (
-                  <div className={`p-2 mt-2 rounded border space-y-1 text-xs ${
-                    isBalanced
-                      ? 'bg-lime-50  dark:bg-green-950/20 '
-                      : remainingBalance > 0
-                      ? 'bg-amber-50  dark:bg-amber-950/20 '
-                      : 'bg-red-50  dark:bg-red-950/20 '
-                  }`}>
-                    {/* Progress bar */}
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          isBalanced
-                            ? 'bg-green-500'
-                            : remainingBalance > 0
-                            ? 'bg-amber-500'
-                            : 'bg-red-500'
-                        }`}
-                        style={{
-                          width: `${Math.min((splitTotal / totalAmount) * 100, 100)}%`
-                        }}
-                      />
-                    </div>
-
-                    {/* Summary row */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Allocated
-                        
-                      </span>
-                      <span className="font-semibold">${splitTotal.toFixed(2)}</span>
-                      <span className="text-muted-foreground">Total</span>
-                      <span className="font-semibold">${totalAmount.toFixed(2)}</span>
-                      <span className="text-muted-foreground">Left</span>
-                      <span className={`font-semibold ${
-                        isBalanced
-                          ? 'text-lime-700'
-                          : remainingBalance > 0
-                          ? 'text-amber-700'
-                          : 'text-rose-700'
-                      }`}>
-                        ${remainingBalance.toFixed(2)}
-                      </span>
-                    </div>
-
-                    {/* Status */}
-                    <div className="text-center items-center justify-center flex">
-                      {isBalanced && (
-                        <span className="text-lime-700 dark:text-lime-400 text-xs font-semibold flex gap-1 ">
-                          <SolarCheckCircleBoldDuotone className='w-4 h-4' /> Balanced
-                        </span>
-                      )}
-                      {!isBalanced && remainingBalance > 0 && (
-                        <span className="text-amber-700 dark:text-amber-400 text-xs flex gap-1">
-                             <SolarShieldCrossBoldDuotone className='w-4 h-4' />  ${remainingBalance.toFixed(2)} unallocated
-                        </span>
-                      )}
-                      {remainingBalance < 0 && (
-                        <span className="text-rose-700 dark:text-rose-400 text-xs">
-                          ❌ ${Math.abs(remainingBalance).toFixed(2)} over
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* Type & Category in 2 columns */}
+            <div className="flex gap-2">
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="type" className="text-sm font-medium">
+                  Type <span className="text-red-500">*</span>
+                </Label>
+                <Select value={formData.type} onValueChange={handleTypeChange}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EXPENSE">Expense</SelectItem>
+                    <SelectItem value="INCOME">Income</SelectItem>
+                    <SelectItem value="TRANSFER">Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </div>
 
-             {/* Notes */}
-             <div className="space-y-1">
-            <Label htmlFor="notes" className="text-sm font-medium">
-              Notes
-            </Label>
-            <Textarea
-              id="notes"
-              placeholder="Additional details"
-              value={formData.notes || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-              className="min-h-12 text-sm border-border/80"
-            />
-          </div>
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="category" className="text-sm font-medium">
+                  Category <span className="text-red-500">*</span>
+                </Label>
+                <Combobox
+                  options={categoryOptions}
+                  value={formData.categoryId}
+                  onSelect={handleCategoryChange}
+                  placeholder={isCategoriesLoading ? "Loading..." : "Select category"}
+                  width="w-full"
+                  disabled={isCategoriesLoading}
+                />
+              </div>
+            </div>
 
+            <Separator className="my-1" />
+
+            {/* Notes (Optional) */}
+            <div className="space-y-1">
+              <Label htmlFor="notes" className="text-sm font-medium">
+                Notes <span className="text-gray-400 text-xs">(optional)</span>
+              </Label>
+              <Textarea
+                id="notes"
+                placeholder="Add any additional details about this transaction..."
+                value={formData.notes}
+                onChange={handleNotesChange}
+                className="min-h-20 resize-none"
+              />
+            </div>
           </form>
         </div>
 
