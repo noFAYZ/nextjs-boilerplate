@@ -450,3 +450,399 @@ export function useBulkUpdateTransactions(): UseMutationResult<
     },
   });
 }
+
+// ============================================================================
+// EXPANDED HOOKS FOR NEW ENDPOINTS
+// ============================================================================
+
+/**
+ * Search transactions with advanced filtering
+ */
+export function useSearchTransactions(
+  params?: Record<string, any>
+): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.search(params),
+    enabled: !!params,
+  });
+}
+
+/**
+ * Get transaction notes
+ */
+export function useTransactionNotes(transactionId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.notes(transactionId),
+    enabled: !!transactionId,
+  });
+}
+
+/**
+ * Add note to transaction
+ */
+export function useAddTransactionNote(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.addNote(),
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.note(id) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(id) });
+    },
+  });
+}
+
+/**
+ * Get transaction attachments
+ */
+export function useTransactionAttachments(transactionId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.attachments(transactionId),
+    enabled: !!transactionId,
+  });
+}
+
+/**
+ * Upload attachment to transaction
+ */
+export function useUploadAttachment(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.uploadAttachment(),
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.attachment(id) });
+    },
+  });
+}
+
+/**
+ * Delete attachment
+ */
+export function useDeleteAttachment(): UseMutationResult<void, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.deleteAttachment(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.attachments() });
+    },
+  });
+}
+
+/**
+ * Reconcile transaction
+ */
+export function useReconcileTransaction(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.reconcile(),
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
+    },
+  });
+}
+
+// ============================================================================
+// CATEGORIZATION HOOKS
+// ============================================================================
+
+/**
+ * Get category rules
+ */
+export function useCategoryRules(): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.categoryRules(),
+    enabled: true,
+  });
+}
+
+/**
+ * Get merchant rules
+ */
+export function useMerchantRules(): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.merchantRules(),
+    enabled: true,
+  });
+}
+
+/**
+ * Get categorization statistics
+ */
+export function useCategorizationStats(): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.categorizationStats(),
+    enabled: true,
+  });
+}
+
+/**
+ * Create category rule
+ */
+export function useCreateCategoryRule(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.createCategoryRule(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categoryRules() });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationStats() });
+    },
+  });
+}
+
+/**
+ * Bulk recategorize transactions
+ */
+export function useBulkRecategorize(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.bulkRecategorize(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.stats() });
+    },
+  });
+}
+
+/**
+ * Get custom categorization rules
+ */
+export function useCategorizationRules(): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.categorizationRules(),
+    enabled: true,
+  });
+}
+
+/**
+ * Get single categorization rule
+ */
+export function useCategorizationRule(ruleId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.categorizationRule(ruleId),
+    enabled: !!ruleId,
+  });
+}
+
+/**
+ * Get categorization rule statistics
+ */
+export function useCategorizationRuleStats(ruleId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.categorizationRuleStats(ruleId),
+    enabled: !!ruleId,
+  });
+}
+
+/**
+ * Create categorization rule
+ */
+export function useCreateCategorizationRule(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.createCategorizationRule(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Update categorization rule
+ */
+export function useUpdateCategorizationRule(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.updateCategorizationRule(),
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRule(id) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Delete categorization rule
+ */
+export function useDeleteCategorizationRule(): UseMutationResult<void, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.deleteCategorizationRule(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Test categorization rule
+ */
+export function useTestCategorizationRule(): UseMutationResult<any, Error, any, unknown> {
+  return useMutation({
+    ...transactionMutations.testCategorizationRule(),
+  });
+}
+
+/**
+ * Enable categorization rule
+ */
+export function useEnableCategorizationRule(): UseMutationResult<any, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.enableCategorizationRule(),
+    onSuccess: (data, ruleId) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRule(ruleId) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Disable categorization rule
+ */
+export function useDisableCategorizationRule(): UseMutationResult<any, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.disableCategorizationRule(),
+    onSuccess: (data, ruleId) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRule(ruleId) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Set categorization rule priority
+ */
+export function useSetCategorizationRulePriority(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.setCategorizationRulePriority(),
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRule(id) });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Duplicate categorization rule
+ */
+export function useDuplicateCategorizationRule(): UseMutationResult<any, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.duplicateCategorizationRule(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Import categorization rules
+ */
+export function useImportCategorizationRules(): UseMutationResult<any, Error, any, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.importCategorizationRules(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationRules() });
+    },
+  });
+}
+
+/**
+ * Export categorization rules
+ */
+export function useExportCategorizationRules(): UseQueryResult<any, Error> {
+  return useQuery({
+    queryKey: transactionKeys.categorizationRules(),
+    queryFn: async () => {
+      const response = await transactionsApi.exportCategorizationRules();
+      if (!response.success) throw new Error('Failed to export rules');
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 30,
+    enabled: false,
+  });
+}
+
+// ============================================================================
+// ANALYTICS & FINDINGS HOOKS
+// ============================================================================
+
+/**
+ * Auto-categorize account
+ */
+export function useAutoCategorizeAccount(): UseMutationResult<any, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...transactionMutations.autoCategorizeAccount(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: transactionKeys.categorizationStats() });
+    },
+  });
+}
+
+/**
+ * Detect recurring patterns in account
+ */
+export function useRecurringPatterns(accountId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.recurringPatterns(accountId),
+    enabled: !!accountId,
+  });
+}
+
+/**
+ * Get expected transactions based on patterns
+ */
+export function useExpectedTransactions(accountId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.expectedTransactions(accountId),
+    enabled: !!accountId,
+  });
+}
+
+/**
+ * Get reconciliation progress
+ */
+export function useReconciliationProgress(accountId: string): UseQueryResult<any, Error> {
+  return useQuery({
+    ...transactionQueries.reconciliationProgress(accountId),
+    enabled: !!accountId,
+  });
+}
+
+/**
+ * Export account transactions
+ */
+export function useExportAccountTransactions(): UseMutationResult<any, Error, any, unknown> {
+  return useMutation({
+    ...transactionMutations.exportAccountTransactions(),
+  });
+}
+
+/**
+ * Find matching transactions for reconciliation
+ */
+export function useFindMatchingTransactions(): UseMutationResult<any, Error, any, unknown> {
+  return useMutation({
+    ...transactionMutations.findMatchingTransactions(),
+  });
+}
