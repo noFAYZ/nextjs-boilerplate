@@ -110,7 +110,7 @@ export function RulesManagement({ categoriesData: propCategoriesData, categories
 
   // Flatten categories from groups for quick lookup
   const categoriesMap = new Map(
-    categoriesData?.groups.flatMap(group =>
+    categoriesData?.groups?.flatMap(group =>
       group.categories.map(cat => [
         cat.id,
         { displayName: cat.displayName, emoji: cat.emoji, groupName: group.groupName }
@@ -457,7 +457,7 @@ function CreateRuleDialog({ onSubmit, isOpen, setIsOpen, children }: CreateRuleD
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Flatten categories from groups
-  const categories = categoriesData?.groups.flatMap(group =>
+  const categories = categoriesData?.groups?.flatMap(group =>
     group.categories.map(cat => ({
       id: cat.id,
       displayName: cat.displayName,

@@ -255,24 +255,25 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
 
       <div className="grid grid-cols-12 gap-4">
         {/* Left Column: Tabs Content */}
-        <div className="col-span-8">
+        <div className="col-span-8 space-y-6">
           {/* Wallet Details Tabs */}
+  
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex items-center justify-between mb-2">
-              <TabsList variant="pill">
-                <TabsTrigger value="tokens" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+            <div className="flex items-center justify-between mb-2 ">
+              <TabsList variant="pill" size='sm' className='px-0'>
+                <TabsTrigger value="tokens"   variant="pill" size='sm'>
                   <StreamlineFreehandCryptoCurrencyUsdCoin className="w-5 h-5" />
                   <span className="inline">Tokens</span>
                 </TabsTrigger>
-                <TabsTrigger value="defi" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                <TabsTrigger value="defi"   variant="pill" size='sm'>
                   <StreamlineUltimateCryptoCurrencyBitcoinDollarExchange className="w-5 h-5" />
                   <span className="inline">Defi</span>
                 </TabsTrigger>
-                <TabsTrigger value="nfts" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                <TabsTrigger value="nfts"  variant="pill" size='sm'>
                   <SolarGalleryWideOutline className="w-5 h-5" />
                   <span className="inline">NFTs</span>
                 </TabsTrigger>
-                <TabsTrigger value="transactions" className="flex px-2 items-center gap-1.5 cursor-pointer" variant="pill">
+                <TabsTrigger value="transactions"  variant="pill" size='sm'>
                   <MynauiActivitySquare className="w-5.5 h-5.5" />
                   <span className="inline">Transactions</span>
                 </TabsTrigger>
@@ -322,14 +323,14 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
 
         {/* Right Column: Header Card */}
         <div className="col-span-4">
-          <Card className="border-border rounded-none p-0 sticky top-0">
-            <div className="p-3">
-              <div className="flex flex-col gap-4">
+          <Card className=" rounded-xl  ">
+        
+              <div className="flex flex-col gap-8">
                 {/* TOP ROW: Identity & Balance */}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col md:flex-row justify-between gap-4">
                   {/* Left: Icon & Name */}
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full border shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                  <div className="flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-full border shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                       <Image
                         src={avataUrl}
                         fill
@@ -340,15 +341,16 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <h1 className="text-lg font-semibold tracking-tight text-foreground truncate">
+                        <h1 className="text-md font-semibold tracking-tight text-foreground truncate">
                           {wallet?.walletData?.name}
                         </h1>
                         <Badge
-                          variant="new"
+                          variant="max"
                           className="text-[10px] px-1.5 py-0 h-4.5 font-normal flex-shrink-0"
                         >
                           {wallet?.walletData?.network}
                         </Badge>
+                        
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className="font-mono truncate">
@@ -399,18 +401,19 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
                   </div>
 
                   {/* Balance & 24h Change */}
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
                     <div className="flex flex-col">
-                      <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
                         Total Balance
                       </span>
-                      <CurrencyDisplay
-                        amountUSD={walletStats?.totalBalance || 0}
-                        className="text-2xl font-bold text-foreground"
-                      />
+                   
                     </div>
                     <div className="flex items-center gap-1.5 text-xs">
-                      <span className="text-muted-foreground">24h Change:</span>
+                        <CurrencyDisplay
+                        amountUSD={walletStats?.totalBalance || 0}
+                        className="font-bold "
+                        variant='lg'
+                      />
                       {wallet?.portfolio?.percent24hChange !== undefined ? (
                         <Badge
                           className={cn(
@@ -440,7 +443,7 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
                 </div>
 
                 {/* Stats Group */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col md:flex-row justify-between gap-2">
                   {/* Staked */}
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-sm bg-blue-500/30 flex items-center justify-center flex-shrink-0">
@@ -502,18 +505,19 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
                   </div>
                 </div>
               </div>
-              <Separator className="bg-border/50 mt-4" />
+              {/* */}<Separator className="bg-border/50 mt-4" />
 
-              {/* Chart */}
+          
               <PortfolioChart
                 walletAddress={wallet?.walletData?.address}
                 height={200}
                 showPeriodFilter={true}
                 enableArea={true}
                 enableBreakdown={false}
-                className="w-full border-none -m-2 shadow-none"
+                showXAxis={false}
+                className="w-full border-none   -mx-4   shadow-none"
               />
-            </div>
+         
           </Card>
         </div>
       </div>

@@ -276,7 +276,7 @@ export function SidebarV2({
   const sidebarClasses = useMemo(
     () =>
       cn(
-        'flex flex-col h-full justify-between bg-none p-4 transition-all',
+        'flex flex-col h-full justify-between    p-4 transition-all',
         SIDEBAR_TRANSITIONS.DURATION,
         SIDEBAR_TRANSITIONS.EASING,
         isExpanded ? SIDEBAR_WIDTHS.EXPANDED : SIDEBAR_WIDTHS.COLLAPSED

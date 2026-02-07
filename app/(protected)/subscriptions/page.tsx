@@ -143,7 +143,7 @@ export default function SubscriptionsPage() {
 
 
   return (
-    <div className=" flex-1 space-y-6">
+    <div className=" flex-1 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -58,10 +58,10 @@ export function AccountTabs() {
             key={tab.value}
             onClick={() => handleTabClick(tab.value)}
             className={cn(
-              'flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium rounded-sm transition-colors duration-75 cursor-pointer',
+              'flex items-center gap-2 px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-sm transition-colors duration-75 cursor-pointer',
               isActive
                 ? 'bg-secondary text-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             )}
           >
             <span className="hidden sm:inline">{tab.label}</span>

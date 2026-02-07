@@ -1,23 +1,20 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Loader2, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useState, useMemo, useCallback, memo } from 'react';
+import { Loader2, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   ResponsiveContainer,
   Area,
   AreaChart,
-  BarChart,
-  Bar,
   ComposedChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   ReferenceLine,
-  Tooltip as RechartsTooltip,
+  Bar,
 } from 'recharts';
 import { cn } from '@/lib/utils';
-import { zerionChartService } from '@/lib/features/crypto/services';
 import {
   ChartContainer,
   ChartTooltip,
@@ -31,21 +28,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  formatYAxisLabel,
+  calculateXAxisInterval,
+  calculateYAxisDomain,
+  calculateMetrics,
+} from './portfolio-chart-utils';
+import { usePortfolioData, type TimePeriod, type ChartDataPoint } from './use-portfolio-data';
 
 export type PortfolioChartMode = 'compact' | 'full';
 export type ChartType = 'area' | 'breakdown';
-export type TimePeriod = '1D' | '7D' | '1M' | '3M' | '6M' | '1Y' | 'ALL';
-export type BreakdownPeriod = 'monthly' | 'quarterly' | 'yearly';
-
-interface ChartDataPoint {
-  timestamp?: number;
-  date?: string;
-  value?: number;
-  totalNetWorth?: number;
-  totalAssets?: number;
-  totalLiabilities?: number;
-  formattedDate?: string;
-}
 
 interface PortfolioChartProps {
   mode?: PortfolioChartMode;
@@ -55,13 +49,13 @@ interface PortfolioChartProps {
   height?: number;
   showPeriodFilter?: boolean;
   showMetrics?: boolean;
+  showXAxis?: boolean;
   enableArea?: boolean;
   enableBreakdown?: boolean;
   selectedPeriod?: TimePeriod;
   onPeriodChange?: (period: TimePeriod) => void;
   externalIsLoading?: boolean;
   className?: string;
-  chartColor?: string;
   valueKey?: string;
   assetsKey?: string;
   liabilitiesKey?: string;
@@ -69,96 +63,7 @@ interface PortfolioChartProps {
 }
 
 // ============================================================================
-// Utilities
-// ============================================================================
-
-const formatCompactCurrency = (value: number): string => {
-  if (value >= 1_000_000) {
-    return `$${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(0)}k`;
-  }
-  return `$${value.toFixed(0)}`;
-};
-
-const formatCurrency = (
-  value: number,
-  options?: Intl.NumberFormatOptions
-): string => {
-  try {
-    return `$${value.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      ...options,
-    })}`;
-  } catch (error) {
-    console.warn('[PortfolioChart] Currency formatting error:', error);
-    return `$${value.toFixed(2)}`;
-  }
-};
-
-/**
- * Format date based on time period for optimal readability
- */
-const formatDateByPeriod = (date: Date, period: TimePeriod): string => {
-  try {
-    switch (period) {
-      case '1D':
-        // Show timestamps (HH:MM)
-        return date.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        });
-      case '7D':
-        // Show month and date (Jan 15)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        });
-      case '1M':
-        // Show month and date (Jan 15)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        });
-      case '3M':
-        // Show month and date (Jan 15)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        });
-      case '6M':
-        // Show month only (Jan)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-        });
-      case '1Y':
-        // Show month only (Jan)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-        });
-      case 'ALL':
-        // Show month and year (Jan 2024)
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          year: '2-digit',
-        });
-      default:
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        });
-    }
-  } catch (error) {
-    console.warn('[PortfolioChart] Date formatting error:', error);
-    return '';
-  }
-};
-
-// ============================================================================
-// Custom Tooltip
+// Custom Tooltip Component
 // ============================================================================
 
 interface CustomTooltipProps {
@@ -166,19 +71,19 @@ interface CustomTooltipProps {
   payload?: Array<{ payload: ChartDataPoint; value: number }>;
 }
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-  if (!active || !payload || !payload.length) return null;
+const CustomTooltip = memo(({ active, payload }: CustomTooltipProps) => {
+  if (!active || !payload?.length) return null;
 
-  const data = payload[0].payload as ChartDataPoint;
+  const { formattedDate } = payload[0].payload;
   const value = payload[0].value;
 
   return (
     <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
       <div className="space-y-2">
         <div className="space-y-0.5">
-          {data.formattedDate && (
+          {formattedDate && (
             <time className="text-[10px] text-muted-foreground font-medium">
-              {data.formattedDate}
+              {formattedDate}
             </time>
           )}
           <div className="flex items-baseline gap-1.5">
@@ -190,42 +95,54 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
       </div>
     </div>
   );
-};
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
 
 // ============================================================================
-// Custom Dot
+// Custom Dot Component
 // ============================================================================
 
 interface CustomDotProps {
   cx?: number;
   cy?: number;
-  fill?: string;
 }
 
-const CustomDot = ({ cx, cy }: CustomDotProps) => {
+const CustomDot = memo(({ cx, cy }: CustomDotProps) => {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
-
   return (
-    <g>
-      <circle cx={cx} cy={cy} r={3} fill="white" stroke="var(--chart-1)" strokeWidth={2} />
-    </g>
+    <circle
+      cx={cx}
+      cy={cy}
+      r={3}
+      fill="white"
+      stroke="var(--chart-1)"
+      strokeWidth={2}
+    />
   );
-};
+});
+
+CustomDot.displayName = 'CustomDot';
 
 // ============================================================================
 // Loading & Empty States
 // ============================================================================
 
-const ChartSkeleton = ({ height }: { height: number }) => (
-  <div className="relative w-full flex items-center justify-center" style={{ height }}>
+const ChartSkeleton = memo(({ height }: { height: number }) => (
+  <div
+    className="relative w-full flex items-center justify-center"
+    style={{ height }}
+  >
     <div className="flex flex-col items-center gap-3">
       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       <p className="text-sm text-muted-foreground">Loading chart...</p>
     </div>
   </div>
-);
+));
 
-const EmptyState = () => (
+ChartSkeleton.displayName = 'ChartSkeleton';
+
+const EmptyState = memo(() => (
   <div className="absolute inset-0 flex items-center justify-center p-6">
     <div className="text-center max-w-sm space-y-4">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-muted">
@@ -239,9 +156,11 @@ const EmptyState = () => (
       </div>
     </div>
   </div>
-);
+));
 
-const ErrorState = ({ error }: { error: unknown }) => (
+EmptyState.displayName = 'EmptyState';
+
+const ErrorState = memo(({ error }: { error: unknown }) => (
   <div className="absolute inset-0 flex items-center justify-center p-6">
     <div className="text-center max-w-sm space-y-4">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-destructive/10">
@@ -250,15 +169,70 @@ const ErrorState = ({ error }: { error: unknown }) => (
       <div className="space-y-1">
         <h3 className="font-semibold">Failed to Load Chart</h3>
         <p className="text-sm text-muted-foreground">
-          {error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+          {error instanceof Error
             ? error.message
             : 'An error occurred. Please try again.'}
         </p>
       </div>
     </div>
   </div>
+));
+
+ErrorState.displayName = 'ErrorState';
+
+// ============================================================================
+// Period Filter Component
+// ============================================================================
+
+const PERIODS: Array<{ value: TimePeriod; label: string }> = [
+  { value: '1D', label: '1D' },
+  { value: '7D', label: '7D' },
+  { value: '1M', label: '1M' },
+  { value: '3M', label: '3M' },
+  { value: '6M', label: '6M' },
+  { value: '1Y', label: '1Y' },
+  { value: 'ALL', label: 'ALL' },
+];
+
+interface PeriodFilterProps {
+  value: TimePeriod;
+  onChange: (period: TimePeriod) => void;
+  size?: 'sm' | 'xs';
+  maxItems?: number;
+}
+
+const PeriodFilter = memo(
+  ({ value, onChange, size = 'xs', maxItems }: PeriodFilterProps) => {
+    const periods = maxItems ? PERIODS.slice(0, maxItems) : PERIODS;
+
+    return (
+      <Select value={value} onValueChange={(v) => onChange(v as TimePeriod)}>
+        <SelectTrigger
+          className="gap-1 font-medium rounded-none shadow-none"
+          size={size}
+          variant="outline2"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="rounded-none shadow-none">
+          {periods.map((period) => (
+            <SelectItem
+              key={period.value}
+              value={period.value}
+              className="rounded-none"
+            >
+              <span className="font-medium text-xs">{period.label}</span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
 );
 
+PeriodFilter.displayName = 'PeriodFilter';
+
+ 
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -271,13 +245,13 @@ export function PortfolioChart({
   height = 300,
   showPeriodFilter = true,
   showMetrics = true,
+  showXAxis = true,
   enableArea = true,
   enableBreakdown = true,
   selectedPeriod = '7D',
   onPeriodChange,
   externalIsLoading = false,
   className,
-  chartColor = '#00A632',
   valueKey = 'value',
   assetsKey = 'totalAssets',
   liabilitiesKey = 'totalLiabilities',
@@ -285,149 +259,59 @@ export function PortfolioChart({
 }: PortfolioChartProps) {
   const [chartType, setChartType] = useState<ChartType>(initialChartType);
   const [internalPeriod, setInternalPeriod] = useState<TimePeriod>(selectedPeriod);
-  const [fetchedData, setFetchedData] = useState<ChartDataPoint[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
-  // Fetch data from wallet address if provided
-  useEffect(() => {
-    if (!walletAddress) return;
-
-    setIsFetching(true);
-    setError(null);
-
-    const fetchData = async () => {
-      try {
-        const chartData = await zerionChartService.getPortfolioTimeline({
-          address: walletAddress,
-          period: internalPeriod,
-          currency: 'usd',
-        });
-        console.log(chartData)
-        const transformed = chartData.map((point: Record<string, unknown>) => {
-          const date = new Date(point.date);
-          return {
-            ...point,
-            value: point.value,
-            formattedDate: formatDateByPeriod(date, internalPeriod),
-          };
-        });
-        setFetchedData(transformed);
-      } catch (err) {
-        console.error('Failed to load chart data:', err);
-        setError(err instanceof Error ? err : new Error('Failed to load chart data'));
-        setFetchedData([]);
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    fetchData();
-  }, [walletAddress, internalPeriod]);
+  // Use custom hook for data fetching
+  const { data: fetchedData, isLoading: isFetching, error } = usePortfolioData({
+    walletAddress,
+    period: internalPeriod,
+    enabled: !!walletAddress,
+  });
 
   const data = fetchedData.length > 0 ? fetchedData : externalData || [];
   const isLoading = walletAddress ? isFetching : externalIsLoading;
 
-  const periods = useMemo(
-    () => [
-      { value: '1D' as TimePeriod, label: '1D' },
-      { value: '7D' as TimePeriod, label: '7D' },
-      { value: '1M' as TimePeriod, label: '1M' },
-      { value: '3M' as TimePeriod, label: '3M' },
-      { value: '6M' as TimePeriod, label: '6M' },
-      { value: '1Y' as TimePeriod, label: '1Y' },
-      { value: 'ALL' as TimePeriod, label: 'ALL' },
-    ],
-    []
-  );
+  const handlePeriodChange = useCallback((newPeriod: TimePeriod) => {
+    setInternalPeriod(newPeriod);
+    onPeriodChange?.(newPeriod);
+  }, [onPeriodChange]);
 
-  const handlePeriodChange = useCallback(
-    (newPeriod: TimePeriod) => {
-      setInternalPeriod(newPeriod);
-      onPeriodChange?.(newPeriod);
-    },
-    [onPeriodChange]
-  );
-
+  // Calculate metrics
   const metrics = useMemo(() => {
-    if (!data || data.length === 0) return null;
+    if (!data?.length) return null;
 
     const key = valueKey as keyof ChartDataPoint;
     const firstValue = (data[0][key] as number) || 0;
     const lastValue = (data[data.length - 1][key] as number) || 0;
-    const change = lastValue - firstValue;
-    const changePercent = firstValue !== 0 ? (change / firstValue) * 100 : 0;
 
     return {
+      ...calculateMetrics(lastValue, firstValue),
       current: lastValue,
-      change,
-      changePercent,
-      isPositive: change >= 0,
-      isNeutral: Math.abs(changePercent) < 0.01,
     };
   }, [data, valueKey]);
 
+  // Calculate average value
   const averageValue = useMemo(() => {
-    if (!data || data.length === 0) return 0;
+    if (!data?.length) return 0;
     const key = valueKey as keyof ChartDataPoint;
     const sum = data.reduce((acc, point) => acc + ((point[key] as number) || 0), 0);
     return sum / data.length;
   }, [data, valueKey]);
 
-  // Calculate smart X-axis interval based on period and data length
-  const xAxisInterval = useMemo(() => {
-    const dataLen = data.length;
+  // Calculate X-axis interval
+  const xAxisInterval = useMemo(
+    () => calculateXAxisInterval(data.length, internalPeriod),
+    [data.length, internalPeriod]
+  );
 
-    switch (internalPeriod) {
-      case '1D':
-        // For 1 day, show ~8-12 labels (every 2-3 hours roughly)
-        return Math.max(0, Math.floor(dataLen / 10) - 1);
-      case '7D':
-        // For 7 days, show ~7-8 labels (roughly daily)
-        return Math.max(0, Math.floor(dataLen / 7) - 1);
-      case '1M':
-        // For 1 month, show ~4-5 labels (weekly)
-        return Math.max(0, Math.floor(dataLen / 5) - 1);
-      case '3M':
-        // For 3 months, show ~4-5 labels
-        return Math.max(0, Math.floor(dataLen / 5) - 1);
-      case '6M':
-        // For 6 months, show ~6 labels
-        return Math.max(0, Math.floor(dataLen / 6) - 1);
-      case '1Y':
-        // For 1 year, show ~12 labels (monthly)
-        return Math.max(0, Math.floor(dataLen / 12) - 1);
-      case 'ALL':
-        // For all time, show ~8-10 labels
-        return Math.max(0, Math.floor(dataLen / 10) - 1);
-      default:
-        return Math.max(0, Math.floor(dataLen / 8) - 1);
-    }
-  }, [data.length, internalPeriod]);
-
-  // Calculate Y-axis domain with padding
+  // Calculate Y-axis domain
   const yAxisDomain = useMemo(() => {
-    if (!data || data.length === 0) return [0, 100000];
-
+    if (!data?.length) return [0, 100000] as const;
     const key = valueKey as keyof ChartDataPoint;
     const values = data
       .map((d) => (d[key] as number) || 0)
       .filter((v) => typeof v === 'number' && isFinite(v));
-
-    if (values.length === 0) return [0, 100000];
-
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min;
-    const padding = Math.max(range * 0.1, 1000); // 10% padding or minimum 1000
-
-    return [
-      Math.max(0, Math.floor((min - padding) / 1000) * 1000), // Round down to nearest 1000
-      Math.ceil((max + padding) / 1000) * 1000, // Round up to nearest 1000
-    ];
+    return calculateYAxisDomain(values);
   }, [data, valueKey]);
-
- 
 
   // Compact mode
   if (mode === 'compact') {
@@ -460,18 +344,12 @@ export function PortfolioChart({
           </div>
 
           {showPeriodFilter && (
-            <Select value={internalPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
-              <SelectTrigger size="sm" className="w-[100px] h-7 text-[11px] font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {periods.slice(0, 4).map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
-                    {period.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <PeriodFilter
+              value={internalPeriod}
+              onChange={handlePeriodChange}
+              size="sm"
+              maxItems={4}
+            />
           )}
         </div>
 
@@ -513,28 +391,31 @@ export function PortfolioChart({
                     vertical={false}
                   />
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    stroke="var(--muted-foreground)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={5}
-                    opacity={0.7}
-                    interval={xAxisInterval}
-                    tick={{ fontSize: 9 }}
-                    height={40}
-                  />
+                  {showXAxis && (
+                    <XAxis
+                      dataKey="formattedDate"
+                      stroke="var(--muted-foreground)"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={5}
+                      opacity={0.7}
+                      interval={xAxisInterval}
+                      tick={{ fontSize: 9 }}
+                      height={40}
+                    />
+                  )}
 
                   <YAxis
                     stroke="var(--muted-foreground)"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    tickFormatter={(value) => formatYAxisLabel(value)}
+                    tickCount={4}
                     dx={-5}
                     opacity={0.7}
-                    width={40}
+                    width={50}
                     domain={yAxisDomain as [number, number]}
                   />
 
@@ -576,14 +457,18 @@ export function PortfolioChart({
 
   return (
     <section
-      className={cn('w-full space-y-2 border border-border/80 rounded-none overflow-hidden bg-card shadow-xs pt-2 pr-2', className)}
+      className={cn('w-full space-y-2 border border-border/80 rounded-none overflow-hidden bg-card shadow-xs pt-2  ', className)}
       role="region"
       aria-label="Portfolio Chart"
     >
       <div className="flex justify-end gap-2">
         {enableArea && enableBreakdown && (
-          <Select value={chartType} onValueChange={(v) => setChartType(v as ChartType)} >
-            <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none " size="xs" variant='outline2'>
+          <Select value={chartType} onValueChange={(v) => setChartType(v as ChartType)}>
+            <SelectTrigger
+              className="gap-1 font-medium h-7 text-xs rounded-none shadow-none"
+              size="xs"
+              variant="outline2"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-none shadow-none">
@@ -598,18 +483,11 @@ export function PortfolioChart({
         )}
 
         {showPeriodFilter && (
-          <Select value={internalPeriod} onValueChange={(v) => handlePeriodChange(v as TimePeriod)}>
-            <SelectTrigger className="gap-1 font-medium h-7 text-xs rounded-none shadow-none" size="xs" variant='outline2'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="rounded-none shadow-none">
-              {periods.map((period) => (
-                <SelectItem key={period.value} value={period.value} className="rounded-none">
-                  <span className="font-medium text-xs">{period.label}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <PeriodFilter
+            value={internalPeriod}
+            onChange={handlePeriodChange}
+            size="xs"
+          />
         )}
       </div>
 
@@ -626,7 +504,7 @@ export function PortfolioChart({
               {chartType === 'area' && enableArea ? (
                 <AreaChart
                   data={data}
-                  margin={{  bottom: -5, right: 25 }}
+                  margin={{  bottom: -5, right: 0 }}
                   role="img"
                 >
                   <defs>
@@ -639,26 +517,28 @@ export function PortfolioChart({
 
                   <CartesianGrid vertical={false} />
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={8}
-                    interval={xAxisInterval}
-                    tick={{ fontSize: 11 }}
-                    height={50}
-                  />
+                  {showXAxis && (<>
+                    <XAxis
+                      dataKey="formattedDate"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={8}
+                      interval={xAxisInterval}
+                      tick={{ fontSize: 11 }}
+                      height={50}
+                    />
+              
 
                   <YAxis
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
-                    dx={-8}
-                    width={50}
+                    tickFormatter={(value) => formatYAxisLabel(value)}
+                    tickCount={4}
+                    width={20}
                     domain={yAxisDomain as [number, number]}
-                  />
+                  />   </> )}
 
                   <ReferenceLine
                     y={averageValue}
@@ -680,7 +560,7 @@ export function PortfolioChart({
                   <Area
                     type="linear"
                     dataKey={valueKey}
-                    stroke="var(--chart-primary)"
+                    stroke="var(--chart-1)"
                     strokeWidth={3}
                     fill="url(#portfolioGradient)"
                     isAnimationActive={true}
@@ -698,22 +578,25 @@ export function PortfolioChart({
                 >
                   <CartesianGrid vertical={false} />
 
-                  <XAxis
-                    dataKey="formattedDate"
-                    tickLine={true}
-                    tickMargin={10}
-                    axisLine={false}
-                    fontSize={12}
-                    interval={xAxisInterval}
-                    tick={{ fontSize: 11 }}
-                    height={50}
-                  />
+                  {showXAxis && (
+                    <XAxis
+                      dataKey="formattedDate"
+                      tickLine={true}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={12}
+                      interval={xAxisInterval}
+                      tick={{ fontSize: 11 }}
+                      height={50}
+                    />
+                  )}
 
                   <YAxis
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    tickFormatter={(value) => formatYAxisLabel(value)}
+                    tickCount={4}
                     dx={-8}
                     width={50}
                     domain={yAxisDomain as [number, number]}
@@ -761,7 +644,8 @@ export function PortfolioChart({
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => formatCompactCurrency(value)}
+                    tickFormatter={(value) => formatYAxisLabel(value)}
+                    tickCount={4}
                     dx={8}
                     width={50}
                     domain={yAxisDomain as [number, number]}

@@ -19,7 +19,22 @@ import {
   Settings,
   Loader2,
   ArrowUpRight,
+  Plus,
+  MoreVertical,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   filterTransactions,
@@ -521,51 +536,10 @@ export default function UnifiedAccountDetailsPage() {
   const currentSyncState = realtimeSyncStates[account.id];
 
   return (
-    <div className={`  mx-auto space-y-3`}>
-    {/*   <div className="flex items-center justify-end">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleOpenAddTransaction}
-              variant="outline"
-              size="xs"
+    <div className="mx-auto space-y-3 px-4 md:px-6">
+<div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
 
-            >
-              <MdiDollar className="h-4.5 w-4.5" />
-              Add Transaction
-            </Button>
-            <Button
-              onClick={handleSync}
-              disabled={
-                syncState.isSyncing ||
-                isSyncMutationPending ||
-                isLoadingConnections ||
-                currentSyncState?.status === "syncing" ||
-                currentSyncState?.status === "processing" ||
-                currentSyncState?.status === "syncing_transactions"
-              }
-              variant="default"
-              size="xs"
-              className="gap-2"
-            >
-              {syncState.isSyncing ||
-              isSyncMutationPending ||
-              currentSyncState?.status === "syncing" ||
-              currentSyncState?.status === "syncing_transactions" ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              Sync
-            </Button>
-            <Button variant="outline" size="xs" icon={   <MageCaretDownFill className="h-4 w-4" />}>
-            </Button>
-          </div>
-        </div>
-      </div> */}
-<div className="grid grid-cols-12 gap-4  w-full">
-
-<div className="col-span-8">
+<div className="lg:col-span-8 order-2 lg:order-1">
 
       {/* Transactions Section with Tabs */}
       <Tabs
@@ -574,16 +548,16 @@ export default function UnifiedAccountDetailsPage() {
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
-          <TabsList variant="pill" size="sm" >
-            <TabsTrigger value="transactions" variant="pill" size="sm">
+          <TabsList variant="pill" size="xs" >
+            <TabsTrigger value="transactions" variant="pill" size="xs">
               <SolarBillListBoldDuotone className="h-5 w-5 " />
               Transactions
             </TabsTrigger>
-            <TabsTrigger value="analytics" variant="pill" size="sm">
+            <TabsTrigger value="analytics" variant="pill" size="xs">
               <SolarChartSquareBoldDuotone className="h-5 w-5 " />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="attachments" variant="pill" size="sm">
+            <TabsTrigger value="attachments" variant="pill" size="xs">
               <Paperclip className="h-5 w-5 " />
               Attachments
             </TabsTrigger>
@@ -593,33 +567,36 @@ export default function UnifiedAccountDetailsPage() {
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
-              variant="outline"
+                variant="outline"
                 placeholder="Search transactions..."
                 value={filters.searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-9 h-9"
+                className="pl-9 h-7.5"
               />
             </div>
+
             {/* View Toggle - Only show on transactions tab */}
             {ui.selectedTab === "transactions" && (
-              <div className="inline-flex items-center bg-background">
+              <div className="inline-flex items-center bg-muted border rounded-lg p-0.5">
                 <Button
-                  variant={ui.transactionView === "table" ? "secondary" : "ghost"}
-                  size="sm"
+                  variant={ui.transactionView === "table" ? "outline3" : "ghost"}
+                       size="icon-xs"
                   onClick={() => handleSelectTransactionView("table")}
-                  className="h-8 w-8 p-0"
-                  title="Table view"
+              
+                  title="Grid view"
                 >
                   <LayoutGrid className="w-4 h-4" />
+       
                 </Button>
                 <Button
-                  variant={ui.transactionView === "list" ? "secondary" : "ghost"}
-                  size="sm"
+                  variant={ui.transactionView === "list" ? "outline3" : "ghost"}
+                  size="icon-xs"
                   onClick={() => handleSelectTransactionView("list")}
-                  className="h-8 w-8 p-0"
+                  
                   title="List view"
                 >
                   <List className="w-4 h-4" />
+            
                 </Button>
               </div>
             )}
@@ -858,46 +835,110 @@ export default function UnifiedAccountDetailsPage() {
 
       </Tabs>
 </div>
-<div className="col-span-4 space-y-3 ">
+<div className="lg:col-span-4 order-1 lg:order-2 space-y-3">
       <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent}  />
      {/*  <AccountBalanceChart accountId={accountId} balanceVisible={balanceVisible} /> */}
 
-       
-           
-                <div className="grid grid-cols-2 justify-center gap-1">
+
+
+                <div className="space-y-2">
+                  {/* Primary Action - Full Width, Prominent */}
                   <Button
+                    onClick={handleOpenAddTransaction}
                     variant="outline2"
-                    size="xs"
-                    className="rounded-sm shadow-xs gap-2"
+                    size="sm"
+                    className="w-full justify-center gap-2 shadow-sm"
                   >
-                    <ArrowUpRight className="h-4 w-4" />
-                    Transfer
+                    <Plus className="h-4 w-4" />
+                    Add Transaction
                   </Button>
-                  <Button
-                    variant="outline2"
-                    size="xs"
-                    className=" rounded-sm shadow-xs  gap-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    Export 
-                  </Button>
-                  <Button
-                    variant="outline2"
-                    size="xs"
-                    className=" rounded-sm shadow-xs  gap-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings 
-                  </Button>
-                     <Button
-                    variant="destructive"
-                    size="xs"
-                    className=" rounded-sm    gap-2 "
-                    onClick={handleDisconnect}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Disconnect
-                  </Button>
+
+                  {/* Secondary Actions - Icon Row with Tooltips + Overflow Menu */}
+                  <div className="flex items-center gap-1">
+                    <TooltipProvider delayDuration={300}>
+                      {/* Transfer */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="h-8 w-8"
+                          >
+                            <ArrowUpRight className="h-4 w-4" />
+                            <span className="sr-only">Transfer</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>Transfer</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Export */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="h-8 w-8"
+                          >
+                            <Download className="h-4 w-4" />
+                            <span className="sr-only">Export</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>Export</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Settings */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="h-8 w-8"
+                          >
+                            <Settings className="h-4 w-4" />
+                            <span className="sr-only">Settings</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>Settings</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    {/* Spacer to push menu to the right */}
+                    <div className="flex-1" />
+
+                    {/* Overflow Menu - More Actions + Destructive */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="h-8 w-8"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">More actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Sync Account
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={handleDisconnect}
+                          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Disconnect Account
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
                
      

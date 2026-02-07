@@ -53,7 +53,7 @@ export function MainLayout({
     <div className={cn("min-h-screen  ", className)}>
       {shouldShowHeader && <Header />}
 
-      <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))]" : "h-screen"}>
+      <div className={shouldShowHeader ? "h-[calc(100vh-theme(spacing.16))] " : "h-screen"}>
         <SidebarLayoutV2 showHeader={showHeader}>
           {children}
         </SidebarLayoutV2>

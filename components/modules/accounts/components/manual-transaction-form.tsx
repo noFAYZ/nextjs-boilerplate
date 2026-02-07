@@ -52,10 +52,9 @@ export function ManualTransactionForm({
     notes: '',
   });
 
-  // Transform API categories into ComboboxOption format
+  // Memoize category options to prevent unnecessary recalculations
   const categoryOptions = useMemo<ComboboxOption[]>(() => {
     if (!apiCategories?.length) return [];
-
     return apiCategories.map((cat) => ({
       value: cat.id,
       label: `${cat.icon} ${cat.name}`,
@@ -63,7 +62,7 @@ export function ManualTransactionForm({
     }));
   }, [apiCategories]);
 
-  // Optimized handlers with useCallback
+  // Memoized handlers for optimal performance
   const handleDescriptionChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, description: e.target.value }));
   }, []);
@@ -73,7 +72,8 @@ export function ManualTransactionForm({
   }, []);
 
   const handleAmountChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }));
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, amount: value ? parseFloat(value) : 0 }));
   }, []);
 
   const handleCategoryChange = useCallback((categoryId: string) => {
@@ -99,31 +99,37 @@ export function ManualTransactionForm({
     });
   }, []);
 
+  // Validate form data - memoized for efficiency
+  const isFormValid = useMemo(() => {
+    return !!(
+      formData.description?.trim() &&
+      formData.date &&
+      formData.amount > 0 &&
+      formData.categoryId
+    );
+  }, [formData.description, formData.date, formData.amount, formData.categoryId]);
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields (backend requires these)
-    if (!formData.description || !formData.date || !formData.amount || formData.amount <= 0) {
-      error('Description, date, and positive amount are required');
-      return;
-    }
-
-    if (!formData.categoryId) {
-      error('Category is required');
+    // Validate required fields
+    if (!isFormValid) {
+      error('All required fields must be filled correctly');
       return;
     }
 
     try {
-      // Match backend's POST /transactions endpoint
+      // Prepare submit data with proper TypeScript type
       const submitData: AddTransactionRequest = {
-        description: formData.description,
+        description: formData.description.trim(),
         date: formData.date,
         amount: formData.amount,
         categoryId: formData.categoryId,
         type: formData.type,
-        ...(formData.notes && { notes: formData.notes }),
+        ...(formData.notes?.trim() && { notes: formData.notes.trim() }),
       };
 
+      // Use mutation with callbacks
       addTransaction(
         { accountId, data: submitData },
         {
@@ -133,23 +139,18 @@ export function ManualTransactionForm({
             onClose();
           },
           onError: (mutationError) => {
-            const errorMessage = mutationError instanceof Error ? mutationError.message : 'Failed to add transaction';
-            error(errorMessage);
+            const errorMsg =
+              mutationError instanceof Error
+                ? mutationError.message
+                : 'Failed to add transaction';
+            error(errorMsg);
           },
         }
       );
-    } catch {
+    } catch (err) {
       error('An error occurred while adding the transaction');
     }
-  }, [
-    formData,
-    accountId,
-    addTransaction,
-    success,
-    error,
-    resetForm,
-    onClose
-  ]);
+  }, [isFormValid, formData, accountId, addTransaction, success, error, resetForm, onClose]);
 
   const handleClose = useCallback(() => {
     resetForm();

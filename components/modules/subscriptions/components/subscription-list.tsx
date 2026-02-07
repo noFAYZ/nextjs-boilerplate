@@ -96,9 +96,9 @@ function SubscriptionListComponent({
   }
 
   const gridClass = {
-    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4",
+    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4",
     compact: "flex flex-col gap-2",
-  }[viewPreferences.subscriptionsView] || "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+  }[viewPreferences.subscriptionsView] || "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4";
 
   return (
     <div className={cn(gridClass, className)}>
@@ -122,9 +122,9 @@ function SubscriptionListSkeleton({
   view: 'grid' | 'list' | 'compact';
 }) {
   const gridClasses = {
-    grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4',
+    grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
     list: 'flex flex-col gap-3',
-    compact: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3',
+    compact: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3',
   };
 
   const count = view === 'compact' ? 8 : view === 'grid' ? 6 : 4;

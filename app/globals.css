@@ -65,8 +65,8 @@
 
   /* Typography & Layout */
   --font-sans: 'Readex Pro', ui-sans-serif, sans-serif;
-  --radius: 0.75rem;
-  --spacing: 0.23rem;
+  --radius: 0.25rem;
+  --spacing: 0.25rem;
   --tracking-normal: -0.015em;
 
   /* --- Full Standardized Shadow Scale --- */

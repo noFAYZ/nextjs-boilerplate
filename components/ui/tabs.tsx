@@ -34,6 +34,7 @@ const tabsListVariants = cva(
         cyber: "bg-orange-100/50 border border-amber-500/30 rounded-none p-1",
       },
       size: {
+        xs: "text-xs",
         sm: "text-xs",
         default: "text-sm", 
         lg: "text-base",
@@ -75,6 +76,7 @@ const tabsTriggerVariants = cva(
         cyber: "rounded-lg px-4 py-2 text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/10 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300",
       },
       size: {
+        xs: "text-xs px-1 py-1",
         sm: "text-xs px-2 py-1.5",
         default: "text-sm px-3 py-2",
         lg: "text-base px-4 py-3",

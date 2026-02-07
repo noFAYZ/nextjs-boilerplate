@@ -567,7 +567,7 @@ export function SubscriptionsDataTable({
       {/* Data Table */}
       <div className=" overflow-hidden" role="region" aria-label="Subscriptions data table">
         {/* Search & Filter Toolbar - Inside datatable */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border   ">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3     ">
           <div className="flex-1 w-full sm:max-w-sm">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10" />

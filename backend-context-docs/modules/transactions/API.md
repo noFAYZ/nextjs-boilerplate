@@ -1,43 +1,45 @@
 # Transactions Module - API Reference
 
-**Base Path**: `/api/v1/transactions`
+**Current Status**: ✅ Fully Documented (60+ endpoints)
 
 ---
 
-## Endpoints Overview
+## Module Overview
 
-| Method | Endpoint | Purpose | Auth | Rate Limit |
-|--------|----------|---------|------|-----------|
-| GET | `/` | List transactions with filters | ✅ | 100/15min |
-| POST | `/import` | Import transactions | ✅ | 10/min |
-| GET | `/{id}` | Get transaction details | ✅ | 100/15min |
-| PUT | `/{id}` | Update transaction | ✅ | 10/min |
-| POST | `/{id}/categorize` | Categorize transaction | ✅ | 20/min |
-| POST | `/{id}/split` | Split transaction | ✅ | 10/min |
-| POST | `/merge` | Merge transactions | ✅ | 5/min |
-| GET | `/search` | Full-text search | ✅ | 50/15min |
-| GET | `/recurring` | List recurring patterns | ✅ | 50/15min |
-| POST | `/recurring/confirm` | Confirm recurring pattern | ✅ | 10/min |
-| GET | `/categories` | List categories | ✅ | 100/15min |
-| POST | `/categories` | Create custom category | ✅ | 10/min |
-| GET | `/analytics` | Transaction analytics | ✅ | 50/15min |
-| GET | `/analytics/spending` | Spending by category | ✅ | 50/15min |
-| GET | `/analytics/trends` | Spending trends | ✅ | 50/15min |
-| POST | `/export` | Export transactions | ✅ | 5/min |
+The Transactions module provides comprehensive transaction management with intelligent categorization, rules-based automation, recurring pattern detection, and advanced analytics. Endpoints are organized across multiple base paths.
 
 ---
 
-## Detailed Endpoints
+## API Base Paths
 
-### 1. List Transactions
-Get paginated list of transactions with filtering.
+| Base Path | Purpose | Endpoints |
+|-----------|---------|-----------|
+| `/api/v1/transactions` | Core transaction operations | 18 |
+| `/api/v1/categories` | Category management | 6 |
+| `/api/v1/category-groups` | Category groups | 5 |
+| `/api/v1/category-rules` | Auto-categorization rules | 10 |
+| `/api/v1/categorization-rules` | Custom categorization rules | 14 |
+| `/api/v1/findings` | Analytics & reconciliation | 6 |
+| `/api/v1/merchants` | Merchant data | 1 |
+| **TOTAL** | | **60+** |
 
-**Endpoint**: `GET /`
+---
+
+## 1. Core Transactions (`/api/v1/transactions`)
+
+### CRUD Operations
+
+#### List Transactions
+**Endpoint**: `GET /api/v1/transactions`
 
 **Query Parameters**:
-```
-?page=1&limit=20&category=food&merchant=starbucks&dateFrom=2025-01-01&dateTo=2025-01-31&amountMin=0&amountMax=100&status=completed
-```
+- `accountId` (string) - Filter by account
+- `categoryId` (string) - Filter by category
+- `type` (string) - INCOME, EXPENSE, TRANSFER
+- `dateFrom` (ISO date) - Start date
+- `dateTo` (ISO date) - End date
+- `page` (integer, default: 1) - Page number
+- `limit` (integer, default: 20) - Items per page
 
 **Response** (200):
 ```json
@@ -46,48 +48,22 @@ Get paginated list of transactions with filtering.
   "data": [
     {
       "id": "txn_123",
-      "sourceType": "banking",
-      "merchantName": "Starbucks #1234",
-      "description": "Coffee",
+      "accountId": "acc_456",
       "amount": 6.50,
-      "currency": "USD",
       "date": "2025-01-18T10:30:00Z",
-      "category": "Food & Dining",
-      "categoryConfidence": 0.95,
-      "status": "completed",
-      "tags": ["daily-coffee"],
-      "notes": "Usual morning coffee",
-      "recurring": true,
+      "description": "Starbucks",
+      "type": "EXPENSE",
+      "status": "POSTED",
+      "categoryId": "cat_food",
+      "notes": "Morning coffee",
+      "tags": ["daily", "coffee"],
       "createdAt": "2025-01-18T10:35:00Z"
-    },
-    {
-      "id": "txn_124",
-      "sourceType": "banking",
-      "merchantName": "Shell Gas Station",
-      "description": "Fuel",
-      "amount": 45.00,
-      "currency": "USD",
-      "date": "2025-01-17T14:15:00Z",
-      "category": "Transportation",
-      "categoryConfidence": 0.92,
-      "status": "completed",
-      "tags": ["gas"],
-      "notes": null,
-      "recurring": false,
-      "createdAt": "2025-01-17T14:20:00Z"
     }
   ],
   "pagination": {
     "page": 1,
     "limit": 20,
-    "total": 245,
-    "hasMore": true,
-    "cursor": "txn_124"
-  },
-  "summary": {
-    "totalAmount": 51.50,
-    "transactionCount": 2,
-    "averageAmount": 25.75
+    "total": 245
   },
   "timestamp": "2025-01-18T11:00:00Z"
 }
@@ -95,136 +71,112 @@ Get paginated list of transactions with filtering.
 
 ---
 
-### 2. Import Transaction
-Import new transaction manually.
-
-**Endpoint**: `POST /import`
+#### Create Transaction
+**Endpoint**: `POST /api/v1/transactions`
 
 **Request**:
 ```json
 {
-  "sourceType": "banking",
-  "merchantName": "Amazon",
-  "description": "Book purchase",
-  "amount": 24.99,
-  "currency": "USD",
-  "date": "2025-01-18",
-  "accountId": "acc_123",
-  "category": "Shopping",
-  "notes": "Python programming book"
+  "accountId": "acc_456",
+  "amount": 6.50,
+  "date": "2025-01-18T10:30:00Z",
+  "description": "Starbucks",
+  "type": "EXPENSE",
+  "status": "POSTED",
+  "categoryId": "cat_food",
+  "notes": "Morning coffee",
+  "tags": ["daily", "coffee"]
 }
 ```
 
-**Response** (201):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "txn_125",
-    "sourceType": "banking",
-    "merchantName": "Amazon",
-    "description": "Book purchase",
-    "amount": 24.99,
-    "currency": "USD",
-    "date": "2025-01-18T00:00:00Z",
-    "category": "Shopping",
-    "categoryConfidence": 1.0,
-    "status": "completed",
-    "createdAt": "2025-01-18T11:05:00Z"
-  },
-  "timestamp": "2025-01-18T11:05:00Z"
-}
-```
+**Response** (201): Created transaction object
 
 ---
 
-### 3. Get Transaction Details
-Get full transaction information.
+#### Get Transaction by ID
+**Endpoint**: `GET /api/v1/transactions/{id}`
 
-**Endpoint**: `GET /{id}`
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "txn_123",
-    "sourceType": "banking",
-    "merchantName": "Starbucks #1234",
-    "description": "Coffee",
-    "amount": 6.50,
-    "currency": "USD",
-    "date": "2025-01-18T10:30:00Z",
-    "category": "Food & Dining",
-    "subcategory": "Coffee Shops",
-    "categoryConfidence": 0.95,
-    "categoryMethod": "pattern_match",
-    "status": "completed",
-    "tags": ["daily-coffee", "favorite"],
-    "notes": "Usual morning coffee",
-    "recurring": true,
-    "recurringId": "rec_456",
-    "accountId": "acc_123",
-    "transactionHash": "0x789abc...",
-    "metadata": {
-      "merchantId": "m_starbucks_1234",
-      "merchantCategory": "5814",
-      "transactionType": "purchase",
-      "latitude": 40.7128,
-      "longitude": -74.0060
-    },
-    "createdAt": "2025-01-18T10:35:00Z",
-    "updatedAt": "2025-01-18T10:35:00Z"
-  },
-  "timestamp": "2025-01-18T11:10:00Z"
-}
-```
+**Response** (200): Full transaction details
 
 ---
 
-### 4. Update Transaction
-Update transaction details.
-
-**Endpoint**: `PUT /{id}`
+#### Update Transaction
+**Endpoint**: `PUT /api/v1/transactions/{id}`
 
 **Request**:
 ```json
 {
-  "category": "Subscriptions",
-  "notes": "Monthly coffee membership",
-  "tags": ["monthly-subscription", "favorite"]
+  "description": "Updated description",
+  "categoryId": "cat_food",
+  "status": "CLEARED",
+  "notes": "Updated notes"
 }
 ```
 
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "txn_123",
-    "category": "Subscriptions",
-    "notes": "Monthly coffee membership",
-    "tags": ["monthly-subscription", "favorite"],
-    "updatedAt": "2025-01-18T11:15:00Z"
-  },
-  "timestamp": "2025-01-18T11:15:00Z"
-}
-```
+**Response** (200): Updated transaction
 
 ---
 
-### 5. Categorize Transaction
-Assign category to transaction.
+#### Delete Transaction
+**Endpoint**: `DELETE /api/v1/transactions/{id}`
 
-**Endpoint**: `POST /{id}/categorize`
+**Response** (204): No content
+
+---
+
+### Search & Filtering
+
+#### Search Transactions
+**Endpoint**: `GET /api/v1/transactions/search`
+
+**Query Parameters**:
+- `q` (string) - Search query (merchant/description/notes)
+- `accountIds` (string) - Comma-separated account IDs
+- `categories` (string) - Comma-separated category IDs
+- `merchants` (string) - Comma-separated merchant IDs
+- `minAmount` (number) - Minimum amount
+- `maxAmount` (number) - Maximum amount
+- `dateFrom` (YYYY-MM-DD) - Start date
+- `dateTo` (YYYY-MM-DD) - End date
+- `isDuplicate` (boolean) - Filter by duplicate status
+- `limit` (integer, default: 50, max: 500)
+- `offset` (integer, default: 0)
+
+**Example**:
+```
+GET /api/v1/transactions/search?q=coffee&category=food&limit=50
+```
+
+**Response** (200): Array of matching transactions
+
+---
+
+### Bulk Operations
+
+#### Create Multiple Transactions
+**Endpoint**: `POST /api/v1/transactions/bulk`
 
 **Request**:
 ```json
 {
-  "category": "Food & Dining",
-  "subcategory": "Restaurants",
-  "confidence": 0.95,
-  "method": "manual"
+  "transactions": [
+    { "accountId": "acc_1", "amount": 100, "description": "Txn 1", ... },
+    { "accountId": "acc_2", "amount": 200, "description": "Txn 2", ... }
+  ]
+}
+```
+
+**Response** (201): Created transactions
+
+---
+
+#### Validate Bulk Operation
+**Endpoint**: `POST /api/v1/transactions/bulk/validate`
+
+**Request**:
+```json
+{
+  "transactionIds": ["txn_123", "txn_124", "txn_125"]
 }
 ```
 
@@ -233,246 +185,151 @@ Assign category to transaction.
 {
   "success": true,
   "data": {
-    "id": "txn_123",
-    "category": "Food & Dining",
-    "subcategory": "Restaurants",
-    "categoryConfidence": 0.95,
-    "categorizedAt": "2025-01-18T11:20:00Z"
-  },
-  "timestamp": "2025-01-18T11:20:00Z"
+    "valid": 3,
+    "invalid": 0,
+    "total": 3
+  }
 }
 ```
 
 ---
 
-### 6. Split Transaction
-Split transaction across multiple categories.
+### Statistics
 
-**Endpoint**: `POST /{id}/split`
+#### Get Transaction Stats
+**Endpoint**: `GET /api/v1/transactions/stats`
+
+**Query Parameters**:
+- `accountId` (string)
+- `dateFrom` (ISO date)
+- `dateTo` (ISO date)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "totalTransactions": 127,
+    "totalAmount": 3245.50,
+    "averageAmount": 25.56,
+    "largestTransaction": 450.00,
+    "smallestTransaction": 2.50
+  }
+}
+```
+
+---
+
+### Notes & Attachments
+
+#### Get Transaction Notes
+**Endpoint**: `GET /api/v1/transactions/{id}/notes`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "transactionId": "txn_123",
+    "notes": ["Updated notes", "Initial notes"]
+  }
+}
+```
+
+---
+
+#### Add Transaction Notes
+**Endpoint**: `POST /api/v1/transactions/{id}/notes`
 
 **Request**:
 ```json
 {
-  "splits": [
+  "text": "This is a note about the transaction"
+}
+```
+
+**Response** (201): Note created
+
+---
+
+#### Upload Attachment
+**Endpoint**: `POST /api/v1/transactions/{id}/attachments`
+
+**Request**: Multipart form-data with `file` field
+
+**Response** (201): Attachment metadata
+
+---
+
+#### Get Attachments
+**Endpoint**: `GET /api/v1/transactions/{id}/attachments`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": [
     {
-      "category": "Food & Dining",
-      "amount": 12.50,
-      "percentage": 50
-    },
-    {
-      "category": "Entertainment",
-      "amount": 12.50,
-      "percentage": 50
+      "id": "att_123",
+      "filename": "receipt.pdf",
+      "fileSize": 245000,
+      "uploadedAt": "2025-01-18T10:35:00Z"
     }
   ]
 }
 ```
 
-**Response** (201):
-```json
-{
-  "success": true,
-  "data": {
-    "originalTransactionId": "txn_123",
-    "splits": [
-      {
-        "id": "split_123_1",
-        "transactionId": "txn_123",
-        "category": "Food & Dining",
-        "amount": 12.50,
-        "percentage": 50
-      },
-      {
-        "id": "split_123_2",
-        "transactionId": "txn_123",
-        "category": "Entertainment",
-        "amount": 12.50,
-        "percentage": 50
-      }
-    ],
-    "createdAt": "2025-01-18T11:25:00Z"
-  },
-  "timestamp": "2025-01-18T11:25:00Z"
-}
-```
+---
+
+#### Download Attachment
+**Endpoint**: `GET /api/v1/attachments/{attachmentId}/download`
+
+**Response** (200): Presigned download URL
 
 ---
 
-### 7. Merge Transactions
-Combine multiple transactions into one.
+#### Delete Attachment
+**Endpoint**: `DELETE /api/v1/attachments/{attachmentId}`
 
-**Endpoint**: `POST /merge`
+**Response** (204): Deleted
+
+---
+
+#### Make Attachment Public
+**Endpoint**: `PUT /api/v1/attachments/{attachmentId}/public`
+
+**Response** (200): Attachment is now public
+
+---
+
+#### Make Attachment Private
+**Endpoint**: `DELETE /api/v1/attachments/{attachmentId}/public`
+
+**Response** (200): Attachment is now private
+
+---
+
+### Reconciliation
+
+#### Reconcile Transaction
+**Endpoint**: `POST /api/v1/transactions/{id}/reconcile`
 
 **Request**:
 ```json
 {
-  "transactionIds": ["txn_100", "txn_101"],
-  "mergedCategory": "Travel",
-  "notes": "Combined trip expenses"
+  "matchedTransactionId": "txn_999",
+  "notes": "Matched with bank statement"
 }
 ```
 
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "mergedTransactionId": "txn_merged_123",
-    "originalTransactions": ["txn_100", "txn_101"],
-    "totalAmount": 150.00,
-    "category": "Travel",
-    "notes": "Combined trip expenses",
-    "createdAt": "2025-01-18T11:30:00Z"
-  },
-  "timestamp": "2025-01-18T11:30:00Z"
-}
-```
-
-**Error** (400):
-```json
-{
-  "success": false,
-  "error": "Cannot merge transactions from different accounts",
-  "code": "INVALID_MERGE",
-  "timestamp": "2025-01-18T11:30:00Z"
-}
-```
+**Response** (200): Transaction marked as reconciled
 
 ---
 
-### 8. Full-Text Search
-Search transactions by merchant, description, category.
+## 2. Categories (`/api/v1/categories`)
 
-**Endpoint**: `GET /search`
-
-**Query Parameters**:
-```
-?q=coffee&category=food&dateFrom=2025-01-01&dateTo=2025-01-31&limit=50
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "txn_123",
-      "merchantName": "Starbucks #1234",
-      "amount": 6.50,
-      "category": "Food & Dining",
-      "date": "2025-01-18T10:30:00Z",
-      "relevanceScore": 0.98
-    },
-    {
-      "id": "txn_456",
-      "merchantName": "Coffee Bean & Tea Leaf",
-      "amount": 5.75,
-      "category": "Food & Dining",
-      "date": "2025-01-17T09:15:00Z",
-      "relevanceScore": 0.92
-    }
-  ],
-  "pagination": {
-    "total": 2,
-    "limit": 50
-  },
-  "timestamp": "2025-01-18T11:35:00Z"
-}
-```
-
----
-
-### 9. List Recurring Transactions
-Get detected recurring patterns.
-
-**Endpoint**: `GET /recurring`
-
-**Query Parameters**:
-```
-?status=confirmed&limit=20&sortBy=nextExpectedDate
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "rec_456",
-      "merchant": "Netflix",
-      "amount": 15.99,
-      "category": "Entertainment & Subscriptions",
-      "frequency": "monthly",
-      "nextExpectedDate": "2025-02-18",
-      "lastOccurredAt": "2025-01-18",
-      "occurrences": 12,
-      "status": "confirmed",
-      "budgetedAmount": 15.99,
-      "yearlyTotal": 191.88,
-      "createdAt": "2024-12-18"
-    },
-    {
-      "id": "rec_789",
-      "merchant": "Starbucks",
-      "amount": 6.50,
-      "category": "Food & Dining",
-      "frequency": "daily",
-      "nextExpectedDate": "2025-01-19",
-      "lastOccurredAt": "2025-01-18",
-      "occurrences": 42,
-      "status": "confirmed",
-      "budgetedAmount": 6.50,
-      "yearlyTotal": 2372.50,
-      "createdAt": "2024-11-07"
-    }
-  ],
-  "pagination": {
-    "total": 2,
-    "limit": 20
-  },
-  "timestamp": "2025-01-18T11:40:00Z"
-}
-```
-
----
-
-### 10. Confirm Recurring Pattern
-Confirm or reject detected recurring transaction.
-
-**Endpoint**: `POST /recurring/confirm`
-
-**Request**:
-```json
-{
-  "recurringId": "rec_pending_123",
-  "confirmed": true,
-  "frequency": "weekly",
-  "budgetCategory": "groceries"
-}
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "rec_pending_123",
-    "merchant": "Whole Foods",
-    "status": "confirmed",
-    "frequency": "weekly",
-    "nextExpectedDate": "2025-01-25",
-    "confirmedAt": "2025-01-18T11:42:00Z"
-  },
-  "timestamp": "2025-01-18T11:42:00Z"
-}
-```
-
----
-
-### 11. List Categories
-Get all available categories.
-
-**Endpoint**: `GET /categories`
+#### List Categories
+**Endpoint**: `GET /api/v1/categories`
 
 **Response** (200):
 ```json
@@ -485,39 +342,7 @@ Get all available categories.
         "name": "Food & Dining",
         "icon": "🍔",
         "color": "#FF6B6B",
-        "subcategories": [
-          "Restaurants",
-          "Coffee Shops",
-          "Groceries",
-          "Fast Food",
-          "Delivery"
-        ]
-      },
-      {
-        "id": "cat_transport",
-        "name": "Transportation",
-        "icon": "🚗",
-        "color": "#4ECDC4",
-        "subcategories": [
-          "Gas",
-          "Parking",
-          "Public Transit",
-          "Taxi/Rideshare",
-          "Car Maintenance"
-        ]
-      },
-      {
-        "id": "cat_entertainment",
-        "name": "Entertainment",
-        "icon": "🎬",
-        "color": "#45B7D1",
-        "subcategories": [
-          "Movies",
-          "Games",
-          "Subscriptions",
-          "Events",
-          "Hobbies"
-        ]
+        "groupId": "group_1"
       }
     ],
     "custom": [
@@ -528,225 +353,549 @@ Get all available categories.
         "color": "#96CEB4"
       }
     ]
-  },
-  "timestamp": "2025-01-18T11:45:00Z"
+  }
 }
 ```
 
 ---
 
-### 12. Create Custom Category
-Create user-defined category.
-
-**Endpoint**: `POST /categories`
+#### Create Custom Category
+**Endpoint**: `POST /api/v1/categories`
 
 **Request**:
 ```json
 {
   "name": "Fitness",
+  "categoryGroupId": "group_1",
   "icon": "💪",
-  "color": "#FF6B9D",
-  "description": "Gym and fitness-related expenses"
+  "color": "#FF6B9D"
 }
 ```
 
-**Response** (201):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "cat_custom_2",
-    "name": "Fitness",
-    "icon": "💪",
-    "color": "#FF6B9D",
-    "isCustom": true,
-    "createdAt": "2025-01-18T11:47:00Z"
-  },
-  "timestamp": "2025-01-18T11:47:00Z"
-}
-```
+**Response** (201): Created category
 
 ---
 
-### 13. Get Transaction Analytics
-Get analytics dashboard data.
+#### Initialize Default Categories
+**Endpoint**: `POST /api/v1/categories/initialize`
 
-**Endpoint**: `GET /analytics`
-
-**Query Parameters**:
-```
-?period=monthly&dateFrom=2025-01-01&dateTo=2025-01-31
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "period": "monthly",
-    "totalTransactions": 127,
-    "totalSpending": 3245.50,
-    "totalIncome": 5000.00,
-    "netCashFlow": 1754.50,
-    "averageTransaction": 25.56,
-    "largestTransaction": 450.00,
-    "smallestTransaction": 2.50,
-    "percentageChange": -5.3,
-    "comparison": {
-      "previous_period": 3425.00,
-      "change": -179.50,
-      "changePercent": -5.3
-    }
-  },
-  "timestamp": "2025-01-18T11:50:00Z"
-}
-```
+**Response** (200): Categories initialized
 
 ---
 
-### 14. Get Spending by Category
-Get category breakdown.
-
-**Endpoint**: `GET /analytics/spending`
-
-**Query Parameters**:
-```
-?period=monthly&dateFrom=2025-01-01&dateTo=2025-01-31
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "byCategory": [
-      {
-        "category": "Food & Dining",
-        "amount": 687.50,
-        "percentage": 21.2,
-        "transactions": 42,
-        "trend": "up"
-      },
-      {
-        "category": "Transportation",
-        "amount": 425.00,
-        "percentage": 13.1,
-        "transactions": 8,
-        "trend": "stable"
-      },
-      {
-        "category": "Entertainment & Subscriptions",
-        "amount": 892.30,
-        "percentage": 27.5,
-        "transactions": 15,
-        "trend": "up"
-      },
-      {
-        "category": "Utilities & Services",
-        "amount": 340.70,
-        "percentage": 10.5,
-        "transactions": 5,
-        "trend": "down"
-      },
-      {
-        "category": "Other",
-        "amount": 900.00,
-        "percentage": 27.7,
-        "transactions": 57,
-        "trend": "stable"
-      }
-    ],
-    "topMerchants": [
-      {
-        "merchant": "Amazon",
-        "amount": 245.50,
-        "transactions": 3,
-        "category": "Shopping"
-      },
-      {
-        "merchant": "Netflix",
-        "amount": 15.99,
-        "transactions": 1,
-        "category": "Entertainment"
-      }
-    ]
-  },
-  "timestamp": "2025-01-18T11:52:00Z"
-}
-```
-
----
-
-### 15. Get Spending Trends
-Get trends over time.
-
-**Endpoint**: `GET /analytics/trends`
-
-**Query Parameters**:
-```
-?days=90&granularity=weekly
-```
-
-**Response** (200):
-```json
-{
-  "success": true,
-  "data": {
-    "trends": [
-      {
-        "date": "2025-01-12",
-        "spending": 2100.00,
-        "income": 5000.00,
-        "netCashFlow": 2900.00,
-        "transactionCount": 35
-      },
-      {
-        "date": "2025-01-19",
-        "spending": 2245.50,
-        "income": 2500.00,
-        "netCashFlow": 254.50,
-        "transactionCount": 42
-      }
-    ],
-    "averageSpending": 2172.75,
-    "highestSpendingWeek": "2025-01-19",
-    "lowestSpendingWeek": "2025-01-12",
-    "trend": "slightly_up"
-  },
-  "timestamp": "2025-01-18T11:55:00Z"
-}
-```
-
----
-
-### 16. Export Transactions
-Export transactions to file.
-
-**Endpoint**: `POST /export`
+#### Update Category
+**Endpoint**: `PUT /api/v1/categories/{id}`
 
 **Request**:
 ```json
 {
-  "format": "csv",
-  "dateFrom": "2025-01-01",
-  "dateTo": "2025-01-31",
-  "includeCategories": true,
-  "includeNotes": true
+  "name": "Updated Name",
+  "icon": "🆕",
+  "color": "#XXXXXX"
 }
 ```
 
-**Response** (202):
+**Response** (200): Updated category
+
+---
+
+#### Delete Category
+**Endpoint**: `DELETE /api/v1/categories/{id}`
+
+**Response** (204): Deleted
+
+---
+
+#### Toggle Category Status
+**Endpoint**: `PATCH /api/v1/categories/{id}/status`
+
+**Request**:
+```json
+{
+  "isEnabled": false
+}
+```
+
+**Response** (200): Status updated
+
+---
+
+## 3. Category Groups (`/api/v1/category-groups`)
+
+#### List Category Groups
+**Endpoint**: `GET /api/v1/category-groups`
+
+**Response** (200): Array of category groups
+
+---
+
+#### Create Category Group
+**Endpoint**: `POST /api/v1/category-groups`
+
+**Request**:
+```json
+{
+  "name": "Personal",
+  "icon": "👤",
+  "color": "#4ECDC4"
+}
+```
+
+**Response** (201): Created group
+
+---
+
+#### Update Category Group
+**Endpoint**: `PUT /api/v1/category-groups/{id}`
+
+**Response** (200): Updated group
+
+---
+
+#### Delete Category Group
+**Endpoint**: `DELETE /api/v1/category-groups/{id}`
+
+**Response** (204): Deleted
+
+---
+
+#### Toggle Group Status
+**Endpoint**: `PATCH /api/v1/category-groups/{id}/status`
+
+**Request**:
+```json
+{
+  "isEnabled": false
+}
+```
+
+**Response** (200): Status updated
+
+---
+
+## 4. Category Rules (`/api/v1/category-rules`)
+
+#### Create Rule
+**Endpoint**: `POST /api/v1/category-rules`
+
+**Request**:
+```json
+{
+  "pattern": "starbucks",
+  "categoryId": "cat_food",
+  "description": "Starbucks coffee purchases",
+  "priority": 50
+}
+```
+
+**Response** (201): Created rule
+
+---
+
+#### List Rules
+**Endpoint**: `GET /api/v1/category-rules`
+
+**Response** (200): Array of rules
+
+---
+
+#### Get Rule
+**Endpoint**: `GET /api/v1/category-rules/{id}`
+
+**Response** (200): Rule details
+
+---
+
+#### Update Rule
+**Endpoint**: `PUT /api/v1/category-rules/{id}`
+
+**Response** (200): Updated rule
+
+---
+
+#### Delete Rule
+**Endpoint**: `DELETE /api/v1/category-rules/{id}`
+
+**Response** (204): Deleted
+
+---
+
+#### Create Merchant Rule
+**Endpoint**: `POST /api/v1/category-rules/merchant-rules`
+
+**Request**:
+```json
+{
+  "merchantName": "Starbucks",
+  "categoryId": "cat_food"
+}
+```
+
+**Response** (201): Created merchant rule
+
+---
+
+#### List Merchant Rules
+**Endpoint**: `GET /api/v1/category-rules/merchant-rules`
+
+**Response** (200): Array of merchant rules
+
+---
+
+#### Delete Merchant Rule
+**Endpoint**: `DELETE /api/v1/category-rules/merchant-rules/{id}`
+
+**Response** (204): Deleted
+
+---
+
+#### Bulk Recategorize
+**Endpoint**: `POST /api/v1/category-rules/bulk-recategorize`
+
+**Request**:
+```json
+{
+  "transactionIds": ["txn_1", "txn_2", "txn_3"],
+  "categoryId": "cat_food"
+}
+```
+
+**Response** (200): Transactions recategorized
+
+---
+
+#### Get Categorization Stats
+**Endpoint**: `GET /api/v1/category-rules/stats/categorization`
+
+**Response** (200):
 ```json
 {
   "success": true,
   "data": {
-    "exportId": "exp_123",
-    "format": "csv",
-    "status": "processing",
-    "estimatedCompletionTime": "2025-01-18T12:05:00Z",
-    "downloadUrl": "https://api.mappr.com/exports/exp_123/download"
-  },
-  "timestamp": "2025-01-18T11:57:00Z"
+    "totalRules": 25,
+    "transactionsCategorized": 1250,
+    "successRate": 0.92
+  }
+}
+```
+
+---
+
+## 5. Custom Categorization Rules (`/api/v1/categorization-rules`)
+
+#### Create Rule
+**Endpoint**: `POST /api/v1/categorization-rules`
+
+**Request**:
+```json
+{
+  "pattern": "^(netflix|hulu|disney)",
+  "categoryId": "cat_entertainment",
+  "description": "Streaming subscriptions",
+  "priority": 80,
+  "isEnabled": true
+}
+```
+
+**Response** (201): Created rule
+
+---
+
+#### List Rules
+**Endpoint**: `GET /api/v1/categorization-rules`
+
+**Response** (200): User's custom rules
+
+---
+
+#### Get Rule
+**Endpoint**: `GET /api/v1/categorization-rules/{ruleId}`
+
+**Response** (200): Rule details
+
+---
+
+#### Update Rule
+**Endpoint**: `PUT /api/v1/categorization-rules/{ruleId}`
+
+**Response** (200): Updated rule
+
+---
+
+#### Delete Rule
+**Endpoint**: `DELETE /api/v1/categorization-rules/{ruleId}`
+
+**Response** (204): Deleted
+
+---
+
+#### Test Single Rule
+**Endpoint**: `POST /api/v1/categorization-rules/{ruleId}/test`
+
+**Request**:
+```json
+{
+  "merchantName": "Netflix"
+}
+```
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "matches": true,
+    "categoryId": "cat_entertainment"
+  }
+}
+```
+
+---
+
+#### Test All Rules
+**Endpoint**: `POST /api/v1/categorization-rules/test-all`
+
+**Request**:
+```json
+{
+  "merchantName": "Netflix"
+}
+```
+
+**Response** (200): First matching rule (highest priority)
+
+---
+
+#### Enable Rule
+**Endpoint**: `POST /api/v1/categorization-rules/{ruleId}/enable`
+
+**Response** (200): Rule enabled
+
+---
+
+#### Disable Rule
+**Endpoint**: `POST /api/v1/categorization-rules/{ruleId}/disable`
+
+**Response** (200): Rule disabled
+
+---
+
+#### Set Rule Priority
+**Endpoint**: `POST /api/v1/categorization-rules/{ruleId}/priority`
+
+**Request**:
+```json
+{
+  "priority": 95
+}
+```
+
+**Response** (200): Priority updated (0-100, higher applies first)
+
+---
+
+#### Get Rule Stats
+**Endpoint**: `GET /api/v1/categorization-rules/{ruleId}/stats`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "matches": 125,
+    "successRate": 0.98,
+    "lastUsed": "2025-01-18T10:30:00Z"
+  }
+}
+```
+
+---
+
+#### Duplicate Rule
+**Endpoint**: `POST /api/v1/categorization-rules/{ruleId}/duplicate`
+
+**Response** (201): New rule created as copy
+
+---
+
+#### Import Rules
+**Endpoint**: `POST /api/v1/categorization-rules/import`
+
+**Request**:
+```json
+{
+  "rules": [
+    { "pattern": "amazon", "categoryId": "cat_shopping", ... },
+    { "pattern": "uber", "categoryId": "cat_transport", ... }
+  ]
+}
+```
+
+**Response** (201): Rules imported
+
+---
+
+#### Export Rules
+**Endpoint**: `GET /api/v1/categorization-rules/export`
+
+**Response** (200): JSON file of all rules
+
+---
+
+## 6. Findings/Analytics (`/api/v1/findings`)
+
+#### Auto-Categorize Account
+**Endpoint**: `POST /api/v1/findings/accounts/{accountId}/auto-categorize`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "categorized": 125,
+    "skipped": 5,
+    "total": 130
+  }
+}
+```
+
+---
+
+#### Detect Recurring Patterns
+**Endpoint**: `GET /api/v1/findings/accounts/{accountId}/recurring`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "patterns": [
+      {
+        "merchant": "Netflix",
+        "amount": 15.99,
+        "frequency": "monthly",
+        "occurrences": 12,
+        "nextExpected": "2025-02-18"
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### Get Expected Transactions
+**Endpoint**: `GET /api/v1/findings/accounts/{accountId}/expected-transactions`
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "merchant": "Netflix",
+      "amount": 15.99,
+      "expectedDate": "2025-02-18",
+      "confidence": 0.99
+    }
+  ]
+}
+```
+
+---
+
+#### Export Transactions
+**Endpoint**: `GET /api/v1/findings/accounts/{accountId}/export`
+
+**Query Parameters**:
+- `format` (CSV/JSON/PDF, default: CSV)
+- `dateFrom` (required, ISO date)
+- `dateTo` (required, ISO date)
+
+**Example**:
+```
+GET /api/v1/findings/accounts/acc_123/export?format=CSV&dateFrom=2025-01-01&dateTo=2025-01-31
+```
+
+**Response** (200): Exported file
+
+---
+
+#### Find Matches (Reconciliation)
+**Endpoint**: `GET /api/v1/findings/find-matches`
+
+**Query Parameters**:
+- `accountId` (required)
+- `transactionId` (required)
+- `windowDays` (default: 2)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "txn_456",
+      "amount": 6.50,
+      "merchant": "Starbucks",
+      "date": "2025-01-18T10:35:00Z",
+      "matchScore": 0.98
+    }
+  ]
+}
+```
+
+---
+
+#### Get Reconciliation Progress
+**Endpoint**: `GET /api/v1/findings/reconciliation-progress`
+
+**Query Parameters**:
+- `accountId` (required)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": {
+    "total": 450,
+    "reconciled": 380,
+    "pending": 70,
+    "percentage": 84.4
+  }
+}
+```
+
+---
+
+## 7. Merchants (`/api/v1/merchants`)
+
+#### Get Unique Merchants
+**Endpoint**: `GET /api/v1/merchants`
+
+**Query Parameters**:
+- `page` (integer, default: 1)
+- `limit` (integer, default: 20)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "m_123",
+      "name": "Starbucks",
+      "transactionCount": 45,
+      "totalAmount": 292.50,
+      "frequency": "daily",
+      "lastTransaction": "2025-01-18T10:30:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 156
+  }
 }
 ```
 
@@ -756,27 +905,56 @@ Export transactions to file.
 
 | Code | Status | Description |
 |------|--------|-------------|
-| TRANSACTION_NOT_FOUND | 404 | Transaction does not exist |
+| TRANSACTION_NOT_FOUND | 404 | Transaction doesn't exist |
 | CATEGORY_NOT_FOUND | 404 | Category not found |
-| INVALID_CATEGORY | 400 | Cannot assign category |
-| SEARCH_ERROR | 500 | Search indexing error |
-| IMPORT_FAILED | 503 | Transaction import failed |
-| RECURRING_ERROR | 500 | Recurring detection failed |
+| INVALID_MERGE | 400 | Cannot merge those transactions |
 | INVALID_SPLIT | 400 | Invalid split amounts |
-| INVALID_MERGE | 400 | Cannot merge transactions |
-| EXPORT_FAILED | 503 | Export generation failed |
-| UNAUTHORIZED | 403 | Access denied |
+| UNAUTHORIZED | 401 | Not authenticated |
+| FORBIDDEN | 403 | No access to this resource |
+| VALIDATION_ERROR | 400 | Invalid request data |
 
 ---
 
 ## Rate Limits
 
-- **List Transactions**: 100 requests/15min
-- **Import**: 10 requests/min
-- **Update**: 10 requests/min
-- **Categorize**: 20 requests/min
-- **Search**: 50 requests/15min
-- **Analytics**: 50 requests/15min
-- **Export**: 5 requests/min
+- **Transactions**: 100 req/15min
+- **Search**: 50 req/15min
+- **Create/Update**: 10 req/min
+- **Bulk Operations**: 5 req/min
+- **Export**: 3 req/15min
+- **Rules**: 10 req/min
 
-All rate limits return `429 Too Many Requests` when exceeded.
+All rate limit errors return `429 Too Many Requests`.
+
+---
+
+## Authentication
+
+All endpoints require Bearer JWT token in Authorization header:
+```
+Authorization: Bearer {jwt_token}
+```
+
+---
+
+## Response Format
+
+All responses follow standard format:
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Optional message",
+  "timestamp": "2025-01-18T11:00:00Z"
+}
+```
+
+Error responses:
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "code": "ERROR_CODE",
+  "timestamp": "2025-01-18T11:00:00Z"
+}
+```

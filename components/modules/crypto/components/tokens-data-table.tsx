@@ -173,7 +173,7 @@ export function TokensDataTable({
             />
           </div>
           <Toggle
-            className=" px-2 gap-1.5"
+            className=" px-2 gap-1.5 rounded-xs shadow-none "
             title="Filters"
             variant={"outline"}
             onClick={() => setToggleFilters(!toggleFilters)}
@@ -190,7 +190,7 @@ export function TokensDataTable({
         } `}
       >
         <Select value={sortBy} onValueChange={(value) => setSortBy(value as "value" | "change" | "name")}>
-          <SelectTrigger className="w-[140px] h-9">
+          <SelectTrigger   variant="outline3" size="sm">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -204,7 +204,7 @@ export function TokensDataTable({
           value={filterBy}
           onValueChange={(value) => setFilterBy(value as "all" | "profitable" | "losing" | "major")}
         >
-          <SelectTrigger className="w-[140px] h-9">
+          <SelectTrigger  variant="outline3" size="sm">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
@@ -238,10 +238,10 @@ export function TokensDataTable({
           </TableHeader>
           <TableBody>
             {paginatedTokens.map((token) => (
-              <TableRow key={token.id} className="group border-none">
+              <TableRow key={token.id} className="group border-none ">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="relative h-12 w-12 rounded-full  bg-muted flex-shrink-0">
+                    <div className="relative h-10 w-10 rounded-full  bg-muted flex-shrink-0">
                       {token.asset.logoUrl ? (
                         <Image
                           src={token.asset.logoUrl}
@@ -342,13 +342,14 @@ export function TokensDataTable({
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <p className="font-medium">
+       
                     <CurrencyDisplay
                       amountUSD={token.balanceUsd}
                       variant="small"
+                      className="font-semibold"
                       isLoading={isLoading}
                     />
-                  </p>
+      
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end">
