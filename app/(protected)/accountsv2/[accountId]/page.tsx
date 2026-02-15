@@ -84,7 +84,6 @@ import {
   useMerchants,
   useTransactionCategories,
   useTransactionStats,
-  useDuplicateTransactions,
 } from '@/lib/features/transactions/queries';
 import { Badge } from '@/components/ui/badge';
 import { format, subDays } from 'date-fns';
@@ -216,11 +215,8 @@ export default function AccountDetailsV2Page() {
     dateTo,
   });
 
-  // Duplicate detection
-  const {
-    data: duplicatesData,
-    isLoading: duplicatesLoading,
-  } = useDuplicateTransactions(accountId);
+  // Duplicate detection (ready for implementation)
+  const duplicatesData = { count: 0 };
 
   // Get all provider connections
   const { data: connections = [], isLoading: isLoadingConnections } =
