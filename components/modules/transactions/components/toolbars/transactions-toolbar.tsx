@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { StreamlineFlexFilter2 } from '@/components/icons/icons';
+import { AIMAPPR, MingcuteAiLine, MingcuteQuillPenAiLine, PhBrainDuotone, StreamlineFlexFilter2 } from '@/components/icons/icons';
 
 interface TransactionsToolbarProps {
   // Search & Filters
@@ -65,7 +65,7 @@ function TransactionsToolbarComponent({
               placeholder="Search by description, or account..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 h-8 max-w-xs"
+              className="pl-10 h-8 max-w-xs shadow-inner  drop-shadow-xs"
             />
           </div>
         </div>
@@ -74,16 +74,19 @@ function TransactionsToolbarComponent({
         <div className="flex gap-2">
           {/* Auto Categorize Button */}
           <Button
-            variant="brand"
+        
             size="xs"
             title={uncategorizedCount > 0 ? `Auto categorize ${uncategorizedCount} transaction${uncategorizedCount !== 1 ? 's' : ''}` : 'No uncategorized transactions'}
             disabled={uncategorizedCount === 0}
+            icon={<MingcuteQuillPenAiLine className="h-4 w-4 " />}
+            className='rounded-lg'
+
           >
-            <Zap className="h-4 w-4" />
+            
             Auto Categorize ({uncategorizedCount})
           </Button>
 
-          {/* Edit Multiple Button */}
+          {/* Edit Multiple Button
           <Button
             variant={isBulkSelectMode ? "secondary" : "outline2"}
             size="xs"
@@ -93,9 +96,9 @@ function TransactionsToolbarComponent({
           >
             <CheckSquare className="h-4 w-4" />
             {isBulkSelectMode ? "Cancel" : "Edit Multiple"}
-          </Button>
+          </Button> */}
 
-          {/* Filter Button - Opens Options Drawer */}
+          {/* Filter Button - Opens Options Drawer
           <Button
             variant="outline2"
             size="xs"
@@ -105,33 +108,35 @@ function TransactionsToolbarComponent({
           >
             <StreamlineFlexFilter2 className="h-3.5 w-3.5" />
             Filter
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       {/* Active Filters Display */}
       {activeFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-3 border-t border-border/30">
+        <div className="flex flex-wrap gap-2 pt-3 ">
           {activeFilters.map((filter) => (
             <div
               key={filter.key}
-              className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/60 hover:bg-muted/80 rounded-full text-xs font-medium transition-colors"
+              className="inline-flex items-center border gap-2 px-2 py-0.5 bg-muted hover:bg-muted/90 rounded-full text-xs font-medium transition-colors"
             >
               <span>{filter.label}</span>
-              <button
+              <Button
                 onClick={() => onFilterRemove(filter.key)}
-                className="hover:text-foreground ml-1 transition-colors"
+                className="hover:text-red-500 p-0 transition-colors"
                 title="Remove filter"
+                variant='ghost'
+                size='icon-xs'
               >
                 <X className="h-3 w-3" />
-              </button>
+              </Button>
             </div>
           ))}
           <Button
             variant="ghost"
             size="sm"
             onClick={onClearAllFilters}
-            className="text-xs h-7 ml-2"
+            className="text-xs     font-semibold"
           >
             Clear all filters
           </Button>

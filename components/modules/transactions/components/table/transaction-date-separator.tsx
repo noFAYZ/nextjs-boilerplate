@@ -18,7 +18,9 @@ export function TransactionDateSeparator({
   date,
   hideAccountColumn = false,
 }: TransactionDateSeparatorProps) {
-  const colSpan = hideAccountColumn ? 5 : 6;
+  // colSpan = checkbox(1) + merchant(1) + category(1) + account(1) + pending(1) + amount(1) + actions(1) = 7
+  // When hideAccountColumn = true, we skip account column, so = 6
+  const colSpan = hideAccountColumn ? 6 : 7;
 
   return (
     <TableRow className="  shadow-none  ">

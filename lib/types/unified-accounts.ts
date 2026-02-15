@@ -423,10 +423,13 @@ export interface AddTransactionRequest {
   // Transaction direction
   type?: 'INCOME' | 'EXPENSE' | 'TRANSFER'; // Default: "EXPENSE"
 
+  // Status field
+  status?: 'POSTED' | 'PENDING' | 'CLEARED'; // Default: "POSTED"
+
   // Optional fields
   categoryId?: string; // Link to existing category (must exist!)
   merchantId?: string; // Link to existing merchant (must exist!)
-  pending?: boolean; // Default: false
+  pending?: boolean; // Deprecated: use status instead
   notes?: string;
   provider?: string; // "TELLER", "PLAID", etc.
   providerTransactionId?: string;

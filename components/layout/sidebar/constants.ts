@@ -11,7 +11,7 @@
  */
 export const SIDEBAR_WIDTHS = {
   COLLAPSED: 'w-18',
-  EXPANDED: 'w-70',
+  EXPANDED: 'w-64',
   COLLAPSED_PX: 64,
   EXPANDED_PX: 256,
 } as const;

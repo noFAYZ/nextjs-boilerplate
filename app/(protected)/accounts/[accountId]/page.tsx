@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -42,8 +48,8 @@ import {
   calculateTransactionAnalytics,
   getBalanceColor,
 } from "@/lib/utils";
-import { useCategoriesMap } from '@/lib/features/categories/hooks';
-import { useMerchantsMap } from '@/lib/features/transactions/hooks';
+import { useCategoriesMap } from "@/lib/features/categories/hooks";
+import { useMerchantsMap } from "@/lib/features/transactions/hooks";
 import { TransactionCardList } from "@/components/modules/transactions/components/card-view";
 
 import { useRouter, useParams } from "next/navigation";
@@ -56,25 +62,40 @@ import {
 } from "@/lib/contexts/currency-context";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import {
+  LetsIconsAddDuotone,
   LetsIconsCreditCardDuotone,
   MdiDollar,
   SolarBillListBoldDuotone,
   SolarChartSquareBoldDuotone,
   SolarClipboardListBoldDuotone,
 } from "@/components/icons/icons";
-import { useAccountsUIStore } from '@/lib/features/accounts/stores';
+import { useAccountsUIStore } from "@/lib/features/accounts/stores";
 import { AccountHeader } from "@/components/modules/accounts/components/AccountHeader";
 import { TransactionsDataTable } from "@/components/modules/transactions";
 import type { UnifiedTransaction } from "@/lib/types";
 import { TransactionDetailDrawerEnhanced as TransactionDetailDrawer } from "@/components/modules/transactions/components/transaction-detail-drawer-enhanced";
-import { useAccountDetails, useAccountTransactions } from '@/lib/features/accounts/queries';
+import {
+  useAccountDetails,
+  useAccountTransactions,
+} from "@/lib/features/accounts/queries";
 import { ManualTransactionForm } from "@/components/modules/accounts/components/manual-transaction-form";
 import { CryptoAccountDetail } from "@/components/modules/accounts/components/crypto-account-detail";
-import { useProviderConnections, useSyncConnection } from '@/lib/features/banking/queries';
-import { TransactionAttachments, DuplicateDetectionBanner } from "@/app/(protected)/accounts/components";
-import { useMerchants, useTransactionCategories } from '@/lib/features/transactions/queries';
+import {
+  useProviderConnections,
+  useSyncConnection,
+} from "@/lib/features/banking/queries";
+import {
+  TransactionAttachments,
+  DuplicateDetectionBanner,
+} from "@/app/(protected)/accounts/components";
+import {
+  useMerchants,
+  useTransactionCategories,
+} from "@/lib/features/transactions/queries";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { AccountBalanceChart } from "@/components/modules/accounts/components/account-balance-chart";
+import { NetWorthChart } from "@/components/modules/networth/components/networth-chart";
 
 const ACCOUNT_TYPE_CONFIG = {
   CHECKING: {
@@ -146,8 +167,10 @@ export default function UnifiedAccountDetailsPage() {
     showModal: false,
     isSyncing: false,
   });
- 
-  const balanceVisible = useAccountsUIStore((state) => state.viewPreferences.balanceVisible);
+
+  const balanceVisible = useAccountsUIStore(
+    (state) => state.viewPreferences.balanceVisible
+  );
 
   // Currency context
   useCurrency();
@@ -170,30 +193,25 @@ export default function UnifiedAccountDetailsPage() {
   });
 
   // Get all provider connections to find the matching one
-  const {
-    data: connections = [],
-    isLoading: isLoadingConnections,
-  } = useProviderConnections();
+  const { data: connections = [], isLoading: isLoadingConnections } =
+    useProviderConnections();
 
   // Fetch merchants for logo display
-  const {
-    data: merchantsResponse,
-    isLoading: isLoadingMerchants,
-  } = useMerchants();
+  const { data: merchantsResponse, isLoading: isLoadingMerchants } =
+    useMerchants();
 
   // Fetch categories for display
-  const {
-    data: categoriesResponse,
-    isLoading: isLoadingCategories,
-  } = useTransactionCategories();
+  const { data: categoriesResponse, isLoading: isLoadingCategories } =
+    useTransactionCategories();
 
   // Sync connection mutation
-  const { mutate: syncMutation, isPending: isSyncMutationPending } = useSyncConnection();
+  const { mutate: syncMutation, isPending: isSyncMutationPending } =
+    useSyncConnection();
 
   // Handle both response structures: direct array or wrapped in .data
   const transactionsData = Array.isArray(transactionsResponse)
     ? transactionsResponse
-    : (transactionsResponse?.data || []);
+    : transactionsResponse?.data || [];
 
   // Transform categories and merchants to Maps for O(1) lookups
   // using custom hooks with memoization
@@ -202,19 +220,27 @@ export default function UnifiedAccountDetailsPage() {
 
   // Transform unified transactions to match the filter/analytics function interface
   const transactions = useMemo(() => {
-    const transformed = (transactionsData || []).map((tx: Record<string, unknown>) => {
-      const { category: categoryObj, ...rest } = tx;
+    const transformed = (transactionsData || []).map(
+      (tx: Record<string, unknown>) => {
+        const { category: categoryObj, ...rest } = tx;
 
-      // Parse amount as string to number for proper amount handling
-      const amount = typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
+        // Parse amount as string to number for proper amount handling
+        const amount =
+          typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount;
 
-      return {
-        ...rest,
-        amount: amount,
-        // Convert category object to string for filter/analytics functions
-        category: typeof categoryObj === 'object' && categoryObj ? categoryObj.name : (typeof categoryObj === 'string' ? categoryObj : undefined),
-      };
-    });
+        return {
+          ...rest,
+          amount: amount,
+          // Convert category object to string for filter/analytics functions
+          category:
+            typeof categoryObj === "object" && categoryObj
+              ? categoryObj.name
+              : typeof categoryObj === "string"
+              ? categoryObj
+              : undefined,
+        };
+      }
+    );
 
     return transformed;
   }, [transactionsData]);
@@ -233,7 +259,8 @@ export default function UnifiedAccountDetailsPage() {
 
     if (
       syncState.isSyncing &&
-      (currentSyncState?.status === "completed" || currentSyncState?.status === "failed")
+      (currentSyncState?.status === "completed" ||
+        currentSyncState?.status === "failed")
     ) {
       setSyncState((prev) => ({ ...prev, isSyncing: false }));
     }
@@ -325,12 +352,15 @@ export default function UnifiedAccountDetailsPage() {
     setUi((prev) => ({ ...prev, selectedTab: tab }));
   }, []);
 
-  const handleSelectTransactionId = useCallback((transactionId: string | null) => {
-    setModals((prev) => ({
-      ...prev,
-      attachments: { selectedTransactionId: transactionId },
-    }));
-  }, []);
+  const handleSelectTransactionId = useCallback(
+    (transactionId: string | null) => {
+      setModals((prev) => ({
+        ...prev,
+        attachments: { selectedTransactionId: transactionId },
+      }));
+    },
+    []
+  );
 
   const handleResolveAttachmentDuplicates = useCallback(async () => {
     // TODO: Integrate with getDuplicateTransactions and resolveDuplicate APIs
@@ -344,13 +374,16 @@ export default function UnifiedAccountDetailsPage() {
     // TODO: Integrate with deleteTransactionAttachment API
   }, []);
 
-  const handleToggleAttachmentPublic = useCallback(async (attachmentId: string, isPublic: boolean) => {
-    // TODO: Integrate with toggleAttachmentAccess API
-  }, []);
+  const handleToggleAttachmentPublic = useCallback(
+    async (attachmentId: string, isPublic: boolean) => {
+      // TODO: Integrate with toggleAttachmentAccess API
+    },
+    []
+  );
 
   const handleDownloadAttachment = useCallback(async (attachmentId: string) => {
     // TODO: Integrate with downloadTransactionAttachment API
-    return '';
+    return "";
   }, []);
 
   // Helper functions
@@ -429,24 +462,37 @@ export default function UnifiedAccountDetailsPage() {
       const absAmount = Math.abs(amount);
 
       // Determine transaction type - prefer tx.type field if available
-      let txType: 'DEPOSIT' | 'WITHDRAWAL' | 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'SEND' | 'RECEIVE' | 'SWAP' | 'OTHER';
-      if (tx.type && typeof tx.type === 'string') {
+      let txType:
+        | "DEPOSIT"
+        | "WITHDRAWAL"
+        | "EXPENSE"
+        | "INCOME"
+        | "TRANSFER"
+        | "SEND"
+        | "RECEIVE"
+        | "SWAP"
+        | "OTHER";
+      if (tx.type && typeof tx.type === "string") {
         // New schema: use the type field directly
         txType = tx.type as any;
       } else {
         // Old schema: determine from amount sign
-        txType = amount > 0 ? 'DEPOSIT' : 'WITHDRAWAL';
+        txType = amount > 0 ? "DEPOSIT" : "WITHDRAWAL";
       }
 
       return {
         id: tx.id,
         type: txType,
-        status: (tx.status || 'COMPLETED') as const,
+        status: (tx.status || "COMPLETED") as const,
         timestamp: tx.date,
         date: tx.date,
         amount: absAmount,
-        currency: tx.currency || 'USD',
-        description: tx.description || (tx as any).merchant?.displayName || tx.merchantName || 'Transaction',
+        currency: tx.currency || "USD",
+        description:
+          tx.description ||
+          (tx as any).merchant?.displayName ||
+          tx.merchantName ||
+          "Transaction",
         hash: (tx as any).providerTransactionId || tx.id,
         merchent: tx.merchantName,
         merchant: (tx as any).merchant || {
@@ -457,16 +503,16 @@ export default function UnifiedAccountDetailsPage() {
           website: (tx as any).metadata?.website,
         },
         account: {
-          id: (tx as any)?.account?.id || '',
-          name: (tx as any)?.account?.name || 'Unknown Account',
-          type: 'BANKING' as const,
-          mask:(tx as any)?.account?.mask,
-          institute: (tx as any)?.account?.institutionName || '',
+          id: (tx as any)?.account?.id || "",
+          name: (tx as any)?.account?.name || "Unknown Account",
+          type: "BANKING" as const,
+          mask: (tx as any)?.account?.mask,
+          institute: (tx as any)?.account?.institutionName || "",
         },
         category: tx.category,
         categoryId: tx.categoryId,
         tags: [],
-        source: 'BANKING' as const,
+        source: "BANKING" as const,
         pending: (tx as any).pending || (tx as any).isPending || false,
         runningBalance: (tx as any).runningBalance,
         metadata: (tx as any).metadata,
@@ -524,428 +570,447 @@ export default function UnifiedAccountDetailsPage() {
   }
 
   // Check if this is a crypto account
-  const isCryptoAccount = account.category === 'CRYPTO';
+  const isCryptoAccount = account.category === "CRYPTO";
 
   // If it's a crypto account, render the crypto detail component
   if (isCryptoAccount) {
     return <CryptoAccountDetail accountId={accountId} />;
   }
 
-  const accountConfig = ACCOUNT_TYPE_CONFIG[account.type as keyof typeof ACCOUNT_TYPE_CONFIG] || ACCOUNT_TYPE_CONFIG.CHECKING;
+  const accountConfig =
+    ACCOUNT_TYPE_CONFIG[account.type as keyof typeof ACCOUNT_TYPE_CONFIG] ||
+    ACCOUNT_TYPE_CONFIG.CHECKING;
   const IconComponent = accountConfig.icon;
   const currentSyncState = realtimeSyncStates[account.id];
-
   return (
-    <div className="mx-auto space-y-3 px-4 md:px-6">
-<div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
+    <div className="mx-auto space-y-8 px-4 md:px-6">
+        {/*  <AccountBalanceChart accountId={accountId} balanceVisible={balanceVisible}  /> */}
+        <NetWorthChart mode='demo'  height={250} className='bg-card  drop-shadow-sm  p-4 rounded' />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
+        <div className="lg:col-span-8 order-2 lg:order-1">
+          {/* Transactions Section with Tabs */}
+          <Tabs
+            value={ui.selectedTab}
+            onValueChange={handleSelectTab}
+            className="space-y-4"
+          >
+            {/* Tabs Header - Responsive Layout */}
+            <div className="space-y-2 md:space-y-0">
+              {/* Tabs List - Responsive */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 md:gap-0">
+                <TabsList
+                  variant="pill"
+                  size="xs"
+                  className="w-full md:w-auto overflow-x-auto"
+                >
+                  <TabsTrigger value="transactions" variant="pill" size="xs">
+                    <SolarBillListBoldDuotone className="h-5 w-5" />
+                    <span className="">Transactions</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" variant="pill" size="xs">
+                    <SolarChartSquareBoldDuotone className="h-5 w-5" />
+                    <span className="">Analytics</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="attachments" variant="pill" size="xs">
+                    <Paperclip className="h-5 w-5" />
+                    <span className="">Attachments</span>
+                  </TabsTrigger>
+                </TabsList>
 
-<div className="lg:col-span-8 order-2 lg:order-1">
+                {/* Search and View Toggle - Responsive */}
+                <div className="flex flex-row items-stretch sm:items-center gap-2">
+                  <div className="relative flex-1 sm:flex-initial sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                    <Input
+                      variant="outline"
+                      placeholder="Search transactions..."
+                      value={filters.searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="pl-9 h-7.5 w-full sm:w-64"
+                    />
+                  </div>
 
-      {/* Transactions Section with Tabs */}
-      <Tabs
-        value={ui.selectedTab}
-        onValueChange={handleSelectTab}
-        className="space-y-4"
-      >
-        <div className="flex items-center justify-between">
-          <TabsList variant="pill" size="xs" >
-            <TabsTrigger value="transactions" variant="pill" size="xs">
-              <SolarBillListBoldDuotone className="h-5 w-5 " />
-              Transactions
-            </TabsTrigger>
-            <TabsTrigger value="analytics" variant="pill" size="xs">
-              <SolarChartSquareBoldDuotone className="h-5 w-5 " />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="attachments" variant="pill" size="xs">
-              <Paperclip className="h-5 w-5 " />
-              Attachments
-            </TabsTrigger>
-
-          </TabsList>
-          <div className="flex items-center gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-              <Input
-                variant="outline"
-                placeholder="Search transactions..."
-                value={filters.searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-9 h-7.5"
-              />
+                  {/* View Toggle - Only show on transactions tab */}
+                  {ui.selectedTab === "transactions" && (
+                    <div className="inline-flex items-center bg-muted border rounded-lg p-0.5">
+                      <Button
+                        variant={
+                          ui.transactionView === "table" ? "outline3" : "ghost"
+                        }
+                        size="icon-xs"
+                        onClick={() => handleSelectTransactionView("table")}
+                        title="Grid view"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant={
+                          ui.transactionView === "list" ? "outline3" : "ghost"
+                        }
+                        size="icon-xs"
+                        onClick={() => handleSelectTransactionView("list")}
+                        title="List view"
+                      >
+                        <List className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* View Toggle - Only show on transactions tab */}
-            {ui.selectedTab === "transactions" && (
-              <div className="inline-flex items-center bg-muted border rounded-lg p-0.5">
-                <Button
-                  variant={ui.transactionView === "table" ? "outline3" : "ghost"}
-                       size="icon-xs"
-                  onClick={() => handleSelectTransactionView("table")}
-              
-                  title="Grid view"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-       
-                </Button>
-                <Button
-                  variant={ui.transactionView === "list" ? "outline3" : "ghost"}
-                  size="icon-xs"
-                  onClick={() => handleSelectTransactionView("list")}
-                  
-                  title="List view"
-                >
-                  <List className="w-4 h-4" />
-            
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
+            {/* Transactions Tab */}
+            <TabsContent value="transactions" className="space-y-3">
+              {ui.transactionView === "list" && (
+                <TransactionsDataTable
+                  transactions={unifiedTransactions}
+                  isLoading={transactionsLoading}
+                  onRowClick={handleRowClick}
+                  hideAccountColumn={true}
+                />
+              )}
 
-        {/* Transactions Tab */}
-        <TabsContent value="transactions" className="space-y-3">
-          {ui.transactionView === "list" && (
-            <TransactionsDataTable
-              transactions={unifiedTransactions}
-              isLoading={transactionsLoading}
-              onRowClick={handleRowClick}
-              hideAccountColumn={true}
-            />
-          )}
-
-          {/* Card View */}
-          {ui.transactionView === "table" && filteredTransactions.length > 0 ? (
-            <TransactionCardList
-              transactions={filteredTransactions}
-              categoriesMap={categoriesMap}
-              merchantsMap={merchantsMap}
-              onRowClick={handleRowClick}
-              maxCards={20}
-            />
-          ) : ui.transactionView === "table" ? (
-            <Card variant="outlined" className="p-12">
-              <div className="text-center">
-                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-lg mb-2">
-                  No Transactions Found
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Try adjusting your search or filters
-                </p>
-              </div>
-            </Card>
-          ) : null}
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-4">
-          {/* Duplicate Detection Banner */}
-          <DuplicateDetectionBanner
-            duplicateCount={0}
-            onResolve={handleResolveAttachmentDuplicates}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Top Categories */}
-            <Card variant="outlined">
-              <CardHeader className="p-4">
-                <CardTitle className="text-base">
-                  Top Spending Categories
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Your highest expense categories
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="space-y-3">
-                  {analytics.categoryData.map((cat, index) => (
-                    <div key={cat.name} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={cn(
-                              "h-8 w-8 rounded-lg flex items-center justify-center",
-                              categoryIcons[cat.category]?.gradient ||
-                                "bg-muted"
-                            )}
-                          >
-                            {(() => {
-                              const Icon =
-                                categoryIcons[cat.category]?.icon || DollarSign;
-                              return <Icon className="h-4 w-4 text-white" />;
-                            })()}
-                          </div>
-                          <span className="font-medium capitalize">
-                            {cat.name}
-                          </span>
-                        </div>
-                        <CurrencyDisplay
-                          amountUSD={cat.value}
-                          variant="compact"
-                          className="font-semibold"
-                          formatOptions={{
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }}
-                        />
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${cat.percentage}%` }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{cat.count} transactions</span>
-                        <span>{cat.percentage.toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card variant="outlined">
-              <CardHeader className="p-4">
-                <CardTitle className="text-base">Account Summary</CardTitle>
-                <CardDescription className="text-xs">
-                  Overview of your account activity
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Total Transactions
-                    </span>
-                    <span className="text-lg font-bold">
-                      {analytics.transactionCount}
-                    </span>
+              {/* Card View */}
+              {ui.transactionView === "table" &&
+              filteredTransactions.length > 0 ? (
+                <TransactionCardList
+                  transactions={filteredTransactions}
+                  categoriesMap={categoriesMap}
+                  merchantsMap={merchantsMap}
+                  onRowClick={handleRowClick}
+                  maxCards={20}
+                />
+              ) : ui.transactionView === "table" ? (
+                <Card variant="outlined" className="p-12">
+                  <div className="text-center">
+                    <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-semibold text-lg mb-2">
+                      No Transactions Found
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Try adjusting your search or filters
+                    </p>
                   </div>
-                  <Separator />
-                  {account.type !== "CREDIT_CARD" && (
-                    <>
+                </Card>
+              ) : null}
+            </TabsContent>
+
+            {/* Analytics Tab */}
+            <TabsContent value="analytics" className="space-y-4">
+              {/* Duplicate Detection Banner */}
+              <DuplicateDetectionBanner
+                duplicateCount={0}
+                onResolve={handleResolveAttachmentDuplicates}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Top Categories */}
+                <Card variant="outlined">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-base">
+                      Top Spending Categories
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Your highest expense categories
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-3">
+                      {analytics.categoryData.map((cat, index) => (
+                        <div key={cat.name} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={cn(
+                                  "h-8 w-8 rounded-lg flex items-center justify-center",
+                                  categoryIcons[cat.category]?.gradient ||
+                                    "bg-muted"
+                                )}
+                              >
+                                {(() => {
+                                  const Icon =
+                                    categoryIcons[cat.category]?.icon ||
+                                    DollarSign;
+                                  return (
+                                    <Icon className="h-4 w-4 text-white" />
+                                  );
+                                })()}
+                              </div>
+                              <span className="font-medium capitalize">
+                                {cat.name}
+                              </span>
+                            </div>
+                            <CurrencyDisplay
+                              amountUSD={cat.value}
+                              variant="compact"
+                              className="font-semibold"
+                              formatOptions={{
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }}
+                            />
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full transition-all"
+                              style={{ width: `${cat.percentage}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{cat.count} transactions</span>
+                            <span>{cat.percentage.toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Quick Stats */}
+                <Card variant="outlined">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-base">Account Summary</CardTitle>
+                    <CardDescription className="text-xs">
+                      Overview of your account activity
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">
-                          Net Amount
+                          Total Transactions
                         </span>
-                        <CurrencyDisplay
-                          amountUSD={analytics.netAmount}
-                          variant="compact"
-                          className={cn(
-                            "text-lg font-bold",
-                            analytics.netAmount >= 0
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
-                          )}
-                          formatOptions={{
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }}
-                        />
+                        <span className="text-lg font-bold">
+                          {analytics.transactionCount}
+                        </span>
                       </div>
                       <Separator />
-                    </>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Account Type
-                    </span>
-                    <Badge variant="secondary">{accountConfig.label}</Badge>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Last Synced
-                    </span>
-                    <span className="text-sm font-medium">
-                      {account.lastSyncAt
-                        ? format(
-                            new Date(account.lastSyncAt),
-                            "MMM d, h:mm a"
-                          )
-                        : "Never"}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Attachments Tab */}
-        <TabsContent value="attachments" className="space-y-4">
-          <Card variant="outlined" className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Transaction Attachments</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Select a transaction to view and manage attachments (receipts, documents, etc.)
-            </p>
-
-            {/* Transaction Selection */}
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Select a transaction:
-                </label>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {unifiedTransactions.slice(0, 10).map((tx) => (
-                    <button
-                      key={tx.id}
-                      onClick={() => handleSelectTransactionId(tx.id)}
-                      className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
-                        modals.attachments.selectedTransactionId === tx.id
-                          ? "bg-primary/10 border-primary"
-                          : "border-border hover:bg-muted/50"
+                      {account.type !== "CREDIT_CARD" && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">
+                              Net Amount
+                            </span>
+                            <CurrencyDisplay
+                              amountUSD={analytics.netAmount}
+                              variant="compact"
+                              className={cn(
+                                "text-lg font-bold",
+                                analytics.netAmount >= 0
+                                  ? "text-green-600 dark:text-green-400"
+                                  : "text-red-600 dark:text-red-400"
+                              )}
+                              formatOptions={{
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }}
+                            />
+                          </div>
+                          <Separator />
+                        </>
                       )}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">
-                          {tx.description}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(tx.timestamp), "MMM d, yyyy")}
-                        </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Account Type
+                        </span>
+                        <Badge variant="secondary">{accountConfig.label}</Badge>
                       </div>
-                      <Badge variant="outline">
-                        {tx.amount.toFixed(2)}
-                      </Badge>
-                    </button>
-                  ))}
+                      <Separator />
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Last Synced
+                        </span>
+                        <span className="text-sm font-medium">
+                          {account.lastSyncAt
+                            ? format(
+                                new Date(account.lastSyncAt),
+                                "MMM d, h:mm a"
+                              )
+                            : "Never"}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Attachments Tab */}
+            <TabsContent value="attachments" className="space-y-4">
+              <Card variant="outlined" className="p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Transaction Attachments
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Select a transaction to view and manage attachments (receipts,
+                  documents, etc.)
+                </p>
+
+                {/* Transaction Selection */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Select a transaction:
+                    </label>
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {unifiedTransactions.slice(0, 10).map((tx) => (
+                        <button
+                          key={tx.id}
+                          onClick={() => handleSelectTransactionId(tx.id)}
+                          className={cn(
+                            "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
+                            modals.attachments.selectedTransactionId === tx.id
+                              ? "bg-primary/10 border-primary"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">
+                              {tx.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {format(new Date(tx.timestamp), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                          <Badge variant="outline">
+                            {tx.amount.toFixed(2)}
+                          </Badge>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Attachments Component */}
+                  {modals.attachments.selectedTransactionId && (
+                    <div className="mt-6 pt-6 border-t">
+                      <TransactionAttachments
+                        transactionId={modals.attachments.selectedTransactionId}
+                        onUpload={handleUploadAttachment}
+                        onDelete={handleDeleteAttachment}
+                        onTogglePublic={handleToggleAttachmentPublic}
+                        onDownload={handleDownloadAttachment}
+                      />
+                    </div>
+                  )}
                 </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+ 
+        <div className="lg:col-span-4 order-1 lg:order-2 space-y-3">
+          <div className="space-y-2">
+            {/* Primary Action - Full Width, Prominent */}
+            <div className="flex items-center gap-1 justify-between">
+              <div className="flex items-center gap-1">
+                <TooltipProvider delayDuration={300}>
+                  {/* Transfer */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-8 w-8 flex-shrink-0"
+                      >
+                        <ArrowUpRight className="h-4 w-4" />
+                        <span className="sr-only">Transfer</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Transfer</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Export - Hidden on mobile, visible on sm and up */}
+                  <Tooltip className="hidden sm:block">
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-8 w-8 flex-shrink-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Export</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Export</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Settings - Hidden on mobile, visible on sm and up */}
+                  <Tooltip className="hidden sm:block">
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-8 w-8 flex-shrink-0"
+                      >
+                        <Settings className="h-4 w-4" />
+                        <span className="sr-only">Settings</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Settings</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Overflow Menu - More Actions + Destructive */}
               </div>
 
-              {/* Attachments Component */}
-              {modals.attachments.selectedTransactionId && (
-                <div className="mt-6 pt-6 border-t">
-                  <TransactionAttachments
-                    transactionId={modals.attachments.selectedTransactionId}
-                    onUpload={handleUploadAttachment}
-                    onDelete={handleDeleteAttachment}
-                    onTogglePublic={handleToggleAttachmentPublic}
-                    onDownload={handleDownloadAttachment}
-                  />
-                </div>
-              )}
+              <div className="items-center flex">
+                <Button
+                  onClick={handleOpenAddTransaction}
+                  variant="steel"
+                  className="  justify-center gap-2  font-semibold"
+                  icon={<LetsIconsAddDuotone className="h-5 w-5" />}
+                >
+                  <span className="hidden sm:inline">Add Transaction</span>
+                  <span className="sm:hidden">Add</span>
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="h-8 w-8 flex-shrink-0"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">More actions</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Sync Account
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleDisconnect}
+                      className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                    >
+                      <Trash2 className="mr-1 h-4 w-4" />
+                      Disconnect Account
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Secondary Actions - Icon Row with Tooltips + Overflow Menu - Responsive */}
+              </div>
             </div>
-          </Card>
-        </TabsContent>
+          </div>
 
-      </Tabs>
-</div>
-<div className="lg:col-span-4 order-1 lg:order-2 space-y-3">
-      <AccountHeader account={account} accountConfig={accountConfig} analytics={analytics} IconComponent={IconComponent}  />
-     {/*  <AccountBalanceChart accountId={accountId} balanceVisible={balanceVisible} /> */}
-
-
-
-                <div className="space-y-2">
-                  {/* Primary Action - Full Width, Prominent */}
-                  <Button
-                    onClick={handleOpenAddTransaction}
-                    variant="outline2"
-                    size="sm"
-                    className="w-full justify-center gap-2 shadow-sm"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Transaction
-                  </Button>
-
-                  {/* Secondary Actions - Icon Row with Tooltips + Overflow Menu */}
-                  <div className="flex items-center gap-1">
-                    <TooltipProvider delayDuration={300}>
-                      {/* Transfer */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="h-8 w-8"
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                            <span className="sr-only">Transfer</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>Transfer</p>
-                        </TooltipContent>
-                      </Tooltip>
-
-                      {/* Export */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="h-8 w-8"
-                          >
-                            <Download className="h-4 w-4" />
-                            <span className="sr-only">Export</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>Export</p>
-                        </TooltipContent>
-                      </Tooltip>
-
-                      {/* Settings */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="h-8 w-8"
-                          >
-                            <Settings className="h-4 w-4" />
-                            <span className="sr-only">Settings</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>Settings</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    {/* Spacer to push menu to the right */}
-                    <div className="flex-1" />
-
-                    {/* Overflow Menu - More Actions + Destructive */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">More actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem>
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Sync Account
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={handleDisconnect}
-                          className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Disconnect Account
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-               
-     
-
-      
-       </div>
-</div>
+          <AccountHeader
+            account={account}
+            accountConfig={accountConfig}
+            analytics={analytics}
+            IconComponent={IconComponent}
+          />
+       
+        </div>
+      </div>
       {/* Manual Transaction Form Modal */}
       <ManualTransactionForm
         isOpen={modals.addTransaction.isOpen}

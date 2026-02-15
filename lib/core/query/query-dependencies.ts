@@ -13,6 +13,7 @@ import { transactionKeys } from '@/lib/features/transactions/queries';
 import { categorizationRulesKeys } from '@/lib/features/categories/queries';
 import { categoriesKeys } from '@/lib/features/categories/queries';
 import { bankingKeys } from '@/lib/features/banking/queries';
+import { accountsKeys } from '@/lib/features/accounts/queries';
 import { budgetKeys } from '@/lib/features/budgets/queries';
 
 type RefetchType = 'background' | 'active';
@@ -112,7 +113,11 @@ export const QUERY_DEPENDENCIES: Record<string, InvalidationConfig> = {
   // ============================================================================
 
   'transactions:update': {
-    keys: [transactionKeys.list()],
+    keys: [
+      transactionKeys.list(),
+      transactionKeys.all(null),
+      accountsKeys.allTransactions(),
+    ],
     refetchType: 'background',
   },
 

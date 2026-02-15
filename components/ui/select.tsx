@@ -52,7 +52,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       className={cn(
         buttonVariants({ variant, size }),
-        "flex rounded-xs shadow-none items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
+        "flex rounded shadow-none items-center justify-between gap-1 text-sm transition-all focus-visible:ring-0 disabled:opacity-50 disabled:pointer-events-none",
         className, variant == 'outlinemuted2' && 'justify-center'
       )}
       aria-label={!label ? props.placeholder || "select" : undefined}

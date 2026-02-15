@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { cn } from '@/lib/utils';
-import { getTypeIcon } from '@/lib/utils/transaction-display-helpers';
+import { getTypeIcon, getTypeBgColor } from '@/lib/utils/transaction-display-helpers';
 import type { UnifiedTransaction } from '@/lib/types';
 import type { TransactionCardProps } from './types';
 import {
@@ -28,16 +28,19 @@ function TransactionCardComponent({
   return (
     <Card
       interactive
-      className="shadow-xs cursor-pointer hover:shadow-md transition-shadow"
+      className="rounded-xl cursor-pointer drop-shadow-xs   "
       onClick={() => onRowClick(transaction as UnifiedTransaction)}
     >
       <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-muted">
+        <div className={cn(
+          'h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0',
+          merchantLogo ? 'bg-muted' : getTypeBgColor(transaction.type)
+        )}>
           {merchantLogo ? (
             <img
               src={merchantLogo}
               alt={merchantName}
-              className="h-12 w-12 rounded-md object-cover"
+              className="h-10 w-10 rounded-xl object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
@@ -51,21 +54,21 @@ function TransactionCardComponent({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center justify-between gap-1">
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm truncate">
                 {merchantName}
               </h4>
 
-              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2   text-xs text-muted-foreground">
                 <span>
                   {format(new Date(transaction.date), 'MMM d, yyyy')}
                 </span>
                 <Separator orientation="vertical" className="h-3" />
 
                 <Badge
-                  variant="secondary"
-                  className="text-xs capitalize flex items-center gap-1.5"
+                  variant="muted"
+                  className="text-[11px] capitalize flex items-center gap-1.5"
                 >
                   {category?.emoji && <span>{category.emoji}</span>}
                   <span>
@@ -75,14 +78,15 @@ function TransactionCardComponent({
               </div>
             </div>
 
-            <div className="text-right">
+            <div className="text-right items-center">
+      
               <div
                 className={cn(
                   'font-bold text-base',
                   getAmountColorClasses(isIncome)
                 )}
               >
-                {isIncome ? '+' : '-'}
+            
                 <CurrencyDisplay
                   amountUSD={Math.abs(
                     parseFloat(transaction.amount.toString())

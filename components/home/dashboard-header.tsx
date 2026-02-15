@@ -91,18 +91,20 @@ export function DashboardHeader() {
 </div>*/}
 
       {/* Main layout: Networth on left, Metrics on right */}
-      <div className="flex  justify-between items-center gap-8  p-4 pb-0 bg-muted rounded-2xl  ">
+      <div className="flex  justify-between items-center gap-8  p-2 pb-0 bg-muted rounded-2xl  ">
         {/* Left: Net Worth Section */}
      
 
      
   {/* Main Card – Pure Apple Glass */}
   <Card className="p-3 w-[40%]  border-none bg-transparent shadow-none hover:shadow-none" >
-   
-
+ 
     {/* Content */}
     <div className="relative space-y-6">
-
+  
+  <h1 className="text-md font-semibold text-foreground">
+    Hi, {firstName}
+  </h1>
       {/* Header – Clean & Hierarchical */}
       <div className="flex items-center justify-between">
         <div>
@@ -306,7 +308,7 @@ export function DashboardHeader() {
             </div>
           </Card>
         </div>*/}
-        <NetWorthChart mode="demo" height={150} className="border-0 bg-transparent shadow-none border-none   -mr-4 -mt-2  "  compact/>
+        <NetWorthChart mode="demo" height={150} className="border-0 bg-transparent shadow-none border-none   -mr-2 -mt-2  "  compact/>
        
         </div>
           

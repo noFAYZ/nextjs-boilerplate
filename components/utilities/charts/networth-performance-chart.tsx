@@ -166,7 +166,7 @@ function generateDemoData(period: TimePeriod) {
 
   let numPoints = 0;
   let startDate = new Date(now);
-  let baseAssets = 350000;
+  const baseAssets = 350000;
 
   switch (period) {
     case '1w':

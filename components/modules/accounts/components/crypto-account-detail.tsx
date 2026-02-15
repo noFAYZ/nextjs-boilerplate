@@ -323,7 +323,7 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
 
         {/* Right Column: Header Card */}
         <div className="col-span-4">
-          <Card className=" rounded-xl  ">
+          <Card className=" rounded-xl  gap-8 ">
         
               <div className="flex flex-col gap-8">
                 {/* TOP ROW: Identity & Balance */}
@@ -403,17 +403,15 @@ export function CryptoAccountDetail({ accountId }: CryptoAccountDetailProps) {
                   {/* Balance & 24h Change */}
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                        Total Balance
-                      </span>
-                   
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs">
-                        <CurrencyDisplay
+                    
+                     <CurrencyDisplay
                         amountUSD={walletStats?.totalBalance || 0}
                         className="font-bold "
                         variant='lg'
                       />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      
                       {wallet?.portfolio?.percent24hChange !== undefined ? (
                         <Badge
                           className={cn(

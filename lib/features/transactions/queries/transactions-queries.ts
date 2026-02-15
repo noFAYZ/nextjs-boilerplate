@@ -360,8 +360,12 @@ export const transactionMutations = {
   }),
 
   update: () => ({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      transactionsApi.updateTransaction(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => {
+      // Filter out 'merchant' object before sending to API (API only accepts merchantId)
+      // The merchant object is used for optimistic updates in onMutate
+      const { merchant, ...apiData } = data;
+      return transactionsApi.updateTransaction(id, apiData);
+    },
   }),
 
   delete: () => ({

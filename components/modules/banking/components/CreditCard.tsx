@@ -233,7 +233,7 @@ type GradientResult = {
       .slice(0, 5)
   
     const primary = sorted[0] ?? "24,24,27"
-    let secondary =
+    const secondary =
       sorted.find(c => colorDistance(primary, c) > minContrast) ??
       "9,9,11"
   

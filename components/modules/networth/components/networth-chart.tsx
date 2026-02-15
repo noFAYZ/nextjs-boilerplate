@@ -644,15 +644,15 @@ interface PeriodFilterButtonsProps {
 }
 
 const PeriodFilterButtons = ({ periods, selectedPeriod, onPeriodChange, compact = false }: PeriodFilterButtonsProps) => (
-  <div className={cn("flex gap-0 flex-wrap inline-flex rounded-md border border-input bg-background", compact ? "justify-end" : "")}>
+  <div className={cn("flex gap-0 flex-wrap inline-flex rounded-xl border border-input bg-background", compact ? "justify-end" : "")}>
     {periods.map((period, index) => (
       <Button
         key={period.value}
-        size={compact ? "xs" : "sm"}
-        variant={selectedPeriod === period.value ? "brand" : "outlinemuted2"}
+        size={compact ? "xs" : "xs"}
+        variant={selectedPeriod === period.value ? "steel" : "outlinemuted2"}
         onClick={() => onPeriodChange(period.value)}
         className={cn(
-          "font-medium transition-all uppercase border-none hover:border-none flex-1 text-[12px] text-muted-foreground",
+          " transition-all uppercase rounded-xl border-none hover:border-none flex-1 text-[12px] text-muted-foreground",
           compact && "text-xs",
           selectedPeriod === period.value && "shadow-sm text-white",
           index > 0 && "border-l border-input"
@@ -1004,12 +1004,12 @@ export function NetWorthChart({
     return (
       <div
         ref={chartContainerRef}
-        className={cn("w-full  -mb-2   space-y-3    ", className)}
+        className={cn("w-full     space-y-3    ", className)}
         role="region"
         aria-label="Net Worth Chart (Compact View)"
       >
         {/* Header with metrics and controls */}
-        <div className="flex items-start justify-between gap-4 w-full">
+        <div className="flex items-start justify-between gap-4 w-full pr-2 pt-2">
           {/* Left: Net Worth Display */}
           {showNetWorthDisplay && (
             <div className="flex flex-col gap-1 flex-shrink-0">
@@ -1134,7 +1134,7 @@ export function NetWorthChart({
         </div>
 
         {/* Chart container */}
-        <div className="relative overflow-visible border-0 -mr-4" style={{ height }}>
+        <div className="relative overflow-visible border-0 " style={{ height }}>
           {isLoading ? (
             <ChartSkeleton height={height} />
           ) : error ? (
@@ -1267,7 +1267,7 @@ export function NetWorthChart({
   return (
     <div
       ref={chartContainerRef}
-      className={cn("w-full  p-0 space-y-4   hover:shadow-none rounded-none flex flex-col justify-between", className)}
+      className={cn("w-full  p-0 space-y-4   hover:shadow-none rounded flex flex-col justify-between", className)}
       role="region"
       aria-label="Net Worth Chart"
     >
@@ -1275,7 +1275,7 @@ export function NetWorthChart({
 
      
 
-<div className='flex justify-end items-center gap-2 pr-4'>
+<div className='flex justify-end items-center gap-2 pr-2 pt-2'>
 
    {/* Compact Metrics Cards
    {  metrics && !isLoading && (
@@ -1470,7 +1470,7 @@ export function NetWorthChart({
                     aria-label="Net worth area"
                     isAnimationActive={true}
                     animationDuration={400}
-                /*     dot={<CustomNetWorthDot />} */
+                /**/     dot={<CustomNetWorthDot />} 
                     activeDot={{ r: 1 }}
                   />
                 </AreaChart>

@@ -14,6 +14,7 @@ import { useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '@/lib/features/transactions/services';
 import { transactionQueries, transactionMutations, transactionKeys } from './transactions-queries';
+import { accountsKeys } from '@/lib/features/accounts/queries';
 import { invalidateByDependency } from '@/lib/core/query';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 
@@ -126,13 +127,17 @@ export function useTransactionCategoryGroups(): UseQueryResult<any, Error> {
 /**
  * Get merchants with optional pagination and search
  * Memoizes params to prevent refetches
+ *
+ * Query is enabled when:
+ * 1. No params provided (fetch all merchants)
+ * 2. Params provided with any valid configuration (limit, page, search, etc.)
  */
 export function useMerchants(params?: MerchantParams): UseQueryResult<any, Error> {
   const memoizedParams = useMemoizedParams(params);
 
   return useQuery({
     ...transactionQueries.merchants(memoizedParams),
-    enabled: !memoizedParams || !!memoizedParams.search,
+    enabled: true, // Always enable - let the backend handle pagination with optional params
   });
 }
 
@@ -165,50 +170,127 @@ export function useSearchCategories(query?: string): UseQueryResult<any, Error> 
  * Create a single transaction with optimistic updates
  * Performance: Memoized callbacks, efficient cache updates
  */
+/**
+ * Create transaction with optimistic updates for both global and account-specific caches
+ *
+ * BEST PRACTICES:
+ * - Updates ALL affected caches (global list + account-specific lists)
+ * - Snapshot/update/rollback pattern
+ * - Explicit cache discovery for account transaction caches
+ * - Proper error rollback
+ */
 export function useCreateTransaction(): UseMutationResult<any, Error, any, unknown> {
   const queryClient = useQueryClient();
 
   const onMutate = useCallback(async (newTransaction: any) => {
-    // Cancel conflicting queries to prevent race conditions
+    // Cancel conflicting queries
     await Promise.all([
-      queryClient.cancelQueries({ queryKey: transactionKeys.lists() }),
-      queryClient.cancelQueries({ queryKey: transactionKeys.stats() }),
+      queryClient.cancelQueries({ queryKey: transactionKeys.all(null) }),
+      queryClient.cancelQueries({ queryKey: accountsKeys.all }),
     ]);
 
-    // Snapshot current state for rollback
-    const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
-    const previousStats = queryClient.getQueryData(transactionKeys.stats());
+    // Snapshot ALL affected caches
+    const getSnapshot = () => {
+      const snapshot: Record<string, any> = {};
 
-    // Optimistically update cache
-    if (previousTransactions) {
-      queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
-        if (!old?.data) return old;
-        return {
-          ...old,
-          data: [
-            { ...newTransaction, id: `temp-${Date.now()}`, createdAt: new Date().toISOString() },
-            ...old.data,
-          ],
-        };
+      // Snapshot global lists
+      snapshot['transactionList'] = queryClient.getQueryData(transactionKeys.lists());
+      snapshot['transactionStats'] = queryClient.getQueryData(transactionKeys.stats());
+
+      // Snapshot all account-specific transaction caches
+      const allQueries = queryClient.getQueryCache().getAll();
+      allQueries.forEach((query) => {
+        const key = query.queryKey;
+        // Match account transaction caches: ['unified-accounts', 'transactions', accountId, ...]
+        if (
+          Array.isArray(key) &&
+          key[0] === 'unified-accounts' &&
+          key[1] === 'transactions'
+        ) {
+          const cacheKey = JSON.stringify(key);
+          snapshot[cacheKey] = queryClient.getQueryData(key);
+        }
+      });
+
+      return snapshot;
+    };
+
+    const previousSnapshot = getSnapshot();
+    const tempTransaction = {
+      ...newTransaction,
+      id: `temp-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Update global transaction list
+    queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
+      if (!old?.data) return old;
+      return {
+        ...old,
+        data: [tempTransaction, ...old.data],
+      };
+    });
+
+    // Update all account-specific transaction caches
+    const accountId = newTransaction.accountId;
+    if (accountId) {
+      queryClient.getQueryCache().findAll({ queryKey: accountsKeys.all }).forEach((query) => {
+        const cacheKey = query.queryKey;
+        // Only update account transaction queries for the relevant account
+        if (
+          Array.isArray(cacheKey) &&
+          cacheKey[1] === 'transactions' &&
+          cacheKey[2] === accountId
+        ) {
+          queryClient.setQueryData(cacheKey, (old: any) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: [tempTransaction, ...old.data],
+            };
+          });
+        }
       });
     }
 
-    return { previousTransactions, previousStats };
+    return previousSnapshot;
   }, [queryClient]);
 
   const onError = useCallback((error: Error, _variables: any, context: any) => {
-    // Rollback optimistic updates on error
-    if (context?.previousTransactions) {
-      queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+    if (!context) return;
+
+    // Restore global caches
+    if (context['transactionList']) {
+      queryClient.setQueryData(transactionKeys.lists(), context['transactionList']);
     }
-    if (context?.previousStats) {
-      queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+    if (context['transactionStats']) {
+      queryClient.setQueryData(transactionKeys.stats(), context['transactionStats']);
     }
+
+    // Restore account-specific caches
+    Object.entries(context).forEach(([cacheKey, data]) => {
+      if (cacheKey.startsWith('["unified-accounts"')) {
+        try {
+          const keyArray = JSON.parse(cacheKey);
+          queryClient.setQueryData(keyArray, data);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    });
   }, [queryClient]);
 
   const onSuccess = useCallback(() => {
-    // Invalidate related queries for background refetch
-    invalidateByDependency(queryClient, 'transactions:update');
+    // Invalidate all transaction-related caches for background refetch
+    queryClient.invalidateQueries({
+      queryKey: transactionKeys.all(null),
+      refetchType: 'background',
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: accountsKeys.all,
+      refetchType: 'background',
+    });
   }, [queryClient]);
 
   return useMutation({
@@ -274,64 +356,225 @@ export function useBulkCreateTransactions(): UseMutationResult<any, Error, any, 
 }
 
 /**
- * Update transaction with optimistic updates
- * Performance: Memoized callbacks, efficient cache updates, proper error rollback
+ * Update transaction with optimistic updates and explicit cache invalidation
+ *
+ * BEST PRACTICES:
+ * - Memoized callbacks to prevent unnecessary re-renders
+ * - Explicit cache updates targeting specific query keys
+ * - Comprehensive error rollback for all affected caches
+ * - Uses invalidateQueries with predicates for cross-cache consistency
+ * - Snapshot/update/rollback pattern for optimistic updates
+ * - Separates concerns: optimistic updates for UX, invalidation for consistency
  */
 export function useUpdateTransaction(): UseMutationResult<any, Error, any, unknown> {
   const queryClient = useQueryClient();
 
   const onMutate = useCallback(async (variables: { id: string; data: any }) => {
+    // Step 1: Cancel all conflicting queries to prevent race conditions
     await Promise.all([
-      queryClient.cancelQueries({ queryKey: transactionKeys.lists() }),
-      queryClient.cancelQueries({ queryKey: transactionKeys.detail(variables.id) }),
-      queryClient.cancelQueries({ queryKey: transactionKeys.stats() }),
+      queryClient.cancelQueries({ queryKey: transactionKeys.all(null) }),
+      queryClient.cancelQueries({ queryKey: accountsKeys.all }),
     ]);
 
-    const previousTransactions = queryClient.getQueryData(transactionKeys.lists());
-    const previousDetail = queryClient.getQueryData(transactionKeys.detail(variables.id));
-    const previousStats = queryClient.getQueryData(transactionKeys.stats());
+    // Step 2: Snapshot ALL caches that might contain this transaction
+    // This includes:
+    // - Global transaction list
+    // - Account-specific transaction lists (ALL of them)
+    // - Transaction details
+    // - Statistics
+    const getSnapshot = () => {
+      const snapshot: Record<string, any> = {};
 
-    // Update list optimistically
-    if (previousTransactions) {
-      queryClient.setQueryData(transactionKeys.lists(), (old: any) => {
-        if (!old?.data) return old;
-        return {
-          ...old,
-          data: old.data.map((tx: any) =>
-            tx.id === variables.id ? { ...tx, ...variables.data } : tx
-          ),
-        };
+      // Snapshot global lists
+      snapshot['transactionList'] = queryClient.getQueryData(transactionKeys.lists());
+      snapshot['transactionDetail'] = queryClient.getQueryData(transactionKeys.detail(variables.id));
+      snapshot['transactionStats'] = queryClient.getQueryData(transactionKeys.stats());
+
+      // Snapshot all account-specific transaction caches
+      const allQueries = queryClient.getQueryCache().getAll();
+      allQueries.forEach((query) => {
+        const key = query.queryKey;
+        // Match account transaction caches: ['unified-accounts', 'transactions', accountId, ...]
+        if (
+          Array.isArray(key) &&
+          key[0] === 'unified-accounts' &&
+          key[1] === 'transactions'
+        ) {
+          const cacheKey = JSON.stringify(key);
+          snapshot[cacheKey] = queryClient.getQueryData(key);
+        }
       });
+
+      return snapshot;
+    };
+
+    const previousSnapshot = getSnapshot();
+
+    // Step 3: Optimistically update ALL relevant caches with proper deep merge
+    // Helper function to deeply merge transaction updates
+    const mergeTransactionData = (tx: any, updates: any) => {
+      const merged = { ...tx };
+
+      // Handle merchant update with full data replacement
+      if (updates.merchant !== undefined) {
+        merged.merchant = updates.merchant;
+      } else if (updates.merchantId !== undefined && !updates.merchant) {
+        // If only merchantId is provided, still update it
+        merged.merchantId = updates.merchantId;
+      }
+
+      // Handle category update with full data replacement
+      if (updates.category !== undefined) {
+        merged.category = updates.category;
+      } else if (updates.categoryId !== undefined && !updates.category) {
+        merged.categoryId = updates.categoryId;
+      }
+
+      // Handle account update
+      if (updates.account !== undefined) {
+        merged.account = updates.account;
+      } else if (updates.accountId !== undefined && !updates.account) {
+        merged.accountId = updates.accountId;
+      }
+
+      // Merge all other fields
+      Object.keys(updates).forEach((key) => {
+        if (!['merchant', 'merchantId', 'category', 'categoryId', 'account', 'accountId'].includes(key)) {
+          merged[key] = updates[key];
+        }
+      });
+
+      return merged;
+    };
+
+    // Update global transaction list
+    queryClient.setQueryData(transactionKeys.lists(), (old: unknown) => {
+      if (typeof old !== 'object' || !old || !('data' in old)) return old;
+      const oldData = old as { data: Array<{ id: string }> };
+      return {
+        ...oldData,
+        data: oldData.data.map((tx: any) =>
+          tx.id === variables.id ? mergeTransactionData(tx, variables.data) : tx
+        ),
+      };
+    });
+
+    // Update all account-specific transaction caches
+    queryClient.getQueryCache().findAll({ queryKey: accountsKeys.all }).forEach((query) => {
+      const cacheKey = query.queryKey;
+      // Only update account transaction queries
+      if (
+        Array.isArray(cacheKey) &&
+        cacheKey[1] === 'transactions'
+      ) {
+        queryClient.setQueryData(cacheKey, (old: unknown) => {
+          if (typeof old !== 'object' || !old || !('data' in old)) return old;
+          const oldData = old as { data: any };
+          const isArray = Array.isArray(oldData.data);
+          return {
+            ...oldData,
+            data: isArray
+              ? oldData.data.map((tx: any) =>
+                  tx.id === variables.id ? mergeTransactionData(tx, variables.data) : tx
+                )
+              : oldData.data,
+          };
+        });
+      }
+    });
+
+    // Update transaction detail with proper merge
+    const detail = queryClient.getQueryData(transactionKeys.detail(variables.id));
+    if (detail) {
+      queryClient.setQueryData(transactionKeys.detail(variables.id),
+        mergeTransactionData(detail, variables.data)
+      );
     }
 
-    // Update detail optimistically
-    if (previousDetail) {
-      queryClient.setQueryData(transactionKeys.detail(variables.id), {
-        ...previousDetail,
-        ...variables.data,
-      });
-    }
-
-    return { previousTransactions, previousDetail, previousStats };
+    return previousSnapshot;
   }, [queryClient]);
 
   const onError = useCallback(
     (error: Error, variables: { id: string; data: any }, context: any) => {
-      if (context?.previousTransactions) {
-        queryClient.setQueryData(transactionKeys.lists(), context.previousTransactions);
+      if (!context) return;
+
+      // Restore global caches
+      if (context['transactionList']) {
+        queryClient.setQueryData(transactionKeys.lists(), context['transactionList']);
       }
-      if (context?.previousDetail) {
-        queryClient.setQueryData(transactionKeys.detail(variables.id), context.previousDetail);
+      if (context['transactionDetail']) {
+        queryClient.setQueryData(transactionKeys.detail(variables.id), context['transactionDetail']);
       }
-      if (context?.previousStats) {
-        queryClient.setQueryData(transactionKeys.stats(), context.previousStats);
+      if (context['transactionStats']) {
+        queryClient.setQueryData(transactionKeys.stats(), context['transactionStats']);
       }
+
+      // Restore account-specific caches
+      Object.entries(context).forEach(([cacheKey, data]) => {
+        if (cacheKey.startsWith('["unified-accounts"')) {
+          try {
+            const keyArray = JSON.parse(cacheKey);
+            queryClient.setQueryData(keyArray, data);
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      });
     },
     [queryClient]
   );
 
-  const onSuccess = useCallback(() => {
-    invalidateByDependency(queryClient, 'transactions:update');
+  const onSuccess = useCallback((response: any, variables: { id: string; data: any }) => {
+    // Helper to enrich transaction with merchant object from merchants list
+    const enrichTransactionMerchant = (tx: any) => {
+      if (!tx.merchantId) return tx;
+
+      const merchantsData = queryClient.getQueryData(transactionKeys.merchants(null)) as any;
+      if (merchantsData?.data) {
+        const merchant = merchantsData.data.find((m: any) => m.id === tx.merchantId);
+        if (merchant) {
+          return {
+            ...tx,
+            merchant: {
+              id: merchant.id,
+              displayName: merchant.name,
+              logo: merchant.logo,
+              website: merchant.website,
+            },
+          };
+        }
+      }
+      return tx;
+    };
+
+    // Manually enrich and update global transaction list
+    queryClient.setQueryData(transactionKeys.lists(), (old: unknown) => {
+      if (typeof old !== 'object' || !old || !('data' in old)) return old;
+      const oldData = old as { data: Array<{ id: string }> };
+      return {
+        ...oldData,
+        data: oldData.data.map((tx: any) =>
+          tx.id === variables.id ? enrichTransactionMerchant(response.data) : tx
+        ),
+      };
+    });
+
+    // Manually enrich transaction detail cache if it exists
+    queryClient.setQueryData(transactionKeys.detail(variables.id), (old: unknown) => {
+      if (!old) return old;
+      return enrichTransactionMerchant(response.data);
+    });
+
+    // Then invalidate for background refetch to sync with server
+    queryClient.invalidateQueries({
+      queryKey: transactionKeys.all(null),
+      refetchType: 'background',
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: accountsKeys.all,
+      refetchType: 'background',
+    });
   }, [queryClient]);
 
   return useMutation({

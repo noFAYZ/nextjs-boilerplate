@@ -51,6 +51,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { useToast } from '@/lib/shared/hooks';
 import { ITEMS_PER_PAGE } from '@/lib/constants/transaction-constants';
 import { groupTransactionsByDate } from '@/lib/utils/transaction-helpers';
 import {
@@ -168,7 +169,8 @@ export function useTransactionTable(options: UseTransactionTableOptions): UseTra
   const { data: accountsResponse, isLoading: accountsLoading } = useAllAccounts();
   const { data: merchantsResponse, isLoading: merchantsLoading } = useMerchants({ limit: 1000 });
   const { data: categoriesResponse, isLoading: categoriesLoading } = useTransactionCategories();
-  const { mutate: updateTransaction, isPending: isUpdatingTransaction } = useUpdateTransaction();
+  const { mutateAsync: updateTransactionAsync, isPending: isUpdatingTransaction } = useUpdateTransaction();
+  const { toast } = useToast();
 
   // ============================================
   // Filtering Logic
@@ -348,39 +350,116 @@ export function useTransactionTable(options: UseTransactionTableOptions): UseTra
    * Handle account change (optimistic update handled in mutation)
    */
   const handleAccountChange = useCallback(
-    (transactionId: string, newAccountId: string) => {
-      updateTransaction({
-        id: transactionId,
-        data: { accountId: newAccountId },
-      });
+    async (transactionId: string, newAccountId: string) => {
+      try {
+        const selectedAccount = accountsList.find(acc => acc.id === newAccountId);
+        await updateTransactionAsync({
+          id: transactionId,
+          data: { accountId: newAccountId },
+        });
+        toast({
+          title: 'Account updated',
+          description: `Changed to ${selectedAccount?.name || 'selected account'}`,
+          variant: 'success',
+        });
+      } catch (error) {
+        console.error('Failed to update account:', error);
+        toast({
+          title: 'Failed to update account',
+          description: 'Please try again',
+          variant: 'destructive',
+        });
+      }
     },
-    [updateTransaction]
+    [updateTransactionAsync, accountsList, toast]
   );
 
   /**
-   * Handle merchant change (optimistic update handled in mutation)
+   * Handle merchant change with optimistic updates
+   * Sends only merchantId to API, optimistic update uses merchant object from list
    */
   const handleMerchantChange = useCallback(
-    (transactionId: string, newMerchantId: string) => {
-      updateTransaction({
-        id: transactionId,
-        data: { merchantId: newMerchantId },
-      });
+    async (transactionId: string, newMerchantId: string) => {
+      try {
+        // Find the merchant object to update UI with full data
+        const selectedMerchant = merchantsList.find(m => m.id === newMerchantId);
+        if (!selectedMerchant) {
+          toast({
+            title: 'Error',
+            description: 'Merchant not found',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // Send update with merchantId only (API doesn't accept merchant object)
+        // The optimistic update in useUpdateTransaction will use the merchant object
+        await updateTransactionAsync({
+          id: transactionId,
+          data: {
+            merchantId: newMerchantId,
+            merchant: selectedMerchant, // For optimistic update only, not sent to API
+          },
+        });
+
+        toast({
+          title: 'Merchant updated',
+          description: `Changed to ${selectedMerchant.name}`,
+          variant: 'success',
+        });
+      } catch (error) {
+        console.error('Failed to update merchant:', error);
+        toast({
+          title: 'Failed to update merchant',
+          description: error instanceof Error ? error.message : 'Please try again',
+          variant: 'destructive',
+        });
+      }
     },
-    [updateTransaction]
+    [updateTransactionAsync, merchantsList, toast]
   );
 
   /**
-   * Handle category change (optimistic update handled in mutation)
+   * Handle category change with optimistic updates
+   * Updates both categoryId and category display for proper UI display
    */
   const handleCategoryChange = useCallback(
-    (transactionId: string, newCategoryId: string) => {
-      updateTransaction({
-        id: transactionId,
-        data: { categoryId: newCategoryId },
-      });
+    async (transactionId: string, newCategoryId: string) => {
+      try {
+        const selectedCategory = categoriesList.find(c => c.id === newCategoryId);
+        if (!selectedCategory) {
+          toast({
+            title: 'Error',
+            description: 'Category not found',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // Send update with both ID and category data for proper UI display
+        await updateTransactionAsync({
+          id: transactionId,
+          data: {
+            categoryId: newCategoryId,
+            categoryName: selectedCategory.displayName,
+          },
+        });
+
+        toast({
+          title: 'Category updated',
+          description: `Changed to ${selectedCategory.displayName}`,
+          variant: 'success',
+        });
+      } catch (error) {
+        console.error('Failed to update category:', error);
+        toast({
+          title: 'Failed to update category',
+          description: error instanceof Error ? error.message : 'Please try again',
+          variant: 'destructive',
+        });
+      }
     },
-    [updateTransaction]
+    [updateTransactionAsync, categoriesList, toast]
   );
 
   /**

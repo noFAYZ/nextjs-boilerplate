@@ -21,8 +21,8 @@ interface BudgetCardProps {
   id: string;
   name: string;
   description?: string;
-  budgetAmount: number;
-  spentAmount: number;
+  budgetAmount?: number;
+  spentAmount?: number;
   remaining?: number;
   cycle: 'weekly' | 'monthly' | 'yearly';
   status?: 'on-track' | 'warning' | 'over-budget';
@@ -53,8 +53,8 @@ const getStatusLabel = (status: BudgetCardProps['status']): string => {
 export function BudgetCard({
   name,
   description,
-  budgetAmount,
-  spentAmount,
+  budgetAmount = 0,
+  spentAmount = 0,
   remaining,
   cycle,
   status,
@@ -63,7 +63,7 @@ export function BudgetCard({
   onView,
 }: BudgetCardProps) {
   const calculatedStatus = status || getBudgetStatus(spentAmount, budgetAmount);
-  const percentage = (spentAmount / budgetAmount) * 100;
+  const percentage = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
   const remainingAmount = remaining ?? budgetAmount - spentAmount;
 
   return (

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { CurrencyDisplay } from '@/components/ui/currency-display'
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Wallet, ChevronUp, ChevronDown } from 'lucide-react'
 import { calculateCreditUtilization } from '@/lib/utils'
 import { NetWorthChart } from '@/components/modules/networth/components/networth-chart'
 import { Card } from '@/components/ui/card'
@@ -20,17 +20,17 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
           parseFloat((account.availableBalance ?? 0).toString())
         )
       : 0
-
+console.log(account)
   return (
-    <Card className="border-none rounded-none shadow-none p-0">
+    <Card className="rounded-xl gap-8 ">
 
        
-      <div className="p-3 "  >
-        <div className="flex flex-col gap-4">
+  
+        <div className="flex flex-col gap-8">
           {/* TOP ROW: Identity & Balance */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             {/* Left: Icon & Name */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
              {/*  <div
                 className={cn(
                   'h-11 w-11 rounded-lg flex items-center justify-center shadow-sm border bg-gradient-to-br flex-shrink-0',
@@ -39,37 +39,37 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
               >
                 <IconComponent className={`h-7 w-7 ${accountConfig.textColor}`} />
               </div> */}
-              <div className="h-10 w-10   rounded-full border shadow-sm group-hover:shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
-              <IconComponent className={`h-7 w-7 `} />
+              <div className="h-10 w-10   rounded-full border shadow     flex items-center justify-center flex-shrink-0">
+              <IconComponent className={`h-6 w-6 `} />
                         </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="text-sm font-semibold tracking-tight text-foreground truncate">
                     {account.name}
                   </h1>
-                 
+                  <Badge variant="max" className="text-[10px] px-1.5 py-0 h-4.5 font-normal">
+                    {accountConfig.label}
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="truncate">{account.institutionName}</span>
                   <span className="text-muted-foreground/40">••••</span>
                   <span className="font-mono"> {account.accountNumber ? account.accountNumber  : account.mask ?? account.mask}</span>
- <Badge variant="new" className="text-[10px] px-1.5 py-0 h-4.5 font-normal">
-                    {accountConfig.label}
-                  </Badge>
+
 
                 </div>
               </div>
             </div>
 
             {/* Right: Balance */}
-            <div className="flex flex-col sm:items-end gap-2">
+            <div className="flex flex-col sm:items-end  ">
               <div className="flex flex-col items-end ">
-                <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+               {/*  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
                   {account.type === 'CREDIT_CARD' ? 'Remaining' : 'Available'}
-                </span>
+                </span> */}
                 <CurrencyDisplay
                   amountUSD={parseFloat(
-                    ((account.availableBalance ?? account.balance) ?? 0).toString()
+                    ((account.balance ?? account.balance) ?? 0).toString()
                   )}
                   className=" font-bold text-foreground"
                   variant='lg'
@@ -99,8 +99,8 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
             <div className="flex items-center gap-6 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
               {/* Income */}
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="h-8 w-8 rounded bg-lime-500/50 flex items-center justify-center flex-shrink-0">
+                  <ChevronDown className="h-5 w-5 text-green-800 dark:text-lime-500" />
                 </div>
                 <div>
                   <p className="text-[10px] font-medium text-muted-foreground uppercase">
@@ -116,8 +116,8 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
 
               {/* Expenses */}
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                  <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <div className="h-8 w-8 rounded bg-red-500/30 flex items-center justify-center flex-shrink-0">
+                  <ChevronUp className="h-5 w-5 text-red-800 dark:text-red-500" />
                 </div>
                 <div>
                   <p className="text-[10px] font-medium text-muted-foreground uppercase">
@@ -133,8 +133,8 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
 
                {/* Net Flow (Non-Credit) */}
                {account.type !== "CREDIT_CARD" && (
-                <div className="flex items-center gap-2 pl-2 border-l border-border/50">
-                   <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-2 pl-2 border-l border-border">
+                   <div className="h-8 w-8 rounded bg-blue-500/30 flex items-center justify-center flex-shrink-0">
                     <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
@@ -201,10 +201,9 @@ export function AccountHeader({ account, accountConfig, analytics, IconComponent
           </div>
         </div>
 
-        
-      </div>
- <AccountBalanceChart accountId={account.id} balanceVisible={true} />
-      {/*  <NetWorthChart mode='demo'  height={200} className='border-0 shadow-none' compact/>*/}
+ 
+ {/* <AccountBalanceChart accountId={account.id} balanceVisible={true} />
+       <NetWorthChart mode='demo'  height={200} className='border-0 shadow-none' compact/>*/}
      
     </Card>
   )

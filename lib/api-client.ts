@@ -99,7 +99,7 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     try {
       // Build URL with organizationId as query parameter
-      let url = `${this.baseURL}${endpoint}`;
+      const url = `${this.baseURL}${endpoint}`;
 
       // Get organization from context store if not explicitly provided
       let orgId = organizationId;

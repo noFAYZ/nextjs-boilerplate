@@ -172,6 +172,7 @@ class TransactionsApiService {
    * - categoryId
    * - status
    * - notes
+   * - merchantId
    */
   async updateTransaction(
     id: string,
@@ -180,6 +181,7 @@ class TransactionsApiService {
       categoryId?: string;
       status?: 'POSTED' | 'PENDING' | 'CLEARED';
       notes?: string;
+      merchantId?: string;
     },
     organizationId?: string
   ): Promise<

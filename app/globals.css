@@ -8,7 +8,7 @@
 
 :root {
   /* Claude-like "Paper" Backgrounds (Slightly warm off-white) */
-  --background: #ffff; 
+  --background: #F4F4F0; 
   --foreground: oklch(0.22 0.015 60); /* Deep charcoal ink */
   
   --card: oklch(1 0 0);
@@ -28,7 +28,7 @@
   --secondary: oklch(0.94 0.01 60);
   --secondary-foreground: oklch(0.35 0.02 60);
 
-  --muted: oklch(0.96 0.005 60);
+  --muted: rgb(243, 237, 233);
   --muted-foreground: oklch(0.52 0.02 60); 
 
   --accent: oklch(0.92 0.015 60);
@@ -37,9 +37,9 @@
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.89 0.02 60);
-  --input: oklch(0.91 0.01 60);
-  --ring: oklch(0.58 0.12 45);
+  --border: oklch(0.88 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.65 0.20 40);
 
   /* Sidebar (Claude's cleaner UI) */
   --sidebar: oklch(0.97 0.005 60);
@@ -65,7 +65,7 @@
 
   /* Typography & Layout */
   --font-sans: 'Readex Pro', ui-sans-serif, sans-serif;
-  --radius: 0.25rem;
+  --radius: 0.45rem;
   --spacing: 0.25rem;
   --tracking-normal: -0.015em;
 

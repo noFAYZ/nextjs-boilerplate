@@ -28,6 +28,12 @@ export { AttachmentModal } from './modals/attachment-modal';
 export { BulkTransactionHeader } from './bulk/bulk-transaction-header';
 export { BulkEditTransactionsDrawer } from './bulk/bulk-edit-transactions-drawer';
 
+// Toolbar Components
+export { TransactionsFloatingToolbar } from './toolbars/transactions-floating-toolbar';
+
+// Sidebar Components
+export { TransactionsFilterSidebar } from './sidebars/transactions-filter-sidebar';
+
 // Hooks (for building custom implementations)
 export { useTransactionTable } from '@/lib/features/transactions/hooks';
 

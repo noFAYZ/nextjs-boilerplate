@@ -11,6 +11,7 @@
 
 import { useCallback } from 'react';
 import { Download, RefreshCw } from 'lucide-react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -85,7 +86,7 @@ export function FilterOptionsDrawer({
                 <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
                 <Input
                   type="date"
-                  value={dateRange?.from ? dateRange.from.toISOString().split('T')[0] : ''}
+                  value={dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
                   onChange={(e) => {
                     const date = e.target.value ? new Date(e.target.value) : null;
                     onDateRangeChange(date, dateRange?.to || null);
@@ -97,7 +98,7 @@ export function FilterOptionsDrawer({
                 <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
                 <Input
                   type="date"
-                  value={dateRange?.to ? dateRange.to.toISOString().split('T')[0] : ''}
+                  value={dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
                   onChange={(e) => {
                     const date = e.target.value ? new Date(e.target.value) : null;
                     onDateRangeChange(dateRange?.from || null, date);

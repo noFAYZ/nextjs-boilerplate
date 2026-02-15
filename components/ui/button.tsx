@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-0 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-none  relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-0 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-none  relative overflow-hidden cursor-pointer disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
@@ -63,9 +63,9 @@ const buttonVariants = cva(
           outlinemuted2:"  hover:border    hover:bg-muted  hover:text-accent-foreground  shadow-none   ",
           outlinepressed:
           "border-2 border-border bg-gray-50 dark:bg-[#3E3C3C] text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-mdhover:shadow-md  border-orange-500/25 shadow-[0_4px_0_0_rgb(254,215,170)]  shadow-[0_2px_0_0_rgb(254,215,170)]  translate-y-[2px] active:shadow-none translate-y-[4px] transition-all duration-100  dark:border-[rgb(114,65,12)] dark:shadow-[0_3px_0_0_rgb(114,65,12)] dark:hover:shadow-[0_1px_0_0_rgb(114,65,12)]",
-      outline2:"border border-border  bg-card   rounded-sm   hover:bg-muted  hover:text-accent-foreground  shadow   "
+      outline2:"border   bg-card      hover:bg-muted  hover:text-accent-foreground  shadow   "
 ,
-outline3:"border border-border  bg-card dark:bg-[#3E3C3C]       hover:bg-muted  hover:text-accent-foreground  shadow-none   "
+outline3:"border   bg-card dark:bg-secondary      hover:bg-muted  hover:text-accent-foreground  shadow-lg rounded  "
 ,
 outlinebrand:" bg-muted      hover:bg-muted/80  hover:text-accent-foreground  shadow-xs   ",
 outlinecard:" bg-muted dark:bg-card      hover:bg-card/80  hover:text-accent-foreground  shadow-xs   ",
@@ -134,7 +134,7 @@ outlinecard:" bg-muted dark:bg-card      hover:bg-card/80  hover:text-accent-for
       size: {
         xs: "h-7 px-1.5 text-xs rounded-md gap-1",
         sm: "h-8 px-2 text-sm rounded-md gap-1",
-        default: "h-9 px-2.5 gap-2",
+        default: "h-8 px-2.5 gap-2",
         lg: "h-10 px-3 text-base gap-2.5",
         xl: "h-12 px-4 text-lg gap-3",
         "2xl": "h-14 px-5 text-xl gap-3",

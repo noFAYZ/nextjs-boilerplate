@@ -37,7 +37,7 @@
 
 import { useState, useCallback, useMemo, memo } from 'react';
 import { useBankingUIStore } from '@/lib/features/banking/stores';
-import { useTransactionTable } from '@/lib/features/transactions/hooks';
+import { useTransactionTable, useBulkTransactionActions } from '@/lib/features/transactions/hooks';
 import { TransactionTable } from './table/transaction-table';
 import { TransactionTableSkeleton } from './table/transaction-table-skeleton';
 import { TransactionTableEmpty } from './table/transaction-table-empty';
@@ -45,6 +45,7 @@ import { TransactionPagination } from './pagination/transaction-pagination';
 import { AttachmentModal } from './modals/attachment-modal';
 import { BulkTransactionHeader } from './bulk/bulk-transaction-header';
 import { BulkEditTransactionsDrawer } from './bulk/bulk-edit-transactions-drawer';
+import { TransactionsFloatingToolbar } from './toolbars/transactions-floating-toolbar';
 import { ITEMS_PER_PAGE } from '@/lib/constants/transaction-constants';
 import type { TransactionsDataTableProps } from '@/lib/types';
 
@@ -114,6 +115,9 @@ function TransactionsDataTableComponent({
     merchantsList,
     categoriesList,
 
+    // Loading States
+    isUpdatingTransaction,
+
     // Mutations
     handleAccountChange,
     handleMerchantChange,
@@ -156,6 +160,74 @@ function TransactionsDataTableComponent({
   }, [paginatedTransactions, selectedTransactionIds]);
 
   // ============================================
+  // Hooks: Bulk Actions
+  // ============================================
+
+  const { bulkDeleteTransactions, bulkHideTransactions } = useBulkTransactionActions();
+
+  // ============================================
+  // Callbacks: Floating Toolbar Actions
+  // ============================================
+
+  /**
+   * Handle bulk delete with optimistic updates
+   * Uses the bulk action hook for proper cache management
+   */
+  const handleDeleteTransactions = useCallback(
+    async (txsToDelete: typeof selectedTransactions) => {
+      if (txsToDelete.length === 0) return;
+
+      const transactionIds = txsToDelete.map(tx => tx.id);
+
+      try {
+        await bulkDeleteTransactions(transactionIds, {
+          onSuccess: () => {
+            clearTransactionSelection();
+            // TODO: Add toast notification: "Transactions deleted successfully"
+          },
+          onError: (error) => {
+            // TODO: Add error toast: error.message
+            console.error('Bulk delete failed:', error);
+          },
+        });
+      } catch (error) {
+        // Error already handled in onError callback
+        console.error('Bulk delete error:', error);
+      }
+    },
+    [bulkDeleteTransactions, clearTransactionSelection]
+  );
+
+  /**
+   * Handle bulk hide with optimistic updates
+   * Uses the bulk action hook for proper cache management
+   */
+  const handleHideTransactions = useCallback(
+    async (txsToHide: typeof selectedTransactions) => {
+      if (txsToHide.length === 0) return;
+
+      const transactionIds = txsToHide.map(tx => tx.id);
+
+      try {
+        await bulkHideTransactions(transactionIds, {
+          onSuccess: () => {
+            clearTransactionSelection();
+            // TODO: Add toast notification: "Transactions hidden successfully"
+          },
+          onError: (error) => {
+            // TODO: Add error toast: error.message
+            console.error('Bulk hide failed:', error);
+          },
+        });
+      } catch (error) {
+        // Error already handled in onError callback
+        console.error('Bulk hide error:', error);
+      }
+    },
+    [bulkHideTransactions, clearTransactionSelection]
+  );
+
+  // ============================================
   // Conditional Rendering
   // ============================================
 
@@ -180,18 +252,7 @@ function TransactionsDataTableComponent({
 
   return (
     <>
-      {/* Bulk Selection Header */}
-      {isBulkSelectMode && selectedTransactionIds.length > 0 && (
-        <BulkTransactionHeader
-          selectedCount={selectedTransactionIds.length}
-          totalCount={paginatedTransactions.length}
-          onSelectAll={handleSelectAll}
-          onClearSelection={clearTransactionSelection}
-          onOpenBulkEdit={() => setIsBulkEditDrawerOpen(true)}
-        />
-      )}
-
-      {/* Transaction Table */}
+      {/* Transaction Table (with checkboxes always visible) */}
       <TransactionTable
         groupedTransactions={groupedTransactions}
         paginatedTransactions={paginatedTransactions}
@@ -204,9 +265,10 @@ function TransactionsDataTableComponent({
         onCategoryChange={handleCategoryChange}
         onAttachmentClick={openAttachmentModal}
         onRowClick={onRowClick}
-        isBulkSelectMode={isBulkSelectMode}
+        isBulkSelectMode={true}
         selectedTransactionIds={selectedTransactionIds}
         onToggleSelect={handleToggleSelect}
+        isUpdatingTransaction={isUpdatingTransaction}
       />
 
       {/* Pagination Controls */}
@@ -219,6 +281,15 @@ function TransactionsDataTableComponent({
           onPageChange={handlePageChange}
         />
       )}
+
+      {/* Floating Toolbar */}
+      <TransactionsFloatingToolbar
+        selectedCount={selectedTransactionIds.length}
+        selectedTransactions={selectedTransactions}
+        onClearSelection={clearTransactionSelection}
+        onDelete={handleDeleteTransactions}
+        onHide={handleHideTransactions}
+      />
 
       {/* Bulk Edit Drawer */}
       <BulkEditTransactionsDrawer

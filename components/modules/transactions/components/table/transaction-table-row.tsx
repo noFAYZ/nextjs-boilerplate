@@ -12,7 +12,7 @@ import { memo } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MerchantCombobox } from '@/components/ui/merchant-combobox';
 import { CategoryCombobox } from '@/components/ui/category-combobox';
@@ -20,6 +20,7 @@ import { AccountCombobox } from '@/components/ui/account-combobox';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
 import { getTypeIcon, getTypeBgColor } from '@/lib/utils/transaction-display-helpers';
 import type { UnifiedTransaction, TransactionTableRowProps } from '@/lib/types';
+import { SolarClockCircleBoldDuotone } from '@/components/icons/icons';
 
 /**
  * Memoized row component with custom equality check
@@ -40,10 +41,12 @@ export const TransactionTableRow = memo(
   isBulkSelectMode = false,
   isSelected = false,
   onToggleSelect,
+  isUpdatingTransaction = false,
 }: TransactionTableRowProps & {
   isBulkSelectMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
+  isUpdatingTransaction?: boolean;
 }) {
   return (
     <TableRow
@@ -52,17 +55,15 @@ export const TransactionTableRow = memo(
         isSelected && 'bg-primary/5  '
       )}
     >
-      {/* Checkbox Column (Bulk Selection) */}
-      {isBulkSelectMode && (
-        <TableCell className="w-[1%] px-2">
-          <Checkbox
-            checked={isSelected}
-            size='lg'
-            onCheckedChange={() => onToggleSelect?.(tx.id)}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </TableCell>
-      )}
+      {/* Checkbox Column (Always Visible) */}
+      <TableCell className="w-[1%] px-2">
+        <Checkbox
+          checked={isSelected}
+       
+          onCheckedChange={() => onToggleSelect?.(tx.id)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </TableCell>
 
       {/* Merchant/Payee Cell */}
       <TableCell className="w-[20%] overflow-hidden">
@@ -72,12 +73,12 @@ export const TransactionTableRow = memo(
           onMerchantChange={(newMerchantId) => onMerchantChange(tx.id, newMerchantId)}
           typeIcon={getTypeIcon(tx.type)}
           typeBgColor={getTypeBgColor(tx.type)}
-
+          isUpdating={isUpdatingTransaction}
         />
       </TableCell>
 
-      {/* Category Cell (hidden on mobile) */}
-      <TableCell className="table-cell w-[20%] overflow-hidden">
+      {/* Category Cell (hidden on small screens) */}
+      <TableCell className="hidden sm:table-cell w-[20%] overflow-hidden">
         <CategoryCombobox
           categoryId={tx.category}
           categories={categoriesList}
@@ -85,9 +86,9 @@ export const TransactionTableRow = memo(
         />
       </TableCell>
 
-      {/* Account Cell (hidden if hideAccountColumn) */}
+      {/* Account Cell (hidden on mobile/tablet) */}
       {!hideAccountColumn && (
-        <TableCell className="hidden md:table-cell w-[20%] overflow-hidden">
+        <TableCell className="hidden lg:table-cell w-[20%] overflow-hidden">
           <AccountCombobox
             accountId={tx.account?.id || ''}
             accounts={accountsList}
@@ -96,38 +97,50 @@ export const TransactionTableRow = memo(
         </TableCell>
       )}
 
-      {/* Amount Cell */}
-      <TableCell className="text-right w-[20%]">
-        <div className="flex flex-col items-end gap-1">
+      {/* Pending Status Column (responsive) */}
+      <TableCell className="hidden sm:table-cell w-[10%]  items-center justify-end px-1">
+        {tx.status?.toUpperCase() === 'PENDING' && (
           <div
-            className={cn('font-semibold text-sm', {
-              'text-foreground': ['SEND', 'WITHDRAWAL', 'EXPENSE'].includes(
-                tx.type.toUpperCase()
-              ),
-              'text-lime-700 dark:text-lime-600': [
-                'RECEIVE',
-                'DEPOSIT',
-                'INCOME',
-              ].includes(tx.type.toUpperCase()),
-              'text-muted-foreground': !['SEND', 'WITHDRAWAL', 'EXPENSE', 'RECEIVE', 'DEPOSIT', 'INCOME'].includes(
-                tx.type.toUpperCase()
-              ),
-            })}
+            className="relative flex items-center justify-end group"
+            title="Transaction Pending"
           >
-            <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline font-semibold" />
+      
+            {/* Clock icon */}
+            <SolarClockCircleBoldDuotone className="h-4.5 w-4.5 text-amber-700 dark:text-amber-400 relative z-10 m" />
           </div>
+        )}
+      </TableCell>
+
+      {/* Amount Cell */}
+      <TableCell className="text-right w-[18%] sm:w-[4%]">
+        <div
+          className={cn('font-semibold text-xs sm:text-sm', {
+            'text-foreground': ['SEND', 'WITHDRAWAL', 'EXPENSE'].includes(
+              tx.type.toUpperCase()
+            ),
+            'text-lime-700 dark:text-lime-600': [
+              'RECEIVE',
+              'DEPOSIT',
+              'INCOME',
+            ].includes(tx.type.toUpperCase()),
+            'text-muted-foreground': !['SEND', 'WITHDRAWAL', 'EXPENSE', 'RECEIVE', 'DEPOSIT', 'INCOME'].includes(
+              tx.type.toUpperCase()
+            ),
+          })}
+        >
+          <CurrencyDisplay amountUSD={Math.abs(tx.amount)} className="inline font-semibold" />
         </div>
       </TableCell>
 
       {/* Actions Cell */}
-      <TableCell className="text-center w-[4%]">
+      <TableCell className="text-center w-[6%] sm:w-[4%]">
         <Button
           variant="outlinemuted"
           size="icon-sm"
           onClick={() => onRowClick?.(tx)}
           className="w-6 h-6 sm:w-7 sm:h-7 rounded-full"
         >
-          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
         </Button>
       </TableCell>
     </TableRow>

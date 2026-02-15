@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useCallback, memo } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,6 +32,7 @@ interface MerchantComboboxProps {
   merchants: Merchant[];
   onMerchantChange: (merchantId: string) => void;
   isLoading?: boolean;
+  isUpdating?: boolean; // Show loading state while updating
   disabled?: boolean;
   typeIcon?: React.ReactNode;
   typeBgColor?: string;
@@ -93,6 +94,7 @@ function MerchantComboboxComponent({
   merchants,
   onMerchantChange,
   isLoading = false,
+  isUpdating = false,
   disabled = false,
   typeIcon,
   typeBgColor = 'bg-primary/20',
@@ -119,21 +121,30 @@ function MerchantComboboxComponent({
   const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     (e.target as HTMLImageElement).style.display = 'none';
   }, []);
+
+  // Show loading indicator while updating
+  const isButtonDisabled = disabled || isLoading || isUpdating;
+  const buttonOpacity = isUpdating ? 'opacity-60' : '';
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open && !isUpdating} onOpenChange={(newOpen) => !isUpdating && setOpen(newOpen)}>
       <PopoverTrigger asChild>
         <Button
           variant={buttonVariant}
           role="combobox"
           aria-expanded={open}
-          disabled={disabled || isLoading}
+          disabled={isButtonDisabled}
           className={cn(
-            'w-full max-w-full justify-between px-2 py-1 h-auto border border-transparent hover:border-border gap-1',
-            buttonClassName
+            'w-full max-w-full justify-between px-2 py-1 h-auto border border-transparent hover:border-border gap-1 relative',
+            buttonClassName,
+            buttonOpacity
           )}
+          aria-busy={isUpdating}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {selectedMerchant?.logoUrl ? (
+            {isUpdating ? (
+              <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
+            ) : selectedMerchant?.logoUrl ? (
               <img
                 src={selectedMerchant.logoUrl}
                 alt={selectedMerchant.name}
@@ -146,7 +157,7 @@ function MerchantComboboxComponent({
               </div>
             )}
             <span className="truncate text-sm font-semibold text-foreground">
-              {selectedMerchant?.name || 'Select merchant'}
+              {isUpdating ? 'Updating...' : selectedMerchant?.name || 'Select merchant'}
             </span>
           </div>
         </Button>

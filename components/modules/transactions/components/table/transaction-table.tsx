@@ -56,6 +56,9 @@ interface TransactionTableProps {
 
   /** Callback when transaction checkbox is toggled */
   onToggleSelect?: (id: string) => void;
+
+  /** Whether a transaction is being updated */
+  isUpdatingTransaction?: boolean;
 }
 
 /**
@@ -78,6 +81,7 @@ export const TransactionTable = memo(
     isBulkSelectMode = false,
     selectedTransactionIds = [],
     onToggleSelect,
+    isUpdatingTransaction = false,
   }: TransactionTableProps) {
     return (
           <Table className="w-full border border-border overflow-x-auto bg-card ">
@@ -109,6 +113,7 @@ export const TransactionTable = memo(
                         isBulkSelectMode={isBulkSelectMode}
                         isSelected={selectedTransactionIds.includes(tx.id)}
                         onToggleSelect={onToggleSelect}
+                        isUpdatingTransaction={isUpdatingTransaction}
                       />
                     ))}
                   </Fragment>
