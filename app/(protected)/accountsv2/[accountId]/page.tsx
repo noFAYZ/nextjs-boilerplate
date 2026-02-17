@@ -382,11 +382,12 @@ export default function AccountDetailsV2Page() {
 
   return (
     <div className="mx-auto space-y-8 px-4 md:px-6">
-      <NetWorthChart mode="demo" height={250} className="bg-card drop-shadow-sm p-4 rounded" />
+   
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full">
         {/* Main Content */}
         <div className="lg:col-span-8 order-2 lg:order-1">
+          
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as any)}
@@ -474,67 +475,12 @@ export default function AccountDetailsV2Page() {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-4">
+              <NetWorthChart mode="demo" height={250} className="bg-card drop-shadow-sm p-4 rounded" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Balance Chart */}
-                <Card variant="outlined">
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-base">Balance History</CardTitle>
-                    <CardDescription className="text-xs">
-                      {chartTimeRange === 'all' ? 'All time' : chartTimeRange} trend
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    {chartLoading ? (
-                      <Skeleton className="h-48 w-full" />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Chart rendering area</p>
-                    )}
-                  </CardContent>
-                </Card>
+              
+           
 
-                {/* Quick Stats */}
-                <Card variant="outlined">
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-base">Quick Stats</CardTitle>
-                    <CardDescription className="text-xs">
-                      {dateFrom} to {dateTo}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    {statsLoading ? (
-                      <div className="space-y-3">
-                        <Skeleton className="h-6" />
-                        <Skeleton className="h-6" />
-                        <Skeleton className="h-6" />
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Transactions</span>
-                          <span className="font-semibold">{statsData?.totalTransactions || 0}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Total Amount</span>
-                          <CurrencyDisplay
-                            amountUSD={statsData?.totalAmount || 0}
-                            variant="compact"
-                            className="font-semibold"
-                          />
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Average</span>
-                          <CurrencyDisplay
-                            amountUSD={statsData?.averageAmount || 0}
-                            variant="compact"
-                            className="font-semibold"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+         
               </div>
 
               {/* Recent Transactions */}
